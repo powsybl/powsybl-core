@@ -32,6 +32,8 @@ import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
+import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
 import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
@@ -811,7 +813,8 @@ public final class EquipmentExport {
             String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
-            int neutralStep = getPhaseTapChangerNeutralStep(ptc);
+            int neutralStep = getClosestNeutralStep(ptc);
+            int normalStep = getNormalStep(eq, tapChangerId).orElse(neutralStep);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(ptc)) {
@@ -829,7 +832,7 @@ public final class EquipmentExport {
             // We reset the phase tap changer type stored in the extensions
             String typeTabular = CgmesNames.PHASE_TAP_CHANGER_TABULAR;
             CgmesExportUtil.setCgmesTapChangerType(eq, tapChangerId, typeTabular);
-            TapChangerEq.writePhase(typeTabular, cgmesTapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, ptc.hasLoadTapChangingCapabilities(), phaseTapChangerTableId, cgmesRegulatingControlId, cimNamespace, writer, context);
+            TapChangerEq.writePhase(typeTabular, cgmesTapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, normalStep, neutralU, ptc.hasLoadTapChangingCapabilities(), phaseTapChangerTableId, cgmesRegulatingControlId, cimNamespace, writer, context);
             TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
                 String stepId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), ref(step.getKey()), PHASE_TAP_CHANGER_STEP);
@@ -849,26 +852,14 @@ public final class EquipmentExport {
         return Optional.empty();
     }
 
-    private static int getPhaseTapChangerNeutralStep(PhaseTapChanger ptc) {
-        int neutralStep = ptc.getLowTapPosition();
-        double minAlpha = Math.abs(ptc.getStep(neutralStep).getAlpha());
-        for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
-            double tempAlpha = Math.abs(step.getValue().getAlpha());
-            if (tempAlpha < minAlpha) {
-                minAlpha = tempAlpha;
-                neutralStep = step.getKey();
-            }
-        }
-        return neutralStep;
-    }
-
     private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber, String endId, double neutralU, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (rtc != null) {
             String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber;
             String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
-            int neutralStep = getRatioTapChangerNeutralStep(rtc);
+            int neutralStep = getClosestNeutralStep(rtc);
+            int normalStep = getNormalStep(eq, tapChangerId).orElse(neutralStep);
             double stepVoltageIncrement;
             if (rtc.getHighTapPosition() == rtc.getLowTapPosition()) {
                 stepVoltageIncrement = 100;
@@ -892,7 +883,7 @@ public final class EquipmentExport {
                     regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }
             }
-            TapChangerEq.writeRatio(cgmesTapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, rtc.getTapPosition(), neutralU, rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement,
+            TapChangerEq.writeRatio(cgmesTapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, normalStep, neutralU, rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement,
                     ratioTapChangerTableId, cgmesRegulatingControlId, controlMode, cimNamespace, writer, context);
             TapChangerEq.writeRatioTable(ratioTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
@@ -901,19 +892,6 @@ public final class EquipmentExport {
             }
 
         }
-    }
-
-    private static int getRatioTapChangerNeutralStep(RatioTapChanger rtc) {
-        int neutralStep = rtc.getLowTapPosition();
-        double minRatio = Math.abs(1 - rtc.getStep(neutralStep).getRho());
-        for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
-            double tempRatio = Math.abs(1 - step.getValue().getRho());
-            if (tempRatio < minRatio) {
-                minRatio = tempRatio;
-                neutralStep = step.getKey();
-            }
-        }
-        return neutralStep;
     }
 
     private static void writeDanglingLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace,
