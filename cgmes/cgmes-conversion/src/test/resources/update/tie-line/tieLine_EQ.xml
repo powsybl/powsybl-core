@@ -200,4 +200,168 @@
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2" />
     </cim:Terminal>
 
+    <cim:ACLineSegment rdf:ID="_ACLineSegment3-1">
+        <cim:IdentifiedObject.name>ACLineSegment3-1</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.b0ch>0.0008</cim:ACLineSegment.b0ch>
+        <cim:ACLineSegment.bch>0.00091</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>1.50</cim:ACLineSegment.r>
+        <cim:ACLineSegment.r0>7.43</cim:ACLineSegment.r0>
+        <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
+        <cim:ACLineSegment.x>18.35</cim:ACLineSegment.x>
+        <cim:ACLineSegment.x0>45.59</cim:ACLineSegment.x0>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegment3-1-T1">
+        <cim:IdentifiedObject.name>ACLineSegment3-1-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegment3-1-T2">
+        <cim:IdentifiedObject.name>ACLineSegment3-1-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_ACLineSegment3-1-EquivalentInjection">
+        <cim:IdentifiedObject.name>ACLineSegment3-1-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>false</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_ACLineSegment3-1-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>ACLineSegment3-1-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-1-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD"/>
+    </cim:Terminal>
+
+    <cim:ACLineSegment rdf:ID="_ACLineSegment3-1">
+        <cim:IdentifiedObject.name>ACLineSegment3-1</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.b0ch>0.0008</cim:ACLineSegment.b0ch>
+        <cim:ACLineSegment.bch>0.00091</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>1.50</cim:ACLineSegment.r>
+        <cim:ACLineSegment.r0>7.43</cim:ACLineSegment.r0>
+        <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
+        <cim:ACLineSegment.x>18.35</cim:ACLineSegment.x>
+        <cim:ACLineSegment.x0>45.59</cim:ACLineSegment.x0>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegment3-1-T1">
+        <cim:IdentifiedObject.name>ACLineSegment3-1-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegment3-1-T2">
+        <cim:IdentifiedObject.name>ACLineSegment3-1-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_ACLineSegment3-1-EquivalentInjection">
+        <cim:IdentifiedObject.name>ACLineSegment3-1-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>false</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_ACLineSegment3-1-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>ACLineSegment3-1-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-1-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD"/>
+    </cim:Terminal>
+
+    <cim:ACLineSegment rdf:ID="_ACLineSegment3-2">
+        <cim:IdentifiedObject.name>ACLineSegment3-2</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.b0ch>0.0008</cim:ACLineSegment.b0ch>
+        <cim:ACLineSegment.bch>0.00091</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>1.50</cim:ACLineSegment.r>
+        <cim:ACLineSegment.r0>7.43</cim:ACLineSegment.r0>
+        <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
+        <cim:ACLineSegment.x>18.35</cim:ACLineSegment.x>
+        <cim:ACLineSegment.x0>45.59</cim:ACLineSegment.x0>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegment3-2-T1">
+        <cim:IdentifiedObject.name>ACLineSegment3-2-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegment3-2-T2">
+        <cim:IdentifiedObject.name>ACLineSegment3-2-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_ACLineSegment3-2-EquivalentInjection">
+        <cim:IdentifiedObject.name>ACLineSegment3-2-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>false</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_ACLineSegment3-2-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>ACLineSegment3-1-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-2-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD"/>
+    </cim:Terminal>
+
+    <cim:ACLineSegment rdf:ID="_ACLineSegment3-3">
+        <cim:IdentifiedObject.name>ACLineSegment3-3</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.b0ch>0.0008</cim:ACLineSegment.b0ch>
+        <cim:ACLineSegment.bch>0.00091</cim:ACLineSegment.bch>
+        <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+        <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+        <cim:ACLineSegment.r>1.50</cim:ACLineSegment.r>
+        <cim:ACLineSegment.r0>7.43</cim:ACLineSegment.r0>
+        <cim:ACLineSegment.shortCircuitEndTemperature>0</cim:ACLineSegment.shortCircuitEndTemperature>
+        <cim:ACLineSegment.x>18.35</cim:ACLineSegment.x>
+        <cim:ACLineSegment.x0>45.59</cim:ACLineSegment.x0>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLineSegment3-3-T1">
+        <cim:IdentifiedObject.name>ACLineSegment3-3-T1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-3"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode2"/>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLineSegment3-3-T2">
+        <cim:IdentifiedObject.name>ACLineSegment3-3-T2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-3"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD"/>
+    </cim:Terminal>
+    <cim:EquivalentInjection rdf:ID="_ACLineSegment3-3-EquivalentInjection">
+        <cim:IdentifiedObject.name>ACLineSegment3-3-EquivalentInjection</cim:IdentifiedObject.name>
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.r0>0</cim:EquivalentInjection.r0>
+        <cim:EquivalentInjection.r2>0</cim:EquivalentInjection.r2>
+        <cim:EquivalentInjection.regulationCapability>false</cim:EquivalentInjection.regulationCapability>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.x0>0</cim:EquivalentInjection.x0>
+        <cim:EquivalentInjection.x2>0</cim:EquivalentInjection.x2>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_ACLineSegment3-3-EquivalentInjection-T">
+        <cim:IdentifiedObject.name>ACLineSegment3-1-EquivalentInjection-T</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLineSegment3-3-EquivalentInjection"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode3-BD"/>
+    </cim:Terminal>
+
 </rdf:RDF>

@@ -22,10 +22,21 @@ class TieLineUpdateTest {
 
     private static final String DIR = "/update/tie-line/";
 
+    // When there are more than two ACLineSegments connected to a boundary node, one DanglingLine is created for each ACLineSegment.
+    // If the EQ and SSH files are imported together, a TieLine is created when there are exactly two ACLineSegments connected to the boundary node.
+    // However, if EQ and SSH are imported separately, no TieLines are created in this configuration, because the connected status is only available
+    // in the SSH file and no equipment is created during the update process.
+    // In the tests, only the characteristics of the permanent TieLine are verified.
+    private static void assertEqCount(Network network, int tieLines, int danglingLines, int pairedDanglingLines) {
+        assertEquals(tieLines, network.getTieLineCount());
+        assertEquals(danglingLines, network.getDanglingLineCount());
+        assertEquals(pairedDanglingLines, network.getDanglingLineStream().filter(dl -> dl.isPaired()).count());
+    }
+
     @Test
     void importEqTest() {
         Network network = readCgmesResources(DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml");
-        assertEquals(1, network.getTieLineCount());
+        assertEqCount(network, 1, 5, 2);
 
         assertEq(network);
     }
@@ -33,7 +44,7 @@ class TieLineUpdateTest {
     @Test
     void importEqAndSshTogetherTest() {
         Network network = readCgmesResources(DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml", "tieLine_SSH.xml");
-        assertEquals(1, network.getTieLineCount());
+        assertEqCount(network, 2, 5, 4);
 
         assertFirstSsh(network);
     }
@@ -41,7 +52,7 @@ class TieLineUpdateTest {
     @Test
     void importEqAndTwoSshsTest() {
         Network network = readCgmesResources(DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml");
-        assertEquals(1, network.getTieLineCount());
+        assertEqCount(network, 1, 5, 2);
 
         assertEq(network);
 
@@ -55,8 +66,7 @@ class TieLineUpdateTest {
     @Test
     void importSvTogetherTest() {
         Network network = readCgmesResources(DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml", "tieLine_SSH.xml", "tieLine_TP.xml", "tieLine_SV.xml");
-
-        assertEquals(1, network.getTieLineCount());
+        assertEqCount(network, 2, 5, 4);
 
         TieLine tieLine = network.getTieLine("ACLineSegment-1 + ACLineSegment-2");
         assertSv(tieLine);
@@ -65,7 +75,7 @@ class TieLineUpdateTest {
     @Test
     void importSvSeparatelyTest() {
         Network network = readCgmesResources(DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml", "tieLine_SSH.xml");
-        assertEquals(1, network.getTieLineCount());
+        assertEqCount(network, 2, 5, 4);
 
         TieLine tieLine = network.getTieLine("ACLineSegment-1 + ACLineSegment-2");
         assertFlow(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
