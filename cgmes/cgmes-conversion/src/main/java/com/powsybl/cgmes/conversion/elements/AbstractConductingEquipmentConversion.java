@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,28 +34,31 @@ import java.util.Optional;
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
+    private static final PropertyBag EMPTY_PROPERTY_BAG = new PropertyBag(Collections.emptyList(), false);
+
     protected AbstractConductingEquipmentConversion(
-        String type,
-        PropertyBag p,
-        Context context) {
+            String type,
+            PropertyBag p,
+            Context context) {
         super(type, p, context);
         numTerminals = 1;
-        terminals = new TerminalData[] {null, null, null};
+        terminals = new TerminalData[]{null, null, null};
         terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
         steadyStatePowerFlow = new PowerFlow(p, "p", "q");
+
     }
 
     protected AbstractConductingEquipmentConversion(
-        String type,
-        PropertyBag p,
-        Context context,
-        int numTerminals) {
+            String type,
+            PropertyBag p,
+            Context context,
+            int numTerminals) {
         super(type, p, context);
         // Information about each terminal is in properties of the unique property bag
         if (numTerminals > 3) {
             throw new IllegalArgumentException("Invalid number of terminals at " + id + ": " + numTerminals);
         }
-        terminals = new TerminalData[] {null, null, null};
+        terminals = new TerminalData[]{null, null, null};
         this.numTerminals = numTerminals;
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
@@ -64,14 +68,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected AbstractConductingEquipmentConversion(
-        String type,
-        PropertyBags ps,
-        Context context) {
+            String type,
+            PropertyBags ps,
+            Context context) {
         super(type, ps, context);
         // Information about each terminal is in each separate property bags
         // It is assumed the property bags are already sorted
         this.numTerminals = ps.size();
-        terminals = new TerminalData[] {null, null, null};
+        terminals = new TerminalData[]{null, null, null};
         if (numTerminals > 3) {
             throw new IllegalStateException("numTerminals should be less or equal to 3 but is " + numTerminals);
         }
@@ -138,9 +142,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             }
             if (voltageLevel(k).isEmpty()) {
                 missing(String.format("VoltageLevel of terminal %d %s (iidm %s)",
-                    k,
-                    cgmesVoltageLevelId(k),
-                    iidmVoltageLevelId(k)));
+                        k,
+                        cgmesVoltageLevelId(k),
+                        iidmVoltageLevelId(k)));
                 return false;
             }
         }
@@ -171,14 +175,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected String nodeId() {
         return context.nodeBreaker()
-            ? terminals[0].t.connectivityNode()
-            : terminals[0].t.topologicalNode();
+                ? terminals[0].t.connectivityNode()
+                : terminals[0].t.topologicalNode();
     }
 
     protected String nodeId(int n) {
         return context.nodeBreaker()
-            ? terminals[n - 1].t.connectivityNode()
-            : terminals[n - 1].t.topologicalNode();
+                ? terminals[n - 1].t.connectivityNode()
+                : terminals[n - 1].t.topologicalNode();
     }
 
     protected String topologicalNodeId(int n) {
@@ -220,8 +224,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // ends in a boundary node where there is no other line,
         // does not have energy consumer or equivalent injection
         if (terminalConnected(boundarySide)
-            && !context.boundary().hasPowerFlow(boundaryNode)
-            && context.boundary().equivalentInjectionsAtNode(boundaryNode).isEmpty()) {
+                && !context.boundary().hasPowerFlow(boundaryNode)
+                && context.boundary().equivalentInjectionsAtNode(boundaryNode).isEmpty()) {
             missing("Equipment for modeling consumption/injection at boundary node");
         }
 
@@ -253,7 +257,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
         Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
         Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn ->
-            dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn)
+                dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn)
         );
         setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
@@ -261,12 +265,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // We do not have SSH values at the model side, it is a line flow. We take directly SV values
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlowSV(modelSide));
 
-        // If we do not have power flow at model side and we can compute it,
+        // If we do not have power flow at model side, and we can compute it,
         // do it and assign the result at the terminal of the dangling line
         if (context.config().computeFlowsAtBoundaryDanglingLines()
-            && terminalConnected(modelSide)
-            && !powerFlowSV(modelSide).defined()
-            && context.boundary().hasVoltage(boundaryNode)) {
+                && terminalConnected(modelSide)
+                && !powerFlowSV(modelSide).defined()
+                && context.boundary().hasVoltage(boundaryNode)) {
 
             if (isZ0(dl)) {
                 // Flow out must be equal to the consumption seen at boundary
@@ -366,7 +370,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         } else if (eis.size() == 1) {
             return Optional.of(new EquivalentInjectionConversion(eis.get(0), context));
         } else {
-            // Select the EI thas is defined in the same EQ instance of the given line
+            // Select the EI that is defined in the same EQ instance of the given line
             String eqInstancePropertyName = "graph";
             List<PropertyBag> eisEqInstance = eis.stream().filter(eik -> eik.getId(eqInstancePropertyName).equals(eqInstance)).toList();
 
@@ -488,13 +492,91 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected void convertedTerminals(Terminal... ts) {
         if (ts.length != numTerminals) {
-            throw new IllegalStateException();
+            throw new IllegalArgumentException();
         }
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;
             Terminal t = ts[k];
             context.convertedTerminal(terminalId(n), t, n, powerFlowSV(n));
         }
+    }
+
+    protected void convertedTerminalsWithOnlyEq(Terminal... ts) {
+        if (ts.length != numTerminals) {
+            throw new IllegalArgumentException();
+        }
+        for (int k = 0; k < ts.length; k++) {
+            int n = k + 1;
+            Terminal t = ts[k];
+            context.convertedTerminalWithOnlyEq(terminalId(n), t, n);
+        }
+    }
+
+    protected static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
+        PropertyBags cgmesTerminals = getCgmesTerminals(connectable, context, ts.length);
+        for (int k = 0; k < ts.length; k++) {
+            updateTerminal(cgmesTerminals.get(k), ts[k], context);
+        }
+    }
+
+    private static void updateTerminal(PropertyBag cgmesTerminal, Terminal terminal, Context context) {
+        if (updateConnect(terminal, context)) {
+            boolean connectedInUpdate = cgmesTerminal.asBoolean("connected", true);
+            if (!terminal.isConnected() && connectedInUpdate) {
+                terminal.connect();
+            } else if (terminal.isConnected() && !connectedInUpdate) {
+                terminal.disconnect();
+            }
+        }
+        if (setPQAllowed(terminal)) {
+            PowerFlow f = new PowerFlow(cgmesTerminal, "p", "q");
+            if (f.defined()) {
+                terminal.setP(f.p());
+                terminal.setQ(f.q());
+            }
+        }
+    }
+
+    private static boolean updateConnect(Terminal terminal, Context context) {
+        if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+            return context.config().updateTerminalConnectionInNodeBreakerVoltageLevel();
+        } else {
+            return true;
+        }
+    }
+
+    private static boolean setPQAllowed(Terminal t) {
+        return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
+    }
+
+    private static PropertyBag getCgmesTerminal(Connectable<?> connectable, Context context) {
+        return getCgmesTerminals(connectable, context, 1).get(0);
+    }
+
+    private static PropertyBags getCgmesTerminals(Connectable<?> connectable, Context context, int numTerminals) {
+        PropertyBags propertyBags = new PropertyBags();
+        getTerminalTags(numTerminals).forEach(terminalTag -> propertyBags.add(
+                connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + terminalTag)
+                        .map(cgmesTerminalId -> getCgmesTerminal(cgmesTerminalId, context))
+                        .orElse(EMPTY_PROPERTY_BAG)));
+        return propertyBags;
+
+    }
+
+    private static List<String> getTerminalTags(int numTerminals) {
+        return switch (numTerminals) {
+            case 1 -> List.of(CgmesNames.TERMINAL1);
+            case 2 -> List.of(CgmesNames.TERMINAL1, CgmesNames.TERMINAL2);
+            case 3 -> List.of(CgmesNames.TERMINAL1, CgmesNames.TERMINAL2, CgmesNames.TERMINAL3);
+            default -> throw new PowsyblException("unexpected number of terminals " + numTerminals);
+        };
+    }
+
+    // If the propertyBag is not received, an empty one is returned.
+    private static PropertyBag getCgmesTerminal(String cgmesTerminalId, Context context) {
+        return context.cgmesTerminal(cgmesTerminalId) != null
+                ? context.cgmesTerminal(cgmesTerminalId)
+                : EMPTY_PROPERTY_BAG;
     }
 
     private final int numTerminals;
@@ -541,13 +623,21 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    // Connections
+    // Connect
 
     public void connect(InjectionAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder.setNode(iidmNode());
         } else {
             adder.setBus(terminalConnected() ? busId() : null).setConnectableBus(busId());
+        }
+    }
+
+    public void connectWithOnlyEq(InjectionAdder<?, ?> adder) {
+        if (context.nodeBreaker()) {
+            adder.setNode(iidmNode());
+        } else {
+            adder.setBus(null).setConnectableBus(busId());
         }
     }
 
@@ -683,6 +773,20 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected double q0() {
         return powerFlow().defined() ? powerFlow().q() : 0.0;
+    }
+
+    protected static PowerFlow updatedPowerFlow(Connectable<?> connectable, PropertyBag cgmesData, Context context) {
+        PropertyBag cgmesTerminal = getCgmesTerminal(connectable, context);
+
+        PowerFlow steadyStateHypothesisPowerFlow = new PowerFlow(cgmesData, "p", "q");
+        if (steadyStateHypothesisPowerFlow.defined()) {
+            return steadyStateHypothesisPowerFlow;
+        }
+        PowerFlow stateVariablesPowerFlow = new PowerFlow(cgmesTerminal, "p", "q");
+        if (stateVariablesPowerFlow.defined()) {
+            return stateVariablesPowerFlow;
+        }
+        return PowerFlow.UNDEFINED;
     }
 
     private final TerminalData[] terminals;
