@@ -32,6 +32,14 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         super(type, p, context);
     }
 
+    protected AbstractReactiveLimitsOwnerConversion(
+            String type,
+            PropertyBag p,
+            Context context,
+            int numTerminals) {
+        super(type, p, context, numTerminals);
+    }
+
     private void getReactiveCapabilityCurveData(PropertyBag propertyBag, Map<Double, Range<Double>> qRanges) {
         double p = propertyBag.asDouble("xvalue");
         double minQ = propertyBag.asDouble("y1value");
