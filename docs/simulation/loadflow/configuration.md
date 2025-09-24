@@ -35,6 +35,7 @@ load-flow-default-parameters:
     twtSplitShuntAdmittance: false
     dcUseTransformerRatio: true
     dcPowerFactor: 1.0
+    hvdcAcEmulation: true
 ```
 
 The parameters may also be overridden with a JSON file, in which case the configuration will look like:
@@ -55,7 +56,8 @@ The parameters may also be overridden with a JSON file, in which case the config
   "connectedComponentMode": "MAIN",
   "twtSplitShuntAdmittance": false,
   "dcUseTransformerRatio": true,
-  "dcPowerFactor": 1.0
+  "dcPowerFactor": 1.0,
+  "hvdcAcEmulation": true
 }
 ```
 
@@ -134,6 +136,10 @@ The default value of this parameter is `true`.
 **dcPowerFactor**  
 The `dcPowerFactor` property is an optional property that defines the power factor used to convert current limits into active power limits in DC calculations.  
 The default value is `1.0`.
+
+**hvdcAcEmulation**  
+The `hvdcAcEmulation` property is an optional property that defines whether AC emulation for HVDC should be simulated in the load flow or not (HVDC that are in AC emulation mode should have the hvdc-angle-droop-active-power-control extension).  
+The default value is `true`.
 
 ### Specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
