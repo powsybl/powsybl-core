@@ -20,24 +20,26 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public class AbstractDynamicModelInfoTest {
+public abstract class AbstractDynamicModelInfoTest {
 
     private Network network;
     private Generator gen;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         network = EurostagTutorialExample1Factory.create();
         gen = network.getGenerator("GEN");
     }
 
     @Test
-    void testExtension() {
+    public void testExtension() {
         gen.newExtension(DynamicModelInfoAdder.class).setModelName("TestModel").add();
         DynamicModelInfo<Generator> dynamicModelInfo = gen.getExtension(DynamicModelInfo.class);
         assertEquals("dynamicModel", dynamicModelInfo.getName());
@@ -49,7 +51,7 @@ public class AbstractDynamicModelInfoTest {
     }
 
     @Test
-    void variantsCloneTest() {
+    public void variantsCloneTest() {
         String variant1 = "variant1";
         String variant2 = "variant2";
         String variant3 = "variant3";
