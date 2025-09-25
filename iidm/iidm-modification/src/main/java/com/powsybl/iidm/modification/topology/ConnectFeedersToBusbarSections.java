@@ -246,7 +246,8 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
                 return TraverseResult.CONTINUE;
             }
 
-            if (fromNode == startNode) { // We keep switches that are connected to the busbar section
+            // Keep switches that are connected to the busbar section
+            if (fromNode == startNode) {
                 firstNode[0] = toNode;
                 switchesPerNode.put(toNode, sw);
             }
