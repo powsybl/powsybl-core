@@ -75,7 +75,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private Switch convertToSwitch() {
-        boolean normalOpen = p.asBoolean("normalOpen", false);
+        boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
         boolean open = p.asBoolean("open", normalOpen);
         Switch s;
         if (context.nodeBreaker()) {
@@ -106,7 +106,9 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         } else {
             warnDanglingLineCreated();
             String eqInstance = p.get("graph");
-            danglingLine = convertToDanglingLine(eqInstance, boundarySide);
+            danglingLine = convertToDanglingLine(eqInstance, boundarySide, CgmesNames.SWITCH);
+            boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
+            danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         }
     }
 
@@ -131,6 +133,23 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     private void warnDanglingLineCreated() {
         fixed("Dangling line with low impedance", "Connected to a boundary node");
+    }
+
+    public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {
+        boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultOpen(danglingLine, context));
+        updateDanglingLine(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
+    }
+
+    // In the danglingLines, the status of the terminal on the boundary side cannot be explicitly represented.
+    // Instead, it is implicitly indicated by setting both active and reactive power to zero.
+    // Then, we assume that the previous value is always false
+    private static boolean defaultOpen(DanglingLine danglingLine, Context context) {
+        return getDefaultValue(getNormalOpen(danglingLine), false, false, false, context);
+    }
+
+    private static Boolean getNormalOpen(DanglingLine danglingLine) {
+        String property = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN);
+        return property != null ? Boolean.parseBoolean(property) : null;
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);
