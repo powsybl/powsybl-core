@@ -447,7 +447,7 @@ public abstract class AbstractDcTopologyTest {
         assertEquals(List.of("dcLineSegmentFrPosA", "dcLineSegmentPosA"), asSortedIds(dcNodePosA1.getDcLines()));
         assertEquals(List.of("dcLineSegmentFrPosA", "dcLineSegmentPosA"), asSortedIds(dcNodePosA1.getDcLineStream()));
         assertEquals(List.of(), asSortedIds(dcNodeFrMid.getDcLines()));
-        assertEquals(List.of(), asSortedIds(dcNodeFrMid.getDcLines()));
+        assertEquals(List.of(), asSortedIds(dcNodeFrMid.getDcLineStream()));
 
         // AC/DC Converters
         assertEquals(List.of("LccFrPos"), asSortedIds(dcNodeFrPos.getLineCommutatedConverters()));
@@ -548,7 +548,7 @@ public abstract class AbstractDcTopologyTest {
         assertEquals(List.of("dcLineSegmentFrPosA", "dcLineSegmentFrPosB"), asSortedIds(dcBusFrPos.getDcLines()));
         assertEquals(List.of("dcLineSegmentFrPosA", "dcLineSegmentFrPosB"), asSortedIds(dcBusFrPos.getDcLineStream()));
         assertEquals(List.of(), asSortedIds(dcBusFrMid.getDcLines()));
-        assertEquals(List.of(), asSortedIds(dcBusFrMid.getDcLines()));
+        assertEquals(List.of(), asSortedIds(dcBusFrMid.getDcLineStream()));
 
         // AC/DC Converters
         assertEquals(List.of("LccFrPos"), asSortedIds(dcBusFrPos.getLineCommutatedConverters()));
