@@ -85,7 +85,6 @@ List of third-party dependencies grouped by their license type.
         * curvesapi (com.github.virtuald:curvesapi:1.08 - https://github.com/virtuald/curvesapi)
         * Hamcrest Core (org.hamcrest:hamcrest-core:1.3 - https://github.com/hamcrest/JavaHamcrest/hamcrest-core)
         * JSONLD Java :: Core (com.github.jsonld-java:jsonld-java:0.13.4 - http://github.com/jsonld-java/jsonld-java/jsonld-java/)
-        * RE2/J (com.google.re2j:re2j:1.8 - http://github.com/google/re2j)
         * StringTemplate 4 (org.antlr:ST4:4.3.4 - http://nexus.sonatype.org/oss-repository-hosting.html/ST4)
         * ThreeTen-Extra (org.threeten:threeten-extra:1.8.0 - https://www.threeten.org/threeten-extra)
 
@@ -159,6 +158,10 @@ List of third-party dependencies grouped by their license type.
 
         * FindBugs-Annotations (com.google.code.findbugs:annotations:3.0.1 - http://findbugs.sourceforge.net/)
         * GNU Trove (net.sf.trove4j:trove4j:3.0.3 - http://trove4j.sf.net)
+
+    Go License
+
+        * RE2/J (com.google.re2j:re2j:1.8 - http://github.com/google/re2j)
 
     MIT License
 
