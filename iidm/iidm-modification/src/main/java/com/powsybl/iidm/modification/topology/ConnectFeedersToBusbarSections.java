@@ -257,8 +257,8 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
                 return TraverseResult.CONTINUE;
             }
 
+            // Add the connectable to the list of connectables at the node
             Connectable<?> connectable = terminalOpt.get().getConnectable();
-
             List<Connectable<?>> connectablesAtNode = foundConnectables.getOrDefault(firstNode[0], new ArrayList<>());
             connectablesAtNode.add(connectable);
             foundConnectables.put(firstNode[0], connectablesAtNode);
