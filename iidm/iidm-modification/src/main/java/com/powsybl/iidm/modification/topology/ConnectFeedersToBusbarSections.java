@@ -252,6 +252,7 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
                 switchesPerNode.put(toNode, sw);
             }
 
+            // Continue if there is no terminal yet
             Optional<Terminal> terminalOpt = nodeBreakerView.getOptionalTerminal(toNode);
             if (terminalOpt.isEmpty()) {
                 return TraverseResult.CONTINUE;
