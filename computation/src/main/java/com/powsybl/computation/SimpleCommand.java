@@ -34,16 +34,4 @@ public interface SimpleCommand extends Command {
      * @return                the list of arguments to be passed to the program, for the specified execution number.
      */
     List<String> getArgs(int executionNumber);
-
-    /**
-     * @deprecated {@link ComputationParameters#getTimeout} should be used instead.
-     *
-     * A timeout in milliseconds for this command execution.
-     * If less than zero, the execution time should be considered as unlimited.
-     *
-     * @return the timeout in milliseconds for this command execution.
-     */
-    @Deprecated(since = "2.5.0")
-    int getTimeout();
-
 }

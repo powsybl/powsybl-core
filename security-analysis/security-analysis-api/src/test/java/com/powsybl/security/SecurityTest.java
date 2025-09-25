@@ -43,7 +43,7 @@ class SecurityTest {
     void setUp() {
         formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
 
-        network = EurostagTutorialExample1Factory.createWithCurrentLimits();
+        network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
         // create pre-contingency results, just one violation on line1
         line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
