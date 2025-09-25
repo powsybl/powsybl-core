@@ -118,7 +118,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
 
-        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkPositiveR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);

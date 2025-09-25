@@ -169,8 +169,11 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
 
     @Test
     public void testInvalidR() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTwoWindingTransformer(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0));
-        assertTrue(e.getMessage().contains("r is invalid"));
+        ValidationException e1 = assertThrows(ValidationException.class, () -> createTwoWindingTransformer(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0));
+        assertTrue(e1.getMessage().contains("r is invalid"));
+
+        ValidationException e2 = assertThrows(ValidationException.class, () -> createTwoWindingTransformer(INVALID, INVALID, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0));
+        assertTrue(e2.getMessage().contains("r must be positive"));
     }
 
     @Test

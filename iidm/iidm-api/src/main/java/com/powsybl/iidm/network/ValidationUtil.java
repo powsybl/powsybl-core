@@ -299,6 +299,15 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkPositiveR(Validable validable, double r) {
+        if (Double.isNaN(r)) {
+            throw new ValidationException(validable, "r is invalid");
+        }
+        if (r < 0) {
+            throw new ValidationException(validable, "r must be positive");
+        }
+    }
+
     public static void checkX(Validable validable, double x) {
         if (Double.isNaN(x)) {
             throw new ValidationException(validable, "x is invalid");

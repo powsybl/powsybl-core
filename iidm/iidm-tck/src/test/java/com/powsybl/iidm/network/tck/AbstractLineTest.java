@@ -493,8 +493,17 @@ public abstract class AbstractLineTest {
 
     @Test
     public void invalidR() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, Double.NaN, 2.0, 3.0, 3.5, 4.0, 4.5));
-        assertTrue(e.getMessage().contains("r is invalid"));
+        ValidationException e1 = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, Double.NaN, 2.0, 3.0, 3.5, 4.0, 4.5));
+        assertTrue(e1.getMessage().contains("r is invalid"));
+
+        ValidationException e2 = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, -1.0, 2.0, 3.0, 3.5, 4.0, 4.5));
+        assertTrue(e2.getMessage().contains("r must be positive"));
+    }
+
+    @Test
+    public void negativeR() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, -1.0, 2.0, 3.0, 3.5, 4.0, 4.5));
+        assertTrue(e.getMessage().contains("r must be positive"));
     }
 
     @Test

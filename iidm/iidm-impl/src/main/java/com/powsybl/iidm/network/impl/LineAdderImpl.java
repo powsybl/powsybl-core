@@ -106,7 +106,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
 
-        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkPositiveR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG1(this, g1);
         ValidationUtil.checkG2(this, g2);
