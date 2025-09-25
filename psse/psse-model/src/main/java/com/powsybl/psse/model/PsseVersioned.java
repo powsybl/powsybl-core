@@ -30,7 +30,7 @@ public class PsseVersioned {
 
     public void checkVersion(String fieldName) {
         // If we do not have a reference back to a model
-        // We can not obtain current version and we can not perform checks
+        // We cannot obtain current version and we cannot perform checks
         if (model == null) {
             return;
         }

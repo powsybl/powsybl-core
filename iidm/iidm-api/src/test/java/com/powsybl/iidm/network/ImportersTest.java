@@ -48,7 +48,7 @@ class ImportersTest extends AbstractConvertersTest {
 
     private final ImportConfig importConfigMock = Mockito.mock(ImportConfig.class);
     private final ImportConfig importConfigWithPostProcessor = new ImportConfig("test");
-    private final NetworkFactory networkFactory = new NetworkFactoryMock();
+    private final NetworkFactoryMock networkFactory = new NetworkFactoryMock();
 
     @BeforeEach
     @Override
@@ -300,6 +300,77 @@ class ImportersTest extends AbstractConvertersTest {
                 () -> network.update(ds, computationManager, importConfigMock, null, loader1, ReportNode.NO_OP));
         assertEquals("Importer do not implement updates", e.getMessage());
         Files.delete(fileQux);
+    }
+
+    @Test
+    void testNewReaderDefaults() {
+        Network network = Network.newReader(path)
+            .read();
+        assertNotNull(network);
+        assertNotNull(network.getLoad("LOAD"));
+    }
+
+    @Test
+    void testNewReaderFluentSetters() {
+
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
+        Properties properties = new Properties();
+        properties.setProperty("testName", "testNewReaderFluentSetters");
+
+        Network network = Network.newReader(path)
+                .setComputationManager(computationManager)
+                .setReportNode(reportRoot)
+                .setParameters(properties)
+                .setImportConfig(importConfigWithPostProcessor)
+                .setNetworkFactory(networkFactory)
+                .setImportersLoader(loader)
+                .read();
+        assertNotNull(network);
+        assertNotNull(network.getLoad("LOAD"));
+        assertEquals(1, networkFactory.getCreateNetworkCount());
+        assertEquals(1, Mockito.mockingDetails(computationManager).getInvocations().size());
+
+        assertEquals("testNewReaderFluentSetters", network.getProperty("testName"));
+
+        assertEquals(1, reportRoot.getChildren().size());
+        assertEquals("Import model eurostagTutorialExample1", reportRoot.getChildren().get(0).getMessage());
+
+    }
+
+    @Test
+    void testNewReaderFromInputStream() throws IOException {
+        try (InputStream is = Files.newInputStream(path)) {
+            Network network = Network.newReader(FOO_TST, is)
+                .read();
+            assertNotNull(network);
+            assertNotNull(network.getLoad("LOAD"));
+        }
+    }
+
+    @Test
+    void testNewReaderFromDatasource() {
+        ReadOnlyDataSource dataSource = DataSource.fromPath(path);
+        Network network = Network.newReader(dataSource)
+            .read();
+        assertNotNull(network);
+        assertNotNull(network.getLoad("LOAD"));
+    }
+
+    @Test
+    void testNewReaderFromStringPath() {
+        Network network = Network.newReader("src/test/resources/foobar.tst")
+            .read();
+        assertNotNull(network);
+        assertNotNull(network.getLoad("LOAD"));
+    }
+
+    @Test
+    void testNewReaderThrowsIfNoSource() {
+        Network.Reader reader = Network.newReader((Path) null);
+        assertThrows(PowsyblException.class, reader::read);
     }
 }
 
