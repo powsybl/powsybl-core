@@ -707,31 +707,31 @@ public final class ModificationReports {
 
     public static void noBusbarSectionReport(ReportNode reportNode) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.noBusbarSection")
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+            .withMessageTemplate("core.iidm.modification.noBusbarSection")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     public static void wrongNetworkReport(ReportNode reportNode) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.wrongNetwork")
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+            .withMessageTemplate("core.iidm.modification.wrongNetwork")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     public static void busbarSectionNotInTheSameVoltageLevelReport(ReportNode reportNode) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.busbarSectionNotInTheSameVoltageLevel")
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+            .withMessageTemplate("core.iidm.modification.busbarSectionNotInTheSameVoltageLevel")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     public static void busBreakerVoltageLevelButConnectConnectables(ReportNode reportNode, String voltageLevelId) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.busBreakerVoltageLevelButConnectConnectables")
-                .withTypedValue(VOLTAGE_LEVEL_ID, voltageLevelId, TypedValue.ID)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+            .withMessageTemplate("core.iidm.modification.busBreakerVoltageLevelButConnectConnectables")
+            .withTypedValue(VOLTAGE_LEVEL_ID, voltageLevelId, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     private ModificationReports() {
