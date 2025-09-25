@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.report.ReportNode;
@@ -25,6 +32,8 @@ import static java.util.stream.Collectors.groupingBy;
  * a single voltage level, and possess valid BusbarSectionPosition extensions. It also supports the
  * creation of coupling devices switches.
  * If a switch already exists between the connectable and the busbar section, it is not recreated.
+ *
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class ConnectFeedersToBusbarSections extends AbstractNetworkModification {
 
@@ -92,8 +101,7 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         impact = DEFAULT_IMPACT;
         if (busbarSectionsToConnect.isEmpty() || busbarSectionsToConnect.stream().anyMatch(b -> b.getNetwork() != network) ||
                 busbarSectionsToConnect.stream().map(bbs -> bbs.getExtension(BusbarSectionPosition.class)).anyMatch(Objects::isNull) ||
-                busbarSectionsToConnect.stream().map(bbs -> bbs.getTerminal().getVoltageLevel()).distinct().count() != 1 ||
-                busbarSectionsToConnect.stream().anyMatch(b -> b.getTerminal().getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER)) {
+                busbarSectionsToConnect.stream().map(bbs -> bbs.getTerminal().getVoltageLevel()).distinct().count() != 1) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         }
         return impact;
@@ -221,9 +229,6 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         return 0;
     }
 
-    public record SwitchCreationData(Switch sw, List<Connectable<?>> connectables, BusbarSection startBusbarSection) {
-    }
-
     private Map<Integer, SwitchCreationData> getSwitchesConnectingConnectables(BusbarSection busbarSection) {
         Objects.requireNonNull(busbarSection, "Busbar section must not be null");
 
@@ -292,5 +297,8 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
                 .map(this::getSectionIndex)
                 .distinct()
                 .count() == 2;
+    }
+
+    public record SwitchCreationData(Switch sw, List<Connectable<?>> connectables, BusbarSection startBusbarSection) {
     }
 }

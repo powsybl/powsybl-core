@@ -26,7 +26,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNetworkWithForkFeeder;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static org.junit.jupiter.api.Assertions.*;
 
