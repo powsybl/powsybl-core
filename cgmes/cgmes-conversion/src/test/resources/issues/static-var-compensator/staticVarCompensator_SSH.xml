@@ -29,6 +29,12 @@
     <cim:Terminal rdf:about="#_StaticVarCompensator-voltageSetPoint-svcControlMode-on_T">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
+    <cim:RegulatingControl rdf:about="#_StaticVarCompensator-voltageSetPoint-svcControlMode-on-RegulatingControl">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>405.0</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k" />
+    </cim:RegulatingControl>
 
     <cim:Terminal rdf:about="#_StaticVarCompensator-reactivePower-svcControlMode_T">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
@@ -42,4 +48,11 @@
     <cim:Terminal rdf:about="#_StaticVarCompensator-reactivePower-svcControlMode_T-on">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
+    <cim:RegulatingControl rdf:about="#_StaticVarCompensator-reactivePower-svcControlMode-on-RegulatingControl">
+        <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+        <cim:RegulatingControl.targetValue>10.0</cim:RegulatingControl.targetValue>
+        <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/CIM100#UnitMultiplier.k" />
+    </cim:RegulatingControl>
+
 </rdf:RDF>
