@@ -31,14 +31,6 @@ public class CreateFeederBayBuilder {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #withBusOrBusbarSectionId(String)} instead.
-     */
-    @Deprecated(since = "5.1.0")
-    public CreateFeederBayBuilder withBbsId(String bbsId) {
-        return withBusOrBusbarSectionId(bbsId);
-    }
-
     public CreateFeederBayBuilder withBusOrBusbarSectionId(String busOrBusbarSection) {
         this.busOrBusbarSection = busOrBusbarSection;
         return this;
