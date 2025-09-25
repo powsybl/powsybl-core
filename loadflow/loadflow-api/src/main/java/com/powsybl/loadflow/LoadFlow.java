@@ -49,7 +49,7 @@ public final class LoadFlow {
 
         public Runner setNetwork(Network network) {
             this.network = Objects.requireNonNull(network);
-            setDefaultVariantId(network);
+            this.variantId = getVariantId(network);
             return this;
         }
 
@@ -73,10 +73,8 @@ public final class LoadFlow {
             return this;
         }
 
-        private void setDefaultVariantId(Network network) {
-            if (this.variantId == null) {
-                this.variantId = network.getVariantManager().getWorkingVariantId();
-            }
+        private String getVariantId(Network network) {
+            return this.variantId == null ? network.getVariantManager().getWorkingVariantId() : this.variantId;
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
@@ -91,8 +89,7 @@ public final class LoadFlow {
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
-            setDefaultVariantId(network);
-            return runAsync(network, variantId, computationManager, parameters);
+            return runAsync(network, getVariantId(network), computationManager, parameters);
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, LoadFlowParameters parameters) {
@@ -119,8 +116,7 @@ public final class LoadFlow {
         }
 
         public LoadFlowResult run(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
-            setDefaultVariantId(network);
-            return run(network, variantId, computationManager, parameters);
+            return run(network, getVariantId(network), computationManager, parameters);
         }
 
         public LoadFlowResult run(Network network, LoadFlowParameters parameters) {
