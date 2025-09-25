@@ -22,7 +22,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class SynchronousMachineEq {
 
     public static void write(String id, String generatorName, String equipmentContainer, String generatingUnit, String regulatingControlId, String reactiveCapabilityCurveId,
-                             double minQ, double maxQ, double ratedS, double defaultRatedS, String kind, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                             Double minQ, Double maxQ, double ratedS, double defaultRatedS, String kind, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("SynchronousMachine", id, generatorName, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
         if (generatingUnit != null) {
@@ -35,12 +35,16 @@ public final class SynchronousMachineEq {
         if (reactiveCapabilityCurveId != null) {
             CgmesExportUtil.writeReference("SynchronousMachine.InitialReactiveCapabilityCurve", reactiveCapabilityCurveId, cimNamespace, writer, context);
         }
-        writer.writeStartElement(cimNamespace, "SynchronousMachine.minQ");
-        writer.writeCharacters(CgmesExportUtil.format(minQ));
-        writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, "SynchronousMachine.maxQ");
-        writer.writeCharacters(CgmesExportUtil.format(maxQ));
-        writer.writeEndElement();
+        if (minQ != null) {
+            writer.writeStartElement(cimNamespace, "SynchronousMachine.minQ");
+            writer.writeCharacters(CgmesExportUtil.format(minQ));
+            writer.writeEndElement();
+        }
+        if (maxQ != null) {
+            writer.writeStartElement(cimNamespace, "SynchronousMachine.maxQ");
+            writer.writeCharacters(CgmesExportUtil.format(maxQ));
+            writer.writeEndElement();
+        }
         writer.writeStartElement(cimNamespace, "RotatingMachine.ratedS");
         writer.writeCharacters(CgmesExportUtil.format(ratedS, defaultRatedS));
         writer.writeEndElement();
