@@ -25,6 +25,11 @@ public interface DcTerminal {
     TwoSides getSide();
 
     /**
+     * @return the DC equipment terminal number
+     */
+    TerminalNumber getTerminalNumber();
+
+    /**
      * @return the DC node the DC terminal connects to
      */
     DcNode getDcNode();

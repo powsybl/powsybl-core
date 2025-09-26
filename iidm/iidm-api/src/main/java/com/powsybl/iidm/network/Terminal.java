@@ -235,8 +235,8 @@ public interface Terminal {
             return Optional.of(branch.getSide(terminal).toThreeSides());
         } else if (c instanceof ThreeWindingsTransformer transformer) {
             return Optional.of(transformer.getSide(terminal));
-        } else if (c instanceof AcDcConverter<?> acDcConverter) {
-            return Optional.of(acDcConverter.getSide(terminal).toThreeSides());
+        } else if (c instanceof AcDcConverter<?>) {
+            return Optional.empty();
         } else {
             throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
         }
@@ -249,14 +249,32 @@ public interface Terminal {
             return branch.getTerminal(side.toTwoSides());
         } else if (identifiable instanceof ThreeWindingsTransformer transformer) {
             return transformer.getTerminal(side);
-        } else if (identifiable instanceof AcDcConverter<?> acDcConverter) {
-            return acDcConverter.getTerminal(side.toTwoSides());
+        } else {
+            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
+        }
+    }
+
+    static Optional<TerminalNumber> getConnectableTerminalNumber(Terminal terminal) {
+        Connectable<?> c = terminal.getConnectable();
+        if (c instanceof AcDcConverter<?> acDcConverter) {
+            return Optional.of(acDcConverter.getTerminalNumber(terminal));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    static Terminal getTerminal(Identifiable<?> identifiable, TerminalNumber terminalNumber) {
+        if (identifiable instanceof AcDcConverter<?> acDcConverter) {
+            return acDcConverter.getTerminal(terminalNumber)
+                .orElseThrow(() -> new PowsyblException("This AC/DC converter does not have a second AC Terminal: " + identifiable.getId()));
         } else {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }
     }
 
     ThreeSides getSide();
+
+    TerminalNumber getTerminalNumber();
 
     /**
      * Retrieves a list of objects that refer to the terminal.

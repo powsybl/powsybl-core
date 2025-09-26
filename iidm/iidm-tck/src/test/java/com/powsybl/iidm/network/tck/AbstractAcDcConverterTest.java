@@ -233,23 +233,29 @@ public abstract class AbstractAcDcConverterTest {
     private void checkBaseCommonLccVsc() {
         assertEquals("converterA", acDcConverterA.getId());
 
-        assertSame(TwoSides.ONE, acDcConverterA.getDcTerminal1().getSide());
-        assertSame(TwoSides.TWO, acDcConverterA.getDcTerminal2().getSide());
-        assertSame(TwoSides.ONE, acDcConverterA.getSide(acDcConverterA.getDcTerminal1()));
-        assertSame(TwoSides.TWO, acDcConverterA.getSide(acDcConverterA.getDcTerminal2()));
-        assertSame(acDcConverterA.getDcTerminal1(), acDcConverterA.getDcTerminal(TwoSides.ONE));
-        assertSame(acDcConverterA.getDcTerminal2(), acDcConverterA.getDcTerminal(TwoSides.TWO));
+        assertSame(TerminalNumber.ONE, acDcConverterA.getDcTerminal1().getTerminalNumber());
+        assertSame(TerminalNumber.TWO, acDcConverterA.getDcTerminal2().getTerminalNumber());
+        assertNull(acDcConverterA.getDcTerminal1().getSide());
+        assertNull(acDcConverterA.getDcTerminal2().getSide());
+        assertSame(TerminalNumber.ONE, acDcConverterA.getTerminalNumber(acDcConverterA.getDcTerminal1()));
+        assertSame(TerminalNumber.TWO, acDcConverterA.getTerminalNumber(acDcConverterA.getDcTerminal2()));
+        assertSame(acDcConverterA.getDcTerminal1(), acDcConverterA.getDcTerminal(TerminalNumber.ONE));
+        assertSame(acDcConverterA.getDcTerminal2(), acDcConverterA.getDcTerminal(TerminalNumber.TWO));
 
-        assertSame(ThreeSides.ONE, acDcConverterA.getTerminal1().getSide());
-        assertSame(ThreeSides.TWO, acDcConverterA.getTerminal2().orElseThrow().getSide());
-        assertSame(TwoSides.ONE, acDcConverterA.getSide(acDcConverterA.getTerminal1()));
-        assertSame(TwoSides.TWO, acDcConverterA.getSide(acDcConverterA.getTerminal2().orElseThrow()));
-        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getTerminal(TwoSides.ONE));
-        assertSame(acDcConverterA.getTerminal2().orElseThrow(), acDcConverterA.getTerminal(TwoSides.TWO));
-        assertSame(ThreeSides.ONE, Terminal.getConnectableSide(acDcConverterA.getTerminal1()).orElseThrow());
-        assertSame(ThreeSides.TWO, Terminal.getConnectableSide(acDcConverterA.getTerminal2().orElseThrow()).orElseThrow());
-        assertSame(acDcConverterA.getTerminal1(), Terminal.getTerminal(acDcConverterA, ThreeSides.ONE));
-        assertSame(acDcConverterA.getTerminal2().orElseThrow(), Terminal.getTerminal(acDcConverterA, ThreeSides.TWO));
+        assertSame(TerminalNumber.ONE, acDcConverterA.getTerminal1().getTerminalNumber());
+        assertSame(TerminalNumber.TWO, acDcConverterA.getTerminal2().orElseThrow().getTerminalNumber());
+        assertFalse(Terminal.getConnectableSide(acDcConverterA.getTerminal1()).isPresent());
+        assertFalse(Terminal.getConnectableSide(acDcConverterA.getTerminal2().orElseThrow()).isPresent());
+        assertFalse(Terminal.getConnectableTerminalNumber(lineax.getTerminal1()).isPresent());
+        assertFalse(Terminal.getConnectableTerminalNumber(lineax.getTerminal2()).isPresent());
+        assertSame(TerminalNumber.ONE, acDcConverterA.getTerminalNumber(acDcConverterA.getTerminal1()));
+        assertSame(TerminalNumber.TWO, acDcConverterA.getTerminalNumber(acDcConverterA.getTerminal2().orElseThrow()));
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getTerminal(TerminalNumber.ONE).orElseThrow());
+        assertSame(acDcConverterA.getTerminal2().orElseThrow(), acDcConverterA.getTerminal(TerminalNumber.TWO).orElseThrow());
+        assertSame(TerminalNumber.ONE, Terminal.getConnectableTerminalNumber(acDcConverterA.getTerminal1()).orElseThrow());
+        assertSame(TerminalNumber.TWO, Terminal.getConnectableTerminalNumber(acDcConverterA.getTerminal2().orElseThrow()).orElseThrow());
+        assertSame(acDcConverterA.getTerminal1(), Terminal.getTerminal(acDcConverterA, TerminalNumber.ONE));
+        assertSame(acDcConverterA.getTerminal2().orElseThrow(), Terminal.getTerminal(acDcConverterA, TerminalNumber.TWO));
 
         assertSame(b1a, acDcConverterA.getTerminal1().getBusBreakerView().getBus());
         assertTrue(acDcConverterA.getTerminal2().isPresent());
@@ -780,8 +786,7 @@ public abstract class AbstractAcDcConverterTest {
                 .add();
         assertTrue(acDcConverterA.getTerminal2().isEmpty());
         assertSame(acDcConverterA.getPccTerminal(), acDcConverterA.getTerminal1());
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> acDcConverterA.getTerminal(TwoSides.TWO));
-        assertEquals("This AC/DC converter does not have a second AC Terminal", e.getMessage());
+        assertFalse(acDcConverterA.getTerminal(TerminalNumber.TWO).isPresent());
     }
 
     @Test
