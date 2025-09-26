@@ -55,7 +55,7 @@ public class DcGroundAdderImpl extends AbstractIdentifiableAdder<DcGroundAdderIm
         ValidationUtil.checkSameParentNetwork(this.getParentNetwork(), this, dcNode);
         ValidationUtil.checkDoubleParamPositive(this, r, DcGroundImpl.R_ATTRIBUTE);
         DcGroundImpl dcGround = new DcGroundImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), r);
-        DcTerminalImpl dcTerminal = new DcTerminalImpl(networkRef, null, dcNode, connected);
+        DcTerminalImpl dcTerminal = new DcTerminalImpl(networkRef, null, null, dcNode, connected);
         dcGround.addDcTerminal(dcTerminal);
         getNetwork().getIndex().checkAndAdd(dcGround);
         getNetwork().getListeners().notifyCreation(dcGround);

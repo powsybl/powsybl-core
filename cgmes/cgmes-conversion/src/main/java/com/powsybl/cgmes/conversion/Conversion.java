@@ -36,6 +36,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.Update.*;
+import static com.powsybl.cgmes.model.CgmesNames.REGULATION_CAPABILITY;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -81,6 +83,9 @@ import static java.util.stream.Collectors.groupingBy;
  *
  */
 public class Conversion {
+
+    public static final String QUERY_CATALOG_NAME_INIT = "";
+    public static final String QUERY_CATALOG_NAME_UPDATE = "-update";
 
     public enum Xfmr2RatioPhaseInterpretationAlternative {
         END1, END2, END1_END2, X
@@ -157,6 +162,7 @@ public class Conversion {
 
         // Create base network with metadata information
         Network network = createNetwork();
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         Context context = new Context(cgmes, config, network, reportNode);
         assignNetworkProperties(context);
         addMetadataModels(network, context);
@@ -243,12 +249,6 @@ public class Conversion {
         adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, context);
         context.popReportNode();
 
-        // Set voltages and angles
-        context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(reportNode));
-        voltageAngles(nodes, context);
-        completeVoltagesAndAngles(network);
-        context.popReportNode();
-
         // Save/store data for debug or external validation
         if (config.debugTopology()) {
             debugTopology(context);
@@ -269,7 +269,62 @@ public class Conversion {
         }
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
+
+        updateWithAllInputs(network, reportNode);
+
         return network;
+    }
+
+    private void updateWithAllInputs(Network network, ReportNode reportNode) {
+        if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
+            return;
+        }
+        this.cgmes.setQueryCatalog(QUERY_CATALOG_NAME_UPDATE);
+        Context updateContext = createUpdateContext(network, reportNode);
+
+        // add processes to create new equipment using update data (ssh and sv data)
+
+        update(network, updateContext, reportNode);
+    }
+
+    private static boolean sshOrSvIsIncludedInCgmesModel(CgmesModel cgmes) {
+        return cgmes.fullModels().stream()
+                .map(fullModel -> fullModel.getId("profileList"))
+                .anyMatch(profileList -> profileList.contains("SteadyStateHypothesis") || profileList.contains("StateVariables"));
+    }
+
+    public void update(Network network, ReportNode reportNode) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(reportNode);
+        Context updateContext = createUpdateContext(network, reportNode);
+
+        addMetadataModels(network, updateContext);
+        update(network, updateContext, reportNode);
+    }
+
+    private void update(Network network, Context updateContext, ReportNode reportNode) {
+        // Inspect the contents of the loaded data
+        if (LOG.isDebugEnabled()) {
+            PropertyBags nts = cgmes.numObjectsByType();
+            LOG.debug("CGMES objects read for the update:");
+            nts.forEach(nt -> LOG.debug(String.format("  %5d %s", nt.asInt("numObjects"), nt.getLocal("Type"))));
+            nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
+        }
+
+        updateLoads(network, cgmes, updateContext);
+        updateGenerators(network, cgmes, updateContext);
+        updateTransformers(network, updateContext);
+        updateStaticVarCompensators(network, cgmes, updateContext);
+        updateShuntCompensators(network, cgmes, updateContext);
+        updateHvdcLines(network, cgmes, updateContext);
+        // Temporary until the danglingLine update is implemented.
+        temporaryComputeFlowsDanglingLines(network, updateContext);
+
+        // Set voltages and angles, then complete
+        updateAndCompleteVoltageAndAngles(network, updateContext);
+
+        network.runValidationChecks(false, reportNode);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
     /**
@@ -382,18 +437,6 @@ public class Conversion {
         return graph.contains("EQ") && graph.contains("BD") ? Source.BOUNDARY : Source.IGM;
     }
 
-    private static void completeVoltagesAndAngles(Network network) {
-
-        // Voltage and angle in starBus as properties
-        network.getThreeWindingsTransformers()
-            .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
-
-        // Voltage and angle in boundary buses
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
-            .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
-        network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
-    }
-
     private void convert(PropertyBags elements, String elementType, Context context) {
         context.pushReportNode(CgmesReports.convertingElementTypeReport(context.getReportNode(), elementType));
         for (PropertyBag element : elements) {
@@ -437,6 +480,12 @@ public class Conversion {
         return networkFactory.createNetwork(networkId, sourceFormat);
     }
 
+    private Context createUpdateContext(Network network, ReportNode reportNode) {
+        Context context = new Context(cgmes, config, network, reportNode);
+        context.buildUpdateCache();
+        return context;
+    }
+
     private void assignNetworkProperties(Context context) {
         context.network().setProperty(NETWORK_PS_CGMES_MODEL_DETAIL,
                 context.nodeBreaker()
@@ -478,20 +527,45 @@ public class Conversion {
         if (ps.isEmpty()) {
             return;
         }
+        CgmesMetadataModels previous = network.getExtension(CgmesMetadataModels.class);
         CgmesMetadataModelsAdder modelsAdder = network.newExtension(CgmesMetadataModelsAdder.class);
+
+        if (previous != null) {
+            previous.getModels().stream()
+                    .filter(model -> !isSubSetIncluded(ps, model.getSubset()))
+                    .forEach(model -> {
+                        CgmesMetadataModelsAdder.ModelAdder modelAdder = modelsAdder.newModel()
+                                .setId(model.getId())
+                                .setSubset(model.getSubset())
+                                .setDescription(model.getDescription())
+                                .setVersion(model.getVersion())
+                                .setModelingAuthoritySet(model.getModelingAuthoritySet());
+                        model.getProfiles().forEach(modelAdder::addProfile);
+                        model.getDependentOn().forEach(modelAdder::addDependentOn);
+                        model.getSupersedes().forEach(modelAdder::addSupersedes);
+                        modelAdder.add();
+                    });
+            network.removeExtension(CgmesMetadataModels.class);
+        }
+
         for (PropertyBag p : ps) {
             CgmesMetadataModelsAdder.ModelAdder modelAdder = modelsAdder.newModel()
-                .setId(p.getId("FullModel"))
-                .setSubset(subsetFromGraph(p.getLocal("graph")))
-                .setDescription(p.getId("description"))
-                .setVersion(readVersion(p, context))
-                .setModelingAuthoritySet(p.getId("modelingAuthoritySet"));
+                    .setId(p.getId("FullModel"))
+                    .setSubset(subsetFromGraph(p.getLocal("graph")))
+                    .setDescription(p.getId("description"))
+                    .setVersion(readVersion(p, context))
+                    .setModelingAuthoritySet(p.getId("modelingAuthoritySet"));
             addMetadataModelReferences(p, "profileList", modelAdder::addProfile);
             addMetadataModelReferences(p, "dependentOnList", modelAdder::addDependentOn);
             addMetadataModelReferences(p, "supersedesList", modelAdder::addSupersedes);
             modelAdder.add();
         }
+
         modelsAdder.add();
+    }
+
+    private boolean isSubSetIncluded(PropertyBags ps, CgmesSubset subSet) {
+        return ps.stream().anyMatch(p -> subSet == subsetFromGraph(p.getLocal("graph")));
     }
 
     /**
@@ -764,20 +838,6 @@ public class Conversion {
         return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
     }
 
-    private void voltageAngles(PropertyBags nodes, Context context) {
-        if (context.nodeBreaker()) {
-            // TODO(Luma): we create again one conversion object for every node
-            // In node-breaker conversion,
-            // set (voltage, angle) values after all nodes have been created and connected
-            for (PropertyBag n : nodes) {
-                NodeConversion nc = new NodeConversion(CgmesNames.CONNECTIVITY_NODE, n, context);
-                if (!nc.insideBoundary() || nc.insideBoundary() && context.config().convertBoundary()) {
-                    nc.setVoltageAngleNodeBreaker();
-                }
-            }
-        }
-    }
-
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
         // In case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
         network.getHvdcConverterStationStream()
@@ -803,6 +863,25 @@ public class Conversion {
     }
 
     public static class Config {
+
+        /**
+         * Specifies the default behavior to apply when updating equipment attributes
+         * and no value is provided.
+         * <br/>
+         * The available options are:
+         * <ul>
+         *   <li><b>EQ</b>: Uses the default value received from the EQ file.</li>
+         *   <li><b>DEFAULT</b>: Assigns a predefined default value.</li>
+         *   <li><b>EMPTY</b>: Leaves the attribute empty (e.g., {@code Double.NaN}) if allowed.</li>
+         *   <li><b>PREVIOUS</b>: Reuses the value from the previous update.</li>
+         * </ul>
+         */
+        public enum DefaultValue {
+            EQ,
+            DEFAULT,
+            EMPTY,
+            PREVIOUS
+        }
 
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
@@ -984,6 +1063,14 @@ public class Conversion {
             return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
         }
 
+        public boolean updateTerminalConnectionInNodeBreakerVoltageLevel() {
+            return UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL;
+        }
+
+        public List<DefaultValue> updateDefaultValuesPriority() {
+            return updateDefaultValuesPriority;
+        }
+
         public boolean getCreateFictitiousVoltageLevelsForEveryNode() {
             return createFictitiousVoltageLevelsForEveryNode;
         }
@@ -1021,6 +1108,8 @@ public class Conversion {
 
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
+        private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
+        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY);
     }
 
     private final CgmesModel cgmes;
@@ -1049,4 +1138,5 @@ public class Conversion {
     public static final String PROPERTY_OPERATIONAL_LIMIT_SET_NAME = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetName";
     public static final String PROPERTY_OPERATIONAL_LIMIT_SET_RDFID = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetRdfID";
     public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL;
+    public static final String PROPERTY_CGMES_REGULATION_CAPABILITY = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATION_CAPABILITY;
 }

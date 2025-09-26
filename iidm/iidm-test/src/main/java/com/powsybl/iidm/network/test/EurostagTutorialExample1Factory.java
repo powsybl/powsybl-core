@@ -384,43 +384,6 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
-    /**
-     * @deprecated Use {@link #createWithFixedCurrentLimits()} instead,
-     *             here current limits do not respect the convention of having
-     *             an infinite value temporary limit, which make overload detection
-     *             malfunction.
-     */
-    @Deprecated(since = "2.5.0")
-    public static Network createWithCurrentLimits() {
-        Network network = createWithFixedCurrentLimits();
-        Line line = network.getLine(NHV1_NHV2_1);
-        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
-            .setPermanentLimit(1100)
-            .beginTemporaryLimit()
-            .setName("10'")
-            .setAcceptableDuration(10 * 60)
-            .setValue(1200)
-            .endTemporaryLimit()
-            .beginTemporaryLimit()
-            .setName("1'")
-            .setAcceptableDuration(60)
-            .setValue(1500)
-            .endTemporaryLimit()
-            .add();
-
-        line = network.getLine(NHV1_NHV2_2);
-        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
-            .setPermanentLimit(1100)
-            .beginTemporaryLimit()
-            .setName("20'")
-            .setAcceptableDuration(20 * 60)
-            .setValue(1200)
-            .endTemporaryLimit()
-            .add();
-
-        return network;
-    }
-
     public static Network createWithFixedCurrentLimits() {
         return createWithFixedCurrentLimits(NetworkFactory.findDefault());
     }
