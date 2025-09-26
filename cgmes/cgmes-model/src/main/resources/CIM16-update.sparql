@@ -267,3 +267,35 @@ SELECT *
         cim:StaticVarCompensator.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }
+
+# query: shuntCompensators
+SELECT *
+{
+    {
+        SELECT DISTINCT ?ShuntCompensator
+        WHERE {
+            {
+                ?ShuntCompensator a ?type ;
+                VALUES ?type { cim:LinearShuntCompensator cim:NonlinearShuntCompensator } .
+            }
+            UNION
+            {
+                SELECT ?ShuntCompensator
+                WHERE {
+                    ?SvShuntCompensatorSections a cim:SvShuntCompensatorSections ;
+                        cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator .
+                }
+            }
+        }
+    }
+    OPTIONAL {
+        ?ShuntCompensator
+            cim:ShuntCompensator.sections ?SSHsections ;
+            cim:RegulatingCondEq.controlEnabled ?controlEnabled
+    }
+    OPTIONAL {
+        ?SvShuntCompensatorSections a cim:SvShuntCompensatorSections ;
+            cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator ;
+            cim:SvShuntCompensatorSections.sections ?SVsections .
+    }
+}
