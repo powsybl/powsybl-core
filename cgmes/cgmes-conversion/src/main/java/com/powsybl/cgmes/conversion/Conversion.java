@@ -37,6 +37,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Update.*;
+import static com.powsybl.cgmes.model.CgmesNames.REGULATION_CAPABILITY;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -311,7 +312,10 @@ public class Conversion {
         }
 
         updateLoads(network, cgmes, updateContext);
+        updateGenerators(network, cgmes, updateContext);
         updateTransformers(network, updateContext);
+        updateStaticVarCompensators(network, cgmes, updateContext);
+        updateShuntCompensators(network, cgmes, updateContext);
         // Temporary until the danglingLine update is implemented.
         temporaryComputeFlowsDanglingLines(network, updateContext);
 
@@ -1133,4 +1137,5 @@ public class Conversion {
     public static final String PROPERTY_OPERATIONAL_LIMIT_SET_NAME = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetName";
     public static final String PROPERTY_OPERATIONAL_LIMIT_SET_RDFID = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetRdfID";
     public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL;
+    public static final String PROPERTY_CGMES_REGULATION_CAPABILITY = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATION_CAPABILITY;
 }

@@ -59,6 +59,29 @@ public final class Update {
         }
     }
 
+    static void updateGenerators(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.GENERATOR.name()));
+
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.synchronousMachinesForUpdate(), CgmesNames.SYNCHRONOUS_MACHINE, equipmentIdPropertyBag);
+        addPropertyBags(cgmes.equivalentInjections(), CgmesNames.EQUIVALENT_INJECTION, equipmentIdPropertyBag);
+        addPropertyBags(cgmes.externalNetworkInjections(), CgmesNames.EXTERNAL_NETWORK_INJECTION, equipmentIdPropertyBag);
+
+        network.getGenerators().forEach(generator -> updateGenerator(generator, getPropertyBag(generator.getId(), equipmentIdPropertyBag), context));
+        context.popReportNode();
+    }
+
+    private static void updateGenerator(Generator generator, PropertyBag cgmesData, Context context) {
+        String originalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+
+        switch (originalClass) {
+            case CgmesNames.SYNCHRONOUS_MACHINE -> SynchronousMachineConversion.update(generator, cgmesData, context);
+            case CgmesNames.EQUIVALENT_INJECTION -> EquivalentInjectionConversion.update(generator, cgmesData, context);
+            case CgmesNames.EXTERNAL_NETWORK_INJECTION -> ExternalNetworkInjectionConversion.update(generator, cgmesData, context);
+            default -> throw new ConversionException("Unexpected originalClass " + originalClass + " for Generator: " + generator.getId());
+        }
+    }
+
     static void updateTransformers(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.TWO_WINDINGS_TRANSFORMER.name()));
         network.getTwoWindingsTransformers().forEach(t2w -> TwoWindingsTransformerConversion.update(t2w, context));
@@ -67,6 +90,36 @@ public final class Update {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.THREE_WINDINGS_TRANSFORMER.name()));
         network.getThreeWindingsTransformers().forEach(t3w -> ThreeWindingsTransformerConversion.update(t3w, context));
         context.popReportNode();
+    }
+
+    static void updateStaticVarCompensators(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.STATIC_VAR_COMPENSATOR.name()));
+
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.staticVarCompensators(), CgmesNames.STATIC_VAR_COMPENSATOR, equipmentIdPropertyBag);
+
+        network.getStaticVarCompensators().forEach(staticVarCompensator -> StaticVarCompensatorConversion.update(staticVarCompensator, getPropertyBag(staticVarCompensator.getId(), equipmentIdPropertyBag), context));
+        context.popReportNode();
+    }
+
+    static void updateShuntCompensators(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.SHUNT_COMPENSATOR.name()));
+
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.shuntCompensators(), CgmesNames.SHUNT_COMPENSATOR, equipmentIdPropertyBag);
+        addPropertyBags(cgmes.equivalentShunts(), CgmesNames.EQUIVALENT_SHUNT, equipmentIdPropertyBag);
+
+        network.getShuntCompensators().forEach(shuntCompensator -> updateShuntCompensator(shuntCompensator, getPropertyBag(shuntCompensator.getId(), equipmentIdPropertyBag), context));
+        context.popReportNode();
+    }
+
+    private static void updateShuntCompensator(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
+        String isEquivalentShunt = shuntCompensator.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT);
+        if (Boolean.parseBoolean(isEquivalentShunt)) {
+            EquivalentShuntConversion.update(shuntCompensator, context);
+        } else {
+            ShuntConversion.update(shuntCompensator, cgmesData, context);
+        }
     }
 
     static void temporaryComputeFlowsDanglingLines(Network network, Context context) {
