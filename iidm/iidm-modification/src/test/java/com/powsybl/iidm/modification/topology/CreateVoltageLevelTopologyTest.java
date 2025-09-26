@@ -222,6 +222,24 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
     }
 
     @Test
+    void testWithBusBreakerVoltageLevelAndConnectFeeders() {
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.newVoltageLevel()
+                .setId("VLTEST")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
+                .withVoltageLevelId("VLTEST")
+                .withAlignedBusesOrBusbarCount(3)
+                .withSectionCount(4)
+                .withConnectExistingConnectables(true)
+                .build();
+        assertThrows(PowsyblException.class, () -> modification.apply(network, true, ReportNode.NO_OP));
+
+    }
+
+    @Test
     void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
         Network network = createNbNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()

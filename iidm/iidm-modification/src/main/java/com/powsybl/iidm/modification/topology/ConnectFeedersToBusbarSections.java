@@ -225,7 +225,7 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         final Map<Integer, Switch> switchesPerNode = new HashMap<>();
 
         nodeBreakerView.traverse(startNode, (fromNode, sw, toNode) -> {
-            if (sw == null) {
+            if (sw == null) { // Internal connection
                 return TraverseResult.CONTINUE;
             }
 
