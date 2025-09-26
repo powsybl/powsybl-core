@@ -203,12 +203,12 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             // Connect connectables that are on parallel busbar sections
             if (connectExistingConnectables) {
                 new ConnectFeedersToBusbarSectionsBuilder()
-                        .withConnectablesToConnect(voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).toList())
-                        .withBusbarSectionsToConnect(createdBusbarSection)
-                        .withConnectCouplingDevices(true)
-                        .withCouplingDeviceSwitchPrefixId(switchPrefixId)
-                        .build()
-                        .apply(network, namingStrategy, throwException, computationManager, reportNode);
+                    .withConnectablesToConnect(voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).toList())
+                    .withBusbarSectionsToConnect(createdBusbarSection)
+                    .withConnectCouplingDevices(true)
+                    .withCouplingDeviceSwitchPrefixId(switchPrefixId)
+                    .build()
+                    .apply(network, namingStrategy, throwException, computationManager, reportNode);
             }
         }
         LOG.info("New symmetrical topology in voltage level {}: creation of {} bus(es) or busbar(s) with {} section(s) each.", voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
