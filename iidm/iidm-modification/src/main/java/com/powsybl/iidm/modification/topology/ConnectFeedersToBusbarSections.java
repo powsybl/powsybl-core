@@ -119,8 +119,6 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         Map<Integer, List<BusbarSection>> busbarSectionsToConnectByIndex = busbarSectionsToConnect.stream()
                 .collect(groupingBy(this::getSectionIndex));
 
-        VoltageLevel.NodeBreakerView nodeBreakerView = vl.getNodeBreakerView();
-
         for (Map.Entry<Integer, List<BusbarSection>> entry : busbarSectionsToConnectByIndex.entrySet()) {
             Integer sectionIndex = entry.getKey();
             List<BusbarSection> busbarSections = entry.getValue();
@@ -142,7 +140,7 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
                         continue;
                     }
                     switchData.connectables.stream().filter(c -> !(c instanceof BusbarSection)).forEach(connectedFeeders::add);
-                    createSwitch(vl, namingStrategy, nodeBreakerView, bbsNode, node, switchData.connectables.get(0), switchData);
+                    createSwitch(vl, namingStrategy, bbsNode, node, switchData.connectables.get(0), switchData);
                 }
             }
         }
@@ -174,16 +172,15 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         return false;
     }
 
-    private void createSwitch(VoltageLevel vl, NamingStrategy namingStrategy, VoltageLevel.NodeBreakerView nodeBreakerView,
+    private void createSwitch(VoltageLevel vl, NamingStrategy namingStrategy,
                               int bbsNode, int node, Connectable<?> connectable, SwitchCreationData switchCreationData) {
         boolean isDisconnector = switchCreationData.sw.getKind() == SwitchKind.DISCONNECTOR;
         String switchId = getSwitchId(namingStrategy, node, connectable, isDisconnector, bbsNode, vl.getId());
         String switchName = getSwitchName(namingStrategy, node, connectable, isDisconnector, bbsNode, vl.getId());
-
         if (isDisconnector) {
-            createNBDisconnector(bbsNode, node, switchId, switchName, nodeBreakerView, true, switchCreationData.sw.isFictitious());
+            createNBDisconnector(bbsNode, node, switchId, switchName, vl.getNodeBreakerView(), true, switchCreationData.sw.isFictitious());
         } else {
-            createNBBreaker(bbsNode, node, switchId, switchName, nodeBreakerView, true, switchCreationData.sw.isFictitious());
+            createNBBreaker(bbsNode, node, switchId, switchName, vl.getNodeBreakerView(), true, switchCreationData.sw.isFictitious());
         }
     }
 
