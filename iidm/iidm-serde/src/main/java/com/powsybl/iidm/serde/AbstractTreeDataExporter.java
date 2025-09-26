@@ -114,7 +114,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String SORTED = "iidm.export.xml.sorted";
     public static final String VERSION = "iidm.export.xml.version";
     public static final String WITH_AUTOMATION_SYSTEMS = "iidm.export.xml.with-automation-systems";
-    public static final String TOPOLOGY_VOLTAGE_LEVEL = "iidm.export.xml.topology-level-vl";
+    public static final String TOPOLOGY_VOLTAGE_LEVEL_PREFIX = "iidm.export.xml.topology-level-vl.";
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
@@ -134,11 +134,10 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             Arrays.stream(IidmVersion.values()).map(v -> v.toString(".")).collect(Collectors.toList()));
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
             "Export network with automation systems", Boolean.TRUE);
-    private static final Parameter TOPOLOGY_VOLTAGE_LEVEL_PARAMETER = new Parameter(TOPOLOGY_VOLTAGE_LEVEL, ParameterType.STRING_LIST, "List of topology levels by voltage levels", null);
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
-            SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER, TOPOLOGY_VOLTAGE_LEVEL_PARAMETER);
+            SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER);
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     protected AbstractTreeDataExporter(PlatformConfig platformConfig) {
@@ -188,11 +187,11 @@ public abstract class AbstractTreeDataExporter implements Exporter {
 
     private void addTopologyLevelVoltageLevels(Properties parameters, ExportOptions options) {
         if (parameters != null) {
-            String propertiesPrefix = TOPOLOGY_VOLTAGE_LEVEL + ".";
-            for (String key : parameters.stringPropertyNames()) {
-                if (key.startsWith(propertiesPrefix)) {
-                    String voltageLevelId = key.substring(propertiesPrefix.length());
-                    TopologyLevel topologyLevel = TopologyLevel.valueOf(parameters.getProperty(key));
+            for (Object keyObj : parameters.keySet()) {
+                String key = (String) keyObj;
+                if (key.startsWith(TOPOLOGY_VOLTAGE_LEVEL_PREFIX)) {
+                    String voltageLevelId = key.substring(TOPOLOGY_VOLTAGE_LEVEL_PREFIX.length());
+                    TopologyLevel topologyLevel = TopologyLevel.valueOf((String) parameters.get(key));
                     options.addVoltageLevelTopologyLevel(voltageLevelId, topologyLevel);
                 }
             }

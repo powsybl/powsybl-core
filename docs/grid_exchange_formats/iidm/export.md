@@ -26,9 +26,13 @@ The `iidm.export.xml.topology-level` property is an optional property that defin
 
 The default value is `NODE_BREAKER` to export all voltage levels in the same level of details than the one they are described.
 
-**iidm.export.xml.topology-level-vl**
-The `iidm.export.xml.topology-level-vl` property is an optional property that defines the topology level to use by voltage level for serialization.
-Usage : iidm.export.xml.topology-level-vl.<voltageLevelId> <TopologyLevel> (ex: iidm.export.xml.topology-level-vl.VL1 NODE_BREAKER)
+**iidm.export.xml.topology-level-vl**  
+The `iidm.export.xml.topology-level-vl` property is an optional property that defines the topology level to use by voltage level for serialization. The topology level can be:
+- `NODE_BREAKER`: the voltage levels are exported using the [Node/Breaker view](). Voltage levels described in Bus/Breaker topology are exported using the [Bus/Breaker view]().
+- `BUS_BREAKER`: all voltage levels are all exported using the [Bus/Breaker view]()
+- `BUS_BRANCH`:  all voltage levels are exported using the [Bus view]()  
+
+Usage : `iidm.export.xml.topology-level-vl.<voltageLevelId> <TopologyLevel>` (ex: iidm.export.xml.topology-level-vl.VL1 NODE_BREAKER)
 
 **iidm.export.xml.throw-exception-if-extension-not-found**  
 The `iidm.export.xml.throw-exception-if-extension-not-found` property is an optional property that defines whether the XIIDM exporter throws an exception if the network contains an unknown or unserializable extension or if it just ignores it. Its default value is `false`.
