@@ -111,13 +111,12 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
 
         List<Connectable<?>> connectedFeeders = new ArrayList<>();
 
-        Map<Integer, List<BusbarSection>> busbarSectionsByIndex = vl.getConnectableStream()
-                .filter(BusbarSection.class::isInstance)
-                .map(BusbarSection.class::cast)
-                .collect(groupingBy(this::getSectionIndex));
-
+        // List of busbar sections indexed by section index
+        Map<Integer, List<BusbarSection>> busbarSectionsByIndex = vl.getNodeBreakerView()
+            .getBusbarSectionStream()
+            .collect(groupingBy(this::getSectionIndex));
         Map<Integer, List<BusbarSection>> busbarSectionsToConnectByIndex = busbarSectionsToConnect.stream()
-                .collect(groupingBy(this::getSectionIndex));
+            .collect(groupingBy(this::getSectionIndex));
 
         busbarSectionsToConnectByIndex.forEach((sectionIndex, busbarSectionList) -> {
             List<BusbarSection> existingBusbarSections = busbarSectionsByIndex.getOrDefault(sectionIndex, Collections.emptyList());
