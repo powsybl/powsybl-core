@@ -299,3 +299,40 @@ SELECT *
             cim:SvShuntCompensatorSections.sections ?SVsections .
     }
 }
+
+# query: acDcConverters
+SELECT *
+{
+    {
+        SELECT DISTINCT ?ACDCConverter
+        WHERE {
+            ?ACDCConverter a ?type ;
+            VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter } .
+        }
+    }
+    OPTIONAL {
+        ?ACDCConverter
+            cim:ACDCConverter.targetPpcc ?targetPpcc ;
+            cim:ACDCConverter.p ?p ;
+            cim:ACDCConverter.q ?q .
+    }
+    # From SV, for all converters
+    OPTIONAL {
+        ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
+    }
+    # For Current Source Converter
+    OPTIONAL {
+        ?ACDCConverter a cim:CsConverter ;
+            cim:CsConverter.operatingMode ?operatingMode ;
+            cim:CsConverter.pPccControl ?controlMode .
+            OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
+    }
+    # For Voltage Source Converter
+    OPTIONAL {
+        ?ACDCConverter a cim:VsConverter ;
+            cim:VsConverter.qPccControl ?qPccControl ;
+            cim:VsConverter.pPccControl ?pPccControl .
+            OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
+            OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
+    }
+}

@@ -805,6 +805,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return findTargetValue(regulatingControl, terminalSign, defaultValue, use);
     }
 
+    protected static double findTargetQ(PropertyBag regulatingControl, String propertyTag, int terminalSign, double defaultValue, DefaultValueUse use) {
+        return findTargetValue(regulatingControl, propertyTag, terminalSign, defaultValue, use);
+    }
+
     protected static double findTargetValue(PropertyBag regulatingControl, int terminalSign, double defaultValue, DefaultValueUse use) {
         return findTargetValue(regulatingControl, CgmesNames.TARGET_VALUE, terminalSign, defaultValue, use);
     }
