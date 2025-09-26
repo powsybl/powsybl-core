@@ -92,6 +92,16 @@ public final class Update {
         context.popReportNode();
     }
 
+    static void updateStaticVarCompensators(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.STATIC_VAR_COMPENSATOR.name()));
+
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.staticVarCompensators(), CgmesNames.STATIC_VAR_COMPENSATOR, equipmentIdPropertyBag);
+
+        network.getStaticVarCompensators().forEach(staticVarCompensator -> StaticVarCompensatorConversion.update(staticVarCompensator, getPropertyBag(staticVarCompensator.getId(), equipmentIdPropertyBag), context));
+        context.popReportNode();
+    }
+
     static void temporaryComputeFlowsDanglingLines(Network network, Context context) {
         network.getDanglingLines().forEach(danglingLine -> computeFlowsOnModelSide(danglingLine, context));
     }
