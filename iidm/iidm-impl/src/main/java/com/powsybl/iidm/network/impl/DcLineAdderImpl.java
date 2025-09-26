@@ -70,8 +70,8 @@ public class DcLineAdderImpl extends AbstractIdentifiableAdder<DcLineAdderImpl> 
         ValidationUtil.checkSameParentNetwork(this.getParentNetwork(), this, dcNode1, dcNode2);
         ValidationUtil.checkDoubleParamPositive(this, this.r, DcLineImpl.R_ATTRIBUTE);
         DcLineImpl dcLine = new DcLineImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), this.r);
-        DcTerminalImpl dcTerminal1 = new DcTerminalImpl(networkRef, TwoSides.ONE, dcNode1, connected1);
-        DcTerminalImpl dcTerminal2 = new DcTerminalImpl(networkRef, TwoSides.TWO, dcNode2, connected2);
+        DcTerminalImpl dcTerminal1 = new DcTerminalImpl(networkRef, TwoSides.ONE, null, dcNode1, connected1);
+        DcTerminalImpl dcTerminal2 = new DcTerminalImpl(networkRef, TwoSides.TWO, null, dcNode2, connected2);
         dcLine.addDcTerminal(dcTerminal1);
         dcLine.addDcTerminal(dcTerminal2);
         DcTopologyModel dcTopologyModel = ((AbstractNetwork) getParentNetwork()).getDcTopologyModel();
