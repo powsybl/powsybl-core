@@ -119,32 +119,33 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
         Map<Integer, List<BusbarSection>> busbarSectionsToConnectByIndex = busbarSectionsToConnect.stream()
                 .collect(groupingBy(this::getSectionIndex));
 
-        for (Map.Entry<Integer, List<BusbarSection>> entry : busbarSectionsToConnectByIndex.entrySet()) {
-            Integer sectionIndex = entry.getKey();
-            List<BusbarSection> busbarSections = entry.getValue();
+        busbarSectionsToConnectByIndex.forEach((sectionIndex, busbarSectionList) -> {
             List<BusbarSection> existingBusbarSections = busbarSectionsByIndex.getOrDefault(sectionIndex, Collections.emptyList());
-
-            Map<Integer, SwitchCreationData> switchesToCreate = new HashMap<>();
-            for (BusbarSection busbarSection : existingBusbarSections) {
-                switchesToCreate.putAll(getSwitchesConnectingConnectables(busbarSection));
-            }
-
-            for (BusbarSection bbs : busbarSections) {
-                int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-
-                for (Map.Entry<Integer, SwitchCreationData> switchEntry : switchesToCreate.entrySet()) {
-                    int node = switchEntry.getKey();
-                    SwitchCreationData switchData = switchEntry.getValue();
-
-                    if (shouldSkipSwitchCreation(bbs, switchData)) {
-                        continue;
-                    }
-                    switchData.connectables.stream().filter(c -> !(c instanceof BusbarSection)).forEach(connectedFeeders::add);
-                    createSwitch(vl, namingStrategy, bbsNode, node, switchData.connectables.get(0), switchData);
-                }
-            }
-        }
+            Map<Integer, SwitchCreationData> switchesToCreate = getSwitchesConnectingConnectablesToExistingBusbarSections(existingBusbarSections);
+            busbarSectionList.forEach(bbs -> createSwitchesForBusbarSection(vl, namingStrategy, switchesToCreate, bbs, connectedFeeders));
+        });
         return connectedFeeders;
+    }
+
+    private void createSwitchesForBusbarSection(VoltageLevel vl, NamingStrategy namingStrategy,
+                                                Map<Integer, SwitchCreationData> switchesToCreate, BusbarSection bbs,
+                                                List<Connectable<?>> connectedFeeders) {
+        int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
+        switchesToCreate.forEach((node, switchData) -> {
+            if (shouldSkipSwitchCreation(bbs, switchData)) {
+                return;
+            }
+            switchData.connectables.stream().filter(c -> !(c instanceof BusbarSection)).forEach(connectedFeeders::add);
+            createSwitch(vl, namingStrategy, bbsNode, node, switchData.connectables.get(0), switchData);
+        });
+    }
+
+    private Map<Integer, SwitchCreationData> getSwitchesConnectingConnectablesToExistingBusbarSections(List<BusbarSection> existingBusbarSections) {
+        Map<Integer, SwitchCreationData> switchesToCreate = new HashMap<>();
+        for (BusbarSection busbarSection : existingBusbarSections) {
+            switchesToCreate.putAll(getSwitchesConnectingConnectables(busbarSection));
+        }
+        return switchesToCreate;
     }
 
     private boolean shouldSkipSwitchCreation(BusbarSection bbs, SwitchCreationData data) {
