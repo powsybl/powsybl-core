@@ -10,9 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.google.common.collect.Range;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 

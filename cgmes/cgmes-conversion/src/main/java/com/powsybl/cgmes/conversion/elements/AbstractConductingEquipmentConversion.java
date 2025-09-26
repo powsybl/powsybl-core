@@ -265,24 +265,27 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // We do not have SSH values at the model side, it is a line flow. We take directly SV values
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlowSV(modelSide));
 
-        // If we do not have power flow at model side, and we can compute it,
-        // do it and assign the result at the terminal of the dangling line
+        return dl;
+    }
+
+    // In a Dangling Line the CGMES side and the IIDM side may not be the same
+    // Dangling lines in IIDM only have one terminal, one side
+    // We do not have SSH values at the model side, it is a line flow. We take directly SV values
+
+    public static void computeFlowsOnModelSide(DanglingLine danglingLine, Context context) {
         if (context.config().computeFlowsAtBoundaryDanglingLines()
-                && terminalConnected(modelSide)
-                && !powerFlowSV(modelSide).defined()
-                && context.boundary().hasVoltage(boundaryNode)) {
+                && danglingLine.getTerminal().isConnected()
+                && !isFlowOnModelSideDefined(danglingLine)) {
 
-            if (isZ0(dl)) {
+            if (isZ0(danglingLine)) {
                 // Flow out must be equal to the consumption seen at boundary
-                Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
-                dl.getTerminal().setP(dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0));
-                dl.getTerminal().setQ(dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0));
-
+                Optional<DanglingLine.Generation> generation = Optional.ofNullable(danglingLine.getGeneration());
+                danglingLine.getTerminal().setP(danglingLine.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0));
+                danglingLine.getTerminal().setQ(danglingLine.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0));
             } else {
-                setDanglingLineModelSideFlow(dl, boundaryNode);
+                setDanglingLineModelSideFlow(danglingLine, context);
             }
         }
-        return dl;
     }
 
     public static void calculateVoltageAndAngleInBoundaryBus(DanglingLine dl) {
@@ -338,14 +341,24 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    private boolean isZ0(DanglingLine dl) {
+    private static boolean isFlowOnModelSideDefined(DanglingLine danglingLine) {
+        return Double.isFinite(danglingLine.getTerminal().getP()) && Double.isFinite(danglingLine.getTerminal().getQ());
+    }
+
+    private static boolean isZ0(DanglingLine dl) {
         return dl.getR() == 0.0 && dl.getX() == 0.0 && dl.getG() == 0.0 && dl.getB() == 0.0;
     }
 
-    private void setDanglingLineModelSideFlow(DanglingLine dl, String boundaryNode) {
-
-        double v = context.boundary().vAtBoundary(boundaryNode);
-        double angle = context.boundary().angleAtBoundary(boundaryNode);
+    private static void setDanglingLineModelSideFlow(DanglingLine dl, Context context) {
+        Optional<PropertyBag> svVoltage = getCgmesSvVoltageOnBoundarySide(dl, context);
+        if (svVoltage.isEmpty()) {
+            return;
+        }
+        double v = svVoltage.get().asDouble(CgmesNames.VOLTAGE, Double.NaN);
+        double angle = svVoltage.get().asDouble(CgmesNames.ANGLE, Double.NaN);
+        if (!isVoltageDefined(v, angle)) {
+            return;
+        }
         // The net sum of power flow "entering" at boundary is "exiting"
         // through the line, we have to change the sign of the sum of flows
         // at the node when we consider flow at line end
@@ -361,6 +374,29 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         SV svmodel = svboundary.otherSide(dl.getR(), dl.getX(), g, b, g, b, 1.0, 0.0);
         dl.getTerminal().setP(svmodel.getP());
         dl.getTerminal().setQ(svmodel.getQ());
+    }
+
+    private static Optional<PropertyBag> getCgmesSvVoltageOnBoundarySide(DanglingLine danglingLine, Context context) {
+        String topologicalNodeIdOnBoundarySide = getTopologicalNodeIdOnBoundarySide(danglingLine, context);
+        if (topologicalNodeIdOnBoundarySide != null) {
+            return Optional.ofNullable(context.svVoltage(topologicalNodeIdOnBoundarySide));
+        }
+        return Optional.empty();
+    }
+
+    private static String getTopologicalNodeIdOnBoundarySide(DanglingLine danglingLine, Context context) {
+        String topologicalNodeIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        if (topologicalNodeIdOnBoundarySide != null) {
+            return topologicalNodeIdOnBoundarySide;
+        }
+        String terminalIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY);
+        if (terminalIdOnBoundarySide != null) {
+            PropertyBag cgmesTerminal = context.cgmesTerminal(terminalIdOnBoundarySide);
+            if (cgmesTerminal != null) {
+                return cgmesTerminal.getId(CgmesNames.TOPOLOGICAL_NODE);
+            }
+        }
+        return null;
     }
 
     private static Optional<EquivalentInjectionConversion> getEquivalentInjectionConversionForDanglingLine(Context context, String boundaryNode, String eqInstance) {
@@ -512,7 +548,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
+    public static void updateTerminals(Connectable<?> connectable, Context context, Terminal... ts) {
         PropertyBags cgmesTerminals = getCgmesTerminals(connectable, context, ts.length);
         for (int k = 0; k < ts.length; k++) {
             updateTerminal(cgmesTerminals.get(k), ts[k], context);
@@ -669,6 +705,26 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+    public void connectWithOnlyEq(BranchAdder<?, ?> adder) {
+        if (context.nodeBreaker()) {
+            adder
+                    .setVoltageLevel1(iidmVoltageLevelId(1))
+                    .setVoltageLevel2(iidmVoltageLevelId(2))
+                    .setNode1(iidmNode(1))
+                    .setNode2(iidmNode(2));
+        } else {
+            String busId1 = busId(1);
+            String busId2 = busId(2);
+            adder
+                    .setVoltageLevel1(iidmVoltageLevelId(1))
+                    .setVoltageLevel2(iidmVoltageLevelId(2))
+                    .setBus1(null)
+                    .setBus2(null)
+                    .setConnectableBus1(busId1)
+                    .setConnectableBus2(busId2);
+        }
+    }
+
     public static void connect(Context context, InjectionAdder<?, ?> adder, String busId, boolean connected, int node) {
         if (context.nodeBreaker()) {
             adder.setNode(node);
@@ -743,7 +799,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             .setOpen(open || !terminalConnected(1) || !terminalConnected(2));
     }
 
-    public void connect(LegAdder adder, int terminal) {
+    public void connectWithOnlyEq(LegAdder adder, int terminal) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
@@ -751,7 +807,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         } else {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
-                .setBus(terminalConnected(terminal) ? busId(terminal) : null)
+                .setBus(null)
                 .setConnectableBus(busId(terminal));
         }
     }
@@ -787,6 +843,79 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             return stateVariablesPowerFlow;
         }
         return PowerFlow.UNDEFINED;
+    }
+
+    protected static int findTerminalSign(Connectable<?> connectable, String end) {
+        String terminalSign = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN + end);
+        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
+    }
+
+    protected static double findTargetV(PropertyBag regulatingControl, double defaultValue, DefaultValueUse use) {
+        return findTargetV(regulatingControl, CgmesNames.TARGET_VALUE, defaultValue, use);
+    }
+
+    protected static double findTargetV(PropertyBag regulatingControl, String propertyTag, double defaultValue, DefaultValueUse use) {
+        double targetV = regulatingControl.asDouble(propertyTag);
+        return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetV(targetV), use) ? defaultValue : targetV;
+    }
+
+    protected static double findTargetValue(PropertyBag regulatingControl, int terminalSign, double defaultValue, DefaultValueUse use) {
+        return findTargetValue(regulatingControl, CgmesNames.TARGET_VALUE, terminalSign, defaultValue, use);
+    }
+
+    protected static double findTargetValue(PropertyBag regulatingControl, String propertyTag, int terminalSign, double defaultValue, DefaultValueUse use) {
+        double targetValue = regulatingControl.asDouble(propertyTag);
+        return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetValue(targetValue), use) ? defaultValue : targetValue * terminalSign;
+    }
+
+    protected static double findTargetDeadband(PropertyBag regulatingControl, double defaultValue, DefaultValueUse use) {
+        double targetDeadband = regulatingControl.asDouble(CgmesNames.TARGET_DEADBAND);
+        return useDefaultValue(regulatingControl.containsKey(CgmesNames.TARGET_DEADBAND), isValidTargetDeadband(targetDeadband), use) ? defaultValue : targetDeadband;
+    }
+
+    protected static boolean findRegulatingOn(PropertyBag regulatingControl, boolean defaultValue, DefaultValueUse use) {
+        return findRegulatingOn(regulatingControl, CgmesNames.ENABLED, defaultValue, use);
+    }
+
+    protected static boolean findRegulatingOn(PropertyBag regulatingControl, String propertyTag, boolean defaultValue, DefaultValueUse use) {
+        Optional<Boolean> isRegulatingOn = regulatingControl.asBoolean(propertyTag);
+        return useDefaultValue(isRegulatingOn.isPresent(), true, use) ? defaultValue : isRegulatingOn.orElse(false);
+    }
+
+    private static boolean useDefaultValue(boolean isDefined, boolean isValid, DefaultValueUse use) {
+        return use == DefaultValueUse.ALWAYS
+                || use == DefaultValueUse.NOT_DEFINED && !isDefined
+                || use == DefaultValueUse.NOT_VALID && !isValid;
+    }
+
+    protected static boolean isValidTargetV(double targetV) {
+        return targetV > 0.0;
+    }
+
+    protected static boolean isValidTargetValue(double targetValue) {
+        return Double.isFinite(targetValue);
+    }
+
+    protected static boolean isValidTargetDeadband(double targetDeadband) {
+        return targetDeadband >= 0.0;
+    }
+
+    /**
+     * Specifies when to use the default value.
+     * <br/>
+     * The available options are:
+     * <ul>
+     *   <li><b>NEVER</b>: The default value is never used.</li>
+     *   <li><b>NOT_DEFINED</b>: The default value is used only when the property is not defined.</li>
+     *   <li><b>NOT_VALID</b>: The default value is used when the property is defined but contains an invalid value.</li>
+     *   <li><b>ALWAYS</b>: The default value is always used, regardless of the property's state.</li>
+     * </ul>
+     */
+    protected enum DefaultValueUse {
+        NEVER,
+        NOT_DEFINED,
+        NOT_VALID,
+        ALWAYS
     }
 
     private final TerminalData[] terminals;

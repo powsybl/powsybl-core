@@ -363,16 +363,6 @@ WHERE {
     }
 }
 
-# query: voltages
-SELECT *
-{ GRAPH ?graphSV {
-    ?SvVoltage
-        a cim:SvVoltage ;
-        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-        cim:SvVoltage.v ?v ;
-        cim:SvVoltage.angle ?angle
-}}
-
 # query: operationalLimits
 SELECT *
 WHERE
@@ -587,17 +577,6 @@ WHERE {
         ?RatioTapChanger cim:RatioTapChanger.RatioTapChangerTable ?RatioTapChangerTable
     }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?RatioTapChanger
-        cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
-        cim:TapChanger.step ?step
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?SvTapStep
-        a cim:SvTapStep ;
-        cim:SvTapStep.TapChanger ?RatioTapChanger ;
-        cim:SvTapStep.position ?SVtapStep
-}}
 }
 
 # query: ratioTapChangerTablePoints
@@ -655,19 +634,6 @@ WHERE {
         ?PhaseTapChanger
             cim:TapChanger.TapChangerControl ?TapChangerControl
     }
-}}
-OPTIONAL { GRAPH ?graphSSH {
-    # ??? FIXME Difference between TapChanger.controlEnabled and TapChangerControl.enabled ???
-    # When controlEnabled is set to false there is no additional data
-    ?PhaseTapChanger
-        cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
-        cim:TapChanger.step ?step
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?SVTapStep
-        a cim:SvTapStep ;
-        cim:SvTapStep.TapChanger ?PhaseTapChanger ;
-        cim:SvTapStep.position ?SVtapStep
 }}
 }
 

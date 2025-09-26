@@ -36,7 +36,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.Update.updateLoads;
+import static com.powsybl.cgmes.conversion.Update.*;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -248,12 +248,6 @@ public class Conversion {
         adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, context);
         context.popReportNode();
 
-        // Set voltages and angles
-        context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(reportNode));
-        voltageAngles(nodes, context);
-        completeVoltagesAndAngles(network);
-        context.popReportNode();
-
         // Save/store data for debug or external validation
         if (config.debugTopology()) {
             debugTopology(context);
@@ -317,6 +311,13 @@ public class Conversion {
         }
 
         updateLoads(network, cgmes, updateContext);
+        updateTransformers(network, updateContext);
+        // Temporary until the danglingLine update is implemented.
+        temporaryComputeFlowsDanglingLines(network, updateContext);
+
+        // Set voltages and angles, then complete
+        updateAndCompleteVoltageAndAngles(network, updateContext);
+
         network.runValidationChecks(false, reportNode);
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
@@ -429,18 +430,6 @@ public class Conversion {
     private Source isBoundaryBaseVoltage(String graph) {
         //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
         return graph.contains("EQ") && graph.contains("BD") ? Source.BOUNDARY : Source.IGM;
-    }
-
-    private static void completeVoltagesAndAngles(Network network) {
-
-        // Voltage and angle in starBus as properties
-        network.getThreeWindingsTransformers()
-            .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
-
-        // Voltage and angle in boundary buses
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
-            .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
-        network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
     }
 
     private void convert(PropertyBags elements, String elementType, Context context) {
@@ -842,20 +831,6 @@ public class Conversion {
 
     private static String obtainRegionName(VoltageLevel voltageLevel) {
         return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
-    }
-
-    private void voltageAngles(PropertyBags nodes, Context context) {
-        if (context.nodeBreaker()) {
-            // TODO(Luma): we create again one conversion object for every node
-            // In node-breaker conversion,
-            // set (voltage, angle) values after all nodes have been created and connected
-            for (PropertyBag n : nodes) {
-                NodeConversion nc = new NodeConversion(CgmesNames.CONNECTIVITY_NODE, n, context);
-                if (!nc.insideBoundary() || nc.insideBoundary() && context.config().convertBoundary()) {
-                    nc.setVoltageAngleNodeBreaker();
-                }
-            }
-        }
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
