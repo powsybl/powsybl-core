@@ -92,6 +92,7 @@
     <cim:StaticVarCompensator rdf:ID="_StaticVarCompensator-voltageSetPoint-svcControlMode-on">
         <cim:IdentifiedObject.name>StaticVarCompensator-voltageSetPoint-svcControlMode-on</cim:IdentifiedObject.name>
         <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_StaticVarCompensator-voltageSetPoint-svcControlMode-on-RegulatingControl" />
         <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
         <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
         <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
@@ -103,6 +104,11 @@
         <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator-voltageSetPoint-svcControlMode-on" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_StaticVarCompensator-voltageSetPoint-svcControlMode-on-RegulatingControl">
+        <cim:IdentifiedObject.name>StaticVarCompensator-voltageSetPoint-svcControlMode-on-RegulatingControl</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.voltage" />
+        <cim:RegulatingControl.Terminal rdf:resource="#_StaticVarCompensator-voltageSetPoint-svcControlMode-on_T" />
+    </cim:RegulatingControl>
 
     <cim:StaticVarCompensator rdf:ID="_StaticVarCompensator-reactivePower-svcControlMode">
         <cim:IdentifiedObject.name>StaticVarCompensator-reactivePower-svcControlMode</cim:IdentifiedObject.name>
@@ -121,6 +127,7 @@
     <cim:StaticVarCompensator rdf:ID="_StaticVarCompensator-reactivePower-svcControlMode-on">
         <cim:IdentifiedObject.name>StaticVarCompensator-reactivePower-svcControlMode-on</cim:IdentifiedObject.name>
         <cim:Equipment.EquipmentContainer rdf:resource="#_VoltageLevel1" />
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_StaticVarCompensator-reactivePower-svcControlMode-on-RegulatingControl" />
         <cim:StaticVarCompensator.capacitiveRating>5062.5</cim:StaticVarCompensator.capacitiveRating>
         <cim:StaticVarCompensator.inductiveRating>-5062.5</cim:StaticVarCompensator.inductiveRating>
         <cim:StaticVarCompensator.slope>0.102</cim:StaticVarCompensator.slope>
@@ -131,5 +138,10 @@
         <cim:Terminal.ConductingEquipment rdf:resource="#_StaticVarCompensator-reactivePower-svcControlMode-on" />
         <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
     </cim:Terminal>
+    <cim:RegulatingControl rdf:ID="_StaticVarCompensator-reactivePower-svcControlMode-on-RegulatingControl">
+        <cim:IdentifiedObject.name>StaticVarCompensator-reactivePower-svcControlMode-on-RegulatingControl</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/CIM100#RegulatingControlModeKind.reactivePower" />
+        <cim:RegulatingControl.Terminal rdf:resource="#_StaticVarCompensator-reactivePower-svcControlMode-on_T" />
+    </cim:RegulatingControl>
 
 </rdf:RDF>
