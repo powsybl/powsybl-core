@@ -37,6 +37,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Update.*;
+import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.isBoundaryTerminalConnected;
 import static com.powsybl.cgmes.model.CgmesNames.REGULATION_CAPABILITY;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -243,12 +244,6 @@ public class Conversion {
         context.regulatingControlMapping().setAllRegulatingControls(network);
         context.popReportNode();
 
-        // Fix dangling lines issues
-        context.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
-        handleDangingLineDisconnectedAtBoundary(network, context);
-        adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, context);
-        context.popReportNode();
-
         // Save/store data for debug or external validation
         if (config.debugTopology()) {
             debugTopology(context);
@@ -317,8 +312,13 @@ public class Conversion {
         updateStaticVarCompensators(network, cgmes, updateContext);
         updateShuntCompensators(network, cgmes, updateContext);
         updateHvdcLines(network, cgmes, updateContext);
-        // Temporary until the danglingLine update is implemented.
-        temporaryComputeFlowsDanglingLines(network, updateContext);
+        updateDanglingLines(network, cgmes, updateContext);
+
+        // Fix dangling lines issues
+        updateContext.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
+        handleDangingLineDisconnectedAtBoundary(network, updateContext);
+        adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, updateContext);
+        updateContext.popReportNode();
 
         // Set voltages and angles, then complete
         updateAndCompleteVoltageAndAngles(network, updateContext);
@@ -369,25 +369,11 @@ public class Conversion {
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
         if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
             for (DanglingLine dl : network.getDanglingLines()) {
-                String terminalBoundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElse(null);
-                if (terminalBoundaryId == null) {
-                    LOG.warn("Dangling line {}: alias for terminal at boundary is missing", dl.getId());
-                } else {
-                    disconnectDanglingLineAtBounddary(dl, terminalBoundaryId, context);
+                if (!isBoundaryTerminalConnected(dl, context) && dl.getTerminal().isConnected()) {
+                    LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
+                    CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
+                    dl.getTerminal().disconnect();
                 }
-            }
-        }
-    }
-
-    private void disconnectDanglingLineAtBounddary(DanglingLine dl, String terminalBoundaryId, Context context) {
-        CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
-        if (terminalBoundary == null) {
-            LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
-        } else {
-            if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
-                LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
-                dl.getTerminal().disconnect();
             }
         }
     }
