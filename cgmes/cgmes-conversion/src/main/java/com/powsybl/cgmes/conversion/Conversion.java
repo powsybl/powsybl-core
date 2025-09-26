@@ -296,6 +296,8 @@ public class Conversion {
         Objects.requireNonNull(network);
         Objects.requireNonNull(reportNode);
         Context updateContext = createUpdateContext(network, reportNode);
+
+        addMetadataModels(network, updateContext);
         update(network, updateContext, reportNode);
     }
 
@@ -520,20 +522,45 @@ public class Conversion {
         if (ps.isEmpty()) {
             return;
         }
+        CgmesMetadataModels previous = network.getExtension(CgmesMetadataModels.class);
         CgmesMetadataModelsAdder modelsAdder = network.newExtension(CgmesMetadataModelsAdder.class);
+
+        if (previous != null) {
+            previous.getModels().stream()
+                    .filter(model -> !isSubSetIncluded(ps, model.getSubset()))
+                    .forEach(model -> {
+                        CgmesMetadataModelsAdder.ModelAdder modelAdder = modelsAdder.newModel()
+                                .setId(model.getId())
+                                .setSubset(model.getSubset())
+                                .setDescription(model.getDescription())
+                                .setVersion(model.getVersion())
+                                .setModelingAuthoritySet(model.getModelingAuthoritySet());
+                        model.getProfiles().forEach(modelAdder::addProfile);
+                        model.getDependentOn().forEach(modelAdder::addDependentOn);
+                        model.getSupersedes().forEach(modelAdder::addSupersedes);
+                        modelAdder.add();
+                    });
+            network.removeExtension(CgmesMetadataModels.class);
+        }
+
         for (PropertyBag p : ps) {
             CgmesMetadataModelsAdder.ModelAdder modelAdder = modelsAdder.newModel()
-                .setId(p.getId("FullModel"))
-                .setSubset(subsetFromGraph(p.getLocal("graph")))
-                .setDescription(p.getId("description"))
-                .setVersion(readVersion(p, context))
-                .setModelingAuthoritySet(p.getId("modelingAuthoritySet"));
+                    .setId(p.getId("FullModel"))
+                    .setSubset(subsetFromGraph(p.getLocal("graph")))
+                    .setDescription(p.getId("description"))
+                    .setVersion(readVersion(p, context))
+                    .setModelingAuthoritySet(p.getId("modelingAuthoritySet"));
             addMetadataModelReferences(p, "profileList", modelAdder::addProfile);
             addMetadataModelReferences(p, "dependentOnList", modelAdder::addDependentOn);
             addMetadataModelReferences(p, "supersedesList", modelAdder::addSupersedes);
             modelAdder.add();
         }
+
         modelsAdder.add();
+    }
+
+    private boolean isSubSetIncluded(PropertyBags ps, CgmesSubset subSet) {
+        return ps.stream().anyMatch(p -> subSet == subsetFromGraph(p.getLocal("graph")));
     }
 
     /**

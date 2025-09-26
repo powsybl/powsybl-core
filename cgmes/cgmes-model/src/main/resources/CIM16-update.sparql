@@ -6,6 +6,37 @@
 # SPDX-License-Identifier: MPL-2.0
 #
 
+# query: fullModels
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    ?FullModel
+        a md:FullModel ;
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.created ?created ;
+        md:Model.version ?version ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet .
+    {
+    SELECT ?FullModel (group_concat(?profile; separator=" ") as ?profileList)
+        WHERE {
+                ?FullModel md:Model.profile ?profile .
+        } GROUP BY ?FullModel
+    }
+    OPTIONAL { ?FullModel md:Model.description ?description }
+    OPTIONAL {
+        SELECT ?FullModel (group_concat(?dependentOn; separator=" ") as ?dependentOnList)
+            WHERE {
+                    ?FullModel md:Model.DependentOn ?dependentOn .
+            } GROUP BY ?FullModel
+    }
+    OPTIONAL {
+        SELECT ?FullModel (group_concat(?supersedes; separator=" ") as ?supersedesList)
+            WHERE {
+                    ?FullModel md:Model.Supersedes ?supersedes .
+            } GROUP BY ?FullModel
+    }
+}}
+
 # query: numObjectsByType
 # Only types in a namespace given as parameter
 SELECT ?Type (COUNT (DISTINCT ?object) AS ?numObjects)
