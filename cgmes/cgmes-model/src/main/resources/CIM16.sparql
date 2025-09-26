@@ -667,14 +667,6 @@ WHERE {
         cim:RegulatingControl.mode ?mode ;
         cim:RegulatingControl.Terminal ?Terminal .
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?RegulatingControl
-        cim:RegulatingControl.enabled ?enabled ;
-        cim:RegulatingControl.targetValue ?targetValue ;
-        cim:RegulatingControl.targetValueUnitMultiplier ?targetValueUnitMultiplier ;
-        cim:RegulatingControl.discrete ?discrete .
-    OPTIONAL { ?RegulatingControl cim:RegulatingControl.targetDeadband ?targetDeadband }
-}}
 }
 
 # query: energyConsumers
@@ -1003,32 +995,6 @@ WHERE {
         ?ACDCConverter cim:VsConverter.CapabilityCurve ?ReactiveCapabilityCurve
     }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?ACDCConverter
-        cim:ACDCConverter.targetPpcc ?targetPpcc ;
-        cim:ACDCConverter.p ?p ;
-        cim:ACDCConverter.q ?q .
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
-}}
-# For Current Source Converter
-OPTIONAL {
-    ?ACDCConverter a cim:CsConverter .
-    ?ACDCConverter
-        cim:CsConverter.operatingMode ?operatingMode ;
-        cim:CsConverter.pPccControl ?controlMode .
-       OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
-}
-# For Voltage Source Converter
-OPTIONAL {
-    ?ACDCConverter a cim:VsConverter .
-    ?ACDCConverter
-       cim:VsConverter.qPccControl ?qPccControl ;
-       cim:VsConverter.pPccControl ?pPccControl .
-    OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
-    OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
-}
 }
 
 # query: dcTerminals
@@ -1052,9 +1018,6 @@ UNION
 }}
 }
 OPTIONAL { ?DCTerminal cim:IdentifiedObject.name ?name }
-OPTIONAL { GRAPH ?graphSSH {
-    ?DCTerminal cim:ACDCTerminal.connected ?connected
-}}
 OPTIONAL { GRAPH ?graphCN {
 ?DCTerminal cim:DCBaseTerminal.DCNode ?DCNode .
 }}

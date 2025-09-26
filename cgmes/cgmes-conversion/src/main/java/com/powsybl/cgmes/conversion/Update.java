@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.dc.HvdcLineConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -120,6 +121,16 @@ public final class Update {
         } else {
             ShuntConversion.update(shuntCompensator, cgmesData, context);
         }
+    }
+
+    static void updateHvdcLines(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.HVDC_LINE.name()));
+
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.acDcConverters(), CgmesNames.ACDC_CONVERTER, equipmentIdPropertyBag);
+        network.getHvdcLines().forEach(hvdcLine -> HvdcLineConversion.update(hvdcLine, getPropertyBag(hvdcLine.getConverterStation1().getId(), equipmentIdPropertyBag), getPropertyBag(hvdcLine.getConverterStation2().getId(), equipmentIdPropertyBag), context));
+
+        context.popReportNode();
     }
 
     static void temporaryComputeFlowsDanglingLines(Network network, Context context) {

@@ -203,13 +203,7 @@ public class RegulatingControlMappingForTransformers {
     }
 
     public boolean getRegulating(String controlId) {
-        if (controlId != null) {
-            RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
-            if (control != null) {
-                return control.enabled;
-            }
-        }
-        return false;
+        return controlId != null;
     }
 
     private static boolean isControlModeFixed(String controlMode) {

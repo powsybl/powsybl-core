@@ -316,6 +316,7 @@ public class Conversion {
         updateTransformers(network, updateContext);
         updateStaticVarCompensators(network, cgmes, updateContext);
         updateShuntCompensators(network, cgmes, updateContext);
+        updateHvdcLines(network, cgmes, updateContext);
         // Temporary until the danglingLine update is implemented.
         temporaryComputeFlowsDanglingLines(network, updateContext);
 
