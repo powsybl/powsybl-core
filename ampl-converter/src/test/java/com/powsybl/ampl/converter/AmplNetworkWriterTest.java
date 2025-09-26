@@ -236,20 +236,6 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
         exporter.export(network, properties, dataSource);
     }
 
-    private void exportAll(Network network, Properties properties, DataSource dataSource) {
-
-        AmplExportConfig config = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE);
-        AmplExporter exporter = new AmplExporter();
-        exporter.export(network, config, dataSource);
-    }
-
-    private void exportAllBasicAmpl(Network network, Properties properties, DataSource dataSource) {
-
-        AmplExportConfig config = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V1_1);
-        AmplExporter exporter = new AmplExporter();
-        exporter.export(network, config, dataSource);
-    }
-
     @Test
     void writeHeaders() throws IOException {
         Network network = Network.create("dummy_network", "test");
@@ -479,7 +465,6 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
         VoltageLevel voltageLevelA = network.getVoltageLevel("vl1");
         VoltageLevel voltageLevelB = network.getVoltageLevel("vl2");
 
-        double tol = 0.0000001;
         double r = 10.0;
         double r2 = 1.0;
         double x = 20.0;
@@ -607,11 +592,14 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
         TableFormatter formatter3 = new AmplDatTableFormatter(writer, AmplNetworkWriter.getTableTitle(network, "Branches"), AmplConstants.INVALID_FLOAT_VALUE, true, AmplConstants.LOCALE, exporter3.getBranchesColumns());
         exporter3.writeTieLineToFormatter(formatter3, tieLine3);
         String result3 = writer.toString();
-        //assertEquals("" , result3);
+        assertEquals("#Branches (test/InitialState)" + System.lineSeparator() +
+                "#\"variant\" \"num\" \"bus1\" \"bus2\" \"3wt num\" \"sub.1\" \"sub.2\" \"r (pu)\" \"x (pu)\" \"g1 (pu)\" \"g2 (pu)\" \"b1 (pu)\" \"b2 (pu)\" \"cst ratio (pu)\" \"ratio tc\" \"phase tc\" \"p1 (MW)\" \"p2 (MW)\" \"q1 (MVar)\" \"q2 (MVar)\" \"patl1 (A)\" \"patl2 (A)\" \"merged\" \"fault\" \"curative\" \"id\" \"description\"" + System.lineSeparator() +
+                "1 5 1 3 -1 1 4 0.00516529 0.0103306 62.9200 62.9200 82.2800 82.2800 1.00000 -1 -1 -99999.0 -99999.0 -99999.0 -99999.0 -99999.0 -99999.0 false 0 0 \"dl3\" \"dl3_name\"" + System.lineSeparator() +
+                "1 6 3 2 -1 4 2 0.000516529 0.00103306 62.9200 62.9200 82.2800 82.2800 1.00000 -1 -1 -99999.0 -99999.0 -99999.0 -99999.0 -99999.0 -99999.0 false 0 0 \"dl4\" \"dl4\"" + System.lineSeparator(), result3);
     }
 
     @Test
-    void testBasicAmplExporterGetConfig() throws IOException {
+    void testBasicAmplExporterGetConfig() {
         Network network = NoEquipmentNetworkFactory.create();
         AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V1_1);
         BasicAmplExporter exporter = new BasicAmplExporter(amplExportConfig, network, AmplUtil.createMapper(network), 1, 0, 0);
@@ -619,7 +607,7 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
     }
 
     @Test
-    void testBasicAmplExporterGetNetwork() throws IOException {
+    void testBasicAmplExporterGetNetwork() {
         Network network = NoEquipmentNetworkFactory.create();
         AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V1_1);
         BasicAmplExporter exporter = new BasicAmplExporter(amplExportConfig, network, AmplUtil.createMapper(network), 1, 0, 0);
