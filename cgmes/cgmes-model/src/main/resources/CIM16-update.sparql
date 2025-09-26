@@ -87,6 +87,104 @@ SELECT *
     }
 }
 
+# query: operationalLimits
+SELECT *
+{
+    ?OperationalLimit a ?type ;
+        VALUES ?type { cim:CurrentLimit cim:ApparentPowerLimit cim:ActivePowerLimit cim:VoltageLimit } .
+        OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
+        OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
+        OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
+        OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
+}
+
+# query: svVoltages
+SELECT *
+WHERE {
+    ?SvVoltage a cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.v ?v ;
+        cim:SvVoltage.angle ?angle .
+}
+
+# query: ratioTapChangers
+SELECT *
+{
+    {
+        SELECT DISTINCT ?RatioTapChanger
+        WHERE {
+            {
+                ?RatioTapChanger a cim:RatioTapChanger .
+            }
+            UNION
+            {
+                SELECT ?RatioTapChanger
+                WHERE {
+                    ?SvTapStep a cim:SvTapStep ;
+                        cim:SvTapStep.TapChanger ?RatioTapChanger .
+                }
+            }
+        }
+    }
+    OPTIONAL {
+        ?RatioTapChanger
+            cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
+            cim:TapChanger.step ?step .
+    }
+    OPTIONAL {
+        ?SvTapStep a cim:SvTapStep ;
+            cim:SvTapStep.TapChanger ?RatioTapChanger ;
+            cim:SvTapStep.position ?SVtapStep .
+    }
+}
+
+# query: phaseTapChangers
+SELECT *
+{
+    {
+        SELECT DISTINCT ?PhaseTapChanger
+        WHERE {
+            {
+                ?PhaseTapChanger a ?phaseTapChangerType ;
+                VALUES ?phaseTapChangerType { cim:PhaseTapChangerLinear cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerNonLinear cim:PhaseTapChangerTabular } .
+            }
+            UNION
+            {
+                SELECT ?PhaseTapChanger
+                WHERE {
+                    ?SvTapStep a cim:SvTapStep ;
+                        cim:SvTapStep.TapChanger ?PhaseTapChanger .
+                }
+            }
+        }
+    }
+    OPTIONAL {
+        ?PhaseTapChanger
+            cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
+            cim:TapChanger.step ?step .
+    }
+    OPTIONAL {
+        ?SvTapStep a cim:SvTapStep ;
+            cim:SvTapStep.TapChanger ?PhaseTapChanger ;
+            cim:SvTapStep.position ?SVtapStep .
+    }
+}
+
+# query: regulatingControls
+SELECT *
+{
+    ?RegulatingControl a ?type ;
+        VALUES ?type { cim:RegulatingControl cim:TapChangerControl } .
+    OPTIONAL {
+        ?RegulatingControl
+            cim:RegulatingControl.enabled ?enabled ;
+            cim:RegulatingControl.targetValue ?targetValue ;
+            cim:RegulatingControl.targetValueUnitMultiplier ?targetValueUnitMultiplier ;
+            cim:RegulatingControl.discrete ?discrete .
+        OPTIONAL { ?RegulatingControl cim:RegulatingControl.targetDeadband ?targetDeadband }
+    }
+}
+
 # query: energyConsumers
 SELECT *
 {
@@ -113,4 +211,3 @@ SELECT *
         cim:RotatingMachine.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }
-

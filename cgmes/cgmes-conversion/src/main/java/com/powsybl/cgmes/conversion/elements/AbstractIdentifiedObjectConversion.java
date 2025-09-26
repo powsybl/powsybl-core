@@ -102,9 +102,15 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         return getDefaultValue(equipmentValue, previousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
     }
 
-    private static double getDefaultValue(Double equipmentValue, Double previousValue,
-                                          Double defaultValue, double emptyValue,
-                                          List<Conversion.Config.DefaultValue> selectors) {
+    protected static int getDefaultValue(Integer equipmentValue, Integer previousValue, Integer defaultValue, int emptyValue, Context context) {
+        return getDefaultValue(equipmentValue, previousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
+    }
+
+    protected static boolean getDefaultValue(Boolean equipmentValue, Boolean previousValue, Boolean defaultValue, boolean emptyValue, Context context) {
+        return getDefaultValue(equipmentValue, previousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
+    }
+
+    private static <T> T getDefaultValue(T equipmentValue, T previousValue, T defaultValue, T emptyValue, List<Conversion.Config.DefaultValue> selectors) {
         for (Conversion.Config.DefaultValue selector : selectors) {
             if (selector == EQ && equipmentValue != null) {
                 return equipmentValue;

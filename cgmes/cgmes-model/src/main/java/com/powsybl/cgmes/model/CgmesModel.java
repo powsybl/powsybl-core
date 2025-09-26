@@ -110,6 +110,8 @@ public interface CgmesModel {
 
     PropertyBags equivalentShunts();
 
+    PropertyBags svVoltages();
+
     /**
      * Query all NonlinearShuntCompensatorPoint in the CgmesModel.
      *
