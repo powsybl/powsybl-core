@@ -197,19 +197,12 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
     }
 
     private String getSwitchName(NamingStrategy namingStrategy, int connectableNode, Connectable<?> connectable, boolean isDisconnector, int bbsNode, String voltageLevelId) {
-        String switchName;
-        if (connectable instanceof BusbarSection) {
-            switchName = isDisconnector
-                    ? namingStrategy.getDisconnectorName(couplingDeviceSwitchPrefixId, bbsNode, connectableNode)
-                    : namingStrategy.getBreakerName(couplingDeviceSwitchPrefixId, bbsNode, connectableNode);
-        } else {
-            int side = getSide(connectable, voltageLevelId);
-            String baseId = namingStrategy.getSwitchBaseName(connectable, side);
-            switchName = isDisconnector
-                    ? namingStrategy.getDisconnectorName(baseId, bbsNode, connectableNode)
-                    : namingStrategy.getBreakerName(baseId, bbsNode, connectableNode);
-        }
-        return switchName;
+        String baseId = connectable instanceof BusbarSection ?
+            couplingDeviceSwitchPrefixId :
+            namingStrategy.getSwitchBaseName(connectable, getSide(connectable, voltageLevelId));
+        return isDisconnector
+            ? namingStrategy.getDisconnectorName(baseId, bbsNode, connectableNode)
+            : namingStrategy.getBreakerName(baseId, bbsNode, connectableNode);
     }
 
     private int getSide(Connectable<?> connectable, String voltageLevelId) {
