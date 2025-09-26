@@ -295,10 +295,10 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
 
     private boolean isCouplingDeviceBetweenSections(SwitchCreationData data) {
         return data.connectables.stream()
-                .map(BusbarSection.class::cast)
-                .map(this::getSectionIndex)
-                .distinct()
-                .count() == 2;
+            .map(BusbarSection.class::cast)
+            .map(this::getSectionIndex)
+            .distinct()
+            .count() == 2;
     }
 
     public record SwitchCreationData(Switch sw, List<Connectable<?>> connectables, BusbarSection startBusbarSection) {
