@@ -102,6 +102,26 @@ public final class Update {
         context.popReportNode();
     }
 
+    static void updateShuntCompensators(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.SHUNT_COMPENSATOR.name()));
+
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.shuntCompensators(), CgmesNames.SHUNT_COMPENSATOR, equipmentIdPropertyBag);
+        addPropertyBags(cgmes.equivalentShunts(), CgmesNames.EQUIVALENT_SHUNT, equipmentIdPropertyBag);
+
+        network.getShuntCompensators().forEach(shuntCompensator -> updateShuntCompensator(shuntCompensator, getPropertyBag(shuntCompensator.getId(), equipmentIdPropertyBag), context));
+        context.popReportNode();
+    }
+
+    private static void updateShuntCompensator(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
+        String isEquivalentShunt = shuntCompensator.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT);
+        if (Boolean.parseBoolean(isEquivalentShunt)) {
+            EquivalentShuntConversion.update(shuntCompensator, context);
+        } else {
+            ShuntConversion.update(shuntCompensator, cgmesData, context);
+        }
+    }
+
     static void temporaryComputeFlowsDanglingLines(Network network, Context context) {
         network.getDanglingLines().forEach(danglingLine -> computeFlowsOnModelSide(danglingLine, context));
     }

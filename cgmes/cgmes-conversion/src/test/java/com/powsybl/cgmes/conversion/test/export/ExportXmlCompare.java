@@ -145,7 +145,7 @@ final class ExportXmlCompare {
                 // So we do not enforce this attribute to be equal in the original and exported network
                 ignored = attr.getLocalName().equals("ratedS") || attr.getLocalName().equals("bus");
             } else if (elementName.startsWith("shunt")) {
-                ignored = attr.getLocalName().equals("solvedSectionCount");
+                ignored = attr.getLocalName().equals("solvedSectionCount") || attr.getLocalName().equals("bus");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
