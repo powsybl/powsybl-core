@@ -485,8 +485,8 @@ public abstract class AbstractDcTopologyTest {
         }
 
         @Override
-        public void visitAcDcConverter(AcDcConverter<?> converter, TwoSides side) {
-            visited.add(converter.getId() + "/" + side.name());
+        public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
+            visited.add(converter.getId() + "/" + terminalNumber.name());
         }
     }
 

@@ -196,7 +196,7 @@ public class DcNodeImpl extends AbstractDcTopologyVisitable<DcNode> implements D
                 case DC_LINE -> visitor.visitDcLine((DcLineImpl) dcConnectable, dcTerminal.getSide());
                 case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> {
                     AcDcConverter<?> converter = (AcDcConverter<?>) dcConnectable;
-                    visitor.visitAcDcConverter(converter, dcTerminal.getSide());
+                    visitor.visitAcDcConverter(converter, dcTerminal.getTerminalNumber());
                 }
                 default -> throw new IllegalStateException();
             }

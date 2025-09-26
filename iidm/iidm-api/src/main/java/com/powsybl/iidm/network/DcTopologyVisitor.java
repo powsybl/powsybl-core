@@ -20,8 +20,7 @@ public interface DcTopologyVisitor {
         // empty default implementation
     }
 
-    // TODO update following TerminalNumber PR https://github.com/powsybl/powsybl-core/pull/3533
-    default void visitAcDcConverter(AcDcConverter<?> converter, TwoSides side) {
+    default void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
         // empty default implementation
     }
 
