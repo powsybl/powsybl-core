@@ -220,8 +220,8 @@ public class ConnectFeedersToBusbarSections extends AbstractNetworkModification 
     }
 
     private int getSide(Connectable<?> connectable, String voltageLevelId) {
-        if (connectable instanceof Branch<?> b) {
-            return b.getTerminal(voltageLevelId).getSide().getNum();
+        if (connectable instanceof Branch<?> branch) {
+            return branch.getTerminal(voltageLevelId).getSide().getNum();
         } else if (connectable instanceof ThreeWindingsTransformer threeWindingsTransformer) {
             return threeWindingsTransformer.getTerminal(voltageLevelId).getSide().getNum();
         }
