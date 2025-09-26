@@ -420,6 +420,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags generatingUnits() {
+        return namedQuery("generatingUnits");
+    }
+
+    @Override
     public PropertyBags busBarSections() {
         return namedQuery("busbarSections");
     }
@@ -507,6 +512,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public PropertyBags staticVarCompensators() {
         return namedQuery("staticVarCompensators");
+    }
+
+    @Override
+    public PropertyBags synchronousMachinesForUpdate() {
+        return namedQuery("synchronousMachinesForUpdate");
     }
 
     @Override

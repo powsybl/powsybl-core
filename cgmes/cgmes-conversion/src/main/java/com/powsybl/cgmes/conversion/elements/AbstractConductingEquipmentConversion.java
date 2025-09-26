@@ -845,6 +845,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return PowerFlow.UNDEFINED;
     }
 
+    protected static Optional<PropertyBag> findCgmesRegulatingControl(Connectable<?> connectable, Context context) {
+        String regulatingControlId = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
+        return regulatingControlId != null ? Optional.ofNullable(context.regulatingControl(regulatingControlId)) : Optional.empty();
+    }
+
+    protected static int findTerminalSign(Connectable<?> connectable) {
+        return findTerminalSign(connectable, "");
+    }
+
     protected static int findTerminalSign(Connectable<?> connectable, String end) {
         String terminalSign = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN + end);
         return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
@@ -857,6 +866,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     protected static double findTargetV(PropertyBag regulatingControl, String propertyTag, double defaultValue, DefaultValueUse use) {
         double targetV = regulatingControl.asDouble(propertyTag);
         return useDefaultValue(regulatingControl.containsKey(propertyTag), isValidTargetV(targetV), use) ? defaultValue : targetV;
+    }
+
+    protected static double findTargetQ(PropertyBag regulatingControl, int terminalSign, double defaultValue, DefaultValueUse use) {
+        return findTargetValue(regulatingControl, terminalSign, defaultValue, use);
     }
 
     protected static double findTargetValue(PropertyBag regulatingControl, int terminalSign, double defaultValue, DefaultValueUse use) {
@@ -890,6 +903,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected static boolean isValidTargetV(double targetV) {
         return targetV > 0.0;
+    }
+
+    protected static boolean isValidTargetQ(double targetQ) {
+        return isValidTargetValue(targetQ);
     }
 
     protected static boolean isValidTargetValue(double targetValue) {
