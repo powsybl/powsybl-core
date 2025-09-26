@@ -259,3 +259,11 @@ SELECT *
         cim:RotatingMachine.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }
+
+# query: staticVarCompensators
+SELECT *
+{
+    ?StaticVarCompensator a cim:StaticVarCompensator ;
+        cim:StaticVarCompensator.q ?q ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+}

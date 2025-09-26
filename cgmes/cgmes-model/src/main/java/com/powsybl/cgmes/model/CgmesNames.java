@@ -174,6 +174,7 @@ public final class CgmesNames {
     public static final String VOLTAGE_TAG = "voltage";
     public static final String CONNECTED = "connected";
     public static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
+    public static final String SVC_EQ_VOLTAGE_SET_POINT = "svcEquipmentVoltageSetPoint";
 
     public static final String ENERGY_IDENT_CODE_EIC = "energyIdentCodeEic";
     public static final String P_TOLERANCE = "pTolerance";
