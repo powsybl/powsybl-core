@@ -26,7 +26,7 @@ import java.util.UUID;
  */
 class CommandLineToolsTest extends AbstractToolTest {
 
-    private static class Tool1 implements Tool {
+    private static final class Tool1 implements Tool {
 
         @Override
         public Command getCommand() {
@@ -72,7 +72,7 @@ class CommandLineToolsTest extends AbstractToolTest {
         }
     }
 
-    private static class Tool2 implements Tool {
+    private static final class Tool2 implements Tool {
 
         @Override
         public Command getCommand() {
@@ -116,7 +116,7 @@ class CommandLineToolsTest extends AbstractToolTest {
         }
     }
 
-    private static class Tool3 implements Tool {
+    private static final class Tool3 implements Tool {
 
         @Override
         public Command getCommand() {

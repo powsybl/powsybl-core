@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class ConditionDeserializer extends StdDeserializer<Condition> {
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         String type;
         List<String> violationIds;
         Set<LimitViolationType> conditionFilters = Collections.emptySet();

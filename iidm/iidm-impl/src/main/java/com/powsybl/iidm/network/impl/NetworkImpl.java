@@ -1114,7 +1114,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    private class VariantImpl implements Variant {
+    private final class VariantImpl implements Variant {
 
         private final ConnectedComponentsManager connectedComponentsManager
                 = new ConnectedComponentsManager(NetworkImpl.this);

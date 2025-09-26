@@ -114,7 +114,7 @@ public class RegulatingControlMappingForVscConverters {
             .setVoltageRegulatorOn(false);
     }
 
-    private static class CgmesRegulatingControlForVscConverter {
+    private static final class CgmesRegulatingControlForVscConverter {
         String vscRegulation;
         double voltageSetpoint;
         double reactivePowerSetpoint;
