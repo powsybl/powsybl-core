@@ -7,6 +7,7 @@ hidden: true
 ---
 componentDefaultConfig.md
 external-security-analysis-config.md
+geodata.md
 groovy-dsl-contingencies.md
 import-export-parameters-default-value.md
 limit-violation-default-filter.md
@@ -78,6 +79,7 @@ Configuration properties can also be overridden using system's environment varia
 - [dynawo](dynawo.md)
 - [dynawo-default-parameters](dynawo-default-parameters.md)
 - [external-security-analysis-config](external-security-analysis-config.md)
+- [geo-json-importer-post-processor](geodata.md)
 - [groovy-dsl-contingencies](groovy-dsl-contingencies.md)
 - [groovy-post-processor](../../grid_features/import_post_processor.md#groovy-post-processor)
 - [import-export-parameters-default-value](import-export-parameters-default-value.md)
