@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.google.common.collect.Sets;
 import com.powsybl.commons.io.TreeDataFormat;
 
 import java.util.Objects;
@@ -18,16 +19,49 @@ import java.util.Set;
  */
 public abstract class AbstractOptions<T> {
 
+    /**
+     * Extensions to be loaded must be in the extensions set but must not belong to the filteredExtension Set
+     */
     protected Set<String> extensions;
+
+    protected Set<String> filteredExtension;
 
     protected TreeDataFormat format = TreeDataFormat.XML;
 
-    public abstract T setExtensions(Set<String> extensions);
+    public T setExtensions(Set<String> extensions) {
+        this.extensions = extensions;
+        return castThis();
+    }
 
-    public abstract T addExtension(String extension);
+    public T setFilteredExtensions(Set<String> filteredExtensions) {
+        this.filteredExtension = filteredExtensions;
+        return castThis();
+    }
+
+    public T addExtension(String extension) {
+        if (extensions != null) {
+            extensions.add(extension);
+        } else {
+            this.extensions = Sets.newHashSet(extension);
+        }
+        return castThis();
+    }
+
+    public T addFilteredExtension(String extensionToBeFiltered) {
+        if (filteredExtension != null) {
+            filteredExtension.add(extensionToBeFiltered);
+        } else {
+            this.filteredExtension = Sets.newHashSet(extensionToBeFiltered);
+        }
+        return castThis();
+    }
 
     public Optional<Set<String>> getExtensions() {
         return Optional.ofNullable(extensions);
+    }
+
+    public Optional<Set<String>> getFilteredExtensions() {
+        return Optional.ofNullable(filteredExtension);
     }
 
     public boolean withNoExtension() {
@@ -51,7 +85,8 @@ public abstract class AbstractOptions<T> {
     }
 
     public boolean withExtension(String extensionName) {
-        return withAllExtensions() || extensions.contains(extensionName);
+        return (filteredExtension == null || !filteredExtension.contains(extensionName))
+                && (withAllExtensions() || extensions.contains(extensionName));
     }
 
     public abstract boolean isThrowExceptionIfExtensionNotFound();
@@ -62,6 +97,16 @@ public abstract class AbstractOptions<T> {
 
     public T setFormat(TreeDataFormat format) {
         this.format = Objects.requireNonNull(format);
+        return castThis();
+    }
+
+    /**
+     * Cast to T is safe in practice (hence added SuprresWarning annotation).
+     * @return this casted to T
+     */
+    @SuppressWarnings("unchecked")
+    private T castThis() {
         return (T) this;
     }
+
 }
