@@ -5,6 +5,7 @@
 		<md:Model.description>All types of Transformers</md:Model.description>
 		<md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
 		<md:Model.profile>http://iec.ch/TC57/ns/CIM/Topology-EU/3.0</md:Model.profile>
+		<md:Model.version>1</md:Model.version>
 	</md:FullModel>
 
 	<cim:Terminal rdf:about="#_T3W-Terminal1">

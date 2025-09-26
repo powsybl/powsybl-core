@@ -36,25 +36,9 @@ public class CreateBranchFeederBaysBuilder {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #withBusOrBusbarSectionId1(String)} instead.
-     */
-    @Deprecated(since = "5.1.0")
-    public CreateBranchFeederBaysBuilder withBbs1(String bbs1) {
-        return withBusOrBusbarSectionId1(bbs1);
-    }
-
     public CreateBranchFeederBaysBuilder withBusOrBusbarSectionId1(String busOrBbs1) {
         this.busOrBbs1 = busOrBbs1;
         return this;
-    }
-
-    /**
-     * @deprecated Use {@link #withBusOrBusbarSectionId2(String)} instead.
-     */
-    @Deprecated(since = "5.1.0")
-    public CreateBranchFeederBaysBuilder withBbsId2(String bbsId2) {
-        return withBusOrBusbarSectionId2(bbsId2);
     }
 
     public CreateBranchFeederBaysBuilder withBusOrBusbarSectionId2(String busOrBbs2) {
