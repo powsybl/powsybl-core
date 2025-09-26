@@ -111,6 +111,8 @@ public abstract class AbstractLineTest {
         assertSame(busB, acLine.getTerminal("vl2").getBusBreakerView().getConnectableBus());
         assertSame(busA, acLine.getTerminal(TwoSides.ONE).getBusBreakerView().getConnectableBus());
         assertSame(busB, acLine.getTerminal(TwoSides.TWO).getBusBreakerView().getConnectableBus());
+        assertNull(acLine.getTerminal1().getTerminalNumber());
+        assertNull(acLine.getTerminal2().getTerminalNumber());
 
         assertEquals(IdentifiableType.LINE, acLine.getType());
 
