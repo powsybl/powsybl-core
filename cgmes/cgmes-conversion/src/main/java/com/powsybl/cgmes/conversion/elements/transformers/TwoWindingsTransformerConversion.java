@@ -8,9 +8,9 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
+import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
@@ -20,7 +20,9 @@ import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * TwoWindingsTransformer Cgmes Conversion
@@ -67,7 +69,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     @Override
     public boolean valid() {
-        // An transformer end voltage level may be null
+        // A transformer end voltage level may be null
         // (when it is in the boundary and the boundary nodes are not converted)
         // So we do not use the generic validity check for conducting equipment
         // or branch. We only ensure we have nodes at both ends
@@ -143,10 +145,10 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
             adder.setRatedS(convertedT2xModel.ratedS);
         }
         identify(adder);
-        connect(adder);
+        connectWithOnlyEq(adder);
         TwoWindingsTransformer tx = adder.add();
         addAliasesAndProperties(tx);
-        convertedTerminals(tx.getTerminal1(), tx.getTerminal2());
+        convertedTerminalsWithOnlyEq(tx.getTerminal1(), tx.getTerminal2());
 
         setToIidmRatioTapChanger(convertedT2xModel, tx);
         setToIidmPhaseTapChanger(convertedT2xModel, tx, context);
@@ -241,5 +243,19 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     private static double getB(ConvertedT2xModel convertedT2xModel) {
         return getValue(convertedT2xModel.end1.b, getStepB1(convertedT2xModel.end1.ratioTapChanger), getStepB1(convertedT2xModel.end1.phaseTapChanger));
+    }
+
+    public static void update(TwoWindingsTransformer t2w, Context context) {
+        updateTerminals(t2w, context, t2w.getTerminal1(), t2w.getTerminal2());
+
+        boolean isAllowedToRegulatePtc = true;
+        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t2w, ptc, context, isAllowedToRegulatePtc));
+
+        boolean isAllowedToRegulateRtc = checkOnlyOneEnabled(isAllowedToRegulatePtc, t2w.getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t2w, rtc, context, isAllowedToRegulateRtc));
+
+        Stream.of(t2w.getOperationalLimitsGroups1(), t2w.getOperationalLimitsGroups2())
+                .flatMap(Collection::stream)
+                .forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }
 }

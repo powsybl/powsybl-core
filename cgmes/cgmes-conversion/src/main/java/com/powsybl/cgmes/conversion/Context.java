@@ -17,6 +17,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,13 @@ public class Context {
         cachedGroupedReactiveCapabilityCurveData = new HashMap<>();
 
         buildCaches();
+
+        cgmesTerminals = new HashMap<>();
+        ratioTapChangers = new HashMap<>();
+        phaseTapChangers = new HashMap<>();
+        regulatingControls = new HashMap<>();
+        operationalLimits = new HashMap<>();
+        svVoltages = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -99,6 +107,11 @@ public class Context {
             t.setP(f.p());
             t.setQ(f.q());
         }
+    }
+
+    public void convertedTerminalWithOnlyEq(String terminalId, Terminal t, int n) {
+        // Record the mapping between CGMES and IIDM terminals
+        terminalMapping().add(terminalId, t, n);
     }
 
     private boolean setPQAllowed(Terminal t) {
@@ -178,6 +191,46 @@ public class Context {
 
     public PropertyBags reactiveCapabilityCurveData(String curveId) {
         return cachedGroupedReactiveCapabilityCurveData.getOrDefault(curveId, new PropertyBags());
+    }
+
+    public void buildUpdateCache() {
+        buildUpdateCache(cgmesTerminals, cgmes.terminals(), CgmesNames.TERMINAL);
+        buildUpdateCache(ratioTapChangers, cgmes.ratioTapChangers(), CgmesNames.RATIO_TAP_CHANGER);
+        buildUpdateCache(phaseTapChangers, cgmes.phaseTapChangers(), CgmesNames.PHASE_TAP_CHANGER);
+        buildUpdateCache(regulatingControls, cgmes.regulatingControls(), CgmesNames.REGULATING_CONTROL);
+        buildUpdateCache(operationalLimits, cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT);
+        buildUpdateCache(svVoltages, cgmes.svVoltages(), CgmesNames.TOPOLOGICAL_NODE);
+    }
+
+    private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
+        cgmesPropertyBags.forEach(p -> {
+            String id = p.getId(tagId);
+            cache.put(id, p);
+        });
+    }
+
+    public PropertyBag cgmesTerminal(String id) {
+        return cgmesTerminals.get(id);
+    }
+
+    public PropertyBag ratioTapChanger(String id) {
+        return ratioTapChangers.get(id);
+    }
+
+    public PropertyBag phaseTapChanger(String id) {
+        return phaseTapChangers.get(id);
+    }
+
+    public PropertyBag regulatingControl(String id) {
+        return regulatingControls.get(id);
+    }
+
+    public PropertyBag operationalLimit(String id) {
+        return operationalLimits.get(id);
+    }
+
+    public PropertyBag svVoltage(String id) {
+        return svVoltages.get(id);
     }
 
     // Handling issues found during conversion
@@ -295,5 +348,11 @@ public class Context {
     private final Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
     private final Map<String, PropertyBags> cachedGroupedReactiveCapabilityCurveData;
 
+    private final Map<String, PropertyBag> cgmesTerminals;
+    private final Map<String, PropertyBag> ratioTapChangers;
+    private final Map<String, PropertyBag> phaseTapChangers;
+    private final Map<String, PropertyBag> regulatingControls;
+    private final Map<String, PropertyBag> operationalLimits;
+    private final Map<String, PropertyBag> svVoltages;
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }
