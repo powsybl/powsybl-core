@@ -735,11 +735,6 @@ WHERE {
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.qfixed ?qfixed }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?EnergyConsumer
-        cim:EnergyConsumer.p ?p ;
-        cim:EnergyConsumer.q ?q
-}}
 }
 
 # query: energySources
@@ -750,11 +745,6 @@ WHERE {
         a cim:EnergySource ;
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?EnergySource
-}}
-OPTIONAL { GRAPH ?graphSSH {
-    ?EnergySource
-        cim:EnergySource.activePower ?p ;
-        cim:EnergySource.reactivePower ?q
 }}
 }
 
@@ -1007,13 +997,6 @@ WHERE {
         a cim:AsynchronousMachine ;
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?AsynchronousMachine .
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?AsynchronousMachine
-        cim:AsynchronousMachine.asynchronousMachineType ?type ;
-        cim:RotatingMachine.p ?p ;
-        cim:RotatingMachine.q ?q ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }}
 }
 
