@@ -52,6 +52,15 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         }
     }
 
+    void exportVoltageLevelTopology(String topologyLevel) throws IOException {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
+        Properties properties = new Properties();
+        String vlTopologyLevelParam = TOPOLOGY_VOLTAGE_LEVEL_PREFIX + "vl1";
+        properties.put(vlTopologyLevelParam, topologyLevel.toUpperCase());
+        String refString = "/vl_" + topologyLevel + ".xml";
+        exporterTest(network, () -> getClass().getResourceAsStream(refString), properties);
+    }
+
     @Test
     void exportTest() throws IOException {
         exporterTest(MultipleExtensionsTestNetworkFactory.create(), CURRENT_IIDM_VERSION, "multiple-extensions.xml", new Properties());
@@ -80,30 +89,10 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void exportVoltageLevelNodeBreakerTest() throws IOException {
-        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
-        Properties properties = new Properties();
-        String vlTopologyLevelParam = TOPOLOGY_VOLTAGE_LEVEL_PREFIX + "vl1";
-        properties.put(vlTopologyLevelParam, "NODE_BREAKER");
-        exporterTest(network, () -> getClass().getResourceAsStream("/vl_nodeBreaker.xml"), properties);
-    }
-
-    @Test
-    void exportVoltageLevelBusBreakerTest() throws IOException {
-        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
-        Properties properties = new Properties();
-        String vlTopologyLevelParam = TOPOLOGY_VOLTAGE_LEVEL_PREFIX + "vl1";
-        properties.put(vlTopologyLevelParam, "BUS_BREAKER");
-        exporterTest(network, () -> getClass().getResourceAsStream("/vl_busBreaker.xml"), properties);
-    }
-
-    @Test
-    void exportVoltageLevelBusBranchTest() throws IOException {
-        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
-        Properties properties = new Properties();
-        String vlTopologyLevelParam = TOPOLOGY_VOLTAGE_LEVEL_PREFIX + "vl1";
-        properties.put(vlTopologyLevelParam, "BUS_BRANCH");
-        exporterTest(network, () -> getClass().getResourceAsStream("/vl_busBranch.xml"), properties);
+    void exportVoltageLevelTopologyTest() throws IOException {
+        exportVoltageLevelTopology("bus_branch");
+        exportVoltageLevelTopology("bus_breaker");
+        exportVoltageLevelTopology("node_breaker");
     }
 
     @Test
