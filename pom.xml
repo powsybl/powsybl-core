@@ -142,8 +142,6 @@
         <stringtemplate.version>4.3.4</stringtemplate.version>
         <testcontainers.version>1.21.0</testcontainers.version>
         <threeten.version>1.8.0</threeten.version>
-        <!-- trove4j seems abandoned - to be replaced ? -->
-        <trove4j.version>3.0.3</trove4j.version>
         <!-- univocity-parsers seems abandoned - to be replaced ? -->
         <univocity-parsers.version>2.9.0</univocity-parsers.version>
         <xmlunit.version>2.10.2</xmlunit.version>
