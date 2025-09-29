@@ -153,6 +153,22 @@ public final class Update {
         }
     }
 
+    static void updateLines(Network network, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.LINE.name()));
+        network.getLines().forEach(line -> updateLine(line, context));
+        context.popReportNode();
+    }
+
+    private static void updateLine(Line line, Context context) {
+        String originalClass = line.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        switch (originalClass) {
+            case CgmesNames.AC_LINE_SEGMENT -> ACLineSegmentConversion.update(line, context);
+            case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(line, context);
+            case CgmesNames.SERIES_COMPENSATOR -> SeriesCompensatorConversion.update(line, context);
+            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Line: " + line.getId());
+        }
+    }
+
     static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
         // update voltage and angles
