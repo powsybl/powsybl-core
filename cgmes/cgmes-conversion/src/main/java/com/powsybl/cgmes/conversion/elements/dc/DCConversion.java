@@ -185,8 +185,8 @@ public class DCConversion {
 
         // Convert DCLink.
         dcLinks.forEach(dcLink -> {
-            new HvdcConverterConversion(dcLink.getConverter1(), dcLink.getLossFactor1(), context).convert();
-            new HvdcConverterConversion(dcLink.getConverter2(), dcLink.getLossFactor2(), context).convert();
+            new HvdcConverterConversion(dcLink.getConverter1(), context).convert();
+            new HvdcConverterConversion(dcLink.getConverter2(), context).convert();
             new HvdcLineConversion(dcLink, context).convert();
         });
     }
