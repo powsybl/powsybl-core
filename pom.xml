@@ -755,11 +755,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>net.sf.trove4j</groupId>
-                <artifactId>trove4j</artifactId>
-                <version>${trove4j.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.anarres.graphviz</groupId>
                 <artifactId>graphviz-builder</artifactId>
                 <version>${graphviz-builder.version}</version>
