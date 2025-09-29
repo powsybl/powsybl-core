@@ -27,6 +27,7 @@ import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.anarres.graphviz.builder.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static com.powsybl.commons.util.fastutil.FastUtilUtils.grep;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -1230,16 +1233,16 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         // find all paths starting from the current terminal to a busbar section that does not contain an open switch
         // that is not of the type of switch the user wants to operate
         // Paths are already sorted by the number of open switches and by the size of the paths
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
-            Comparator.comparing((TIntArrayList o) -> o.grep(idx -> SwitchPredicates.IS_OPEN.test(graph.getEdgeObject(idx))).size())
-                .thenComparing(TIntArrayList::size));
+        List<IntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
+            Comparator.comparing((IntArrayList o) -> grep(o, idx -> SwitchPredicates.IS_OPEN.test(graph.getEdgeObject(idx))).size())
+                .thenComparing(List::size));
         if (!paths.isEmpty()) {
             // the shortest path is the best
-            TIntArrayList shortestPath = paths.get(0);
+            IntArrayList shortestPath = paths.get(0);
 
             // close all open switches on the path
             for (int i = 0; i < shortestPath.size(); i++) {
-                int e = shortestPath.get(i);
+                int e = shortestPath.getInt(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
                 if (SwitchPredicates.IS_OPEN.test(sw)) {
                     // Since the paths were constructed using the method checkNonClosableSwitches, only operable switches can be open
@@ -1285,13 +1288,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         int node = ((NodeTerminal) terminal).getNode();
         // find all paths starting from the current terminal to a terminal that does not contain an open switch
-        List<TIntArrayList> paths = graph.findAllPaths(node, Objects::nonNull, SwitchPredicates.IS_OPEN);
+        List<IntArrayList> paths = graph.findAllPaths(node, Objects::nonNull, SwitchPredicates.IS_OPEN);
         if (paths.isEmpty()) {
             return false;
         }
 
         // Each path is visited and for each, the first openable switch found is added in the set of switches to open
-        for (TIntArrayList path : paths) {
+        for (IntArrayList path : paths) {
             // Identify the first openable switch on the path
             if (!identifySwitchToOpenPath(path, isSwitchOpenable, switchForDisconnection)) {
                 // If no such switch was found, return false immediately
@@ -1308,9 +1311,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
      * @param switchesToOpen set of switches to be opened
      * @return true if the path can be opened, else false
      */
-    boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
+    boolean identifySwitchToOpenPath(IntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
         for (int i = 0; i < path.size(); i++) {
-            int e = path.get(i);
+            int e = path.getInt(i);
             SwitchImpl sw = graph.getEdgeObject(e);
             if (isSwitchOpenable.test(sw)) {
                 switchesToOpen.add(sw);

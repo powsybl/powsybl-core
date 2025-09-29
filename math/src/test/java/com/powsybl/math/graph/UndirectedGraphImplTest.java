@@ -8,7 +8,7 @@
 package com.powsybl.math.graph;
 
 import com.powsybl.commons.PowsyblException;
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *
@@ -325,11 +331,11 @@ class UndirectedGraphImplTest {
         graph.addEdge(2, 4, null); // 4
         graph.addEdge(4, 5, null); // 5
         graph.addEdge(3, 5, null); // 6
-        List<TIntArrayList> paths = graph.findAllPaths(0, vertex -> vertex != null && "end".equals(vertex.name), null);
+        List<IntArrayList> paths = graph.findAllPaths(0, vertex -> vertex != null && "end".equals(vertex.name), null);
         assertEquals(3, paths.size());
-        assertArrayEquals(new int[] {2, 6}, paths.get(0).toArray());
-        assertArrayEquals(new int[] {0, 3, 5}, paths.get(1).toArray());
-        assertArrayEquals(new int[] {1, 4, 5}, paths.get(2).toArray());
+        assertArrayEquals(new int[] {2, 6}, paths.get(0).toIntArray());
+        assertArrayEquals(new int[] {0, 3, 5}, paths.get(1).toIntArray());
+        assertArrayEquals(new int[] {1, 4, 5}, paths.get(2).toIntArray());
     }
 
     /**
