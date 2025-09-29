@@ -106,6 +106,10 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         updateBranch(line, context);
     }
 
+    public static void update(Switch sw, Context context) {
+        updateBranch(sw, context);
+    }
+
     public static void update(BoundaryLine boundaryLine, Context context) {
         updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }

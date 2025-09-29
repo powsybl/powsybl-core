@@ -34,7 +34,6 @@ import java.util.Optional;
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
-    private static final String CONNECTED = "connected";
     private static final PropertyBag EMPTY_PROPERTY_BAG = new PropertyBag(Collections.emptyList(), false);
 
     protected AbstractConductingEquipmentConversion(
@@ -431,20 +430,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     int iidmNode() {
-        return iidmNode(1, true);
+        return iidmNode(1);
     }
 
     int iidmNode(int n) {
-        return iidmNode(n, true);
-    }
-
-    int iidmNode(int n, boolean equipmentIsConnected) {
         if (!context.nodeBreaker()) {
             throw new ConversionException("Can't request an iidmNode if conversion context is not node-breaker");
         }
         VoltageLevel vl = terminals[n - 1].voltageLevel;
         CgmesTerminal t = terminals[n - 1].t;
-        return context.nodeMapping().iidmNodeForTerminal(t, type.equals("Switch"), vl, equipmentIsConnected);
+        return context.nodeMapping().iidmNodeForTerminal(t, vl);
     }
 
     String busId() {
@@ -560,7 +555,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private static void updateTerminal(PropertyBag cgmesTerminal, Terminal terminal, Context context) {
         if (updateConnect(terminal, context)) {
-            boolean connectedInUpdate = cgmesTerminal.asBoolean(CONNECTED, true);
+            boolean connectedInUpdate = cgmesTerminal.asBoolean(CgmesNames.CONNECTED, true);
             if (!terminal.isConnected() && connectedInUpdate) {
                 terminal.connect();
             } else if (terminal.isConnected() && !connectedInUpdate) {
@@ -708,18 +703,19 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(VoltageLevel.NodeBreakerView.SwitchAdder adder, boolean open) {
+    public void connectWithOnlyEq(VoltageLevel.NodeBreakerView.SwitchAdder adder) {
         if (!context.nodeBreaker()) {
             throw new ConversionException("Not in node breaker context");
         }
-        adder.setNode1(iidmNode(1)).setNode2(iidmNode(2)).setOpen(open);
+        adder
+                .setNode1(iidmNode(1))
+                .setNode2(iidmNode(2));
     }
 
-    public void connect(VoltageLevel.BusBreakerView.SwitchAdder adder, boolean open) {
+    public void connectWithOnlyEq(VoltageLevel.BusBreakerView.SwitchAdder adder) {
         adder
-            .setBus1(busId(1))
-            .setBus2(busId(2))
-            .setOpen(open || !terminalConnected(1) || !terminalConnected(2));
+                .setBus1(busId(1))
+                .setBus2(busId(2));
     }
 
     public void connectWithOnlyEq(LegAdder adder, int terminal) {
@@ -859,6 +855,25 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         NOT_DEFINED,
         NOT_VALID,
         ALWAYS
+    }
+
+    protected static Optional<Boolean> isOpenFromAtLeastOneTerminal(Switch sw, Context context) {
+        Optional<Boolean> connected1 = isTerminalConnected(sw, context, TwoSides.ONE);
+        Optional<Boolean> connected2 = isTerminalConnected(sw, context, TwoSides.TWO);
+        return connected1.flatMap(c1 -> connected2.map(c2 -> !c1 || !c2))
+                .or(() -> connected1.map(c1 -> !c1))
+                .or(() -> connected2.map(c2 -> !c2));
+    }
+
+    private static Optional<Boolean> isTerminalConnected(Switch sw, Context context, TwoSides side) {
+        return sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + side.getNum())
+                .flatMap(cgmesTerminalId -> Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)))
+                .flatMap(cgmesTerminal -> cgmesTerminal.asBoolean(CgmesNames.CONNECTED));
+    }
+
+    protected static boolean getDefaultIsOpen(Switch sw, Context context) {
+        String normalOpen = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN);
+        return getDefaultValue(normalOpen != null ? Boolean.parseBoolean(normalOpen) : null, sw.isOpen(), false, false, context);
     }
 
     private final TerminalData[] terminals;
