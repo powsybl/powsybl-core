@@ -328,6 +328,8 @@ public class Conversion {
         adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(network, updateContext);
         updateContext.popReportNode();
 
+        updateVoltageLevels(network, updateContext);
+
         // Set voltages and angles, then complete
         updateAndCompleteVoltageAndAngles(network, updateContext);
 
