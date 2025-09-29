@@ -37,7 +37,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     private final ExtendedDoubleArrayList minTargetP;
     private final ExtendedDoubleArrayList maxTargetP;
 
-    private final List<ExtendedDoubleArrayList> allTDoubleArrayLists;
+    private final List<ExtendedDoubleArrayList> allExtendedDoubleArrayList;
 
     public ActivePowerControlImpl(T component,
                                   boolean participate,
@@ -61,7 +61,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         this.participationFactor = new ExtendedDoubleArrayList(variantArraySize, participationFactor);
         this.minTargetP = new ExtendedDoubleArrayList(variantArraySize, checkedMinTargetP);
         this.maxTargetP = new ExtendedDoubleArrayList(variantArraySize, checkedMaxTargetP);
-        this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor, this.minTargetP, this.maxTargetP);
+        this.allExtendedDoubleArrayList = List.of(this.droop, this.participationFactor, this.minTargetP, this.maxTargetP);
         checkLimitOrder(minTargetP, maxTargetP);
     }
 
@@ -152,13 +152,13 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         participate.growAndFill(number, participate.getBoolean(sourceIndex));
-        allTDoubleArrayLists.forEach(dl -> dl.growAndFill(number, dl.getDouble(sourceIndex)));
+        allExtendedDoubleArrayList.forEach(dl -> dl.growAndFill(number, dl.getDouble(sourceIndex)));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         participate.removeElements(number);
-        allTDoubleArrayLists.forEach(dl -> dl.removeElements(number));
+        allExtendedDoubleArrayList.forEach(dl -> dl.removeElements(number));
     }
 
     @Override
@@ -170,7 +170,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
             participate.set(index, participate.getBoolean(sourceIndex));
-            allTDoubleArrayLists.forEach(dl -> dl.set(index, dl.getDouble(sourceIndex)));
+            allExtendedDoubleArrayList.forEach(dl -> dl.set(index, dl.getDouble(sourceIndex)));
         }
     }
 

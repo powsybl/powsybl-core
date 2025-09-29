@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
-import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -130,7 +129,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         public GenerationImpl setTargetQ(double targetQ) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = n.getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ,
+            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.getBoolean(variantIndex), targetV.getDouble(variantIndex), targetQ,
                     n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
             double oldValue = this.targetQ.set(variantIndex, targetQ);
             String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -253,9 +252,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     private final OperationalLimitsGroupsImpl operationalLimitsGroups;
     // attributes depending on the variant
 
-    private final TDoubleArrayList p0;
+    private final ExtendedDoubleArrayList p0;
 
-    private final TDoubleArrayList q0;
+    private final ExtendedDoubleArrayList q0;
 
     private final DanglingLineBoundaryImplExt boundary;
 
@@ -263,12 +262,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.p0 = new TDoubleArrayList(variantArraySize);
-        this.q0 = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.p0.add(p0);
-            this.q0.add(q0);
-        }
+        this.p0 = new ExtendedDoubleArrayList(variantArraySize, p0);
+        this.q0 = new ExtendedDoubleArrayList(variantArraySize, q0);
         this.r = r;
         this.x = x;
         this.g = g;
@@ -326,7 +321,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public double getP0() {
-        return p0.get(network.get().getVariantIndex());
+        return p0.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -342,7 +337,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public double getQ0() {
-        return q0.get(network.get().getVariantIndex());
+        return q0.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -514,12 +509,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        p0.ensureCapacity(p0.size() + number);
-        q0.ensureCapacity(q0.size() + number);
-        for (int i = 0; i < number; i++) {
-            p0.add(p0.get(sourceIndex));
-            q0.add(q0.get(sourceIndex));
-        }
+        p0.growAndFill(number, p0.getDouble(sourceIndex));
+        q0.growAndFill(number, q0.getDouble(sourceIndex));
         if (generation != null) {
             generation.extendVariantArraySize(number, sourceIndex);
         }
@@ -528,8 +519,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        p0.remove(p0.size() - number, number);
-        q0.remove(q0.size() - number, number);
+        p0.removeElements(number);
+        q0.removeElements(number);
         if (generation != null) {
             generation.reduceVariantArraySize(number);
         }
@@ -545,8 +536,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            p0.set(index, p0.get(sourceIndex));
-            q0.set(index, q0.get(sourceIndex));
+            p0.set(index, p0.getDouble(sourceIndex));
+            q0.set(index, q0.getDouble(sourceIndex));
         }
         if (generation != null) {
             generation.allocateVariantArrayElement(indexes, sourceIndex);
