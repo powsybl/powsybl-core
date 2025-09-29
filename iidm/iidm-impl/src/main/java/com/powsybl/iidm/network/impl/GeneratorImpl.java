@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.ReactiveLimits;
@@ -36,11 +36,11 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     // attributes depending on the variant
 
-    private final DoubleArrayListHack targetP;
+    private final ExtendedDoubleArrayList targetP;
 
-    private final DoubleArrayListHack targetQ;
+    private final ExtendedDoubleArrayList targetQ;
 
-    private final DoubleArrayListHack targetV;
+    private final ExtendedDoubleArrayList targetV;
 
     private final boolean isCondenser;
 
@@ -60,9 +60,9 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, true);
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
-        this.targetP = new DoubleArrayListHack(variantArraySize, targetP);
-        this.targetQ = new DoubleArrayListHack(variantArraySize, targetQ);
-        this.targetV = new DoubleArrayListHack(variantArraySize, targetV);
+        this.targetP = new ExtendedDoubleArrayList(variantArraySize, targetP);
+        this.targetQ = new ExtendedDoubleArrayList(variantArraySize, targetQ);
+        this.targetV = new ExtendedDoubleArrayList(variantArraySize, targetV);
         this.isCondenser = isCondenser;
     }
 

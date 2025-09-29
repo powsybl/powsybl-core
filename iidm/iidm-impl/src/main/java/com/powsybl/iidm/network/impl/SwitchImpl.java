@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.fastutil.BooleanArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
@@ -24,9 +24,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     private final SwitchKind kind;
 
-    private final BooleanArrayListHack open;
+    private final ExtendedBooleanArrayList open;
 
-    private final BooleanArrayListHack retained;
+    private final ExtendedBooleanArrayList retained;
 
     SwitchImpl(VoltageLevelExt voltageLevel,
                String id, String name, boolean fictitious, SwitchKind kind, final boolean open, boolean retained) {
@@ -34,8 +34,8 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         this.voltageLevel = voltageLevel;
         this.kind = kind;
         int variantArraySize = voltageLevel.getNetwork().getVariantManager().getVariantArraySize();
-        this.open = new BooleanArrayListHack(variantArraySize, open);
-        this.retained = new BooleanArrayListHack(variantArraySize, retained);
+        this.open = new ExtendedBooleanArrayList(variantArraySize, open);
+        this.retained = new ExtendedBooleanArrayList(variantArraySize, retained);
     }
 
     @Override

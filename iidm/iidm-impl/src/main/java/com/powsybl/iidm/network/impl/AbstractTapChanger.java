@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -43,7 +43,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final ArrayList<Integer> tapPosition;
 
-    protected final DoubleArrayListHack targetDeadband;
+    protected final ExtendedDoubleArrayList targetDeadband;
 
     protected final ArrayList<Integer> solvedTapPosition;
 
@@ -64,7 +64,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         regulatingPoint.setRegulatingTerminal(regulationTerminal);
         this.tapPosition = new ArrayList<>(variantArraySize);
         this.solvedTapPosition = new ArrayList<>(variantArraySize);
-        this.targetDeadband = new DoubleArrayListHack(variantArraySize, targetDeadband);
+        this.targetDeadband = new ExtendedDoubleArrayList(variantArraySize, targetDeadband);
         for (int i = 0; i < variantArraySize; i++) {
             this.tapPosition.add(tapPosition);
             this.solvedTapPosition.add(solvedTapPosition);

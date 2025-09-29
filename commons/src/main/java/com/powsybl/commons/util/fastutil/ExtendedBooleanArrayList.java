@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,7 +7,7 @@
  */
 package com.powsybl.commons.util.fastutil;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 
 import java.io.Serial;
 import java.util.Arrays;
@@ -15,40 +15,36 @@ import java.util.Arrays;
 import static com.powsybl.commons.util.fastutil.FastUtilUtils.checkSizeForRemoval;
 
 /**
- * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class DoubleArrayListHack extends DoubleArrayList {
+public class ExtendedBooleanArrayList extends BooleanArrayList {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public DoubleArrayListHack() {
+    public ExtendedBooleanArrayList() {
     }
 
-    public DoubleArrayListHack(int capacity) {
+    public ExtendedBooleanArrayList(int capacity) {
         super(capacity);
     }
 
-    public DoubleArrayListHack(int capacity, double value) {
+    public ExtendedBooleanArrayList(int capacity, boolean value) {
         super(capacity);
         size(capacity);
         Arrays.fill(this.elements(), value);
     }
 
-    public DoubleArrayListHack(double[] values) {
+    public ExtendedBooleanArrayList(boolean[] values) {
         super(values);
     }
 
-    public DoubleArrayListHack(DoubleArrayListHack existingList) {
+    public ExtendedBooleanArrayList(ExtendedBooleanArrayList existingList) {
         super(existingList);
     }
 
-    public double[] getData() {
-        return this.a;
-    }
-
-    public void fill(int fromIndex, int toIndex, double value) {
-        Arrays.fill(this.elements(), fromIndex, toIndex, value);
+    public boolean[] getData() {
+        return elements();
     }
 
     /**
@@ -56,9 +52,9 @@ public class DoubleArrayListHack extends DoubleArrayList {
      * specified value for the given length, starting from the current size of the list.
      *
      * @param length the number of elements to fill
-     * @param value the value to fill the specified range with
+     * @param value  the value to fill the specified range with
      */
-    public void growAndFill(int length, double value) {
+    public void growAndFill(int length, boolean value) {
         growAndFill(size(), length, value);
     }
 
@@ -67,10 +63,10 @@ public class DoubleArrayListHack extends DoubleArrayList {
      * from the given starting index for a specified length.
      *
      * @param fromIndex the starting index where the filling begins
-     * @param length the number of elements to fill
-     * @param value the value to fill the specified range with
+     * @param length    the number of elements to fill
+     * @param value     the value to fill the specified range with
      */
-    public void growAndFill(int fromIndex, int length, double value) {
+    public void growAndFill(int fromIndex, int length, boolean value) {
         // Last index to fill
         int toIndex = fromIndex + length;
 
@@ -80,6 +76,17 @@ public class DoubleArrayListHack extends DoubleArrayList {
         }
 
         // Fill the array
+        Arrays.fill(elements(), fromIndex, toIndex, value);
+    }
+
+    /**
+     * Fills a portion of the underlying boolean array with the specified value.
+     *
+     * @param fromIndex the starting index of the range (inclusive) to be filled
+     * @param toIndex   the ending index of the range (exclusive) to be filled
+     * @param value     the boolean value to fill the specified range with
+     */
+    public void fill(int fromIndex, int toIndex, boolean value) {
         Arrays.fill(elements(), fromIndex, toIndex, value);
     }
 
@@ -95,14 +102,11 @@ public class DoubleArrayListHack extends DoubleArrayList {
         removeElements(size() - numberOfElements, size());
     }
 
+    /**
+     * Resets the state of the boolean array list by setting all elements in the list to {@code false}.
+     * The method modifies all elements from the beginning of the array up to the current size of the list.
+     */
     public void reset() {
-        Arrays.fill(this.a, 0, this.size(), 0d);
-    }
-
-    public void times(double scalar) {
-        double[] data = a;
-        for (int i = 0; i < size(); i++) {
-            data[i] *= scalar;
-        }
+        Arrays.fill(elements(), 0, this.size(), false);
     }
 }

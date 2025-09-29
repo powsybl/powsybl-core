@@ -17,30 +17,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class FloatArrayListHackTest {
+class ExtendedFloatArrayListTest {
     @Test
     void constructorTest() {
-        FloatArrayListHack list1 = new FloatArrayListHack();
+        ExtendedFloatArrayList list1 = new ExtendedFloatArrayList();
         assertTrue(list1.isEmpty());
         assertEquals(0, list1.getData().length);
 
-        list1 = new FloatArrayListHack(1);
+        list1 = new ExtendedFloatArrayList(1);
         assertTrue(list1.isEmpty());
         assertEquals(1, list1.getData().length);
 
-        list1 = new FloatArrayListHack(1, 1.0f);
+        list1 = new ExtendedFloatArrayList(1, 1.0f);
         assertFalse(list1.isEmpty());
         assertEquals(1, list1.size());
         assertEquals(1, list1.getData().length);
         assertEquals(1.0f, list1.getFloat(0));
 
-        list1 = new FloatArrayListHack(new float[] {2.0f});
+        list1 = new ExtendedFloatArrayList(new float[] {2.0f});
         assertFalse(list1.isEmpty());
         assertEquals(1, list1.size());
         assertEquals(1, list1.getData().length);
         assertEquals(2.0f, list1.getFloat(0));
 
-        FloatArrayListHack list2 = new FloatArrayListHack(list1);
+        ExtendedFloatArrayList list2 = new ExtendedFloatArrayList(list1);
         assertFalse(list2.isEmpty());
         assertEquals(1, list2.size());
         assertEquals(1, list2.getData().length);
@@ -50,7 +50,7 @@ class FloatArrayListHackTest {
     @Test
     void growAndFillTest() {
         // Initialize
-        FloatArrayListHack list = new FloatArrayListHack(1, 1.0f);
+        ExtendedFloatArrayList list = new ExtendedFloatArrayList(1, 1.0f);
         assertEquals(1, list.size());
         assertEquals(1, list.getData().length);
 
@@ -58,49 +58,49 @@ class FloatArrayListHackTest {
         list.growAndFill(2, 2.0f);
         assertEquals(3, list.size());
         assertEquals(3, list.getData().length);
-        assertEquals(new FloatArrayListHack(new float[] {1.0f, 2.0f, 2.0f}), list);
+        assertEquals(new ExtendedFloatArrayList(new float[] {1.0f, 2.0f, 2.0f}), list);
 
         // Grow and fill from a specific element
         list.growAndFill(2, 2, 3.0f);
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new FloatArrayListHack(new float[] {1.0f, 2.0f, 3.0f, 3.0f}), list);
+        assertEquals(new ExtendedFloatArrayList(new float[] {1.0f, 2.0f, 3.0f, 3.0f}), list);
 
         // Grow and fill from a specific element, with already a size big enough
         list.growAndFill(2, 2, 4.0f);
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new FloatArrayListHack(new float[] {1.0f, 2.0f, 4.0f, 4.0f}), list);
+        assertEquals(new ExtendedFloatArrayList(new float[] {1.0f, 2.0f, 4.0f, 4.0f}), list);
     }
 
     @Test
     void fillTest() {
         // Initialize
-        FloatArrayListHack list = new FloatArrayListHack(new float[] {1.0f, 2.0f, 4.0f, 4.0f});
+        ExtendedFloatArrayList list = new ExtendedFloatArrayList(new float[] {1.0f, 2.0f, 4.0f, 4.0f});
 
         // Fill
         list.fill(1, 3, 3.0f);
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new FloatArrayListHack(new float[] {1.0f, 3.0f, 3.0f, 4.0f}), list);
+        assertEquals(new ExtendedFloatArrayList(new float[] {1.0f, 3.0f, 3.0f, 4.0f}), list);
     }
 
     @Test
     void removeElementsTest() {
         // Initialize
-        FloatArrayListHack list = new FloatArrayListHack(new float[] {1.0f, 2.0f, 4.0f, 4.0f});
+        ExtendedFloatArrayList list = new ExtendedFloatArrayList(new float[] {1.0f, 2.0f, 4.0f, 4.0f});
 
         // Remove some elements
         list.removeElements(2);
         assertEquals(2, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new FloatArrayListHack(new float[] {1.0f, 2.0f}), list);
+        assertEquals(new ExtendedFloatArrayList(new float[] {1.0f, 2.0f}), list);
 
         // Remove 0 elements
         list.removeElements(0);
         assertEquals(2, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new FloatArrayListHack(new float[] {1.0f, 2.0f}), list);
+        assertEquals(new ExtendedFloatArrayList(new float[] {1.0f, 2.0f}), list);
 
         // Try to remove more elements than available
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> list.removeElements(10));
@@ -114,24 +114,24 @@ class FloatArrayListHackTest {
     @Test
     void resetTest() {
         // Initialize
-        FloatArrayListHack list = new FloatArrayListHack(new float[] {1.0f, 2.0f, 4.0f, 4.0f});
+        ExtendedFloatArrayList list = new ExtendedFloatArrayList(new float[] {1.0f, 2.0f, 4.0f, 4.0f});
 
         // Reset the list
         list.reset();
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new FloatArrayListHack(new float[] {0.0f, 0.0f, 0.0f, 0.0f}), list);
+        assertEquals(new ExtendedFloatArrayList(new float[] {0.0f, 0.0f, 0.0f, 0.0f}), list);
     }
 
     @Test
     void timesTest() {
         // Initialize
-        FloatArrayListHack list = new FloatArrayListHack(new float[] {1.0f, 2.0f, 4.0f, 4.0f});
+        ExtendedFloatArrayList list = new ExtendedFloatArrayList(new float[] {1.0f, 2.0f, 4.0f, 4.0f});
 
         // Multiply
         list.times(2);
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new FloatArrayListHack(new float[] {2.0f, 4.0f, 8.0f, 8.0f}), list);
+        assertEquals(new ExtendedFloatArrayList(new float[] {2.0f, 4.0f, 8.0f, 8.0f}), list);
     }
 }

@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.TapChanger;
@@ -33,7 +33,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     // attributes depending on the variant
 
-    private final DoubleArrayListHack regulationValue;
+    private final ExtendedDoubleArrayList regulationValue;
 
     PhaseTapChangerImpl(PhaseTapChangerParent parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
@@ -42,7 +42,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
         super(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, targetDeadband, "phase tap changer");
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
-        this.regulationValue = new DoubleArrayListHack(variantArraySize, regulationValue);
+        this.regulationValue = new ExtendedDoubleArrayList(variantArraySize, regulationValue);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {

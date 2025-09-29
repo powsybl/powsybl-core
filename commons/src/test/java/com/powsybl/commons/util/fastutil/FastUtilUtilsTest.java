@@ -19,9 +19,9 @@ class FastUtilUtilsTest {
     @Test
     void grepTest() {
         // Initialize
-        IntArrayListHack list = new IntArrayListHack(new int[] {1, 2, 0, 4});
+        ExtendedIntArrayList list = new ExtendedIntArrayList(new int[] {1, 2, 0, 4});
 
         // Get only some elements according to a predicate
-        assertEquals(new IntArrayListHack(new int[] {1, 0}), grep(list, (int i) -> i < 2));
+        assertEquals(new ExtendedIntArrayList(new int[] {1, 0}), grep(list, (int i) -> i < 2));
     }
 }

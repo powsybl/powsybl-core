@@ -7,9 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.*;
-import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -24,7 +23,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     // attributes depending on the variant
 
-    private final DoubleArrayListHack regulationValue;
+    private final ExtendedDoubleArrayList regulationValue;
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
@@ -32,7 +31,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         super(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, targetDeadband, "ratio tap changer");
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
-        this.regulationValue = new DoubleArrayListHack(variantArraySize, regulationValue);
+        this.regulationValue = new ExtendedDoubleArrayList(variantArraySize, regulationValue);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {

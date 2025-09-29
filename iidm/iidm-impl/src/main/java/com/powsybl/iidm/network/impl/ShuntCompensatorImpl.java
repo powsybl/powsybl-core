@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
@@ -44,10 +44,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final ArrayList<Integer> solvedSectionCount;
 
     /* the target voltage value */
-    private final DoubleArrayListHack targetV;
+    private final ExtendedDoubleArrayList targetV;
 
     /* the target deadband */
-    private final DoubleArrayListHack targetDeadband;
+    private final ExtendedDoubleArrayList targetDeadband;
 
     ShuntCompensatorImpl(Ref<NetworkImpl> network,
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
@@ -60,8 +60,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         this.sectionCount = new ArrayList<>(variantArraySize);
         this.solvedSectionCount = new ArrayList<>(variantArraySize);
-        this.targetV = new DoubleArrayListHack(variantArraySize, targetV);
-        this.targetDeadband = new DoubleArrayListHack(variantArraySize, targetDeadband);
+        this.targetV = new ExtendedDoubleArrayList(variantArraySize, targetV);
+        this.targetDeadband = new ExtendedDoubleArrayList(variantArraySize, targetDeadband);
         for (int i = 0; i < variantArraySize; i++) {
             this.sectionCount.add(sectionCount);
             this.solvedSectionCount.add(checkSolvedSectionCount(solvedSectionCount, model.getMaximumSectionCount()));

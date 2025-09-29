@@ -8,8 +8,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
-import com.powsybl.commons.util.fastutil.IntArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -37,9 +37,9 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     // attributes depending on the variant
 
-    private final IntArrayListHack convertersMode;
+    private final ExtendedIntArrayList convertersMode;
 
-    private final DoubleArrayListHack activePowerSetpoint;
+    private final ExtendedDoubleArrayList activePowerSetpoint;
 
     //
 
@@ -57,8 +57,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         this.nominalV = nominalV;
         this.maxP = maxP;
         int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
-        this.convertersMode = new IntArrayListHack(variantArraySize, convertersMode != null ? convertersMode.ordinal() : -1);
-        this.activePowerSetpoint = new DoubleArrayListHack(variantArraySize, activePowerSetpoint);
+        this.convertersMode = new ExtendedIntArrayList(variantArraySize, convertersMode != null ? convertersMode.ordinal() : -1);
+        this.activePowerSetpoint = new ExtendedDoubleArrayList(variantArraySize, activePowerSetpoint);
         this.converterStation1 = attach(converterStation1);
         this.converterStation2 = attach(converterStation2);
         this.networkRef = networkRef;

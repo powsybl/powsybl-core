@@ -17,90 +17,91 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class DoubleArrayListHackTest {
+class ExtendedBooleanArrayListTest {
+
     @Test
     void constructorTest() {
-        DoubleArrayListHack list1 = new DoubleArrayListHack();
+        ExtendedBooleanArrayList list1 = new ExtendedBooleanArrayList();
         assertTrue(list1.isEmpty());
         assertEquals(0, list1.getData().length);
 
-        list1 = new DoubleArrayListHack(1);
+        list1 = new ExtendedBooleanArrayList(1);
         assertTrue(list1.isEmpty());
         assertEquals(1, list1.getData().length);
 
-        list1 = new DoubleArrayListHack(1, 1.0);
+        list1 = new ExtendedBooleanArrayList(1, true);
         assertFalse(list1.isEmpty());
         assertEquals(1, list1.size());
         assertEquals(1, list1.getData().length);
-        assertEquals(1.0, list1.getDouble(0));
+        assertTrue(list1.getBoolean(0));
 
-        list1 = new DoubleArrayListHack(new double[] {2.0});
+        list1 = new ExtendedBooleanArrayList(new boolean[] {true});
         assertFalse(list1.isEmpty());
         assertEquals(1, list1.size());
         assertEquals(1, list1.getData().length);
-        assertEquals(2.0, list1.getDouble(0));
+        assertTrue(list1.getBoolean(0));
 
-        DoubleArrayListHack list2 = new DoubleArrayListHack(list1);
+        ExtendedBooleanArrayList list2 = new ExtendedBooleanArrayList(list1);
         assertFalse(list2.isEmpty());
         assertEquals(1, list2.size());
         assertEquals(1, list2.getData().length);
-        assertEquals(2.0, list2.getDouble(0));
+        assertTrue(list2.getBoolean(0));
     }
 
     @Test
     void growAndFillTest() {
         // Initialize
-        DoubleArrayListHack list = new DoubleArrayListHack(1, 1.0);
+        ExtendedBooleanArrayList list = new ExtendedBooleanArrayList(1, true);
         assertEquals(1, list.size());
         assertEquals(1, list.getData().length);
 
         // Grow and fill from the last element
-        list.growAndFill(2, 2.0);
+        list.growAndFill(2, false);
         assertEquals(3, list.size());
         assertEquals(3, list.getData().length);
-        assertEquals(new DoubleArrayListHack(new double[] {1.0, 2.0, 2.0}), list);
+        assertEquals(new ExtendedBooleanArrayList(new boolean[] {true, false, false}), list);
 
         // Grow and fill from a specific element
-        list.growAndFill(2, 2, 3.0);
+        list.growAndFill(2, 2, true);
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new DoubleArrayListHack(new double[] {1.0, 2.0, 3.0, 3.0}), list);
+        assertEquals(new ExtendedBooleanArrayList(new boolean[] {true, false, true, true}), list);
 
         // Grow and fill from a specific element, with already a size big enough
-        list.growAndFill(2, 2, 4.0);
+        list.growAndFill(2, 2, false);
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new DoubleArrayListHack(new double[] {1.0, 2.0, 4.0, 4.0}), list);
+        assertEquals(new ExtendedBooleanArrayList(new boolean[] {true, false, false, false}), list);
     }
 
     @Test
     void fillTest() {
         // Initialize
-        DoubleArrayListHack list = new DoubleArrayListHack(new double[] {1.0, 2.0, 4.0, 4.0});
+        ExtendedBooleanArrayList list = new ExtendedBooleanArrayList(new boolean[] {true, false, true, true});
 
         // Fill
-        list.fill(1, 3, 3.0);
+        list.fill(1, 3, false);
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new DoubleArrayListHack(new double[] {1.0, 3.0, 3.0, 4.0}), list);
+        assertEquals(new ExtendedBooleanArrayList(new boolean[] {true, false, false, true}), list);
     }
 
     @Test
     void removeElementsTest() {
         // Initialize
-        DoubleArrayListHack list = new DoubleArrayListHack(new double[] {1.0, 2.0, 4.0, 4.0});
+        ExtendedBooleanArrayList list = new ExtendedBooleanArrayList(new boolean[] {true, false, true, true});
 
         // Remove some elements
         list.removeElements(2);
         assertEquals(2, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new DoubleArrayListHack(new double[] {1.0, 2.0}), list);
+        assertEquals(new ExtendedBooleanArrayList(new boolean[] {true, false}), list);
 
         // Remove 0 elements
         list.removeElements(0);
         assertEquals(2, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new DoubleArrayListHack(new double[] {1.0, 2.0}), list);
+        assertEquals(new ExtendedBooleanArrayList(new boolean[] {true, false}), list);
 
         // Try to remove more elements than available
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> list.removeElements(10));
@@ -114,24 +115,12 @@ class DoubleArrayListHackTest {
     @Test
     void resetTest() {
         // Initialize
-        DoubleArrayListHack list = new DoubleArrayListHack(new double[] {1.0, 2.0, 4.0, 4.0});
+        ExtendedBooleanArrayList list = new ExtendedBooleanArrayList(new boolean[] {true, false, true, true});
 
-        // Reset the list
+        // Fill
         list.reset();
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new DoubleArrayListHack(new double[] {0.0, 0.0, 0.0, 0.0}), list);
-    }
-
-    @Test
-    void timesTest() {
-        // Initialize
-        DoubleArrayListHack list = new DoubleArrayListHack(new double[] {1.0, 2.0, 4.0, 4.0});
-
-        // Multiply
-        list.times(2);
-        assertEquals(4, list.size());
-        assertEquals(4, list.getData().length);
-        assertEquals(new DoubleArrayListHack(new double[] {2.0, 4.0, 8.0, 8.0}), list);
+        assertEquals(new ExtendedBooleanArrayList(new boolean[] {false, false, false, false}), list);
     }
 }

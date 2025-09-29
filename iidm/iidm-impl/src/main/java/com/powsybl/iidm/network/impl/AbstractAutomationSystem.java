@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.BooleanArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
 import com.powsybl.iidm.network.AutomationSystem;
 
 import java.util.Objects;
@@ -17,14 +17,14 @@ import java.util.Objects;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 abstract class AbstractAutomationSystem<I extends AutomationSystem<I>> extends AbstractIdentifiable<I> implements AutomationSystem<I> {
-    private final BooleanArrayListHack enabled;
+    private final ExtendedBooleanArrayList enabled;
 
     AbstractAutomationSystem(Ref<NetworkImpl> networkRef, String id, String name, boolean enabled) {
         super(id, name);
         Objects.requireNonNull(networkRef);
 
         int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
-        this.enabled = new BooleanArrayListHack(variantArraySize, enabled);
+        this.enabled = new ExtendedBooleanArrayList(variantArraySize, enabled);
     }
 
     @Override

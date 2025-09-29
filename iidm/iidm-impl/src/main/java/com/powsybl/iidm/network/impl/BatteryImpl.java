@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
@@ -24,9 +24,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private final DoubleArrayListHack targetP;
+    private final ExtendedDoubleArrayList targetP;
 
-    private final DoubleArrayListHack targetQ;
+    private final ExtendedDoubleArrayList targetQ;
 
     private double minP;
 
@@ -39,8 +39,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.targetP = new DoubleArrayListHack(variantArraySize, targetP);
-        this.targetQ = new DoubleArrayListHack(variantArraySize, targetQ);
+        this.targetP = new ExtendedDoubleArrayList(variantArraySize, targetP);
+        this.targetQ = new ExtendedDoubleArrayList(variantArraySize, targetQ);
     }
 
     /**

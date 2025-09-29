@@ -17,91 +17,90 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class BooleanArrayListHackTest {
-
+class ExtendedIntArrayListTest {
     @Test
     void constructorTest() {
-        BooleanArrayListHack list1 = new BooleanArrayListHack();
+        ExtendedIntArrayList list1 = new ExtendedIntArrayList();
         assertTrue(list1.isEmpty());
         assertEquals(0, list1.getData().length);
 
-        list1 = new BooleanArrayListHack(1);
+        list1 = new ExtendedIntArrayList(1);
         assertTrue(list1.isEmpty());
         assertEquals(1, list1.getData().length);
 
-        list1 = new BooleanArrayListHack(1, true);
+        list1 = new ExtendedIntArrayList(1, 1);
         assertFalse(list1.isEmpty());
         assertEquals(1, list1.size());
         assertEquals(1, list1.getData().length);
-        assertTrue(list1.getBoolean(0));
+        assertEquals(1, list1.getInt(0));
 
-        list1 = new BooleanArrayListHack(new boolean[] {true});
+        list1 = new ExtendedIntArrayList(new int[] {2});
         assertFalse(list1.isEmpty());
         assertEquals(1, list1.size());
         assertEquals(1, list1.getData().length);
-        assertTrue(list1.getBoolean(0));
+        assertEquals(2, list1.getInt(0));
 
-        BooleanArrayListHack list2 = new BooleanArrayListHack(list1);
+        ExtendedIntArrayList list2 = new ExtendedIntArrayList(list1);
         assertFalse(list2.isEmpty());
         assertEquals(1, list2.size());
         assertEquals(1, list2.getData().length);
-        assertTrue(list2.getBoolean(0));
+        assertEquals(2, list2.getInt(0));
     }
 
     @Test
     void growAndFillTest() {
         // Initialize
-        BooleanArrayListHack list = new BooleanArrayListHack(1, true);
+        ExtendedIntArrayList list = new ExtendedIntArrayList(1, 1);
         assertEquals(1, list.size());
         assertEquals(1, list.getData().length);
 
         // Grow and fill from the last element
-        list.growAndFill(2, false);
+        list.growAndFill(2, 2);
         assertEquals(3, list.size());
         assertEquals(3, list.getData().length);
-        assertEquals(new BooleanArrayListHack(new boolean[] {true, false, false}), list);
+        assertEquals(new ExtendedIntArrayList(new int[] {1, 2, 2}), list);
 
         // Grow and fill from a specific element
-        list.growAndFill(2, 2, true);
+        list.growAndFill(2, 2, 3);
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new BooleanArrayListHack(new boolean[] {true, false, true, true}), list);
+        assertEquals(new ExtendedIntArrayList(new int[] {1, 2, 3, 3}), list);
 
         // Grow and fill from a specific element, with already a size big enough
-        list.growAndFill(2, 2, false);
+        list.growAndFill(2, 2, 4);
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new BooleanArrayListHack(new boolean[] {true, false, false, false}), list);
+        assertEquals(new ExtendedIntArrayList(new int[] {1, 2, 4, 4}), list);
     }
 
     @Test
     void fillTest() {
         // Initialize
-        BooleanArrayListHack list = new BooleanArrayListHack(new boolean[] {true, false, true, true});
+        ExtendedIntArrayList list = new ExtendedIntArrayList(new int[] {1, 2, 4, 4});
 
         // Fill
-        list.fill(1, 3, false);
+        list.fill(1, 3, 3);
         assertEquals(4, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new BooleanArrayListHack(new boolean[] {true, false, false, true}), list);
+        assertEquals(new ExtendedIntArrayList(new int[] {1, 3, 3, 4}), list);
     }
 
     @Test
     void removeElementsTest() {
         // Initialize
-        BooleanArrayListHack list = new BooleanArrayListHack(new boolean[] {true, false, true, true});
+        ExtendedIntArrayList list = new ExtendedIntArrayList(new int[] {1, 2, 4, 4});
 
         // Remove some elements
         list.removeElements(2);
         assertEquals(2, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new BooleanArrayListHack(new boolean[] {true, false}), list);
+        assertEquals(new ExtendedIntArrayList(new int[] {1, 2}), list);
 
         // Remove 0 elements
         list.removeElements(0);
         assertEquals(2, list.size());
         assertEquals(4, list.getData().length);
-        assertEquals(new BooleanArrayListHack(new boolean[] {true, false}), list);
+        assertEquals(new ExtendedIntArrayList(new int[] {1, 2}), list);
 
         // Try to remove more elements than available
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> list.removeElements(10));
@@ -113,14 +112,16 @@ class BooleanArrayListHackTest {
     }
 
     @Test
-    void resetTest() {
+    void minTest() {
         // Initialize
-        BooleanArrayListHack list = new BooleanArrayListHack(new boolean[] {true, false, true, true});
+        ExtendedIntArrayList list = new ExtendedIntArrayList(new int[] {1, 2, 0, 4});
 
-        // Fill
-        list.reset();
-        assertEquals(4, list.size());
-        assertEquals(4, list.getData().length);
-        assertEquals(new BooleanArrayListHack(new boolean[] {false, false, false, false}), list);
+        // Get the min
+        assertEquals(0, list.min());
+
+        // Exception for an empty list
+        list = new ExtendedIntArrayList();
+        IllegalStateException exception = assertThrows(IllegalStateException.class, list::min);
+        assertEquals("Cannot find minimum of an empty list", exception.getMessage());
     }
 }

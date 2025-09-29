@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.ReactiveLimits;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -25,9 +25,9 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private final DoubleArrayListHack reactivePowerSetpoint;
+    private final ExtendedDoubleArrayList reactivePowerSetpoint;
 
-    private final DoubleArrayListHack voltageSetpoint;
+    private final ExtendedDoubleArrayList voltageSetpoint;
 
     private final RegulatingPoint regulatingPoint;
 
@@ -38,8 +38,8 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         super(ref, id, name, fictitious, idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.reactivePowerSetpoint = new DoubleArrayListHack(variantArraySize, reactivePowerSetpoint);
-        this.voltageSetpoint = new DoubleArrayListHack(variantArraySize, voltageSetpoint);
+        this.reactivePowerSetpoint = new ExtendedDoubleArrayList(variantArraySize, reactivePowerSetpoint);
+        this.voltageSetpoint = new ExtendedDoubleArrayList(variantArraySize, voltageSetpoint);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         regulatingPoint = new RegulatingPoint(id, () -> null, variantArraySize, voltageRegulatorOn, true);
         regulatingPoint.setRegulatingTerminal(pccTerminal);

@@ -8,8 +8,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.BooleanArrayListHack;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.ActivePowerLimitsAdder;
 import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
 import com.powsybl.iidm.network.Boundary;
@@ -44,23 +44,23 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         // attributes depending on the variant
 
-        private final DoubleArrayListHack targetP;
+        private final ExtendedDoubleArrayList targetP;
 
-        private final DoubleArrayListHack targetQ;
+        private final ExtendedDoubleArrayList targetQ;
 
-        private final DoubleArrayListHack targetV;
+        private final ExtendedDoubleArrayList targetV;
 
-        private final BooleanArrayListHack voltageRegulationOn;
+        private final ExtendedBooleanArrayList voltageRegulationOn;
 
         GenerationImpl(VariantManagerHolder network, double minP, double maxP, double targetP, double targetQ, double targetV, boolean voltageRegulationOn) {
             this.minP = Double.isNaN(minP) ? -Double.MAX_VALUE : minP;
             this.maxP = Double.isNaN(maxP) ? Double.MAX_VALUE : maxP;
 
             int variantArraySize = network.getVariantManager().getVariantArraySize();
-            this.targetP = new DoubleArrayListHack(variantArraySize, targetP);
-            this.targetQ = new DoubleArrayListHack(variantArraySize, targetQ);
-            this.targetV = new DoubleArrayListHack(variantArraySize, targetV);
-            this.voltageRegulationOn = new BooleanArrayListHack(variantArraySize, voltageRegulationOn);
+            this.targetP = new ExtendedDoubleArrayList(variantArraySize, targetP);
+            this.targetQ = new ExtendedDoubleArrayList(variantArraySize, targetQ);
+            this.targetV = new ExtendedDoubleArrayList(variantArraySize, targetV);
+            this.voltageRegulationOn = new ExtendedBooleanArrayList(variantArraySize, voltageRegulationOn);
         }
 
         GenerationImpl attach(DanglingLineImpl danglingLine) {

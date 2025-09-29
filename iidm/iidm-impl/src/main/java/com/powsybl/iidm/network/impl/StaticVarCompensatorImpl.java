@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -28,9 +28,9 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     // attributes depending on the variant
 
-    private final DoubleArrayListHack voltageSetpoint;
+    private final ExtendedDoubleArrayList voltageSetpoint;
 
-    private final DoubleArrayListHack reactivePowerSetpoint;
+    private final ExtendedDoubleArrayList reactivePowerSetpoint;
 
     StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax, double voltageSetpoint, double reactivePowerSetpoint,
                              RegulationMode regulationMode, boolean regulating, TerminalExt regulatingTerminal, Ref<NetworkImpl> ref) {
@@ -38,8 +38,8 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         this.bMin = bMin;
         this.bMax = bMax;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.voltageSetpoint = new DoubleArrayListHack(variantArraySize, voltageSetpoint);
-        this.reactivePowerSetpoint = new DoubleArrayListHack(variantArraySize, reactivePowerSetpoint);
+        this.voltageSetpoint = new ExtendedDoubleArrayList(variantArraySize, voltageSetpoint);
+        this.reactivePowerSetpoint = new ExtendedDoubleArrayList(variantArraySize, reactivePowerSetpoint);
         regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, regulationMode != null ? regulationMode.ordinal() : -1, regulating, RegulationMode.VOLTAGE.ordinal(), regulationMode == RegulationMode.VOLTAGE);
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
     }

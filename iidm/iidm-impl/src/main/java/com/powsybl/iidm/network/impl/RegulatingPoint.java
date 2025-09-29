@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.fastutil.BooleanArrayListHack;
-import com.powsybl.commons.util.fastutil.IntArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
 import org.slf4j.Logger;
@@ -31,14 +31,14 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
 
     // attributes depending on the variant
 
-    private final BooleanArrayListHack regulating;
-    private final IntArrayListHack regulationMode;
+    private final ExtendedBooleanArrayList regulating;
+    private final ExtendedIntArrayList regulationMode;
 
     RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, boolean regulating, boolean useVoltageRegulation) {
         this.regulatedEquipmentId = regulatedEquipmentId;
         this.localTerminalSupplier = localTerminalSupplier;
         this.useVoltageRegulation = useVoltageRegulation;
-        this.regulating = new BooleanArrayListHack(variantArraySize, regulating);
+        this.regulating = new ExtendedBooleanArrayList(variantArraySize, regulating);
         this.regulationMode = null;
         this.offRegulationMode = -1;
     }
@@ -47,16 +47,16 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
         this.regulatedEquipmentId = regulatedEquipmentId;
         this.localTerminalSupplier = localTerminalSupplier;
         this.useVoltageRegulation = useVoltageRegulation;
-        this.regulationMode = new IntArrayListHack(variantArraySize, regulationMode);
+        this.regulationMode = new ExtendedIntArrayList(variantArraySize, regulationMode);
         this.offRegulationMode = offRegulationMode;
-        this.regulating = new BooleanArrayListHack(variantArraySize, regulating);
+        this.regulating = new ExtendedBooleanArrayList(variantArraySize, regulating);
     }
 
     RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode, int offRegulationMode, boolean useVoltageRegulation) {
         this.regulatedEquipmentId = regulatedEquipmentId;
         this.localTerminalSupplier = localTerminalSupplier;
         this.useVoltageRegulation = useVoltageRegulation;
-        this.regulationMode = new IntArrayListHack(variantArraySize, regulationMode);
+        this.regulationMode = new ExtendedIntArrayList(variantArraySize, regulationMode);
         this.offRegulationMode = offRegulationMode;
         this.regulating = null;
     }

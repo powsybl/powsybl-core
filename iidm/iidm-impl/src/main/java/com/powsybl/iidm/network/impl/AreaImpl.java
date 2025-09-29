@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.AreaBoundary;
 import com.powsybl.iidm.network.Boundary;
@@ -44,7 +44,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     // attributes depending on the variant
 
-    private final DoubleArrayListHack interchangeTarget;
+    private final ExtendedDoubleArrayList interchangeTarget;
 
     private final Referrer<Terminal> terminalReferrer = new Referrer<>() {
         @Override
@@ -82,7 +82,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         this.areaBoundaries = new ArrayList<>();
 
         int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
-        this.interchangeTarget = new DoubleArrayListHack(variantArraySize, interchangeTarget);
+        this.interchangeTarget = new ExtendedDoubleArrayList(variantArraySize, interchangeTarget);
     }
 
     @Override

@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.BooleanArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.DcSwitchKind;
@@ -30,7 +30,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
     private final DcSwitchKind kind;
     private final DcNode dcNode1;
     private final DcNode dcNode2;
-    private final BooleanArrayListHack open;
+    private final ExtendedBooleanArrayList open;
     private boolean removed = false;
 
     DcSwitchImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious,
@@ -43,7 +43,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
         this.dcNode2 = dcNode2;
 
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.open = new BooleanArrayListHack(variantArraySize, open);
+        this.open = new ExtendedBooleanArrayList(variantArraySize, open);
     }
 
     @Override

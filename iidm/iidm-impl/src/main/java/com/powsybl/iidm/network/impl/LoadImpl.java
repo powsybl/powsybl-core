@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadModel;
 import com.powsybl.iidm.network.LoadType;
@@ -30,9 +30,9 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     // attributes depending on the variant
 
-    private final DoubleArrayListHack p0;
+    private final ExtendedDoubleArrayList p0;
 
-    private final DoubleArrayListHack q0;
+    private final ExtendedDoubleArrayList q0;
 
     LoadImpl(Ref<NetworkImpl> networkRef,
              String id, String name, boolean fictitious, LoadType loadType, LoadModel model,
@@ -42,8 +42,8 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
         this.loadType = loadType;
         this.model = model;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.p0 = new DoubleArrayListHack(variantArraySize, p0);
-        this.q0 = new DoubleArrayListHack(variantArraySize, q0);
+        this.p0 = new ExtendedDoubleArrayList(variantArraySize, p0);
+        this.q0 = new ExtendedDoubleArrayList(variantArraySize, q0);
     }
 
     @Override

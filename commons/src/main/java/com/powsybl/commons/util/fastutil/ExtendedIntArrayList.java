@@ -7,7 +7,7 @@
  */
 package com.powsybl.commons.util.fastutil;
 
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.io.Serial;
 import java.util.Arrays;
@@ -17,37 +17,37 @@ import static com.powsybl.commons.util.fastutil.FastUtilUtils.checkSizeForRemova
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class FloatArrayListHack extends FloatArrayList {
+public class ExtendedIntArrayList extends IntArrayList {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public FloatArrayListHack() {
+    public ExtendedIntArrayList() {
     }
 
-    public FloatArrayListHack(int capacity) {
+    public ExtendedIntArrayList(int capacity) {
         super(capacity);
     }
 
-    public FloatArrayListHack(int capacity, float value) {
+    public ExtendedIntArrayList(int capacity, int value) {
         super(capacity);
         size(capacity);
         Arrays.fill(this.elements(), value);
     }
 
-    public FloatArrayListHack(float[] values) {
+    public ExtendedIntArrayList(int[] values) {
         super(values);
     }
 
-    public FloatArrayListHack(FloatArrayListHack existingList) {
+    public ExtendedIntArrayList(ExtendedIntArrayList existingList) {
         super(existingList);
     }
 
-    public float[] getData() {
-        return this.a;
+    public int[] getData() {
+        return this.elements();
     }
 
-    public void fill(int fromIndex, int toIndex, float value) {
+    public void fill(int fromIndex, int toIndex, int value) {
         Arrays.fill(this.elements(), fromIndex, toIndex, value);
     }
 
@@ -58,7 +58,7 @@ public class FloatArrayListHack extends FloatArrayList {
      * @param length the number of elements to fill
      * @param value  the value to fill the specified range with
      */
-    public void growAndFill(int length, float value) {
+    public void growAndFill(int length, int value) {
         growAndFill(size(), length, value);
     }
 
@@ -70,7 +70,7 @@ public class FloatArrayListHack extends FloatArrayList {
      * @param length    the number of elements to fill
      * @param value     the value to fill the specified range with
      */
-    public void growAndFill(int fromIndex, int length, float value) {
+    public void growAndFill(int fromIndex, int length, int value) {
         // Last index to fill
         int toIndex = fromIndex + length;
 
@@ -83,6 +83,19 @@ public class FloatArrayListHack extends FloatArrayList {
         Arrays.fill(elements(), fromIndex, toIndex, value);
     }
 
+    public int min() {
+        if (size() == 0) {
+            throw new IllegalStateException("Cannot find minimum of an empty list");
+        }
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < size; i++) {
+            if (a[i] < min) {
+                min = a[i];
+            }
+        }
+        return min;
+    }
+
     /**
      * Removes the specified number of elements from the end of the list.
      * <br/>
@@ -93,16 +106,5 @@ public class FloatArrayListHack extends FloatArrayList {
     public void removeElements(int numberOfElements) {
         checkSizeForRemoval(numberOfElements, size());
         removeElements(size() - numberOfElements, size());
-    }
-
-    public void reset() {
-        Arrays.fill(this.a, 0, this.size(), 0f);
-    }
-
-    public void times(float scalar) {
-        float[] data = a;
-        for (int i = 0; i < size(); i++) {
-            data[i] *= scalar;
-        }
     }
 }

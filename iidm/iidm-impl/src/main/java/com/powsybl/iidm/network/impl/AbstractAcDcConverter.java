@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.AcDcConverter;
 import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.Terminal;
@@ -42,9 +42,9 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     // attributes depending on the variant
 
-    private final DoubleArrayListHack targetP;
+    private final ExtendedDoubleArrayList targetP;
 
-    private final DoubleArrayListHack targetVdc;
+    private final ExtendedDoubleArrayList targetVdc;
 
     AbstractAcDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
                           double idleLoss, double switchingLoss, double resistiveLoss,
@@ -54,8 +54,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         this.switchingLoss = switchingLoss;
         this.resistiveLoss = resistiveLoss;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.targetP = new DoubleArrayListHack(variantArraySize, targetP);
-        this.targetVdc = new DoubleArrayListHack(variantArraySize, targetVdc);
+        this.targetP = new ExtendedDoubleArrayList(variantArraySize, targetP);
+        this.targetVdc = new ExtendedDoubleArrayList(variantArraySize, targetVdc);
         pccRegulatingPoint = new RegulatingPoint(id, () -> null, variantArraySize, controlMode.ordinal(), ControlMode.V_DC.ordinal(), false);
         pccRegulatingPoint.setRegulatingTerminal(pccTerminal);
     }
