@@ -438,7 +438,7 @@ public final class CgmesExportUtil {
         Connectable<?> c = t.getConnectable();
         // For dangling lines terminal id is always stored at TERMINAL1 alias,
         // it doesn't matter if it is paired or not
-        if (c instanceof DanglingLine) {
+        if (c instanceof BoundaryLine) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
         } else {
             int sequenceNumber = getTerminalSequenceNumber(t);
@@ -447,10 +447,10 @@ public final class CgmesExportUtil {
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
     }
 
-    public static List<DanglingLine> getBoundaryDanglingLines(Network network) {
+    public static List<BoundaryLine> getBoundaryDanglingLines(Network network) {
         return network.getBoundaryElements().stream()
-                .filter(DanglingLine.class::isInstance)
-                .map(DanglingLine.class::cast)
+                .filter(BoundaryLine.class::isInstance)
+                .map(BoundaryLine.class::cast)
                 .sorted(Comparator.comparing(Identifiable::getId))
                 .toList();
     }

@@ -25,10 +25,10 @@ public class TieLineUtilTest {
 
     public static final String PAIRING_KEY = "key";
     private static Network network;
-    private static DanglingLine dlConnected1;
-    private static DanglingLine dlConnected2;
-    private static DanglingLine dlDisconnected1;
-    private static DanglingLine dlDisconnected2;
+    private static BoundaryLine dlConnected1;
+    private static BoundaryLine dlConnected2;
+    private static BoundaryLine dlDisconnected1;
+    private static BoundaryLine dlDisconnected2;
 
     @BeforeAll
     public static void setup() {
@@ -84,16 +84,16 @@ public class TieLineUtilTest {
         Assertions.assertTrue(getCandidate().isEmpty());
     }
 
-    private static void configureDanglingLines(DanglingLine... danglingLines) {
-        when(network.getDanglingLines(DanglingLineFilter.UNPAIRED)).thenReturn(Arrays.asList(danglingLines));
+    private static void configureDanglingLines(BoundaryLine... boundaryLines) {
+        when(network.getDanglingLines(BoundaryLineFilter.UNPAIRED)).thenReturn(Arrays.asList(boundaryLines));
     }
 
-    private static Optional<DanglingLine> getCandidate() {
+    private static Optional<BoundaryLine> getCandidate() {
         return TieLineUtil.findCandidateDanglingLines(network, k -> false).stream().findFirst();
     }
 
-    private static DanglingLine createDanglingLine(String id, boolean connected) {
-        DanglingLine dl = mock(DanglingLine.class);
+    private static BoundaryLine createDanglingLine(String id, boolean connected) {
+        BoundaryLine dl = mock(BoundaryLine.class);
         when(dl.getId()).thenReturn(id);
         when(dl.getPairingKey()).thenReturn(PAIRING_KEY);
         Terminal terminal = mock(Terminal.class);

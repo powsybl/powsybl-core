@@ -469,7 +469,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Add tie line
-        DanglingLine nhv1xnode1 = network.getVoltageLevel("VL2").newDanglingLine()
+        BoundaryLine nhv1xnode1 = network.getVoltageLevel("VL2").newDanglingLine()
             .setId("NHV1_XNODE1")
             .setP0(0.0)
             .setQ0(0.0)
@@ -480,7 +480,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setBus("bus2A")
             .setPairingKey("XNODE1")
             .add();
-        DanglingLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
+        BoundaryLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
             .setId("XNODE1_NHV2")
             .setP0(0.0)
             .setQ0(0.0)
@@ -993,7 +993,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
     private void addTieLine(Network network) {
         // Add tie line
-        DanglingLine nhv1xnode1 = network.getVoltageLevel("VL2").newDanglingLine()
+        BoundaryLine nhv1xnode1 = network.getVoltageLevel("VL2").newDanglingLine()
             .setId("NHV1_XNODE1")
             .setP0(0.0)
             .setQ0(0.0)
@@ -1004,7 +1004,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setBus("bus2A")
             .setPairingKey("XNODE1")
             .add();
-        DanglingLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
+        BoundaryLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
             .setId("XNODE1_NHV2")
             .setP0(0.0)
             .setQ0(0.0)

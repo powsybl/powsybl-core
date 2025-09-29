@@ -41,8 +41,8 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         for (TieLine tl : network.getTieLineStream().toList()) {
-            DanglingLine dl1 = tl.getDanglingLine1();
-            DanglingLine dl2 = tl.getDanglingLine2();
+            BoundaryLine dl1 = tl.getDanglingLine1();
+            BoundaryLine dl2 = tl.getDanglingLine2();
             String dl1Id = dl1.getId();
             String dl2Id = dl2.getId();
             LineAdder adder = network.newLine()
@@ -116,7 +116,7 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
         }
     }
 
-    private static void warningAboutExtensions(DanglingLine dl1, DanglingLine dl2, TieLine tl, ReportNode reportNode) {
+    private static void warningAboutExtensions(BoundaryLine dl1, BoundaryLine dl2, TieLine tl, ReportNode reportNode) {
         String dl1Id = dl1.getId();
         String dl2Id = dl2.getId();
         if (!dl1.getExtensions().isEmpty()) {

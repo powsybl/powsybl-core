@@ -229,7 +229,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     private void writeDanglingLines(VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (DanglingLine dl : IidmSerDeUtil.sorted(vl.getDanglingLines(DanglingLineFilter.ALL), context.getOptions())) {
+        for (BoundaryLine dl : IidmSerDeUtil.sorted(vl.getDanglingLines(BoundaryLineFilter.ALL), context.getOptions())) {
             if (!context.getFilter().test(dl) || context.getVersion().compareTo(IidmVersion.V_1_10) < 0 && dl.isPaired()) {
                 continue;
             }

@@ -102,27 +102,27 @@ class EqualsActionTest {
 
     @Test
     void dangingLineAction() {
-        DanglingLineAction action1 = new DanglingLineActionBuilder().withId("id")
+        BoundaryLineAction action1 = new BoundaryLineActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(false)
                 .build();
-        DanglingLineAction action2 = new DanglingLineActionBuilder().withId("id")
+        BoundaryLineAction action2 = new BoundaryLineActionBuilder().withId("id")
                 .withDanglingLineId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(false)
                 .build();
-        DanglingLineAction action3 = new DanglingLineActionBuilder().withId("id2")
+        BoundaryLineAction action3 = new BoundaryLineActionBuilder().withId("id2")
                 .withNetworkElementId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(false)
                 .build();
-        DanglingLineAction action4 = new DanglingLineActionBuilder().withId("id")
+        BoundaryLineAction action4 = new BoundaryLineActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(true)
                 .build();
-        DanglingLineAction action5 = new DanglingLineActionBuilder().withId("id")
+        BoundaryLineAction action5 = new BoundaryLineActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withReactivePowerValue(100)
                 .withRelativeValue(false)
@@ -152,7 +152,7 @@ class EqualsActionTest {
                 .withActivePowerValue(101)
                 .withRelativeValue(false)
                 .build();
-        Action action4 = new DanglingLineActionBuilder().withId("id")
+        Action action4 = new BoundaryLineActionBuilder().withId("id")
                 .withNetworkElementId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(false)

@@ -169,9 +169,9 @@ class CounterNamingStrategyTest {
     @Test
     void testDanglingLineElementIds() {
         strategy.initializeNetwork(network);
-        DanglingLine dl1 = network.getDanglingLine("DL1");
-        DanglingLine dl2 = network.getDanglingLine("DL2");
-        DanglingLine dl3 = network.getDanglingLine("DL3");
+        BoundaryLine dl1 = network.getDanglingLine("DL1");
+        BoundaryLine dl2 = network.getDanglingLine("DL2");
+        BoundaryLine dl3 = network.getDanglingLine("DL3");
         UcteElementId dlId1 = strategy.getUcteElementId(dl1);
         UcteElementId dlId2 = strategy.getUcteElementId(dl2);
         UcteElementId dlId3 = strategy.getUcteElementId(dl3);

@@ -217,7 +217,7 @@ public final class EurostagTutorialExample1Factory {
         network.getLine(NHV1_NHV2_1).remove();
         network.getLine(NHV1_NHV2_2).remove();
 
-        DanglingLine nhv1xnode1 = network.getVoltageLevel(VLHV1).newDanglingLine()
+        BoundaryLine nhv1xnode1 = network.getVoltageLevel(VLHV1).newDanglingLine()
                 .setId(DANGLING_LINE_XNODE1_1)
                 .setP0(0.0)
                 .setQ0(0.0)
@@ -228,7 +228,7 @@ public final class EurostagTutorialExample1Factory {
                 .setPairingKey(XNODE_1)
                 .setBus(NHV1)
                 .add();
-        DanglingLine xnode1nhv2 = network.getVoltageLevel(VLHV2).newDanglingLine()
+        BoundaryLine xnode1nhv2 = network.getVoltageLevel(VLHV2).newDanglingLine()
                 .setId(DANGLING_LINE_XNODE1_2)
                 .setP0(0.0)
                 .setQ0(0.0)
@@ -244,7 +244,7 @@ public final class EurostagTutorialExample1Factory {
                 .setDanglingLine1(nhv1xnode1.getId())
                 .setDanglingLine2(xnode1nhv2.getId())
                 .add();
-        DanglingLine nhv1xnode2 = network.getVoltageLevel(VLHV1).newDanglingLine()
+        BoundaryLine nhv1xnode2 = network.getVoltageLevel(VLHV1).newDanglingLine()
                 .setId(DANGLING_LINE_XNODE2_1)
                 .setP0(0.0)
                 .setQ0(0.0)
@@ -255,7 +255,7 @@ public final class EurostagTutorialExample1Factory {
                 .setBus(NHV1)
                 .setPairingKey("XNODE2")
                 .add();
-        DanglingLine xnode2nhv2 = network.getVoltageLevel(VLHV2).newDanglingLine()
+        BoundaryLine xnode2nhv2 = network.getVoltageLevel(VLHV2).newDanglingLine()
                 .setId(DANGLING_LINE_XNODE2_2)
                 .setP0(0.0)
                 .setQ0(0.0)
@@ -585,12 +585,12 @@ public final class EurostagTutorialExample1Factory {
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
         ((Bus) network.getIdentifiable(NHV2)).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
 
-        DanglingLine danglingLine1 = network.getDanglingLine(DANGLING_LINE_XNODE1_1);
-        DanglingLine danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE1_2);
-        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine2.getTerminal().setP(-560.0).setQ(-550.0);
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(500).add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
+        BoundaryLine boundaryLine1 = network.getDanglingLine(DANGLING_LINE_XNODE1_1);
+        BoundaryLine boundaryLine2 = network.getDanglingLine(DANGLING_LINE_XNODE1_2);
+        boundaryLine1.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine2.getTerminal().setP(-560.0).setQ(-550.0);
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -609,11 +609,11 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        danglingLine1 = network.getDanglingLine(DANGLING_LINE_XNODE2_1);
-        danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE2_2);
-        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine2.getTerminal().setP(-560.0).setQ(-550.0);
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
+        boundaryLine1 = network.getDanglingLine(DANGLING_LINE_XNODE2_1);
+        boundaryLine2 = network.getDanglingLine(DANGLING_LINE_XNODE2_2);
+        boundaryLine1.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine2.getTerminal().setP(-560.0).setQ(-550.0);
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -626,7 +626,7 @@ public final class EurostagTutorialExample1Factory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(500).add();
 
         return network;
     }
@@ -657,12 +657,12 @@ public final class EurostagTutorialExample1Factory {
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
         ((Bus) network.getIdentifiable(NHV2)).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
 
-        DanglingLine danglingLine1 = network.getDanglingLine(DANGLING_LINE_XNODE1_1);
-        DanglingLine danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE1_2);
-        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine2.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(500).add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
+        BoundaryLine boundaryLine1 = network.getDanglingLine(DANGLING_LINE_XNODE1_1);
+        BoundaryLine boundaryLine2 = network.getDanglingLine(DANGLING_LINE_XNODE1_2);
+        boundaryLine1.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine2.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -681,8 +681,8 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(500).add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -701,11 +701,11 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        danglingLine1 = network.getDanglingLine(DANGLING_LINE_XNODE2_1);
-        danglingLine2 = network.getDanglingLine(DANGLING_LINE_XNODE2_2);
-        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine2.getTerminal().setP(560.0).setQ(550.0);
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
+        boundaryLine1 = network.getDanglingLine(DANGLING_LINE_XNODE2_1);
+        boundaryLine2 = network.getDanglingLine(DANGLING_LINE_XNODE2_2);
+        boundaryLine1.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine2.getTerminal().setP(560.0).setQ(550.0);
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -718,9 +718,9 @@ public final class EurostagTutorialExample1Factory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(500).add();
 
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -733,7 +733,7 @@ public final class EurostagTutorialExample1Factory {
                 .setValue(Double.MAX_VALUE)
                 .endTemporaryLimit()
                 .add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(500).add();
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(500).add();
 
         return network;
     }

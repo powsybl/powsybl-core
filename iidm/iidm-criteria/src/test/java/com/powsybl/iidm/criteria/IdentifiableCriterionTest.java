@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.powsybl.iidm.criteria.DanglingLineCriterionTest.createDanglingLine;
+import static com.powsybl.iidm.criteria.BoundaryLineCriterionTest.createDanglingLine;
 import static com.powsybl.iidm.criteria.LineCriterionTest.createLine;
 import static com.powsybl.iidm.criteria.ThreeWindingsTransformerCriterionTest.createThreeWindingsTransformer;
 import static com.powsybl.iidm.criteria.TieLineCriterionTest.createTieLine;

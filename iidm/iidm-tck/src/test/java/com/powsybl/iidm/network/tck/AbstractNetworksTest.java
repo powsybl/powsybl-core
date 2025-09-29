@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.util.Networks;
@@ -103,8 +103,8 @@ public abstract class AbstractNetworksTest {
 
     @Test
     public void applySolvedValuesDanglingLine() {
-        Network network = DanglingLineNetworkFactory.createWithGeneration();
-        DanglingLine dl = network.getDanglingLine("DL");
+        Network network = BoundaryLineNetworkFactory.createWithGeneration();
+        BoundaryLine dl = network.getDanglingLine("DL");
         dl.getTerminal().setP(441).setQ(30);
         dl.getTerminal().getBusView().getBus().setV(100);
         assertNotEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());

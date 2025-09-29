@@ -142,14 +142,14 @@ public final class Update {
         context.popReportNode();
     }
 
-    private static void updateDanglingLine(DanglingLine danglingLine, Map<String, PropertyBag> equipmentIdPropertyBag, Context context) {
-        String originalClass = danglingLine.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+    private static void updateDanglingLine(BoundaryLine boundaryLine, Map<String, PropertyBag> equipmentIdPropertyBag, Context context) {
+        String originalClass = boundaryLine.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
         switch (originalClass) {
-            case CgmesNames.AC_LINE_SEGMENT -> ACLineSegmentConversion.update(danglingLine, context);
-            case CgmesNames.POWER_TRANSFORMER -> TwoWindingsTransformerConversion.update(danglingLine, context);
-            case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(danglingLine, context);
-            case CgmesNames.SWITCH -> SwitchConversion.update(danglingLine, getPropertyBag(danglingLine.getId(), equipmentIdPropertyBag), context);
-            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for DanglingLine: " + danglingLine.getId());
+            case CgmesNames.AC_LINE_SEGMENT -> ACLineSegmentConversion.update(boundaryLine, context);
+            case CgmesNames.POWER_TRANSFORMER -> TwoWindingsTransformerConversion.update(boundaryLine, context);
+            case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(boundaryLine, context);
+            case CgmesNames.SWITCH -> SwitchConversion.update(boundaryLine, getPropertyBag(boundaryLine.getId(), equipmentIdPropertyBag), context);
+            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for DanglingLine: " + boundaryLine.getId());
         }
     }
 
@@ -175,7 +175,7 @@ public final class Update {
         network.getBusView().getBuses().forEach(bus -> NodeConversion.update(bus, context));
 
         // Voltage and angle in boundary buses
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+        network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED)
                 .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
 
         // Now in tieLines

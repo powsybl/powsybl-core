@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 import java.util.function.Predicate;
 
 /**
- * A tie line is an AC line sharing power between two neighbouring regional grids. It is constituted of two {@link DanglingLine}
+ * A tie line is an AC line sharing power between two neighbouring regional grids. It is constituted of two {@link BoundaryLine}
  * <p>
  * The tie line is always oriented in the same way, <br>
  * The network model node of the danglingLine1 is always at end 1. <br>
@@ -71,7 +71,7 @@ import java.util.function.Predicate;
  * </table>
  *
  * <p>
- * A tie line is created by matching two {@link DanglingLine} with the same pairing key. <br>
+ * A tie line is created by matching two {@link BoundaryLine} with the same pairing key. <br>
  * We have two Dangling Lines within the Tie Line. <br>
  * </p>
  *
@@ -102,22 +102,22 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     /**
      * Get first dangling line of this tie line
      */
-    DanglingLine getDanglingLine1();
+    BoundaryLine getDanglingLine1();
 
     /**
      * Get second dangling line of this tie line
      */
-    DanglingLine getDanglingLine2();
+    BoundaryLine getDanglingLine2();
 
     /**
      * Get the dangling line of this tie line corresponding to the given side
      */
-    DanglingLine getDanglingLine(TwoSides side);
+    BoundaryLine getDanglingLine(TwoSides side);
 
     /**
      * Get the dangling line of this tie line corresponding to the given voltage level
      */
-    DanglingLine getDanglingLine(String voltageLevelId);
+    BoundaryLine getDanglingLine(String voltageLevelId);
 
     @Override
     default IdentifiableType getType() {

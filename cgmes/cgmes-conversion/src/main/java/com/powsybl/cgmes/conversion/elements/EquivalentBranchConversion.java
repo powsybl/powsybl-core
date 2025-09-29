@@ -12,7 +12,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.math3.complex.Complex;
@@ -24,7 +24,7 @@ import java.util.Optional;
  */
 public class EquivalentBranchConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 
-    private DanglingLine danglingLine;
+    private BoundaryLine boundaryLine;
 
     public EquivalentBranchConversion(PropertyBag b, Context context) {
         super(CgmesNames.EQUIVALENT_BRANCH, b, context);
@@ -73,8 +73,8 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     }
 
     @Override
-    public Optional<DanglingLine> getDanglingLine() {
-        return Optional.ofNullable(danglingLine);
+    public Optional<BoundaryLine> getDanglingLine() {
+        return Optional.ofNullable(boundaryLine);
     }
 
     private void convertEquivalentBranchAtBoundary(int boundarySide) {
@@ -92,7 +92,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
             throw new PowsyblException(message);
         }
         String eqInstance = p.get("graph");
-        danglingLine = convertToDanglingLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.EQUIVALENT_BRANCH);
+        boundaryLine = convertToDanglingLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.EQUIVALENT_BRANCH);
     }
 
     private void updateParametersForEquivalentBranchWithDifferentNominalVoltages() {
@@ -163,8 +163,8 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         updateBranch(line, context);
     }
 
-    public static void update(DanglingLine danglingLine, Context context) {
-        updateDanglingLine(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
+    public static void update(BoundaryLine boundaryLine, Context context) {
+        updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 
     private static final String IGNORED_UPDATE_PARAMS_DIFFERENT_NOMINALV_WHAT =

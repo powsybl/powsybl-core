@@ -127,7 +127,7 @@ public class AmplNetworkWriter {
         return middleCcNum;
     }
 
-    private static int getDanglingLineMiddleBusComponentNum(AmplExportContext context, DanglingLine dl) {
+    private static int getDanglingLineMiddleBusComponentNum(AmplExportContext context, BoundaryLine dl) {
         Bus b = AmplUtil.getBus(dl.getTerminal());
         int middleCcNum;
         // if the connection bus of the dangling line is null or not in the main cc, the middle bus is
@@ -186,7 +186,7 @@ public class AmplNetworkWriter {
                     AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt)), twt);
             }
             // voltage level associated to dangling lines middle bus
-            for (DanglingLine dl : getSortedIdentifiables(network.getDanglingLineStream(DanglingLineFilter.UNPAIRED))) {
+            for (BoundaryLine dl : getSortedIdentifiables(network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED))) {
                 columnsExporter.writeDanglingLineVoltageLevelToFormatter(formatter, dl);
                 addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getDanglingLineMiddleVoltageLevelId(dl)),
                     dl);
@@ -282,7 +282,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : getSortedIdentifiables(network.getDanglingLineStream(DanglingLineFilter.UNPAIRED))) {
+        for (BoundaryLine dl : getSortedIdentifiables(network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED))) {
             int middleCcNum = getDanglingLineMiddleBusComponentNum(context, dl);
             if (connectedComponentToExport(middleCcNum)) {
                 context.busIdsToExport.add(AmplUtil.getDanglingLineMiddleBusId(dl));
@@ -429,7 +429,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLines(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : getSortedIdentifiables(network.getDanglingLineStream(DanglingLineFilter.UNPAIRED))) {
+        for (BoundaryLine dl : getSortedIdentifiables(network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED))) {
             Terminal t = dl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
             String bus1Id = AmplUtil.getBusId(bus1);
@@ -531,7 +531,7 @@ public class AmplNetworkWriter {
                     addExtensions(mapper.getInt(AmplSubset.LOAD, l.getId()), l);
                 }
             }
-            for (DanglingLine dl : getSortedIdentifiables(network.getDanglingLineStream(DanglingLineFilter.UNPAIRED))) {
+            for (BoundaryLine dl : getSortedIdentifiables(network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED))) {
                 String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
                 if (!exportLoad(context, middleBusId)) {
                     skipped.add(dl.getId());

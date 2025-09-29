@@ -128,7 +128,7 @@ public final class Networks {
     }
 
     private static void addDanglingLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.UNPAIRED)) {
             Terminal.BusBreakerView view = dl.getTerminal().getBusBreakerView();
             if (view.getBus() != null) {
                 if (view.getBus().isInMainConnectedComponent()) {
@@ -464,7 +464,7 @@ public final class Networks {
         network.getGeneratorStream().forEach(Generator::applySolvedValues);
         network.getBatteryStream().forEach(Battery::applySolvedValues);
         network.getLoadStream().forEach(Load::applySolvedValues);
-        network.getDanglingLineStream().forEach(DanglingLine::applySolvedValues);
+        network.getDanglingLineStream().forEach(BoundaryLine::applySolvedValues);
     }
 
     /**

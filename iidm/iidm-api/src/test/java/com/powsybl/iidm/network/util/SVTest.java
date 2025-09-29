@@ -52,7 +52,7 @@ class SVTest {
 
     @Test
     void testDanglingLine() {
-        DanglingLine dl = new DanglingLineTestData().getDanglingLine();
+        BoundaryLine dl = new BoundaryLineTestData().getDanglingLine();
 
         double tol = 0.0001;
         double p1 = 126.818177;
@@ -251,19 +251,19 @@ class SVTest {
         }
     }
 
-    private static final class DanglingLineTestData {
+    private static final class BoundaryLineTestData {
         private static double R = 10.30;
         private static double X = 40.20;
         private static double G = 0.01;
         private static double B = 0.0016;
         private static double VN = 138.0;
-        private static DanglingLine danglinLine;
+        private static BoundaryLine danglinLine;
 
         private static Terminal t;
         private static VoltageLevel vl;
 
-        private DanglingLineTestData() {
-            danglinLine = Mockito.mock(DanglingLine.class);
+        private BoundaryLineTestData() {
+            danglinLine = Mockito.mock(BoundaryLine.class);
             Mockito.when(danglinLine.getR()).thenReturn(R);
             Mockito.when(danglinLine.getX()).thenReturn(X);
             Mockito.when(danglinLine.getG()).thenReturn(G);
@@ -277,7 +277,7 @@ class SVTest {
             Mockito.when(vl.getNominalV()).thenReturn(VN);
         }
 
-        private DanglingLine getDanglingLine() {
+        private BoundaryLine getDanglingLine() {
             return danglinLine;
         }
     }

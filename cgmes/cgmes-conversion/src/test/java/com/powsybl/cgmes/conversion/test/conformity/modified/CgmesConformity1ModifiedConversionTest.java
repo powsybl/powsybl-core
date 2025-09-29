@@ -69,9 +69,9 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUnmergedXnode().dataSource(),
                         NetworkFactory.findDefault(), importParams);
-        DanglingLine dl = network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        BoundaryLine dl = network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
         assertNotNull(dl);
-        DanglingLine test = network.getDanglingLine("test");
+        BoundaryLine test = network.getDanglingLine("test");
         assertNotNull(test);
     }
 
@@ -371,15 +371,15 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentInjectionRegulatingVoltage().dataSource(),
                 NetworkFactory.findDefault(), importParams);
 
-        DanglingLine danglingLineRegulating = network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
-        assertNotNull(danglingLineRegulating);
-        assertTrue(danglingLineRegulating.getGeneration().isVoltageRegulationOn());
-        assertEquals(220.1234, danglingLineRegulating.getGeneration().getTargetV(), 0.0);
+        BoundaryLine boundaryLineRegulating = network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        assertNotNull(boundaryLineRegulating);
+        assertTrue(boundaryLineRegulating.getGeneration().isVoltageRegulationOn());
+        assertEquals(220.1234, boundaryLineRegulating.getGeneration().getTargetV(), 0.0);
 
-        DanglingLine danglingLineNotRegulating = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
-        assertNotNull(danglingLineNotRegulating);
-        assertEquals(-27.365225, danglingLineNotRegulating.getP0(), 0.0);
-        assertEquals(0.425626, danglingLineNotRegulating.getQ0(), 0.0);
+        BoundaryLine boundaryLineNotRegulating = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
+        assertNotNull(boundaryLineNotRegulating);
+        assertEquals(-27.365225, boundaryLineNotRegulating.getP0(), 0.0);
+        assertEquals(0.425626, boundaryLineNotRegulating.getQ0(), 0.0);
     }
 
     @Test
@@ -406,7 +406,7 @@ class CgmesConformity1ModifiedConversionTest {
     void microBESwitchAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESwitchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), importParams);
-        DanglingLine dl = network.getDanglingLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
+        BoundaryLine dl = network.getDanglingLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
         assertEquals(0.0, dl.getR(), 0.0);
         assertEquals(0.0, dl.getX(), 0.0);
         assertEquals(0.0, dl.getG(), 0.0);
@@ -417,7 +417,7 @@ class CgmesConformity1ModifiedConversionTest {
     void microBETransformerAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBETransformerAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), importParams);
-        DanglingLine dl = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
+        BoundaryLine dl = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
 
         assertEquals(2.588687265185185, dl.getR(), 0.0);
         assertEquals(13.880789206913578, dl.getX(), 0.0);
@@ -429,7 +429,7 @@ class CgmesConformity1ModifiedConversionTest {
     void microBEEquivalentBranchAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchAtBoundary().dataSource(),
             NetworkFactory.findDefault(), importParams);
-        DanglingLine dl = network.getDanglingLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
+        BoundaryLine dl = network.getDanglingLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
         assertEquals(1.0, dl.getR(), 0.0);
         assertEquals(10.0, dl.getX(), 0.0);
     }

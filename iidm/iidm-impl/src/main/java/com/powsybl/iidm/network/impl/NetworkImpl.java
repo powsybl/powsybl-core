@@ -591,23 +591,23 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getDanglingLines(BoundaryLineFilter boundaryLineFilter) {
+        return getDanglingLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return index.getAll(DanglingLineImpl.class).stream().filter(danglingLineFilter.getPredicate()).map(Function.identity());
+    public Stream<BoundaryLine> getDanglingLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return index.getAll(BoundaryLineImpl.class).stream().filter(boundaryLineFilter.getPredicate()).map(Function.identity());
     }
 
     @Override
     public int getDanglingLineCount() {
-        return index.getAll(DanglingLineImpl.class).size();
+        return index.getAll(BoundaryLineImpl.class).size();
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine(String id) {
-        return index.get(id, DanglingLineImpl.class);
+    public BoundaryLineImpl getDanglingLine(String id) {
+        return index.get(id, BoundaryLineImpl.class);
     }
 
     @Override
@@ -1201,15 +1201,15 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         checkMergeability(otherNetwork);
 
         // try to find dangling lines couples
-        List<DanglingLinePair> lines = new ArrayList<>();
-        Map<String, List<DanglingLine>> dl1byPairingKey = new HashMap<>();
+        List<BoundaryLinePair> lines = new ArrayList<>();
+        Map<String, List<BoundaryLine>> dl1byPairingKey = new HashMap<>();
 
-        for (DanglingLine dl1 : getDanglingLines(DanglingLineFilter.ALL)) {
+        for (BoundaryLine dl1 : getDanglingLines(BoundaryLineFilter.ALL)) {
             if (dl1.getPairingKey() != null) {
                 dl1byPairingKey.computeIfAbsent(dl1.getPairingKey(), k -> new ArrayList<>()).add(dl1);
             }
         }
-        for (DanglingLine dl2 : findCandidateDanglingLines(other, dl1byPairingKey::containsKey)) {
+        for (BoundaryLine dl2 : findCandidateDanglingLines(other, dl1byPairingKey::containsKey)) {
             findAndAssociateDanglingLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byPairingKey));
         }
 
@@ -1276,23 +1276,23 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         parent.index.checkAndAdd(sn);
     }
 
-    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byPairingKey) {
+    private void pairDanglingLines(List<BoundaryLinePair> boundaryLinePairs, BoundaryLine dl1, BoundaryLine dl2, Map<String, List<BoundaryLine>> dl1byPairingKey) {
         if (dl1 != null) {
             if (dl1.getPairingKey() != null) {
                 dl1byPairingKey.get(dl1.getPairingKey()).remove(dl1);
             }
-            DanglingLinePair l = new DanglingLinePair();
+            BoundaryLinePair l = new BoundaryLinePair();
             l.id = buildMergedId(dl1.getId(), dl2.getId());
             l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
             l.dl1Id = dl1.getId();
             l.dl2Id = dl2.getId();
             l.aliases = new HashMap<>();
             // No need to merge properties or aliases because we keep the original dangling lines after merge
-            danglingLinePairs.add(l);
+            boundaryLinePairs.add(l);
 
             if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
-                ((DanglingLineImpl) dl1).replaceId(l.dl1Id + "_1");
-                ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
+                ((BoundaryLineImpl) dl1).replaceId(l.dl1Id + "_1");
+                ((BoundaryLineImpl) dl2).replaceId(l.dl2Id + "_2");
                 l.dl1Id = dl1.getId();
                 l.dl2Id = dl2.getId();
             } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
@@ -1304,19 +1304,19 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    private void replaceDanglingLineByTieLine(List<DanglingLinePair> lines) {
-        for (DanglingLinePair danglingLinePair : lines) {
+    private void replaceDanglingLineByTieLine(List<BoundaryLinePair> lines) {
+        for (BoundaryLinePair boundaryLinePair : lines) {
             LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
-                    danglingLinePair.id, danglingLinePair.dl1Id, danglingLinePair.dl2Id);
+                    boundaryLinePair.id, boundaryLinePair.dl1Id, boundaryLinePair.dl2Id);
             TieLineImpl l = newTieLine()
-                    .setId(danglingLinePair.id)
+                    .setId(boundaryLinePair.id)
                     .setEnsureIdUnicity(true)
-                    .setName(danglingLinePair.name)
-                    .setDanglingLine1(danglingLinePair.dl1Id)
-                    .setDanglingLine2(danglingLinePair.dl2Id)
+                    .setName(boundaryLinePair.name)
+                    .setDanglingLine1(boundaryLinePair.dl1Id)
+                    .setDanglingLine2(boundaryLinePair.dl2Id)
                     .add();
-            danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            danglingLinePair.aliases.forEach((alias, type) -> {
+            boundaryLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+            boundaryLinePair.aliases.forEach((alias, type) -> {
                 if (type.isEmpty()) {
                     l.addAlias(alias);
                 } else {
@@ -1326,7 +1326,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    static class DanglingLinePair {
+    static class BoundaryLinePair {
         String id;
         String name;
         String dl1Id;
@@ -1367,12 +1367,12 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
-        return getDanglingLineStream(DanglingLineFilter.UNPAIRED).collect(Collectors.toSet());
+        return getDanglingLineStream(BoundaryLineFilter.UNPAIRED).collect(Collectors.toSet());
     }
 
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        return identifiable.getType() == IdentifiableType.DANGLING_LINE && !((DanglingLine) identifiable).isPaired();
+        return identifiable.getType() == IdentifiableType.DANGLING_LINE && !((BoundaryLine) identifiable).isPaired();
     }
 
     @Override

@@ -128,13 +128,13 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     }
 
     @Override
-    public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, DanglingLine dl,
+    public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, BoundaryLine dl,
                                                           int middleCcNum) {
         formatterHelper.addCell(getDanglingLineMiddleBusSCNum(dl), SYNCHRONOUS_COMPONENT_COLUMN_INDEX);
         formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
     }
 
-    private int getDanglingLineMiddleBusSCNum(DanglingLine dl) {
+    private int getDanglingLineMiddleBusSCNum(BoundaryLine dl) {
         Bus b = AmplUtil.getBus(dl.getTerminal());
         return b != null ? b.getSynchronousComponent().getNum() : otherScNum--;
     }

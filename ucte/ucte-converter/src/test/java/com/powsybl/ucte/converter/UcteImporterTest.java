@@ -119,7 +119,7 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
         assertEquals(2, network.getVoltageLevelCount());
-        assertEquals(1, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).count());
+        assertEquals(1, network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED).count());
         assertEquals(1, network.getTieLineCount());
         TieLine l = network.getTieLineStream().findFirst().orElseThrow(IllegalStateException::new);
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());
@@ -166,7 +166,7 @@ class UcteImporterTest {
     void testVoltageRegulatingXnode() {
         ResourceDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
-        DanglingLine dl = network.getDanglingLine("FFFFFF13 XXXXXX14 1");
+        BoundaryLine dl = network.getDanglingLine("FFFFFF13 XXXXXX14 1");
         assertTrue(dl.getGeneration().isVoltageRegulationOn());
         assertEquals(409.08, dl.getGeneration().getTargetV(), 0.01);
         assertEquals(1.0, dl.getGeneration().getTargetP(), 0.01);

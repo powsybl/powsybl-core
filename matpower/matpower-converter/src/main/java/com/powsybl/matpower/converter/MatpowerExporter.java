@@ -282,7 +282,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static void createDanglingLineBuses(Network network, MatpowerModel model, Context context) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {
@@ -661,7 +661,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private void createDanglingLineBranches(Network network, MatpowerModel model, Context context) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {
@@ -756,7 +756,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private void findDanglingLineGenerators(Network network, Context context) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {

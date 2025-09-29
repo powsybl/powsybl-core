@@ -92,27 +92,27 @@ class ApplyActionToNetworkTest {
     @Test
     void dangingLineAction() {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        DanglingLine danglingLine = network.getDanglingLine("NHV1_XNODE1");
-        danglingLine.setP0(10.0);
-        danglingLine.setQ0(4.0);
+        BoundaryLine boundaryLine = network.getDanglingLine("NHV1_XNODE1");
+        boundaryLine.setP0(10.0);
+        boundaryLine.setQ0(4.0);
 
-        assertEquals(10.0, danglingLine.getP0());
-        DanglingLineAction action = new DanglingLineActionBuilder().withId("id")
+        assertEquals(10.0, boundaryLine.getP0());
+        BoundaryLineAction action = new BoundaryLineActionBuilder().withId("id")
                 .withDanglingLineId("NHV1_XNODE1")
                 .withRelativeValue(false)
                 .withActivePowerValue(5.0)
                 .build();
         action.toModification().apply(network);
-        assertEquals(5.0, danglingLine.getP0());
+        assertEquals(5.0, boundaryLine.getP0());
 
-        assertEquals(4.0, danglingLine.getQ0());
-        DanglingLineAction action2 = new DanglingLineActionBuilder().withId("id")
+        assertEquals(4.0, boundaryLine.getQ0());
+        BoundaryLineAction action2 = new BoundaryLineActionBuilder().withId("id")
                 .withDanglingLineId("NHV1_XNODE1")
                 .withRelativeValue(true)
                 .withReactivePowerValue(2.0)
                 .build();
         action2.toModification().apply(network);
-        assertEquals(6.0, danglingLine.getQ0());
+        assertEquals(6.0, boundaryLine.getQ0());
     }
 
     @Test

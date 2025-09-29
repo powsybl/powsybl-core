@@ -18,15 +18,18 @@ import java.io.IOException;
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class DanglingLineActionBuilderBuilderDeserializer extends AbstractLoadActionBuilderDeserializer<DanglingLineActionBuilder> {
+
+// TODO: Manage versioning to chang DanglingLine to BoundaryLine
+
+public class DanglingLineActionBuilderBuilderDeserializer extends AbstractLoadActionBuilderDeserializer<BoundaryLineActionBuilder> {
 
     public DanglingLineActionBuilderBuilderDeserializer() {
-        super(DanglingLineActionBuilder.class);
+        super(BoundaryLineActionBuilder.class);
     }
 
     @Override
-    public DanglingLineActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        DanglingLineActionBuilder builder = new DanglingLineActionBuilder();
+    public BoundaryLineActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        BoundaryLineActionBuilder builder = new BoundaryLineActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             boolean found = deserializeCommonAttributes(jsonParser, builder, name);
             if (found) {
@@ -34,8 +37,8 @@ public class DanglingLineActionBuilderBuilderDeserializer extends AbstractLoadAc
             }
             if (name.equals("type")) {
                 String type = jsonParser.nextTextValue();
-                if (!DanglingLineAction.NAME.equals(type)) {
-                    throw JsonMappingException.from(jsonParser, "Expected type :" + DanglingLineAction.NAME + " got : " + type);
+                if (!BoundaryLineAction.NAME.equals(type)) {
+                    throw JsonMappingException.from(jsonParser, "Expected type :" + BoundaryLineAction.NAME + " got : " + type);
                 }
                 return true;
             }

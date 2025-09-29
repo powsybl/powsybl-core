@@ -80,7 +80,7 @@ class MergeTest {
     private static Network createNetworkWithDanglingLine(String nid) {
         Network n = NetworkTest1Factory.create(nid);
         VoltageLevel vl = n.getVoltageLevel(id("voltageLevel1", nid));
-        DanglingLine dl = vl.newDanglingLine()
+        BoundaryLine dl = vl.newDanglingLine()
                 .setId(id("danglingLineb", nid))
                 .setNode(6)
                 .setR(1.0)

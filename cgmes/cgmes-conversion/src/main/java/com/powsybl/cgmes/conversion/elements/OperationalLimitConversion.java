@@ -132,7 +132,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      * @param limitSetName The name of the set containing the OperationalLimit.
      * @param dl The dangling line to which the OperationalLimit applies.
      */
-    private void createLimitsAdder(String limitSubclass, String limitSetId, String limitSetName, DanglingLine dl) {
+    private void createLimitsAdder(String limitSubclass, String limitSetId, String limitSetName, BoundaryLine dl) {
         OperationalLimitsGroup limitsGroup = dl.getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
             OperationalLimitsGroup newLimitsGroup = dl.newOperationalLimitsGroup(limitSetId);
             addProperties(newLimitsGroup, limitSetId, limitSetName);
@@ -187,7 +187,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private void checkAndCreateLimitsAdder(int terminalNumber, String limitSetId, String limitSetName, Identifiable<?> identifiable) {
         if (identifiable instanceof Branch) {
             checkAndCreateLimitsAdderBranch((Branch<?>) identifiable, terminalNumber, limitSetId, limitSetName);
-        } else if (identifiable instanceof DanglingLine dl) {
+        } else if (identifiable instanceof BoundaryLine dl) {
             createLimitsAdder(limitSubclass, limitSetId, limitSetName, dl);
         } else if (identifiable instanceof ThreeWindingsTransformer t3w) {
             checkAndCreateLimitsAdderThreeWindingsTransformers(t3w, terminalNumber, limitSetId, limitSetName);

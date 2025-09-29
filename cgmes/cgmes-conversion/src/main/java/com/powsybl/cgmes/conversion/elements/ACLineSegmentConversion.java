@@ -23,7 +23,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class ACLineSegmentConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 
-    private DanglingLine danglingLine;
+    private BoundaryLine boundaryLine;
 
     public ACLineSegmentConversion(PropertyBag line, Context context) {
         super(CgmesNames.AC_LINE_SEGMENT, line, context);
@@ -61,15 +61,15 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     }
 
     @Override
-    public Optional<DanglingLine> getDanglingLine() {
-        return Optional.ofNullable(danglingLine);
+    public Optional<BoundaryLine> getDanglingLine() {
+        return Optional.ofNullable(boundaryLine);
     }
 
     public boolean isConnectedAtBothEnds() {
         return terminalConnected(1) && terminalConnected(2);
     }
 
-    public static void convertToTieLine(Context context, DanglingLine dl1, DanglingLine dl2) {
+    public static void convertToTieLine(Context context, BoundaryLine dl1, BoundaryLine dl2) {
         TieLineAdder adder = context.network().newTieLine()
                 .setDanglingLine1(dl1.getId())
                 .setDanglingLine2(dl2.getId());
@@ -98,7 +98,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
             double bch = p.asDouble("bch");
 
             String eqInstance = p.get("graph");
-            danglingLine = convertToDanglingLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.AC_LINE_SEGMENT);
+            boundaryLine = convertToDanglingLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.AC_LINE_SEGMENT);
         }
     }
 
@@ -106,7 +106,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         updateBranch(line, context);
     }
 
-    public static void update(DanglingLine danglingLine, Context context) {
-        updateDanglingLine(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
+    public static void update(BoundaryLine boundaryLine, Context context) {
+        updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 }

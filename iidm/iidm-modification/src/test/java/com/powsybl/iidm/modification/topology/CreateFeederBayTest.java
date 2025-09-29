@@ -232,7 +232,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         addBatteryModification.apply(network);
-        DanglingLineAdder danglingLineAdder = network.getVoltageLevel("vl2").newDanglingLine()
+        BoundaryLineAdder boundaryLineAdder = network.getVoltageLevel("vl2").newDanglingLine()
                         .setId("newDanglingLine")
                         .setR(10)
                         .setX(20)
@@ -247,7 +247,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter0.get().getMaximum());
         int danglingLinePositionOrder = unusedOrderPositionsAfter0.get().getMinimum();
         NetworkModification addDanglingLineModification = new CreateFeederBayBuilder()
-                .withInjectionAdder(danglingLineAdder)
+                .withInjectionAdder(boundaryLineAdder)
                 .withBusOrBusbarSectionId("bbs5")
                 .withInjectionPositionOrder(danglingLinePositionOrder)
                 .withInjectionDirection(BOTTOM)

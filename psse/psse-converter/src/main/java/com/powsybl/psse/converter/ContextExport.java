@@ -7,8 +7,8 @@
  */
 package com.powsybl.psse.converter;
 
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.psse.model.PsseException;
@@ -86,7 +86,7 @@ final class ContextExport {
         private int maxPsseSubstation;
         private final Map<Bus, Integer> busViewBusI;
         private final Map<Integer, Bus> busIBusView;
-        private final Map<DanglingLine, Integer> danglingLineBusI;
+        private final Map<BoundaryLine, Integer> danglingLineBusI;
         private final Map<String, NodeData> voltageLevelNodeIdNodeData;
         private final Map<String, Integer> psseSubstationIdLastPsseNode;
         private final Map<String, Set<VoltageLevel>> psseSubstationIdVoltageLevels;
@@ -123,8 +123,8 @@ final class ContextExport {
             }
         }
 
-        void addDanglingLineBusI(DanglingLine danglingLine, int busI) {
-            this.danglingLineBusI.put(danglingLine, busI);
+        void addDanglingLineBusI(BoundaryLine boundaryLine, int busI) {
+            this.danglingLineBusI.put(boundaryLine, busI);
         }
 
         Set<Integer> getBusISet() {
@@ -135,8 +135,8 @@ final class ContextExport {
             return Optional.ofNullable(this.busViewBusI.get(busView)).map(OptionalInt::of).orElse(OptionalInt.empty());
         }
 
-        OptionalInt getBusI(DanglingLine danglingLine) {
-            return Optional.ofNullable(this.danglingLineBusI.get(danglingLine)).map(OptionalInt::of).orElse(OptionalInt.empty());
+        OptionalInt getBusI(BoundaryLine boundaryLine) {
+            return Optional.ofNullable(this.danglingLineBusI.get(boundaryLine)).map(OptionalInt::of).orElse(OptionalInt.empty());
         }
 
         Optional<Bus> getBusView(int busI) {

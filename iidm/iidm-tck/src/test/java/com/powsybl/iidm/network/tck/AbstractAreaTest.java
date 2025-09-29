@@ -37,10 +37,10 @@ public abstract class AbstractAreaTest {
     VoltageLevel vlhv1;
     VoltageLevel vlhv2;
     VoltageLevel vlload;
-    DanglingLine dlXnode1A;
-    DanglingLine dlXnode1B;
-    DanglingLine dlXnode2A;
-    DanglingLine dlXnode2B;
+    BoundaryLine dlXnode1A;
+    BoundaryLine dlXnode1B;
+    BoundaryLine dlXnode2A;
+    BoundaryLine dlXnode2B;
     TieLine tieLine1;
     TieLine tieLine2;
 
@@ -520,7 +520,7 @@ public abstract class AbstractAreaTest {
         Bus bus = sn1VL1.getBusBreakerView().newBus()
                 .setId("sub1_bus")
                 .add();
-        DanglingLine danglingLine = sn1VL1.newDanglingLine()
+        BoundaryLine boundaryLine = sn1VL1.newDanglingLine()
                 .setId("sub1_dl")
                 .setP0(0.0)
                 .setQ0(0.0)
@@ -531,7 +531,7 @@ public abstract class AbstractAreaTest {
                 .setBus(bus.getId())
                 .setPairingKey("XNODE")
                 .add();
-        AreaBoundaryAdder areaBoundaryAdder = controlAreaA.newAreaBoundary().setBoundary(danglingLine.getBoundary()).setAc(true);
+        AreaBoundaryAdder areaBoundaryAdder = controlAreaA.newAreaBoundary().setBoundary(boundaryLine.getBoundary()).setAc(true);
         Throwable e = assertThrows(PowsyblException.class, areaBoundaryAdder::add);
         assertEquals("Boundary of DanglingLinesub1_dl cannot be added to Area ControlArea_A boundaries. It does not belong to the same network or subnetwork.", e.getMessage());
     }

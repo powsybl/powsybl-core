@@ -369,7 +369,7 @@ public class Conversion {
 
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
         if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
-            for (DanglingLine dl : network.getDanglingLines()) {
+            for (BoundaryLine dl : network.getDanglingLines()) {
                 if (!isBoundaryTerminalConnected(dl, context) && dl.getTerminal().isConnected()) {
                     LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
                     CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
@@ -380,7 +380,7 @@ public class Conversion {
     }
 
     private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(Network network, Context context) {
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+        network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED)
                 .filter(dl -> dl.getTerminal().isConnected())
                 .collect(groupingBy(Conversion::getDanglingLineBoundaryNode))
                 .values().stream()
@@ -389,7 +389,7 @@ public class Conversion {
                 .forEach(dls -> adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(dls, context));
     }
 
-    private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(List<DanglingLine> dls, Context context) {
+    private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(List<BoundaryLine> dls, Context context) {
         // All dangling lines will have same value for p0, q0. Take it from the first one
         double p0 = dls.get(0).getP0();
         double q0 = dls.get(0).getQ0();
@@ -406,7 +406,7 @@ public class Conversion {
         });
     }
 
-    public static String getDanglingLineBoundaryNode(DanglingLine dl) {
+    public static String getDanglingLineBoundaryNode(BoundaryLine dl) {
         String node;
         node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
         if (node == null) {
@@ -795,9 +795,9 @@ public class Conversion {
         EquipmentAtBoundaryConversion conversion2 = beq2.createConversion(context);
 
         conversion1.convertAtBoundary();
-        Optional<DanglingLine> dl1 = conversion1.getDanglingLine();
+        Optional<BoundaryLine> dl1 = conversion1.getDanglingLine();
         conversion2.convertAtBoundary();
-        Optional<DanglingLine> dl2 = conversion2.getDanglingLine();
+        Optional<BoundaryLine> dl2 = conversion2.getDanglingLine();
 
         if (dl1.isPresent() && dl2.isPresent()) {
             // there can be several dangling lines linked to same x-node in one IGM for planning purposes

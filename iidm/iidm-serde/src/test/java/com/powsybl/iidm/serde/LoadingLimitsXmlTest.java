@@ -9,7 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
@@ -28,9 +28,9 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void testDanglingLine() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+        Network network = BoundaryLineNetworkFactory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getDanglingLine("DL");
         OperationalLimitsGroup operationalLimitsGroup = dl.getOrCreateSelectedOperationalLimitsGroup();
         createLoadingLimits(operationalLimitsGroup::newActivePowerLimits);
         createLoadingLimits(operationalLimitsGroup::newApparentPowerLimits);
@@ -169,9 +169,9 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void testWithProperties() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+        Network network = BoundaryLineNetworkFactory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getDanglingLine("DL");
         OperationalLimitsGroup g1 = dl.getOperationalLimitsGroup("DEFAULT").orElseThrow();
         g1.setProperty("type", "A");
         g1.setProperty("source", "s1");

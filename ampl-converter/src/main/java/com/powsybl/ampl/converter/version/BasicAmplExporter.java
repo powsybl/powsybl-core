@@ -580,7 +580,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.UNPAIRED)) {
             String branchId = dl.getId();
             Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
             if (currentLimits.isPresent()) {
@@ -704,7 +704,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineMiddleBusesToFormatter(TableFormatter formatter, DanglingLine dl,
+    public void writeDanglingLineMiddleBusesToFormatter(TableFormatter formatter, BoundaryLine dl,
                                                         int middleCcNum) throws IOException {
         Terminal t = dl.getTerminal();
         Bus b = AmplUtil.getBus(dl.getTerminal());
@@ -739,7 +739,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         formatterHelper.write();
     }
 
-    public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, DanglingLine dl,
+    public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, BoundaryLine dl,
                                                           int middleCcNum) {
         // Nothing to do here
     }
@@ -962,7 +962,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineToFormatter(TableFormatter formatter, DanglingLine dl) throws IOException {
+    public void writeDanglingLineToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
         String id = dl.getId();
         Terminal t = dl.getTerminal();
         VoltageLevel vl = t.getVoltageLevel();
@@ -1182,7 +1182,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineLoadToFormatter(TableFormatter formatter, DanglingLine dl) throws IOException {
+    public void writeDanglingLineLoadToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
         String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
         String id = dl.getId();
         int num = mapper.getInt(AmplSubset.LOAD, id);
@@ -1405,7 +1405,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
     @Override
     public void writeDanglingLineVoltageLevelToFormatter(TableFormatter formatter,
-                                                         DanglingLine dl) throws IOException {
+                                                         BoundaryLine dl) throws IOException {
         String vlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
         int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
         VoltageLevel vl = dl.getTerminal().getVoltageLevel();
@@ -1435,7 +1435,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     public void addAdditionalCellsDanglingLineVoltageLevel(TableFormatterHelper formatterHelper,
-                                                           DanglingLine dl) {
+                                                           BoundaryLine dl) {
         // Nothing to do here
     }
 

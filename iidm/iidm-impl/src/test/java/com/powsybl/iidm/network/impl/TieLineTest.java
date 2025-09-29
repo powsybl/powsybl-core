@@ -285,7 +285,7 @@ class TieLineTest {
 
         TwoSides boundarySide1 = TwoSides.ONE;
         TwoSides boundarySide2 = TwoSides.TWO;
-        DanglingLine dl1 = s1vl1.newDanglingLine()
+        BoundaryLine dl1 = s1vl1.newDanglingLine()
                 .setId(boundarySide1.name())
                 .setName(boundarySide1.name())
                 .setP0(0.0)
@@ -295,7 +295,7 @@ class TieLineTest {
                 .setBus("S1VL1-BUS")
                 .setPairingKey("key")
                 .add();
-        DanglingLine dl2 = s2vl1.newDanglingLine()
+        BoundaryLine dl2 = s2vl1.newDanglingLine()
                 .setId(boundarySide2.name())
                 .setName(boundarySide2.name())
                 .setP0(0.0)
@@ -431,7 +431,7 @@ class TieLineTest {
         // AcLinesegment 2 must be reoriented if boundary side is at end 2
         // Current model does not allow shunt admittances at both ends, so it does not make sense to reorient the AcLineSegments
 
-        DanglingLine dl1 = s1vl1.newDanglingLine()
+        BoundaryLine dl1 = s1vl1.newDanglingLine()
                 .setBus("S1VL1-BUS")
                 .setId(boundarySide1.name())
                 .setEnsureIdUnicity(true)
@@ -443,7 +443,7 @@ class TieLineTest {
                 .setG(0.05)
                 .setB(0.14)
                 .add();
-        DanglingLine dl2 = s2vl1.newDanglingLine()
+        BoundaryLine dl2 = s2vl1.newDanglingLine()
                 .setBus("S2VL1-BUS")
                 .setId(boundarySide2.name())
                 .setEnsureIdUnicity(true)
@@ -516,7 +516,7 @@ class TieLineTest {
         // The initial parameters for AcLineSegment 2 are R = 3.1513680000000006, X = 14.928011999999999, G1 = 0.008044414674299755, B1 = -0.03791520949675112, G2 = -0.005046041932060755, B2 = 0.023978278075869598
         // AcLinesegment 2 must be reoriented if boundary side is at end 2
         // Current model does not allow shunt admittances at both ends, so it does not make sense to reorient it
-        DanglingLine dl1 = s1vl1.newDanglingLine()
+        BoundaryLine dl1 = s1vl1.newDanglingLine()
                 .setBus("S1VL1-BUS")
                 .setId(boundarySide1.name())
                 .setName(boundarySide1.name())
@@ -528,7 +528,7 @@ class TieLineTest {
                 .setB(0.00032976265)
                 .setPairingKey("key")
                 .add();
-        DanglingLine dl2 = s2vl1.newDanglingLine()
+        BoundaryLine dl2 = s2vl1.newDanglingLine()
                 .setBus("S2VL1-BUS")
                 .setId(boundarySide2.name())
                 .setName(boundarySide2.name())

@@ -61,7 +61,7 @@ public abstract class AbstractConnectedComponentWithTieLineBugTest {
                 .setP0(0.0)
                 .setQ0(0.0)
                 .add();
-        DanglingLine dl1 = vl1.newDanglingLine()
+        BoundaryLine dl1 = vl1.newDanglingLine()
                 .setBus("b1")
                 .setId("l1")
                 .setP0(0.0)
@@ -72,7 +72,7 @@ public abstract class AbstractConnectedComponentWithTieLineBugTest {
                 .setB(0.0)
                 .setPairingKey("XNODE")
                 .add();
-        DanglingLine dl2 = vl2.newDanglingLine()
+        BoundaryLine dl2 = vl2.newDanglingLine()
                 .setBus("b2")
                 .setId("l2")
                 .setP0(0.0)

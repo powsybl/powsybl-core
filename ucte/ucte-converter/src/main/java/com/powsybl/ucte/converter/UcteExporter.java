@@ -114,8 +114,8 @@ public class UcteExporter implements Exporter {
         // If it is connected this way, we could conclude it is a YNode
     }
 
-    private static boolean isDanglingLineYNode(DanglingLine danglingLine) {
-        return isYNode(danglingLine.getTerminal().getBusBreakerView().getConnectableBus());
+    private static boolean isDanglingLineYNode(BoundaryLine boundaryLine) {
+        return isYNode(boundaryLine.getTerminal().getBusBreakerView().getConnectableBus());
     }
 
     private static boolean isTransformerYNode(TwoWindingsTransformer twoWindingsTransformer) {
@@ -159,7 +159,7 @@ public class UcteExporter implements Exporter {
             });
             voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, context));
         }));
-        network.getDanglingLines(DanglingLineFilter.UNPAIRED).forEach(danglingLine -> convertDanglingLine(ucteNetwork, danglingLine, context));
+        network.getDanglingLines(BoundaryLineFilter.UNPAIRED).forEach(danglingLine -> convertDanglingLine(ucteNetwork, danglingLine, context));
         network.getLines().forEach(line -> convertLine(ucteNetwork, line, context));
         network.getTieLines().forEach(tieLine -> convertTieLine(ucteNetwork, tieLine, context));
         network.getTwoWindingsTransformers().forEach(transformer -> convertTwoWindingsTransformer(ucteNetwork, transformer, context));
@@ -301,28 +301,28 @@ public class UcteExporter implements Exporter {
      * Create a {@link UcteNode} object from a DanglingLine and add it to the {@link UcteNetwork}.
      *
      * @param ucteNetwork The target network in ucte
-     * @param danglingLine The danglingLine used to create the XNode
+     * @param boundaryLine The danglingLine used to create the XNode
      * @param context The context used to store temporary data during the conversion
      */
-    private static void convertXNode(UcteNetwork ucteNetwork, DanglingLine danglingLine, UcteExporterContext context) {
-        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(danglingLine);
-        String geographicalName = danglingLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
+    private static void convertXNode(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
+        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(boundaryLine);
+        String geographicalName = boundaryLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
-        UcteNodeStatus ucteNodeStatus = getXnodeStatus(danglingLine);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(boundaryLine);
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
-        ucteNode.setActiveLoad(danglingLine.getP0());
-        ucteNode.setReactiveLoad(danglingLine.getQ0());
-        double generatorTargetP = danglingLine.getGeneration().getTargetP();
+        ucteNode.setActiveLoad(boundaryLine.getP0());
+        ucteNode.setReactiveLoad(boundaryLine.getQ0());
+        double generatorTargetP = boundaryLine.getGeneration().getTargetP();
         ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
-        double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
+        double generatorTargetQ = boundaryLine.getGeneration().getTargetQ();
         ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
-        if (danglingLine.getGeneration().isVoltageRegulationOn()) {
+        if (boundaryLine.getGeneration().isVoltageRegulationOn()) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
-            ucteNode.setVoltageReference(danglingLine.getGeneration().getTargetV());
-            double minP = danglingLine.getGeneration().getMinP();
-            double maxP = danglingLine.getGeneration().getMaxP();
-            double minQ = danglingLine.getGeneration().getReactiveLimits().getMinQ(danglingLine.getGeneration().getTargetP());
-            double maxQ = danglingLine.getGeneration().getReactiveLimits().getMaxQ(danglingLine.getGeneration().getTargetP());
+            ucteNode.setVoltageReference(boundaryLine.getGeneration().getTargetV());
+            double minP = boundaryLine.getGeneration().getMinP();
+            double maxP = boundaryLine.getGeneration().getMaxP();
+            double minQ = boundaryLine.getGeneration().getReactiveLimits().getMinQ(boundaryLine.getGeneration().getTargetP());
+            double maxQ = boundaryLine.getGeneration().getReactiveLimits().getMaxQ(boundaryLine.getGeneration().getTargetP());
             if (minP != -DEFAULT_POWER_LIMIT) {
                 ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
             }
@@ -449,69 +449,69 @@ public class UcteExporter implements Exporter {
         convertXNode(ucteNetwork, tieLine, context);
 
         // Create dangling line 1
-        DanglingLine danglingLine1 = tieLine.getDanglingLine1();
-        UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(danglingLine1.getId());
-        String elementName1 = danglingLine1.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
+        BoundaryLine boundaryLine1 = tieLine.getDanglingLine1();
+        UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(boundaryLine1.getId());
+        String elementName1 = boundaryLine1.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status1 = getStatusHalf(tieLine, TwoSides.ONE);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status1,
-                danglingLine1.getR(),
-                danglingLine1.getX(),
-                danglingLine1.getB(),
+                boundaryLine1.getR(),
+                boundaryLine1.getX(),
+                boundaryLine1.getB(),
                 tieLine.getDanglingLine1().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
         // Create dangling line2
-        DanglingLine danglingLine2 = tieLine.getDanglingLine2();
-        UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(danglingLine2.getId());
-        String elementName2 = danglingLine2.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
+        BoundaryLine boundaryLine2 = tieLine.getDanglingLine2();
+        UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(boundaryLine2.getId());
+        String elementName2 = boundaryLine2.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status2 = getStatusHalf(tieLine, TwoSides.TWO);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status2,
-                danglingLine2.getR(),
-                danglingLine2.getX(),
-                danglingLine2.getB(),
+                boundaryLine2.getR(),
+                boundaryLine2.getX(),
+                boundaryLine2.getB(),
                 tieLine.getDanglingLine2().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
     }
 
     /**
-     * Convert a {@link DanglingLine} object to an {@link UcteNode} and a {@link UcteLine} objects.
+     * Convert a {@link BoundaryLine} object to an {@link UcteNode} and a {@link UcteLine} objects.
      *
      * @param ucteNetwork The target network in ucte
-     * @param danglingLine The danglingLine to convert to UCTE
+     * @param boundaryLine The danglingLine to convert to UCTE
      * @param context The context used to store temporary data during the conversion
      */
-    private static void convertDanglingLine(UcteNetwork ucteNetwork, DanglingLine danglingLine, UcteExporterContext context) {
-        LOGGER.trace("Converting DanglingLine {}", danglingLine.getId());
+    private static void convertDanglingLine(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
+        LOGGER.trace("Converting DanglingLine {}", boundaryLine.getId());
 
         // Create XNode
-        convertXNode(ucteNetwork, danglingLine, context);
+        convertXNode(ucteNetwork, boundaryLine, context);
 
         // Always create the XNode,
         // But do not export the dangling line if it was related to a YNode
         // The corresponding transformer will be connected to the XNode
-        if (isDanglingLineYNode(danglingLine)) {
-            LOGGER.warn("Ignoring DanglingLine at YNode in the export {}", danglingLine.getId());
+        if (isDanglingLineYNode(boundaryLine)) {
+            LOGGER.warn("Ignoring DanglingLine at YNode in the export {}", boundaryLine.getId());
             return;
         }
 
         // Create line
-        UcteElementId elementId = context.getNamingStrategy().getUcteElementId(danglingLine);
-        String elementName = danglingLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        UcteElementStatus ucteElementStatus = getStatus(danglingLine);
+        UcteElementId elementId = context.getNamingStrategy().getUcteElementId(boundaryLine);
+        String elementName = boundaryLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
+        UcteElementStatus ucteElementStatus = getStatus(boundaryLine);
 
         UcteLine ucteLine = new UcteLine(
                 elementId,
                 ucteElementStatus,
-                danglingLine.getR(),
-                danglingLine.getX(),
-                danglingLine.getB(),
-                danglingLine.getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
+                boundaryLine.getR(),
+                boundaryLine.getX(),
+                boundaryLine.getB(),
+                boundaryLine.getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName);
         ucteNetwork.addLine(ucteLine);
     }
@@ -591,23 +591,23 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static UcteElementStatus getStatus(DanglingLine danglingLine) {
-        if (Boolean.parseBoolean(danglingLine.getProperty(IS_COUPLER_PROPERTY_KEY, "false"))) {
-            if (danglingLine.getTerminal().isConnected()) {
+    private static UcteElementStatus getStatus(BoundaryLine boundaryLine) {
+        if (Boolean.parseBoolean(boundaryLine.getProperty(IS_COUPLER_PROPERTY_KEY, "false"))) {
+            if (boundaryLine.getTerminal().isConnected()) {
                 return UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION;
             } else {
                 return UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION;
             }
         }
 
-        if (danglingLine.isFictitious()) {
-            if (danglingLine.getTerminal().isConnected()) {
+        if (boundaryLine.isFictitious()) {
+            if (boundaryLine.getTerminal().isConnected()) {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
             }
         } else {
-            if (danglingLine.getTerminal().isConnected()) {
+            if (boundaryLine.getTerminal().isConnected()) {
                 return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;

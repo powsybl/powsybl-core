@@ -124,8 +124,8 @@ public abstract class AbstractMergeNetworkTest {
         checkDanglingLineStatusCount(subnetwork2, 1, 0);
         checkSubstationAndVoltageLevelCounts(merge, 1, 1);
         checkSubstationAndVoltageLevelCounts(detachedN1, 1, 1);
-        DanglingLine dl1 = detachedN1.getDanglingLine("dl1");
-        DanglingLine dl2 = merge.getDanglingLine("dl2");
+        BoundaryLine dl1 = detachedN1.getDanglingLine("dl1");
+        BoundaryLine dl2 = merge.getDanglingLine("dl2");
         // - P0 and Q0 of the removed tie line's underlying dangling lines were updated:
         assertEquals(-731.312, dl1.getP0(), 0.001);
         assertEquals(-1254.625, dl1.getQ0(), 0.001);
@@ -425,8 +425,8 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     private void checkDanglingLineStatusCount(Network network, long unpairedNb, long pairedNb) {
-        assertEquals(pairedNb, network.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
-        assertEquals(unpairedNb, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).count());
+        assertEquals(pairedNb, network.getDanglingLineStream(BoundaryLineFilter.PAIRED).count());
+        assertEquals(unpairedNb, network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED).count());
     }
 
     @Test
@@ -715,7 +715,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     private static void addDanglingLine(Network n, String voltageLevelId, String id, String code, String connectableBus, String bus) {
-        DanglingLine dl = n.getVoltageLevel(voltageLevelId).newDanglingLine()
+        BoundaryLine dl = n.getVoltageLevel(voltageLevelId).newDanglingLine()
                 .setId(id)
                 .setName(id + "_name")
                 .setConnectableBus(connectableBus)

@@ -7,14 +7,17 @@
  */
 package com.powsybl.action.json;
 
-import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.BoundaryLineAction;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class DanglingLineActionSerializer extends AbstractLoadActionSerializer<DanglingLineAction> {
+
+// TODO: Manage versioning to chang DanglingLine to BoundaryLine
+
+public class DanglingLineActionSerializer extends AbstractLoadActionSerializer<BoundaryLineAction> {
     public DanglingLineActionSerializer() {
-        super(DanglingLineAction.class);
+        super(BoundaryLineAction.class);
     }
 
     @Override
@@ -23,7 +26,7 @@ public class DanglingLineActionSerializer extends AbstractLoadActionSerializer<D
     }
 
     @Override
-    protected String getElementId(DanglingLineAction action) {
+    protected String getElementId(BoundaryLineAction action) {
         return action.getDanglingLineId();
     }
 }

@@ -107,23 +107,23 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
         return generateUcteElementId(branch.getId(), node1, node2);
     }
 
-    private UcteElementId generateUcteElementId(DanglingLine danglingLine) {
-        if (ucteElementIds.containsKey(danglingLine.getId())) {
-            return ucteElementIds.get(danglingLine.getId());
+    private UcteElementId generateUcteElementId(BoundaryLine boundaryLine) {
+        if (ucteElementIds.containsKey(boundaryLine.getId())) {
+            return ucteElementIds.get(boundaryLine.getId());
         }
 
         UcteNodeCode code1;
         UcteNodeCode code2;
 
-        code1 = getUcteNodeCode(danglingLine.getTerminal().getBusBreakerView().getBus());
+        code1 = getUcteNodeCode(boundaryLine.getTerminal().getBusBreakerView().getBus());
 
-        if (danglingLine.getPairingKey() != null && UcteNodeCode.isUcteNodeId(danglingLine.getPairingKey())) {
-            code2 = UcteNodeCode.parseUcteNodeCode(danglingLine.getPairingKey()).orElseThrow();
-            ucteNodeIds.put(danglingLine.getPairingKey(), code2);
+        if (boundaryLine.getPairingKey() != null && UcteNodeCode.isUcteNodeId(boundaryLine.getPairingKey())) {
+            code2 = UcteNodeCode.parseUcteNodeCode(boundaryLine.getPairingKey()).orElseThrow();
+            ucteNodeIds.put(boundaryLine.getPairingKey(), code2);
         } else {
-            code2 = generateUcteNodeId(danglingLine.getId(), danglingLine.getTerminal().getVoltageLevel(), UcteNetworkUtil.getOrderCode(0));
+            code2 = generateUcteNodeId(boundaryLine.getId(), boundaryLine.getTerminal().getVoltageLevel(), UcteNetworkUtil.getOrderCode(0));
         }
-        return generateUcteElementId(danglingLine.getId(), code1, code2);
+        return generateUcteElementId(boundaryLine.getId(), code1, code2);
     }
 
     private UcteElementId generateUcteElementId(Switch sw) {
