@@ -92,7 +92,6 @@ public class BooleanArrayListHack extends BooleanArrayList {
 
     /**
      * Removes the specified number of elements from the end of the list.
-     * If the number of elements to be removed is less than or equal to zero, the method does nothing.
      * <br/>
      * <i>Warning: this method does not change the length of the underlying array.</i>
      *

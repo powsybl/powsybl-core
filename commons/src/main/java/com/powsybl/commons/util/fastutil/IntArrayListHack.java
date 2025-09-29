@@ -98,7 +98,8 @@ public class IntArrayListHack extends IntArrayList {
 
     /**
      * Removes the specified number of elements from the end of the list.
-     * If the number of elements to be removed is less than or equal to zero, the method does nothing.
+     * <br/>
+     * <i>Warning: this method does not change the length of the underlying array.</i>
      *
      * @param numberOfElements the number of elements to be removed from the end of the list
      */
