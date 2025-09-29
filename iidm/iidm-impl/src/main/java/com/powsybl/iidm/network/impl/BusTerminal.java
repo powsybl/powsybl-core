@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TopologyPoint;
 import com.powsybl.commons.ref.Ref;
@@ -124,8 +125,8 @@ class BusTerminal extends AbstractTerminal {
 
     private final ArrayList<String> connectableBusId;
 
-    BusTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, String connectableBusId, boolean connected) {
-        super(network, side);
+    BusTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, TerminalNumber terminalNumber, String connectableBusId, boolean connected) {
+        super(network, side, terminalNumber);
         Objects.requireNonNull(connectableBusId);
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.connected = new TBooleanArrayList(variantArraySize);
@@ -158,7 +159,7 @@ class BusTerminal extends AbstractTerminal {
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         boolean oldValue = this.connected.set(variantIndex, connected);
         String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate("connected" + getAttributeSideSuffix(), variantId, oldValue, connected);
+        getConnectable().notifyUpdate("connected" + getAttributeSideOrNumberSuffix(), variantId, oldValue, connected);
     }
 
     @Override

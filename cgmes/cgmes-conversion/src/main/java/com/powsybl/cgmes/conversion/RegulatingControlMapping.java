@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -19,11 +20,7 @@ import java.util.Map;
 public class RegulatingControlMapping {
 
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES terminal: %s";
-
     private static final String REGULATING_TERMINAL = "Regulating Terminal";
-    private static final String REGULATING_CONTROL = "RegulatingControl";
-    private static final String TERMINAL = "Terminal";
-    private static final String VOLTAGE = "voltage";
 
     private final Context context;
     private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
@@ -64,19 +61,11 @@ public class RegulatingControlMapping {
     public static class RegulatingControl {
         final String mode;
         final String cgmesTerminal;
-        final boolean enabled;
-        final double targetValue;
-        final double targetDeadband;
         private Boolean correctlySet;
 
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();
-            this.cgmesTerminal = p.getId(TERMINAL);
-            this.enabled = p.asBoolean("enabled", true);
-            this.targetValue = p.asDouble("targetValue");
-            // targetDeadband is optional in CGMES,
-            // If not explicitly given it should be interpreted as zero
-            this.targetDeadband = p.asDouble("targetDeadband", 0);
+            this.cgmesTerminal = p.getId(CgmesNames.TERMINAL);
         }
 
         void setCorrectlySet(boolean okSet) {
@@ -89,24 +78,16 @@ public class RegulatingControlMapping {
                 correctlySet = false;
             }
         }
-
-        public double getTargetValue() {
-            return targetValue;
-        }
-
-        public double getTargetDeadBand() {
-            return targetDeadband;
-        }
     }
 
-    private Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
+    private final Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
 
     public Map<String, RegulatingControl> cachedRegulatingControls() {
         return cachedRegulatingControls;
     }
 
     void cacheRegulatingControls(PropertyBag p) {
-        cachedRegulatingControls.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
+        cachedRegulatingControls.put(p.getId(CgmesNames.REGULATING_CONTROL), new RegulatingControl(p));
     }
 
     void setAllRegulatingControls(Network network) {
@@ -126,15 +107,15 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.clear();
     }
 
-    static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.endsWith(VOLTAGE);
+    public static boolean isControlModeVoltage(String controlMode) {
+        return controlMode != null && controlMode.endsWith(CgmesNames.VOLTAGE_TAG);
     }
 
-    static boolean isControlModeReactivePower(String controlMode) {
-        return controlMode != null && controlMode.toLowerCase().endsWith("reactivepower");
+    public static boolean isControlModeReactivePower(String controlMode) {
+        return controlMode != null && controlMode.toLowerCase().endsWith(CgmesNames.REACTIVE_POWER);
     }
 
-    static String getRegulatingControlId(PropertyBag p) {
-        return p.getId(REGULATING_CONTROL);
+    protected static String getRegulatingControlId(PropertyBag p) {
+        return p.getId(CgmesNames.REGULATING_CONTROL);
     }
 }
