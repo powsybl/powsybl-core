@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -67,15 +66,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
     public boolean isConnectedAtBothEnds() {
         return terminalConnected(1) && terminalConnected(2);
-    }
-
-    public static void convertToTieLine(Context context, DanglingLine dl1, DanglingLine dl2) {
-        TieLineAdder adder = context.network().newTieLine()
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId());
-        identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(dl1.getId(), dl2.getId())),
-                TieLineUtil.buildMergedName(dl1.getId(), dl2.getId(), dl1.getNameOrId(), dl2.getNameOrId()));
-        adder.add();
     }
 
     private void convertLine() {
