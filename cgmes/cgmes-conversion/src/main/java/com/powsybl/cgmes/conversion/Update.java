@@ -212,6 +212,12 @@ public final class Update {
         context.popReportNode();
     }
 
+    static void updateVoltageLevels(Network network, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.VOLTAGE_LEVEL.name()));
+        network.getVoltageLevels().forEach(voltageLevel -> VoltageLevelConversion.update(voltageLevel, context));
+        context.popReportNode();
+    }
+
     static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
         // update voltage and angles
