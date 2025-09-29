@@ -69,12 +69,14 @@ class ShuntCompensatorUpdateTest {
         assertEquals(3, network.getShuntCompensatorCount());
         assertFirstSsh(network);
         assertSectionsAfterSv(network);
+        assertFlowsAfterSv(network);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
         assertSectionsAfterSv(network);
+        assertFlowsAfterSv(network);
     }
 
     private static void assertEq(Network network) {

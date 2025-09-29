@@ -96,12 +96,14 @@ class TieLineUpdateTest {
         Network network = readCgmesResources(DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml", "tieLine_SSH.xml", "tieLine_TP.xml", "tieLine_SV.xml");
         assertEqCount(network, 2, 5, 4);
         assertFirstSsh(network);
+        assertSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertEqCount(network, 2, 5, 4);
         assertFirstSsh(network);
+        assertSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
     }
 
     private static void assertSv(TieLine tieLine) {

@@ -70,12 +70,8 @@ class HvdcUpdateTest {
 
     @Test
     void usePreviousValuesTest() {
-        Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH.xml");
+        Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH_1.xml", "hvdc_SV.xml");
         assertEquals(2, network.getHvdcLineCount());
-        assertFirstSsh(network);
-
-
-        readCgmesResources(network, DIR, "hvdc_SSH_1.xml", "hvdc_SV.xml");
         assertSecondSsh(network);
         assertLossFactorAfterSshSv(network);
 
