@@ -363,7 +363,7 @@ public final class EquipmentExport {
                     String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator, cimNamespace, writer, context);
                     String baseVoltageId = context.getBaseVoltageByNominalVoltage(generator.getTerminal().getVoltageLevel().getNominalV()).getId();
                     EquivalentInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
-                            generator.isVoltageRegulatorOn(), generator.getMinP(), generator.getMaxP(), obtainMinQ(generator), obtainMaxQ(generator),
+                            generator.isVoltageRegulatorOn(), generator.getMinP(), generator.getMaxP(), getNullableMinQ(generator), getNullableMaxQ(generator),
                             reactiveCapabilityCurveId, baseVoltageId,
                             cimNamespace, writer, context);
                     break;
@@ -371,7 +371,7 @@ public final class EquipmentExport {
                     regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, regulatingTerminal), regulatingControlsWritten, mode, cimNamespace, writer, context);
                     ExternalNetworkInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
                             context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
-                            obtainGeneratorGovernorScd(generator), generator.getMaxP(), obtainMaxQ(generator), generator.getMinP(), obtainMinQ(generator),
+                            obtainGeneratorGovernorScd(generator), generator.getMaxP(), getMaxQ(generator), generator.getMinP(), getMinQ(generator),
                             regulatingControlId, cimNamespace, writer, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
@@ -408,8 +408,6 @@ public final class EquipmentExport {
                                                                                                 XMLStreamWriter writer, CgmesExportContext context, Set<String> generatingUnitsWritten) throws XMLStreamException {
 
         String generatingUnit = context.getNamingStrategy().getCgmesIdFromProperty(i, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
-        double minQ = obtainMinQ(i);
-        double maxQ = obtainMaxQ(i);
         double defaultRatedS = computeDefaultRatedS(i, minP, maxP);
 
         String reactiveLimitsId = writeReactiveCapabilityCurve(i, cimNamespace, writer, context);
@@ -417,7 +415,7 @@ public final class EquipmentExport {
 
         SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
-                generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ,
+                generatingUnit, regulatingControlId, reactiveLimitsId, getNullableMinQ(i), getNullableMaxQ(i),
                 ratedS, defaultRatedS, kind, cimNamespace, writer, context);
 
         if (generatingUnit != null && !generatingUnitsWritten.contains(generatingUnit)) {
@@ -455,15 +453,22 @@ public final class EquipmentExport {
     }
 
     private static boolean curveMustBeWritten(ReactiveCapabilityCurve curve) {
-        double minQ = Double.min(curve.getMinQ(curve.getMinP()), curve.getMinQ(curve.getMaxP()));
-        double maxQ = Double.max(curve.getMaxQ(curve.getMinP()), curve.getMaxQ(curve.getMaxP()));
-        return maxQ > minQ;
+        return getCurveMaxQ(curve) > getCurveMinQ(curve);
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> double obtainMinQ(I i) {
+    private static <I extends ReactiveLimitsHolder & Injection<I>> Double getNullableMinQ(I i) {
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
             ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
-            return Double.min(curve.getMinQ(curve.getMinP()), curve.getMinQ(curve.getMaxP()));
+            if (curveMustBeWritten(curve)) {
+                return null;
+            }
+        }
+        return getMinQ(i);
+    }
+
+    private static <I extends ReactiveLimitsHolder & Injection<I>> double getMinQ(I i) {
+        if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
+            return getCurveMinQ(i.getReactiveLimits(ReactiveCapabilityCurve.class));
         } else if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
             return i.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
         } else {
@@ -471,15 +476,40 @@ public final class EquipmentExport {
         }
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> double obtainMaxQ(I i) {
+    private static <I extends ReactiveLimitsHolder & Injection<I>> Double getNullableMaxQ(I i) {
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
             ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
-            return Double.max(curve.getMaxQ(curve.getMinP()), curve.getMaxQ(curve.getMaxP()));
+            if (curveMustBeWritten(curve)) {
+                return null;
+            }
+        }
+        return getMaxQ(i);
+    }
+
+    private static <I extends ReactiveLimitsHolder & Injection<I>> double getMaxQ(I i) {
+        if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
+            return getCurveMaxQ(i.getReactiveLimits(ReactiveCapabilityCurve.class));
         } else if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
             return i.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
         } else {
             throw new PowsyblException("Unexpected ReactiveLimits type in the generator " + i.getNameOrId());
         }
+    }
+
+    private static double getCurveMinQ(ReactiveCapabilityCurve curve) {
+        return curve.getPoints()
+                .stream()
+                .map(ReactiveCapabilityCurve.Point::getMinQ)
+                .min(Double::compareTo)
+                .orElseThrow();
+    }
+
+    private static double getCurveMaxQ(ReactiveCapabilityCurve curve) {
+        return curve.getPoints()
+                .stream()
+                .map(ReactiveCapabilityCurve.Point::getMaxQ)
+                .max(Double::compareTo)
+                .orElseThrow();
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String generatingUnitWriteHydroPowerPlantAndFossilFuel(I i, String cimNamespace, EnergySource energySource, String generatingUnit, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -1210,7 +1240,8 @@ public final class EquipmentExport {
 
                 // Write the temporary limit
                 operationalLimitId = context.getNamingStrategy().getCgmesId(ref(operationalLimitSetId), ref(className), TATL, ref(acceptableDuration), OPERATIONAL_LIMIT_VALUE);
-                LoadingLimitEq.write(operationalLimitId, limits, temporaryLimit.getName(), temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
+                String temporaryLimitName = temporaryLimit.getName().isEmpty() ? "TATL " + temporaryLimit.getAcceptableDuration() : temporaryLimit.getName(); // If the temporary limit name is empty, write TATL and the acceptable duration
+                LoadingLimitEq.write(operationalLimitId, limits, temporaryLimitName, temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
             }
         }
     }
