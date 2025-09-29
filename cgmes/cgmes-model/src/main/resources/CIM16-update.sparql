@@ -107,6 +107,14 @@ WHERE {
         cim:SvVoltage.angle ?angle .
 }
 
+# query: switches
+SELECT *
+{
+    ?Switch a ?type ;
+        cim:Switch.open ?open .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector }
+}
+
 # query: ratioTapChangers
 SELECT *
 {

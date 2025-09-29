@@ -825,13 +825,6 @@ WHERE {
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationCapability ?regulationCapability }
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.ReactiveCapabilityCurve ?ReactiveCapabilityCurve }
 }}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?EquivalentInjection
-        cim:EquivalentInjection.p ?p ;
-        cim:EquivalentInjection.q ?q .
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationStatus ?regulationStatus }
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationTarget ?regulationTarget }
-}}
 }
 
 # query: equivalentShunts
