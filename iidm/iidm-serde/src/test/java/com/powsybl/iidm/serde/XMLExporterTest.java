@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -52,6 +54,8 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"bus_branch", "bus_breaker", "node_breaker"})
     void exportVoltageLevelTopology(String topologyLevel) throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
         Properties properties = new Properties();
@@ -86,13 +90,6 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         properties.put(XMLExporter.VERSION, IidmVersion.V_1_0.toString("."));
         properties.put("iidm.export.xml.loadMock.version", "0.2");
         exporterTest(network, () -> getClass().getResourceAsStream("/extensionName_0_2.xml"), properties);
-    }
-
-    @Test
-    void exportVoltageLevelTopologyTest() throws IOException {
-        exportVoltageLevelTopology("bus_branch");
-        exportVoltageLevelTopology("bus_breaker");
-        exportVoltageLevelTopology("node_breaker");
     }
 
     @Test
