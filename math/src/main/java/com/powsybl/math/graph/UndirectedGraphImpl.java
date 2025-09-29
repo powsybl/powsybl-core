@@ -10,12 +10,19 @@ package com.powsybl.math.graph;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
-import gnu.trove.list.linked.TIntLinkedList;
-import gnu.trove.set.hash.TIntHashSet;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -102,9 +109,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private final Lock adjacencyListCacheLock = new ReentrantLock();
 
-    private final TIntHashSet availableVertices = new TIntHashSet();
+    private final IntOpenHashSet availableVertices = new IntOpenHashSet();
 
-    private final TIntLinkedList removedEdges = new TIntLinkedList();
+    private final IntArrayList removedEdges = new IntArrayList();
 
     private final List<UndirectedGraphListener<V, E>> listeners = new CopyOnWriteArrayList<>();
 
@@ -140,7 +147,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             v = vertices.size();
             vertices.add(new Vertex<>());
         } else {
-            v = availableVertices.iterator().next();
+            v = availableVertices.iterator().nextInt();
             availableVertices.remove(v);
             vertices.set(v, new Vertex<>());
         }
@@ -275,7 +282,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             e = edges.size();
             edges.add(edge);
         } else {
-            e = removedEdges.removeAt(0);
+            e = removedEdges.removeInt(0);
             edges.set(e, edge);
         }
         invalidateAdjacencyList();
