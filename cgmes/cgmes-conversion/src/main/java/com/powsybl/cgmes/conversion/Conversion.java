@@ -329,6 +329,7 @@ public class Conversion {
         updateContext.popReportNode();
 
         updateVoltageLevels(network, updateContext);
+        updateGrounds(network, updateContext);
 
         // Set voltages and angles, then complete
         updateAndCompleteVoltageAndAngles(network, updateContext);

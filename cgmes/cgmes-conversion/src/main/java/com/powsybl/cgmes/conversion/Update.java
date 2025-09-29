@@ -218,6 +218,12 @@ public final class Update {
         context.popReportNode();
     }
 
+    static void updateGrounds(Network network, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.GROUND.name()));
+        network.getGrounds().forEach(ground -> GroundConversion.update(ground, context));
+        context.popReportNode();
+    }
+
     static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
         // update voltage and angles
