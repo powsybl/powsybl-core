@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -49,26 +50,30 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
     protected void convertBranch(double r, double x, double gch, double bch, String originalClass) {
         if (isZeroImpedanceInsideVoltageLevel(r, x)) {
             // Convert to switch
+            boolean normalOpen = false;
             Switch sw;
-            boolean open = !(terminalConnected(1) && terminalConnected(2));
             if (context.nodeBreaker()) {
                 VoltageLevel.NodeBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getNodeBreakerView().newSwitch()
                                 .setKind(SwitchKind.BREAKER)
+                                .setOpen(normalOpen)
                                 .setRetained(true)
                                 .setFictitious(true);
                 identify(adder);
-                connect(adder, open);
+                connectWithOnlyEq(adder);
                 sw = adder.add();
             } else {
                 VoltageLevel.BusBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getBusBreakerView().newSwitch()
+                                .setOpen(normalOpen)
                                 .setFictitious(true);
                 identify(adder);
-                connect(adder, open);
+                connectWithOnlyEq(adder);
                 sw = adder.add();
             }
             addAliasesAndProperties(sw);
+            sw.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
+            sw.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         } else {
             final LineAdder adder = context.network().newLine()
                     .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
@@ -107,5 +112,10 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
         updateTerminals(line, context, line.getTerminal1(), line.getTerminal2());
         line.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
         line.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
+    }
+
+    protected static void updateBranch(Switch sw, Context context) {
+        boolean isOpen = isOpenFromAtLeastOneTerminal(sw, context).orElse(getDefaultIsOpen(sw, context));
+        sw.setOpen(isOpen);
     }
 }

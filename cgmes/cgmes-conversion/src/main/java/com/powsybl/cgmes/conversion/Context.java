@@ -55,7 +55,7 @@ public class Context {
         terminalMapping = new TerminalMapping();
         loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
-        nodeMapping = new NodeMapping(this);
+        nodeMapping = new NodeMapping();
 
         cachedGroupedTransformerEnds = new HashMap<>();
         cachedGroupedRatioTapChangers = new HashMap<>();
@@ -75,6 +75,7 @@ public class Context {
         generatingUnits = new HashMap<>();
         equivalentInjections = new HashMap<>();
         svVoltages = new HashMap<>();
+        switches = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -204,6 +205,7 @@ public class Context {
         buildUpdateCache(generatingUnits, cgmes.generatingUnits(), CgmesNames.GENERATING_UNIT);
         buildUpdateCache(equivalentInjections, cgmes.equivalentInjections(), CgmesNames.EQUIVALENT_INJECTION);
         buildUpdateCache(svVoltages, cgmes.svVoltages(), CgmesNames.TOPOLOGICAL_NODE);
+        buildUpdateCache(switches, cgmes.switches(), CgmesNames.SWITCH);
     }
 
     private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
@@ -243,6 +245,10 @@ public class Context {
 
     public PropertyBag svVoltage(String id) {
         return svVoltages.get(id);
+    }
+
+    public PropertyBag cgmesSwitch(String id) {
+        return switches.get(id);
     }
 
     // Handling issues found during conversion
@@ -368,5 +374,6 @@ public class Context {
     private final Map<String, PropertyBag> generatingUnits;
     private final Map<String, PropertyBag> equivalentInjections;
     private final Map<String, PropertyBag> svVoltages;
+    private final Map<String, PropertyBag> switches;
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }
