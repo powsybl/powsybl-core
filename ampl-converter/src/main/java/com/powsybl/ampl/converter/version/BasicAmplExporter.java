@@ -870,6 +870,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double vb = vl1.getNominalV();
         double zb = vb * vb / AmplConstants.SB;
 
+        if (bus1Num == bus2Num) {
+            LOGGER.warn("Skipping tie line '{}' connected to the same bus at both sides", id);
+            return;
+        }
+
         boolean merged = !config.isExportXNodes();
         if (config.isExportXNodes()) {
             String dl1Id = l.getDanglingLine1().getId();
@@ -882,7 +887,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             int xNodeVoltageLevelNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, xnodeVoltageLevelId);
 
             if (bus1Num == xNodeBusNum || bus2Num == xNodeBusNum) {
-                LOGGER.warn("Skipping tie line '{}' connected to the same bus at both sides", id);
+                LOGGER.warn("Skipping tie line '{}' : the dangling lines of the tie line are connected to the same bus on both sides", id);
                 return;
             }
 
@@ -941,12 +946,6 @@ public class BasicAmplExporter implements AmplColumnsExporter {
                 .writeCell(dl2Id)
                 .writeCell(l.getDanglingLine2().getNameOrId());
         } else {
-
-            if (bus1Num == bus2Num) {
-                LOGGER.warn("Skipping tie line '{}' connected to the same bus at both sides", id);
-                return;
-            }
-
             formatter.writeCell(variantIndex)
                 .writeCell(num)
                 .writeCell(bus1Num)
@@ -1143,7 +1142,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         int ptc1Num = ptc1 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id) : -1;
 
         if (legBusNum == middleBusNum) {
-            LOGGER.warn("Skipping three-winding transformer '{}' connected to the same bus at both sides", id);
+            LOGGER.warn("Skipping three-winding transformer '{}' connected to the same bus on leg and middle side", id);
             return;
         }
 
