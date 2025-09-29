@@ -152,6 +152,25 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
         assertTrue(compareOperationalLimitsGroups(t3w.getLeg3().getOperationalLimitsGroups(), t2w3.getOperationalLimitsGroups1()));
     }
 
+    @Test
+    void replaceSelectedLimitsGroup() {
+        modifyNetworkForLoadingLimitsTest();
+        t3w.getLeg1().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
+        t3w.getLeg2().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
+        t3w.getLeg3().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
+
+        ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
+        replace.apply(network);
+
+        TwoWindingsTransformer t2w1 = network.getTwoWindingsTransformer("3WT-Leg1");
+        TwoWindingsTransformer t2w2 = network.getTwoWindingsTransformer("3WT-Leg2");
+        TwoWindingsTransformer t2w3 = network.getTwoWindingsTransformer("3WT-Leg3");
+
+        assertEquals(t3w.getLeg1().getSelectedOperationalLimitsGroupId(), t2w1.getSelectedOperationalLimitsGroupId1());
+        assertEquals(t3w.getLeg2().getSelectedOperationalLimitsGroupId(), t2w2.getSelectedOperationalLimitsGroupId1());
+        assertEquals(t3w.getLeg3().getSelectedOperationalLimitsGroupId(), t2w3.getSelectedOperationalLimitsGroupId1());
+    }
+
     private void modifyNetworkForLoadingLimitsTest() {
         addLoadingLimits(t3w.getLeg1());
         addLoadingLimits(t3w.getLeg2());

@@ -20,8 +20,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-
 import static com.powsybl.iidm.modification.TransformersTestUtils.*;
 import static com.powsybl.iidm.modification.TransformersTestUtils.addPhaseTapChanger;
 import static com.powsybl.iidm.modification.util.ModificationReports.lostTwoWindingsTransformerExtensions;
@@ -167,6 +168,20 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         assertTrue(compareOperationalLimitsGroups(t2w1.getOperationalLimitsGroups1(), t3w.getLeg1().getOperationalLimitsGroups()));
         assertTrue(compareOperationalLimitsGroups(t2w2.getOperationalLimitsGroups1(), t3w.getLeg2().getOperationalLimitsGroups()));
         assertTrue(compareOperationalLimitsGroups(t2w3.getOperationalLimitsGroups1(), t3w.getLeg3().getOperationalLimitsGroups()));
+    }
+
+    @Test
+    void selectedOperationLimitsGroupTest() {
+        //TODO
+        assertTrue(true);
+    }
+
+    private boolean compareOperationalLimitsGroup(OperationalLimitsGroup expected, OperationalLimitsGroup actual) {
+        Collection<OperationalLimitsGroup> expectedCollection = new ArrayList<>();
+        expectedCollection.add(expected);
+        Collection<OperationalLimitsGroup> actualCollection = new ArrayList<>();
+        actualCollection.add(actual);
+        return compareOperationalLimitsGroups(expectedCollection, actualCollection);
     }
 
     private void modifyNetworkForLoadingLimitsTest() {
