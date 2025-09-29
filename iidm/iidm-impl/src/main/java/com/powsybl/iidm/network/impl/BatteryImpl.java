@@ -7,9 +7,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
-import gnu.trove.list.array.TDoubleArrayList;
+import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
+import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
+import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  * {@inheritDoc}
@@ -20,9 +24,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private final TDoubleArrayList targetP;
+    private final DoubleArrayListHack targetP;
 
-    private final TDoubleArrayList targetQ;
+    private final DoubleArrayListHack targetQ;
 
     private double minP;
 
@@ -35,12 +39,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.targetP = new TDoubleArrayList(variantArraySize);
-        this.targetQ = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.targetP.add(targetP);
-            this.targetQ.add(targetQ);
-        }
+        this.targetP = new DoubleArrayListHack(variantArraySize, targetP);
+        this.targetQ = new DoubleArrayListHack(variantArraySize, targetQ);
     }
 
     /**
@@ -56,7 +56,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public double getTargetP() {
-        return targetP.get(getNetwork().getVariantIndex());
+        return targetP.getDouble(getNetwork().getVariantIndex());
     }
 
     /**
@@ -79,7 +79,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public double getTargetQ() {
-        return targetQ.get(getNetwork().getVariantIndex());
+        return targetQ.getDouble(getNetwork().getVariantIndex());
     }
 
     /**
@@ -193,12 +193,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        targetP.ensureCapacity(targetP.size() + number);
-        targetQ.ensureCapacity(targetQ.size() + number);
-        for (int i = 0; i < number; i++) {
-            targetP.add(targetP.get(sourceIndex));
-            targetQ.add(targetQ.get(sourceIndex));
-        }
+        targetP.growAndFill(number, targetP.getDouble(sourceIndex));
+        targetQ.growAndFill(number, targetQ.getDouble(sourceIndex));
     }
 
     /**
@@ -207,8 +203,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        targetP.remove(targetP.size() - number, number);
-        targetQ.remove(targetQ.size() - number, number);
+        targetP.removeElements(number);
+        targetQ.removeElements(number);
     }
 
     /**
@@ -218,8 +214,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            targetP.set(index, targetP.get(sourceIndex));
-            targetQ.set(index, targetQ.get(sourceIndex));
+            targetP.set(index, targetP.getDouble(sourceIndex));
+            targetQ.set(index, targetQ.getDouble(sourceIndex));
         }
     }
 }

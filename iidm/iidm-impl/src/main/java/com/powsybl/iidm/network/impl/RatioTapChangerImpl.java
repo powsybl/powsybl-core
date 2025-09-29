@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
 import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -23,7 +24,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     // attributes depending on the variant
 
-    private final TDoubleArrayList regulationValue;
+    private final DoubleArrayListHack regulationValue;
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
@@ -31,10 +32,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         super(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, targetDeadband, "ratio tap changer");
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
-        this.regulationValue = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.regulationValue.add(regulationValue);
-        }
+        this.regulationValue = new DoubleArrayListHack(variantArraySize, regulationValue);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
@@ -149,7 +147,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public double getRegulationValue() {
-        return regulationValue.get(network.get().getVariantIndex());
+        return regulationValue.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -184,16 +182,13 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        regulationValue.ensureCapacity(regulationValue.size() + number);
-        for (int i = 0; i < number; i++) {
-            regulationValue.add(regulationValue.get(sourceIndex));
-        }
+        regulationValue.growAndFill(number, regulationValue.getDouble(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        regulationValue.remove(regulationValue.size() - number, number);
+        regulationValue.removeElements(number);
     }
 
     @Override
@@ -206,7 +201,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            regulationValue.set(index, regulationValue.get(sourceIndex));
+            regulationValue.set(index, regulationValue.getDouble(sourceIndex));
         }
     }
 

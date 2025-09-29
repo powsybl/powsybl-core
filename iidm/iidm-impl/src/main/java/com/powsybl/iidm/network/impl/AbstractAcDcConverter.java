@@ -8,8 +8,12 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.*;
-import gnu.trove.list.array.TDoubleArrayList;
+import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.iidm.network.AcDcConverter;
+import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +42,9 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     // attributes depending on the variant
 
-    private final TDoubleArrayList targetP;
+    private final DoubleArrayListHack targetP;
 
-    private final TDoubleArrayList targetVdc;
+    private final DoubleArrayListHack targetVdc;
 
     AbstractAcDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
                           double idleLoss, double switchingLoss, double resistiveLoss,
@@ -50,14 +54,10 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         this.switchingLoss = switchingLoss;
         this.resistiveLoss = resistiveLoss;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.targetP = new TDoubleArrayList(variantArraySize);
-        this.targetVdc = new TDoubleArrayList(variantArraySize);
+        this.targetP = new DoubleArrayListHack(variantArraySize, targetP);
+        this.targetVdc = new DoubleArrayListHack(variantArraySize, targetVdc);
         pccRegulatingPoint = new RegulatingPoint(id, () -> null, variantArraySize, controlMode.ordinal(), ControlMode.V_DC.ordinal(), false);
         pccRegulatingPoint.setRegulatingTerminal(pccTerminal);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.targetP.add(targetP);
-            this.targetVdc.add(targetVdc);
-        }
     }
 
     @Override
@@ -249,7 +249,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     @Override
     public double getTargetP() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, TARGET_P);
-        return targetP.get(getNetwork().getVariantIndex());
+        return targetP.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -269,18 +269,14 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     @Override
     public double getTargetVdc() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, TARGET_VDC);
-        return targetVdc.get(getNetwork().getVariantIndex());
+        return targetVdc.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        targetP.ensureCapacity(targetP.size() + number);
-        targetVdc.ensureCapacity(targetVdc.size() + number);
-        for (int i = 0; i < number; i++) {
-            targetP.add(targetP.get(sourceIndex));
-            targetVdc.add(targetVdc.get(sourceIndex));
-        }
+        targetP.growAndFill(number, targetP.getDouble(sourceIndex));
+        targetVdc.growAndFill(number, targetVdc.getDouble(sourceIndex));
 
         for (DcTerminalImpl t : dcTerminals) {
             t.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
@@ -291,8 +287,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        targetP.remove(targetP.size() - number, number);
-        targetVdc.remove(targetVdc.size() - number, number);
+        targetP.removeElements(number);
+        targetVdc.removeElements(number);
 
         for (DcTerminalImpl t : dcTerminals) {
             t.reduceVariantArraySize(number);
@@ -314,8 +310,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            targetP.set(index, targetP.get(sourceIndex));
-            targetVdc.set(index, targetVdc.get(sourceIndex));
+            targetP.set(index, targetP.getDouble(sourceIndex));
+            targetVdc.set(index, targetVdc.getDouble(sourceIndex));
         }
 
         for (DcTerminalImpl t : dcTerminals) {

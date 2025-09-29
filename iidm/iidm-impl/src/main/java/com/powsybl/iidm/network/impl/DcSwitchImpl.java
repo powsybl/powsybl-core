@@ -8,8 +8,12 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.util.fastutil.BooleanArrayListHack;
+import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.DcSwitch;
+import com.powsybl.iidm.network.DcSwitchKind;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -26,7 +30,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
     private final DcSwitchKind kind;
     private final DcNode dcNode1;
     private final DcNode dcNode2;
-    private final TBooleanArrayList open;
+    private final BooleanArrayListHack open;
     private boolean removed = false;
 
     DcSwitchImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious,
@@ -39,10 +43,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
         this.dcNode2 = dcNode2;
 
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.open = new TBooleanArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.open.add(open);
-        }
+        this.open = new BooleanArrayListHack(variantArraySize, open);
     }
 
     @Override
@@ -86,14 +87,14 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
     @Override
     public boolean isOpen() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, OPEN_ATTRIBUTE);
-        return this.open.get(getVariantManagerHolder().getVariantIndex());
+        return this.open.getBoolean(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override
     public DcSwitch setOpen(boolean open) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, OPEN_ATTRIBUTE);
         int variantIndex = getVariantManagerHolder().getVariantIndex();
-        boolean oldValue = this.open.get(variantIndex);
+        boolean oldValue = this.open.getBoolean(variantIndex);
         if (oldValue != open) {
             this.open.set(variantIndex, open);
             String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
@@ -104,17 +105,12 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        open.ensureCapacity(open.size() + number);
-        for (int i = 0; i < number; i++) {
-            open.add(open.get(sourceIndex));
-        }
+        open.growAndFill(number, open.getBoolean(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        for (int i = 0; i < number; i++) {
-            open.removeAt(open.size() - 1);
-        }
+        open.removeElements(number);
     }
 
     @Override
@@ -126,7 +122,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            open.set(index, open.get(sourceIndex));
+            open.set(index, open.getBoolean(sourceIndex));
         }
     }
 

@@ -7,9 +7,20 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.BooleanArrayListHack;
+import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.iidm.network.ActivePowerLimitsAdder;
+import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
+import com.powsybl.iidm.network.Boundary;
+import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
+import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collection;
@@ -33,29 +44,23 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         // attributes depending on the variant
 
-        private final TDoubleArrayList targetP;
+        private final DoubleArrayListHack targetP;
 
-        private final TDoubleArrayList targetQ;
+        private final DoubleArrayListHack targetQ;
 
-        private final TDoubleArrayList targetV;
+        private final DoubleArrayListHack targetV;
 
-        private final TBooleanArrayList voltageRegulationOn;
+        private final BooleanArrayListHack voltageRegulationOn;
 
         GenerationImpl(VariantManagerHolder network, double minP, double maxP, double targetP, double targetQ, double targetV, boolean voltageRegulationOn) {
             this.minP = Double.isNaN(minP) ? -Double.MAX_VALUE : minP;
             this.maxP = Double.isNaN(maxP) ? Double.MAX_VALUE : maxP;
 
             int variantArraySize = network.getVariantManager().getVariantArraySize();
-            this.targetP = new TDoubleArrayList(variantArraySize);
-            this.targetQ = new TDoubleArrayList(variantArraySize);
-            this.targetV = new TDoubleArrayList(variantArraySize);
-            this.voltageRegulationOn = new TBooleanArrayList(variantArraySize);
-            for (int i = 0; i < variantArraySize; i++) {
-                this.targetP.add(targetP);
-                this.targetQ.add(targetQ);
-                this.targetV.add(targetV);
-                this.voltageRegulationOn.add(voltageRegulationOn);
-            }
+            this.targetP = new DoubleArrayListHack(variantArraySize, targetP);
+            this.targetQ = new DoubleArrayListHack(variantArraySize, targetQ);
+            this.targetV = new DoubleArrayListHack(variantArraySize, targetV);
+            this.voltageRegulationOn = new BooleanArrayListHack(variantArraySize, voltageRegulationOn);
         }
 
         GenerationImpl attach(DanglingLineImpl danglingLine) {
@@ -71,7 +76,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         @Override
         public double getTargetP() {
-            return targetP.get(danglingLine.getNetwork().getVariantIndex());
+            return targetP.getDouble(danglingLine.getNetwork().getVariantIndex());
         }
 
         @Override
@@ -118,7 +123,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         @Override
         public double getTargetQ() {
-            return targetQ.get(danglingLine.getNetwork().getVariantIndex());
+            return targetQ.getDouble(danglingLine.getNetwork().getVariantIndex());
         }
 
         @Override
@@ -136,16 +141,16 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         @Override
         public boolean isVoltageRegulationOn() {
-            return voltageRegulationOn.get(danglingLine.getNetwork().getVariantIndex());
+            return voltageRegulationOn.getBoolean(danglingLine.getNetwork().getVariantIndex());
         }
 
         @Override
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn, targetV.get(variantIndex), targetQ.get(variantIndex),
+            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn, targetV.getDouble(variantIndex), targetQ.getDouble(variantIndex),
                     n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-            boolean oldValue = this.voltageRegulationOn.get(variantIndex);
+            boolean oldValue = this.voltageRegulationOn.getBoolean(variantIndex);
             this.voltageRegulationOn.set(variantIndex, voltageRegulationOn);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
@@ -160,14 +165,14 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         @Override
         public double getTargetV() {
-            return this.targetV.get(danglingLine.getNetwork().getVariantIndex());
+            return this.targetV.getDouble(danglingLine.getNetwork().getVariantIndex());
         }
 
         @Override
         public GenerationImpl setTargetV(double targetV) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV, targetQ.get(variantIndex),
+            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.getBoolean(variantIndex), targetV, targetQ.getDouble(variantIndex),
                     n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
             double oldValue = this.targetV.set(variantIndex, targetV);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -207,31 +212,25 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         void extendVariantArraySize(int number, int sourceIndex) {
-            targetP.ensureCapacity(targetP.size() + number);
-            targetQ.ensureCapacity(targetQ.size() + number);
-            voltageRegulationOn.ensureCapacity(voltageRegulationOn.size() + number);
-            targetV.ensureCapacity(targetV.size() + number);
-            for (int i = 0; i < number; i++) {
-                targetP.add(targetP.get(sourceIndex));
-                targetQ.add(targetQ.get(sourceIndex));
-                voltageRegulationOn.add(voltageRegulationOn.get(sourceIndex));
-                targetV.add(targetV.get(sourceIndex));
-            }
+            targetP.growAndFill(number, targetP.getDouble(sourceIndex));
+            targetQ.growAndFill(number, targetQ.getDouble(sourceIndex));
+            targetV.growAndFill(number, targetV.getDouble(sourceIndex));
+            voltageRegulationOn.growAndFill(number, voltageRegulationOn.getBoolean(sourceIndex));
         }
 
         void reduceVariantArraySize(int number) {
-            targetP.remove(targetP.size() - number, number);
-            targetQ.remove(targetQ.size() - number, number);
-            voltageRegulationOn.remove(voltageRegulationOn.size() - number, number);
-            targetV.remove(targetV.size() - number, number);
+            targetP.removeElements(number);
+            targetQ.removeElements(number);
+            voltageRegulationOn.removeElements(number);
+            targetV.removeElements(number);
         }
 
         void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
             for (int index : indexes) {
-                targetP.set(index, targetP.get(sourceIndex));
-                targetQ.set(index, targetQ.get(sourceIndex));
-                voltageRegulationOn.set(index, voltageRegulationOn.get(sourceIndex));
-                targetV.set(index, targetV.get(sourceIndex));
+                targetP.set(index, targetP.getDouble(sourceIndex));
+                targetQ.set(index, targetQ.getDouble(sourceIndex));
+                voltageRegulationOn.set(index, voltageRegulationOn.getBoolean(sourceIndex));
+                targetV.set(index, targetV.getDouble(sourceIndex));
             }
         }
     }

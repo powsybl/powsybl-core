@@ -7,13 +7,25 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.ref.Ref;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
-import gnu.trove.list.array.TDoubleArrayList;
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
+import com.powsybl.iidm.network.Area;
+import com.powsybl.iidm.network.AreaBoundary;
+import com.powsybl.iidm.network.Boundary;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -32,7 +44,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     // attributes depending on the variant
 
-    private final TDoubleArrayList interchangeTarget;
+    private final DoubleArrayListHack interchangeTarget;
 
     private final Referrer<Terminal> terminalReferrer = new Referrer<>() {
         @Override
@@ -70,10 +82,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         this.areaBoundaries = new ArrayList<>();
 
         int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
-        this.interchangeTarget = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.interchangeTarget.add(interchangeTarget);
-        }
+        this.interchangeTarget = new DoubleArrayListHack(variantArraySize, interchangeTarget);
     }
 
     @Override
@@ -114,7 +123,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public OptionalDouble getInterchangeTarget() {
         throwIfRemoved("interchange target");
-        double target = interchangeTarget.get(getNetwork().getVariantIndex());
+        double target = interchangeTarget.getDouble(getNetwork().getVariantIndex());
         if (Double.isNaN(target)) {
             return OptionalDouble.empty();
         }
@@ -273,16 +282,13 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        interchangeTarget.ensureCapacity(interchangeTarget.size() + number);
-        for (int i = 0; i < number; i++) {
-            interchangeTarget.add(interchangeTarget.get(sourceIndex));
-        }
+        interchangeTarget.growAndFill(number, interchangeTarget.getDouble(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        interchangeTarget.remove(interchangeTarget.size() - number, number);
+        interchangeTarget.removeElements(number);
     }
 
     @Override
@@ -295,7 +301,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            interchangeTarget.set(index, interchangeTarget.get(sourceIndex));
+            interchangeTarget.set(index, interchangeTarget.getDouble(sourceIndex));
         }
     }
 

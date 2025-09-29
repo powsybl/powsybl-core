@@ -7,11 +7,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.DoubleArrayListHack;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.commons.ref.Ref;
-import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -28,9 +28,9 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     // attributes depending on the variant
 
-    private final TDoubleArrayList voltageSetpoint;
+    private final DoubleArrayListHack voltageSetpoint;
 
-    private final TDoubleArrayList reactivePowerSetpoint;
+    private final DoubleArrayListHack reactivePowerSetpoint;
 
     StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax, double voltageSetpoint, double reactivePowerSetpoint,
                              RegulationMode regulationMode, boolean regulating, TerminalExt regulatingTerminal, Ref<NetworkImpl> ref) {
@@ -38,14 +38,10 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         this.bMin = bMin;
         this.bMax = bMax;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
-        this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
+        this.voltageSetpoint = new DoubleArrayListHack(variantArraySize, voltageSetpoint);
+        this.reactivePowerSetpoint = new DoubleArrayListHack(variantArraySize, reactivePowerSetpoint);
         regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, regulationMode != null ? regulationMode.ordinal() : -1, regulating, RegulationMode.VOLTAGE.ordinal(), regulationMode == RegulationMode.VOLTAGE);
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.voltageSetpoint.add(voltageSetpoint);
-            this.reactivePowerSetpoint.add(reactivePowerSetpoint);
-        }
     }
 
     @Override
@@ -88,7 +84,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public double getVoltageSetpoint() {
-        return voltageSetpoint.get(getNetwork().getVariantIndex());
+        return voltageSetpoint.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -106,7 +102,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public double getReactivePowerSetpoint() {
-        return reactivePowerSetpoint.get(getNetwork().getVariantIndex());
+        return reactivePowerSetpoint.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -165,20 +161,16 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        voltageSetpoint.ensureCapacity(voltageSetpoint.size() + number);
-        reactivePowerSetpoint.ensureCapacity(reactivePowerSetpoint.size() + number);
-        for (int i = 0; i < number; i++) {
-            voltageSetpoint.add(voltageSetpoint.get(sourceIndex));
-            reactivePowerSetpoint.add(reactivePowerSetpoint.get(sourceIndex));
-        }
+        voltageSetpoint.growAndFill(number, voltageSetpoint.getDouble(sourceIndex));
+        reactivePowerSetpoint.growAndFill(number, reactivePowerSetpoint.getDouble(sourceIndex));
         regulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        voltageSetpoint.remove(voltageSetpoint.size() - number, number);
-        reactivePowerSetpoint.remove(reactivePowerSetpoint.size() - number, number);
+        voltageSetpoint.removeElements(number);
+        reactivePowerSetpoint.removeElements(number);
         regulatingPoint.reduceVariantArraySize(number);
     }
 
@@ -192,8 +184,8 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            voltageSetpoint.set(index, voltageSetpoint.get(sourceIndex));
-            reactivePowerSetpoint.set(index, reactivePowerSetpoint.get(sourceIndex));
+            voltageSetpoint.set(index, voltageSetpoint.getDouble(sourceIndex));
+            reactivePowerSetpoint.set(index, reactivePowerSetpoint.getDouble(sourceIndex));
         }
         regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }

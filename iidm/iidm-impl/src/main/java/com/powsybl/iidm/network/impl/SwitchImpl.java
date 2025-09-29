@@ -7,8 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.util.fastutil.BooleanArrayListHack;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.ValidationException;
 
 /**
  *
@@ -20,9 +24,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     private final SwitchKind kind;
 
-    private final TBooleanArrayList open;
+    private final BooleanArrayListHack open;
 
-    private final TBooleanArrayList retained;
+    private final BooleanArrayListHack retained;
 
     SwitchImpl(VoltageLevelExt voltageLevel,
                String id, String name, boolean fictitious, SwitchKind kind, final boolean open, boolean retained) {
@@ -30,12 +34,8 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         this.voltageLevel = voltageLevel;
         this.kind = kind;
         int variantArraySize = voltageLevel.getNetwork().getVariantManager().getVariantArraySize();
-        this.open = new TBooleanArrayList(variantArraySize);
-        this.retained = new TBooleanArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.open.add(open);
-            this.retained.add(retained);
-        }
+        this.open = new BooleanArrayListHack(variantArraySize, open);
+        this.retained = new BooleanArrayListHack(variantArraySize, retained);
     }
 
     @Override
@@ -60,14 +60,14 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public boolean isOpen() {
-        return open.get(getNetwork().getVariantIndex());
+        return open.getBoolean(getNetwork().getVariantIndex());
     }
 
     @Override
     public void setOpen(boolean open) {
         NetworkImpl network = getNetwork();
         int index = network.getVariantIndex();
-        boolean oldValue = this.open.get(index);
+        boolean oldValue = this.open.getBoolean(index);
         if (oldValue != open) {
             this.open.set(index, open);
             voltageLevel.getTopologyModel().invalidateCache(isRetained());
@@ -78,7 +78,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public boolean isRetained() {
-        return retained.get(getNetwork().getVariantIndex());
+        return retained.getBoolean(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -88,7 +88,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         }
         NetworkImpl network = getNetwork();
         int index = network.getVariantIndex();
-        boolean oldValue = this.retained.get(index);
+        boolean oldValue = this.retained.getBoolean(index);
         if (oldValue != retained) {
             this.retained.set(index, retained);
             voltageLevel.getTopologyModel().invalidateCache();
@@ -111,19 +111,16 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-
-        open.ensureCapacity(open.size() + number);
-        open.fill(initVariantArraySize, initVariantArraySize + number, open.get(sourceIndex));
-        retained.ensureCapacity(retained.size() + number);
-        retained.fill(initVariantArraySize, initVariantArraySize + number, retained.get(sourceIndex));
+        open.growAndFill(number, open.getBoolean(sourceIndex));
+        retained.growAndFill(number, retained.getBoolean(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
 
-        open.remove(open.size() - number, number);
-        retained.remove(retained.size() - number, number);
+        open.removeElements(number);
+        retained.removeElements(number);
     }
 
     @Override
@@ -137,8 +134,8 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         super.allocateVariantArrayElement(indexes, sourceIndex);
 
         for (int index : indexes) {
-            open.set(index, open.get(sourceIndex));
-            retained.set(index, retained.get(sourceIndex));
+            open.set(index, open.getBoolean(sourceIndex));
+            retained.set(index, retained.getBoolean(sourceIndex));
         }
     }
 
