@@ -65,14 +65,16 @@ class ShuntCompensatorUpdateTest {
 
     @Test
     void usePreviousValuesTest() {
-        Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml");
+        Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml", "shuntCompensator_SV.xml");
         assertEquals(3, network.getShuntCompensatorCount());
         assertFirstSsh(network);
+        assertSectionsAfterSv(network);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
+        assertSectionsAfterSv(network);
     }
 
     private static void assertEq(Network network) {

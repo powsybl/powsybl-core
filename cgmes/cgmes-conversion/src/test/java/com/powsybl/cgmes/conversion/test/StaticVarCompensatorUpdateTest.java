@@ -63,14 +63,16 @@ class StaticVarCompensatorUpdateTest {
 
     @Test
     void usePreviousValuesTest() {
-        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
+        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml", "staticVarCompensator_SV.xml");
         assertEquals(2, network.getStaticVarCompensatorCount());
         assertFirstSsh(network);
+        assertFlowsAfterSv(network);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
+        assertFlowsAfterSv(network);
     }
 
     private static void assertEq(Network network) {

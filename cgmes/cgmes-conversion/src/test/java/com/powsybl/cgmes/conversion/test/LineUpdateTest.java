@@ -60,14 +60,16 @@ class LineUpdateTest {
 
     @Test
     void usePreviousValuesTest() {
-        Network network = readCgmesResources(DIR, "line_EQ.xml", "line_SSH.xml");
+        Network network = readCgmesResources(DIR, "line_EQ.xml", "line_SSH.xml", "line_SV.xml");
         assertEquals(3, network.getLineCount());
         assertFirstSsh(network);
+        assertFlowsAfterSv(network);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
+        assertFlowsAfterSv(network);
     }
 
     private static void assertEq(Network network) {
