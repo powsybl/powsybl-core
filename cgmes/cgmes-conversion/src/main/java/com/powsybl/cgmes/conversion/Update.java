@@ -19,8 +19,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 
-import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.computeFlowsOnModelSide;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -28,6 +26,7 @@ import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentC
 
 public final class Update {
 
+    private static final String UNEXPECTED_ORIGINAL_CLASS = "Unexpected originalClass ";
     private static final PropertyBag EMPTY_PROPERTY_BAG = new PropertyBag(Collections.emptyList(), false);
 
     private Update() {
@@ -55,7 +54,7 @@ public final class Update {
                 case CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY, CgmesNames.ENERGY_CONSUMER ->
                         EnergyConsumerConversion.update(load, cgmesData, context);
                 default ->
-                        throw new ConversionException("Unexpected originalClass " + originalClass + " for Load: " + load.getId());
+                        throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Load: " + load.getId());
             }
         }
     }
@@ -68,18 +67,18 @@ public final class Update {
         addPropertyBags(cgmes.equivalentInjections(), CgmesNames.EQUIVALENT_INJECTION, equipmentIdPropertyBag);
         addPropertyBags(cgmes.externalNetworkInjections(), CgmesNames.EXTERNAL_NETWORK_INJECTION, equipmentIdPropertyBag);
 
-        network.getGenerators().forEach(generator -> updateGenerator(generator, getPropertyBag(generator.getId(), equipmentIdPropertyBag), context));
+        network.getGenerators().forEach(generator -> updateGenerator(generator, equipmentIdPropertyBag, context));
         context.popReportNode();
     }
 
-    private static void updateGenerator(Generator generator, PropertyBag cgmesData, Context context) {
+    private static void updateGenerator(Generator generator, Map<String, PropertyBag> equipmentIdPropertyBag, Context context) {
         String originalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
 
         switch (originalClass) {
-            case CgmesNames.SYNCHRONOUS_MACHINE -> SynchronousMachineConversion.update(generator, cgmesData, context);
-            case CgmesNames.EQUIVALENT_INJECTION -> EquivalentInjectionConversion.update(generator, cgmesData, context);
-            case CgmesNames.EXTERNAL_NETWORK_INJECTION -> ExternalNetworkInjectionConversion.update(generator, cgmesData, context);
-            default -> throw new ConversionException("Unexpected originalClass " + originalClass + " for Generator: " + generator.getId());
+            case CgmesNames.SYNCHRONOUS_MACHINE -> SynchronousMachineConversion.update(generator, getPropertyBag(generator.getId(), equipmentIdPropertyBag), context);
+            case CgmesNames.EQUIVALENT_INJECTION -> EquivalentInjectionConversion.update(generator, getEquivalentInjectionPropertyBag(generator.getId(), context), context);
+            case CgmesNames.EXTERNAL_NETWORK_INJECTION -> ExternalNetworkInjectionConversion.update(generator, getPropertyBag(generator.getId(), equipmentIdPropertyBag), context);
+            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Generator: " + generator.getId());
         }
     }
 
@@ -133,8 +132,25 @@ public final class Update {
         context.popReportNode();
     }
 
-    static void temporaryComputeFlowsDanglingLines(Network network, Context context) {
-        network.getDanglingLines().forEach(danglingLine -> computeFlowsOnModelSide(danglingLine, context));
+    static void updateDanglingLines(Network network, CgmesModel cgmes, Context context) {
+        context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.DANGLING_LINE.name()));
+
+        Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
+        addPropertyBags(cgmes.switches(), CgmesNames.SWITCH, equipmentIdPropertyBag);
+        network.getDanglingLines().forEach(danglingLine -> updateDanglingLine(danglingLine, equipmentIdPropertyBag, context));
+
+        context.popReportNode();
+    }
+
+    private static void updateDanglingLine(DanglingLine danglingLine, Map<String, PropertyBag> equipmentIdPropertyBag, Context context) {
+        String originalClass = danglingLine.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        switch (originalClass) {
+            case CgmesNames.AC_LINE_SEGMENT -> ACLineSegmentConversion.update(danglingLine, context);
+            case CgmesNames.POWER_TRANSFORMER -> TwoWindingsTransformerConversion.update(danglingLine, context);
+            case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(danglingLine, context);
+            case CgmesNames.SWITCH -> SwitchConversion.update(danglingLine, getPropertyBag(danglingLine.getId(), equipmentIdPropertyBag), context);
+            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for DanglingLine: " + danglingLine.getId());
+        }
     }
 
     static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
@@ -160,5 +176,10 @@ public final class Update {
 
     private static PropertyBag getPropertyBag(String identifiableId, Map<String, PropertyBag> equipmentIdPropertyBag) {
         return equipmentIdPropertyBag.getOrDefault(identifiableId, EMPTY_PROPERTY_BAG);
+    }
+
+    private static PropertyBag getEquivalentInjectionPropertyBag(String equivalentInjectionId, Context context) {
+        PropertyBag cgmesData = context.equivalentInjection(equivalentInjectionId);
+        return cgmesData != null ? cgmesData : EMPTY_PROPERTY_BAG;
     }
 }

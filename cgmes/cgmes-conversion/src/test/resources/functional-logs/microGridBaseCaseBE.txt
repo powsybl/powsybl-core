@@ -38,7 +38,6 @@
       Converting ControlArea.
       Converting TieFlow.
       Converting RegulatingControl.
-      Fixing issues with dangling lines.
       Applying postprocessors.
       CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.
       Updating LOAD.
@@ -50,5 +49,7 @@
       Updating STATIC_VAR_COMPENSATOR.
       Updating SHUNT_COMPENSATOR.
       Updating HVDC_LINE.
+      Updating DANGLING_LINE.
+      Fixing issues with dangling lines.
       Setting voltages and angles.
       Running validation checks on IIDM network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73
