@@ -8,14 +8,14 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import com.powsybl.iidm.network.impl.NetworkImpl;
-import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,15 +29,15 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         implements ActivePowerControl<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActivePowerControlImpl.class);
-    private final TBooleanArrayList participate;
+    private final ExtendedBooleanArrayList participate;
 
-    private final TDoubleArrayList droop;
-    private final TDoubleArrayList participationFactor;
+    private final ExtendedDoubleArrayList droop;
+    private final ExtendedDoubleArrayList participationFactor;
 
-    private final TDoubleArrayList minTargetP;
-    private final TDoubleArrayList maxTargetP;
+    private final ExtendedDoubleArrayList minTargetP;
+    private final ExtendedDoubleArrayList maxTargetP;
 
-    private final List<TDoubleArrayList> allTDoubleArrayLists;
+    private final List<ExtendedDoubleArrayList> allTDoubleArrayLists;
 
     public ActivePowerControlImpl(T component,
                                   boolean participate,
@@ -54,21 +54,14 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
                                   double maxTargetP) {
         super(component);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.participate = new TBooleanArrayList(variantArraySize);
-        this.droop = new TDoubleArrayList(variantArraySize);
-        this.participationFactor = new TDoubleArrayList(variantArraySize);
-        this.minTargetP = new TDoubleArrayList(variantArraySize);
-        this.maxTargetP = new TDoubleArrayList(variantArraySize);
-        this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor, this.minTargetP, this.maxTargetP);
         double checkedMinTargetP = checkTargetPLimit(minTargetP, "minTargetP", component);
         double checkedMaxTargetP = checkTargetPLimit(maxTargetP, "maxTargetP", component);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.participate.add(participate);
-            this.droop.add(droop);
-            this.participationFactor.add(participationFactor);
-            this.minTargetP.add(checkedMinTargetP);
-            this.maxTargetP.add(checkedMaxTargetP);
-        }
+        this.participate = new ExtendedBooleanArrayList(variantArraySize, participate);
+        this.droop = new ExtendedDoubleArrayList(variantArraySize, droop);
+        this.participationFactor = new ExtendedDoubleArrayList(variantArraySize, participationFactor);
+        this.minTargetP = new ExtendedDoubleArrayList(variantArraySize, checkedMinTargetP);
+        this.maxTargetP = new ExtendedDoubleArrayList(variantArraySize, checkedMaxTargetP);
+        this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor, this.minTargetP, this.maxTargetP);
         checkLimitOrder(minTargetP, maxTargetP);
     }
 
@@ -119,12 +112,12 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     public boolean isParticipate() {
-        return participate.get(getVariantIndex());
+        return participate.getBoolean(getVariantIndex());
     }
 
     public void setParticipate(boolean participate) {
         int variantIndex = getVariantIndex();
-        boolean oldParticipate = this.participate.get(variantIndex);
+        boolean oldParticipate = this.participate.getBoolean(variantIndex);
         if (oldParticipate != participate) {
             this.participate.set(variantIndex, participate);
             NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
@@ -134,12 +127,12 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     public double getDroop() {
-        return droop.get(getVariantIndex());
+        return droop.getDouble(getVariantIndex());
     }
 
     public void setDroop(double droop) {
         int variantIndex = getVariantIndex();
-        double oldDroop = this.droop.get(variantIndex);
+        double oldDroop = this.droop.getDouble(variantIndex);
         if (oldDroop != droop) {
             this.droop.set(variantIndex, droop);
             NetworkImpl network = (NetworkImpl) getExtendable().getNetwork();
@@ -149,7 +142,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     public double getParticipationFactor() {
-        return participationFactor.get(getVariantIndex());
+        return participationFactor.getDouble(getVariantIndex());
     }
 
     public void setParticipationFactor(double participationFactor) {
@@ -158,18 +151,14 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        participate.ensureCapacity(participate.size() + number);
-        allTDoubleArrayLists.forEach(dl -> dl.ensureCapacity(dl.size() + number));
-        for (int i = 0; i < number; ++i) {
-            participate.add(participate.get(sourceIndex));
-            allTDoubleArrayLists.forEach(dl -> dl.add(dl.get(sourceIndex)));
-        }
+        participate.growAndFill(number, participate.getBoolean(sourceIndex));
+        allTDoubleArrayLists.forEach(dl -> dl.growAndFill(number, dl.getDouble(sourceIndex)));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        participate.remove(participate.size() - number, number);
-        allTDoubleArrayLists.forEach(dl -> dl.remove(dl.size() - number, number));
+        participate.removeElements(number);
+        allTDoubleArrayLists.forEach(dl -> dl.removeElements(number));
     }
 
     @Override
@@ -180,32 +169,32 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            participate.set(index, participate.get(sourceIndex));
-            allTDoubleArrayLists.forEach(dl -> dl.set(index, dl.get(sourceIndex)));
+            participate.set(index, participate.getBoolean(sourceIndex));
+            allTDoubleArrayLists.forEach(dl -> dl.set(index, dl.getDouble(sourceIndex)));
         }
     }
 
     @Override
     public OptionalDouble getMinTargetP() {
-        double result = minTargetP.get(getVariantIndex());
+        double result = minTargetP.getDouble(getVariantIndex());
         return Double.isNaN(result) ? OptionalDouble.empty() : OptionalDouble.of(withinPMinMax(result, getExtendable()));
     }
 
     @Override
     public void setMinTargetP(double minTargetP) {
-        checkLimitOrder(minTargetP, maxTargetP.get(getVariantIndex()));
+        checkLimitOrder(minTargetP, maxTargetP.getDouble(getVariantIndex()));
         this.minTargetP.set(getVariantIndex(), checkTargetPLimit(minTargetP, "minTargetP", getExtendable()));
     }
 
     @Override
     public OptionalDouble getMaxTargetP() {
-        double result = maxTargetP.get(getVariantIndex());
+        double result = maxTargetP.getDouble(getVariantIndex());
         return Double.isNaN(result) ? OptionalDouble.empty() : OptionalDouble.of(withinPMinMax(result, getExtendable()));
     }
 
     @Override
     public void setMaxTargetP(double maxTargetP) {
-        checkLimitOrder(minTargetP.get(getVariantIndex()), maxTargetP);
+        checkLimitOrder(minTargetP.getDouble(getVariantIndex()), maxTargetP);
         this.maxTargetP.set(getVariantIndex(), checkTargetPLimit(maxTargetP, "maxTargetP", getExtendable()));
     }
 }

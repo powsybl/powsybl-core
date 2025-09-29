@@ -8,10 +8,10 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +21,12 @@ import org.slf4j.LoggerFactory;
 public class CoordinatedReactiveControlImpl extends AbstractMultiVariantIdentifiableExtension<Generator> implements CoordinatedReactiveControl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CoordinatedReactiveControlImpl.class);
-    private TDoubleArrayList qPercent;
+    private final ExtendedDoubleArrayList qPercent;
 
     public CoordinatedReactiveControlImpl(Generator generator, double qPercent) {
         super(generator);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.qPercent = new TDoubleArrayList(variantArraySize);
+        this.qPercent = new ExtendedDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.qPercent.add(checkQPercent(generator, qPercent));
         }
@@ -34,7 +34,7 @@ public class CoordinatedReactiveControlImpl extends AbstractMultiVariantIdentifi
 
     @Override
     public double getQPercent() {
-        return qPercent.get(getVariantIndex());
+        return qPercent.getDouble(getVariantIndex());
     }
 
     @Override
@@ -55,15 +55,12 @@ public class CoordinatedReactiveControlImpl extends AbstractMultiVariantIdentifi
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        qPercent.ensureCapacity(qPercent.size() + number);
-        for (int i = 0; i < number; ++i) {
-            qPercent.add(qPercent.get(sourceIndex));
-        }
+        qPercent.growAndFill(number, qPercent.getDouble(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        qPercent.remove(qPercent.size() - number, number);
+        qPercent.removeElements(number);
     }
 
     @Override
@@ -74,7 +71,7 @@ public class CoordinatedReactiveControlImpl extends AbstractMultiVariantIdentifi
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            qPercent.set(index, qPercent.get(sourceIndex));
+            qPercent.set(index, qPercent.getDouble(sourceIndex));
         }
     }
 }
