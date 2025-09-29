@@ -57,7 +57,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         }
         double gch = 0;
         double bch = 0;
-        convertBranch(r, x, gch, bch);
+        convertBranch(r, x, gch, bch, CgmesNames.EQUIVALENT_BRANCH);
         updateParametersForEquivalentBranchWithDifferentNominalVoltages();
     }
 
@@ -157,6 +157,10 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         line.setB1(y1l.getImaginary());
         line.setG2(y2l.getReal());
         line.setB2(y2l.getImaginary());
+    }
+
+    public static void update(Line line, Context context) {
+        updateBranch(line, context);
     }
 
     public static void update(DanglingLine danglingLine, Context context) {
