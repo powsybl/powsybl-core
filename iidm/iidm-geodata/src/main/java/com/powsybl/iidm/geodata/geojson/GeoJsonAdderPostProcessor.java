@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.powsybl.iidm.geodata.geojson.GeoJsonDataAdder.fillNetworkLinesGeoDataFromFiles;
+import static com.powsybl.iidm.geodata.geojson.GeoJsonDataAdder.fillNetworkLinesGeoDataFromFile;
 import static com.powsybl.iidm.geodata.geojson.GeoJsonDataAdder.fillNetworkSubstationsGeoDataFromFile;
 
 /**
@@ -59,11 +59,11 @@ public class GeoJsonAdderPostProcessor implements ImportPostProcessor {
 
     @Override
     public void process(Network network, ComputationManager computationManager) throws IOException {
-        boolean substationsFilePresent = Files.exists(substationsFilePath);
-        boolean linesFilePresent = Files.exists(linesFilePath);
+        boolean substationsFilePresent = Files.isRegularFile(substationsFilePath);
+        boolean linesFilePresent = Files.isRegularFile(linesFilePath);
         if (substationsFilePresent && linesFilePresent) {
             fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath, forceGeoDataComputation);
-            fillNetworkLinesGeoDataFromFiles(network, linesFilePath, forceGeoDataComputation);
+            fillNetworkLinesGeoDataFromFile(network, linesFilePath, forceGeoDataComputation);
         } else {
             if (!substationsFilePresent) {
                 LOGGER.warn("Could not load substations geographical data, file not found : {}", substationsFilePath);

@@ -22,7 +22,7 @@ public class GeoJsonDataAdder {
         fillNetworkSubstationsGeoData(network, getSubstationsCoordinates(path), forceGeoDataComputation);
     }
 
-    public static void fillNetworkLinesGeoDataFromFiles(Network network, Path path, boolean forceGeoDataComputation) throws IOException {
+    public static void fillNetworkLinesGeoDataFromFile(Network network, Path path, boolean forceGeoDataComputation) throws IOException {
         fillNetworkLinesGeoData(network, getLinesCoordinates(path), forceGeoDataComputation);
     }
 }

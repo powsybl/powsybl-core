@@ -64,7 +64,7 @@ class GeoJsonDataAdderTest {
         Path linesPath = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource("eurostag-test/lines.geojson")).toURI());
 
         // Add the data
-        GeoJsonDataAdder.fillNetworkLinesGeoDataFromFiles(network, linesPath, false);
+        GeoJsonDataAdder.fillNetworkLinesGeoDataFromFile(network, linesPath, false);
 
         Line line = network.getLine("NHV1_NHV2_2");
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);

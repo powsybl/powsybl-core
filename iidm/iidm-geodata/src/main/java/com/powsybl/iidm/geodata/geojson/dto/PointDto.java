@@ -11,13 +11,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.extensions.Coordinate;
 
 import java.io.Serial;
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class PointDto extends AbstractGeometryDto implements Serializable {
+public class PointDto extends AbstractGeometryDto {
 
     @Serial
     private static final long serialVersionUID = 1L;

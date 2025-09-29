@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.UncheckedIOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,7 @@ public final class GeoJsonDataParser {
      * @param reader the reader containing the GeoJSON data to parse
      * @return a map where the keys are substation identifiers (as strings) and the values are their
      *         corresponding geographical coordinates
-     * @throws UncheckedIOException if an I/O error occurs while reading the GeoJSON data
+     * @throws IOException if an I/O error occurs while reading the GeoJSON data
      */
     public static Map<String, Coordinate> parseSubstations(Reader reader) throws IOException {
         return parseFeatures(reader, (result, id, geometry) -> {
@@ -56,7 +55,7 @@ public final class GeoJsonDataParser {
      * @param reader the reader containing the GeoJSON data to parse
      * @return a map where the keys are line IDs and the values are lists of coordinates
      *         describing the geometry of the lines
-     * @throws UncheckedIOException if an I/O error occurs during parsing
+     * @throws IOException if an I/O error occurs during parsing
      */
     public static Map<String, List<Coordinate>> parseLines(Reader reader) throws IOException {
         return parseFeatures(reader, (result, id, geometry) -> {
@@ -87,6 +86,7 @@ public final class GeoJsonDataParser {
                 featureProcessor.process(result, id, geometry);
             }
         });
+        stopWatch.stop();
         LOGGER.info("{} features read in {} ms", result.size(), stopWatch.getDuration().toMillis());
         return result;
     }

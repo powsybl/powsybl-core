@@ -7,8 +7,6 @@
  */
 package com.powsybl.iidm.geodata.geojson.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
@@ -19,7 +17,6 @@ import java.util.Objects;
  *
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class FeatureDto implements Serializable {
 
     @Serial
@@ -34,6 +31,9 @@ public class FeatureDto implements Serializable {
     }
 
     public void setType(String type) {
+        if (!"Feature".equals(type)) {
+            throw new IllegalArgumentException("Unexpected Feature type");
+        }
         this.type = type;
     }
 
