@@ -147,8 +147,8 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     }
 
     @Override
-    public void visitAcDcConverter(AcDcConverter<?> converter, TwoSides side) {
-        addFlow(converter.getTerminal(side));
+    public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
+        converter.getTerminal(terminalNumber).ifPresent(this::addFlow);
     }
 
     private final Bus bus;

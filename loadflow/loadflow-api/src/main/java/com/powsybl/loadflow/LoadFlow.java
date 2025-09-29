@@ -37,9 +37,44 @@ public final class LoadFlow {
     public static class Runner implements Versionable {
 
         private final LoadFlowProvider provider;
+        private Network network = null;
+        private LoadFlowParameters parameters = LoadFlowParameters.load();
+        private ComputationManager computationManager = LocalComputationManager.getDefault();
+        private ReportNode reportNode = ReportNode.NO_OP;
+        private String variantId = null;
 
         public Runner(LoadFlowProvider provider) {
             this.provider = Objects.requireNonNull(provider);
+        }
+
+        public Runner setNetwork(Network network) {
+            this.network = Objects.requireNonNull(network);
+            this.variantId = getVariantId(network);
+            return this;
+        }
+
+        public Runner setParameters(LoadFlowParameters parameters) {
+            this.parameters = parameters;
+            return this;
+        }
+
+        public Runner setComputationManager(ComputationManager computationManager) {
+            this.computationManager = computationManager;
+            return this;
+        }
+
+        public Runner setReportNode(ReportNode reportNode) {
+            this.reportNode = reportNode;
+            return this;
+        }
+
+        public Runner setVariantId(String variantId) {
+            this.variantId = variantId;
+            return this;
+        }
+
+        private String getVariantId(Network network) {
+            return this.variantId == null ? network.getVariantManager().getWorkingVariantId() : this.variantId;
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
@@ -50,19 +85,23 @@ public final class LoadFlow {
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return runAsync(network, workingStateId, computationManager, parameters, ReportNode.NO_OP);
+            return runAsync(network, workingStateId, computationManager, parameters, reportNode);
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return runAsync(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
+            return runAsync(network, getVariantId(network), computationManager, parameters);
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, LoadFlowParameters parameters) {
-            return runAsync(network, LocalComputationManager.getDefault(), parameters);
+            return runAsync(network, computationManager, parameters);
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network) {
-            return runAsync(network, LoadFlowParameters.load());
+            return runAsync(network, parameters);
+        }
+
+        public CompletableFuture<LoadFlowResult> runAsync() {
+            return runAsync(network);
         }
 
         public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
@@ -73,19 +112,23 @@ public final class LoadFlow {
         }
 
         public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return run(network, workingStateId, computationManager, parameters, ReportNode.NO_OP);
+            return run(network, workingStateId, computationManager, parameters, reportNode);
         }
 
         public LoadFlowResult run(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
+            return run(network, getVariantId(network), computationManager, parameters);
         }
 
         public LoadFlowResult run(Network network, LoadFlowParameters parameters) {
-            return run(network, LocalComputationManager.getDefault(), parameters);
+            return run(network, computationManager, parameters);
         }
 
         public LoadFlowResult run(Network network) {
-            return run(network, LoadFlowParameters.load());
+            return run(network, parameters);
+        }
+
+        public LoadFlowResult run() {
+            return run(network);
         }
 
         @Override

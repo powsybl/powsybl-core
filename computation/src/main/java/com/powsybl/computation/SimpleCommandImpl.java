@@ -22,14 +22,11 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
 
     private final Function<Integer, List<String>> args;
 
-    private final int timeout;
-
-    SimpleCommandImpl(String id, String program, Function<Integer, List<String>> args, int timeout,
+    SimpleCommandImpl(String id, String program, Function<Integer, List<String>> args,
                       List<InputFile> inputFiles, List<OutputFile> outputFiles) {
         super(id, inputFiles, outputFiles);
         this.program = program;
         this.args = args;
-        this.timeout = timeout;
     }
 
     @Override
@@ -45,11 +42,6 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
     @Override
     public List<String> getArgs(int executionNumber) {
         return args.apply(executionNumber);
-    }
-
-    @Override
-    public int getTimeout() {
-        return timeout;
     }
 
     @Override
