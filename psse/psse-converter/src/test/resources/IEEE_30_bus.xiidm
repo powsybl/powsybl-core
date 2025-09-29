@@ -42,7 +42,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B12-L1 " loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B12" connectableBus="B12"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-4-12-1 " name="        " r="0.0" x="2.78784" g="0.0" b="0.0" ratedU1="132.0" ratedU2="33.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL12" bus2="B12" connectableBus2="B12" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-4-12-1 " r="0.0" x="2.78784" g="0.0" b="0.0" ratedU1="132.0" ratedU2="33.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL12" bus2="B12" connectableBus2="B12" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="-13.137599999999994" b="-13.137599999999994" rho="1.0729613733905579"/>
             </iidm:ratioTapChanger>
@@ -85,7 +85,7 @@
                 <iidm:shuntLinearModel bPerSection="0.017447199265381085" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-6-9-1 " name="        " r="0.0" x="0.00208" g="0.0" b="0.0" ratedU1="132.0" ratedU2="1.0" voltageLevelId1="VL6" bus1="B6" connectableBus1="B6" voltageLevelId2="VL9" bus2="B9" connectableBus2="B9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-6-9-1 " r="0.0" x="0.00208" g="0.0" b="0.0" ratedU1="132.0" ratedU2="1.0" voltageLevelId1="VL6" bus1="B6" connectableBus1="B6" voltageLevelId2="VL9" bus2="B9" connectableBus2="B9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="-4.3515999999999995" b="-4.3515999999999995" rho="1.0224948875255624"/>
             </iidm:ratioTapChanger>
@@ -96,7 +96,7 @@
                 <iidm:currentLimits permanentLimit="37527.76749732568"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
-        <iidm:twoWindingsTransformer id="T-6-10-1 " name="        " r="0.0" x="6.05484" g="0.0" b="0.0" ratedU1="132.0" ratedU2="33.0" voltageLevelId1="VL6" bus1="B6" connectableBus1="B6" voltageLevelId2="VL10" bus2="B10" connectableBus2="B10" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-6-10-1 " r="0.0" x="6.05484" g="0.0" b="0.0" ratedU1="132.0" ratedU2="33.0" voltageLevelId1="VL6" bus1="B6" connectableBus1="B6" voltageLevelId2="VL10" bus2="B10" connectableBus2="B10" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="-6.1039000000000065" b="-6.1039000000000065" rho="1.0319917440660475"/>
             </iidm:ratioTapChanger>
@@ -263,7 +263,7 @@
                 <iidm:bus id="B28" name="Cloverdl    " v="132.90024" angle="86.7432"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-28-27-1 " name="        " r="0.0" x="4.3124400000000005" g="0.0" b="0.0" ratedU1="132.0" ratedU2="33.0" voltageLevelId1="VL28" bus1="B28" connectableBus1="B28" voltageLevelId2="VL27" bus2="B27" connectableBus2="B27">
+        <iidm:twoWindingsTransformer id="T-28-27-1 " r="0.0" x="4.3124400000000005" g="0.0" b="0.0" ratedU1="132.0" ratedU2="33.0" voltageLevelId1="VL28" bus1="B28" connectableBus1="B28" voltageLevelId2="VL27" bus2="B27" connectableBus2="B27">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="-6.297600000000003" b="-6.297600000000003" rho="1.0330578512396695"/>
             </iidm:ratioTapChanger>

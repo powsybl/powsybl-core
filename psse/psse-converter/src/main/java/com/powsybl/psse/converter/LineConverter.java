@@ -210,6 +210,9 @@ class LineConverter extends AbstractConverter {
             }
         } else if (version.major() == V35) {
             name = psseLine.getName();
+            if (name.trim().isEmpty()) {
+                name = null;
+            }
         }
         return name;
     }

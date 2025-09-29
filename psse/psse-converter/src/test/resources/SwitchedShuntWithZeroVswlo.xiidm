@@ -34,7 +34,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B7-L1 " loadType="UNDEFINED" p0="1.0" q0="1.0" bus="B7" connectableBus="B7"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-1-4-1 " name="            " r="0.0" x="16.025" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" voltageLevelId1="VL1-2" bus1="B1" connectableBus1="B1" voltageLevelId2="VL4" bus2="B4" connectableBus2="B4" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-1-4-1 " r="0.0" x="16.025" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" voltageLevelId1="VL1-2" bus1="B1" connectableBus1="B1" voltageLevelId2="VL4" bus2="B4" connectableBus2="B4" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:operationalLimitsGroup1 id="DEFAULT">
                 <iidm:currentLimits permanentLimit="325240.65164348925"/>
             </iidm:operationalLimitsGroup1>
@@ -87,7 +87,7 @@
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="2000.0" q0="100.0" bus="B5" connectableBus="B5"/>
             <iidm:load id="B5-L2 " loadType="UNDEFINED" p0="0.0" q0="50.0" connectableBus="B5"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-3-5-1 " name="            " r="0.0" x="28.0" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" voltageLevelId1="VL3" bus1="B3" connectableBus1="B3" voltageLevelId2="VL5" bus2="B5" connectableBus2="B5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-3-5-1 " r="0.0" x="28.0" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" voltageLevelId1="VL3" bus1="B3" connectableBus1="B3" voltageLevelId2="VL5" bus2="B5" connectableBus2="B5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger regulating="true" lowTapPosition="0" tapPosition="11" targetDeadband="2.700000000000003" loadTapChangingCapabilities="true" regulationMode="VOLTAGE" regulationValue="18.45">
                 <iidm:terminalRef id="B3-G1 "/>
                 <iidm:step r="0.0" x="0.0" g="-9.750000000000004" b="-9.750000000000004" rho="1.0526315789473684"/>

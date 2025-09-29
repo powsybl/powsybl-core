@@ -39,7 +39,7 @@
                 <iidm:bus id="B24" name="24          " v="196.69830000000002" angle="24.7952"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-24-3-1 " name="        " r="0.438012" x="15.977916" g="0.0" b="0.0" ratedU1="230.0" ratedU2="138.0" voltageLevelId1="VL24" bus1="B24" connectableBus1="B24" voltageLevelId2="VL3" bus2="B3" connectableBus2="B3" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-24-3-1 " r="0.438012" x="15.977916" g="0.0" b="0.0" ratedU1="230.0" ratedU2="138.0" voltageLevelId1="VL24" bus1="B24" connectableBus1="B24" voltageLevelId2="VL3" bus2="B3" connectableBus2="B3" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:operationalLimitsGroup1 id="DEFAULT">
                 <iidm:currentLimits permanentLimit="1004.0874246776101"/>
             </iidm:operationalLimitsGroup1>
@@ -73,7 +73,7 @@
                 <iidm:bus id="B12" name="12          " v="193.23680000000002" angle="11.7711"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-5-10-1 " name="        " r="4.4448696" x="16.8291828" g="0.0" b="1.333753413148498E-4" ratedU1="138.0" ratedU2="138.0" voltageLevelId1="VL5-9-10" bus1="B5" connectableBus1="B5" voltageLevelId2="VL5-9-10" bus2="B10" connectableBus2="B10" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-5-10-1 " r="4.4448696" x="16.8291828" g="0.0" b="1.333753413148498E-4" ratedU1="138.0" ratedU2="138.0" voltageLevelId1="VL5-9-10" bus1="B5" connectableBus1="B5" voltageLevelId2="VL5-9-10" bus2="B10" connectableBus2="B10" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:operationalLimitsGroup1 id="DEFAULT">
                 <iidm:currentLimits permanentLimit="732.1470804940907"/>
             </iidm:operationalLimitsGroup1>
@@ -81,7 +81,7 @@
                 <iidm:currentLimits permanentLimit="732.1470804940907"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
-        <iidm:twoWindingsTransformer id="T-11-9-1 " name="        " r="0.438012" x="15.977916" g="0.0" b="0.0" ratedU1="230.0" ratedU2="138.0" voltageLevelId1="VL11-12" bus1="B11" connectableBus1="B11" voltageLevelId2="VL5-9-10" bus2="B9" connectableBus2="B9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-11-9-1 " r="0.438012" x="15.977916" g="0.0" b="0.0" ratedU1="230.0" ratedU2="138.0" voltageLevelId1="VL11-12" bus1="B11" connectableBus1="B11" voltageLevelId2="VL5-9-10" bus2="B9" connectableBus2="B9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:operationalLimitsGroup1 id="DEFAULT">
                 <iidm:currentLimits permanentLimit="1004.0874246776101"/>
             </iidm:operationalLimitsGroup1>
@@ -89,7 +89,7 @@
                 <iidm:currentLimits permanentLimit="1673.47904112935"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
-        <iidm:twoWindingsTransformer id="T-9-12-1 " name="        " r="1.2167" x="44.3831" g="0.0" b="0.0" ratedU1="138.0" ratedU2="230.0" voltageLevelId1="VL5-9-10" bus1="B9" connectableBus1="B9" voltageLevelId2="VL11-12" bus2="B12" connectableBus2="B12" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-9-12-1 " r="1.2167" x="44.3831" g="0.0" b="0.0" ratedU1="138.0" ratedU2="230.0" voltageLevelId1="VL5-9-10" bus1="B9" connectableBus1="B9" voltageLevelId2="VL11-12" bus2="B12" connectableBus2="B12" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:operationalLimitsGroup1 id="DEFAULT">
                 <iidm:currentLimits permanentLimit="1673.47904112935"/>
             </iidm:operationalLimitsGroup1>
@@ -97,7 +97,7 @@
                 <iidm:currentLimits permanentLimit="1004.0874246776101"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
-        <iidm:twoWindingsTransformer id="T-11-10-1 " name="        " r="0.438012" x="15.977916" g="0.0" b="0.0" ratedU1="230.0" ratedU2="138.0" voltageLevelId1="VL11-12" bus1="B11" connectableBus1="B11" voltageLevelId2="VL5-9-10" bus2="B10" connectableBus2="B10" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-11-10-1 " r="0.438012" x="15.977916" g="0.0" b="0.0" ratedU1="230.0" ratedU2="138.0" voltageLevelId1="VL11-12" bus1="B11" connectableBus1="B11" voltageLevelId2="VL5-9-10" bus2="B10" connectableBus2="B10" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:operationalLimitsGroup1 id="DEFAULT">
                 <iidm:currentLimits permanentLimit="1004.0874246776101"/>
             </iidm:operationalLimitsGroup1>
@@ -105,7 +105,7 @@
                 <iidm:currentLimits permanentLimit="1673.47904112935"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
-        <iidm:twoWindingsTransformer id="T-12-10-1 " name="        " r="0.438012" x="15.977916" g="0.0" b="0.0" ratedU1="230.0" ratedU2="138.0" voltageLevelId1="VL11-12" bus1="B12" connectableBus1="B12" voltageLevelId2="VL5-9-10" bus2="B10" connectableBus2="B10" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-12-10-1 " r="0.438012" x="15.977916" g="0.0" b="0.0" ratedU1="230.0" ratedU2="138.0" voltageLevelId1="VL11-12" bus1="B12" connectableBus1="B12" voltageLevelId2="VL5-9-10" bus2="B10" connectableBus2="B10" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:operationalLimitsGroup1 id="DEFAULT">
                 <iidm:currentLimits permanentLimit="1004.0874246776101"/>
             </iidm:operationalLimitsGroup1>

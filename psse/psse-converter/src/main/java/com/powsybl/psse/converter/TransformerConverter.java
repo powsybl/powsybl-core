@@ -7,26 +7,22 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.*;
-
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.psse.model.pf.*;
-import org.apache.commons.math3.complex.Complex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import com.powsybl.psse.model.pf.PsseBus;
-import com.powsybl.psse.model.pf.PssePowerFlowModel;
-import com.powsybl.psse.model.pf.PsseTransformer;
-import com.powsybl.psse.model.pf.PsseTransformerWinding;
+import com.powsybl.psse.model.pf.*;
+import org.apache.commons.math3.complex.Complex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.*;
+import java.util.*;
+
+import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_THREE_WINDING;
+import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_TWO_WINDING;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
@@ -100,7 +96,7 @@ class TransformerConverter extends AbstractConverter {
         // As vn2 is used to convert to eu, only the ratio remains to be applied
         TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChangerAdjustedRatio);
 
-        String name = psseTransformer.getName();
+        String name = getNameOrNull();
 
         TwoWindingsTransformerAdder adder = voltageLevel2.getSubstation()
                 .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
@@ -203,7 +199,7 @@ class TransformerConverter extends AbstractConverter {
         // move ysh between w1 and z
         TapChanger tapChanger1AdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChanger1);
 
-        String name = psseTransformer.getName();
+        String name = getNameOrNull();
 
         ThreeWindingsTransformerAdder adder = voltageLevel1.getSubstation()
                 .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
@@ -251,6 +247,14 @@ class TransformerConverter extends AbstractConverter {
 
         tapChangersToIidm(tapChanger1AdjustedYsh, tapChanger2, tapChanger3, twt);
         defineOperationalLimits(twt, voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), voltageLevel3.getNominalV());
+    }
+
+    private String getNameOrNull() {
+        String name = psseTransformer.getName();
+        if (name.trim().isEmpty()) {
+            name = null;
+        }
+        return name;
     }
 
     private void legConnectivity(ThreeWindingsTransformerAdder.LegAdder legAdder, String equipmentIdBus, String busId, boolean isLegConnected) {
@@ -495,14 +499,14 @@ class TransformerConverter extends AbstractConverter {
                 .setTapPosition(tapChanger.getTapPosition());
 
         tapChanger.getSteps().forEach(step ->
-            ptc.beginStep()
-                .setRho(1 / step.getRatio())
-                .setAlpha(-step.getAngle())
-                .setR(step.getR())
-                .setX(step.getX())
-                .setB(step.getB1())
-                .setG(step.getG1())
-                .endStep());
+                ptc.beginStep()
+                        .setRho(1 / step.getRatio())
+                        .setAlpha(-step.getAngle())
+                        .setR(step.getR())
+                        .setX(step.getX())
+                        .setB(step.getB1())
+                        .setG(step.getG1())
+                        .endStep());
         ptc.setRegulating(false).setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER).add();
     }
 
@@ -756,7 +760,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static boolean addControlThreeWindingsTransformerLeg(Network network, String id, Leg leg,
-        PsseTransformerWinding winding, boolean regulatingForcedToOffInput, NodeBreakerImport nodeBreakerImport) {
+                                                                 PsseTransformerWinding winding, boolean regulatingForcedToOffInput, NodeBreakerImport nodeBreakerImport) {
         boolean regulatingForcedToOff = regulatingForcedToOffInput;
         if (leg.hasRatioTapChanger()) {
             boolean regulating = defineVoltageControl(network, id, winding, leg.getRatioTapChanger(), regulatingForcedToOff, nodeBreakerImport);
@@ -770,7 +774,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static boolean defineVoltageControl(Network network, String id, PsseTransformerWinding winding, RatioTapChanger rtc,
-        boolean regulatingForcedToOff, NodeBreakerImport nodeBreakerImport) {
+                                                boolean regulatingForcedToOff, NodeBreakerImport nodeBreakerImport) {
         if (Math.abs(winding.getCod()) == 2) {
             LOGGER.warn("Transformer {}. Reactive power control not supported", id);
             return false;
@@ -796,10 +800,10 @@ class TransformerConverter extends AbstractConverter {
             regulating = false;
         }
         rtc.setTargetV(targetV)
-            .setTargetDeadband(targetDeadBand)
-            .setRegulationTerminal(regulatingTerminal)
-            .setLoadTapChangingCapabilities(regulating)
-            .setRegulating(regulating);
+                .setTargetDeadband(targetDeadBand)
+                .setRegulationTerminal(regulatingTerminal)
+                .setLoadTapChangingCapabilities(regulating)
+                .setRegulating(regulating);
 
         return regulating;
     }

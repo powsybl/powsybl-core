@@ -14,7 +14,7 @@
                 <iidm:bus id="B5" name="101         " v="225.23440000000002" angle="27.5136"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-1-5-1 " name="        " r="0.529" x="6.348" g="0.0" b="0.0" ratedU1="20.0" ratedU2="230.0" voltageLevelId1="VL1" bus1="B1" connectableBus1="B1" voltageLevelId2="VL5" bus2="B5" connectableBus2="B5"/>
+        <iidm:twoWindingsTransformer id="T-1-5-1 " r="0.529" x="6.348" g="0.0" b="0.0" ratedU1="20.0" ratedU2="230.0" voltageLevelId1="VL1" bus1="B1" connectableBus1="B1" voltageLevelId2="VL5" bus2="B5" connectableBus2="B5"/>
     </iidm:substation>
     <iidm:substation id="S2-6">
         <iidm:voltageLevel id="VL2" nominalV="20.0" topologyKind="BUS_BREAKER">
@@ -30,7 +30,7 @@
                 <iidm:bus id="B6" name="102         " v="220.3308" angle="16.2655"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-2-6-1 " name="        " r="0.529" x="6.348" g="0.0" b="0.0" ratedU1="20.0" ratedU2="230.0" voltageLevelId1="VL2" bus1="B2" connectableBus1="B2" voltageLevelId2="VL6" bus2="B6" connectableBus2="B6"/>
+        <iidm:twoWindingsTransformer id="T-2-6-1 " r="0.529" x="6.348" g="0.0" b="0.0" ratedU1="20.0" ratedU2="230.0" voltageLevelId1="VL2" bus1="B2" connectableBus1="B2" voltageLevelId2="VL6" bus2="B6" connectableBus2="B6"/>
     </iidm:substation>
     <iidm:substation id="S3-9">
         <iidm:voltageLevel id="VL3" nominalV="20.0" topologyKind="BUS_BREAKER">
@@ -46,7 +46,7 @@
                 <iidm:bus id="B9" name="112         " v="204.8242" angle="5.3639"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-3-9-1 " name="        " r="0.529" x="6.348" g="0.0" b="0.0" ratedU1="20.0" ratedU2="230.0" voltageLevelId1="VL3" bus1="B3" connectableBus1="B3" voltageLevelId2="VL9" bus2="B9" connectableBus2="B9"/>
+        <iidm:twoWindingsTransformer id="T-3-9-1 " r="0.529" x="6.348" g="0.0" b="0.0" ratedU1="20.0" ratedU2="230.0" voltageLevelId1="VL3" bus1="B3" connectableBus1="B3" voltageLevelId2="VL9" bus2="B9" connectableBus2="B9"/>
     </iidm:substation>
     <iidm:substation id="S4-10">
         <iidm:voltageLevel id="VL4" nominalV="20.0" topologyKind="BUS_BREAKER">
@@ -62,7 +62,7 @@
                 <iidm:bus id="B10" name="111         " v="190.8034" angle="19.2858"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-4-10-1 " name="        " r="0.529" x="6.348" g="0.0" b="0.0" ratedU1="20.0" ratedU2="230.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL10" bus2="B10" connectableBus2="B10"/>
+        <iidm:twoWindingsTransformer id="T-4-10-1 " r="0.529" x="6.348" g="0.0" b="0.0" ratedU1="20.0" ratedU2="230.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL10" bus2="B10" connectableBus2="B10"/>
     </iidm:substation>
     <iidm:substation id="S7">
         <iidm:voltageLevel id="VL7" nominalV="230.0" topologyKind="BUS_BREAKER">
