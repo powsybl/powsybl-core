@@ -227,10 +227,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY, terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
         dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
         dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
-        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
-        Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn ->
-                dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn)
-        );
+
+        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> {
+            if (isTopologicalNodeDefinedAtBoundary(tn, boundarySide)) {
+                dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn);
+            }
+        });
+
+        Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn));
         setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
@@ -238,6 +242,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
         dl.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
         return dl;
+    }
+
+    // A TopologicalNode is considered an official boundary node when it is defined in the TP_BD file.
+    // We also treat a TopologicalNode as official when no boundary information is available,
+    // this occurs when reading bus-branch models that lack both EQ_BD and TP_BD files.
+    // In both cases, the TopologicalNode must be recorded for use during the export process.
+    private boolean isTopologicalNodeDefinedAtBoundary(String topologicalNode, int boundarySide) {
+        return context.boundary().containsNode(topologicalNode) || connectivityNodeId(boundarySide) == null;
     }
 
     protected static void updateDanglingLine(DanglingLine danglingLine, boolean isBoundaryTerminalConnected, Context context) {
