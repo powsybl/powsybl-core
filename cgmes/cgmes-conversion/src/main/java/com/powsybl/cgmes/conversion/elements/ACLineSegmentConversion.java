@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

@@ -206,6 +206,13 @@ public final class Update {
         return context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode() != CgmesImport.FictitiousSwitchesCreationMode.NEVER;
     }
 
+    // In some TYNDP there are three or more acLineSegments at the boundary node, only two connected.
+    static void createTieLinesWhenThereAreMoreThanTwoDanglingLinesAtBoundaryNodeDuringUpdate(Network network, Context context) {
+        context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), IdentifiableType.TIE_LINE.name()));
+        TieLineConversion.createDuringUpdate(network, context);
+        context.popReportNode();
+    }
+
     static void updateAndCompleteVoltageAndAngles(Network network, Context context) {
         context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(context.getReportNode()));
         // update voltage and angles
