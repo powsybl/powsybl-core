@@ -32,6 +32,7 @@ public class DynamicSecurityAnalysisInput extends AbstractSecurityAnalysisInput<
         super(networkVariant);
         Objects.requireNonNull(dynamicModelsSupplier);
         this.dynamicModels = dynamicModelsSupplier;
+        this.eventModels = EventModelsSupplier.empty();
         this.parameters = new DynamicSecurityAnalysisParameters();
     }
 
