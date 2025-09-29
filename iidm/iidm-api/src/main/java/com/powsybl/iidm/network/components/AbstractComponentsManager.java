@@ -8,14 +8,24 @@
 
 package com.powsybl.iidm.network.components;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Component;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.math.graph.GraphUtil;
 import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -56,9 +66,9 @@ abstract class AbstractComponentsManager<C extends Component> {
             id2num.put(bus.getId(), num);
             num++;
         }
-        TIntArrayList[] adjacencyList = new TIntArrayList[num];
+        IntArrayList[] adjacencyList = new IntArrayList[num];
         for (int i = 0; i < adjacencyList.length; i++) {
-            adjacencyList[i] = new TIntArrayList(3);
+            adjacencyList[i] = new IntArrayList(3);
         }
         fillAdjacencyList(id2num, adjacencyList);
 
@@ -89,7 +99,7 @@ abstract class AbstractComponentsManager<C extends Component> {
         return num != -1 ? components.get(num) : null;
     }
 
-    void addToAdjacencyList(Bus bus1, Bus bus2, Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
+    void addToAdjacencyList(Bus bus1, Bus bus2, Map<String, Integer> id2num, IntArrayList[] adjacencyList) {
         if (bus1 != null && bus2 != null) {
             int busNum1 = id2num.get(bus1.getId());
             int busNum2 = id2num.get(bus2.getId());
@@ -98,7 +108,7 @@ abstract class AbstractComponentsManager<C extends Component> {
         }
     }
 
-    protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
+    protected void fillAdjacencyList(Map<String, Integer> id2num, IntArrayList[] adjacencyList) {
         for (Line line : getNetwork().getLines()) {
             Bus bus1 = line.getTerminal1().getBusView().getBus();
             Bus bus2 = line.getTerminal2().getBusView().getBus();
