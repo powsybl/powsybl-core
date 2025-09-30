@@ -137,7 +137,7 @@ class SensitivityAnalysisTest {
     void testRunWithFluentParams() {
         SensitivityAnalysisParameters sensitivityParameters = new SensitivityAnalysisParameters();
         WeightedSensitivityVariable variable = new WeightedSensitivityVariable("v1", 3.4);
-        List<SensitivityVariableSet> variableSets = List.of(new SensitivityVariableSet("id", List.of(variable)));
+        List<SensitivityVariableSet> sensitivityVariableSets = List.of(new SensitivityVariableSet("id", List.of(variable)));
         ReportNode reportRoot = ReportNode.newRootReportNode()
             .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
             .withMessageTemplate("testSensitivityAnalysis")
@@ -145,7 +145,7 @@ class SensitivityAnalysisTest {
         SensitivityAnalysis.Runner runner = SensitivityAnalysis.find();
         runner.setNetwork(network)
             .setSensitivityFactors(List.of(factor))
-            .setVariableSets(variableSets)
+            .setVariableSets(sensitivityVariableSets)
             .setComputationManager(computationManager)
             .setReportNode(reportRoot)
             .setVariant("VariantId")
