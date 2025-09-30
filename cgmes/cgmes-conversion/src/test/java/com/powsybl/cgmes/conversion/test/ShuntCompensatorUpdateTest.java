@@ -98,21 +98,21 @@ class ShuntCompensatorUpdateTest {
     }
 
     private static void assertFlowsBeforeSv(Network network) {
-        assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), 0.0, 50.0);
-        assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), 1.0, 25.0);
-        assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), 2.0, -5.0);
+        assertFlows(network, 0.0, 50.0, 1.0, 25.0, 2.0, -5.0);
     }
 
     private static void assertFlowsAfterEmptySv(Network network) {
-        assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    }
+
+    private static void assertFlows(Network network, double linearShuntCompensatorP, double linearShuntCompensatorQ, double nonLinearShuntCompensatorP, double nonLinearShuntCompensatorQ, double equivalentShuntP, double equivalentShuntQ) {
+        assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), linearShuntCompensatorP, linearShuntCompensatorQ);
+        assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), nonLinearShuntCompensatorP, nonLinearShuntCompensatorQ);
+        assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), equivalentShuntP, equivalentShuntQ);
     }
 
     private static void assertSectionsBeforeSv(Network network) {

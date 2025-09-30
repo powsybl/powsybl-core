@@ -102,27 +102,22 @@ class LoadUpdateTest {
     }
 
     void assertFlowsBeforeSv(Network network) {
-        assertFlows(network.getLoad("EnergyConsumer").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getLoad("EnergySource").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getLoad("AsynchronousMachine").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getLoad("EnergyConsumerOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getLoad("EnergySourceOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getLoad("AsynchronousMachineOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     void assertFlowsAfterSv(Network network) {
-        assertFlows(network.getLoad("EnergyConsumer").getTerminal(), 100.0, 50.0);
-        assertFlows(network.getLoad("EnergySource").getTerminal(), 20.0, 10.0);
-        assertFlows(network.getLoad("AsynchronousMachine").getTerminal(), 10.0, 5.0);
-        assertFlows(network.getLoad("EnergyConsumerOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getLoad("EnergySourceOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getLoad("AsynchronousMachineOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network, 100.0, 50.0, 20.0, 10.0, 10.0, 5.0);
     }
 
     void assertFlowsAfterEmptySv(Network network) {
-        assertFlows(network.getLoad("EnergyConsumer").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getLoad("EnergySource").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getLoad("AsynchronousMachine").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    }
+
+    void assertFlows(Network network, double energyConsumerP, double energyConsumerQ, double energySourceP, double energySourceQ,
+                     double asynchronousMachineP, double asynchronousMachineQ) {
+        assertFlows(network.getLoad("EnergyConsumer").getTerminal(), energyConsumerP, energyConsumerQ);
+        assertFlows(network.getLoad("EnergySource").getTerminal(), energySourceP, energySourceQ);
+        assertFlows(network.getLoad("AsynchronousMachine").getTerminal(), asynchronousMachineP, asynchronousMachineQ);
         assertFlows(network.getLoad("EnergyConsumerOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("EnergySourceOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("AsynchronousMachineOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
