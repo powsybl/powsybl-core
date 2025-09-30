@@ -107,6 +107,14 @@ WHERE {
         cim:SvVoltage.angle ?angle .
 }
 
+# query: switches
+SELECT *
+{
+    ?Switch a ?type ;
+        cim:Switch.open ?open .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector }
+}
+
 # query: ratioTapChangers
 SELECT *
 {
@@ -297,5 +305,42 @@ SELECT *
         ?SvShuntCompensatorSections a cim:SvShuntCompensatorSections ;
             cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator ;
             cim:SvShuntCompensatorSections.sections ?SVsections .
+    }
+}
+
+# query: acDcConverters
+SELECT *
+{
+    {
+        SELECT DISTINCT ?ACDCConverter
+        WHERE {
+            ?ACDCConverter a ?type ;
+            VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter } .
+        }
+    }
+    OPTIONAL {
+        ?ACDCConverter
+            cim:ACDCConverter.targetPpcc ?targetPpcc ;
+            cim:ACDCConverter.p ?p ;
+            cim:ACDCConverter.q ?q .
+    }
+    # From SV, for all converters
+    OPTIONAL {
+        ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
+    }
+    # For Current Source Converter
+    OPTIONAL {
+        ?ACDCConverter a cim:CsConverter ;
+            cim:CsConverter.operatingMode ?operatingMode ;
+            cim:CsConverter.pPccControl ?controlMode .
+            OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
+    }
+    # For Voltage Source Converter
+    OPTIONAL {
+        ?ACDCConverter a cim:VsConverter ;
+            cim:VsConverter.qPccControl ?qPccControl ;
+            cim:VsConverter.pPccControl ?pPccControl .
+            OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
+            OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
     }
 }
