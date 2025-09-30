@@ -164,7 +164,7 @@ public final class TransformerUtils {
         destinationTerminal.setQ(sourceTerminal.getQ());
     }
 
-    public static void copyAndAddFortescue(TwoWindingsTransformerFortescueAdder t2wFortescueAdder, ThreeWindingsTransformerFortescue.LegFortescue legFortescue) {
+    public static void copyAndAddFortescue(TwoWindingsTransformerFortescueAdder t2wFortescueAdder, LegFortescue legFortescue) {
         t2wFortescueAdder.withConnectionType1(legFortescue.getConnectionType())
                 .withFreeFluxes(legFortescue.isFreeFluxes())
                 .withGroundingR1(legFortescue.getGroundingR())
