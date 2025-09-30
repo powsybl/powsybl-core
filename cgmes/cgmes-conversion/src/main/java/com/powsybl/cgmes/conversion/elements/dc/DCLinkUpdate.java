@@ -26,6 +26,7 @@ public class DCLinkUpdate {
     private double pDcInverter;
     private double lossFactor1;
     private double lossFactor2;
+    private final DefaultData defaultData;
 
     private final HvdcLine hvdcLine;
     private final PropertyBag converter1;
@@ -36,10 +37,11 @@ public class DCLinkUpdate {
     private static final String POLE_LOSS_P = "poleLossP";
     private static final Logger LOG = LoggerFactory.getLogger(DCLinkUpdate.class);
 
-    public DCLinkUpdate(HvdcLine hvdcLine, PropertyBag converter1, PropertyBag converter2) {
+    public DCLinkUpdate(HvdcLine hvdcLine, PropertyBag converter1, PropertyBag converter2, DefaultData defaultData) {
         this.hvdcLine = hvdcLine;
         this.converter1 = converter1;
         this.converter2 = converter2;
+        this.defaultData = defaultData;
 
         computeMode();
         computeActivePowers();
@@ -58,7 +60,7 @@ public class DCLinkUpdate {
         } else if (targetPpcc1() < 0.0 || targetPpcc2() > 0.0) {
             mode = SIDE_1_INVERTER_SIDE_2_RECTIFIER;
         } else {
-            mode = SIDE_1_RECTIFIER_SIDE_2_INVERTER;
+            mode = defaultData.mode();
             String dcLine1Id = hvdcLine.getId();
             LOG.info("Default mode: {} for DCLink with DCLineSegment: {}.", mode, dcLine1Id);
         }
@@ -104,8 +106,8 @@ public class DCLinkUpdate {
             pDcRectifier = Math.abs(pDcInverter) + resistiveLossesFromPdcInverter(pDcInverter);
             targetP = pDcRectifier + getPoleLossesRectifier();
         } else {
-            targetP = 0.0;
-            pDcInverter = 0.0;
+            targetP = defaultData.targetP();
+            // No need to calculate DC powers when using default data.
         }
     }
 
@@ -153,9 +155,9 @@ public class DCLinkUpdate {
 
     private void computeLossFactors() {
         // Loss factor is pole losses divided by incoming power.
-        if (targetP == 0.0) {
-            lossFactor1 = 0.0;
-            lossFactor2 = 0.0;
+        if (targetP == 0.0 || targetP == defaultData.targetP()) {
+            lossFactor1 = defaultData.lossFactor1();
+            lossFactor2 = defaultData.lossFactor2();
         } else if (mode == SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
             lossFactor1 = getPoleLossesRectifier() / targetP * 100;
             lossFactor2 = getPoleLossesInverter() / Math.abs(pDcInverter) * 100;
@@ -163,6 +165,9 @@ public class DCLinkUpdate {
             lossFactor1 = getPoleLossesInverter() / Math.abs(pDcInverter) * 100;
             lossFactor2 = getPoleLossesRectifier() / targetP * 100;
         }
+    }
+
+    public record DefaultData(HvdcLine.ConvertersMode mode, double targetP, double lossFactor1, double lossFactor2) {
     }
 
     public ConvertersMode getMode() {

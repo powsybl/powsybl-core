@@ -98,8 +98,11 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         }
     }
 
+    // The previous value is only considered if it is defined; NaN values are discarded.
+    // We preserve the received value in equipmentValue (from the EQ file) and in defaultValue (from the code)
     protected static double getDefaultValue(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue, Context context) {
-        return getDefaultValue(equipmentValue, previousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
+        Double properPreviousValue = previousValue == null || Double.isNaN(previousValue) ? null : previousValue;
+        return getDefaultValue(equipmentValue, properPreviousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
     }
 
     protected static int getDefaultValue(Integer equipmentValue, Integer previousValue, Integer defaultValue, int emptyValue, Context context) {

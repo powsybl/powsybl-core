@@ -564,6 +564,12 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
+                                defaultValueConfig))
+                .setUsePreviousValuesDuringUpdate(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER,
                                 defaultValueConfig));
 
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
@@ -639,6 +645,7 @@ public class CgmesImport implements Importer {
     public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
     public static final String CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE = "iidm.import.cgmes.create-fictitious-voltage-level-for-every-node";
+    public static final String USE_PREVIOUS_VALUES_DURING_UPDATE = "iidm.import.cgmes.use-previous-values-during-update";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -752,6 +759,12 @@ public class CgmesImport implements Importer {
             Boolean.TRUE)
             .addAdditionalNames("createFictitiousVoltageLevelForEveryNode");
 
+    private static final Parameter USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER = new Parameter(
+            USE_PREVIOUS_VALUES_DURING_UPDATE,
+            ParameterType.BOOLEAN,
+            "Use previous values (from a previous update) during the current update",
+            Boolean.FALSE);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
@@ -771,7 +784,8 @@ public class CgmesImport implements Importer {
             IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER,
             MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
-            CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER);
+            CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
+            USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;

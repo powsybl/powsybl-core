@@ -146,7 +146,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         adder.setMinP(minP).setMaxP(maxP);
     }
 
-    protected static void updateRegulatingControl(Generator generator, boolean controlEnabled, Context context) {
+    protected static void updateRegulatingControl(Generator generator, Boolean controlEnabled, Context context) {
         String mode = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE);
 
         if (isControlModeVoltage(mode)) {
@@ -158,12 +158,13 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         }
     }
 
-    private static void updateRegulatingControlVoltage(Generator generator, boolean controlEnabled, Context context) {
+    private static void updateRegulatingControlVoltage(Generator generator, Boolean controlEnabled, Context context) {
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
 
         double defaultTargetV = getDefaultTargetV(generator, context);
         double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_VALID)).orElse(defaultTargetV);
         boolean defaultRegulatingOn = getDefaultRegulatingOn(generator, context);
+        boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
         boolean validTargetV = isValidTargetV(targetV);
@@ -173,7 +174,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         }
 
         // Regulating control is enabled AND this equipment participates in regulating control
-        setVoltageRegulation(generator, targetV, regulatingOn && controlEnabled && validTargetV);
+        setVoltageRegulation(generator, targetV, regulatingOn && updatedControlEnabled && validTargetV);
     }
 
     // TargetV must be valid before the regulation is turned on,
@@ -191,7 +192,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         }
     }
 
-    private static void updateRegulatingControlReactivePower(Generator generator, boolean controlEnabled, Context context) {
+    private static void updateRegulatingControlReactivePower(Generator generator, Boolean controlEnabled, Context context) {
         RemoteReactivePowerControl remoteReactivePowerControl = generator.getExtension(RemoteReactivePowerControl.class);
         if (remoteReactivePowerControl == null || remoteReactivePowerControl.getRegulatingTerminal() == null) {
             return;
@@ -200,11 +201,12 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         int terminalSign = findTerminalSign(generator);
         double defaultTargetQ = getDefaultTargetQ(remoteReactivePowerControl, context);
         boolean defaultRegulatingOn = getDefaultRegulatingOn(remoteReactivePowerControl, context);
+        boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
 
         double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
-        setReactivePowerRegulation(remoteReactivePowerControl, targetQ, regulatingOn && controlEnabled && isValidTargetQ(targetQ));
+        setReactivePowerRegulation(remoteReactivePowerControl, targetQ, regulatingOn && updatedControlEnabled && isValidTargetQ(targetQ));
     }
 
     // TargetQ must be valid before the regulation is turned on,

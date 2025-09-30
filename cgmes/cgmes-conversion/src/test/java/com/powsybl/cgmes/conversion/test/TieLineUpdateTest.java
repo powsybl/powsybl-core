@@ -11,6 +11,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -87,6 +89,21 @@ class TieLineUpdateTest {
 
         readCgmesResources(network, DIR, "tieLine_TP.xml", "tieLine_SV.xml");
         assertSv(tieLine);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml", "tieLine_SSH.xml", "tieLine_TP.xml", "tieLine_SV.xml");
+        assertEqCount(network, 2, 4);
+        assertFirstSsh(network);
+        assertSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertEqCount(network, 2, 4);
+        assertFirstSsh(network);
+        assertSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
     }
 
     private static void assertSv(TieLine tieLine) {

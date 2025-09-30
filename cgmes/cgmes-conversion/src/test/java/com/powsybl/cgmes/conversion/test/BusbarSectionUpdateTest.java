@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,6 +46,17 @@ class BusbarSectionUpdateTest {
         assertEq(network);
 
         readCgmesResources(network, DIR, "busbarSection_SSH.xml");
+        assertEq(network);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "busbarSection_EQ.xml", "busbarSection_SSH.xml");
+        assertEq(network);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertEq(network);
     }
 
