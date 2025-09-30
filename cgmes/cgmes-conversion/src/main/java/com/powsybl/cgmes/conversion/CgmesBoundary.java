@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.BoundaryEquipment.BoundaryEquipmentType;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -68,8 +67,6 @@ public class CgmesBoundary {
         }
         nodesEquipment = new HashMap<>();
         nodesEquivalentInjections = new HashMap<>();
-        nodesPowerFlow = new HashMap<>();
-        nodesVoltage = new HashMap<>();
     }
 
     public static boolean isDcNode(PropertyBag node) {
@@ -84,14 +81,6 @@ public class CgmesBoundary {
 
     public boolean containsNode(String id) {
         return nodes.contains(id);
-    }
-
-    public boolean hasPowerFlow(String node) {
-        return nodesPowerFlow.containsKey(node);
-    }
-
-    public PowerFlow powerFlowAtNode(String node) {
-        return nodesPowerFlow.get(node);
     }
 
     public void addAcLineSegmentAtNode(PropertyBag line, String node) {
@@ -122,29 +111,6 @@ public class CgmesBoundary {
         nodesEquivalentInjections.computeIfAbsent(node, ls -> new ArrayList<>(2)).add(equivalentInjection);
     }
 
-    public void addPowerFlowAtNode(String node, PowerFlow f) {
-        nodesPowerFlow.compute(node, (n, f0) -> f0 == null ? f : f0.sum(f));
-    }
-
-    public void addVoltageAtBoundary(String node, double v, double angle) {
-        Voltage voltage = new Voltage();
-        voltage.v = v;
-        voltage.angle = angle;
-        nodesVoltage.put(node, voltage);
-    }
-
-    public boolean hasVoltage(String node) {
-        return nodesVoltage.containsKey(node);
-    }
-
-    public double vAtBoundary(String node) {
-        return nodesVoltage.containsKey(node) ? nodesVoltage.get(node).v : Double.NaN;
-    }
-
-    public double angleAtBoundary(String node) {
-        return nodesVoltage.containsKey(node) ? nodesVoltage.get(node).angle : Double.NaN;
-    }
-
     List<BoundaryEquipment> boundaryEquipmentAtNode(String node) {
         return nodesEquipment.getOrDefault(node, Collections.emptyList());
     }
@@ -169,16 +135,9 @@ public class CgmesBoundary {
         return topologicalNodes.keySet();
     }
 
-    private static class Voltage {
-        double v;
-        double angle;
-    }
-
     private final Set<String> nodes;
     private final Map<String, List<BoundaryEquipment>> nodesEquipment;
     private final Map<String, List<PropertyBag>> nodesEquivalentInjections;
-    private final Map<String, PowerFlow> nodesPowerFlow;
-    private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;
     private final Map<String, String> topologicalNodes;
     private final Map<String, String> lineAtNodes;

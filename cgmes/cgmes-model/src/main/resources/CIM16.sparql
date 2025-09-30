@@ -425,9 +425,6 @@ WHERE {
     FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
         || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?Switch cim:Switch.open ?open
-}}
 }
 
 # query: acLineSegments
@@ -825,13 +822,6 @@ WHERE {
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationCapability ?regulationCapability }
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.ReactiveCapabilityCurve ?ReactiveCapabilityCurve }
 }}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?EquivalentInjection
-        cim:EquivalentInjection.p ?p ;
-        cim:EquivalentInjection.q ?q .
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationStatus ?regulationStatus }
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationTarget ?regulationTarget }
-}}
 }
 
 # query: equivalentShunts
@@ -844,18 +834,6 @@ WHERE {
         cim:EquivalentShunt.b ?b ;
         cim:EquivalentShunt.g ?g .
     ?Terminal cim:Terminal.ConductingEquipment ?EquivalentShunt .
-}}
-}
-
-# query: svInjections
-SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?SvInjection
-        a cim:SvInjection ;
-        cim:SvInjection.TopologicalNode ?TopologicalNode ;
-        cim:SvInjection.pInjection ?pInjection .
-        OPTIONAL { ?SvInjection cim:SvInjection.qInjection ?qInjection }
 }}
 }
 

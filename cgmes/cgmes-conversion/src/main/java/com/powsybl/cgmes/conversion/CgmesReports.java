@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.Substation;
 public final class CgmesReports {
 
     private static final String EQUIPMENT_ID = "equipmentId";
+    private static final String ELEMENT_TYPE = "elementType";
     private static final String CONVERTER_IDS = "converterIds";
 
     private CgmesReports() {
@@ -49,15 +50,23 @@ public final class CgmesReports {
     public static ReportNode convertingElementTypeReport(ReportNode reportNode, String elementType) {
         return reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.convertingElementType")
-                .withUntypedValue("elementType", elementType)
+                .withUntypedValue(ELEMENT_TYPE, elementType)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode convertingDuringUpdateElementTypeReport(ReportNode reportNode, String elementType) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.convertingDuringUpdateElementType")
+                .withUntypedValue(ELEMENT_TYPE, elementType)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
     public static ReportNode updatingElementTypeReport(ReportNode reportNode, String elementType) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.cgmes.update.updatingElementType")
-                .withUntypedValue("elementType", elementType)
+                .withMessageTemplate("core.cgmes.conversion.updatingElementType")
+                .withUntypedValue(ELEMENT_TYPE, elementType)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }

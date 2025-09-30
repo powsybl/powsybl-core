@@ -37,6 +37,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Update.*;
+import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.isBoundaryTerminalConnected;
 import static com.powsybl.cgmes.model.CgmesNames.REGULATION_CAPABILITY;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -230,10 +231,6 @@ public class Conversion {
         context.loadingLimitsMapping().addAll();
         setSelectedOperationalLimitsGroup(context);
 
-        if (config.convertSvInjections()) {
-            convert(cgmes.svInjections(), CgmesNames.SV_INJECTION, context);
-        }
-
         if (config.importControlAreas()) {
             convert(cgmes.controlAreas(), CgmesNames.CONTROL_AREA, context);
             convert(cgmes.tieFlows(), CgmesNames.TIE_FLOW, context);
@@ -241,12 +238,6 @@ public class Conversion {
 
         context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, CgmesNames.REGULATING_CONTROL));
         context.regulatingControlMapping().setAllRegulatingControls(network);
-        context.popReportNode();
-
-        // Fix dangling lines issues
-        context.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
-        handleDangingLineDisconnectedAtBoundary(network, context);
-        adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, context);
         context.popReportNode();
 
         // Save/store data for debug or external validation
@@ -283,6 +274,9 @@ public class Conversion {
         Context updateContext = createUpdateContext(network, reportNode);
 
         // add processes to create new equipment using update data (ssh and sv data)
+        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
+        createTieLinesWhenThereAreMoreThanTwoDanglingLinesAtBoundaryNodeDuringUpdate(network, updateContext);
+        createFictitiousLoadsForSvInjectionsDuringUpdate(network, cgmes, updateContext);
 
         update(network, updateContext, reportNode);
     }
@@ -311,14 +305,28 @@ public class Conversion {
             nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
         }
 
+        // Switches are updated first because the subsequent update of the terminals
+        // is configurable and, if activated, may modify their state.
+        // Then, the update of the terminals can overwrite the state of the switches
+        updateSwitches(network, updateContext);
+
         updateLoads(network, cgmes, updateContext);
         updateGenerators(network, cgmes, updateContext);
+        updateLines(network, updateContext);
         updateTransformers(network, updateContext);
         updateStaticVarCompensators(network, cgmes, updateContext);
         updateShuntCompensators(network, cgmes, updateContext);
         updateHvdcLines(network, cgmes, updateContext);
-        // Temporary until the danglingLine update is implemented.
-        temporaryComputeFlowsDanglingLines(network, updateContext);
+        updateDanglingLines(network, updateContext);
+
+        // Fix dangling lines issues
+        updateContext.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
+        handleDangingLineDisconnectedAtBoundary(network, updateContext);
+        adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, updateContext);
+        updateContext.popReportNode();
+
+        updateVoltageLevels(network, updateContext);
+        updateGrounds(network, updateContext);
 
         // Set voltages and angles, then complete
         updateAndCompleteVoltageAndAngles(network, updateContext);
@@ -369,25 +377,11 @@ public class Conversion {
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
         if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
             for (DanglingLine dl : network.getDanglingLines()) {
-                String terminalBoundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElse(null);
-                if (terminalBoundaryId == null) {
-                    LOG.warn("Dangling line {}: alias for terminal at boundary is missing", dl.getId());
-                } else {
-                    disconnectDanglingLineAtBounddary(dl, terminalBoundaryId, context);
+                if (!isBoundaryTerminalConnected(dl, context) && dl.getTerminal().isConnected()) {
+                    LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
+                    CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
+                    dl.getTerminal().disconnect();
                 }
-            }
-        }
-    }
-
-    private void disconnectDanglingLineAtBounddary(DanglingLine dl, String terminalBoundaryId, Context context) {
-        CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
-        if (terminalBoundary == null) {
-            LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
-        } else {
-            if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
-                LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
-                dl.getTerminal().disconnect();
             }
         }
     }
@@ -460,7 +454,6 @@ public class Conversion {
                 case CgmesNames.SYNCHRONOUS_MACHINE -> new SynchronousMachineConversion(element, context);
                 case CgmesNames.SERIES_COMPENSATOR -> new SeriesCompensatorConversion(element, context);
                 case CgmesNames.OPERATIONAL_LIMIT -> new OperationalLimitConversion(element, context);
-                case CgmesNames.SV_INJECTION -> new SvInjectionConversion(element, context);
                 case CgmesNames.CONTROL_AREA -> new ControlAreaConversion(element, context);
                 case CgmesNames.TIE_FLOW -> new TieFlowConversion(element, context);
                 default -> throw new IllegalArgumentException("Invalid elementType.");
@@ -780,62 +773,21 @@ public class Conversion {
             beqs.get(0).createConversion(context).convertAtBoundary();
         } else if (numEquipmentsAtNode == 2) {
             convertTwoEquipmentsAtBoundaryNode(context, node, beqs.get(0), beqs.get(1));
-        } else if (numEquipmentsAtNode > 2) {
-            // In some TYNDP there are three acLineSegments at the boundary node,
-            // one of them disconnected. The two connected acLineSegments are imported.
-            List<BoundaryEquipment> connectedBeqs = beqs.stream()
-                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).toList();
-            if (connectedBeqs.size() == 2) {
-                convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
-                // There can be multiple disconnected ACLineSegment to the same X-node (for example, for planning purposes)
-                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).toList()
-                    .forEach(beq -> {
-                        context.fixed("convertEquipmentAtBoundaryNode",
-                                String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as a dangling line.", node, beq.getAcLineSegmentId()));
-                        beq.createConversion(context).convertAtBoundary();
-                    });
-            } else {
-                // This case should not happen and will not result in an equivalent network at the end of the conversion
-                context.fixed(node, "More than two connected AcLineSegments at boundary: only dangling lines are created." +
-                        " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
-                beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
-            }
+        } else {
+            // In some TYNDPs, there are three or more AcLineSegments at the boundary node, but only two are connected.
+            // Here, a danglingLine is created for each segment, and later, in the method
+            // createTieLinesWhenThereAreMoreThanTwoDanglingLinesAtBoundaryNodeDuringUpdate,
+            // a tieLine is created using only the two connected danglingLines
+            context.fixed(node, "More than two AcLineSegments at boundary: only dangling lines are created." +
+                    " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
+            beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
         }
     }
 
     private static void convertTwoEquipmentsAtBoundaryNode(Context context, String node, BoundaryEquipment beq1, BoundaryEquipment beq2) {
         EquipmentAtBoundaryConversion conversion1 = beq1.createConversion(context);
         EquipmentAtBoundaryConversion conversion2 = beq2.createConversion(context);
-
-        conversion1.convertAtBoundary();
-        Optional<DanglingLine> dl1 = conversion1.getDanglingLine();
-        conversion2.convertAtBoundary();
-        Optional<DanglingLine> dl2 = conversion2.getDanglingLine();
-
-        if (dl1.isPresent() && dl2.isPresent()) {
-            // there can be several dangling lines linked to same x-node in one IGM for planning purposes
-            // in this case, we don't merge them
-            // please note that only one of them should be connected
-            String regionName1 = obtainRegionName(dl1.get().getTerminal().getVoltageLevel());
-            String regionName2 = obtainRegionName(dl2.get().getTerminal().getVoltageLevel());
-
-            String pairingKey1 = dl1.get().getPairingKey();
-            String pairingKey2 = dl2.get().getPairingKey();
-
-            if (!(pairingKey1 != null && pairingKey1.equals(pairingKey2))) {
-                context.ignored(node, "Both dangling lines do not have the same pairingKey: we do not consider them as a merged line");
-            } else if (regionName1 != null && regionName1.equals(regionName2)) {
-                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
-            } else if (dl2.get().getId().compareTo(dl1.get().getId()) >= 0) {
-                ACLineSegmentConversion.convertToTieLine(context, dl1.get(), dl2.get());
-            } else {
-                ACLineSegmentConversion.convertToTieLine(context, dl2.get(), dl1.get());
-            }
-        }
-    }
-
-    private static String obtainRegionName(VoltageLevel voltageLevel) {
-        return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
+        TieLineConversion.create(node, conversion1, conversion2, context);
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
