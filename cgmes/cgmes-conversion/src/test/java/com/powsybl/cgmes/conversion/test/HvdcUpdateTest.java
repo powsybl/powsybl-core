@@ -79,6 +79,8 @@ class HvdcUpdateTest {
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertSecondSsh(network);
+        assertFlowsAfterSv(network);
         assertLossFactorAfterSshSv(network);
     }
 
