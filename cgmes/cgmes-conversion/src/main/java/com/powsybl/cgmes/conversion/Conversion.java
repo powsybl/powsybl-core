@@ -1021,7 +1021,9 @@ public class Conversion {
         }
 
         public List<DefaultValue> updateDefaultValuesPriority() {
-            return updateDefaultValuesPriority;
+            return usePreviousValuesDuringUpdate
+                    ? List.of(DefaultValue.PREVIOUS, DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY)
+                    : List.of(DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY);
         }
 
         public boolean getCreateFictitiousVoltageLevelsForEveryNode() {
@@ -1030,6 +1032,11 @@ public class Conversion {
 
         public Config setCreateFictitiousVoltageLevelsForEveryNode(boolean b) {
             createFictitiousVoltageLevelsForEveryNode = b;
+            return this;
+        }
+
+        public Config setUsePreviousValuesDuringUpdate(boolean use) {
+            usePreviousValuesDuringUpdate = use;
             return this;
         }
 
@@ -1062,7 +1069,7 @@ public class Conversion {
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
         private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
-        private final List<DefaultValue> updateDefaultValuesPriority = List.of(DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY);
+        private boolean usePreviousValuesDuringUpdate = false;
     }
 
     private final CgmesModel cgmes;

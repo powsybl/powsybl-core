@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
@@ -30,6 +32,7 @@ class HvdcUpdateTest {
         assertEquals(2, network.getHvdcLineCount());
 
         assertEq(network);
+        assertLossFactorBeforeSv(network);
     }
 
     @Test
@@ -38,6 +41,7 @@ class HvdcUpdateTest {
         assertEquals(2, network.getHvdcLineCount());
 
         assertFirstSsh(network);
+        assertLossFactorBeforeSv(network);
     }
 
     @Test
@@ -64,6 +68,22 @@ class HvdcUpdateTest {
         assertLossFactorAfterSshSv(network);
     }
 
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH_1.xml", "hvdc_SV.xml");
+        assertEquals(2, network.getHvdcLineCount());
+        assertSecondSsh(network);
+        assertFlowsAfterSv(network);
+        assertLossFactorAfterSshSv(network);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertSecondSsh(network);
+        assertFlowsAfterSv(network);
+        assertLossFactorAfterSshSv(network);
+    }
+
     private static void assertEq(Network network) {
         assertEqLcc(network.getHvdcLine("DCLineSegment-Lcc"));
         assertEqVsc(network.getHvdcLine("DCLineSegment-Vsc"));
@@ -71,16 +91,14 @@ class HvdcUpdateTest {
 
     private static void assertFirstSsh(Network network) {
         assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 360.0, 300.0, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
-                -0.9152494668960571,
-                0.9340579509735107);
+                -0.9152494668960571, 0.9340579509735107);
         assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 597.24, 497.7, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
-                392.54, 392.54, 0.0, true);
+                 392.54, 392.54, 0.0, true);
     }
 
     private static void assertSecondSsh(Network network) {
         assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 420.0, 350.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                0.9503694176673889,
-                -0.9194843769073486);
+                0.9503694176673889, -0.9194843769073486);
         assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 596.4, 497.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 396.54, 0.0, 30.0, false);
     }
@@ -171,7 +189,6 @@ class HvdcUpdateTest {
     private static void assertSshLccConverter(LccConverterStation lccConverterStation, double powerFactor) {
         double tol = 0.0000001;
         assertEquals(powerFactor, lccConverterStation.getPowerFactor(), tol);
-        assertEquals(0.0, lccConverterStation.getLossFactor(), tol);
     }
 
     private static void assertSshVsc(HvdcLine hvdcLine, double maxP, double activePowerSetpoint, HvdcLine.ConvertersMode convertersMode,
@@ -188,7 +205,6 @@ class HvdcUpdateTest {
 
     private static void assertSshVscConverter(VscConverterStation vscConverterStation, double targetV, double targetQ, boolean voltageRegulatorOn) {
         double tol = 0.0000001;
-        assertEquals(0.0, vscConverterStation.getLossFactor(), tol);
         assertEquals(targetV, vscConverterStation.getVoltageSetpoint(), tol);
         assertEquals(targetQ, vscConverterStation.getReactivePowerSetpoint(), tol);
         assertEquals(voltageRegulatorOn, vscConverterStation.isVoltageRegulatorOn());
