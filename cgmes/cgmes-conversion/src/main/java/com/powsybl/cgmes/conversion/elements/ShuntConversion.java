@@ -84,7 +84,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         int defaultSections = getDefaultSections(shuntCompensator, getNormalSections(shuntCompensator), context);
         int sections = getSections(cgmesData).orElse(defaultSections);
         shuntCompensator.setSectionCount(Math.min(sections, shuntCompensator.getMaximumSectionCount()));
-        getSolvedSections(cgmesData).ifPresent(shuntCompensator::setSolvedSectionCount);
+        getSolvedSections(cgmesData).ifPresentOrElse(shuntCompensator::setSolvedSectionCount, shuntCompensator::unsetSolvedSectionCount);
     }
 
     private static Integer getNormalSections(ShuntCompensator shuntCompensator) {

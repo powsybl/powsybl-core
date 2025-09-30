@@ -71,7 +71,7 @@ class LoadUpdateTest {
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertFlowsAfterSv(network);
+        assertFlowsAfterEmptySv(network);
     }
 
     private static void assertEq(Network network) {
@@ -114,6 +114,15 @@ class LoadUpdateTest {
         assertFlows(network.getLoad("EnergyConsumer").getTerminal(), 100.0, 50.0);
         assertFlows(network.getLoad("EnergySource").getTerminal(), 20.0, 10.0);
         assertFlows(network.getLoad("AsynchronousMachine").getTerminal(), 10.0, 5.0);
+        assertFlows(network.getLoad("EnergyConsumerOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("EnergySourceOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("AsynchronousMachineOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
+    }
+
+    void assertFlowsAfterEmptySv(Network network) {
+        assertFlows(network.getLoad("EnergyConsumer").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("EnergySource").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getLoad("AsynchronousMachine").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("EnergyConsumerOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("EnergySourceOnlyEQ").getTerminal(), Double.NaN, Double.NaN);
         assertFlows(network.getLoad("AsynchronousMachineOnlyEQ").getTerminal(), Double.NaN, Double.NaN);

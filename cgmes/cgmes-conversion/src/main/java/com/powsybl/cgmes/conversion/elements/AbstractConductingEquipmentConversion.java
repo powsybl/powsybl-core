@@ -506,8 +506,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (setPQAllowed(terminal)) {
             PowerFlow f = new PowerFlow(cgmesTerminal, "p", "q");
             if (f.defined()) {
-                terminal.setP(f.p());
-                terminal.setQ(f.q());
+                terminal.setP(f.p()).setQ(f.q());
+            } else {
+                terminal.setP(Double.NaN).setQ(Double.NaN);
             }
         }
     }

@@ -72,6 +72,7 @@ class TieLineUpdateTest {
 
         TieLine tieLine = network.getTieLine("ACLineSegment-1 + ACLineSegment-2");
         assertSv(tieLine);
+        assertFlowsSv(tieLine);
     }
 
     @Test
@@ -89,6 +90,7 @@ class TieLineUpdateTest {
 
         readCgmesResources(network, DIR, "tieLine_TP.xml", "tieLine_SV.xml");
         assertSv(tieLine);
+        assertFlowsSv(tieLine);
     }
 
     @Test
@@ -97,6 +99,7 @@ class TieLineUpdateTest {
         assertEqCount(network, 2, 5, 4);
         assertFirstSsh(network);
         assertSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
+        assertFlowsSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
@@ -104,15 +107,24 @@ class TieLineUpdateTest {
         assertEqCount(network, 2, 5, 4);
         assertFirstSsh(network);
         assertSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
+        assertFlowsEmptySv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
     }
 
     private static void assertSv(TieLine tieLine) {
-        assertFlow(tieLine.getDanglingLine1(), 275.1, 50.5);
-        assertFlow(tieLine.getDanglingLine2(), -275.0, -50.0);
         assertBusVoltage(tieLine.getDanglingLine1().getTerminal().getBusView().getBus(), 400.5, -3.0);
         assertBusVoltage(tieLine.getDanglingLine2().getTerminal().getBusView().getBus(), 402.5, -5.0);
         assertBoundaryBusVoltage(tieLine.getDanglingLine1(), 401.5130326083143, -4.023034681728034);
         assertBoundaryBusVoltage(tieLine.getDanglingLine2(), 401.5130326083143, -4.023034681728034);
+    }
+
+    private static void assertFlowsSv(TieLine tieLine) {
+        assertFlow(tieLine.getDanglingLine1(), 275.1, 50.5);
+        assertFlow(tieLine.getDanglingLine2(), -275.0, -50.0);
+    }
+
+    private static void assertFlowsEmptySv(TieLine tieLine) {
+        assertFlow(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
+        assertFlow(tieLine.getDanglingLine2(), Double.NaN, Double.NaN);
     }
 
     private static void assertEq(Network network) {

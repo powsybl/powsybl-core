@@ -74,7 +74,7 @@ class GeneratorUpdateTest {
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertFlowsAfterSv(network);
+        assertFlowsAfterEmptySv(network);
     }
 
     private static void assertEq(Network network) {
@@ -105,6 +105,12 @@ class GeneratorUpdateTest {
         assertFlows(network.getGenerator("SynchronousMachine").getTerminal(), 100.0, -50.0);
         assertFlows(network.getGenerator("ExternalNetworkInjection").getTerminal(), 250.0, -30.0);
         assertFlows(network.getGenerator("EquivalentInjection").getTerminal(), 150.0, 50.0);
+    }
+
+    private static void assertFlowsAfterEmptySv(Network network) {
+        assertFlows(network.getGenerator("SynchronousMachine").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getGenerator("ExternalNetworkInjection").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getGenerator("EquivalentInjection").getTerminal(), Double.NaN, Double.NaN);
     }
 
     private static void assertEq(Generator generator) {

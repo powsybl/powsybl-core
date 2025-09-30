@@ -60,7 +60,7 @@ class ShuntCompensatorUpdateTest {
         assertSectionsBeforeSv(network);
         readCgmesResources(network, DIR, "shuntCompensator_SV.xml");
         assertFlowsAfterSv(network);
-        assertSectionsAfterSv(network);
+        assertSectionsAfterSv(network, 1, 2);
     }
 
     @Test
@@ -68,15 +68,15 @@ class ShuntCompensatorUpdateTest {
         Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml", "shuntCompensator_SV.xml");
         assertEquals(3, network.getShuntCompensatorCount());
         assertFirstSsh(network);
-        assertSectionsAfterSv(network);
+        assertSectionsAfterSv(network, 1, 2);
         assertFlowsAfterSv(network);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertSectionsAfterSv(network);
-        assertFlowsAfterSv(network);
+        assertSectionsAfterSv(network, null, null);
+        assertFlowsAfterEmptySv(network);
     }
 
     private static void assertEq(Network network) {
@@ -109,15 +109,21 @@ class ShuntCompensatorUpdateTest {
         assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), 2.0, -5.0);
     }
 
+    private static void assertFlowsAfterEmptySv(Network network) {
+        assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), Double.NaN, Double.NaN);
+    }
+
     private static void assertSectionsBeforeSv(Network network) {
         assertNull(network.getShuntCompensator("LinearShuntCompensator").getSolvedSectionCount());
         assertNull(network.getShuntCompensator("NonLinearShuntCompensator").getSolvedSectionCount());
         assertNull(network.getShuntCompensator("EquivalentShunt").getSolvedSectionCount());
     }
 
-    private static void assertSectionsAfterSv(Network network) {
-        assertEquals(1, network.getShuntCompensator("LinearShuntCompensator").getSolvedSectionCount());
-        assertEquals(2, network.getShuntCompensator("NonLinearShuntCompensator").getSolvedSectionCount());
+    private static void assertSectionsAfterSv(Network network, Integer linearShuntCompensatorSolvedSectionCount, Integer nonLinearShuntCompensatorSolvedSectionCount) {
+        assertEquals(linearShuntCompensatorSolvedSectionCount, network.getShuntCompensator("LinearShuntCompensator").getSolvedSectionCount());
+        assertEquals(nonLinearShuntCompensatorSolvedSectionCount, network.getShuntCompensator("NonLinearShuntCompensator").getSolvedSectionCount());
         assertNull(network.getShuntCompensator("EquivalentShunt").getSolvedSectionCount());
     }
 
