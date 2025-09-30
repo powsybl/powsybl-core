@@ -671,3 +671,9 @@ Its default value is `MODELING_AUTHORITY`.
 Optional property that defines the fictitious voltage levels created by line container. If it is set to `true`, a fictitious voltage level is created for each connectivity node inside the line container.
 If it is set to `false`, only one fictitious voltage level is created for each line container. 
 `true` by default.
+
+**iidm.import.cgmes.use-previous-values-during-update**  
+Optional property that defines whether the CGMES importer should use previous values to fill in missing SSH attributes during an update.
+When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
+If set to `false`, missing SSH attributes will be filled using default values.
+`false` by default.

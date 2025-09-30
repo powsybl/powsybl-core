@@ -11,6 +11,8 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,6 +55,20 @@ class LineUpdateTest {
 
         assertFlowsBeforeSv(network);
         readCgmesResources(network, DIR, "line_SV.xml");
+        assertFlowsAfterSv(network);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "line_EQ.xml", "line_SSH.xml", "line_SV.xml");
+        assertEquals(3, network.getLineCount());
+        assertFirstSsh(network);
+        assertFlowsAfterSv(network);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertFirstSsh(network);
         assertFlowsAfterSv(network);
     }
 

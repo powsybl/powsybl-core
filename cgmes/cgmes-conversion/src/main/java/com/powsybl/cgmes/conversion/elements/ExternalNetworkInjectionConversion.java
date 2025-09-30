@@ -59,8 +59,8 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
 
-        double targetP = 0.0;
-        double targetQ = 0.0;
+        double targetP = getDefaultValue(null, generator.getTargetP(), 0.0, 0.0, context);
+        double targetQ = getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
         PowerFlow updatedPowerFlow = updatedPowerFlow(generator, cgmesData, context);
         if (updatedPowerFlow.defined()) {
             targetP = -updatedPowerFlow.p();
@@ -68,7 +68,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         }
         generator.setTargetP(targetP).setTargetQ(targetQ);
 
-        boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED, false);
+        Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
         updateRegulatingControl(generator, controlEnabled, context);
     }
 }
