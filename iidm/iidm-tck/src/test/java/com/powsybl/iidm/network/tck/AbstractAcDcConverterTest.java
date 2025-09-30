@@ -862,4 +862,30 @@ public abstract class AbstractAcDcConverterTest {
         assertThrows(PowsyblException.class, vscA::getVoltageSetpoint, "Variant index not set");
         assertThrows(PowsyblException.class, vscA::isVoltageRegulatorOn, "Variant index not set");
     }
+
+    @Test
+    public void droopControlTest() {
+        vla.newVoltageSourceConverter()
+                .setId("converterA")
+                .setBus1(b1a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
+                .setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(10.0)
+                .setVoltageSetpoint(400.0)
+                .add();
+        network.getVoltageSourceConverter("converterA")
+                .newDroop()
+                .setUMin(1.0)
+                .setUMax(2.0)
+                .setDroopCoefficient(3.0)
+                .add();
+        assertEquals(1.0, network.getVoltageSourceConverter("converterA").getDroopList().size());
+        assertEquals(1.0, network.getVoltageSourceConverter("converterA").getDroopList().get(0).getUMin());
+        assertEquals(2.0, network.getVoltageSourceConverter("converterA").getDroopList().get(0).getUMax());
+        assertEquals(3.0, network.getVoltageSourceConverter("converterA").getDroopList().get(0).getDroopCoefficient());
+    }
 }

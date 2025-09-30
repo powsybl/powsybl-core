@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -117,7 +118,11 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
         /**
          * Controlling DC Voltage
          */
-        V_DC
+        V_DC,
+        /**
+         * Controlling DC Voltage with Droop Control
+         */
+        P_PCC_DROOP
     }
 
     /**
@@ -229,4 +234,16 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
      * Get the target DC voltage (kV DC)
      */
     double getTargetVdc();
+
+    /**
+     * Get the Converter Droop Segments;
+     */
+    List<AcDcConverterDroop> getDroopList();
+
+    /**
+     * Add a Droop Segment;
+     */
+    void addDroop(AcDcConverterDroop droop);
+
+    AcDcConverterDoopAdder newDroop();
 }
