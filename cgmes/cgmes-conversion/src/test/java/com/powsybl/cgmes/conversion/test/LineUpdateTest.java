@@ -69,7 +69,7 @@ class LineUpdateTest {
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertFlowsAfterSv(network);
+        assertFlowsAfterEmptySv(network);
     }
 
     private static void assertEq(Network network) {
@@ -121,6 +121,12 @@ class LineUpdateTest {
         assertFlows(network.getLine("ACLineSegment").getTerminal1(), 275.0, 50.0, network.getLine("ACLineSegment").getTerminal2(), -275.1, -50.1);
         assertFlows(network.getLine("EquivalentBranch").getTerminal1(), 175.0, 40.0, network.getLine("EquivalentBranch").getTerminal2(), -175.1, -40.1);
         assertFlows(network.getLine("SeriesCompensator").getTerminal1(), 75.0, 30.0, network.getLine("SeriesCompensator").getTerminal2(), -75.1, -30.1);
+    }
+
+    private static void assertFlowsAfterEmptySv(Network network) {
+        assertFlows(network.getLine("ACLineSegment").getTerminal1(), Double.NaN, Double.NaN, network.getLine("ACLineSegment").getTerminal2(), Double.NaN, Double.NaN);
+        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), Double.NaN, Double.NaN, network.getLine("EquivalentBranch").getTerminal2(), Double.NaN, Double.NaN);
+        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), Double.NaN, Double.NaN, network.getLine("SeriesCompensator").getTerminal2(), Double.NaN, Double.NaN);
     }
 
     private static void assertEq(Line line) {

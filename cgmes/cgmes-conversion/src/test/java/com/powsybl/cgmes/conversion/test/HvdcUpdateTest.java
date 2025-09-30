@@ -72,15 +72,17 @@ class HvdcUpdateTest {
     void usePreviousValuesTest() {
         Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH_1.xml", "hvdc_SV.xml");
         assertEquals(2, network.getHvdcLineCount());
+
         assertSecondSsh(network);
         assertFlowsAfterSv(network);
         assertLossFactorAfterSshSv(network);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertSecondSsh(network);
-        assertFlowsAfterSv(network);
+        assertFlowsAfterEmptySv(network);
         assertLossFactorAfterSshSv(network);
     }
 
@@ -115,6 +117,13 @@ class HvdcUpdateTest {
                 network.getHvdcLine("DCLineSegment-Lcc").getConverterStation2().getTerminal(), -200.1, -50.1);
         assertFlows(network.getHvdcLine("DCLineSegment-Vsc").getConverterStation1().getTerminal(), 100.0, 25.0,
                 network.getHvdcLine("DCLineSegment-Vsc").getConverterStation2().getTerminal(), -100.1, -25.1);
+    }
+
+    private static void assertFlowsAfterEmptySv(Network network) {
+        assertFlows(network.getHvdcLine("DCLineSegment-Lcc").getConverterStation1().getTerminal(), Double.NaN, Double.NaN,
+                network.getHvdcLine("DCLineSegment-Lcc").getConverterStation2().getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network.getHvdcLine("DCLineSegment-Vsc").getConverterStation1().getTerminal(), Double.NaN, Double.NaN,
+                network.getHvdcLine("DCLineSegment-Vsc").getConverterStation2().getTerminal(), Double.NaN, Double.NaN);
     }
 
     private static void assertLossFactorBeforeSv(Network network) {
