@@ -116,9 +116,6 @@ class LineUpdateTest {
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        //assertFlows(network.getLine("ACLineSegment").getTerminal1(), 275.0, 50.0, network.getLine("ACLineSegment").getTerminal2(), -275.1, -50.1);
-        //assertFlows(network.getLine("EquivalentBranch").getTerminal1(), 175.0, 40.0, network.getLine("EquivalentBranch").getTerminal2(), -175.1, -40.1);
-        //assertFlows(network.getLine("SeriesCompensator").getTerminal1(), 75.0, 30.0, network.getLine("SeriesCompensator").getTerminal2(), -75.1, -30.1);
         assertFlows(network, 275.0, 50.0, -275.1, -50.1,
                 175.0, 40.0, -175.1, -40.1,
                 75.0, 30.0, -75.1, -30.1);
