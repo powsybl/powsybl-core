@@ -91,18 +91,20 @@ class StaticVarCompensatorUpdateTest {
     }
 
     private static void assertFlowsBeforeSv(Network network) {
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-V").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-Q").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-V").getTerminal(), 0.0, -50.0);
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-Q").getTerminal(), 0.0, -200.0);
+        assertFlows(network, 0.0, -50.0, 0.0, -200.0);
     }
 
     private static void assertFlowsAfterEmptySv(Network network) {
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-V").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-Q").getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    }
+
+    private static void assertFlows(Network network, double staticVarCompensatorVP, double staticVarCompensatorVQ, double staticVarCompensatorQP, double staticVarCompensatorQQ) {
+        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-V").getTerminal(), staticVarCompensatorVP, staticVarCompensatorVQ);
+        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-Q").getTerminal(), staticVarCompensatorQP, staticVarCompensatorQQ);
     }
 
     private static void assertEq(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode regulationMode) {

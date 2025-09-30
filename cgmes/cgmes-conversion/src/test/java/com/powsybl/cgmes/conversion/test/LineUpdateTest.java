@@ -112,21 +112,29 @@ class LineUpdateTest {
     }
 
     private static void assertFlowsBeforeSv(Network network) {
-        assertFlows(network.getLine("ACLineSegment").getTerminal1(), Double.NaN, Double.NaN, network.getLine("ACLineSegment").getTerminal2(), Double.NaN, Double.NaN);
-        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), Double.NaN, Double.NaN, network.getLine("EquivalentBranch").getTerminal2(), Double.NaN, Double.NaN);
-        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), Double.NaN, Double.NaN, network.getLine("SeriesCompensator").getTerminal2(), Double.NaN, Double.NaN);
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        assertFlows(network.getLine("ACLineSegment").getTerminal1(), 275.0, 50.0, network.getLine("ACLineSegment").getTerminal2(), -275.1, -50.1);
-        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), 175.0, 40.0, network.getLine("EquivalentBranch").getTerminal2(), -175.1, -40.1);
-        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), 75.0, 30.0, network.getLine("SeriesCompensator").getTerminal2(), -75.1, -30.1);
+        //assertFlows(network.getLine("ACLineSegment").getTerminal1(), 275.0, 50.0, network.getLine("ACLineSegment").getTerminal2(), -275.1, -50.1);
+        //assertFlows(network.getLine("EquivalentBranch").getTerminal1(), 175.0, 40.0, network.getLine("EquivalentBranch").getTerminal2(), -175.1, -40.1);
+        //assertFlows(network.getLine("SeriesCompensator").getTerminal1(), 75.0, 30.0, network.getLine("SeriesCompensator").getTerminal2(), -75.1, -30.1);
+        assertFlows(network, 275.0, 50.0, -275.1, -50.1,
+                175.0, 40.0, -175.1, -40.1,
+                75.0, 30.0, -75.1, -30.1);
+
     }
 
     private static void assertFlowsAfterEmptySv(Network network) {
-        assertFlows(network.getLine("ACLineSegment").getTerminal1(), Double.NaN, Double.NaN, network.getLine("ACLineSegment").getTerminal2(), Double.NaN, Double.NaN);
-        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), Double.NaN, Double.NaN, network.getLine("EquivalentBranch").getTerminal2(), Double.NaN, Double.NaN);
-        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), Double.NaN, Double.NaN, network.getLine("SeriesCompensator").getTerminal2(), Double.NaN, Double.NaN);
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    }
+
+    private static void assertFlows(Network network, double aCLineSegmentP1, double aCLineSegmentQ1, double aCLineSegmentP2, double aCLineSegmentQ2,
+                                    double equivalentBranchP1, double equivalentBranchQ1, double equivalentBranchP2, double equivalentBranchQ2,
+                                    double seriesCompensatorP1, double seriesCompensatorQ1, double seriesCompensatorP2, double seriesCompensatorQ2) {
+        assertFlows(network.getLine("ACLineSegment").getTerminal1(), aCLineSegmentP1, aCLineSegmentQ1, network.getLine("ACLineSegment").getTerminal2(), aCLineSegmentP2, aCLineSegmentQ2);
+        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), equivalentBranchP1, equivalentBranchQ1, network.getLine("EquivalentBranch").getTerminal2(), equivalentBranchP2, equivalentBranchQ2);
+        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), seriesCompensatorP1, seriesCompensatorQ1, network.getLine("SeriesCompensator").getTerminal2(), seriesCompensatorP2, seriesCompensatorQ2);
     }
 
     private static void assertEq(Line line) {

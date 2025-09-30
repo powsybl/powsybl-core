@@ -158,36 +158,26 @@ class TransformerUpdateTest {
     }
 
     private static void assertFlowsBeforeSv(Network network) {
-        TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
-        assertFlows(t2w.getTerminal1(), Double.NaN, Double.NaN);
-        assertFlows(t2w.getTerminal2(), Double.NaN, Double.NaN);
-
-        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
-        assertFlows(t3w.getLeg1().getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(t3w.getLeg2().getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(t3w.getLeg3().getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
-        assertFlows(t2w.getTerminal1(), 100.0, -50.0);
-        assertFlows(t2w.getTerminal2(), -100.1, 50.5);
-
-        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
-        assertFlows(t3w.getLeg1().getTerminal(), 200.0, 50.0);
-        assertFlows(t3w.getLeg2().getTerminal(), -150.0, -40.0);
-        assertFlows(t3w.getLeg3().getTerminal(), -50.0, -10.0);
+        assertFlows(network, 100.0, -50.0, -100.1, 50.5, 200.0, 50.0, -150.0, -40.0, -50.0, -10.0);
     }
 
     private static void assertFlowsAfterEmptySv(Network network) {
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    }
+
+    private static void assertFlows(Network network, double t2wP1, double t2wQ1, double t2wP2, double t2wQ2, double t3wP1, double t3wQ1, double t3wP2, double t3wQ2, double t3wP3, double t3wQ3) {
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
-        assertFlows(t2w.getTerminal1(), Double.NaN, Double.NaN);
-        assertFlows(t2w.getTerminal2(), Double.NaN, Double.NaN);
+        assertFlows(t2w.getTerminal1(), t2wP1, t2wQ1);
+        assertFlows(t2w.getTerminal2(), t2wP2, t2wQ2);
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
-        assertFlows(t3w.getLeg1().getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(t3w.getLeg2().getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(t3w.getLeg3().getTerminal(), Double.NaN, Double.NaN);
+        assertFlows(t3w.getLeg1().getTerminal(), t3wP1, t3wQ1);
+        assertFlows(t3w.getLeg2().getTerminal(), t3wP2, t3wQ2);
+        assertFlows(t3w.getLeg3().getTerminal(), t3wP3, t3wQ3);
     }
 
     private static void assertTapChangerStepsBeforeSv(Network network) {
