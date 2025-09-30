@@ -41,7 +41,15 @@ public final class SensitivityAnalysis {
      */
     public static final class Runner implements Versionable {
 
+        private Network network;
         private final SensitivityAnalysisProvider provider;
+        private List<SensitivityFactor> sensitivityFactors;
+        private String variant = VariantManagerConstants.INITIAL_VARIANT_ID;
+        private List<SensitivityVariableSet> variableSets = Collections.emptyList();
+        private List<Contingency> contingencies = Collections.emptyList();
+        private SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
+        private ComputationManager computationManager = LocalComputationManager.getDefault();
+        private ReportNode reportNode = ReportNode.NO_OP;
 
         public Runner(SensitivityAnalysisProvider provider) {
             this.provider = Objects.requireNonNull(provider);
@@ -93,6 +101,12 @@ public final class SensitivityAnalysis {
                     .thenApply(unused -> new SensitivityAnalysisResult(factors, resultWriter.getContingencyStatuses(), resultWriter.getValues()));
         }
 
+        public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
+                                                                     List<SensitivityFactor> factors) {
+
+            return runAsync(network, this.variant, factors, this.contingencies, this.variableSets, this.parameters, this.computationManager, this.reportNode);
+        }
+
         public void run(Network network,
                         String workingVariantId,
                         SensitivityFactorReader factorReader,
@@ -122,7 +136,7 @@ public final class SensitivityAnalysis {
                                              List<Contingency> contingencies,
                                              List<SensitivityVariableSet> variableSets,
                                              SensitivityAnalysisParameters parameters) {
-            return runAsync(network, workingVariantId, factors, contingencies, variableSets, parameters, LocalComputationManager.getDefault(), ReportNode.NO_OP).join();
+            return runAsync(network, workingVariantId, factors, contingencies, variableSets, parameters, this.computationManager, this.reportNode).join();
         }
 
         public SensitivityAnalysisResult run(Network network,
@@ -130,31 +144,35 @@ public final class SensitivityAnalysis {
                                              List<Contingency> contingencies,
                                              List<SensitivityVariableSet> variableSets,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors, contingencies, variableSets, parameters);
+            return run(network, this.variant, factors, contingencies, variableSets, parameters);
         }
 
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors, contingencies, Collections.emptyList(), parameters);
+            return run(network, this.variant, factors, contingencies, this.variableSets, parameters);
         }
 
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies) {
-            return run(network, factors, contingencies, Collections.emptyList(), SensitivityAnalysisParameters.load());
+            return run(network, factors, contingencies, this.variableSets, this.parameters);
         }
 
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors) {
-            return run(network, factors, Collections.emptyList());
+            return run(network, factors, this.contingencies);
         }
 
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, factors, Collections.emptyList(), parameters);
+            return run(network, factors, this.contingencies, parameters);
+        }
+
+        public SensitivityAnalysisResult run() {
+            return run(this.network, this.sensitivityFactors, this.contingencies, this.parameters);
         }
 
         @Override
@@ -166,6 +184,47 @@ public final class SensitivityAnalysis {
         public String getVersion() {
             return provider.getVersion();
         }
+
+        public Runner setNetwork(Network network) {
+            this.network = network;
+            return this;
+        }
+
+        public Runner setSensitivityFactors(List<SensitivityFactor> sensitivityFactors) {
+            this.sensitivityFactors = sensitivityFactors;
+            return this;
+        }
+
+        public Runner setVariant(String variant) {
+            this.variant = variant;
+            return this;
+        }
+
+        public Runner setVariableSets(List<SensitivityVariableSet> variableSets) {
+            this.variableSets = variableSets;
+            return this;
+        }
+
+        public Runner setContingencies(List<Contingency> contingencies) {
+            this.contingencies = contingencies;
+            return this;
+        }
+
+        public Runner setParameters(SensitivityAnalysisParameters parameters) {
+            this.parameters = parameters;
+            return this;
+        }
+
+        public Runner setComputationManager(ComputationManager computationManager) {
+            this.computationManager = computationManager;
+            return this;
+        }
+
+        public Runner setReportNode(ReportNode reportNode) {
+            this.reportNode = reportNode;
+            return this;
+        }
+
     }
 
     /**
@@ -201,6 +260,11 @@ public final class SensitivityAnalysis {
                                                    ComputationManager computationManager,
                                                    ReportNode reportNode) {
         return find().runAsync(network, workingVariantId, factorReader, resultWriter, contingencies, variableSets, parameters, computationManager, reportNode);
+    }
+
+    public static CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
+                                                                        List<SensitivityFactor> factors) {
+        return find().runAsync(network, factors);
     }
 
     public static CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,

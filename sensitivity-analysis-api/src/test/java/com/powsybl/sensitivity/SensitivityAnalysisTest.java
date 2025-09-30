@@ -7,7 +7,9 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
@@ -122,4 +124,43 @@ class SensitivityAnalysisTest {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), parameters);
         assertEquals(1, result.getValues().size());
     }
+
+    @Test
+    void testRunWithDefaultParameters() {
+        SensitivityAnalysis.Runner runner = SensitivityAnalysis.find();
+        runner.setNetwork(network).setSensitivityFactors(List.of(factor));
+        SensitivityAnalysisResult result = runner.run();
+        assertEquals(1, result.getValues().size());
+    }
+
+    @Test
+    void testRunWithFluentParams() {
+        SensitivityAnalysisParameters sensitivityParameters = new SensitivityAnalysisParameters();
+        WeightedSensitivityVariable variable = new WeightedSensitivityVariable("v1", 3.4);
+        List<SensitivityVariableSet> variableSets = List.of(new SensitivityVariableSet("id", List.of(variable)));
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+            .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("testSensitivityAnalysis")
+            .build();
+        SensitivityAnalysis.Runner runner = SensitivityAnalysis.find();
+        runner.setNetwork(network)
+            .setSensitivityFactors(List.of(factor))
+            .setVariableSets(variableSets)
+            .setComputationManager(computationManager)
+            .setReportNode(reportRoot)
+            .setVariant("VariantId")
+            .setContingencies(List.of(new Contingency("contingency1")))
+            .setParameters(sensitivityParameters.setVoltageVoltageSensitivityValueThreshold(0.1d));
+
+        SensitivityAnalysisResult result = runner.run();
+        assertEquals(5, reportRoot.getChildren().size());
+        assertEquals("Test sensitivity factor functionId = " + factor.getFunctionId(), reportRoot.getChildren().get(0).getMessage());
+        assertEquals("Test sensititity analysis variant = VariantId", reportRoot.getChildren().get(1).getMessage());
+        assertEquals("Test contingencies size = 1", reportRoot.getChildren().get(2).getMessage());
+        assertEquals("Test sensitivity parameters voltageVoltageSensitivityValueThreshold = 0.1", reportRoot.getChildren().get(3).getMessage());
+        assertEquals("Test variable sets size = 1", reportRoot.getChildren().get(4).getMessage());
+        assertEquals(1, Mockito.mockingDetails(computationManager).getInvocations().size());
+        assertEquals(1, result.getValues().size());
+    }
+
 }
