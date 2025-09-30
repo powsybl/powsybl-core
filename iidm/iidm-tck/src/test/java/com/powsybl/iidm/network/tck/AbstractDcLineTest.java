@@ -98,6 +98,8 @@ public abstract class AbstractDcLineTest {
 
         assertSame(TwoSides.ONE, dcLine.getDcTerminal1().getSide());
         assertSame(TwoSides.TWO, dcLine.getDcTerminal2().getSide());
+        assertNull(dcLine.getDcTerminal1().getTerminalNumber());
+        assertNull(dcLine.getDcTerminal2().getTerminalNumber());
         assertSame(TwoSides.ONE, dcLine.getSide(dcLine.getDcTerminal1()));
         assertSame(TwoSides.TWO, dcLine.getSide(dcLine.getDcTerminal2()));
         assertSame(dcLine.getDcTerminal1(), dcLine.getDcTerminal(TwoSides.ONE));
