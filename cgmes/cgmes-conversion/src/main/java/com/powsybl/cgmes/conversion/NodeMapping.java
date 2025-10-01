@@ -10,8 +10,6 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.HashMap;
@@ -47,25 +45,15 @@ public class NodeMapping {
     }
 
     public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl) {
-        // Because there are some node-breaker models that, in addition to the information of opened switches also set
-        // the terminal.connected property to false, we have decided to create fictitious switches to precisely
-        // map this situation to IIDM.
-        // This behavior can be disabled through configuration.
-
-        var fictSwCreationMode = context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode();
         boolean bbsForEveryConnectivityNode = context.config().createBusbarSectionForEveryConnectivityNode();
-        if (!t.connected() && createFictitiousSwitch(fictSwCreationMode, isSwitchEnd)) {
-            createFictitiousSwitch(t, vl);
-        } else {
-            if (isSwitchEnd) {
-                // for switches the iidm node is the one from the connectivity node
-                return cgmes2iidm.get(t.connectivityNode());
-            } else if (bbsForEveryConnectivityNode) {
-                createInternalConnection(t, vl);
-            } else if (!cgmes2iidm.containsKey(t.id())) {
-                // Create internal connections but only if too many terminals on connectivity node
-                createInternalConnectionsIfNeeded(t.connectivityNode(), vl);
-            }
+        if (isSwitchEnd) {
+            // For switches the iidm node is the one from the connectivity node
+            return cgmes2iidm.get(t.connectivityNode());
+        } else if (bbsForEveryConnectivityNode) {
+            createInternalConnection(t, vl);
+        } else if (!cgmes2iidm.containsKey(t.id())) {
+            // Create internal connections but only if too many terminals on connectivity node
+            createInternalConnectionsIfNeeded(t.connectivityNode(), vl);
         }
 
         return cgmes2iidm.get(t.id());
@@ -135,38 +123,8 @@ public class NodeMapping {
         cgmes2iidm.put(t.id(), iidmNodeForConnectivityNode); // connectivity node and terminal share the same iidm node
     }
 
-    private void createFictitiousSwitch(CgmesTerminal t, VoltageLevel vl) {
-        int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
-        int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
-
-        // Only add fictitious switches for disconnected terminals if not already added
-        // Use the id and name of terminal
-        String switchId = t.id() + "_SW_fict";
-        if (vl.getNetwork().getSwitch(switchId) == null) {
-            Switch sw = vl.getNodeBreakerView().newSwitch()
-                    .setFictitious(true)
-                    .setId(switchId)
-                    .setName(t.name())
-                    .setNode1(iidmNodeForConductingEquipment)
-                    .setNode2(iidmNodeForConnectivityNode)
-                    .setOpen(true)
-                    .setKind(SwitchKind.BREAKER)
-                    .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                    .add();
-            sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
-        }
-    }
-
     private static boolean isBusbarSectionTerminal(CgmesTerminal t) {
         return t.conductingEquipmentType().equals("BusbarSection");
-    }
-
-    private static boolean createFictitiousSwitch(CgmesImport.FictitiousSwitchesCreationMode mode, boolean isSwitchEnd) {
-        return switch (mode) {
-            case ALWAYS -> true;
-            case NEVER -> false;
-            case ALWAYS_EXCEPT_SWITCHES -> !isSwitchEnd;
-        };
     }
 
     public int iidmNodeForConnectivityNode(String id, VoltageLevel vl) {

@@ -539,7 +539,7 @@ public final class SteadyStateHypothesisExport {
         }
         for (int k = 1; k < rcs.size(); k++) {
             RegulatingControlView current = rcs.get(k);
-            if (combined.targetDeadband == 0 && current.targetDeadband > 0) {
+            if (combinedTargetDeadbandMustBeUpdated(current.targetDeadband, combined.targetDeadband)) {
                 combined.targetDeadband = current.targetDeadband;
             }
             if (!combined.discrete && current.discrete) {
@@ -552,6 +552,11 @@ public final class SteadyStateHypothesisExport {
         return combined;
     }
 
+    private static boolean combinedTargetDeadbandMustBeUpdated(double currentTargetDeadband, double combinedTargetDeadband) {
+        return currentTargetDeadband == 0 && (Double.isNaN(combinedTargetDeadband) || combinedTargetDeadband < 0)
+                || currentTargetDeadband > 0 && (combinedTargetDeadband == 0 || currentTargetDeadband < combinedTargetDeadband);
+    }
+
     private static void writeRegulatingControl(RegulatingControlView rc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(regulatingControlClassname(rc.type), rc.id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "RegulatingControl.discrete");
@@ -560,9 +565,11 @@ public final class SteadyStateHypothesisExport {
         writer.writeStartElement(cimNamespace, "RegulatingControl.enabled");
         writer.writeCharacters(Boolean.toString(rc.controlEnabled));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, "RegulatingControl.targetDeadband");
-        writer.writeCharacters(CgmesExportUtil.format(rc.targetDeadband));
-        writer.writeEndElement();
+        if (CgmesExportUtil.targetDeadbandIsDefined(rc.targetDeadband)) {
+            writer.writeStartElement(cimNamespace, "RegulatingControl.targetDeadband");
+            writer.writeCharacters(CgmesExportUtil.format(rc.targetDeadband));
+            writer.writeEndElement();
+        }
         writer.writeStartElement(cimNamespace, "RegulatingControl.targetValue");
         writer.writeCharacters(CgmesExportUtil.format(rc.targetValue));
         writer.writeEndElement();
