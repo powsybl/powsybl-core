@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -42,7 +43,26 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
 
     @Override
     public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, ReportNode reportNode) {
-        return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
+        Executor executor = computationManager.getExecutor();
+        if (executor != null) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // Simulate some processing
+                }
+            });
+        }
+        if (reportNode != null) {
+            reportNode.newReportNode()
+                    .withMessageTemplate("testLoadflow")
+                    .withUntypedValue("variantId", workingStateId)
+                    .add();
+        }
+        String logs = "";
+        if (parameters != null) {
+            logs = "Loadflow parameters: " + parameters.toString();
+        }
+        return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), logs));
     }
 
     @Override

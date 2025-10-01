@@ -1769,6 +1769,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     private Network prepareNetworkForEQComparison(Network network) {
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+
         network.getAliases().forEach(network::removeAlias);
         network.getIdentifiables().forEach(identifiable -> identifiable.getAliases().forEach(identifiable::removeAlias));
 
@@ -1790,10 +1792,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 shuntCompensator.setTargetDeadband(Double.NaN);
                 shuntCompensator.getTerminal().setQ(0.0);
                 shuntCompensator.getTerminal().setP(0.0);
+                shuntCompensator.setSectionCount(0);
             } else if (identifiable instanceof Generator) {
                 Generator generator = (Generator) identifiable;
                 generator.setVoltageRegulatorOn(false);
                 generator.setTargetV(Double.NaN);
+                generator.setTargetP(Double.NaN);
+                generator.setTargetQ(Double.NaN);
                 generator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof StaticVarCompensator) {
                 StaticVarCompensator staticVarCompensator = (StaticVarCompensator) identifiable;
