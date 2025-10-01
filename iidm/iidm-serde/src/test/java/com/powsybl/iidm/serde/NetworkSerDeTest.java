@@ -90,7 +90,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 .withMessageTemplate("root")
                 .build();
         ImportOptions notAllExtensions = new ImportOptions()
-                .addExtension("terminalMockNoSerDe").addExtension("loadZipModel")
+                .addIncludedExtension("terminalMockNoSerDe").addIncludedExtension("loadZipModel")
                 .setFormat(format);
         Network networkSkippedExtensions = NetworkSerDe.read(file,
                 notAllExtensions, null, NetworkFactory.findDefault(), reportNode2);
@@ -182,6 +182,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
         @Override
         public void write(BusbarSectionExt busbarSectionExt, SerializerContext context) {
+            // this method is abstract
         }
 
         @Override

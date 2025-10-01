@@ -26,7 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -110,8 +113,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR = "iidm.export.xml.iidm-version-incompatibility-behavior";
     public static final String TOPOLOGY_LEVEL = "iidm.export.xml.topology-level";
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
-    public static final String EXTENSIONS_LIST = "iidm.export.xml.extensions";
-    public static final String EXTENSIONS_FILTERED_LIST = "iidm.export.xml.filtered-extensions";
+    public static final String EXTENSIONS_INCLUDED_LIST = "iidm.export.xml.included.extensions";
+    public static final String EXTENSIONS_EXCLUDED_LIST = "iidm.export.xml.excluded.extensions";
     public static final String SORTED = "iidm.export.xml.sorted";
     public static final String VERSION = "iidm.export.xml.version";
     public static final String WITH_AUTOMATION_SYSTEMS = "iidm.export.xml.with-automation-systems";
@@ -126,11 +129,11 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             TopologyLevel.NODE_BREAKER.name(),
             Arrays.stream(TopologyLevel.values()).map(Enum::name).collect(Collectors.toList()));
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
-    private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST,
+    private static final Parameter EXTENSIONS_INCLUDED_LIST_PARAMETER = new Parameter(EXTENSIONS_INCLUDED_LIST, ParameterType.STRING_LIST,
             "The list of exported extensions", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
-    private static final Parameter EXTENSIONS_FILTERED_LIST_PARAMETER = new Parameter(EXTENSIONS_FILTERED_LIST, ParameterType.STRING_LIST,
-            "The list of extensions that will be filtered during export", null,
+    private static final Parameter EXTENSIONS_EXCLUDED_LIST_PARAMETER = new Parameter(EXTENSIONS_EXCLUDED_LIST, ParameterType.STRING_LIST,
+            "The list of extensions that will be excluded during export", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
     private static final Parameter SORTED_PARAMETER = new Parameter(SORTED, ParameterType.BOOLEAN, "Sort export output file", Boolean.FALSE);
     private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM version in which files will be generated", IidmSerDeConstants.CURRENT_IIDM_VERSION.toString("."),
@@ -139,8 +142,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             "Export network with automation systems", Boolean.TRUE);
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
-            TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
-            EXTENSIONS_FILTERED_LIST_PARAMETER, SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER);
+            TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_INCLUDED_LIST_PARAMETER,
+            EXTENSIONS_EXCLUDED_LIST_PARAMETER, SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -185,8 +188,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                     LOGGER.warn(String.format("Version of %s is ignored since %s is not in the extensions list to export.",
                             extensionName, extensionName));
                 }
-            }
-        });
+            });
+        }
     }
 
     private ExportOptions createExportOptions(Properties parameters) {
@@ -198,8 +201,6 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.valueOf(Parameter.readString(getFormat(), parameters, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER, defaultValueConfig)))
                 .setTopologyLevel(TopologyLevel.valueOf(Parameter.readString(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
                 .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
-                .setFilteredExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_FILTERED_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_FILTERED_LIST_PARAMETER, defaultValueConfig)) : null)
                 .setSorted(Parameter.readBoolean(getFormat(), parameters, SORTED_PARAMETER, defaultValueConfig))
                 .setVersion(Parameter.readString(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig))
                 .setFormat(getTreeDataFormat())

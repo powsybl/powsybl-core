@@ -17,7 +17,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.io.TreeDataHeader;
 import com.powsybl.commons.io.TreeDataReader;
@@ -212,7 +213,7 @@ public final class NetworkSerDe {
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
                     .filter(e ->
-                            !isExtensionFiltered(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
+                            !isExtensionExcluded(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
                             canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
                     .toList();
 
@@ -233,11 +234,11 @@ public final class NetworkSerDe {
                 || identifiable instanceof OverloadManagementSystem && !context.getOptions().isWithAutomationSystems();
     }
 
-    private static boolean isExtensionFiltered(ExtensionSerDe extensionSerDe, ExportOptions options) {
+    private static boolean isExtensionExcluded(ExtensionSerDe extensionSerDe, ExportOptions options) {
         if (extensionSerDe == null) {
             return false;
         }
-        return options.getFilteredExtensions()
+        return options.getIncludedExtensions().filter(Set::isEmpty).isPresent() || options.getExcludedExtensions()
                 .map(extensions -> extensions.contains(extensionSerDe.getExtensionName()))
                 .orElse(false);
     }

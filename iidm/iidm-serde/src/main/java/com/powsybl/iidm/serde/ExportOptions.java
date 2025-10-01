@@ -9,12 +9,13 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyLevel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.powsybl.iidm.serde.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
 
@@ -28,8 +29,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         THROW_EXCEPTION,
         LOG_ERROR
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExportOptions.class);
 
     private boolean withBranchSV = true;
 
@@ -192,7 +191,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      * serialization name is used for the <code>extensionName</code> parameter, the method will have no effect.</p>
      */
     public ExportOptions addExtensionVersion(String extensionName, String extensionVersion) {
-        if (extensions != null && !extensions.contains(extensionName)) {
+        if (includedExtensions != null && !includedExtensions.contains(extensionName)) {
             throw new PowsyblException(extensionName + " is not an extension you have passed in the extensions list to export.");
         }
         if (extensionsVersions.putIfAbsent(extensionName, extensionVersion) != null) {

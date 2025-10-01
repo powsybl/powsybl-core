@@ -8,7 +8,10 @@
 package com.powsybl.iidm.serde;
 
 import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -19,57 +22,79 @@ import java.util.Set;
  */
 public abstract class AbstractOptions<T> {
 
-    /**
-     * Extensions to be loaded must be in the extensions set but must not belong to the filteredExtension Set
-     */
-    protected Set<String> extensions;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOptions.class);
 
-    protected Set<String> filteredExtension;
+    protected Set<String> includedExtensions;
+
+    protected Set<String> excludedExtensions;
 
     protected TreeDataFormat format = TreeDataFormat.XML;
 
-    public T setExtensions(Set<String> extensions) {
-        this.extensions = extensions;
+    public T setIncludedExtensions(Set<String> extensions) {
+        if (excludedExtensions != null) {
+            LOGGER.warn("Previously excluded extensions {} will be ignored !", excludedExtensions);
+        }
+        if (extensions != null && extensions.isEmpty()) {
+            LOGGER.warn("All Extensions will be disabled");
+        }
+        this.excludedExtensions = null;
+        this.includedExtensions = extensions;
         return castThis();
     }
 
-    public T setFilteredExtensions(Set<String> filteredExtensions) {
-        this.filteredExtension = filteredExtensions;
+    public T setExcludedExtensions(Set<String> extensions) {
+        if (includedExtensions != null) {
+            LOGGER.warn("Previously included extensions {} will be ignored !", includedExtensions);
+        }
+        this.includedExtensions = null;
+        this.excludedExtensions = extensions;
         return castThis();
     }
 
-    public T addExtension(String extension) {
-        if (extensions != null) {
-            extensions.add(extension);
+    public T addIncludedExtension(String extension) {
+        if (excludedExtensions != null && excludedExtensions.contains(extension)) {
+            LOGGER.warn("Previously excluded extensions {} will be included", extension);
+        }
+        if (excludedExtensions != null) {
+            excludedExtensions.remove(extension);
+        }
+        if (includedExtensions != null) {
+            includedExtensions.add(extension);
         } else {
-            this.extensions = Sets.newHashSet(extension);
+            this.includedExtensions = Sets.newHashSet(extension);
         }
         return castThis();
     }
 
-    public T addFilteredExtension(String extensionToBeFiltered) {
-        if (filteredExtension != null) {
-            filteredExtension.add(extensionToBeFiltered);
+    public T addExcludedExtension(String extension) throws PowsyblException {
+        if (includedExtensions != null && !includedExtensions.contains(extension)) {
+            LOGGER.warn("Extension {} is not already explicitly included {} ! It will still be added to the exclusion list as it may be included after", extension, includedExtensions);
+        }
+        if (includedExtensions != null) {
+            includedExtensions.remove(extension);
+        }
+        if (excludedExtensions != null) {
+            excludedExtensions.add(extension);
         } else {
-            this.filteredExtension = Sets.newHashSet(extensionToBeFiltered);
+            this.excludedExtensions = Sets.newHashSet(extension);
         }
         return castThis();
     }
 
-    public Optional<Set<String>> getExtensions() {
-        return Optional.ofNullable(extensions);
+    public Optional<Set<String>> getIncludedExtensions() {
+        return Optional.ofNullable(includedExtensions);
     }
 
-    public Optional<Set<String>> getFilteredExtensions() {
-        return Optional.ofNullable(filteredExtension);
+    public Optional<Set<String>> getExcludedExtensions() {
+        return Optional.ofNullable(excludedExtensions);
     }
 
     public boolean withNoExtension() {
-        return extensions != null && extensions.isEmpty();
+        return includedExtensions != null && includedExtensions.isEmpty();
     }
 
     public boolean withAllExtensions() {
-        return extensions == null;
+        return includedExtensions == null;
     }
 
     public boolean hasAtLeastOneExtension(Set<String> extensions) {
@@ -77,7 +102,7 @@ public abstract class AbstractOptions<T> {
             return true;
         }
         for (String extension : extensions) {
-            if (this.extensions.contains(extension)) {
+            if (this.includedExtensions.contains(extension)) {
                 return true;
             }
         }
@@ -85,8 +110,8 @@ public abstract class AbstractOptions<T> {
     }
 
     public boolean withExtension(String extensionName) {
-        return (filteredExtension == null || !filteredExtension.contains(extensionName))
-                && (withAllExtensions() || extensions.contains(extensionName));
+        return (excludedExtensions == null || !excludedExtensions.contains(extensionName))
+                && (withAllExtensions() || includedExtensions.contains(extensionName));
     }
 
     public abstract boolean isThrowExceptionIfExtensionNotFound();
