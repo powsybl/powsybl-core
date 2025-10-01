@@ -11,6 +11,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -26,12 +27,10 @@ class BusBranchExportTest extends AbstractSerDeTest {
     void roundTripTest() {
         // Read a NodeBreaker XIIDM with all switch open="true"
         String filename = "busBranchExportError.xiidm";
-        Network networkNodeBreaker = Network.read("busBranchExportError.xiidm", getClass().getResourceAsStream("/V1_4/busBranchExportError.xiidm"));
+        Network networkNodeBreaker = Network.read(filename, getClass().getResourceAsStream(File.separator + filename));
         assertNotNull(networkNodeBreaker);
         // WRITE this network with BUS_BRANCH Topology level
         Properties propertiesExport = new Properties();
-        propertiesExport.put(XMLExporter.EXTENSIONS_LIST, "activePowerControl,hvdcAngleDroopActivePowerControl,hvdcOperatorActivePowerRange,standbyAutomaton");
-        propertiesExport.put(XMLExporter.VERSION, "1.14");
         propertiesExport.put(XMLExporter.TOPOLOGY_LEVEL, BUS_BRANCH.name());
         Path transformFile = tmpDir.resolve("exportBusBranch.xiidm");
         networkNodeBreaker.write("XIIDM", propertiesExport, transformFile);
