@@ -135,8 +135,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             ReferencePriority.set(generator, referencePriority);
         }
 
-        double targetP = getInitialP(generator);
-        double targetQ = 0.0;
+        double targetP = getDefaultValue(getInitialP(generator), generator.getTargetP(), 0.0, 0.0, context);
+        double targetQ = getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
         PowerFlow updatedPowerFlow = updatedPowerFlow(generator, cgmesData, context);
         if (updatedPowerFlow.defined()) {
             targetP = -updatedPowerFlow.p();
@@ -153,7 +153,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (operatingMode != null) {
             generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
         }
-        boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED, false);
+        Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
         updateRegulatingControl(generator, controlEnabled, context);
     }
 
