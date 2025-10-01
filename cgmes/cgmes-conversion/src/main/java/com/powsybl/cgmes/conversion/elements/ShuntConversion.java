@@ -76,7 +76,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         updateTerminals(shuntCompensator, context, shuntCompensator.getTerminal());
         updateSections(shuntCompensator, cgmesData, context);
 
-        boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED, false);
+        Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
         updateRegulatingControl(shuntCompensator, controlEnabled, context);
     }
 
@@ -106,24 +106,26 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         return getDefaultValue(normalSections, shuntCompensator.getSectionCount(), 0, 0, context);
     }
 
-    private static void updateRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled, Context context) {
+    private static void updateRegulatingControl(ShuntCompensator shuntCompensator, Boolean controlEnabled, Context context) {
         // When the equipment is participating in regulating control (controlEnabled is true),
         // but no regulating control data is found, default regulation data will be created
-        if (isDefaultRegulatingControl(shuntCompensator, controlEnabled)) {
+
+        boolean defaultRegulatingOn = getDefaultRegulatingOn(shuntCompensator, context);
+        boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
+        if (isDefaultRegulatingControl(shuntCompensator, updatedControlEnabled)) {
             setDefaultRegulatingControl(shuntCompensator);
             return;
         }
 
         double defaultTargetV = getDefaultTargetV(shuntCompensator, context);
         double defaultTargetDeadband = getDefaultTargetDeadband(shuntCompensator, context);
-        boolean defaultRegulatingOn = getDefaultRegulatingOn(shuntCompensator, context);
 
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(shuntCompensator, context);
         double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
         double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
         boolean enabled = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
-        setRegulation(shuntCompensator, targetV, targetDeadband, controlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband));
+        setRegulation(shuntCompensator, targetV, targetDeadband, updatedControlEnabled && enabled && isValidTargetV(targetV) && isValidTargetDeadband(targetDeadband));
     }
 
     // Regulation values (targetV and targetDeadband) must be valid before enabling it,
