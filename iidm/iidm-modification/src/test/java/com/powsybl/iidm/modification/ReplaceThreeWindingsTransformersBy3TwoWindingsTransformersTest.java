@@ -153,11 +153,12 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
     }
 
     @Test
-    void replaceSelectedLimitsGroup() {
+    void replaceSelectedOperationalLimitsGroupTest() {
         modifyNetworkForLoadingLimitsTest();
-        t3w.getLeg1().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
-        t3w.getLeg2().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
-        t3w.getLeg3().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
+
+        network.getThreeWindingsTransformer(t3w.getId()).getLeg1().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
+        network.getThreeWindingsTransformer(t3w.getId()).getLeg2().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
+        network.getThreeWindingsTransformer(t3w.getId()).getLeg3().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
 
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         replace.apply(network);
@@ -166,9 +167,9 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
         TwoWindingsTransformer t2w2 = network.getTwoWindingsTransformer("3WT-Leg2");
         TwoWindingsTransformer t2w3 = network.getTwoWindingsTransformer("3WT-Leg3");
 
-        assertEquals(t3w.getLeg1().getSelectedOperationalLimitsGroupId(), t2w1.getSelectedOperationalLimitsGroupId1());
-        assertEquals(t3w.getLeg2().getSelectedOperationalLimitsGroupId(), t2w2.getSelectedOperationalLimitsGroupId1());
-        assertEquals(t3w.getLeg3().getSelectedOperationalLimitsGroupId(), t2w3.getSelectedOperationalLimitsGroupId1());
+        assertTrue(t2w1.getSelectedOperationalLimitsGroupId1().isPresent() && t2w1.getSelectedOperationalLimitsGroupId1().get().equals("OperationalLimitsGroup-summer"));
+        assertTrue(t2w2.getSelectedOperationalLimitsGroupId1().isPresent() && t2w2.getSelectedOperationalLimitsGroupId1().get().equals("OperationalLimitsGroup-summer"));
+        assertTrue(t2w3.getSelectedOperationalLimitsGroupId1().isPresent() && t2w3.getSelectedOperationalLimitsGroupId1().get().equals("OperationalLimitsGroup-summer"));
     }
 
     private void modifyNetworkForLoadingLimitsTest() {
