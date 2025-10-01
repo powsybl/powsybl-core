@@ -66,7 +66,7 @@ class LineConverter extends AbstractConverter {
         double g2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getReal(), psseLine.getGj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
         double b2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getImaginary(), psseLine.getB() * 0.5 + psseLine.getBj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
 
-        String name = getName();
+        String name = getNameOrNull();
 
         LineAdder adder = getNetwork().newLine()
                 .setId(id)
@@ -200,21 +200,23 @@ class LineConverter extends AbstractConverter {
         });
     }
 
-    private String getName() {
-        String name = "";
+    private String getNameOrNull() {
         if (version.major() == V32 || version.major() == V33) {
             PsseBus busI = busNumToPsseBus.get(psseLine.getI());
             PsseBus busJ = busNumToPsseBus.get(psseLine.getJ());
-            if (busI != null && busJ != null) {
-                name = String.format("%s_%s_%s", busI.getName().trim(), busJ.getName().trim(), psseLine.getCkt());
+            if (busI != null && busJ != null && isNotEmeptyName(busI.getName()) && isNotEmeptyName(busJ.getName())) {
+                return String.format("%s_%s_%s", busI.getName().trim(), busJ.getName().trim(), psseLine.getCkt());
             }
         } else if (version.major() == V35) {
-            name = psseLine.getName();
-            if (name.trim().isEmpty()) {
-                name = null;
+            if (isNotEmeptyName(psseLine.getName())) {
+                return psseLine.getName();
             }
         }
-        return name;
+        return null;
+    }
+
+    private static boolean isNotEmeptyName(String name) {
+        return name != null && !name.trim().isEmpty();
     }
 
     private final PsseNonTransformerBranch psseLine;

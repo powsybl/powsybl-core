@@ -251,7 +251,7 @@ class TransformerConverter extends AbstractConverter {
 
     private String getNameOrNull() {
         String name = psseTransformer.getName();
-        if (name.trim().isEmpty()) {
+        if (name != null && name.trim().isEmpty()) {
             name = null;
         }
         return name;
