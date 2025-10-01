@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.ExtensionProvider;
@@ -176,13 +177,19 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     }
 
     private void addExtensionsVersions(Properties parameters, ExportOptions options) {
-        EXTENSIONS_SUPPLIER.get().getProviders().forEach(extensionSerializer -> {
-            String extensionName = extensionSerializer.getExtensionName();
-            Parameter parameter = new Parameter("iidm.export.xml." + extensionName + ".version",
-                    ParameterType.STRING, "Version of " + extensionName, null);
-            String extensionVersion = Parameter.readString(getFormat(), parameters, parameter, defaultValueConfig);
-            if (extensionVersion != null) {
-                if (options.getExtensions().map(extensions -> extensions.contains(extensionName)).orElse(true)) {
+        if (parameters != null && parameters.containsKey(EXTENSIONS_INCLUDED_LIST)) {
+            String extensionToIncludeInExport = parameters.getProperty(EXTENSIONS_INCLUDED_LIST);
+            if (extensionToIncludeInExport != null && extensionToIncludeInExport.isEmpty()) {
+                // ignore all extensions case
+                LOGGER.warn("All extensions are ignored.");
+            }
+        } else {
+            EXTENSIONS_SUPPLIER.get().getProviders().forEach(extensionSerializer -> {
+                String extensionName = extensionSerializer.getExtensionName();
+                Parameter parameter = new Parameter("iidm.export.xml." + extensionName + ".version",
+                        ParameterType.STRING, "Version of " + extensionName, null);
+                String extensionVersion = Parameter.readString(getFormat(), parameters, parameter, defaultValueConfig);
+                if (options.getIncludedExtensions().map(extensions -> extensions.contains(extensionName)).orElse(true)) {
                     options.addExtensionVersion(extensionName, extensionVersion);
                 } else {
                     LOGGER.warn(String.format("Version of %s is ignored since %s is not in the extensions list to export.",
@@ -205,6 +212,17 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setVersion(Parameter.readString(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig))
                 .setFormat(getTreeDataFormat())
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig));
+        List<String> includedExtensions = Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig);
+        List<String> excludedExtensions = Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig);
+        if (includedExtensions != null && excludedExtensions != null) {
+            throw new ConfigurationException("You can't define both included and excluded extensions in parameters.");
+        }
+        if (includedExtensions != null) {
+            options.setIncludedExtensions(new HashSet<>(includedExtensions));
+        }
+        if (excludedExtensions != null) {
+            options.setExcludedExtensions(new HashSet<>(excludedExtensions));
+        }
         addExtensionsVersions(parameters, options);
         return options;
     }
