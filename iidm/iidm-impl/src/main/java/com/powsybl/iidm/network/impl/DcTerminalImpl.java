@@ -22,15 +22,20 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     private final Ref<? extends VariantManagerHolder> network;
     private DcConnectable<?> dcConnectable;
     private final TwoSides side;
+    private final TerminalNumber terminalNumber;
     private final DcNode dcNode;
     protected final TDoubleArrayList p;
     protected final TDoubleArrayList i;
     private final TBooleanArrayList connected;
     private boolean removed = false;
 
-    DcTerminalImpl(Ref<? extends VariantManagerHolder> network, TwoSides side, DcNode dcNode, boolean connected) {
+    DcTerminalImpl(Ref<? extends VariantManagerHolder> network, TwoSides side, TerminalNumber terminalNumber, DcNode dcNode, boolean connected) {
+        if (side != null && terminalNumber != null) {
+            throw new IllegalStateException("cannot have both side and number");
+        }
         this.network = Objects.requireNonNull(network);
         this.side = side;
+        this.terminalNumber = terminalNumber;
         this.dcNode = Objects.requireNonNull(dcNode);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.connected = new TBooleanArrayList(variantArraySize);
@@ -60,6 +65,12 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     }
 
     @Override
+    public TerminalNumber getTerminalNumber() {
+        ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
+        return this.terminalNumber;
+    }
+
+    @Override
     public DcNode getDcNode() {
         ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
         return this.dcNode;
@@ -77,7 +88,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         double oldValue = this.p.set(variantIndex, p);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "p" + getAttributeSideSuffix(), variantId, oldValue, p);
+        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "p_dc" + getAttributeSideOrNumberSuffix(), variantId, oldValue, p);
         return this;
     }
 
@@ -93,7 +104,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         double oldValue = this.i.set(variantIndex, i);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "i" + getAttributeSideSuffix(), variantId, oldValue, i);
+        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "i_dc" + getAttributeSideOrNumberSuffix(), variantId, oldValue, i);
         return this;
     }
 
@@ -109,7 +120,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         boolean oldValue = this.connected.set(variantIndex, connected);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "connected" + getAttributeSideSuffix(), variantId, oldValue, connected);
+        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "connected_dc" + getAttributeSideOrNumberSuffix(), variantId, oldValue, connected);
         return this;
     }
 
@@ -165,7 +176,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         throw new IllegalStateException("Unexpected dcConnectable type: " + dcConnectable.getClass().getName());
     }
 
-    String getAttributeSideSuffix() {
-        return "" + (side != null ? side.getNum() : "");
+    String getAttributeSideOrNumberSuffix() {
+        return "" + (side != null ? side.getNum() : "") + (terminalNumber != null ? terminalNumber.getNum() : "");
     }
 }
