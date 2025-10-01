@@ -26,8 +26,8 @@ The `iidm.export.xml.topology-level` property is an optional property that defin
 
 The default value is `NODE_BREAKER` to export all voltage levels in the same level of details than the one they are described.
 
-**iidm.export.xml.topology-level-vl.**  
-The `iidm.export.xml.topology-level-vl. ` property is an optional property that defines the topology level to apply by the IIDM exporter for the voltage level which ID is specified in the property name. The topology level can be:
+**iidm.export.xml.topology-level-vl.<voltageLevelId>**  
+The `iidm.export.xml.topology-level-vl.<voltageLevelId>` property is an optional property that defines the topology level to apply by the IIDM exporter for the voltage level which ID is specified in the property name. The topology level can be:
 - `NODE_BREAKER`: the voltage level which ID is specified in the property will be exported using the [Node/Breaker view](). If the voltage level is described in Bus/Breaker topology, it will be exported using the Bus/Breaker view (export in Node/Breaker is not possible since the voltage level has not enough details).
 - `BUS_BREAKER`: the voltage level will be exported using the [Bus/Breaker view]()
 - `BUS_BRANCH`:  the voltage level will be exported using the [Bus view]()  
