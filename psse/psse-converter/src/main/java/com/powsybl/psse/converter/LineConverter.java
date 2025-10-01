@@ -204,18 +204,18 @@ class LineConverter extends AbstractConverter {
         if (version.major() == V32 || version.major() == V33) {
             PsseBus busI = busNumToPsseBus.get(psseLine.getI());
             PsseBus busJ = busNumToPsseBus.get(psseLine.getJ());
-            if (busI != null && busJ != null && isNotEmeptyName(busI.getName()) && isNotEmeptyName(busJ.getName())) {
+            if (busI != null && busJ != null && isNotEmptyName(busI.getName()) && isNotEmptyName(busJ.getName())) {
                 return String.format("%s_%s_%s", busI.getName().trim(), busJ.getName().trim(), psseLine.getCkt());
             }
         } else if (version.major() == V35) {
-            if (isNotEmeptyName(psseLine.getName())) {
+            if (isNotEmptyName(psseLine.getName())) {
                 return psseLine.getName();
             }
         }
         return null;
     }
 
-    private static boolean isNotEmeptyName(String name) {
+    private static boolean isNotEmptyName(String name) {
         return name != null && !name.trim().isEmpty();
     }
 
