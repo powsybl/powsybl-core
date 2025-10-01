@@ -8,7 +8,6 @@
 package com.powsybl.contingency;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.iidm.network.*;
@@ -120,15 +119,6 @@ public class Contingency extends AbstractExtendable<Contingency> {
             LOGGER.warn("Contingency '{}' is invalid", id);
         }
         return valid;
-    }
-
-    /**
-     * Return a list of valid contingencies.
-     * @deprecated Use {@link ContingencyList#getValidContingencies(List, Network)} ()} instead.
-     */
-    @Deprecated(since = "4.0.0")
-    public static List<Contingency> checkValidity(List<Contingency> contingencies, Network network) {
-        return ContingencyList.getValidContingencies(contingencies, network);
     }
 
     private static boolean checkGeneratorContingency(Contingency contingency, GeneratorContingency element, Network network) {

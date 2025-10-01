@@ -43,7 +43,7 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
             bbsAdder.setNode(iidmNode());
             BusbarSection bbs = bbsAdder.add();
             addAliasesAndProperties(bbs);
-            convertedTerminals(bbs.getTerminal());
+            convertedTerminalsWithOnlyEq(bbs.getTerminal());
         } else {
             // If we are reading CGMES input data as bus/branch,
             // we just keep track of this busbar section terminal
