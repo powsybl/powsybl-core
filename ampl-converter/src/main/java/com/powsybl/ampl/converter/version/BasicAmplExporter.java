@@ -887,7 +887,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             int xNodeVoltageLevelNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, xnodeVoltageLevelId);
 
             if (bus1Num == xNodeBusNum || bus2Num == xNodeBusNum) {
-                LOGGER.warn("Skipping tie line '{}' : the dangling lines of the tie line are connected to the same bus on both sides", id);
+                LOGGER.warn("Skipping tie line '{}': one of the dangling line has its bus as a pairing key.", id);
                 return;
             }
 
@@ -1001,7 +1001,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double patl = getPermanentLimit(dl.getCurrentLimits().orElse(null));
 
         if (busNum == middleBusNum) { // Not sure if this condition might occur
-            LOGGER.warn("Skipping dangling line '{}' connected to the same bus at both sides", id);
+            LOGGER.warn("Skipping dangling line '{}': the pairing key refers to its bus.", id);
             return;
         }
 
