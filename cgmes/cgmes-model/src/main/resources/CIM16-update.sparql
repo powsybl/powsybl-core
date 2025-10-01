@@ -107,6 +107,31 @@ WHERE {
         cim:SvVoltage.angle ?angle .
 }
 
+# query: svInjections
+SELECT *
+WHERE {
+    ?SvInjection
+        a cim:SvInjection ;
+        cim:SvInjection.TopologicalNode ?TopologicalNode ;
+        cim:SvInjection.pInjection ?pInjection .
+        OPTIONAL { ?SvInjection cim:SvInjection.qInjection ?qInjection }
+    OPTIONAL {
+        SELECT ?TopologicalNode (MIN(?Terminal) AS ?Terminal)
+        WHERE {
+            ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode
+        }
+        GROUP BY ?TopologicalNode
+    }
+}
+
+# query: switches
+SELECT *
+{
+    ?Switch a ?type ;
+        cim:Switch.open ?open .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector }
+}
+
 # query: ratioTapChangers
 SELECT *
 {
@@ -335,4 +360,12 @@ SELECT *
             OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
             OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
     }
+}
+
+# query: controlAreas
+SELECT *
+{
+    ?ControlArea a cim:ControlArea ;
+        cim:ControlArea.netInterchange ?netInterchange .
+    OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
 }
