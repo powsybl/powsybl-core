@@ -45,11 +45,10 @@ public class NodeMapping {
     }
 
     public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl) {
-        boolean bbsForEveryConnectivityNode = context.config().createBusbarSectionForEveryConnectivityNode();
         if (isSwitchEnd) {
             // For switches the iidm node is the one from the connectivity node
             return cgmes2iidm.get(t.connectivityNode());
-        } else if (bbsForEveryConnectivityNode) {
+        } else if (context.config().createBusbarSectionForEveryConnectivityNode()) {
             createInternalConnection(t, vl);
         } else if (!cgmes2iidm.containsKey(t.id())) {
             // Create internal connections but only if too many terminals on connectivity node
