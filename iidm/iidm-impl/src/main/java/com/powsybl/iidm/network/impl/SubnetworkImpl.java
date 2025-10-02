@@ -1009,7 +1009,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         Iterable<VoltageAngleLimit> vals = getVoltageAngleLimits();
 
         // Move the substations and voltageLevels to the new network
-        ref.setRef(new RefObj<>(null));
+        ref.setRef(detachedNetwork.getSubnetworkRef());
 
         // Remove the old subnetwork from the subnetworks list of the current parent network
         NetworkImpl previousRootNetwork = rootNetworkRef.get();
