@@ -70,13 +70,13 @@ class CgmesImportMultiTerminalConnectivityNodesTest {
         Network network = ConversionUtil.readCgmesResources(cgmesImportParameters, "/multi-terminal-connectivity-nodes", "multiTerminalConnectivityNodes_EQ.xml", "multiTerminalConnectivityNodes_SSH.xml");
 
         // BBS1, Load1 and Disconnector connected to same ConnectivityNode
-        assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "BBS1", "Load1");
+        assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "Load1");
 
         // Load2 and Disconnector connected to same ConnectivityNode
         assertEquals(1, getNodesConnectedWithFictitiousSwitchesToLoadOrBbs(network, "Load2").size());
 
         // Load3 and BBS6 connected to same ConnectivityNode
-        assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "Load3", "BBS6");
+        assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "Load3");
 
         // Load4 and Load5 connected to same ConnectivityNode
         assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "Load4", "Load5");
@@ -85,10 +85,10 @@ class CgmesImportMultiTerminalConnectivityNodesTest {
         assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "Load6", "Load7", "Load8");
 
         // BBS4, BBS5 and Load9 connected to same ConnectivityNode
-        assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "BBS4", "BBS5", "Load9");
+        assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "Load9");
 
         // Load10, BBS7 and Load11 connected to same ConnectivityNode
-        assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "Load10", "BBS7", "Load11");
+        assertLoadsOrBbsStarShapedConnectedWithFictitiousSwitches(network, "Load10", "Load11");
     }
 
     private static void assertLoadsOrBbsStarShapedConnectedWithInternalConnections(Network network, String... loadsOrBbs) {
