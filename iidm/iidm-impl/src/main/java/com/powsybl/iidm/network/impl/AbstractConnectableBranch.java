@@ -272,8 +272,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return BranchUtil.getValueForLimit(t, type);
     }
 
-    public boolean connect(boolean propagateDisconnectionIfNeeded) {
-        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null, propagateDisconnectionIfNeeded);
+    public boolean connect(boolean propagateConnectionIfNeeded) {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null, propagateConnectionIfNeeded);
     }
 
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateConnectionIfNeeded) {
