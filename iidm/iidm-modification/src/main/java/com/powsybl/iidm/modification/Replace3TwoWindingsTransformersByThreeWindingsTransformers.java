@@ -271,7 +271,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         getOperationalLimitsGroups1(t2w, isWellOriented)
                 .forEach(operationalLimitGroup -> copyOperationalLimitsGroup(leg.newOperationalLimitsGroup(operationalLimitGroup.getId()), operationalLimitGroup));
 
-        copySelectedOperationalLimitsGroup(t2w, leg);
+        copySelectedOperationalLimitsGroup(t2w, leg, isWellOriented);
 
         regulatedTerminalControllers.replaceRegulatedTerminal(getTerminal1(t2w, isWellOriented), leg.getTerminal());
         replaceRegulatedTerminal(leg, twoR);
@@ -279,8 +279,12 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         copyTerminalActiveAndReactivePower(leg.getTerminal(), getTerminal1(t2w, isWellOriented));
     }
 
-    private static void copySelectedOperationalLimitsGroup(TwoWindingsTransformer t2w, ThreeWindingsTransformer.Leg leg) {
-        t2w.getSelectedOperationalLimitsGroupId1().ifPresent(leg::setSelectedOperationalLimitsGroup);
+    private static void copySelectedOperationalLimitsGroup(TwoWindingsTransformer t2w, ThreeWindingsTransformer.Leg leg, boolean isWellOriented) {
+        if (isWellOriented) {
+            t2w.getSelectedOperationalLimitsGroupId1().ifPresent(leg::setSelectedOperationalLimitsGroup);
+        } else {
+            t2w.getSelectedOperationalLimitsGroupId2().ifPresent(leg::setSelectedOperationalLimitsGroup);
+        }
     }
 
     private Substation findSubstation(TwoR twoR, boolean throwException) {
