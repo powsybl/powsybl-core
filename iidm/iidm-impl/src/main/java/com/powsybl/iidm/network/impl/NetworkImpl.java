@@ -178,6 +178,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         mergedNetwork.setCaseDate(caseDate);
     }
 
+    RefChain<SubnetworkImpl> getSubnetworkRef() {
+        return subnetworkRef;
+    }
+
     RefChain<NetworkImpl> getRef() {
         return ref;
     }
