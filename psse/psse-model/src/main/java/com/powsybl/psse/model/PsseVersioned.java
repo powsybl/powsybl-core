@@ -59,11 +59,11 @@ public class PsseVersioned {
             PsseVersion since = fromRevision(field.getAnnotation(Revision.class).since());
             PsseVersion until = fromRevision(field.getAnnotation(Revision.class).until());
             String message = String.format(
-                "Wrong version of PSSE RAW model (%s). Field '%s' is valid since version %s%s",
-                current,
-                fieldName,
-                since,
-                until.getNumber() != MAX_VERSION.getNumber() ? " until " + until : "");
+                    "Wrong version of PSSE RAW model (%s). Field '%s' is valid since version %s%s",
+                    current,
+                    fieldName,
+                    since,
+                    until.getNumber() != MAX_VERSION.getNumber() ? " until " + until : "");
             throw new PsseException(message);
         }
     }
