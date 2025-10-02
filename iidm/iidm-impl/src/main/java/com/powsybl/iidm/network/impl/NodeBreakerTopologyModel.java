@@ -1470,7 +1470,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     private boolean propagateDisconnectionToABranch(AbstractConnectableBranch<?> branch, Terminal terminalEndOfPath, Predicate<Switch> isSwitchOpenable,
                                                     ConnectionElementsContainer connectionElementsContainer) {
         // If the connectable at the end of the path is a line, we find the side and disconnect the line
-        ThreeSides side = branch.getTerminal1() == terminalEndOfPath ? ThreeSides.TWO : ThreeSides.ONE;
+        TwoSides side = branch.getTerminal1() == terminalEndOfPath ? TwoSides.TWO : TwoSides.ONE;
         return connectionElementsContainer.connectables().contains(branch) ||
             branch.disconnect(isSwitchOpenable, side, true, false, connectionElementsContainer);
     }

@@ -310,18 +310,18 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null, propagateConnectionIfNeeded);
     }
 
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateConnectionIfNeeded) {
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side, boolean propagateConnectionIfNeeded) {
         return connect(isTypeSwitchToOperate, side, propagateConnectionIfNeeded, true,
             new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()));
     }
 
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side,
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side,
                            boolean propagateConnectionIfNeeded, boolean connectFromHere,
                            ConnectionElementsContainer connectionElementsContainer) {
         connectionElementsContainer.connectables().add(this);
         return switch (ConnectDisconnectUtil.connectAllTerminals(
             this,
-            getTerminals(side),
+            getTerminals(side != null ? side.toThreeSides() : null),
             isTypeSwitchToOperate,
             connectionElementsContainer,
             connectFromHere,
@@ -337,18 +337,18 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return disconnect(SwitchPredicates.IS_CLOSED_BREAKER, null, propagateDisconnectionIfNeeded);
     }
 
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded) {
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side, boolean propagateDisconnectionIfNeeded) {
         return disconnect(isSwitchOpenable, side, propagateDisconnectionIfNeeded, true,
             new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()));
     }
 
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side,
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side,
                               boolean propagateDisconnectionIfNeeded, boolean disconnectFromHere,
                               ConnectionElementsContainer connectionElementsContainer) {
         connectionElementsContainer.connectables().add(this);
         return switch (ConnectDisconnectUtil.disconnectAllTerminals(
             this,
-            getTerminals(side),
+            getTerminals(side != null ? side.toThreeSides() : null),
             isSwitchOpenable,
             connectionElementsContainer,
             disconnectFromHere,

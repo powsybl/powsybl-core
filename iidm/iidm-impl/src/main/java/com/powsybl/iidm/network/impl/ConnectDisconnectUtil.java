@@ -36,6 +36,9 @@ public final class ConnectDisconnectUtil {
      *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
      *                  underlying dangling lines (respectively converter stations)
      * @param isTypeSwitchToOperate type of switches that can be operated
+     * @param connectionElementsContainer container for elements that will be operated
+     * @param operateSwitchesFromHere if {@code true}, the switches will be operated. Else, the elements will be added to the connectionElementsContainer
+     * @param propagateConnectionIfNeeded if {@code true}, the connection can be propagated trough lines and voltage levels until it is either done or not possible
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been connected, else {@code false}.
      */
@@ -101,10 +104,13 @@ public final class ConnectDisconnectUtil {
      * Disconnect the specified terminals. It will disconnect all the specified terminals or none if at least one cannot
      * be disconnected.
      * @param identifiable network element to disconnect. It can be a connectable, a tie line or an HVDC line
-     * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
+     * @param terminals list of the terminals that should be disconnected. For a connectable, it should be its own
      *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
      *                  underlying dangling lines (respectively converter stations)
      * @param isSwitchOpenable type of switches that can be operated
+     * @param connectionElementsContainer container for elements that will be operated
+     * @param operateSwitchesFromHere if {@code true}, the switches will be operated. Else, the elements will be added to the connectionElementsContainer
+     * @param propagateDisconnectionIfNeeded if {@code true}, the disconnection can be propagated trough lines and voltage levels until it is either done or not possible
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been disconnected, else {@code false}.
      */
@@ -151,7 +157,7 @@ public final class ConnectDisconnectUtil {
             // Open all switches on node-breaker terminals to disconnect the network element
             localConnectionElementsContainer.switchesToOperate().forEach(sw -> sw.setOpen(true));
 
-            // Connect all bus-breaker terminals
+            // Disconnect all bus-breaker terminals
             localConnectionElementsContainer.busBreakerTerminalsToOperate().forEach(t -> t.disconnect(isSwitchOpenable));
         } else {
             // Add the switches and the bus-breaker terminals to the sets

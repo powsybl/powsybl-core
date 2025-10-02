@@ -34,7 +34,7 @@ public interface Line extends Branch<Line>, Connectable<Line>, MutableLineCharac
         return connect(isTypeSwitchToOperate, null, propagateConnectionIfNeeded);
     }
 
-    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateConnectionIfNeeded);
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side, boolean propagateConnectionIfNeeded);
 
     boolean disconnect(boolean propagateDisconnectionIfNeeded);
 
@@ -42,5 +42,5 @@ public interface Line extends Branch<Line>, Connectable<Line>, MutableLineCharac
         return disconnect(isSwitchOpenable, null, propagateDisconnectionIfNeeded);
     }
 
-    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded);
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side, boolean propagateDisconnectionIfNeeded);
 }

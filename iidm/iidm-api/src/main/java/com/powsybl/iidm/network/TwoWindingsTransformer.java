@@ -255,11 +255,7 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
         return connect(isTypeSwitchToOperate, null, propagateConnectionIfNeeded);
     }
 
-    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateConnectionIfNeeded);
-        return connect(isTypeSwitchToOperate, null, propagateDisconnectionIfNeeded);
-    }
-
-    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateDisconnectionIfNeeded);
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side, boolean propagateConnectionIfNeeded);
 
     boolean disconnect(boolean propagateDisconnectionIfNeeded);
 
@@ -267,5 +263,5 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
         return disconnect(isSwitchOpenable, null, propagateDisconnectionIfNeeded);
     }
 
-    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean propagateDisconnectionIfNeeded);
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side, boolean propagateDisconnectionIfNeeded);
 }
