@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,6 +60,20 @@ class GeneratorUpdateTest {
 
         assertFlowsBeforeSv(network);
         readCgmesResources(network, DIR, "generator_SV.xml");
+        assertFlowsAfterSv(network);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml", "generator_SV.xml");
+        assertEquals(3, network.getGeneratorCount());
+        assertFirstSsh(network);
+        assertFlowsAfterSv(network);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertFirstSsh(network);
         assertFlowsAfterSv(network);
     }
 
