@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.BoundaryLine;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 
-// TODO: Manage versioning to chang DanglingLine to BoundaryLine
+
 
 @AutoService(ExtensionSerDe.class)
 public class CgmesDanglingLineBoundaryNodeSerDe extends AbstractExtensionSerDe<BoundaryLine, CgmesBoundaryLineBoundaryNode> {
