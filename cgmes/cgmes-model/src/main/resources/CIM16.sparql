@@ -237,22 +237,6 @@ WHERE {
     OPTIONAL { ?Terminal cim:ACDCTerminal.sequenceNumber ?sequenceNumber }
     OPTIONAL { ?Terminal cim:IdentifiedObject.name ?name }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    ?Terminal cim:ACDCTerminal.connected ?connected
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?SvPowerFlow
-        a cim:SvPowerFlow ;
-        cim:SvPowerFlow.Terminal ?Terminal ;
-        cim:SvPowerFlow.p ?p ;
-        cim:SvPowerFlow.q ?q .
-}}
-OPTIONAL { GRAPH ?graphSV2 {
-    ?SvStatus
-        a cim:SvStatus ;
-        cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
-        cim:SvStatus.inService ?inService .
-}}
 OPTIONAL { GRAPH ?graphCN {
         ?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode .
         OPTIONAL { GRAPH ?graphTPCN {
@@ -296,13 +280,6 @@ OPTIONAL {
         GROUP BY ?ConnectivityNode
     }
     ?TopologicalNode cim:TopologicalNode.BaseVoltage ?BaseVoltage
-    OPTIONAL { GRAPH ?graphSVT {
-        ?SvVoltageT
-            a cim:SvVoltage ;
-            cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-            cim:SvVoltage.v ?v ;
-            cim:SvVoltage.angle ?angle
-    }}
 }
 }
 
@@ -316,13 +293,6 @@ WHERE {
         cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
     OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.fromEndIsoCode ?fromEndIsoCode }
     OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.toEndIsoCode ?toEndIsoCode }
-}}
-OPTIONAL { GRAPH ?graphSVT {
-    ?SvVoltageT
-        a cim:SvVoltage ;
-        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-        cim:SvVoltage.v ?v ;
-        cim:SvVoltage.angle ?angle
 }}
 }
 
@@ -837,18 +807,6 @@ WHERE {
 }}
 }
 
-# query: svInjections
-SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?SvInjection
-        a cim:SvInjection ;
-        cim:SvInjection.TopologicalNode ?TopologicalNode ;
-        cim:SvInjection.pInjection ?pInjection .
-        OPTIONAL { ?SvInjection cim:SvInjection.qInjection ?qInjection }
-}}
-}
-
 # query: reactiveCapabilityCurveData
 SELECT *
 WHERE {
@@ -917,10 +875,6 @@ WHERE {
         cim:ControlArea.type ?controlAreaType .
         OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
         VALUES ?controlAreaType { cim:ControlAreaTypeKind.Interchange }
-}}
-OPTIONAL { GRAPH ?graphSSH {
-    ?ControlArea cim:ControlArea.netInterchange ?netInterchange
-    OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
 }}
 }
 
