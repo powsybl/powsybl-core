@@ -13,13 +13,28 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BusAdder;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.BusbarSectionAdder;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
-import com.powsybl.math.graph.*;
+import com.powsybl.math.graph.DefaultUndirectedGraphListener;
+import com.powsybl.math.graph.TraversalType;
+import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.math.graph.Traverser;
+import com.powsybl.math.graph.UndirectedGraph;
+import com.powsybl.math.graph.UndirectedGraphImpl;
 import gnu.trove.TCollections;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
@@ -27,7 +42,11 @@ import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
-import org.anarres.graphviz.builder.*;
+import org.anarres.graphviz.builder.GraphVizAttribute;
+import org.anarres.graphviz.builder.GraphVizEdge;
+import org.anarres.graphviz.builder.GraphVizGraph;
+import org.anarres.graphviz.builder.GraphVizNode;
+import org.anarres.graphviz.builder.GraphVizScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +58,20 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -1463,13 +1495,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private void exportNodes(Random random, GraphVizGraph gvGraph, GraphVizScope scope) {
         // create bus color scale
-        Map<String, String> busColor = new HashMap<>();
-        List<CalculatedBus> buses = new ArrayList<>(getCalculatedBusBreakerTopology().getBuses());
-        String[] colors = Colors.generateColorScale(buses.size(), random);
-        for (int i = 0; i < buses.size(); i++) {
-            CalculatedBus bus = buses.get(i);
-            busColor.put(bus.getId(), colors[i]);
-        }
+        Map<String, String> busColor = createBusColorScale(random);
 
         for (int n = 0; n < graph.getVertexCapacity(); n++) {
             if (!graph.vertexExists(n)) {
@@ -1511,6 +1537,17 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 edge.style(aSwitch.isOpen() ? "dotted" : "solid");
             }
         }
+    }
+
+    private Map<String, String> createBusColorScale(Random random) {
+        Map<String, String> busColor = new HashMap<>();
+        List<CalculatedBus> buses = new ArrayList<>(getCalculatedBusBreakerTopology().getBuses());
+        String[] colors = Colors.generateColorScale(buses.size(), random);
+        for (int i = 0; i < buses.size(); i++) {
+            CalculatedBus bus = buses.get(i);
+            busColor.put(bus.getId(), colors[i]);
+        }
+        return busColor;
     }
 
     private static String getExceptionMessageElementNotFound(String element, String id) {
