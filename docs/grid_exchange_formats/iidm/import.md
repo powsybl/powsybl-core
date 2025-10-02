@@ -14,8 +14,8 @@ The `iidm.import.xml.included.extensions` property is an optional property that 
 When set to an empty string, all extensions will be ignored during the import.
 
 **iidm.import.xml.excluded-extensions**
-The `iidm.import.xml.excluded-extensions` property is an optional property that defines the list of extensions that will not be imported by the XIIDM importer.
-When both `iidm.import.xml.included.extensions` and `iidm.import.xml.excluded-extensions` are defined, a configuration exception is thrown. 
+The `iidm.import.xml.excluded.extensions` property is an optional property that defines the list of extensions that will not be imported by the XIIDM importer.
+When both `iidm.import.xml.included.extensions` and `iidm.import.xml.excluded.extensions` are defined, a configuration exception is thrown. 
 By default, no extension is excluded from the import.
 
 ### Deprecated properties

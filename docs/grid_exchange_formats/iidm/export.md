@@ -33,9 +33,9 @@ The `iidm.export.xml.throw-exception-if-extension-not-found` property is an opti
 The `iidm.export.xml.included.extensions` property is an optional property that defines the list of extensions that we will be exported by the XIIDM exporter. By default, all extensions will be exported.
 If set to an empty string, all extensions will be ignored during the export 
 
-**iidm.export.xml.excluded-extensions**  
+**iidm.export.xml.excluded.extensions**  
 The `iidm.export.xml.excluded-extensions` property is an optional property that defines the list of extensions that will not be exported by the XIIDM exporter. 
-When both `iidm.export.xml.included.extensions` and `iidm.export.xml.excluded-extensions` are defined a configuration exception is thrown.
+When both `iidm.export.xml.included.extensions` and `iidm.export.xml.excluded.extensions` are defined a configuration exception is thrown.
 By default, no extension is excluded from the export.
 
 **iidm.export.xml.sorted**  
