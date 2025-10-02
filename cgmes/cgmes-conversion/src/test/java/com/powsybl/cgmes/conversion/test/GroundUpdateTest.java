@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,6 +54,18 @@ class GroundUpdateTest {
         // We are using a nodeBreaker model, and the configuration attribute
         // UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL is set to false.
         // Then, changing the terminal status to disconnected will not actually disconnect the ground.
+        assertSsh(network.getGround("Ground"));
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "ground_EQ.xml", "ground_SSH.xml");
+        assertEquals(1, network.getGroundCount());
+        assertSsh(network.getGround("Ground"));
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertSsh(network.getGround("Ground"));
     }
 

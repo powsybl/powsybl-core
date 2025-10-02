@@ -12,6 +12,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,25 +60,7 @@ class BoundaryLineUpdateTest {
         Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml", "boundaryLine_SSH.xml", "boundaryLine_TP.xml", "boundaryLine_SV.xml");
 
         assertEquals(4, network.getBoundaryLineCount());
-
-        double tol = 0.0000001;
-        BoundaryLine acLineSegment = network.getBoundaryLine("ACLineSegment");
-        assertEquals(285.2495134203, acLineSegment.getTerminal().getP(), tol);
-        assertEquals(-68.1683990331, acLineSegment.getTerminal().getQ(), tol);
-
-        BoundaryLine equivalentBranch = network.getBoundaryLine("EquivalentBranch");
-        assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
-        assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
-        assertBusVoltage(equivalentBranch.getTerminal().getBusView().getBus(), 400.5, -3.0);
-        assertTrue(checkBoundaryBusVoltage(equivalentBranch, 388.0868627936761, -5.9167013802728095));
-
-        BoundaryLine powerTransformer = network.getBoundaryLine("PowerTransformer");
-        assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
-        assertTrue(Double.isNaN(powerTransformer.getTerminal().getQ()));
-
-        BoundaryLine breaker = network.getBoundaryLine("Breaker");
-        assertEquals(10.0, breaker.getTerminal().getP(), tol);
-        assertEquals(5.0, breaker.getTerminal().getQ(), tol);
+        assertSvTogether(network);
     }
 
     @Test
@@ -109,14 +93,30 @@ class BoundaryLineUpdateTest {
 
         assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
         assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
-        assertBusVoltage(equivalentBranch.getTerminal().getBusView().getBus(), 400.5, -3.0);
-        assertTrue(checkBoundaryBusVoltage(equivalentBranch, 388.0868627936761, -5.9167013802728095));
+        assertBusVoltage(equivalentBranch.getTerminal().getBusView().getBus());
+        assertTrue(checkBoundaryBusVoltage(equivalentBranch));
 
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getQ()));
-
         assertEquals(10.0, breaker.getTerminal().getP(), tol);
         assertEquals(5.0, breaker.getTerminal().getQ(), tol);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml", "danglingLine_TP.xml", "danglingLine_SV.xml");
+        assertEquals(4, network.getBoundaryLineCount());
+        assertFirstSsh(network);
+
+        readCgmesResources(network, DIR, "danglingLine_SSH.xml", "danglingLine_SV.xml");
+        assertFirstSsh(network);
+        assertSvTogether(network);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertFirstSsh(network);
+        assertSvTogether(network);
     }
 
     private static void assertEq(Network network) {
@@ -159,6 +159,27 @@ class BoundaryLineUpdateTest {
 
         assertSsh(network.getBoundaryLine("Breaker"), 0.0, 0.0, true, -15.0, -3.0, 403.0, true);
         assertDefinedActivePowerLimits(network.getBoundaryLine("Breaker"), new ActivePowerLimit(91.0, 900, 109.0));
+    }
+
+    private static void assertSvTogether(Network network) {
+        double tol = 0.0000001;
+        BoundaryLine acLineSegment = network.getBoundaryLine("ACLineSegment");
+        assertEquals(285.2495134203, acLineSegment.getTerminal().getP(), tol);
+        assertEquals(-68.1683990331, acLineSegment.getTerminal().getQ(), tol);
+
+        BoundaryLine equivalentBranch = network.getBoundaryLine("EquivalentBranch");
+        assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
+        assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
+        assertBusVoltage(equivalentBranch.getTerminal().getBusView().getBus());
+        assertTrue(checkBoundaryBusVoltage(equivalentBranch));
+
+        BoundaryLine powerTransformer = network.getBoundaryLine("PowerTransformer");
+        assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
+        assertTrue(Double.isNaN(powerTransformer.getTerminal().getQ()));
+
+        BoundaryLine breaker = network.getBoundaryLine("Breaker");
+        assertEquals(10.0, breaker.getTerminal().getP(), tol);
+        assertEquals(5.0, breaker.getTerminal().getQ(), tol);
     }
 
     private static void assertEq(BoundaryLine boundaryLine) {
@@ -213,16 +234,16 @@ class BoundaryLineUpdateTest {
     private record ActivePowerLimit(double ptalValue, int tatlDuration, double tatlValue) {
     }
 
-    private static void assertBusVoltage(Bus bus, double v, double angle) {
+    private static void assertBusVoltage(Bus bus) {
         double tol = 0.0000001;
-        assertEquals(v, bus.getV(), tol);
-        assertEquals(angle, bus.getAngle(), tol);
+        assertEquals(400.5, bus.getV(), tol);
+        assertEquals(-3.0, bus.getAngle(), tol);
     }
 
-    private static boolean checkBoundaryBusVoltage(BoundaryLine boundaryLine, double v, double angle) {
+    private static boolean checkBoundaryBusVoltage(BoundaryLine boundaryLine) {
         double tol = 0.0000001;
-        assertEquals(v, Double.parseDouble(boundaryLine.getProperty(CgmesNames.VOLTAGE)), tol);
-        assertEquals(angle, Double.parseDouble(boundaryLine.getProperty(CgmesNames.ANGLE)), tol);
+        assertEquals(388.0868627936761, Double.parseDouble(boundaryLine.getProperty(CgmesNames.VOLTAGE)), tol);
+        assertEquals(-5.9167013802728095, Double.parseDouble(boundaryLine.getProperty(CgmesNames.ANGLE)), tol);
         return true;
     }
 }

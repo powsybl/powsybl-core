@@ -31,7 +31,6 @@
       Converting equipments at boundaries.
       Converting DC network.
       Converting OperationalLimit.
-      Converting SvInjection.
       Converting ControlArea.
       Converting TieFlow.
       Converting RegulatingControl.
@@ -39,6 +38,7 @@
       CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.
       Converting during update Terminal.
       Converting during update TIE_LINE.
+      Converting during update SvInjection.
       Updating SWITCH.
       Updating LOAD.
       Updating GENERATOR.
@@ -54,6 +54,7 @@
       Fixing issues with dangling lines.
       Updating VOLTAGE_LEVEL.
       Updating GROUND.
+      Updating AREA.
       + Setting voltages and angles.
          Bus 469df5f7-058f-4451-a998-57a48e8a56fe_0 in substation PP_Brussels, voltageLevel 380.0, has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0.
       Running validation checks on IIDM network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73

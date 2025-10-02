@@ -14,6 +14,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -74,7 +76,7 @@ class TransformerUpdateTest {
         assertBusVoltage(t3w.getLeg1().getTerminal().getBusView().getBus(), 402.5, 5.0);
         assertBusVoltage(t3w.getLeg2().getTerminal().getBusView().getBus(), 220.5, -3.0);
         assertBusVoltage(t3w.getLeg3().getTerminal().getBusView().getBus(), 111.5, 2.0);
-        assertStarBusVoltage(t3w, 401.4610086017755, -0.7578725292783544);
+        assertStarBusVoltage(t3w);
     }
 
     @Test
@@ -90,7 +92,24 @@ class TransformerUpdateTest {
         assertBusVoltage(t3w.getLeg1().getTerminal().getBusView().getBus(), 402.5, 5.0);
         assertBusVoltage(t3w.getLeg2().getTerminal().getBusView().getBus(), 220.5, -3.0);
         assertBusVoltage(t3w.getLeg3().getTerminal().getBusView().getBus(), 111.5, 2.0);
-        assertStarBusVoltage(t3w, 401.4610086017755, -0.7578725292783544);
+        assertStarBusVoltage(t3w);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml", "transformer_SV.xml");
+        assertEquals(1, network.getTwoWindingsTransformerCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+        assertFirstSsh(network);
+        assertFlowsAfterSv(network);
+        assertTapChangerStepsAfterSshAndSvTogether(network);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertFirstSsh(network);
+        assertFlowsAfterSv(network);
+        assertTapChangerStepsAfterSshAndSvTogether(network);
     }
 
     private static void assertEq(Network network) {
@@ -181,6 +200,19 @@ class TransformerUpdateTest {
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
         assertEquals(13, t3w.getLeg2().getRatioTapChanger().getTapPosition());
         assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
+        assertEquals(13, t3w.getLeg2().getRatioTapChanger().getSolvedTapPosition());
+    }
+
+    // When SSH and SV are imported in one shot, the SSH step takes priority over the SV step
+    private static void assertTapChangerStepsAfterSshAndSvTogether(Network network) {
+        TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
+        assertEquals(-2, t2w.getPhaseTapChanger().getTapPosition());
+        assertTrue(t2w.getPhaseTapChanger().isRegulating());
+        assertEquals(7, t2w.getPhaseTapChanger().getSolvedTapPosition());
+
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
+        assertEquals(8, t3w.getLeg2().getRatioTapChanger().getTapPosition());
+        assertTrue(t3w.getLeg2().getRatioTapChanger().isRegulating());
         assertEquals(13, t3w.getLeg2().getRatioTapChanger().getSolvedTapPosition());
     }
 
@@ -300,9 +332,9 @@ class TransformerUpdateTest {
         assertEquals(angle, bus.getAngle(), tol);
     }
 
-    private static void assertStarBusVoltage(ThreeWindingsTransformer t3w, double v, double angle) {
+    private static void assertStarBusVoltage(ThreeWindingsTransformer t3w) {
         double tol = 0.0000001;
-        assertEquals(v, Double.parseDouble(t3w.getProperty(CgmesNames.VOLTAGE)), tol);
-        assertEquals(angle, Double.parseDouble(t3w.getProperty(CgmesNames.ANGLE)), tol);
+        assertEquals(401.4610086017755, Double.parseDouble(t3w.getProperty(CgmesNames.VOLTAGE)), tol);
+        assertEquals(-0.7578725292783544, Double.parseDouble(t3w.getProperty(CgmesNames.ANGLE)), tol);
     }
 }

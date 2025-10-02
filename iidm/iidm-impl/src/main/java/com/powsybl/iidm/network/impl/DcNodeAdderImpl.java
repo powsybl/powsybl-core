@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcNodeAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
+import java.util.Optional;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -37,10 +39,11 @@ public class DcNodeAdderImpl extends AbstractIdentifiableAdder<DcNodeAdderImpl> 
         String id = checkAndGetUniqueId();
         ValidationUtil.checkNominalV(this, nominalV);
 
-        DcNode dcNode = new DcNodeImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), nominalV);
+        DcNodeImpl dcNode = new DcNodeImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), nominalV);
         NetworkImpl network = networkRef.get();
         network.getIndex().checkAndAdd(dcNode);
         network.getListeners().notifyCreation(dcNode);
+        getParentNetwork().getDcTopologyModel().addDcNodeToTopology(dcNode);
         return dcNode;
     }
 
@@ -52,5 +55,9 @@ public class DcNodeAdderImpl extends AbstractIdentifiableAdder<DcNodeAdderImpl> 
     @Override
     protected String getTypeDescription() {
         return "DC Node";
+    }
+
+    private AbstractNetwork getParentNetwork() {
+        return Optional.ofNullable((AbstractNetwork) subnetworkRef.get()).orElse(getNetwork());
     }
 }

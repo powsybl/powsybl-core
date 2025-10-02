@@ -32,13 +32,18 @@ public final class TerminalConversion {
     public static void create(Network network, PropertyBag cgmesTerminal, Context context) {
         String cgmesTerminalId = cgmesTerminal.getId(CgmesNames.TERMINAL);
         boolean connected = cgmesTerminal.asBoolean(CgmesNames.CONNECTED, true);
-        if (createFictitiousSwitch(cgmesTerminalId, connected)) {
+        if (createFictitiousSwitch(network, cgmesTerminalId, connected)) {
             create(network, cgmesTerminalId, context);
         }
     }
 
-    private static boolean createFictitiousSwitch(String cgmesTerminalId, boolean connected) {
-        return cgmesTerminalId != null && !connected;
+    private static boolean createFictitiousSwitch(Network network, String cgmesTerminalId, boolean connected) {
+        if (cgmesTerminalId == null || connected) {
+            return false;
+        }
+        // Do not create a switch if the terminal is associated with a busbar section
+        Identifiable<?> identifiable = network.getIdentifiable(cgmesTerminalId);
+        return identifiable == null || identifiable.getType() != IdentifiableType.BUSBAR_SECTION;
     }
 
     private static void create(Network network, String cgmesTerminalId, Context context) {
@@ -148,7 +153,7 @@ public final class TerminalConversion {
         sw.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL, cgmesTerminalId);
     }
 
-    private static Terminal getTerminal(Connectable<?> connectable, String terminalId) {
+    static Terminal getTerminal(Connectable<?> connectable, String terminalId) {
         String aliasType = connectable.getAliasType(terminalId).orElse("");
         return switch (aliasType) {
             case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL,

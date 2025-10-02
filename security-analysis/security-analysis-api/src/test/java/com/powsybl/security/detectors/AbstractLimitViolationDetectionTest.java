@@ -332,7 +332,7 @@ public abstract class AbstractLimitViolationDetectionTest {
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(100, l.getLimit(), 0d);
+                    assertEquals(140, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
                     assertSame(ThreeSides.TWO, l.getSide());
                 });
@@ -362,7 +362,7 @@ public abstract class AbstractLimitViolationDetectionTest {
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(10, l.getLimit(), 0d);
+                    assertEquals(14, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
                     assertSame(ThreeSides.THREE, l.getSide());
                 });
@@ -420,11 +420,11 @@ public abstract class AbstractLimitViolationDetectionTest {
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(10, l.getLimit(), 0d);
+                    assertEquals(14, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(ThreeSides.THREE, l.getSide());
-                    assertEquals(2147483647, l.getAcceptableDuration());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(600, l.getAcceptableDuration());
+                    assertEquals("10'", l.getLimitName());
                 });
     }
 

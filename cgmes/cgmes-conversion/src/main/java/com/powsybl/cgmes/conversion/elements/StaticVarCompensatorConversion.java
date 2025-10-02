@@ -73,27 +73,28 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         updateTerminals(staticVarCompensator, context, staticVarCompensator.getTerminal());
 
         double defaultQ = cgmesData.asDouble("q");
-        boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED, false);
+        Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
         updateRegulatingControl(staticVarCompensator, defaultQ, controlEnabled, context);
     }
 
-    private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, double defaultQ, boolean controlEnabled, Context context) {
+    private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, double defaultQ, Boolean controlEnabled, Context context) {
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(staticVarCompensator, context);
 
         boolean defaultRegulatingOn = getDefaultRegulatingOn(staticVarCompensator, context);
+        boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
         if (staticVarCompensator.getRegulationMode() == StaticVarCompensator.RegulationMode.VOLTAGE) {
             double defaultTargetV = getDefaultTargetV(staticVarCompensator, context);
             double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
-            boolean regulating = controlEnabled && regulatingOn && isValidTargetV(targetV);
+            boolean regulating = updatedControlEnabled && regulatingOn && isValidTargetV(targetV);
 
             staticVarCompensator.setVoltageSetpoint(targetV).setRegulating(regulating);
         } else if (staticVarCompensator.getRegulationMode() == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
             double defaultTargetQ = getDefaultTargetQ(staticVarCompensator, defaultQ, context);
             int terminalSign = findTerminalSign(staticVarCompensator);
             double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
-            boolean regulating = controlEnabled && regulatingOn && isValidTargetQ(targetQ);
+            boolean regulating = updatedControlEnabled && regulatingOn && isValidTargetQ(targetQ);
 
             staticVarCompensator.setReactivePowerSetpoint(targetQ).setRegulating(regulating);
         }
