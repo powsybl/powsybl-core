@@ -38,13 +38,13 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
     }
 
     @Override
-    public TieLineAdderImpl setDanglingLine1(String dl1Id) {
+    public TieLineAdderImpl setBoundaryLine1(String dl1Id) {
         this.dl1Id = dl1Id;
         return this;
     }
 
     @Override
-    public TieLineAdderImpl setDanglingLine2(String dl2Id) {
+    public TieLineAdderImpl setBoundaryLine2(String dl2Id) {
         this.dl2Id = dl2Id;
         return this;
     }
@@ -55,16 +55,16 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
         if (dl1Id == null || dl2Id == null) {
             throw new ValidationException(this, "undefined dangling line");
         }
-        BoundaryLineImpl dl1 = network.getDanglingLine(dl1Id);
-        BoundaryLineImpl dl2 = network.getDanglingLine(dl2Id);
+        BoundaryLineImpl dl1 = network.getBoundaryLine(dl1Id);
+        BoundaryLineImpl dl2 = network.getBoundaryLine(dl2Id);
         if (dl1 == null || dl2 == null) {
             throw new ValidationException(this, dl1Id + " and/or " + dl2Id + " are not dangling lines in the network");
         }
         if (dl1 == dl2) {
-            throw new ValidationException(this, "danglingLine1 and danglingLine2 are identical (" + dl1.getId() + ")");
+            throw new ValidationException(this, "boundaryLine1 and boundaryLine2 are identical (" + dl1.getId() + ")");
         }
         if (dl1.getTieLine().isPresent() || dl2.getTieLine().isPresent()) {
-            throw new ValidationException(this, "danglingLine1 (" + dl1Id + ") and/or danglingLine2 (" + dl2Id + ") already has a tie line");
+            throw new ValidationException(this, "boundaryLine1 (" + dl1Id + ") and/or boundaryLine2 (" + dl2Id + ") already has a tie line");
         }
         if (dl1.getPairingKey() != null && dl2.getPairingKey() != null && !Objects.equals(dl1.getPairingKey(), dl2.getPairingKey())) {
             throw new ValidationException(this, "pairingKey is not consistent");
@@ -79,7 +79,7 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
         Ref<NetworkImpl> networkRef = computeNetworkRef(network, voltageLevel1, voltageLevel2);
         TieLineImpl line = new TieLineImpl(networkRef, id, getName(), isFictitious());
 
-        line.attachDanglingLines(dl1, dl2);
+        line.attachBoundaryLines(dl1, dl2);
 
         // invalidate components
         getNetwork().getConnectedComponentsManager().invalidate();

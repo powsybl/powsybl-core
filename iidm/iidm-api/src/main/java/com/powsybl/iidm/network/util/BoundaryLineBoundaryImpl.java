@@ -19,7 +19,7 @@ import static com.powsybl.iidm.network.util.BoundaryLineData.zeroImpedance;
 public class BoundaryLineBoundaryImpl implements Boundary {
     // Notes about SV utility class usage here:
     // - side represents the network side, which is always Side.ONE for a dangling line.
-    // - DanglingLine model has shunt admittance on network side only, hence splitShuntAdmittance argument in SV methods must be set to false.
+    // - BoundaryLine model has shunt admittance on network side only, hence splitShuntAdmittance argument in SV methods must be set to false.
 
     private final BoundaryLine parent;
 
@@ -101,7 +101,7 @@ public class BoundaryLineBoundaryImpl implements Boundary {
     }
 
     @Override
-    public BoundaryLine getDanglingLine() {
+    public BoundaryLine getBoundaryLine() {
         return parent;
     }
 

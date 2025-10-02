@@ -75,7 +75,7 @@ public abstract class AbstractDisconnection extends AbstractConnectDisconnectMod
         if (identifiable instanceof Connectable<?> connectable) {
             hasBeenDisconnected = connectable.disconnect(openableSwitches, side);
         } else if (identifiable instanceof TieLine tieLine) {
-            hasBeenDisconnected = tieLine.disconnectDanglingLines(openableSwitches, side == null ? null : side.toTwoSides());
+            hasBeenDisconnected = tieLine.disconnectBoundaryLines(openableSwitches, side == null ? null : side.toTwoSides());
         } else if (identifiable instanceof HvdcLine hvdcLine) {
             hasBeenDisconnected = hvdcLine.disconnectConverterStations(openableSwitches, side == null ? null : side.toTwoSides());
         } else {

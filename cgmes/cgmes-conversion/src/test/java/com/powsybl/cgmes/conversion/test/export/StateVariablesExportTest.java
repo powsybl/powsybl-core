@@ -701,7 +701,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         assertEquals(10, matcherCount(p.matcher(sv)));
         // 10 is the number of topological nodes in the island associated to buses and to dangling lines
         assertEquals(5, network.getBusBreakerView().getBusStream().count());
-        assertEquals(5, network.getDanglingLineStream().count());
+        assertEquals(5, network.getBoundaryLineStream().count());
     }
 
     record ExportedContent(String sv, String tp) {

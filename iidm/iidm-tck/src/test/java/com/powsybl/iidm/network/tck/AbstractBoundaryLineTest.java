@@ -66,7 +66,7 @@ public abstract class AbstractBoundaryLineTest {
         String name = "danlingName";
         String pairingKey = "code";
         String newPairingKey = "new_code";
-        voltageLevel.newDanglingLine()
+        voltageLevel.newBoundaryLine()
                         .setId(id)
                         .setName(name)
                         .setR(r)
@@ -79,9 +79,9 @@ public abstract class AbstractBoundaryLineTest {
                         .setBus(BUS_VL_ID)
                         .setConnectableBus(BUS_VL_ID)
                     .add();
-        BoundaryLine boundaryLine = network.getDanglingLine(id);
+        BoundaryLine boundaryLine = network.getBoundaryLine(id);
         // adder
-        assertEquals(IdentifiableType.DANGLING_LINE, boundaryLine.getType());
+        assertEquals(IdentifiableType.BOUNDARY_LINE, boundaryLine.getType());
         assertEquals(r, boundaryLine.getR(), 0.0);
         assertEquals(x, boundaryLine.getX(), 0.0);
         assertEquals(g, boundaryLine.getG(), 0.0);
@@ -137,8 +137,8 @@ public abstract class AbstractBoundaryLineTest {
     }
 
     @Test
-    public void testDefaultValuesDanglingLine() {
-        voltageLevel.newDanglingLine()
+    public void testDefaultValuesBoundaryLine() {
+        voltageLevel.newBoundaryLine()
                 .setId("danglingId")
                 .setName("DanglingName")
                 .setR(10.0)
@@ -149,72 +149,72 @@ public abstract class AbstractBoundaryLineTest {
                 .setBus(BUS_VL_ID)
                 .add();
 
-        BoundaryLine boundaryLine = network.getDanglingLine("danglingId");
+        BoundaryLine boundaryLine = network.getBoundaryLine("danglingId");
         assertEquals(0.0, boundaryLine.getG(), 0.0);
         assertEquals(0.0, boundaryLine.getB(), 0.0);
     }
 
     @Test
     public void testInvalidR() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, "code"));
+        ValidationException e = assertThrows(ValidationException.class, () -> createBoundaryLine(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, "code"));
         assertTrue(e.getMessage().contains("r is invalid"));
     }
 
     @Test
     public void testInvalidX() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, "code"));
+        ValidationException e = assertThrows(ValidationException.class, () -> createBoundaryLine(INVALID, INVALID, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, "code"));
         assertTrue(e.getMessage().contains("x is invalid"));
     }
 
     @Test
     public void testInvalidG() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, "code"));
+        ValidationException e = assertThrows(ValidationException.class, () -> createBoundaryLine(INVALID, INVALID, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, "code"));
         assertTrue(e.getMessage().contains("g is invalid"));
     }
 
     @Test
     public void testInvalidB() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, "code"));
+        ValidationException e = assertThrows(ValidationException.class, () -> createBoundaryLine(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, "code"));
         assertTrue(e.getMessage().contains("b is invalid"));
 
     }
 
     @Test
     public void testInvalidP0() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code"));
+        ValidationException e = assertThrows(ValidationException.class, () -> createBoundaryLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code"));
         assertTrue(e.getMessage().contains("p0 is invalid"));
     }
 
     @Test
     public void testInvalidQ0() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code"));
+        ValidationException e = assertThrows(ValidationException.class, () -> createBoundaryLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code"));
         assertTrue(e.getMessage().contains("q0 is invalid"));
     }
 
     @Test
-    public void duplicateDanglingLine() {
-        createDanglingLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
-        assertNotNull(network.getDanglingLine(DUPLICATE));
-        PowsyblException e = assertThrows(PowsyblException.class, () -> createDanglingLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code"));
+    public void duplicateBoundaryLine() {
+        createBoundaryLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        assertNotNull(network.getBoundaryLine(DUPLICATE));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createBoundaryLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code"));
     }
 
     @Test
     public void testRemove() {
-        createDanglingLine(TO_REMOVE, TO_REMOVE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
-        BoundaryLine boundaryLine = network.getDanglingLine(TO_REMOVE);
-        int count = network.getDanglingLineCount();
+        createBoundaryLine(TO_REMOVE, TO_REMOVE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        BoundaryLine boundaryLine = network.getBoundaryLine(TO_REMOVE);
+        int count = network.getBoundaryLineCount();
         assertNotNull(boundaryLine);
         boundaryLine.remove();
-        assertEquals(count - 1L, network.getDanglingLineCount());
-        assertNull(network.getDanglingLine(TO_REMOVE));
+        assertEquals(count - 1L, network.getBoundaryLineCount());
+        assertNull(network.getBoundaryLine(TO_REMOVE));
         assertNotNull(boundaryLine);
     }
 
     @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createDanglingLine(TEST_MULTI_VARIANT, TEST_MULTI_VARIANT, 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
-        BoundaryLine boundaryLine = network.getDanglingLine(TEST_MULTI_VARIANT);
+        createBoundaryLine(TEST_MULTI_VARIANT, TEST_MULTI_VARIANT, 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
+        BoundaryLine boundaryLine = network.getBoundaryLine(TEST_MULTI_VARIANT);
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
@@ -261,7 +261,7 @@ public abstract class AbstractBoundaryLineTest {
         String id = "danglingId";
         String name = "danlingName";
         String pairingKey = "code";
-        BoundaryLineAdder adder = voltageLevel.newDanglingLine()
+        BoundaryLineAdder adder = voltageLevel.newBoundaryLine()
                 .setId(id)
                 .setName(name)
                 .setR(r)
@@ -301,9 +301,9 @@ public abstract class AbstractBoundaryLineTest {
         assertNotSame(dl.getGeneration(), dl2.getGeneration());
     }
 
-    private void createDanglingLine(String id, String name, double r, double x, double g, double b,
+    private void createBoundaryLine(String id, String name, double r, double x, double g, double b,
                                     double p0, double q0, String ucteCode) {
-        voltageLevel.newDanglingLine()
+        voltageLevel.newBoundaryLine()
                         .setId(id)
                         .setName(name)
                         .setR(r)

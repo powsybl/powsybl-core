@@ -108,7 +108,7 @@ class EqualsActionTest {
                 .withRelativeValue(false)
                 .build();
         BoundaryLineAction action2 = new BoundaryLineActionBuilder().withId("id")
-                .withDanglingLineId("neId")
+                .withBoundaryLineId("neId")
                 .withActivePowerValue(100)
                 .withRelativeValue(false)
                 .build();

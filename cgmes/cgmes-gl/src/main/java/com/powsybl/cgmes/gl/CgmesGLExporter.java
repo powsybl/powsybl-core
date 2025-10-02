@@ -114,7 +114,7 @@ public class CgmesGLExporter {
         LOG.info("Exporting Lines Position");
         network.getLineStream().forEach(positionExporter::exportPosition);
         LOG.info("Exporting Dangling Lines Position");
-        network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED).forEach(positionExporter::exportPosition);
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).forEach(positionExporter::exportPosition);
     }
 
 }

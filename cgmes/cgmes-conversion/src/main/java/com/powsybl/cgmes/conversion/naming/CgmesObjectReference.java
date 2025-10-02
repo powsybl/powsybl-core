@@ -62,7 +62,7 @@ public interface CgmesObjectReference {
                 // There is no single suffix for LOAD identifiables,
                 // They can be mapped to ConformLoad, NonConformLoad, EnergyConsumer, ...
                 Map.entry(IdentifiableType.SHUNT_COMPENSATOR, "SC"),
-                Map.entry(IdentifiableType.DANGLING_LINE, "ACLS"),
+                Map.entry(IdentifiableType.BOUNDARY_LINE, "ACLS"),
                 Map.entry(IdentifiableType.STATIC_VAR_COMPENSATOR, "SVC"),
                 Map.entry(IdentifiableType.HVDC_CONVERTER_STATION, "DCCS")
         ));

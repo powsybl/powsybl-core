@@ -18,39 +18,39 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-import static com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapterTest.mockDanglingLine;
+import static com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapterTest.mockBoundaryLine;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class BoundaryLineCriterionTest {
-    private static NetworkElement danglingLine1;
-    private static NetworkElement danglingLine2;
-    private static NetworkElement danglingLine3;
-    private static NetworkElement danglingLine4;
+    private static NetworkElement boundaryLine1;
+    private static NetworkElement boundaryLine2;
+    private static NetworkElement boundaryLine3;
+    private static NetworkElement boundaryLine4;
 
     @BeforeAll
     public static void init() {
-        danglingLine1 = createDanglingLine("danglingLine1", Country.FR, 90);
-        danglingLine2 = createDanglingLine("danglingLine2", Country.FR, 400);
-        danglingLine3 = createDanglingLine("danglingLine3", Country.BE, 400);
-        danglingLine4 = createDanglingLine("danglingLine4", Country.BE, 90);
+        boundaryLine1 = createBoundaryLine("boundaryLine1", Country.FR, 90);
+        boundaryLine2 = createBoundaryLine("boundaryLine2", Country.FR, 400);
+        boundaryLine3 = createBoundaryLine("boundaryLine3", Country.BE, 400);
+        boundaryLine4 = createBoundaryLine("boundaryLine4", Country.BE, 90);
     }
 
     @Test
     void typeTest() {
-        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.DANGLING_LINE,
+        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.BOUNDARY_LINE,
                 new BoundaryLineCriterion(null, null).getNetworkElementCriterionType());
     }
 
     @Test
     void emptyCriterionTest() {
         BoundaryLineCriterion criterion = new BoundaryLineCriterion(null, null);
-        assertCriterionTrue(criterion, danglingLine1);
-        assertCriterionTrue(criterion, danglingLine2);
-        assertCriterionTrue(criterion, danglingLine3);
-        assertCriterionTrue(criterion, danglingLine4);
+        assertCriterionTrue(criterion, boundaryLine1);
+        assertCriterionTrue(criterion, boundaryLine2);
+        assertCriterionTrue(criterion, boundaryLine3);
+        assertCriterionTrue(criterion, boundaryLine4);
 
         NetworkElement anotherTypeElement = Mockito.mock(NetworkElement.class);
         assertFalse(criterion.accept(new NetworkElementVisitor(anotherTypeElement)));
@@ -60,25 +60,25 @@ public class BoundaryLineCriterionTest {
     void nominalVoltageTest() {
         BoundaryLineCriterion criterion = new BoundaryLineCriterion(null, new SingleNominalVoltageCriterion(
                 VoltageInterval.between(40., 100., true, true)));
-        assertCriterionTrue(criterion, danglingLine1);
-        assertCriterionFalse(criterion, danglingLine2);
-        assertCriterionFalse(criterion, danglingLine3);
-        assertCriterionTrue(criterion, danglingLine4);
+        assertCriterionTrue(criterion, boundaryLine1);
+        assertCriterionFalse(criterion, boundaryLine2);
+        assertCriterionFalse(criterion, boundaryLine3);
+        assertCriterionTrue(criterion, boundaryLine4);
     }
 
     @Test
     void countryTest() {
         BoundaryLineCriterion criterion = new BoundaryLineCriterion(new SingleCountryCriterion(List.of(Country.BE)), null);
-        assertCriterionFalse(criterion, danglingLine1);
-        assertCriterionFalse(criterion, danglingLine2);
-        assertCriterionTrue(criterion, danglingLine3);
-        assertCriterionTrue(criterion, danglingLine4);
+        assertCriterionFalse(criterion, boundaryLine1);
+        assertCriterionFalse(criterion, boundaryLine2);
+        assertCriterionTrue(criterion, boundaryLine3);
+        assertCriterionTrue(criterion, boundaryLine4);
 
         criterion = new BoundaryLineCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
-        assertCriterionTrue(criterion, danglingLine1);
-        assertCriterionTrue(criterion, danglingLine2);
-        assertCriterionTrue(criterion, danglingLine3);
-        assertCriterionTrue(criterion, danglingLine4);
+        assertCriterionTrue(criterion, boundaryLine1);
+        assertCriterionTrue(criterion, boundaryLine2);
+        assertCriterionTrue(criterion, boundaryLine3);
+        assertCriterionTrue(criterion, boundaryLine4);
     }
 
     @Test
@@ -86,24 +86,24 @@ public class BoundaryLineCriterionTest {
         BoundaryLineCriterion criterion = new BoundaryLineCriterion(new SingleCountryCriterion(List.of(Country.FR)),
                 new SingleNominalVoltageCriterion(
                         VoltageInterval.between(350., 450., true, true)));
-        assertCriterionFalse(criterion, danglingLine1);
-        assertCriterionTrue(criterion, danglingLine2);
-        assertCriterionFalse(criterion, danglingLine3);
-        assertCriterionFalse(criterion, danglingLine4);
+        assertCriterionFalse(criterion, boundaryLine1);
+        assertCriterionTrue(criterion, boundaryLine2);
+        assertCriterionFalse(criterion, boundaryLine3);
+        assertCriterionFalse(criterion, boundaryLine4);
     }
 
-    private void assertCriterionTrue(BoundaryLineCriterion criterion, NetworkElement danglingLine) {
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine, ThreeSides.ONE)));
+    private void assertCriterionTrue(BoundaryLineCriterion criterion, NetworkElement boundaryLine) {
+        assertTrue(criterion.accept(new NetworkElementVisitor(boundaryLine)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(boundaryLine, ThreeSides.ONE)));
     }
 
-    private void assertCriterionFalse(BoundaryLineCriterion criterion, NetworkElement danglingLine) {
-        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine, ThreeSides.ONE)));
+    private void assertCriterionFalse(BoundaryLineCriterion criterion, NetworkElement boundaryLine) {
+        assertFalse(criterion.accept(new NetworkElementVisitor(boundaryLine)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(boundaryLine, ThreeSides.ONE)));
     }
 
-    protected static NetworkElement createDanglingLine(String id, Country country, double nominalVoltage) {
-        BoundaryLine boundaryLine = mockDanglingLine(id, country, nominalVoltage);
+    protected static NetworkElement createBoundaryLine(String id, Country country, double nominalVoltage) {
+        BoundaryLine boundaryLine = mockBoundaryLine(id, country, nominalVoltage);
         return new DefaultNetworkElementAdapter(boundaryLine);
     }
 }

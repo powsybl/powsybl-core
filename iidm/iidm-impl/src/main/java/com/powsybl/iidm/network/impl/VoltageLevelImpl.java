@@ -385,22 +385,22 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
     }
 
     @Override
-    public BoundaryLineAdder newDanglingLine() {
+    public BoundaryLineAdder newBoundaryLine() {
         return new BoundaryLineAdderImpl(this);
     }
 
     @Override
-    public Iterable<BoundaryLine> getDanglingLines(BoundaryLineFilter boundaryLineFilter) {
-        return getDanglingLineStream(boundaryLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<BoundaryLine> getDanglingLineStream(BoundaryLineFilter boundaryLineFilter) {
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
         return getConnectableStream(BoundaryLine.class).filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
-    public int getDanglingLineCount() {
+    public int getBoundaryLineCount() {
         return getConnectableCount(BoundaryLine.class);
     }
 

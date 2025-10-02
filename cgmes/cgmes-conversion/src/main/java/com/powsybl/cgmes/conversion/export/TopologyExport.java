@@ -104,7 +104,7 @@ public final class TopologyExport {
 
     private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.ALL)) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             writeBoundaryTerminal(dl, exported, cimNamespace, writer, context);
         }
     }
@@ -283,11 +283,11 @@ public final class TopologyExport {
         writeBusTopologicalNodes(network, cimNamespace, writer, context);
         writeDcTopologicalNodes(network, cimNamespace, writer, context);
         // We create topological nodes for boundary side of dangling lines that are not mapped to an external boundary node
-        writeDanglingLineTopologicalNodes(network, cimNamespace, writer, context);
+        writeBoundaryLineTopologicalNodes(network, cimNamespace, writer, context);
     }
 
-    private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.ALL)) {
+    private static void writeBoundaryLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNodeId == null) {
                 // If no information about original boundary has been preserved in the IIDM model,

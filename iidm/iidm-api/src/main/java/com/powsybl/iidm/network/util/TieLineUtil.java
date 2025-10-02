@@ -168,7 +168,7 @@ public final class TieLineUtil {
      * @param logPairingKey a Predicate indicating if we want to log a warning when several dangling lines are found for the same pairing key.
      * @return The list of the dangling lines which are candidate to become tie lines (one or zero by pairing key)
      */
-    public static List<BoundaryLine> findCandidateDanglingLines(Network network, Predicate<String> logPairingKey) {
+    public static List<BoundaryLine> findCandidateBoundaryLines(Network network, Predicate<String> logPairingKey) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(logPairingKey);
 
@@ -177,7 +177,7 @@ public final class TieLineUtil {
         Map<String, List<BoundaryLine>> connectedByPairingKey = new HashMap<>();
         Map<String, List<BoundaryLine>> disconnectedByPairingKey = new HashMap<>();
 
-        network.getDanglingLines(BoundaryLineFilter.UNPAIRED).forEach(dl -> {
+        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(dl -> {
             String pairingKey = dl.getPairingKey();
             Map<String, List<BoundaryLine>> mapToUpdate = dl.getTerminal().isConnected() ? connectedByPairingKey : disconnectedByPairingKey;
             mapToUpdate.computeIfAbsent(pairingKey, k -> new ArrayList<>()).add(dl);
@@ -221,41 +221,41 @@ public final class TieLineUtil {
      * - they have the same non-null pairing key and are the only connected dangling lines to have this pairing key in their respective networks
      *
      * @param candidateBoundaryLine candidate dangling line in the network to be merged
-     * @param getDanglingLinesByPairingKey function to retrieve dangling lines with a given pairing key in the merging network.
-     * @param associateDanglingLines function associating two dangling lines
+     * @param getBoundaryLinesByPairingKey function to retrieve dangling lines with a given pairing key in the merging network.
+     * @param associateBoundaryLines function associating two dangling lines
      */
-    public static void findAndAssociateDanglingLines(BoundaryLine candidateBoundaryLine, Function<String, List<BoundaryLine>> getDanglingLinesByPairingKey,
-                                                     BiConsumer<BoundaryLine, BoundaryLine> associateDanglingLines) {
-        //TODO This method is quite complicated. It would be better to call `findCandidateDanglingLines` on both networks to merge
+    public static void findAndAssociateBoundaryLines(BoundaryLine candidateBoundaryLine, Function<String, List<BoundaryLine>> getBoundaryLinesByPairingKey,
+                                                     BiConsumer<BoundaryLine, BoundaryLine> associateBoundaryLines) {
+        //TODO This method is quite complicated. It would be better to call `findCandidateBoundaryLines` on both networks to merge
         // and to only process the retrieved candidate lists together.
         Objects.requireNonNull(candidateBoundaryLine);
-        Objects.requireNonNull(getDanglingLinesByPairingKey);
-        Objects.requireNonNull(associateDanglingLines);
+        Objects.requireNonNull(getBoundaryLinesByPairingKey);
+        Objects.requireNonNull(associateBoundaryLines);
         // mapping by pairing key
         if (candidateBoundaryLine.getPairingKey() != null) { // if pairing key null: no associated dangling line
-            // If we call this method on the results of "findCandidateDanglingLines", the following test is useless
-            if (candidateBoundaryLine.getNetwork().getDanglingLineStream(BoundaryLineFilter.UNPAIRED)
+            // If we call this method on the results of "findCandidateBoundaryLines", the following test is useless
+            if (candidateBoundaryLine.getNetwork().getBoundaryLineStream(BoundaryLineFilter.UNPAIRED)
                     .filter(d -> d != candidateBoundaryLine)
                     .filter(d -> candidateBoundaryLine.getPairingKey().equals(d.getPairingKey()))
                     .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same pairing key in the network to be merged
                 return;                                         // in that case, do nothing
             }
-            List<BoundaryLine> dls = getDanglingLinesByPairingKey.apply(candidateBoundaryLine.getPairingKey());
+            List<BoundaryLine> dls = getBoundaryLinesByPairingKey.apply(candidateBoundaryLine.getPairingKey());
             if (dls != null) {
                 if (dls.size() == 1) { // if there is exactly one dangling line in the merging network, merge it
-                    associateDanglingLines.accept(dls.get(0), candidateBoundaryLine);
+                    associateBoundaryLines.accept(dls.get(0), candidateBoundaryLine);
                 }
                 if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
-                    associateConnectedDanglingLine(candidateBoundaryLine, dls, associateDanglingLines);
+                    associateConnectedBoundaryLine(candidateBoundaryLine, dls, associateBoundaryLines);
                 }
             }
         }
 
     }
 
-    private static void associateConnectedDanglingLine(BoundaryLine candidateBoundaryLine, List<BoundaryLine> dls,
-                                                       BiConsumer<BoundaryLine, BoundaryLine> associateDanglingLines) {
-        // Connected DanglingLines
+    private static void associateConnectedBoundaryLine(BoundaryLine candidateBoundaryLine, List<BoundaryLine> dls,
+                                                       BiConsumer<BoundaryLine, BoundaryLine> associateBoundaryLines) {
+        // Connected BoundaryLines
         List<BoundaryLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).toList();
 
         // If there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
@@ -264,7 +264,7 @@ public final class TieLineUtil {
                     "Tie line automatically created using the only connected one '{}'.",
                 dls.stream().map(BoundaryLine::getId).toList(), connectedDls.get(0).getPairingKey(),
                 connectedDls.get(0).getId());
-            associateDanglingLines.accept(connectedDls.get(0), candidateBoundaryLine);
+            associateBoundaryLines.accept(connectedDls.get(0), candidateBoundaryLine);
         } else {
             String status = connectedDls.size() > 1 ? "connected" : "disconnected";
             LOGGER.warn("Several {} dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
@@ -370,8 +370,8 @@ public final class TieLineUtil {
      * @param boundaryLine a dangling line
      * @return an Optional containing the dangling line paired to the given one
      */
-    public static Optional<BoundaryLine> getPairedDanglingLine(BoundaryLine boundaryLine) {
+    public static Optional<BoundaryLine> getPairedBoundaryLine(BoundaryLine boundaryLine) {
         return boundaryLine.getTieLine().map(t ->
-                t.getDanglingLine1() == boundaryLine ? t.getDanglingLine2() : t.getDanglingLine1());
+                t.getBoundaryLine1() == boundaryLine ? t.getBoundaryLine2() : t.getBoundaryLine1());
     }
 }

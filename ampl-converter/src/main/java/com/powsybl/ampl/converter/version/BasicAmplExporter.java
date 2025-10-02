@@ -436,7 +436,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     public void writeCurrentLimits(TableFormatter formatter) throws IOException {
         writeBranchCurrentLimits(formatter);
         writeThreeWindingsTransformerCurrentLimits(formatter);
-        writeDanglingLineCurrentLimits(formatter);
+        writeBoundaryLineCurrentLimits(formatter);
     }
 
     @Override
@@ -579,8 +579,8 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         }
     }
 
-    private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
-        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.UNPAIRED)) {
+    private void writeBoundaryLineCurrentLimits(TableFormatter formatter) throws IOException {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             String branchId = dl.getId();
             Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
             if (currentLimits.isPresent()) {
@@ -704,12 +704,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineMiddleBusesToFormatter(TableFormatter formatter, BoundaryLine dl,
+    public void writeBoundaryLineMiddleBusesToFormatter(TableFormatter formatter, BoundaryLine dl,
                                                         int middleCcNum) throws IOException {
         Terminal t = dl.getTerminal();
         Bus b = AmplUtil.getBus(dl.getTerminal());
-        String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
-        String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
+        String middleBusId = AmplUtil.getBoundaryLineMiddleBusId(dl);
+        String middleVlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
         int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
         int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
         SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN,
@@ -733,13 +733,13 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell(middleBusId);
 
         // Add cells if necessary
-        addAdditionalCellsDanglingLineMiddleBuses(formatterHelper, dl, middleCcNum);
+        addAdditionalCellsBoundaryLineMiddleBuses(formatterHelper, dl, middleCcNum);
 
         // Write the cells
         formatterHelper.write();
     }
 
-    public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, BoundaryLine dl,
+    public void addAdditionalCellsBoundaryLineMiddleBuses(TableFormatterHelper formatterHelper, BoundaryLine dl,
                                                           int middleCcNum) {
         // Nothing to do here
     }
@@ -849,8 +849,8 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
     @Override
     public void writeTieLineToFormatter(TableFormatter formatter, TieLine l) throws IOException {
-        Terminal t1 = l.getDanglingLine1().getTerminal();
-        Terminal t2 = l.getDanglingLine2().getTerminal();
+        Terminal t1 = l.getBoundaryLine1().getTerminal();
+        Terminal t2 = l.getBoundaryLine2().getTerminal();
         Bus bus1 = AmplUtil.getBus(t1);
         Bus bus2 = AmplUtil.getBus(t2);
         int bus1Num = getBusNum(bus1);
@@ -867,8 +867,8 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
         boolean merged = !config.isExportXNodes();
         if (config.isExportXNodes()) {
-            String dl1Id = l.getDanglingLine1().getId();
-            String dl2Id = l.getDanglingLine2().getId();
+            String dl1Id = l.getBoundaryLine1().getId();
+            String dl2Id = l.getBoundaryLine2().getId();
             int dl1Num = mapper.getInt(AmplSubset.BRANCH, dl1Id);
             int dl2Num = mapper.getInt(AmplSubset.BRANCH, dl2Id);
             String xNodeBusId = AmplUtil.getXnodeBusId(l);
@@ -883,26 +883,26 @@ public class BasicAmplExporter implements AmplColumnsExporter {
                 .writeCell(-1)
                 .writeCell(vl1Num)
                 .writeCell(xNodeVoltageLevelNum)
-                .writeCell(l.getDanglingLine1().getR() / zb)
-                .writeCell(l.getDanglingLine1().getX() / zb)
-                .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                .writeCell(l.getDanglingLine1().getB() * zb / 2)
-                .writeCell(l.getDanglingLine1().getB() * zb / 2)
+                .writeCell(l.getBoundaryLine1().getR() / zb)
+                .writeCell(l.getBoundaryLine1().getX() / zb)
+                .writeCell(l.getBoundaryLine1().getG() * zb / 2)
+                .writeCell(l.getBoundaryLine1().getG() * zb / 2)
+                .writeCell(l.getBoundaryLine1().getB() * zb / 2)
+                .writeCell(l.getBoundaryLine1().getB() * zb / 2)
                 .writeCell(1f) // constant ratio
                 .writeCell(-1) // no ratio tap changer
                 .writeCell(-1) // no phase tap changer
                 .writeCell(t1.getP())
-                .writeCell(l.getDanglingLine1().getBoundary().getP()) // xnode node flow side 1
+                .writeCell(l.getBoundaryLine1().getBoundary().getP()) // xnode node flow side 1
                 .writeCell(t1.getQ())
-                .writeCell(l.getDanglingLine1().getBoundary().getQ()) // xnode node flow side 1
-                .writeCell(getPermanentLimit(l.getDanglingLine1().getCurrentLimits().orElse(null)))
+                .writeCell(l.getBoundaryLine1().getBoundary().getQ()) // xnode node flow side 1
+                .writeCell(getPermanentLimit(l.getBoundaryLine1().getCurrentLimits().orElse(null)))
                 .writeCell(Float.NaN)
                 .writeCell(merged)
                 .writeCell(faultNum)
                 .writeCell(actionNum)
                 .writeCell(dl1Id)
-                .writeCell(l.getDanglingLine1().getNameOrId());
+                .writeCell(l.getBoundaryLine1().getNameOrId());
             formatter.writeCell(variantIndex)
                 .writeCell(dl2Num)
                 .writeCell(xNodeBusNum)
@@ -910,26 +910,26 @@ public class BasicAmplExporter implements AmplColumnsExporter {
                 .writeCell(-1)
                 .writeCell(xNodeVoltageLevelNum)
                 .writeCell(vl2Num)
-                .writeCell(l.getDanglingLine2().getR() / zb)
-                .writeCell(l.getDanglingLine2().getX() / zb)
-                .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                .writeCell(l.getDanglingLine1().getB() * zb / 2)
-                .writeCell(l.getDanglingLine1().getB() * zb / 2)
+                .writeCell(l.getBoundaryLine2().getR() / zb)
+                .writeCell(l.getBoundaryLine2().getX() / zb)
+                .writeCell(l.getBoundaryLine1().getG() * zb / 2)
+                .writeCell(l.getBoundaryLine1().getG() * zb / 2)
+                .writeCell(l.getBoundaryLine1().getB() * zb / 2)
+                .writeCell(l.getBoundaryLine1().getB() * zb / 2)
                 .writeCell(1f) // constant ratio
                 .writeCell(-1) // no ratio tap changer
                 .writeCell(-1) // no phase tap changer
-                .writeCell(l.getDanglingLine2().getBoundary().getP()) // xnode node flow side 2
+                .writeCell(l.getBoundaryLine2().getBoundary().getP()) // xnode node flow side 2
                 .writeCell(t2.getP())
-                .writeCell(l.getDanglingLine2().getBoundary().getQ()) // xnode node flow side 2
+                .writeCell(l.getBoundaryLine2().getBoundary().getQ()) // xnode node flow side 2
                 .writeCell(t2.getQ())
                 .writeCell(Float.NaN)
-                .writeCell(getPermanentLimit(l.getDanglingLine2().getCurrentLimits().orElse(null)))
+                .writeCell(getPermanentLimit(l.getBoundaryLine2().getCurrentLimits().orElse(null)))
                 .writeCell(merged)
                 .writeCell(faultNum)
                 .writeCell(actionNum)
                 .writeCell(dl2Id)
-                .writeCell(l.getDanglingLine2().getNameOrId());
+                .writeCell(l.getBoundaryLine2().getNameOrId());
         } else {
             formatter.writeCell(variantIndex)
                 .writeCell(num)
@@ -951,8 +951,8 @@ public class BasicAmplExporter implements AmplColumnsExporter {
                 .writeCell(t2.getP())
                 .writeCell(t1.getQ())
                 .writeCell(t2.getQ())
-                .writeCell(getPermanentLimit(l.getDanglingLine1().getCurrentLimits().orElse(null)))
-                .writeCell(getPermanentLimit(l.getDanglingLine2().getCurrentLimits().orElse(null)))
+                .writeCell(getPermanentLimit(l.getBoundaryLine1().getCurrentLimits().orElse(null)))
+                .writeCell(getPermanentLimit(l.getBoundaryLine2().getCurrentLimits().orElse(null)))
                 .writeCell(merged)
                 .writeCell(faultNum)
                 .writeCell(actionNum)
@@ -962,14 +962,14 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
+    public void writeBoundaryLineToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
         String id = dl.getId();
         Terminal t = dl.getTerminal();
         VoltageLevel vl = t.getVoltageLevel();
         Bus bus = AmplUtil.getBus(t);
         int busNum = getBusNum(bus);
-        String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
-        String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
+        String middleBusId = AmplUtil.getBoundaryLineMiddleBusId(dl);
+        String middleVlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
         int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
         int num = mapper.getInt(AmplSubset.BRANCH, id);
         int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
@@ -1151,7 +1151,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .writeCell(num)
             .writeCell("")
             .writeCell(0)
-            .writeCell(tieLine.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV())
+            .writeCell(tieLine.getBoundaryLine1().getTerminal().getVoltageLevel().getNominalV())
             .writeCell(Float.NaN)
             .writeCell(Float.NaN)
             .writeCell(faultNum)
@@ -1182,12 +1182,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineLoadToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
-        String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
+    public void writeBoundaryLineLoadToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
+        String middleBusId = AmplUtil.getBoundaryLineMiddleBusId(dl);
         String id = dl.getId();
         int num = mapper.getInt(AmplSubset.LOAD, id);
         int busNum = mapper.getInt(AmplSubset.BUS, middleBusId);
-        String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
+        String middleVlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
         int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
         formatter.writeCell(variantIndex)
             .writeCell(num)
@@ -1404,9 +1404,9 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineVoltageLevelToFormatter(TableFormatter formatter,
+    public void writeBoundaryLineVoltageLevelToFormatter(TableFormatter formatter,
                                                          BoundaryLine dl) throws IOException {
-        String vlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
+        String vlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
         int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
         VoltageLevel vl = dl.getTerminal().getVoltageLevel();
         double nomV = vl.getNominalV();
@@ -1428,13 +1428,13 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell("");
 
         // Add cells if necessary
-        addAdditionalCellsDanglingLineVoltageLevel(formatterHelper, dl);
+        addAdditionalCellsBoundaryLineVoltageLevel(formatterHelper, dl);
 
         // Write the cells
         formatterHelper.write();
     }
 
-    public void addAdditionalCellsDanglingLineVoltageLevel(TableFormatterHelper formatterHelper,
+    public void addAdditionalCellsBoundaryLineVoltageLevel(TableFormatterHelper formatterHelper,
                                                            BoundaryLine dl) {
         // Nothing to do here
     }

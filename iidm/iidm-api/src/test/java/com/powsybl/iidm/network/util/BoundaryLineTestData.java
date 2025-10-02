@@ -52,7 +52,7 @@ class BoundaryLineTestData {
         Mockito.when(busBreakerView.getBus()).thenReturn(bus);
 
         boundaryLine = Mockito.mock(BoundaryLine.class);
-        Mockito.when(boundaryLine.getId()).thenReturn("DanglingLineTest");
+        Mockito.when(boundaryLine.getId()).thenReturn("BoundaryLineTest");
         terminal = Mockito.mock(Terminal.class);
         Mockito.when(boundaryLine.getTerminal()).thenReturn(terminal);
         Mockito.when(terminal.isConnected()).thenReturn(true);
@@ -67,7 +67,7 @@ class BoundaryLineTestData {
         Mockito.when(boundaryLine.getQ0()).thenReturn(Q0);
     }
 
-    BoundaryLine getDanglingLine() {
+    BoundaryLine getBoundaryLine() {
         return boundaryLine;
     }
 

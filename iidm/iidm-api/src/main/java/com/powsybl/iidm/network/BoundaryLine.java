@@ -17,7 +17,7 @@ import java.util.Optional;
  * <p>A dangling line is a component that aggregates a line chunk and a constant
  * power injection (fixed p0, q0).
  * <div>
- *    <object data="doc-files/danglingLine.svg" type="image/svg+xml"></object>
+ *    <object data="doc-files/boundaryLine.svg" type="image/svg+xml"></object>
  * </div>
  *
  * <p>
@@ -294,7 +294,7 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
 
     @Override
     default IdentifiableType getType() {
-        return IdentifiableType.DANGLING_LINE;
+        return IdentifiableType.BOUNDARY_LINE;
     }
 
     default void applySolvedValues() {

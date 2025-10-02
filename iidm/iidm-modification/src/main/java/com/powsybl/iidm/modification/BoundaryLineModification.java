@@ -24,38 +24,38 @@ import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
  */
 public class BoundaryLineModification extends AbstractLoadModification {
 
-    private final String danglingLineId;
+    private final String boundaryLineId;
 
     /**
-     * @param danglingLineId    the id of the dangling line on which the action would be applied.
+     * @param boundaryLineId    the id of the dangling line on which the action would be applied.
      * @param relativeValue True if the dangling line P0 and/or Q0 variation is relative, False if absolute.
      * @param p0                The new dangling line P0 (MW) if relativeValue equals False, otherwise the relative variation of dangling line P0 (MW).
      * @param q0                The new dangling line Q0 (MVar) if relativeValue equals False, otherwise the relative variation of dangling line Q0 (MVar).
      */
-    public BoundaryLineModification(String danglingLineId, boolean relativeValue, Double p0, Double q0) {
+    public BoundaryLineModification(String boundaryLineId, boolean relativeValue, Double p0, Double q0) {
         super(p0, q0, relativeValue);
-        this.danglingLineId = Objects.requireNonNull(danglingLineId);
+        this.boundaryLineId = Objects.requireNonNull(boundaryLineId);
     }
 
-    public BoundaryLineModification(String danglingLineId, Double targetP0, Double targetQ0) {
-        this(danglingLineId, false, targetP0, targetQ0);
+    public BoundaryLineModification(String boundaryLineId, Double targetP0, Double targetQ0) {
+        this(boundaryLineId, false, targetP0, targetQ0);
     }
 
     @Override
     public String getName() {
-        return "DanglingLineModification";
+        return "BoundaryLineModification";
     }
 
-    public String getDanglingLineId() {
-        return danglingLineId;
+    public String getBoundaryLineId() {
+        return boundaryLineId;
     }
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       ReportNode reportNode) {
-        BoundaryLine boundaryLine = network.getDanglingLine(getDanglingLineId());
+        BoundaryLine boundaryLine = network.getBoundaryLine(getBoundaryLineId());
         if (boundaryLine == null) {
-            logOrThrow(throwException, "DanglingLine '" + getDanglingLineId() + "' not found");
+            logOrThrow(throwException, "BoundaryLine '" + getBoundaryLineId() + "' not found");
             return;
         }
         getP0().ifPresent(value -> boundaryLine.setP0((isRelativeValue() ? boundaryLine.getP0() : 0) + value));
@@ -65,7 +65,7 @@ public class BoundaryLineModification extends AbstractLoadModification {
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
         impact = DEFAULT_IMPACT;
-        BoundaryLine boundaryLine = network.getDanglingLine(getDanglingLineId());
+        BoundaryLine boundaryLine = network.getBoundaryLine(getBoundaryLineId());
         if (boundaryLine == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else if (areValuesEqual(p0, boundaryLine.getP0(), isRelativeValue()) && areValuesEqual(q0, boundaryLine.getQ0(), isRelativeValue())) {

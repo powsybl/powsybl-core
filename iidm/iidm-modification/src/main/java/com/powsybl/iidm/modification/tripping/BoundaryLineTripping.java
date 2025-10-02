@@ -22,12 +22,12 @@ public class BoundaryLineTripping extends AbstractInjectionTripping {
 
     @Override
     public String getName() {
-        return "DanglingLineTripping";
+        return "BoundaryLineTripping";
     }
 
     @Override
     protected BoundaryLine getInjection(Network network) {
-        BoundaryLine injection = network.getDanglingLine(id);
+        BoundaryLine injection = network.getBoundaryLine(id);
         if (injection == null) {
             throw new PowsyblException("Dangling line '" + id + "' not found");
         }

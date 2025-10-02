@@ -23,24 +23,24 @@ import java.util.Objects;
  */
 public class BoundaryLineAction extends AbstractLoadAction {
 
-    public static final String NAME = "DANGLING_LINE";
+    public static final String NAME = "BOUNDARY_LINE";
 
-    private final String danglingLineId;
+    private final String boundaryLineId;
 
     /**
      * @param id                 the id of the action.
-     * @param danglingLineId     the id of the dangling line on which the action would be applied.
+     * @param boundaryLineId     the id of the dangling line on which the action would be applied.
      * @param relativeValue      True if the dangling line P0 and/or Q0 variation is relative, False if absolute.
      * @param activePowerValue   The new dangling line P0 (MW) if relativeValue equals False, otherwise the relative variation of dangling line P0 (MW).
      * @param reactivePowerValue The new dangling line Q0 (MVar) if relativeValue equals False, otherwise the relative variation of dangling line Q0 (MVar).
      */
-    BoundaryLineAction(String id, String danglingLineId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
+    BoundaryLineAction(String id, String boundaryLineId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
         super(id, relativeValue, activePowerValue, reactivePowerValue);
-        this.danglingLineId = Objects.requireNonNull(danglingLineId);
+        this.boundaryLineId = Objects.requireNonNull(boundaryLineId);
     }
 
-    public String getDanglingLineId() {
-        return danglingLineId;
+    public String getBoundaryLineId() {
+        return boundaryLineId;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class BoundaryLineAction extends AbstractLoadAction {
     @Override
     public NetworkModification toModification() {
         return new BoundaryLineModification(
-                getDanglingLineId(),
+                getBoundaryLineId(),
                 isRelativeValue(),
                 getActivePowerValue().stream().boxed().findFirst().orElse(null),
                 getReactivePowerValue().stream().boxed().findFirst().orElse(null)
@@ -70,11 +70,11 @@ public class BoundaryLineAction extends AbstractLoadAction {
             return false;
         }
         BoundaryLineAction that = (BoundaryLineAction) o;
-        return Objects.equals(danglingLineId, that.danglingLineId);
+        return Objects.equals(boundaryLineId, that.boundaryLineId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), danglingLineId);
+        return Objects.hash(super.hashCode(), boundaryLineId);
     }
 }

@@ -51,8 +51,8 @@ class SVTest {
     }
 
     @Test
-    void testDanglingLine() {
-        BoundaryLine dl = new BoundaryLineTestData().getDanglingLine();
+    void testBoundaryLine() {
+        BoundaryLine dl = new BoundaryLineTestData().getBoundaryLine();
 
         double tol = 0.0001;
         double p1 = 126.818177;
@@ -277,7 +277,7 @@ class SVTest {
             Mockito.when(vl.getNominalV()).thenReturn(VN);
         }
 
-        private BoundaryLine getDanglingLine() {
+        private BoundaryLine getBoundaryLine() {
             return danglinLine;
         }
     }

@@ -24,13 +24,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class BoundaryLineContingencyTest {
     @Test
     void test() {
-        Contingency contingency = Contingency.danglingLine("id");
+        Contingency contingency = Contingency.boundaryLine("id");
         assertEquals("id", contingency.getId());
         assertEquals(1, contingency.getElements().size());
 
         BoundaryLineContingency dlContingency = new BoundaryLineContingency("id");
         assertEquals("id", dlContingency.getId());
-        assertEquals(ContingencyElementType.DANGLING_LINE, dlContingency.getType());
+        assertEquals(ContingencyElementType.BOUNDARY_LINE, dlContingency.getType());
 
         assertNotNull(dlContingency.toModification());
         assertInstanceOf(BoundaryLineTripping.class, dlContingency.toModification());
@@ -44,7 +44,7 @@ class BoundaryLineContingencyTest {
     @Test
     void test2() {
         Network network = BoundaryLineNetworkFactory.create();
-        ContingencyList contingencyList = ContingencyList.of(Contingency.danglingLine("DL"), Contingency.danglingLine("unknown"));
+        ContingencyList contingencyList = ContingencyList.of(Contingency.boundaryLine("DL"), Contingency.boundaryLine("unknown"));
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
 

@@ -33,7 +33,7 @@ public abstract class AbstractComponentCalculationBugWhenMergingTest {
         vl1.getBusBreakerView().newBus()
                 .setId("b1")
                 .add();
-        vl1.newDanglingLine()
+        vl1.newBoundaryLine()
                 .setId("dl1")
                 .setConnectableBus("b1")
                 .setBus("b1")
@@ -58,7 +58,7 @@ public abstract class AbstractComponentCalculationBugWhenMergingTest {
         vl2.getBusBreakerView().newBus()
                 .setId("b2")
                 .add();
-        vl2.newDanglingLine()
+        vl2.newBoundaryLine()
                 .setId("dl2")
                 .setConnectableBus("b2")
                 .setBus("b2")

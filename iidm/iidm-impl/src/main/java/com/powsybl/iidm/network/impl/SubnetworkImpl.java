@@ -478,33 +478,33 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public Iterable<BoundaryLine> getDanglingLines(BoundaryLineFilter boundaryLineFilter) {
-        return getDanglingLineStream(boundaryLineFilter).toList();
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).toList();
     }
 
     @Override
-    public Stream<BoundaryLine> getDanglingLineStream(BoundaryLineFilter boundaryLineFilter) {
-        return getNetwork().getDanglingLineStream().filter(this::contains).filter(boundaryLineFilter.getPredicate());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getNetwork().getBoundaryLineStream().filter(this::contains).filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
-    public Iterable<BoundaryLine> getDanglingLines() {
-        return getDanglingLines(BoundaryLineFilter.ALL);
+    public Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     @Override
-    public Stream<BoundaryLine> getDanglingLineStream() {
-        return getDanglingLineStream(BoundaryLineFilter.ALL);
+    public Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     @Override
-    public int getDanglingLineCount() {
-        return (int) getDanglingLineStream().count();
+    public int getBoundaryLineCount() {
+        return (int) getBoundaryLineStream().count();
     }
 
     @Override
-    public BoundaryLine getDanglingLine(String id) {
-        BoundaryLine dl = getNetwork().getDanglingLine(id);
+    public BoundaryLine getBoundaryLine(String id) {
+        BoundaryLine dl = getNetwork().getBoundaryLine(id);
         return contains(dl) ? dl : null;
     }
 
@@ -1069,17 +1069,17 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private static boolean isSplittable(Identifiable<?> identifiable) {
-        return identifiable.getType() == IdentifiableType.DANGLING_LINE;
+        return identifiable.getType() == IdentifiableType.BOUNDARY_LINE;
     }
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
         // transformers cannot link different subnetworks for the moment.
         Stream<Line> lines = getNetwork().getLineStream().filter(i -> i.getParentNetwork() == getNetwork());
-        Stream<BoundaryLine> danglingLineStream = getDanglingLineStream();
+        Stream<BoundaryLine> boundaryLineStream = getBoundaryLineStream();
         Stream<HvdcLine> hvdcLineStream = getNetwork().getHvdcLineStream().filter(i -> i.getParentNetwork() == getNetwork());
 
-        return Stream.of(lines, danglingLineStream, hvdcLineStream)
+        return Stream.of(lines, boundaryLineStream, hvdcLineStream)
                 .flatMap(Function.identity())
                 .map(o -> (Identifiable<?>) o)
                 .filter(this::isBoundaryElement)
@@ -1091,7 +1091,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         return switch (identifiable.getType()) {
             case LINE, TIE_LINE -> isBoundary((Branch<?>) identifiable);
             case HVDC_LINE -> isBoundary((HvdcLine) identifiable);
-            case DANGLING_LINE -> isBoundary((BoundaryLine) identifiable);
+            case BOUNDARY_LINE -> isBoundary((BoundaryLine) identifiable);
             default -> false;
         };
     }

@@ -27,7 +27,7 @@ package com.powsybl.iidm.network;
 public interface AreaBoundaryAdder {
 
     /**
-     * Set a DanglingLine's Boundary to be used as the AreaBoundary
+     * Set a BoundaryLine's Boundary to be used as the AreaBoundary
      */
     AreaBoundaryAdder setBoundary(Boundary boundary);
 

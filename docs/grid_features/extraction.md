@@ -121,7 +121,7 @@ However, the operational limits and extensions from the original branch are not 
 
 The network reduction can be configured by passing a `com.powsybl.iidm.reducer.ReductionOptions` instance to the `DefaultNetworkReducer` constructor.
 
-##### withDanglingLines
+##### withBoundaryLines
 
 This option defines whether the equipments in the _border_ group are replaced by dangling lines or by loads. If this option is set to `false`, which is the default value, the equipments are exclusively replaced by loads.
 
@@ -130,13 +130,13 @@ This option defines whether the equipments in the _border_ group are replaced by
 The following example shows how to create a new `ReductionOptions` instance to do replacements by dangling lines.
 ```java
 ReductionOptions options = new ReductionOptions();
-options.withDanglingLines(true);
+options.withBoundaryLines(true);
 ```
 
 Note that the `ReductionOptions` class offers a fluent API that allows you to write code like this:
 ```java
 ReductionOptions options = new ReductionOptions()
-        .withDanglingLines(true);
+        .withBoundaryLines(true);
 ```
 
 #### Observers
@@ -181,7 +181,7 @@ Network network = Importers.loadNetwork("network.xiidm");
 
 NetworkReducer reducer = NetworkReducer.builder()
         .withNetworkPredicate(new NominalVoltageNetworkPredicate(225.0, 400.0))
-        .withDanglingLines(true)
+        .withBoundaryLines(true)
         .build();
 reducer.reduce(network);
 ```
@@ -272,7 +272,7 @@ NetworkReducerObserver observer = new DefaultNetworkReducerObserver() {
 
 NetworkReducer reducer = NetworkReducer.builder()
         .withNetworkPredicate(new NominalVoltageNetworkPredicate(225.0, 400.0))
-        .withDanglingLines(true)
+        .withBoundaryLines(true)
         .withObservers(observer)
         .build();
 reducer.reduce(network);

@@ -41,8 +41,8 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         for (TieLine tl : network.getTieLineStream().toList()) {
-            BoundaryLine dl1 = tl.getDanglingLine1();
-            BoundaryLine dl2 = tl.getDanglingLine2();
+            BoundaryLine dl1 = tl.getBoundaryLine1();
+            BoundaryLine dl2 = tl.getBoundaryLine2();
             String dl1Id = dl1.getId();
             String dl2Id = dl2.getId();
             LineAdder adder = network.newLine()
@@ -105,13 +105,13 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             addLoadingLimits(line, limits1, TwoSides.ONE);
             addLoadingLimits(line, limits2, TwoSides.TWO);
             // Add previous dangling lines ID and pairing key
-            line.addAlias(dl1Id, "danglingLine1Id");
-            line.addAlias(dl2Id, "danglingLine2Id");
+            line.addAlias(dl1Id, "boundaryLine1Id");
+            line.addAlias(dl2Id, "boundaryLine2Id");
             if (pairingKey != null) {
                 line.addAlias(pairingKey, "pairingKey");
             }
             LOG.info("Removed tie line {} and associated dangling lines {} and {} with pairing key {}. Created line {}", line.getId(), dl1Id, dl2Id, pairingKey, line.getId());
-            removedTieLineAndAssociatedDanglingLines(reportNode, line.getId(), dl1Id, dl2Id, pairingKey);
+            removedTieLineAndAssociatedBoundaryLines(reportNode, line.getId(), dl1Id, dl2Id, pairingKey);
             createdLineReport(reportNode, line.getId());
         }
     }
@@ -122,12 +122,12 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
         if (!dl1.getExtensions().isEmpty()) {
             String extensions = dl1.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
             LOG.warn("Extension [{}] of dangling line {} will be lost", extensions, dl1Id);
-            lostDanglingLineExtensions(reportNode, extensions, dl1Id);
+            lostBoundaryLineExtensions(reportNode, extensions, dl1Id);
         }
         if (!dl2.getExtensions().isEmpty()) {
             String extensions = dl2.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
             LOG.warn("Extension [{}] of dangling line {} will be lost", extensions, dl2Id);
-            lostDanglingLineExtensions(reportNode, extensions, dl2Id);
+            lostBoundaryLineExtensions(reportNode, extensions, dl2Id);
         }
         if (!tl.getExtensions().isEmpty()) {
             String extensions = tl.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));

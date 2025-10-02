@@ -1125,36 +1125,36 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Get a builder to create a new dangling line.
      */
-    BoundaryLineAdder newDanglingLine();
+    BoundaryLineAdder newBoundaryLine();
 
     /**
      * Get the dangling lines in this voltage level which correspond to given filter.
      */
-    Iterable<BoundaryLine> getDanglingLines(BoundaryLineFilter boundaryLineFilter);
+    Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
      * Get all dangling lines in this voltage level.
      */
-    default Iterable<BoundaryLine> getDanglingLines() {
-        return getDanglingLines(BoundaryLineFilter.ALL);
+    default Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     /**
      * Get the dangling lines in this voltage level which correspond to given filter.
      */
-    Stream<BoundaryLine> getDanglingLineStream(BoundaryLineFilter boundaryLineFilter);
+    Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
 
    /**
      * Get all dangling lines in this voltage level.
      */
-    default Stream<BoundaryLine> getDanglingLineStream() {
-        return getDanglingLineStream(BoundaryLineFilter.ALL);
+    default Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     /**
      * Get dangling line count.
      */
-    int getDanglingLineCount();
+    int getBoundaryLineCount();
 
     /**
      * Get a builder to create a new static var compensator.

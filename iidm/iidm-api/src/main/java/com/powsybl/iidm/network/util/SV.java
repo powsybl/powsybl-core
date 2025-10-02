@@ -86,7 +86,7 @@ public class SV {
     }
 
     public SV otherSide(TieLine l) {
-        double zb = l.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV() * l.getDanglingLine2().getTerminal().getVoltageLevel().getNominalV();
+        double zb = l.getBoundaryLine1().getTerminal().getVoltageLevel().getNominalV() * l.getBoundaryLine2().getTerminal().getVoltageLevel().getNominalV();
         return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0, zb);
     }
 

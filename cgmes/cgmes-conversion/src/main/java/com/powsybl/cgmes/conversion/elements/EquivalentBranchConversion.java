@@ -74,7 +74,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     }
 
     @Override
-    public Optional<BoundaryLine> getDanglingLine() {
+    public Optional<BoundaryLine> getBoundaryLine() {
         return Optional.ofNullable(boundaryLine);
     }
 
@@ -93,7 +93,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
             throw new PowsyblException(message);
         }
         String eqInstance = p.get("graph");
-        boundaryLine = convertToDanglingLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.EQUIVALENT_BRANCH);
+        boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.EQUIVALENT_BRANCH);
     }
 
     private void updateParametersForEquivalentBranchWithDifferentNominalVoltages() {
@@ -169,7 +169,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     }
 
     public static void update(BoundaryLine boundaryLine, Context context) {
-        updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 
     private static final String IGNORED_UPDATE_PARAMS_DIFFERENT_NOMINALV_WHAT =

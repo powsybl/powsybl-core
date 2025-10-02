@@ -70,7 +70,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     @Override
-    public Optional<BoundaryLine> getDanglingLine() {
+    public Optional<BoundaryLine> getBoundaryLine() {
         return Optional.ofNullable(boundaryLine);
     }
 
@@ -100,9 +100,9 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         if (context.config().convertBoundary()) {
             convertToSwitch().setRetained(true);
         } else {
-            warnDanglingLineCreated();
+            warnBoundaryLineCreated();
             String eqInstance = p.get("graph");
-            boundaryLine = convertToDanglingLine(eqInstance, boundarySide, CgmesNames.SWITCH);
+            boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, CgmesNames.SWITCH);
             boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
             boundaryLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         }
@@ -118,16 +118,16 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         };
     }
 
-    private void warnDanglingLineCreated() {
+    private void warnBoundaryLineCreated() {
         fixed("Dangling line with low impedance", "Connected to a boundary node");
     }
 
     public static void update(BoundaryLine boundaryLine, PropertyBag cgmesData, Context context) {
         boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultOpen(boundaryLine, context));
-        updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context) && isClosed, context);
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context) && isClosed, context);
     }
 
-    // In the danglingLines, the status of the terminal on the boundary side cannot be explicitly represented.
+    // In the boundaryLines, the status of the terminal on the boundary side cannot be explicitly represented.
     // Instead, it is implicitly indicated by setting both active and reactive power to zero.
     // Then, we assume that the previous value is always false
     private static boolean defaultOpen(BoundaryLine boundaryLine, Context context) {

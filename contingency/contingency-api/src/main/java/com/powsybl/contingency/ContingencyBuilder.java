@@ -101,7 +101,7 @@ public class ContingencyBuilder {
         return this;
     }
 
-    public ContingencyBuilder addDanglingLine(String id) {
+    public ContingencyBuilder addBoundaryLine(String id) {
         elements.add(new BoundaryLineContingency(id));
         return this;
     }
