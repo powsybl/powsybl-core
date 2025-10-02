@@ -27,6 +27,8 @@ class DcDetailedNetworkTest {
     void testLccMonopoleGroundReturn() {
         Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
         assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(1, network.getDcLineCount());
@@ -40,6 +42,8 @@ class DcDetailedNetworkTest {
     void testLccMonopoleMetallicReturn() {
         Network network = DcDetailedNetworkFactory.createLccMonopoleMetallicReturn();
         assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(2, network.getDcLineCount());
@@ -53,6 +57,8 @@ class DcDetailedNetworkTest {
     void testVscSymmetricalMonopole() {
         Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
         assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(2, network.getDcLineCount());
@@ -64,11 +70,64 @@ class DcDetailedNetworkTest {
     void testVscAsymmetricalMonopole() {
         Network network = DcDetailedNetworkFactory.createVscAsymmetricalMonopole();
         assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
         assertEquals(3, network.getSubnetworks().size());
         assertEquals(4, network.getDcNodeCount());
         assertEquals(1, network.getDcLineCount());
         assertEquals(2, network.getVoltageSourceConverterCount());
         assertEquals(2, network.getDcGroundCount());
+    }
+
+    @Test
+    void testLccBipoleGroundReturn() {
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturn();
+        assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        assertEquals(1, network.getDcComponents().size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
+        assertEquals(3, network.getSubnetworks().size());
+        assertEquals(6, network.getDcNodeCount());
+        assertEquals(4, network.getDcSwitchCount());
+        assertEquals(2, network.getDcLineCount());
+        assertEquals(4, network.getLineCommutatedConverterCount());
+        assertEquals(2, network.getDcGroundCount());
+        assertEquals(6, network.getDcBusCount());
+    }
+
+    @Test
+    void testLccBipoleGroundReturnNegativePoleOutage() {
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturnNegativePoleOutage();
+        assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        List<Component> dcComponents = List.copyOf(network.getDcComponents());
+        assertEquals(1, dcComponents.size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
+        assertEquals(3, network.getSubnetworks().size());
+        assertEquals(6, network.getDcNodeCount());
+        assertEquals(4, network.getDcSwitchCount());
+        assertEquals(2, network.getDcLineCount());
+        assertEquals(4, network.getLineCommutatedConverterCount());
+        assertEquals(2, network.getDcGroundCount());
+        assertEquals(4, network.getDcBusCount());
+        Component dc0 = dcComponents.get(0);
+        assertEquals(4, dc0.getSize());
+    }
+
+    @Test
+    void testLccBipoleGroundReturnWithDcLineSegments() {
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturnWithDcLineSegments();
+        assertEquals(2, network.getBusView().getSynchronousComponents().size());
+        List<Component> dcComponents = List.copyOf(network.getDcComponents());
+        assertEquals(1, dcComponents.size());
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
+        assertEquals(3, network.getSubnetworks().size());
+        assertEquals(22, network.getDcNodeCount());
+        assertEquals(12, network.getDcSwitchCount());
+        assertEquals(12, network.getDcLineCount());
+        assertEquals(4, network.getLineCommutatedConverterCount());
+        assertEquals(2, network.getDcGroundCount());
+        assertEquals(14, network.getDcBusCount());
+        Component dc0 = dcComponents.get(0);
+        assertEquals(14, dc0.getSize());
     }
 
     @Test
