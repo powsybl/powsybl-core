@@ -30,8 +30,15 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNetworkWithForkFeeder;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}

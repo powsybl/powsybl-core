@@ -11,18 +11,36 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBBreaker;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBDisconnector;
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
-import static com.powsybl.iidm.modification.util.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.busbarSectionNotInTheSameVoltageLevelReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.busbarSectionsWithoutPositionReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.connectedFeedersReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.wrongNetworkReport;
 import static java.util.stream.Collectors.groupingBy;
 
 /**

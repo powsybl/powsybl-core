@@ -11,7 +11,11 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.slf4j.Logger;
@@ -22,9 +26,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createBusBreakerSwitch;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBBreaker;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBDisconnector;
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
-import static com.powsybl.iidm.modification.util.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.busBreakerVoltageLevelButConnectConnectables;
+import static com.powsybl.iidm.modification.util.ModificationReports.busbarSectionsWithoutPositionReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.countLowerThanMin;
+import static com.powsybl.iidm.modification.util.ModificationReports.createdNewSymmetricalTopology;
+import static com.powsybl.iidm.modification.util.ModificationReports.notFoundVoltageLevelReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.undefinedSwitchKind;
+import static com.powsybl.iidm.modification.util.ModificationReports.unexpectedSwitchKindsCount;
+import static com.powsybl.iidm.modification.util.ModificationReports.wrongBusbarPosition;
+import static com.powsybl.iidm.modification.util.ModificationReports.wrongSwitchKind;
 
 /**
  * Creates symmetrical matrix topology in a given voltage level,
