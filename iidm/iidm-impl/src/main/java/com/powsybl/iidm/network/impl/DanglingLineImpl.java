@@ -202,7 +202,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public String getMessageHeader() {
+        public MessageHeader getMessageHeader() {
             return danglingLine.getMessageHeader();
         }
 
@@ -476,18 +476,35 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public CurrentLimitsAdder newCurrentLimits() {
-        return operationalLimitsGroups.newCurrentLimits();
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
+    @Override
+    public CurrentLimitsAdder newCurrentLimits() {
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+    }
+
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return operationalLimitsGroups.newActivePowerLimits();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return operationalLimitsGroups.newApparentPowerLimits();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override
@@ -536,4 +553,5 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             generation.allocateVariantArrayElement(indexes, sourceIndex);
         }
     }
+
 }

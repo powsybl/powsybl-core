@@ -8,21 +8,21 @@
 package com.powsybl.psse.converter;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ContainersMapping;
+import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
+import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.pf.PsseBus;
+import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.PsseRates;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
-import com.powsybl.psse.model.PsseVersion;
-import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
-import com.powsybl.psse.model.pf.PssePowerFlowModel;
+import java.util.*;
 
 import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_BRANCH;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
-
-import java.util.*;
+import static com.powsybl.psse.model.PsseVersion.Major.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -30,12 +30,19 @@ import java.util.*;
  */
 class LineConverter extends AbstractConverter {
 
-    LineConverter(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, PsseVersion version, NodeBreakerImport nodeBreakerImport) {
+    LineConverter(PsseNonTransformerBranch psseLine,
+                  ContainersMapping containerMapping,
+                  PerUnitContext perUnitContext,
+                  Network network,
+                  PsseVersion version,
+                  Map<Integer, PsseBus> busNumToPsseBus,
+                  NodeBreakerImport nodeBreakerImport) {
         super(containerMapping, network);
         this.psseLine = Objects.requireNonNull(psseLine);
         this.perUnitContext = Objects.requireNonNull(perUnitContext);
         this.version = Objects.requireNonNull(version);
         this.nodeBreakerImport = nodeBreakerImport;
+        this.busNumToPsseBus = Objects.requireNonNull(busNumToPsseBus);
     }
 
     void create() {
@@ -59,17 +66,20 @@ class LineConverter extends AbstractConverter {
         double g2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getReal(), psseLine.getGj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
         double b2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getImaginary(), psseLine.getB() * 0.5 + psseLine.getBj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.sb());
 
+        String name = getNameOrNull();
+
         LineAdder adder = getNetwork().newLine()
-            .setId(id)
-            .setEnsureIdUnicity(true)
-            .setVoltageLevel1(voltageLevel1Id)
-            .setVoltageLevel2(voltageLevel2Id)
-            .setR(rEu)
-            .setX(xEu)
-            .setG1(g1Eu)
-            .setB1(b1Eu)
-            .setG2(g2Eu)
-            .setB2(b2Eu);
+                .setId(id)
+                .setEnsureIdUnicity(true)
+                .setVoltageLevel1(voltageLevel1Id)
+                .setVoltageLevel2(voltageLevel2Id)
+                .setR(rEu)
+                .setX(xEu)
+                .setG1(g1Eu)
+                .setB1(b1Eu)
+                .setG2(g2Eu)
+                .setB2(b2Eu)
+                .setName(name);
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_BRANCH, psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
         OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLine.getI(), psseLine.getJ(), 0, psseLine.getI(), "I"));
@@ -110,13 +120,13 @@ class LineConverter extends AbstractConverter {
 
         // CurrentPermanentLimit in A
         if (currentLimit1 > 0) {
-            CurrentLimitsAdder currentLimitFrom = line.newCurrentLimits1();
+            CurrentLimitsAdder currentLimitFrom = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
             currentLimitFrom.setPermanentLimit(currentLimit1 * 1000);
             currentLimitFrom.add();
         }
 
         if (currentLimit2 > 0) {
-            CurrentLimitsAdder currentLimitTo = line.newCurrentLimits2();
+            CurrentLimitsAdder currentLimitTo = line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits();
             currentLimitTo.setPermanentLimit(currentLimit2 * 1000);
             currentLimitTo.add();
         }
@@ -190,10 +200,30 @@ class LineConverter extends AbstractConverter {
         });
     }
 
+    private String getNameOrNull() {
+        if (version.major() == V32 || version.major() == V33) {
+            PsseBus busI = busNumToPsseBus.get(psseLine.getI());
+            PsseBus busJ = busNumToPsseBus.get(psseLine.getJ());
+            if (busI != null && busJ != null && isNotEmptyName(busI.getName()) && isNotEmptyName(busJ.getName())) {
+                return String.format("%s_%s_%s", busI.getName().trim(), busJ.getName().trim(), psseLine.getCkt());
+            }
+        } else if (version.major() == V35) {
+            if (isNotEmptyName(psseLine.getName())) {
+                return psseLine.getName();
+            }
+        }
+        return null;
+    }
+
+    private static boolean isNotEmptyName(String name) {
+        return name != null && !name.trim().isEmpty();
+    }
+
     private final PsseNonTransformerBranch psseLine;
     private final PerUnitContext perUnitContext;
     private final PsseVersion version;
     private final NodeBreakerImport nodeBreakerImport;
+    private final Map<Integer, PsseBus> busNumToPsseBus;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LineConverter.class);
 }

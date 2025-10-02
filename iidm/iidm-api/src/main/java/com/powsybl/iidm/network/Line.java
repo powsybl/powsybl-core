@@ -23,14 +23,6 @@ import java.util.function.Predicate;
  */
 public interface Line extends Branch<Line>, Connectable<Line>, MutableLineCharacteristics<Line> {
 
-    /**
-     * @deprecated tie lines are not lines anymore.
-     */
-    @Deprecated(since = "5.2.0")
-    default boolean isTieLine() {
-        return false;
-    }
-
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.LINE;

@@ -7,9 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -35,6 +32,8 @@ import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
+import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
 import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
@@ -364,7 +363,7 @@ public final class EquipmentExport {
                     String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator, cimNamespace, writer, context);
                     String baseVoltageId = context.getBaseVoltageByNominalVoltage(generator.getTerminal().getVoltageLevel().getNominalV()).getId();
                     EquivalentInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
-                            generator.isVoltageRegulatorOn(), generator.getMinP(), generator.getMaxP(), obtainMinQ(generator), obtainMaxQ(generator),
+                            generator.isVoltageRegulatorOn(), generator.getMinP(), generator.getMaxP(), getNullableMinQ(generator), getNullableMaxQ(generator),
                             reactiveCapabilityCurveId, baseVoltageId,
                             cimNamespace, writer, context);
                     break;
@@ -372,7 +371,7 @@ public final class EquipmentExport {
                     regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, exportedTerminalId(mapTerminal2Id, regulatingTerminal), regulatingControlsWritten, mode, cimNamespace, writer, context);
                     ExternalNetworkInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
                             context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
-                            obtainGeneratorGovernorScd(generator), generator.getMaxP(), obtainMaxQ(generator), generator.getMinP(), obtainMinQ(generator),
+                            obtainGeneratorGovernorScd(generator), generator.getMaxP(), getMaxQ(generator), generator.getMinP(), getMinQ(generator),
                             regulatingControlId, cimNamespace, writer, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
@@ -409,8 +408,6 @@ public final class EquipmentExport {
                                                                                                 XMLStreamWriter writer, CgmesExportContext context, Set<String> generatingUnitsWritten) throws XMLStreamException {
 
         String generatingUnit = context.getNamingStrategy().getCgmesIdFromProperty(i, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
-        double minQ = obtainMinQ(i);
-        double maxQ = obtainMaxQ(i);
         double defaultRatedS = computeDefaultRatedS(i, minP, maxP);
 
         String reactiveLimitsId = writeReactiveCapabilityCurve(i, cimNamespace, writer, context);
@@ -418,7 +415,7 @@ public final class EquipmentExport {
 
         SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
-                generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ,
+                generatingUnit, regulatingControlId, reactiveLimitsId, getNullableMinQ(i), getNullableMaxQ(i),
                 ratedS, defaultRatedS, kind, cimNamespace, writer, context);
 
         if (generatingUnit != null && !generatingUnitsWritten.contains(generatingUnit)) {
@@ -456,15 +453,22 @@ public final class EquipmentExport {
     }
 
     private static boolean curveMustBeWritten(ReactiveCapabilityCurve curve) {
-        double minQ = Double.min(curve.getMinQ(curve.getMinP()), curve.getMinQ(curve.getMaxP()));
-        double maxQ = Double.max(curve.getMaxQ(curve.getMinP()), curve.getMaxQ(curve.getMaxP()));
-        return maxQ > minQ;
+        return getCurveMaxQ(curve) > getCurveMinQ(curve);
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> double obtainMinQ(I i) {
+    private static <I extends ReactiveLimitsHolder & Injection<I>> Double getNullableMinQ(I i) {
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
             ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
-            return Double.min(curve.getMinQ(curve.getMinP()), curve.getMinQ(curve.getMaxP()));
+            if (curveMustBeWritten(curve)) {
+                return null;
+            }
+        }
+        return getMinQ(i);
+    }
+
+    private static <I extends ReactiveLimitsHolder & Injection<I>> double getMinQ(I i) {
+        if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
+            return getCurveMinQ(i.getReactiveLimits(ReactiveCapabilityCurve.class));
         } else if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
             return i.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
         } else {
@@ -472,15 +476,40 @@ public final class EquipmentExport {
         }
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> double obtainMaxQ(I i) {
+    private static <I extends ReactiveLimitsHolder & Injection<I>> Double getNullableMaxQ(I i) {
         if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
             ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
-            return Double.max(curve.getMaxQ(curve.getMinP()), curve.getMaxQ(curve.getMaxP()));
+            if (curveMustBeWritten(curve)) {
+                return null;
+            }
+        }
+        return getMaxQ(i);
+    }
+
+    private static <I extends ReactiveLimitsHolder & Injection<I>> double getMaxQ(I i) {
+        if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE)) {
+            return getCurveMaxQ(i.getReactiveLimits(ReactiveCapabilityCurve.class));
         } else if (i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
             return i.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
         } else {
             throw new PowsyblException("Unexpected ReactiveLimits type in the generator " + i.getNameOrId());
         }
+    }
+
+    private static double getCurveMinQ(ReactiveCapabilityCurve curve) {
+        return curve.getPoints()
+                .stream()
+                .map(ReactiveCapabilityCurve.Point::getMinQ)
+                .min(Double::compareTo)
+                .orElseThrow();
+    }
+
+    private static double getCurveMaxQ(ReactiveCapabilityCurve curve) {
+        return curve.getPoints()
+                .stream()
+                .map(ReactiveCapabilityCurve.Point::getMaxQ)
+                .max(Double::compareTo)
+                .orElseThrow();
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String generatingUnitWriteHydroPowerPlantAndFossilFuel(I i, String cimNamespace, EnergySource energySource, String generatingUnit, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -805,7 +834,7 @@ public final class EquipmentExport {
         PowerTransformerEq.writeEnd(endId, twtName, twtId, endNumber, r, x, g, b, leg.getRatedS(), leg.getRatedU(), terminalId, baseVoltage.getId(), cimNamespace, writer, context);
         writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, legNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, writer, context);
         writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, legNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, writer, context);
-        writeFlowsLimits(twt, leg, terminalId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+        writeFlowsLimits(leg, terminalId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
     }
 
     private static <C extends Connectable<C>> void writePhaseTapChanger(C eq, PhaseTapChanger ptc, String twtName, int endNumber, String endId, double neutralU, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -814,7 +843,8 @@ public final class EquipmentExport {
             String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
-            int neutralStep = getPhaseTapChangerNeutralStep(ptc);
+            int neutralStep = getClosestNeutralStep(ptc);
+            int normalStep = getNormalStep(eq, tapChangerId).orElse(neutralStep);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(ptc)) {
@@ -832,8 +862,7 @@ public final class EquipmentExport {
             // We reset the phase tap changer type stored in the extensions
             String typeTabular = CgmesNames.PHASE_TAP_CHANGER_TABULAR;
             CgmesExportUtil.setCgmesTapChangerType(eq, tapChangerId, typeTabular);
-            boolean ltcFlag = ptc.isRegulating();
-            TapChangerEq.writePhase(typeTabular, cgmesTapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, ltcFlag, phaseTapChangerTableId, cgmesRegulatingControlId, cimNamespace, writer, context);
+            TapChangerEq.writePhase(typeTabular, cgmesTapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, normalStep, neutralU, ptc.hasLoadTapChangingCapabilities(), phaseTapChangerTableId, cgmesRegulatingControlId, cimNamespace, writer, context);
             TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
                 String stepId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), ref(step.getKey()), PHASE_TAP_CHANGER_STEP);
@@ -853,26 +882,14 @@ public final class EquipmentExport {
         return Optional.empty();
     }
 
-    private static int getPhaseTapChangerNeutralStep(PhaseTapChanger ptc) {
-        int neutralStep = ptc.getLowTapPosition();
-        double minAlpha = Math.abs(ptc.getStep(neutralStep).getAlpha());
-        for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
-            double tempAlpha = Math.abs(step.getValue().getAlpha());
-            if (tempAlpha < minAlpha) {
-                minAlpha = tempAlpha;
-                neutralStep = step.getKey();
-            }
-        }
-        return neutralStep;
-    }
-
     private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber, String endId, double neutralU, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (rtc != null) {
             String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber;
             String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
-            int neutralStep = getRatioTapChangerNeutralStep(rtc);
+            int neutralStep = getClosestNeutralStep(rtc);
+            int normalStep = getNormalStep(eq, tapChangerId).orElse(neutralStep);
             double stepVoltageIncrement;
             if (rtc.getHighTapPosition() == rtc.getLowTapPosition()) {
                 stepVoltageIncrement = 100;
@@ -896,7 +913,7 @@ public final class EquipmentExport {
                     regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }
             }
-            TapChangerEq.writeRatio(cgmesTapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, rtc.getTapPosition(), neutralU, rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement,
+            TapChangerEq.writeRatio(cgmesTapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, normalStep, neutralU, rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement,
                     ratioTapChangerTableId, cgmesRegulatingControlId, controlMode, cimNamespace, writer, context);
             TapChangerEq.writeRatioTable(ratioTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
@@ -905,19 +922,6 @@ public final class EquipmentExport {
             }
 
         }
-    }
-
-    private static int getRatioTapChangerNeutralStep(RatioTapChanger rtc) {
-        int neutralStep = rtc.getLowTapPosition();
-        double minRatio = Math.abs(1 - rtc.getStep(neutralStep).getRho());
-        for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
-            double tempRatio = Math.abs(1 - step.getValue().getRho());
-            if (tempRatio < minRatio) {
-                minRatio = tempRatio;
-                neutralStep = step.getKey();
-            }
-        }
-        return neutralStep;
     }
 
     private static void writeDanglingLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace,
@@ -954,10 +958,10 @@ public final class EquipmentExport {
             AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(danglingLine), danglingLine.getNameOrId(),
                     context.getBaseVoltageByNominalVoltage(danglingLine.getTerminal().getVoltageLevel().getNominalV()).getId(),
                     danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer, context);
-            writeFlowsLimits(danglingLine, danglingLine, exportedTerminalId(mapTerminal2Id, danglingLine.getTerminal()), cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+            writeFlowsLimits(danglingLine, exportedTerminalId(mapTerminal2Id, danglingLine.getTerminal()), cimNamespace, euNamespace, exportedLimitTypes, writer, context);
             danglingLine.getAliasFromType("CGMES." + TERMINAL_BOUNDARY).ifPresent(terminalBdId -> {
                 try {
-                    writeFlowsLimits(danglingLine, danglingLine, terminalBdId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+                    writeFlowsLimits(danglingLine, terminalBdId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
                 } catch (XMLStreamException e) {
                     throw new UncheckedXmlStreamException(e);
                 }
@@ -1143,7 +1147,7 @@ public final class EquipmentExport {
             branch.getSelectedOperationalLimitsGroup1().ifPresent(limitsGroups1::add);
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups1) {
-            writeLimitsGroup(branch, limitsGroup, terminalId1, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+            writeLimitsGroup(limitsGroup, terminalId1, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
         }
 
         Collection<OperationalLimitsGroup> limitsGroups2 = new ArrayList<>();
@@ -1153,11 +1157,11 @@ public final class EquipmentExport {
             branch.getSelectedOperationalLimitsGroup2().ifPresent(limitsGroups2::add);
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups2) {
-            writeLimitsGroup(branch, limitsGroup, terminalId2, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+            writeLimitsGroup(limitsGroup, terminalId2, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
         }
     }
 
-    private static void writeFlowsLimits(Identifiable<?> identifiable, FlowsLimitsHolder holder, String terminalId, String cimNamespace, String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeFlowsLimits(FlowsLimitsHolder holder, String terminalId, String cimNamespace, String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         Collection<OperationalLimitsGroup> limitsGroups = new ArrayList<>();
         if (context.isExportAllLimitsGroup()) {
             limitsGroups.addAll(holder.getOperationalLimitsGroups());
@@ -1165,11 +1169,11 @@ public final class EquipmentExport {
             holder.getSelectedOperationalLimitsGroup().ifPresent(limitsGroups::add);
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups) {
-            writeLimitsGroup(identifiable, limitsGroup, terminalId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
+            writeLimitsGroup(limitsGroup, terminalId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
         }
     }
 
-    private static void writeLimitsGroup(Identifiable<?> identifiable, OperationalLimitsGroup limitsGroup, String terminalId, String cimNamespace, String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeLimitsGroup(OperationalLimitsGroup limitsGroup, String terminalId, String cimNamespace, String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (limitsGroup.getCurrentLimits().isEmpty() && context.isCim16BusBranchExport()) {
             // In CIM16, ActivePowerLimit and ApparentPowerLimit are part of EquipmentOperation profile
             return;
@@ -1177,19 +1181,15 @@ public final class EquipmentExport {
 
         // Write the OperationalLimitSet
         String operationalLimitSetId;
-        String operationalLimitSetName;
-        if (identifiable.hasProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS)) {
-            operationalLimitSetId = limitsGroup.getId();
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode propertyNode = mapper.readTree(identifiable.getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS));
-                JsonNode limitsGroupNode = propertyNode.get(operationalLimitSetId);
-                operationalLimitSetName = limitsGroupNode != null ? limitsGroupNode.textValue() : operationalLimitSetId;
-            } catch (JsonProcessingException e) {
-                operationalLimitSetName = operationalLimitSetId;
-            }
+        if (limitsGroup.hasProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID)) {
+            operationalLimitSetId = limitsGroup.getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID);
         } else {
             operationalLimitSetId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(limitsGroup.getId()), OPERATIONAL_LIMIT_SET);
+        }
+        String operationalLimitSetName;
+        if (limitsGroup.hasProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME)) {
+            operationalLimitSetName = limitsGroup.getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME);
+        } else {
             operationalLimitSetName = limitsGroup.getId();
         }
         OperationalLimitSetEq.write(operationalLimitSetId, operationalLimitSetName, terminalId, cimNamespace, writer, context);
@@ -1240,7 +1240,8 @@ public final class EquipmentExport {
 
                 // Write the temporary limit
                 operationalLimitId = context.getNamingStrategy().getCgmesId(ref(operationalLimitSetId), ref(className), TATL, ref(acceptableDuration), OPERATIONAL_LIMIT_VALUE);
-                LoadingLimitEq.write(operationalLimitId, limits, temporaryLimit.getName(), temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
+                String temporaryLimitName = temporaryLimit.getName().isEmpty() ? "TATL " + temporaryLimit.getAcceptableDuration() : temporaryLimit.getName(); // If the temporary limit name is empty, write TATL and the acceptable duration
+                LoadingLimitEq.write(operationalLimitId, limits, temporaryLimitName, temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
             }
         }
     }

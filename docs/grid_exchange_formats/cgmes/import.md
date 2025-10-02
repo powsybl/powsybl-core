@@ -287,7 +287,8 @@ An `ExternalNetworkinjection` is mapped to a PowSyBl [`Generator`](../../grid_mo
 
 Linear shunt compensators represent shunt compensators with banks or sections with equal admittance values.
 
-A `LinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` or CGMES `SvShuntCompensatorSections.sections`, depending on the import option. If none is defined, it is copied from CGMES `normalSections`.
+A `LinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` if present. If not, it is copied from CGMES `SvShuntCompensatorSections.sections` or `normalSections`.
+The `SolvedSectionCount` is copied from `SvShuntCompensatorSections.sections` if the SV is imported, and left to `null` otherwise.
 The created PowSyBl shunt compensator is linear, and its attributes are defined as described below:
 - `BPerSection` is copied from CGMES `bPerSection` if defined. Else, it is `Float.MIN_VALUE`.
 - `GPerSection` is copied from CGMES `gPerSection` if defined. Else, it is left undefined.
@@ -300,7 +301,8 @@ The created PowSyBl shunt compensator is linear, and its attributes are defined 
 
 Non-linear shunt compensators represent shunt compensators with banks or section admittance values that differ.
 
-A `NonlinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` or CGMES `SvShuntCompensatorSections.sections`, depending on the import option. If none is defined, it is copied from CGMES `normalSections`.
+A `NonlinearShuntCompensator` is mapped to a PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) with `SectionCount` copied from CGMES SSH `sections` if present. If not, it is copied from CGMES `SvShuntCompensatorSections.sections` or `normalSections`.
+The `SolvedSectionCount` is copied from `SvShuntCompensatorSections.sections` if the SV is imported, and left to `null` otherwise.
 The created PowSyBl shunt compensator is non-linear and has as many `Sections` as there are `NonlinearShuntCompensatorPoint` associated with the `NonlinearShuntCompensator` it is mapped to.
 
 Sections are created from the lowest CGMES `sectionNumber` to the highest and each section has its attributes created as described below:
@@ -571,6 +573,9 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 <span style="color: red">TODO</span>
 
+The `TapPosition` of the IIDM `TapChanger` is copied from the CGMES SSH `step` if present. If not, it is copied from CGMES `SVtapStep` or `normalStep` from EQ.
+The `SolvedTapPosition` is copied from `SVtapStep` if the SV is imported, and left to `null` otherwise.
+
 (cgmes-metadata-model-import)=
 ### CGMES metadata model
 
@@ -626,6 +631,8 @@ Optional property that defines if control areas must be imported or not. `true` 
 
 **iidm.import.cgmes.naming-strategy**  
 Optional property that defines which naming strategy is used to transform CGMES identifiers to IIDM identifiers. Currently, all naming strategies assign CGMES Ids directly to IIDM Ids during import, without any transformation. The default value is `identity`.
+You can also define a custom naming strategy by implementing the `NamingStrategy` interface on your own project and declare
+a `NamingStrategyProvider` that can be automatically discovered. Then in this parameter, you can specify the name of the provider.
 
 **iidm.import.cgmes.post-processors**  
 Optional property that defines all the CGMES post-processors which will be activated after import.
@@ -634,9 +641,6 @@ One implementation of such a post-processor is available in PowSyBl in the [pows
 
 **iidm.import.cgmes.powsybl-triplestore**  
 Optional property that defines which Triplestore implementation is used. Currently, PowSyBl only supports [RDF4J](https://rdf4j.org/). `rdf4j` by default.
-
-**iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions**  
-Optional property that defines which CGMES profile is used to initialize tap positions and section counts. It can be `SSH` or `SV`. The default value is `SSH`.
 
 **iidm.import.cgmes.source-for-iidm-id**  
 Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID` (master resource identifier) or the CGMES `rdfID` (Resource Description Framework identifier). The default value is `mRID`.
@@ -667,3 +671,9 @@ Its default value is `MODELING_AUTHORITY`.
 Optional property that defines the fictitious voltage levels created by line container. If it is set to `true`, a fictitious voltage level is created for each connectivity node inside the line container.
 If it is set to `false`, only one fictitious voltage level is created for each line container. 
 `true` by default.
+
+**iidm.import.cgmes.use-previous-values-during-update**  
+Optional property that defines whether the CGMES importer should use previous values to fill in missing SSH attributes during an update.
+When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
+If set to `false`, missing SSH attributes will be filled using default values.
+`false` by default.

@@ -288,18 +288,40 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public CurrentLimitsAdder newCurrentLimits1() {
-        return danglingLine1.newCurrentLimits();
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1() {
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup();
     }
 
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2() {
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup();
+    }
+
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
+    @Override
+    public CurrentLimitsAdder newCurrentLimits1() {
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+    }
+
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return danglingLine1.newActivePowerLimits();
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return danglingLine1.newApparentPowerLimits();
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override
@@ -342,19 +364,31 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         danglingLine2.cancelSelectedOperationalLimitsGroup();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return danglingLine2.newCurrentLimits();
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return danglingLine2.newActivePowerLimits();
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return danglingLine2.newApparentPowerLimits();
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override

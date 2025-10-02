@@ -11,6 +11,7 @@ import com.google.common.base.Strings;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.DefaultMessageHeader;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.util.Identifiables;
@@ -164,8 +165,8 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     protected abstract String getTypeDescription();
 
     @Override
-    public String getMessageHeader() {
-        return getTypeDescription() + " '" + id + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader(getTypeDescription(), id);
     }
 
     public Properties getProperties() {

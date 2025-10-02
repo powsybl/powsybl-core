@@ -300,6 +300,8 @@ PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `Co
 ### Shunt compensator
 
 PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) is exported as `LinearShuntCompensator` or `NonlinearShuntCompensator` depending on their models.
+The CGMES SSH `sections` is written from the IIDM `SectionCount`, and the CGMES SV `SvShuntCompensatorSections.sections` 
+is written from the IIDM `SolvedSectionCount` if present, otherwise `SectionCount`.
 
 #### Regulating control
 
@@ -347,6 +349,8 @@ PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) is expo
 ### ThreeWindingsTransformer
 
 PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#three-winding-transformer) is exported as `PowerTransformer` with three `PowerTransformerEnds`.
+If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `TapPosition` and the CGMES SV
+`SVtapStep` is written from the IIDM `SolvedTapPosition` if it is not null, otherwise `TapPosition`.
 
 #### Tap changer control
 
@@ -369,7 +373,21 @@ when `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
 
+If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `TapPosition` and the CGMES SV
+`SVtapStep` is written from the IIDM `SolvedTapPosition` if it is not null, otherwise `TapPosition`.
+
 Tap changer controls for two-winding transformers are exported following the same rules explained in the previous section about three-winding transformers. See [tap changer control](#tap-changer-control).
+
+(cgmes-operational-limits-export)=
+### Operational limits
+
+PowSyBl exports IIDM loading limits to CGMES OperationalLimit elements as follows:
+- Permanent limits are exported with type PATL (Permanent Allowable Transmission Limit) and a corresponding OperationalLimit value.
+- Temporary limits are exported with type TATL (Temporary Allowable Transmission Limit), parameterized by the acceptable duration in seconds.
+If a temporary limit name is empty in IIDM, a fallback name is written in EQ as: TATL <acceptableDurationInSeconds> (for example: TATL 600). 
+
+This applies to CurrentLimits, ActivePowerLimits, and ApparentPowerLimits.
+
 
 (cgmes-voltage-level-export)=
 ### Voltage level
@@ -416,7 +434,7 @@ If this property is defined, then this ID will be written in the header of the e
 
 **iidm.export.cgmes.cim-version**  
 Optional property that defines the CIM version number in which the user wants the CGMES files to be exported.
-CIM versions 14, 16 and 100 are supported i.e. its valid values are `14`, `16` and `100`.
+CIM versions 16 and 100 are supported i.e. its valid values are `16` and `100`.
 If not defined, and the network has the extension `CimCharacteristics`, the CIM version will be the one indicated in the extension. If not, its default value is `16`.
 CIM version 16 corresponds to CGMES 2.4.15.
 CIM version 100 corresponds to CGMES 3.0.
@@ -432,12 +450,14 @@ Optional property that defines if power flows of switches are exported in the SV
 
 **iidm.export.cgmes.naming-strategy**  
 Optional property that defines which naming strategy is used to transform IIDM identifiers to CGMES identifiers.
-It can be:
+Available naming strategies are:
 - `identity`: CGMES IDs are the same as IIDM IDs.
 - `cgmes`: new CGMES IDs (new master resource identifiers, cim:mRID) are created for IIDM `Identifiables` if the IIDM IDs are not compliant with CGMES requirements.
 - `cgmes-fix-all-invalid-ids`: ensures that all CGMES IDs in the export will comply with CGMES requirements, for IIDM `Identifiables`and also for its related objects (tap changers, operational limits, regulating controls, reactive capability outputVariables, ...).  
 
 Its default value is `identity`.
+You can also define a custom naming strategy by implementing the `NamingStrategy` interface on your own project and declare
+a `NamingStrategyProvider` that can be automatically discovered. Then in this parameter, you can specify the name of the provider.
 
 **iidm.export.cgmes.uuid-namespace**  
 Optional property related to the naming strategy specified in `iidm.export.cgmes.naming-strategy`. When new CGMES IDs have to be generated, a mechanism that ensures creation of new, stable identifiers based on IIDM IDs is used (see [RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122)). These new IDs are guaranteed to be unique inside a namespace given by this UUID. By default, it is the name-based UUID fo the text "powsybl.org" in the empty namespace.
