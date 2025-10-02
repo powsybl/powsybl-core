@@ -334,11 +334,11 @@ public final class ModificationReports {
 
     public static void connectedFeedersReport(ReportNode reportNode, List<Connectable<?>> connectables, List<BusbarSection> busbarSections) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.connectedFeeders")
-                .withUntypedValue("connectableList", connectables.toString())
-                .withUntypedValue("busbarSectionList", busbarSections.toString())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+            .withMessageTemplate("core.iidm.modification.connectedFeeders")
+            .withUntypedValue("connectableList", connectables.toString())
+            .withUntypedValue("busbarSectionList", busbarSections.toString())
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
     }
 
     // WARN
