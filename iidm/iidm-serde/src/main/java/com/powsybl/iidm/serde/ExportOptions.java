@@ -192,7 +192,10 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     public ExportOptions addExtensionVersion(String extensionName, String extensionVersion) {
         if (includedExtensions != null && !includedExtensions.contains(extensionName)) {
-            throw new PowsyblException(extensionName + " is not an extension you have passed in the extensions list to export.");
+            throw new PowsyblException(extensionName + " is not an extension you have included in the extensions inclusion list to export.");
+        }
+        if (excludedExtensions != null && excludedExtensions.contains(extensionName)) {
+            throw new PowsyblException(extensionName + " is an extension you have excluded in the extensions exclusion list to export.");
         }
         if (extensionsVersions.putIfAbsent(extensionName, extensionVersion) != null) {
             throw new PowsyblException("The version of " + extensionName + "'s XML serializer has already been set.");

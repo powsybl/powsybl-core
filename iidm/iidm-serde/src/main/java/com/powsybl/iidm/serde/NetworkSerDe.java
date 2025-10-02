@@ -238,9 +238,13 @@ public final class NetworkSerDe {
         if (extensionSerDe == null) {
             return false;
         }
-        return options.getIncludedExtensions().filter(Set::isEmpty).isPresent() || options.getExcludedExtensions()
-                .map(extensions -> extensions.contains(extensionSerDe.getExtensionName()))
-                .orElse(false);
+        return options.getIncludedExtensions().filter(Set::isEmpty).isPresent() ||
+                options.getExcludedExtensions()
+                        .map(extensions -> extensions.contains(extensionSerDe.getExtensionName()))
+                        .orElse(false) &&
+                        options.getIncludedExtensions()
+                                .map(extensions -> !extensions.contains(extensionSerDe.getExtensionName()))
+                                .orElse(false);
     }
 
     private static boolean canTheExtensionBeWritten(ExtensionSerDe extensionSerDe, IidmVersion version, ExportOptions options) {
@@ -872,7 +876,8 @@ public final class NetworkSerDe {
             // missing extension serializer, we must not check for an extension in sub elements.
             ExtensionSerDe extensionSerde = extensionsSupplier.get().findProvider(extensionSerializationName);
             String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
-            if (!context.isIgnoredEquipment(id) && (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
+            if (!context.isIgnoredEquipment(id) &&
+                    (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
                 if (extensionSerde != null) {
                     extensionSerde.checkReadingCompatibility(context);
                     Identifiable identifiable = getIdentifiable(network, id);
