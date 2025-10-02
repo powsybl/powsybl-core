@@ -38,11 +38,11 @@ public interface Line extends Branch<Line>, Connectable<Line>, MutableLineCharac
 
     boolean connect(boolean propagateDisconnectionIfNeeded);
 
-    default boolean connect(Predicate<Switch> isTypeSwitchToOperate, boolean propagateDisconnectionIfNeeded) {
-        return connect(isTypeSwitchToOperate, null, propagateDisconnectionIfNeeded);
+    default boolean connect(Predicate<Switch> isTypeSwitchToOperate, boolean propagateConnectionIfNeeded) {
+        return connect(isTypeSwitchToOperate, null, propagateConnectionIfNeeded);
     }
 
-    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateDisconnectionIfNeeded);
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateConnectionIfNeeded);
 
     boolean disconnect(boolean propagateDisconnectionIfNeeded);
 
