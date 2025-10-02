@@ -251,7 +251,11 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
 
     boolean connect(boolean propagateDisconnectionIfNeeded);
 
-    default boolean connect(Predicate<Switch> isTypeSwitchToOperate, boolean propagateDisconnectionIfNeeded) {
+    default boolean connect(Predicate<Switch> isTypeSwitchToOperate, boolean propagateConnectionIfNeeded) {
+        return connect(isTypeSwitchToOperate, null, propagateConnectionIfNeeded);
+    }
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean propagateConnectionIfNeeded);
         return connect(isTypeSwitchToOperate, null, propagateDisconnectionIfNeeded);
     }
 
