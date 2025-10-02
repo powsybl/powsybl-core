@@ -54,10 +54,10 @@ public abstract class AbstractAreaTest {
         vlhv1 = network.getVoltageLevel("VLHV1");
         vlhv2 = network.getVoltageLevel("VLHV2");
         vlload = network.getVoltageLevel("VLLOAD");
-        dlXnode1A = network.getDanglingLine("NHV1_XNODE1");
-        dlXnode1B = network.getDanglingLine("XNODE1_NHV2");
-        dlXnode2A = network.getDanglingLine("NHV1_XNODE2");
-        dlXnode2B = network.getDanglingLine("XNODE2_NHV2");
+        dlXnode1A = network.getBoundaryLine("NHV1_XNODE1");
+        dlXnode1B = network.getBoundaryLine("XNODE1_NHV2");
+        dlXnode2A = network.getBoundaryLine("NHV1_XNODE2");
+        dlXnode2B = network.getBoundaryLine("XNODE2_NHV2");
         tieLine1 = network.getTieLine("NHV1_NHV2_1");
         tieLine2 = network.getTieLine("NHV1_NHV2_2");
     }
@@ -434,7 +434,7 @@ public abstract class AbstractAreaTest {
         network = merged.getSubnetwork("sim1");
         controlAreaA = network.getArea("ControlArea_A");
         controlAreaB = network.getArea("ControlArea_B");
-        dlXnode1A = network.getDanglingLine("NHV1_XNODE1");
+        dlXnode1A = network.getBoundaryLine("NHV1_XNODE1");
         tieLine1 = network.getTieLine("NHV1_NHV2_1");
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
         assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
@@ -450,7 +450,7 @@ public abstract class AbstractAreaTest {
         network = network.detach();
         controlAreaA = network.getArea("ControlArea_A");
         controlAreaB = network.getArea("ControlArea_B");
-        dlXnode2A = network.getDanglingLine("NHV1_XNODE2");
+        dlXnode2A = network.getBoundaryLine("NHV1_XNODE2");
         tieLine2 = network.getTieLine("NHV1_NHV2_2");
 
         // Verify the cleanup listener is now effective on the detached network
@@ -469,7 +469,7 @@ public abstract class AbstractAreaTest {
         Network network0 = Network.merge(networkId, network, fourBus);
         controlAreaA = network0.getArea("ControlArea_A");
         controlAreaB = network0.getArea("ControlArea_B");
-        dlXnode1A = network0.getDanglingLine("NHV1_XNODE1");
+        dlXnode1A = network0.getBoundaryLine("NHV1_XNODE1");
         tieLine1 = network0.getTieLine("NHV1_NHV2_1");
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
         assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
@@ -481,7 +481,7 @@ public abstract class AbstractAreaTest {
         controlAreaB = network0.getArea("ControlArea_B");
         checkAreas(network0, network0, network0);
 
-        dlXnode2A = network0.getDanglingLine("NHV1_XNODE2");
+        dlXnode2A = network0.getBoundaryLine("NHV1_XNODE2");
         tieLine2 = network0.getTieLine("NHV1_NHV2_2");
 
         // Verify the cleanup listener is always effective
@@ -520,7 +520,7 @@ public abstract class AbstractAreaTest {
         Bus bus = sn1VL1.getBusBreakerView().newBus()
                 .setId("sub1_bus")
                 .add();
-        BoundaryLine boundaryLine = sn1VL1.newDanglingLine()
+        BoundaryLine boundaryLine = sn1VL1.newBoundaryLine()
                 .setId("sub1_dl")
                 .setP0(0.0)
                 .setQ0(0.0)
@@ -533,7 +533,7 @@ public abstract class AbstractAreaTest {
                 .add();
         AreaBoundaryAdder areaBoundaryAdder = controlAreaA.newAreaBoundary().setBoundary(boundaryLine.getBoundary()).setAc(true);
         Throwable e = assertThrows(PowsyblException.class, areaBoundaryAdder::add);
-        assertEquals("Boundary of DanglingLinesub1_dl cannot be added to Area ControlArea_A boundaries. It does not belong to the same network or subnetwork.", e.getMessage());
+        assertEquals("Boundary of BoundaryLinesub1_dl cannot be added to Area ControlArea_A boundaries. It does not belong to the same network or subnetwork.", e.getMessage());
     }
 
     @Test

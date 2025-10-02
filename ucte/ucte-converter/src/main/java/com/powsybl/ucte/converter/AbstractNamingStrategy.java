@@ -76,7 +76,7 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
     @Override
     public UcteElementId getUcteElementId(BoundaryLine boundaryLine) {
         if (boundaryLine == null) {
-            throw new PowsyblException("the danglingLine is null");
+            throw new PowsyblException("the boundaryLine is null");
         }
         return getUcteElementId(boundaryLine.getId());
     }

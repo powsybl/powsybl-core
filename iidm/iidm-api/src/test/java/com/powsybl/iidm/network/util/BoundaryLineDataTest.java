@@ -24,7 +24,7 @@ class BoundaryLineDataTest {
 
     @Test
     void test() {
-        BoundaryLine boundaryLine = new BoundaryLineTestData().getDanglingLine();
+        BoundaryLine boundaryLine = new BoundaryLineTestData().getBoundaryLine();
         BoundaryLineData dlData = new BoundaryLineData(boundaryLine);
 
         boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.63378691, -8.57343339);
@@ -36,7 +36,7 @@ class BoundaryLineDataTest {
         BoundaryLineTestData dlTestData = new BoundaryLineTestData();
         dlTestData.setP0Zero();
         dlTestData.setQ0Zero();
-        BoundaryLine boundaryLine = dlTestData.getDanglingLine();
+        BoundaryLine boundaryLine = dlTestData.getBoundaryLine();
         BoundaryLineData dlData = new BoundaryLineData(boundaryLine);
 
         boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.62, -8.60);
@@ -46,7 +46,7 @@ class BoundaryLineDataTest {
     private static boolean dlCompareBoundaryBusVoltage(BoundaryLineData dlData, double boundaryBusU, double boundaryBusAngle) {
         double tol = 0.00001;
         if (Math.abs(dlData.getBoundaryBusU() - boundaryBusU) > tol || Math.abs(Math.toDegrees(dlData.getBoundaryBusTheta()) - boundaryBusAngle) > tol) {
-            LOG.info("DanglingLine {} Expected {} {} Actual {} {}", dlData.getId(),
+            LOG.info("BoundaryLine {} Expected {} {} Actual {} {}", dlData.getId(),
                 boundaryBusU, boundaryBusAngle, dlData.getBoundaryBusU(), Math.toDegrees(dlData.getBoundaryBusTheta()));
             return false;
         }

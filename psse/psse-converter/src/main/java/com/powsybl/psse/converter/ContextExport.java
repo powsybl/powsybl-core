@@ -86,7 +86,7 @@ final class ContextExport {
         private int maxPsseSubstation;
         private final Map<Bus, Integer> busViewBusI;
         private final Map<Integer, Bus> busIBusView;
-        private final Map<BoundaryLine, Integer> danglingLineBusI;
+        private final Map<BoundaryLine, Integer> boundaryLineBusI;
         private final Map<String, NodeData> voltageLevelNodeIdNodeData;
         private final Map<String, Integer> psseSubstationIdLastPsseNode;
         private final Map<String, Set<VoltageLevel>> psseSubstationIdVoltageLevels;
@@ -99,7 +99,7 @@ final class ContextExport {
             this.maxPsseSubstation = 0;
             this.busViewBusI = new HashMap<>();
             this.busIBusView = new HashMap<>();
-            this.danglingLineBusI = new HashMap<>();
+            this.boundaryLineBusI = new HashMap<>();
             this.voltageLevelNodeIdNodeData = new HashMap<>();
             this.psseSubstationIdLastPsseNode = new HashMap<>();
             this.psseSubstationIdVoltageLevels = new HashMap<>();
@@ -123,8 +123,8 @@ final class ContextExport {
             }
         }
 
-        void addDanglingLineBusI(BoundaryLine boundaryLine, int busI) {
-            this.danglingLineBusI.put(boundaryLine, busI);
+        void addBoundaryLineBusI(BoundaryLine boundaryLine, int busI) {
+            this.boundaryLineBusI.put(boundaryLine, busI);
         }
 
         Set<Integer> getBusISet() {
@@ -136,7 +136,7 @@ final class ContextExport {
         }
 
         OptionalInt getBusI(BoundaryLine boundaryLine) {
-            return Optional.ofNullable(this.danglingLineBusI.get(boundaryLine)).map(OptionalInt::of).orElse(OptionalInt.empty());
+            return Optional.ofNullable(this.boundaryLineBusI.get(boundaryLine)).map(OptionalInt::of).orElse(OptionalInt.empty());
         }
 
         Optional<Bus> getBusView(int busI) {

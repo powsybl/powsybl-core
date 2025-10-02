@@ -114,7 +114,7 @@ public class UcteExporter implements Exporter {
         // If it is connected this way, we could conclude it is a YNode
     }
 
-    private static boolean isDanglingLineYNode(BoundaryLine boundaryLine) {
+    private static boolean isBoundaryLineYNode(BoundaryLine boundaryLine) {
         return isYNode(boundaryLine.getTerminal().getBusBreakerView().getConnectableBus());
     }
 
@@ -159,7 +159,7 @@ public class UcteExporter implements Exporter {
             });
             voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, context));
         }));
-        network.getDanglingLines(BoundaryLineFilter.UNPAIRED).forEach(danglingLine -> convertDanglingLine(ucteNetwork, danglingLine, context));
+        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> convertBoundaryLine(ucteNetwork, boundaryLine, context));
         network.getLines().forEach(line -> convertLine(ucteNetwork, line, context));
         network.getTieLines().forEach(tieLine -> convertTieLine(ucteNetwork, tieLine, context));
         network.getTwoWindingsTransformers().forEach(transformer -> convertTwoWindingsTransformer(ucteNetwork, transformer, context));
@@ -298,10 +298,10 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Create a {@link UcteNode} object from a DanglingLine and add it to the {@link UcteNetwork}.
+     * Create a {@link UcteNode} object from a BoundaryLine and add it to the {@link UcteNetwork}.
      *
      * @param ucteNetwork The target network in ucte
-     * @param boundaryLine The danglingLine used to create the XNode
+     * @param boundaryLine The boundaryLine used to create the XNode
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertXNode(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
@@ -347,8 +347,8 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getPairingKey());
-        String geographicalName = mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
-        UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), STATUS_PROPERTY_KEY + "_XNode"));
+        String geographicalName = mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), STATUS_PROPERTY_KEY + "_XNode"));
         convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
     }
 
@@ -449,7 +449,7 @@ public class UcteExporter implements Exporter {
         convertXNode(ucteNetwork, tieLine, context);
 
         // Create dangling line 1
-        BoundaryLine boundaryLine1 = tieLine.getDanglingLine1();
+        BoundaryLine boundaryLine1 = tieLine.getBoundaryLine1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(boundaryLine1.getId());
         String elementName1 = boundaryLine1.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status1 = getStatusHalf(tieLine, TwoSides.ONE);
@@ -459,12 +459,12 @@ public class UcteExporter implements Exporter {
                 boundaryLine1.getR(),
                 boundaryLine1.getX(),
                 boundaryLine1.getB(),
-                tieLine.getDanglingLine1().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
+                tieLine.getBoundaryLine1().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
         // Create dangling line2
-        BoundaryLine boundaryLine2 = tieLine.getDanglingLine2();
+        BoundaryLine boundaryLine2 = tieLine.getBoundaryLine2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(boundaryLine2.getId());
         String elementName2 = boundaryLine2.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status2 = getStatusHalf(tieLine, TwoSides.TWO);
@@ -474,7 +474,7 @@ public class UcteExporter implements Exporter {
                 boundaryLine2.getR(),
                 boundaryLine2.getX(),
                 boundaryLine2.getB(),
-                tieLine.getDanglingLine2().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
+                tieLine.getBoundaryLine2().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
     }
@@ -483,11 +483,11 @@ public class UcteExporter implements Exporter {
      * Convert a {@link BoundaryLine} object to an {@link UcteNode} and a {@link UcteLine} objects.
      *
      * @param ucteNetwork The target network in ucte
-     * @param boundaryLine The danglingLine to convert to UCTE
+     * @param boundaryLine The boundaryLine to convert to UCTE
      * @param context The context used to store temporary data during the conversion
      */
-    private static void convertDanglingLine(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
-        LOGGER.trace("Converting DanglingLine {}", boundaryLine.getId());
+    private static void convertBoundaryLine(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
+        LOGGER.trace("Converting BoundaryLine {}", boundaryLine.getId());
 
         // Create XNode
         convertXNode(ucteNetwork, boundaryLine, context);
@@ -495,8 +495,8 @@ public class UcteExporter implements Exporter {
         // Always create the XNode,
         // But do not export the dangling line if it was related to a YNode
         // The corresponding transformer will be connected to the XNode
-        if (isDanglingLineYNode(boundaryLine)) {
-            LOGGER.warn("Ignoring DanglingLine at YNode in the export {}", boundaryLine.getId());
+        if (isBoundaryLineYNode(boundaryLine)) {
+            LOGGER.warn("Ignoring BoundaryLine at YNode in the export {}", boundaryLine.getId());
             return;
         }
 
@@ -576,14 +576,14 @@ public class UcteExporter implements Exporter {
     }
 
     private static UcteElementStatus getStatusHalf(TieLine tieLine, TwoSides side) {
-        if (tieLine.getDanglingLine(side).isFictitious()) {
-            if (tieLine.getDanglingLine(side).getTerminal().isConnected()) {
+        if (tieLine.getBoundaryLine(side).isFictitious()) {
+            if (tieLine.getBoundaryLine(side).getTerminal().isConnected()) {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
             }
         } else {
-            if (tieLine.getDanglingLine(side).getTerminal().isConnected()) {
+            if (tieLine.getBoundaryLine(side).getTerminal().isConnected()) {
                 return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;

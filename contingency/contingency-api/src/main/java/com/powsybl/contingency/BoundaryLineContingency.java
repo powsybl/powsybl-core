@@ -21,7 +21,7 @@ public class BoundaryLineContingency extends AbstractContingency {
 
     @Override
     public ContingencyElementType getType() {
-        return ContingencyElementType.DANGLING_LINE;
+        return ContingencyElementType.BOUNDARY_LINE;
     }
 
     @Override

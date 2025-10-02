@@ -30,19 +30,19 @@ class BoundaryLineConverter extends AbstractConverter {
     }
 
     static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        List<BoundaryLine> unPairedBoundaryLines = network.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired()).toList();
+        List<BoundaryLine> unPairedBoundaryLines = network.getBoundaryLineStream().filter(boundaryLine -> !boundaryLine.isPaired()).toList();
         if (!unPairedBoundaryLines.isEmpty()) {
-            createUnpairedDanglingLines(unPairedBoundaryLines, psseModel, contextExport, perUnitContext);
+            createUnpairedBoundaryLines(unPairedBoundaryLines, psseModel, contextExport, perUnitContext);
         }
     }
 
-    private static void createUnpairedDanglingLines(List<BoundaryLine> unPairedBoundaryLines, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        unPairedBoundaryLines.forEach(danglingLine -> {
-            PsseBus psseBus = createDanglingLineBus(danglingLine, contextExport);
+    private static void createUnpairedBoundaryLines(List<BoundaryLine> unPairedBoundaryLines, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+        unPairedBoundaryLines.forEach(boundaryLine -> {
+            PsseBus psseBus = createBoundaryLineBus(boundaryLine, contextExport);
             psseModel.addBuses(Collections.singletonList(psseBus));
-            psseModel.addNonTransformerBranches(Collections.singletonList(createDanglingLineBranch(danglingLine, psseBus.getI(), contextExport, perUnitContext)));
-            createDanglingLineLoad(danglingLine, psseBus.getI(), contextExport).ifPresent(psseLoad -> psseModel.addLoads(Collections.singletonList(psseLoad)));
-            createDanglingLineGenerator(danglingLine, psseBus.getI(), contextExport, perUnitContext).ifPresent(psseGenerator -> psseModel.addGenerators(Collections.singletonList(psseGenerator)));
+            psseModel.addNonTransformerBranches(Collections.singletonList(createBoundaryLineBranch(boundaryLine, psseBus.getI(), contextExport, perUnitContext)));
+            createBoundaryLineLoad(boundaryLine, psseBus.getI(), contextExport).ifPresent(psseLoad -> psseModel.addLoads(Collections.singletonList(psseLoad)));
+            createBoundaryLineGenerator(boundaryLine, psseBus.getI(), contextExport, perUnitContext).ifPresent(psseGenerator -> psseModel.addGenerators(Collections.singletonList(psseGenerator)));
         });
         psseModel.replaceAllBuses(psseModel.getBuses().stream().sorted(Comparator.comparingInt(PsseBus::getI)).toList());
         psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
@@ -51,7 +51,7 @@ class BoundaryLineConverter extends AbstractConverter {
     }
 
     // Boundary bus will always be exported as busBranch
-    private static PsseBus createDanglingLineBus(BoundaryLine boundaryLine, ContextExport contextExport) {
+    private static PsseBus createBoundaryLineBus(BoundaryLine boundaryLine, ContextExport contextExport) {
         Bus networkBusView = getTerminalConnectableBusView(boundaryLine.getTerminal());
         PsseBus psseBus = createDefaultBus();
         psseBus.setI(contextExport.getFullExport().getBusI(boundaryLine).orElseThrow());
@@ -75,7 +75,7 @@ class BoundaryLineConverter extends AbstractConverter {
         }
     }
 
-    private static PsseNonTransformerBranch createDanglingLineBranch(BoundaryLine boundaryLine, int busJ, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+    private static PsseNonTransformerBranch createBoundaryLineBranch(BoundaryLine boundaryLine, int busJ, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         PsseNonTransformerBranch psseLine = createDefaultNonTransformerBranch();
 
         int busI = getTerminalBusI(boundaryLine.getTerminal(), contextExport);
@@ -106,7 +106,7 @@ class BoundaryLineConverter extends AbstractConverter {
         return windingRates;
     }
 
-    private static Optional<PsseLoad> createDanglingLineLoad(BoundaryLine boundaryLine, int busJ, ContextExport contextExport) {
+    private static Optional<PsseLoad> createBoundaryLineLoad(BoundaryLine boundaryLine, int busJ, ContextExport contextExport) {
         if (!isLoadDefined(boundaryLine)) {
             return Optional.empty();
         } else {
@@ -125,7 +125,7 @@ class BoundaryLineConverter extends AbstractConverter {
                 (boundaryLine.getP0() != 0.0 || boundaryLine.getQ0() != 0.0);
     }
 
-    private static Optional<PsseGenerator> createDanglingLineGenerator(BoundaryLine boundaryLine, int busJ, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+    private static Optional<PsseGenerator> createBoundaryLineGenerator(BoundaryLine boundaryLine, int busJ, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         if (isGeneratorDefined(boundaryLine)) {
             return Optional.of(createGenerator(boundaryLine, boundaryLine.getGeneration(), busJ, contextExport, perUnitContext));
         } else {

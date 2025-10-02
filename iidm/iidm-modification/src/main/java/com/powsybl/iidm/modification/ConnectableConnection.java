@@ -85,7 +85,7 @@ public class ConnectableConnection extends AbstractConnectDisconnectModification
             if (identifiable instanceof Connectable<?> connectable) {
                 hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
             } else if (identifiable instanceof TieLine tieLine) {
-                hasBeenConnected = tieLine.connectDanglingLines(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
+                hasBeenConnected = tieLine.connectBoundaryLines(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
             } else if (identifiable instanceof HvdcLine hvdcLine) {
                 hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
             } else {

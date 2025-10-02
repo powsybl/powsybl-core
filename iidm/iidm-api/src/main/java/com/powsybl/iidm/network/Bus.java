@@ -172,25 +172,25 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get dangling lines connected to the bus based on given filter.
      */
-    Iterable<BoundaryLine> getDanglingLines(BoundaryLineFilter boundaryLineFilter);
+    Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
      * Get all dangling lines connected to the bus.
      */
-    default Iterable<BoundaryLine> getDanglingLines() {
-        return getDanglingLines(BoundaryLineFilter.ALL);
+    default Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     /**
      * Get dangling lines connected to the bus based on given filter.
      */
-    Stream<BoundaryLine> getDanglingLineStream(BoundaryLineFilter boundaryLineFilter);
+    Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
 
      /**
      * Get all dangling lines connected to the bus.
      */
-    default Stream<BoundaryLine> getDanglingLineStream() {
-        return getDanglingLineStream(BoundaryLineFilter.ALL);
+    default Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     /**

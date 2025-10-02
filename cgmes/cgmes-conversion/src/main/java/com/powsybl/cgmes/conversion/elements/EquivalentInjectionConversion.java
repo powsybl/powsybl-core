@@ -53,7 +53,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     // A dangling line has been created at the boundary node of the equivalent injection
-    public BoundaryLine convertOverDanglingLine(BoundaryLineAdder adder) {
+    public BoundaryLine convertOverBoundaryLine(BoundaryLineAdder adder) {
         boolean regulationCapability = p.asBoolean(CgmesNames.REGULATION_CAPABILITY, false);
         BoundaryLine dl;
         if (regulationCapability) {

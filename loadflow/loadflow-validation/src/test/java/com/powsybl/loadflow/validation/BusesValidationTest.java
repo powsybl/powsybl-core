@@ -43,8 +43,8 @@ class BusesValidationTest extends AbstractValidationTest {
     private final double vscCSQ = 0.0;
     private final double lineP = 1982.7713;
     private final double lineQ = -441.7662;
-    private final double danglingLineP = -15.0;
-    private final double danglingLineQ = -10.0;
+    private final double boundaryLineP = -15.0;
+    private final double boundaryLineQ = -10.0;
     private final double t2wtP = 5.25;
     private final double t2wtQ = 4.75;
     private final double t3wtP = 9.75;
@@ -94,17 +94,17 @@ class BusesValidationTest extends AbstractValidationTest {
         Line line = Mockito.mock(Line.class);
         Mockito.when(line.getTerminal1()).thenReturn(lineTerminal);
 
-        Bus danglingLineBus = Mockito.mock(Bus.class);
-        Mockito.when(danglingLineBus.getId()).thenReturn("bus");
-        BusView danglingLineBusView = Mockito.mock(BusView.class);
-        Mockito.when(danglingLineBusView.getBus()).thenReturn(danglingLineBus);
-        Terminal danglingLineTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(danglingLineTerminal.getP()).thenReturn(danglingLineP);
-        Mockito.when(danglingLineTerminal.getQ()).thenReturn(danglingLineQ);
-        Mockito.when(danglingLineTerminal.isConnected()).thenReturn(true);
-        Mockito.when(danglingLineTerminal.getBusView()).thenReturn(danglingLineBusView);
+        Bus boundaryLineBus = Mockito.mock(Bus.class);
+        Mockito.when(boundaryLineBus.getId()).thenReturn("bus");
+        BusView boundaryLineBusView = Mockito.mock(BusView.class);
+        Mockito.when(boundaryLineBusView.getBus()).thenReturn(boundaryLineBus);
+        Terminal boundaryLineTerminal = Mockito.mock(Terminal.class);
+        Mockito.when(boundaryLineTerminal.getP()).thenReturn(boundaryLineP);
+        Mockito.when(boundaryLineTerminal.getQ()).thenReturn(boundaryLineQ);
+        Mockito.when(boundaryLineTerminal.isConnected()).thenReturn(true);
+        Mockito.when(boundaryLineTerminal.getBusView()).thenReturn(boundaryLineBusView);
         boundaryLine = Mockito.mock(BoundaryLine.class);
-        Mockito.when(boundaryLine.getTerminal()).thenReturn(danglingLineTerminal);
+        Mockito.when(boundaryLine.getTerminal()).thenReturn(boundaryLineTerminal);
         Mockito.when(boundaryLine.isPaired()).thenReturn(false);
 
         Bus t2wBus = Mockito.mock(Bus.class);
@@ -142,7 +142,7 @@ class BusesValidationTest extends AbstractValidationTest {
         Mockito.when(bus.getStaticVarCompensatorStream()).thenAnswer(dummyShunts -> Stream.empty());
         Mockito.when(bus.getVscConverterStationStream()).thenAnswer(dummyShunts -> Stream.empty());
         Mockito.when(bus.getLineStream()).thenAnswer(dummyLines -> Stream.of(line));
-        Mockito.when(bus.getDanglingLineStream(BoundaryLineFilter.ALL)).thenAnswer(dummyDanglingLines -> Stream.of(boundaryLine));
+        Mockito.when(bus.getBoundaryLineStream(BoundaryLineFilter.ALL)).thenAnswer(dummyBoundaryLines -> Stream.of(boundaryLine));
         Mockito.when(bus.getTwoWindingsTransformerStream()).thenAnswer(dummyTwoWindingsTransformers -> Stream.of(t2w));
         Mockito.when(bus.getThreeWindingsTransformerStream()).thenAnswer(dummyThreeWindingsTransformers -> Stream.of(t3w));
         Mockito.when(bus.isInMainConnectedComponent()).thenReturn(mainComponent);
@@ -151,28 +151,28 @@ class BusesValidationTest extends AbstractValidationTest {
     @Test
     void checkBusesValues() {
         assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                              lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
+                                              lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
         assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
+                                               lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
         assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, 174.4932, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
+                                               lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
         // check NaN values
         assertFalse(BusesValidation.INSTANCE.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
+                                               lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
         assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, Double.NaN, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
+                                               lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, Double.NaN, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
         looseConfig.setOkMissingValues(true);
         assertTrue(BusesValidation.INSTANCE.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                              lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
+                                              lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
         assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                              lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, Double.NaN, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
+                                              lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, Double.NaN, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
         looseConfig.setOkMissingValues(false);
         // check main component
-        assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
-                                               danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, boundaryLineP,
+                                               boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
         mainComponent = false;
-        assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
-                                              danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, boundaryLineP,
+                                              boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
@@ -198,7 +198,7 @@ class BusesValidationTest extends AbstractValidationTest {
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.INSTANCE, ValidationType.BUSES);
         assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));
 
-        // Consider paired danglingLines
+        // Consider paired boundaryLines
         Mockito.when(boundaryLine.isPaired()).thenReturn(true);
 
         assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, data));

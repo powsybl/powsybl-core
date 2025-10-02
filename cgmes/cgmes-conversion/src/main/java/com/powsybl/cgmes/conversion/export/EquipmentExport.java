@@ -97,7 +97,7 @@ public final class EquipmentExport {
             writeTwoWindingsTransformers(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
             writeThreeWindingsTransformers(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
 
-            writeDanglingLines(network, mapTerminal2Id, cimNamespace, euNamespace, exportedLimitTypes, writer, context, exportedBaseVoltagesByNominalV);
+            writeBoundaryLines(network, mapTerminal2Id, cimNamespace, euNamespace, exportedLimitTypes, writer, context, exportedBaseVoltagesByNominalV);
             writeHvdcLines(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
 
             writeControlAreas(loadAreaId, network, cimNamespace, euNamespace, writer, context);
@@ -924,37 +924,37 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeDanglingLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace,
+    private static void writeBoundaryLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace,
                                            Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
 
-        for (BoundaryLine boundaryLine : network.getDanglingLines(BoundaryLineFilter.UNPAIRED)) {
-            writeUnpairedOrPairedDanglingLines(Collections.singletonList(boundaryLine), mapTerminal2Id, cimNamespace, euNamespace,
+        for (BoundaryLine boundaryLine : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            writeUnpairedOrPairedBoundaryLines(Collections.singletonList(boundaryLine), mapTerminal2Id, cimNamespace, euNamespace,
                     exportedLimitTypes, writer,
                     context, exportedBaseVoltagesByNominalV, exported);
         }
 
-        Set<String> pairingKeys = network.getDanglingLineStream(BoundaryLineFilter.PAIRED).map(BoundaryLine::getPairingKey).collect(Collectors.toSet());
+        Set<String> pairingKeys = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).map(BoundaryLine::getPairingKey).collect(Collectors.toSet());
         for (String pairingKey : pairingKeys) {
-            List<BoundaryLine> boundaryLineList = network.getDanglingLineStream(BoundaryLineFilter.PAIRED).filter(danglingLine -> pairingKey.equals(danglingLine.getPairingKey())).toList();
-            writeUnpairedOrPairedDanglingLines(boundaryLineList, mapTerminal2Id, cimNamespace, euNamespace,
+            List<BoundaryLine> boundaryLineList = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).filter(boundaryLine -> pairingKey.equals(boundaryLine.getPairingKey())).toList();
+            writeUnpairedOrPairedBoundaryLines(boundaryLineList, mapTerminal2Id, cimNamespace, euNamespace,
                     exportedLimitTypes, writer,
                     context, exportedBaseVoltagesByNominalV, exported);
         }
     }
 
-    private static void writeUnpairedOrPairedDanglingLines(List<BoundaryLine> boundaryLineList, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace,
+    private static void writeUnpairedOrPairedBoundaryLines(List<BoundaryLine> boundaryLineList, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace,
                                                            Set<String> exportedLimitTypes, XMLStreamWriter writer,
                                                            CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV, List<String> exported) throws XMLStreamException {
 
-        String baseVoltageId = writeDanglingLinesBaseVoltage(boundaryLineList, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
-        String connectivityNodeId = writeDanglingLinesConnectivity(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+        String baseVoltageId = writeBoundaryLinesBaseVoltage(boundaryLineList, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
+        String connectivityNodeId = writeBoundaryLinesConnectivity(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
 
         for (BoundaryLine boundaryLine : boundaryLineList) {
             // New Equivalent Injection
-            writeDanglingLineEquivalentInjection(boundaryLine, cimNamespace, baseVoltageId, connectivityNodeId, exported, writer, context);
+            writeBoundaryLineEquivalentInjection(boundaryLine, cimNamespace, baseVoltageId, connectivityNodeId, exported, writer, context);
 
-            // Cast the danglingLine to an AcLineSegment
+            // Cast the boundaryLine to an AcLineSegment
             AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(boundaryLine), boundaryLine.getNameOrId(),
                     context.getBaseVoltageByNominalVoltage(boundaryLine.getTerminal().getVoltageLevel().getNominalV()).getId(),
                     boundaryLine.getR(), boundaryLine.getX(), boundaryLine.getG(), boundaryLine.getB(), cimNamespace, writer, context);
@@ -969,7 +969,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeDanglingLineEquivalentInjection(BoundaryLine boundaryLine, String cimNamespace,
+    private static void writeBoundaryLineEquivalentInjection(BoundaryLine boundaryLine, String cimNamespace,
                                                              String baseVoltageId, String connectivityNodeId, List<String> exported, XMLStreamWriter writer,
                                                              CgmesExportContext context) throws XMLStreamException {
 
@@ -999,9 +999,9 @@ public final class EquipmentExport {
         }
     }
 
-    private static String writeDanglingLinesBaseVoltage(List<BoundaryLine> boundaryLineList, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
+    private static String writeBoundaryLinesBaseVoltage(List<BoundaryLine> boundaryLineList, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
         double nominalV = boundaryLineList.stream()
-                .map(danglingLine -> danglingLine.getTerminal().getVoltageLevel().getNominalV())
+                .map(boundaryLine -> boundaryLine.getTerminal().getVoltageLevel().getNominalV())
                 .collect(Collectors.toSet()).stream().sorted().findFirst().orElseThrow();
 
         BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
@@ -1012,13 +1012,13 @@ public final class EquipmentExport {
         return baseVoltage.getId();
     }
 
-    private static String writeDanglingLinesConnectivity(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
+    private static String writeBoundaryLinesConnectivity(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
                                                          CgmesExportContext context) throws XMLStreamException {
         String connectivityNodeId = null;
         if (!context.isCim16BusBranchExport()) {
-            connectivityNodeId = writeDanglingLinesConnectivityNode(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+            connectivityNodeId = writeBoundaryLinesConnectivityNode(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
         } else {
-            writeDanglingLinesFictitiousContainer(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+            writeBoundaryLinesFictitiousContainer(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
         }
 
         for (BoundaryLine boundaryLine : boundaryLineList) {
@@ -1028,33 +1028,33 @@ public final class EquipmentExport {
         return connectivityNodeId;
     }
 
-    private static String writeDanglingLinesConnectivityNode(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
+    private static String writeBoundaryLinesConnectivityNode(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
                                                              CgmesExportContext context) throws XMLStreamException {
 
         Set<String> connectevityNodeIdSet = boundaryLineList.stream()
-                .map(danglingLine -> obtainConnectivityNodeId(danglingLine, context))
+                .map(boundaryLine -> obtainConnectivityNodeId(boundaryLine, context))
                 .flatMap(Optional::stream)
                 .collect(Collectors.toSet());
 
         String connectivityNodeId;
-        if (connectevityNodeIdSet.size() > 1) { // Only in paired danglingLines
-            throw new PowsyblException("Paired danglingLines with different connectivityNode on the boundarySide. ParingKey: " + boundaryLineList.get(0).getPairingKey());
+        if (connectevityNodeIdSet.size() > 1) { // Only in paired boundaryLines
+            throw new PowsyblException("Paired boundaryLines with different connectivityNode on the boundarySide. ParingKey: " + boundaryLineList.get(0).getPairingKey());
         } else if (connectevityNodeIdSet.size() == 1) {
             connectivityNodeId = connectevityNodeIdSet.iterator().next();
-            setDanglingLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
+            setBoundaryLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
         } else {
             // If no information about original boundary has been preserved in the IIDM model,
             // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
 
             if (LOG.isInfoEnabled()) {
-                LOG.info("Dangling line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", danglingLinesId(boundaryLineList));
+                LOG.info("Dangling line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", boundaryLinesId(boundaryLineList));
             }
             BoundaryLine boundaryLine = boundaryLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
             connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(boundaryLine), CONNECTIVITY_NODE);
 
             String connectivityNodeContainerId = createFictitiousContainerFor(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
             ConnectivityNodeEq.write(connectivityNodeId, boundaryLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
-            setDanglingLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
+            setBoundaryLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
         }
         return connectivityNodeId;
     }
@@ -1065,15 +1065,15 @@ public final class EquipmentExport {
                 : Optional.empty();
     }
 
-    private static void setDanglingLinesProperty(List<BoundaryLine> boundaryLineList, String propertyKey, String connectivityNodeId) {
-        boundaryLineList.forEach(danglingLine -> {
-            if (!danglingLine.hasProperty(propertyKey)) {
-                danglingLine.setProperty(propertyKey, connectivityNodeId);
+    private static void setBoundaryLinesProperty(List<BoundaryLine> boundaryLineList, String propertyKey, String connectivityNodeId) {
+        boundaryLineList.forEach(boundaryLine -> {
+            if (!boundaryLine.hasProperty(propertyKey)) {
+                boundaryLine.setProperty(propertyKey, connectivityNodeId);
             }
         });
     }
 
-    private static void writeDanglingLinesFictitiousContainer(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
+    private static void writeBoundaryLinesFictitiousContainer(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
                                                               CgmesExportContext context) throws XMLStreamException {
 
         Set<String> topologicalNodeIdSet = boundaryLineList.stream()
@@ -1081,15 +1081,15 @@ public final class EquipmentExport {
                 .flatMap(Optional::stream)
                 .collect(Collectors.toSet());
 
-        if (topologicalNodeIdSet.size() > 1) { // Only in paired danglingLines
-            throw new PowsyblException("Paired danglingLines with different topologicalNode on the boundarySide. ParingKey: " + boundaryLineList.get(0).getPairingKey());
+        if (topologicalNodeIdSet.size() > 1) { // Only in paired boundaryLines
+            throw new PowsyblException("Paired boundaryLines with different topologicalNode on the boundarySide. ParingKey: " + boundaryLineList.get(0).getPairingKey());
         } else if (topologicalNodeIdSet.size() == 1) {
             String topologicalNodeId = topologicalNodeIdSet.iterator().next();
-            setDanglingLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, topologicalNodeId);
+            setBoundaryLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, topologicalNodeId);
         } else {
             // Also create a container if we will have to create a Topological Node for the boundary
             if (LOG.isInfoEnabled()) {
-                LOG.info("Dangling line(s) not connected to a topology node in boundaries files: a fictitious substation and voltage level are created: {}", danglingLinesId(boundaryLineList));
+                LOG.info("Dangling line(s) not connected to a topology node in boundaries files: a fictitious substation and voltage level are created: {}", boundaryLinesId(boundaryLineList));
             }
             createFictitiousContainerFor(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
         }
@@ -1109,9 +1109,9 @@ public final class EquipmentExport {
         return containerId;
     }
 
-    private static String danglingLinesId(List<BoundaryLine> boundaryLineList) {
+    private static String boundaryLinesId(List<BoundaryLine> boundaryLineList) {
         List<String> strings = new ArrayList<>();
-        boundaryLineList.forEach(danglingLine -> strings.add(danglingLine.getId()));
+        boundaryLineList.forEach(boundaryLine -> strings.add(boundaryLine.getId()));
         String string = String.join(", ", strings);
         return !boundaryLineList.isEmpty() && boundaryLineList.get(0).getPairingKey() != null
                 ? string + " linked to X-node " + boundaryLineList.get(0).getPairingKey() : string;
@@ -1434,7 +1434,7 @@ public final class EquipmentExport {
     }
 
     private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
-        BoundaryLine dl = boundary.getDanglingLine();
+        BoundaryLine dl = boundary.getBoundaryLine();
         return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
     }
 

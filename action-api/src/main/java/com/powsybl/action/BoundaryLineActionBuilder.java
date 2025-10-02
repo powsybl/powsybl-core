@@ -2,8 +2,8 @@ package com.powsybl.action;
 
 public class BoundaryLineActionBuilder extends AbstractLoadActionBuilder<BoundaryLineAction, BoundaryLineActionBuilder> {
 
-    public BoundaryLineActionBuilder withDanglingLineId(String danglingLineId) {
-        return withNetworkElementId(danglingLineId);
+    public BoundaryLineActionBuilder withBoundaryLineId(String boundaryLineId) {
+        return withNetworkElementId(boundaryLineId);
     }
 
     @Override

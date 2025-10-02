@@ -27,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
     @Test
-    void testDanglingLine() throws IOException {
+    void testBoundaryLine() throws IOException {
         Network network = BoundaryLineNetworkFactory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
-        BoundaryLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getBoundaryLine("DL");
         OperationalLimitsGroup operationalLimitsGroup = dl.getOrCreateSelectedOperationalLimitsGroup();
         createLoadingLimits(operationalLimitsGroup::newActivePowerLimits);
         createLoadingLimits(operationalLimitsGroup::newApparentPowerLimits);
@@ -47,7 +47,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
                 NetworkSerDe.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("danglingLine.activePowerLimits is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
+                assertEquals("boundaryLine.activePowerLimits is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
                         e.getMessage());
             }
         });
@@ -171,7 +171,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     void testWithProperties() throws IOException {
         Network network = BoundaryLineNetworkFactory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
-        BoundaryLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getBoundaryLine("DL");
         OperationalLimitsGroup g1 = dl.getOperationalLimitsGroup("DEFAULT").orElseThrow();
         g1.setProperty("type", "A");
         g1.setProperty("source", "s1");

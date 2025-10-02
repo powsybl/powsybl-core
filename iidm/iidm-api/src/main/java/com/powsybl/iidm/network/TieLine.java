@@ -13,8 +13,8 @@ import java.util.function.Predicate;
  * A tie line is an AC line sharing power between two neighbouring regional grids. It is constituted of two {@link BoundaryLine}
  * <p>
  * The tie line is always oriented in the same way, <br>
- * The network model node of the danglingLine1 is always at end 1. <br>
- * The network model node of the danglingLine2 is always at end 2. <br>
+ * The network model node of the boundaryLine1 is always at end 1. <br>
+ * The network model node of the boundaryLine2 is always at end 2. <br>
  * </p>
  * As there is no injection at the boundary node, by applying kron reduction, this node can be
  * removed getting an equivalent branch between both network model nodes.
@@ -52,16 +52,16 @@ import java.util.function.Predicate;
  *             <td style="border: 1px solid black">Human-readable name of the tie line</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">DanglingLine1</td>
- *             <td style="border: 1px solid black">DanglingLine</td>
+ *             <td style="border: 1px solid black">BoundaryLine1</td>
+ *             <td style="border: 1px solid black">BoundaryLine</td>
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The first half of the line characteristics</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">DanglingLine2</td>
- *             <td style="border: 1px solid black">DanglingLine</td>
+ *             <td style="border: 1px solid black">BoundaryLine2</td>
+ *             <td style="border: 1px solid black">BoundaryLine</td>
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
@@ -102,22 +102,22 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     /**
      * Get first dangling line of this tie line
      */
-    BoundaryLine getDanglingLine1();
+    BoundaryLine getBoundaryLine1();
 
     /**
      * Get second dangling line of this tie line
      */
-    BoundaryLine getDanglingLine2();
+    BoundaryLine getBoundaryLine2();
 
     /**
      * Get the dangling line of this tie line corresponding to the given side
      */
-    BoundaryLine getDanglingLine(TwoSides side);
+    BoundaryLine getBoundaryLine(TwoSides side);
 
     /**
      * Get the dangling line of this tie line corresponding to the given voltage level
      */
-    BoundaryLine getDanglingLine(String voltageLevelId);
+    BoundaryLine getBoundaryLine(String voltageLevelId);
 
     @Override
     default IdentifiableType getType() {
@@ -129,19 +129,19 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     /**
      * Remove the tie line with an update of underlying dangling lines to reflect the tie line flows.
      */
-    void remove(boolean updateDanglingLines);
+    void remove(boolean updateBoundaryLines);
 
-    boolean connectDanglingLines();
+    boolean connectBoundaryLines();
 
-    boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate);
+    boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate);
 
-    boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
+    boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
-    boolean disconnectDanglingLines();
+    boolean disconnectBoundaryLines();
 
-    boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable);
+    boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable);
 
-    boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side);
+    boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     Network getNetwork();
 }

@@ -12,7 +12,7 @@ package com.powsybl.iidm.criteria;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class BoundaryLineCriterion extends AbstractNetworkElementEquipmentCriterion {
-    public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.DANGLING_LINE;
+    public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.BOUNDARY_LINE;
 
     private final SingleCountryCriterion singleCountryCriterion;
     private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;

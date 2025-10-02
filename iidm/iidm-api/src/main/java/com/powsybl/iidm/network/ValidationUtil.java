@@ -851,7 +851,7 @@ public final class ValidationUtil {
             } else if (identifiable instanceof BoundaryLine boundaryLine) {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, boundaryLine.getP0(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, boundaryLine.getQ0(), actionOnError, reportNode));
-                validationLevel = checkGenerationOnDanglingLine(validationLevel, validable, boundaryLine, actionOnError, reportNode);
+                validationLevel = checkGenerationOnBoundaryLine(validationLevel, validable, boundaryLine, actionOnError, reportNode);
                 validationLevel = checkOperationalLimitsGroups(validable, boundaryLine.getOperationalLimitsGroups(), validationLevel, actionOnError, reportNode);
             } else if (identifiable instanceof Generator generator) {
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), actionOnError, reportNode));
@@ -882,7 +882,7 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    private static ValidationLevel checkGenerationOnDanglingLine(ValidationLevel previous, Validable validable, BoundaryLine boundaryLine, ActionOnError actionOnError, ReportNode reportNode) {
+    private static ValidationLevel checkGenerationOnBoundaryLine(ValidationLevel previous, Validable validable, BoundaryLine boundaryLine, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = previous;
         BoundaryLine.Generation generation = boundaryLine.getGeneration();
         if (generation != null) {

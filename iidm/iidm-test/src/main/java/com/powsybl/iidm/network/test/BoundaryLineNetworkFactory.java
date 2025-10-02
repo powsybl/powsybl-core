@@ -25,7 +25,7 @@ public final class BoundaryLineNetworkFactory {
 
     public static Network create(NetworkFactory networkFactory) {
         Network network = createBase(networkFactory);
-        BoundaryLine boundaryLine = network.getVoltageLevel("VL").newDanglingLine()
+        BoundaryLine boundaryLine = network.getVoltageLevel("VL").newBoundaryLine()
                 .setId("DL")
                 .setBus("BUS")
                 .setR(10.0)
@@ -35,7 +35,7 @@ public final class BoundaryLineNetworkFactory {
                 .setP0(50.0)
                 .setQ0(30.0)
                 .add();
-        createDanglingLineCurrentLimits(boundaryLine);
+        createBoundaryLineCurrentLimits(boundaryLine);
         return network;
     }
 
@@ -45,7 +45,7 @@ public final class BoundaryLineNetworkFactory {
 
     public static Network createWithGeneration(NetworkFactory networkFactory) {
         Network network = createBase(networkFactory);
-        BoundaryLine boundaryLine = network.getVoltageLevel("VL").newDanglingLine()
+        BoundaryLine boundaryLine = network.getVoltageLevel("VL").newBoundaryLine()
                 .setId("DL")
                 .setBus("BUS")
                 .setR(10.0)
@@ -74,7 +74,7 @@ public final class BoundaryLineNetworkFactory {
                 .setMaxQ(46.25)
                 .endPoint()
                 .add();
-        createDanglingLineCurrentLimits(boundaryLine);
+        createBoundaryLineCurrentLimits(boundaryLine);
         return network;
     }
 
@@ -110,7 +110,7 @@ public final class BoundaryLineNetworkFactory {
         return network;
     }
 
-    private static void createDanglingLineCurrentLimits(BoundaryLine boundaryLine) {
+    private static void createBoundaryLineCurrentLimits(BoundaryLine boundaryLine) {
         boundaryLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()

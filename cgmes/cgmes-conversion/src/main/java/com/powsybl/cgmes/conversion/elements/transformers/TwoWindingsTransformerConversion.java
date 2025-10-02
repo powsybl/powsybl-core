@@ -111,7 +111,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     }
 
     @Override
-    public Optional <BoundaryLine> getDanglingLine() {
+    public Optional <BoundaryLine> getBoundaryLine() {
         return Optional.ofNullable(boundaryLine);
     }
 
@@ -121,14 +121,14 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
 
-        // The twoWindingsTransformer is converted to a danglingLine with different VoltageLevels at its ends.
-        // As the current danglingLine only supports shunt admittance at the end1 we can only map twoWindingsTransformers with
+        // The twoWindingsTransformer is converted to a boundaryLine with different VoltageLevels at its ends.
+        // As the current boundaryLine only supports shunt admittance at the end1 we can only map twoWindingsTransformers with
         // ratio 1.0 and angle 0.0
         // Since the ratio has been fixed to 1.0, if the current (ratio, angle) of the transformer
         // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
         // we will have differences in the LF computation.
-        // TODO support in the danglingLine the complete twoWindingsTransformer model (transformer + tapChangers)
-        boundaryLine = convertToDanglingLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel), CgmesNames.POWER_TRANSFORMER);
+        // TODO support in the boundaryLine the complete twoWindingsTransformer model (transformer + tapChangers)
+        boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel), CgmesNames.POWER_TRANSFORMER);
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
@@ -260,6 +260,6 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     }
 
     public static void update(BoundaryLine boundaryLine, Context context) {
-        updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 }

@@ -27,18 +27,18 @@ class BoundaryLineXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
-        allFormatsRoundTripAllVersionedXmlTest("danglingLine.xml");
+        allFormatsRoundTripAllVersionedXmlTest("boundaryLine.xml");
     }
 
     @Test
     void testWithGeneration() throws IOException {
         Network network = BoundaryLineNetworkFactory.createWithGeneration();
         network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
-        network.getDanglingLine("DL").setProperty("test", "test");
-        allFormatsRoundTripTest(network, "danglingLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        network.getBoundaryLine("DL").setProperty("test", "test");
+        allFormatsRoundTripTest(network, "boundaryLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         // backward compatibility checks from version 1.3
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("danglingLineWithGeneration.xml", IidmVersion.V_1_3);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("boundaryLineWithGeneration.xml", IidmVersion.V_1_3);
 
         // check it fails for all versions < 1.3
         testForAllPreviousVersions(IidmVersion.V_1_3, version -> {
@@ -48,12 +48,12 @@ class BoundaryLineXmlTest extends AbstractIidmSerDeTest {
                 NetworkSerDe.write(network, options, path);
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("danglingLine.generation is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.3", e.getMessage());
+                assertEquals("boundaryLine.generation is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.3", e.getMessage());
             }
         });
 
         // check it doesn't fail for all versions < 1.3 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteXmlAllPreviousVersions(network, options, "danglingLineWithGeneration.xml", IidmVersion.V_1_3);
+        testWriteXmlAllPreviousVersions(network, options, "boundaryLineWithGeneration.xml", IidmVersion.V_1_3);
     }
 }

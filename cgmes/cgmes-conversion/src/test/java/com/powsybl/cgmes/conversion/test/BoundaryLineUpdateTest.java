@@ -25,84 +25,84 @@ class BoundaryLineUpdateTest {
 
     @Test
     void importEqTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml");
-        assertEquals(4, network.getDanglingLineCount());
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml");
+        assertEquals(4, network.getBoundaryLineCount());
 
         assertEq(network);
     }
 
     @Test
     void importEqAndSshTogetherTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
-        assertEquals(4, network.getDanglingLineCount());
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml", "boundaryLine_SSH.xml");
+        assertEquals(4, network.getBoundaryLineCount());
 
         assertFirstSsh(network);
     }
 
     @Test
     void importEqAndTwoSshsTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml");
-        assertEquals(4, network.getDanglingLineCount());
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml");
+        assertEquals(4, network.getBoundaryLineCount());
 
         assertEq(network);
 
-        readCgmesResources(network, DIR, "danglingLine_SSH.xml");
+        readCgmesResources(network, DIR, "boundaryLine_SSH.xml");
         assertFirstSsh(network);
 
-        readCgmesResources(network, DIR, "danglingLine_SSH_1.xml");
+        readCgmesResources(network, DIR, "boundaryLine_SSH_1.xml");
         assertSecondSsh(network);
     }
 
     @Test
     void importSvTogetherTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml", "danglingLine_TP.xml", "danglingLine_SV.xml");
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml", "boundaryLine_SSH.xml", "boundaryLine_TP.xml", "boundaryLine_SV.xml");
 
-        assertEquals(4, network.getDanglingLineCount());
+        assertEquals(4, network.getBoundaryLineCount());
 
         double tol = 0.0000001;
-        BoundaryLine acLineSegment = network.getDanglingLine("ACLineSegment");
+        BoundaryLine acLineSegment = network.getBoundaryLine("ACLineSegment");
         assertEquals(285.2495134203, acLineSegment.getTerminal().getP(), tol);
         assertEquals(-68.1683990331, acLineSegment.getTerminal().getQ(), tol);
 
-        BoundaryLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
+        BoundaryLine equivalentBranch = network.getBoundaryLine("EquivalentBranch");
         assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
         assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
         assertBusVoltage(equivalentBranch.getTerminal().getBusView().getBus(), 400.5, -3.0);
         assertTrue(checkBoundaryBusVoltage(equivalentBranch, 388.0868627936761, -5.9167013802728095));
 
-        BoundaryLine powerTransformer = network.getDanglingLine("PowerTransformer");
+        BoundaryLine powerTransformer = network.getBoundaryLine("PowerTransformer");
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getQ()));
 
-        BoundaryLine breaker = network.getDanglingLine("Breaker");
+        BoundaryLine breaker = network.getBoundaryLine("Breaker");
         assertEquals(10.0, breaker.getTerminal().getP(), tol);
         assertEquals(5.0, breaker.getTerminal().getQ(), tol);
     }
 
     @Test
     void importSvSeparatelyTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml", "boundaryLine_SSH.xml");
 
-        assertEquals(4, network.getDanglingLineCount());
+        assertEquals(4, network.getBoundaryLineCount());
 
         double tol = 0.0000001;
-        BoundaryLine acLineSegment = network.getDanglingLine("ACLineSegment");
+        BoundaryLine acLineSegment = network.getBoundaryLine("ACLineSegment");
         assertTrue(Double.isNaN(acLineSegment.getTerminal().getP()));
         assertTrue(Double.isNaN(acLineSegment.getTerminal().getQ()));
 
-        BoundaryLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
+        BoundaryLine equivalentBranch = network.getBoundaryLine("EquivalentBranch");
         assertTrue(Double.isNaN(equivalentBranch.getTerminal().getP()));
         assertTrue(Double.isNaN(equivalentBranch.getTerminal().getQ()));
 
-        BoundaryLine powerTransformer = network.getDanglingLine("PowerTransformer");
+        BoundaryLine powerTransformer = network.getBoundaryLine("PowerTransformer");
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getQ()));
 
-        BoundaryLine breaker = network.getDanglingLine("Breaker");
+        BoundaryLine breaker = network.getBoundaryLine("Breaker");
         assertEquals(10.0, breaker.getTerminal().getP(), tol);
         assertEquals(5.0, breaker.getTerminal().getQ(), tol);
 
-        readCgmesResources(network, DIR, "danglingLine_TP.xml", "danglingLine_SV.xml");
+        readCgmesResources(network, DIR, "boundaryLine_TP.xml", "boundaryLine_SV.xml");
 
         assertEquals(0.0503090159, acLineSegment.getTerminal().getP(), tol);
         assertEquals(-145.5845194744, acLineSegment.getTerminal().getQ(), tol);
@@ -120,45 +120,45 @@ class BoundaryLineUpdateTest {
     }
 
     private static void assertEq(Network network) {
-        assertEq(network.getDanglingLine("ACLineSegment"));
-        assertNotDefinedLimits(network.getDanglingLine("ACLineSegment"));
+        assertEq(network.getBoundaryLine("ACLineSegment"));
+        assertNotDefinedLimits(network.getBoundaryLine("ACLineSegment"));
 
-        assertEq(network.getDanglingLine("EquivalentBranch"));
-        assertNotDefinedLimits(network.getDanglingLine("EquivalentBranch"));
+        assertEq(network.getBoundaryLine("EquivalentBranch"));
+        assertNotDefinedLimits(network.getBoundaryLine("EquivalentBranch"));
 
-        assertEq(network.getDanglingLine("PowerTransformer"));
-        assertNotDefinedLimits(network.getDanglingLine("PowerTransformer"));
+        assertEq(network.getBoundaryLine("PowerTransformer"));
+        assertNotDefinedLimits(network.getBoundaryLine("PowerTransformer"));
 
-        assertEq(network.getDanglingLine("Breaker"));
-        assertDefinedActivePowerLimits(network.getDanglingLine("Breaker"), new ActivePowerLimit(90.0, 900, 108.0));
+        assertEq(network.getBoundaryLine("Breaker"));
+        assertDefinedActivePowerLimits(network.getBoundaryLine("Breaker"), new ActivePowerLimit(90.0, 900, 108.0));
     }
 
     private static void assertFirstSsh(Network network) {
-        assertSsh(network.getDanglingLine("ACLineSegment"), 284.5, 70.5, false, Double.NaN, Double.NaN, Double.NaN, false);
-        assertNotDefinedLimits(network.getDanglingLine("ACLineSegment"));
+        assertSsh(network.getBoundaryLine("ACLineSegment"), 284.5, 70.5, false, Double.NaN, Double.NaN, Double.NaN, false);
+        assertNotDefinedLimits(network.getBoundaryLine("ACLineSegment"));
 
-        assertSsh(network.getDanglingLine("EquivalentBranch"), 0.0, 0.0, true, -275.0, -50.0, 405.0, true);
-        assertNotDefinedLimits(network.getDanglingLine("EquivalentBranch"));
+        assertSsh(network.getBoundaryLine("EquivalentBranch"), 0.0, 0.0, true, -275.0, -50.0, 405.0, true);
+        assertNotDefinedLimits(network.getBoundaryLine("EquivalentBranch"));
 
-        assertSsh(network.getDanglingLine("PowerTransformer"), 0.0, 0.0, true, -100.0, -25.0, 225.0, true);
-        assertNotDefinedLimits(network.getDanglingLine("PowerTransformer"));
+        assertSsh(network.getBoundaryLine("PowerTransformer"), 0.0, 0.0, true, -100.0, -25.0, 225.0, true);
+        assertNotDefinedLimits(network.getBoundaryLine("PowerTransformer"));
 
-        assertSsh(network.getDanglingLine("Breaker"), 0.0, 0.0, true, -10.0, -5.0, 402.0, true);
-        assertDefinedActivePowerLimits(network.getDanglingLine("Breaker"), new ActivePowerLimit(89.0, 900, 107.0));
+        assertSsh(network.getBoundaryLine("Breaker"), 0.0, 0.0, true, -10.0, -5.0, 402.0, true);
+        assertDefinedActivePowerLimits(network.getBoundaryLine("Breaker"), new ActivePowerLimit(89.0, 900, 107.0));
     }
 
     private static void assertSecondSsh(Network network) {
-        assertSsh(network.getDanglingLine("ACLineSegment"), 280.0, 70.0, false, Double.NaN, Double.NaN, Double.NaN, false);
-        assertNotDefinedLimits(network.getDanglingLine("ACLineSegment"));
+        assertSsh(network.getBoundaryLine("ACLineSegment"), 280.0, 70.0, false, Double.NaN, Double.NaN, Double.NaN, false);
+        assertNotDefinedLimits(network.getBoundaryLine("ACLineSegment"));
 
-        assertSsh(network.getDanglingLine("EquivalentBranch"), 0.0, 0.0, true, -270.0, -55.0, 410.0, false);
-        assertNotDefinedLimits(network.getDanglingLine("EquivalentBranch"));
+        assertSsh(network.getBoundaryLine("EquivalentBranch"), 0.0, 0.0, true, -270.0, -55.0, 410.0, false);
+        assertNotDefinedLimits(network.getBoundaryLine("EquivalentBranch"));
 
-        assertSsh(network.getDanglingLine("PowerTransformer"), 0.0, 0.0, true, -105.0, -20.0, 227.0, true);
-        assertNotDefinedLimits(network.getDanglingLine("PowerTransformer"));
+        assertSsh(network.getBoundaryLine("PowerTransformer"), 0.0, 0.0, true, -105.0, -20.0, 227.0, true);
+        assertNotDefinedLimits(network.getBoundaryLine("PowerTransformer"));
 
-        assertSsh(network.getDanglingLine("Breaker"), 0.0, 0.0, true, -15.0, -3.0, 403.0, true);
-        assertDefinedActivePowerLimits(network.getDanglingLine("Breaker"), new ActivePowerLimit(91.0, 900, 109.0));
+        assertSsh(network.getBoundaryLine("Breaker"), 0.0, 0.0, true, -15.0, -3.0, 403.0, true);
+        assertDefinedActivePowerLimits(network.getBoundaryLine("Breaker"), new ActivePowerLimit(91.0, 900, 109.0));
     }
 
     private static void assertEq(BoundaryLine boundaryLine) {

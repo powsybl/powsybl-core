@@ -328,19 +328,19 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Iterable<BoundaryLine> getDanglingLines(BoundaryLineFilter boundaryLineFilter) {
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
         checkValidity();
         List<Iterable<BoundaryLine>> iterables = new ArrayList<>(buses.size());
         for (ConfiguredBus bus : buses) {
-            iterables.add(bus.getDanglingLines(boundaryLineFilter));
+            iterables.add(bus.getBoundaryLines(boundaryLineFilter));
         }
         return Iterables.concat(iterables);
     }
 
     @Override
-    public Stream<BoundaryLine> getDanglingLineStream(BoundaryLineFilter boundaryLineFilter) {
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
         checkValidity();
-        return buses.stream().flatMap(configuredBus -> configuredBus.getDanglingLineStream(boundaryLineFilter));
+        return buses.stream().flatMap(configuredBus -> configuredBus.getBoundaryLineStream(boundaryLineFilter));
     }
 
     @Override

@@ -57,7 +57,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             }
         });
 
-        voltageLevel.getDanglingLines().forEach(dl ->
+        voltageLevel.getBoundaryLines().forEach(dl ->
             dl.getTieLine().ifPresent(tieLine -> {
                 String tlId = tieLine.getId();
                 String pairingKey = tieLine.getPairingKey();

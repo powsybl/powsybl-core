@@ -239,7 +239,7 @@ public abstract class AbstractConverter {
                 if (connectable.getType() == IdentifiableType.HVDC_CONVERTER_STATION) {
                     HvdcConverterStation<?> converterStation = (HvdcConverterStation<?>) connectable;
                     equipmentListToBeExported.add(converterStation.getHvdcLine().getId());
-                } else if (connectable.getType() == IdentifiableType.DANGLING_LINE) {
+                } else if (connectable.getType() == IdentifiableType.BOUNDARY_LINE) {
                     BoundaryLine boundaryLine = (BoundaryLine) connectable;
                     if (boundaryLine.isPaired()) {
                         TieLine tieLine = boundaryLine.getTieLine().orElseThrow();
@@ -257,7 +257,7 @@ public abstract class AbstractConverter {
 
     private static boolean isEquipmentToBeExported(IdentifiableType type) {
         return switch (type) {
-            case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, DANGLING_LINE, BATTERY ->
+            case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, BOUNDARY_LINE, BATTERY ->
                     true;
             case BUSBAR_SECTION, HVDC_LINE, SWITCH, TIE_LINE -> false;
             default -> throw new PsseException("Unexpected equipment type: " + type.name());
@@ -277,8 +277,8 @@ public abstract class AbstractConverter {
                 terminals.add(hvdcLine.getConverterStation2().getTerminal());
             } else if (identifiable != null && identifiable.getType() == IdentifiableType.TIE_LINE) {
                 TieLine tieLine = (TieLine) identifiable;
-                terminals.add(tieLine.getDanglingLine1().getTerminal());
-                terminals.add(tieLine.getDanglingLine2().getTerminal());
+                terminals.add(tieLine.getBoundaryLine1().getTerminal());
+                terminals.add(tieLine.getBoundaryLine2().getTerminal());
             } else {
                 throw new PsseException("Unexpected identifiable: " + equipmentId);
             }
@@ -312,7 +312,7 @@ public abstract class AbstractConverter {
         return switch (identifiable.getType()) {
             case LOAD, BATTERY -> PsseEquipmentType.PSSE_LOAD.getTextCode();
             case GENERATOR -> PsseEquipmentType.PSSE_GENERATOR.getTextCode();
-            case LINE, TIE_LINE, DANGLING_LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
+            case LINE, TIE_LINE, BOUNDARY_LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
             case TWO_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_TWO_WINDING.getTextCode();
             case THREE_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_THREE_WINDING.getTextCode();
             case SHUNT_COMPENSATOR -> {

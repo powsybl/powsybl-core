@@ -228,7 +228,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         Optional<Terminal> terminal = areaBoundary.getTerminal();
         Optional<Boundary> boundary = areaBoundary.getBoundary();
         boundary.ifPresent(b -> {
-            checkBoundaryNetwork(b.getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + b.getDanglingLine().getId());
+            checkBoundaryNetwork(b.getBoundaryLine().getParentNetwork(), "Boundary of BoundaryLine" + b.getBoundaryLine().getId());
             ((BoundaryLineBoundaryImplExt) b).getReferrerManager().register(boundaryReferrer);
         });
         terminal.ifPresent(t -> {

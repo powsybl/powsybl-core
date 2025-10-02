@@ -109,7 +109,7 @@ class ContingencyElementTypesTest {
     }
 
     @Test
-    void danglingLineTest() {
+    void boundaryLineTest() {
         Network network = BoundaryLineNetworkFactory.create();
         test(network, "DL_CONTINGENCY", "DL", BoundaryLineContingency.class);
     }

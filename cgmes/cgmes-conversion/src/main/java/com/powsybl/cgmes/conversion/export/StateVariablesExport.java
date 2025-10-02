@@ -297,7 +297,7 @@ public final class StateVariablesExport {
             List<String> topologicalNodeIds = new ArrayList<>();
             String busTnId = context.getNamingStrategy().getCgmesId(b);
             topologicalNodeIds.add(busTnId);
-            b.getDanglingLines().forEach(dl -> topologicalNodeIds.add(dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)));
+            b.getBoundaryLines().forEach(dl -> topologicalNodeIds.add(dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)));
             if (b.getSynchronousComponent() != null) {
                 String key = String.valueOf(b.getSynchronousComponent().getNum());
                 TopologicalIsland island = islands.computeIfAbsent(key, k -> TopologicalIsland.fromSynchronousComponent(k, context));
@@ -319,7 +319,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.ALL)) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             Bus b = dl.getTerminal().getBusView().getBus();
             String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNode != null) {
@@ -392,8 +392,8 @@ public final class StateVariablesExport {
 
         Map<String, Double> equivalentInjectionTerminalP = new HashMap<>();
         Map<String, Double> equivalentInjectionTerminalQ = new HashMap<>();
-        network.getDanglingLines(BoundaryLineFilter.ALL).forEach(dl -> {
-            // DanglingLine's attributes will be created to store calculated flows on the boundary side
+        network.getBoundaryLines(BoundaryLineFilter.ALL).forEach(dl -> {
+            // BoundaryLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
                 writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
             }

@@ -45,7 +45,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
     public void reset(Network n) {
         Objects.requireNonNull(n);
 
-        BoundaryLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getBoundaryLine(id);
         if (dl != null) {
             dl.setP0(0);
         }
@@ -61,7 +61,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
-        BoundaryLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getBoundaryLine(id);
         if (dl != null) {
             return scalingConvention == LOAD ? maxValue : -minValue;
         } else {
@@ -79,7 +79,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
-        BoundaryLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getBoundaryLine(id);
         if (dl != null) {
             return scalingConvention == LOAD ? minValue : -maxValue;
         } else {
@@ -92,7 +92,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(injections);
 
-        BoundaryLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getBoundaryLine(id);
         if (dl != null) {
             injections.add(dl);
         } else if (notFoundInjections != null) {
@@ -117,7 +117,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
             return 0;
         }
 
-        BoundaryLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getBoundaryLine(id);
 
         double done = 0;
         if (dl == null) {
@@ -138,7 +138,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
 
         double oldP0 = dl.getP0();
         if (oldP0 < minValue || oldP0 > maxValue) {
-            LOGGER.error("Error scaling DanglingLineScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
+            LOGGER.error("Error scaling BoundaryLineScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
             return 0.;
         }
 
@@ -173,9 +173,9 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
 
     @Override
     public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
-        BoundaryLine line = network.getDanglingLine(id);
+        BoundaryLine line = network.getBoundaryLine(id);
         if (line == null) {
-            LOGGER.warn("DanglingLine {} not found", id);
+            LOGGER.warn("BoundaryLine {} not found", id);
             return 0.0;
         } else {
             return scalingConvention == LOAD ? line.getP0() : -line.getP0();

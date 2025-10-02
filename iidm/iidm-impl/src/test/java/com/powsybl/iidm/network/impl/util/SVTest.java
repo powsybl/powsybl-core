@@ -25,11 +25,11 @@ class SVTest {
 
     @Test
     void testOlfRealNetwork() {
-        Network network = createNodeBreakerDanglingLineNetwork();
+        Network network = createNodeBreakerBoundaryLineNetwork();
         svOlfDataToNetwork(network);
 
         Line line = network.getLine("Line-2-2");
-        BoundaryLine dl = network.getDanglingLine("Dl-3");
+        BoundaryLine dl = network.getBoundaryLine("Dl-3");
         Bus bus1 = network.getBusBreakerView().getBus("S1VL1_0");
         Bus bus2 = network.getBusBreakerView().getBus("S2VL1_0");
 
@@ -68,11 +68,11 @@ class SVTest {
 
     @Test
     void testDcOlfRealNetwork() {
-        Network network = createNodeBreakerDanglingLineNetwork();
+        Network network = createNodeBreakerBoundaryLineNetwork();
         svDcOlfDataToNetwork(network);
 
         Line line = network.getLine("Line-2-2");
-        BoundaryLine dl = network.getDanglingLine("Dl-3");
+        BoundaryLine dl = network.getBoundaryLine("Dl-3");
         Bus bus1 = network.getBusBreakerView().getBus("S1VL1_0");
         Bus bus2 = network.getBusBreakerView().getBus("S2VL1_0");
 
@@ -99,7 +99,7 @@ class SVTest {
 
     private static void svOlfDataToNetwork(Network network) {
         Line line = network.getLine("Line-2-2");
-        BoundaryLine dl = network.getDanglingLine("Dl-3");
+        BoundaryLine dl = network.getBoundaryLine("Dl-3");
         Bus bus1 = network.getBusBreakerView().getBus("S1VL1_0");
         Bus bus2 = network.getBusBreakerView().getBus("S2VL1_0");
 
@@ -115,7 +115,7 @@ class SVTest {
 
     private static void svDcOlfDataToNetwork(Network network) {
         Line line = network.getLine("Line-2-2");
-        BoundaryLine dl = network.getDanglingLine("Dl-3");
+        BoundaryLine dl = network.getBoundaryLine("Dl-3");
         Bus bus1 = network.getBusBreakerView().getBus("S1VL1_0");
         Bus bus2 = network.getBusBreakerView().getBus("S2VL1_0");
 
@@ -129,13 +129,13 @@ class SVTest {
         dl.getTerminal().setP(70.0);
     }
 
-    private static Network createNodeBreakerDanglingLineNetwork() {
-        return createNodeBreakerDanglingLineNetwork(NetworkFactory.findDefault());
+    private static Network createNodeBreakerBoundaryLineNetwork() {
+        return createNodeBreakerBoundaryLineNetwork(NetworkFactory.findDefault());
     }
 
-    private static Network createNodeBreakerDanglingLineNetwork(NetworkFactory networkFactory) {
+    private static Network createNodeBreakerBoundaryLineNetwork(NetworkFactory networkFactory) {
 
-        Network network = networkFactory.createNetwork("twoBusesWithLineAndDanglingLine", "test");
+        Network network = networkFactory.createNetwork("twoBusesWithLineAndBoundaryLine", "test");
         double vn = 225.0;
 
         // First substation
@@ -173,7 +173,7 @@ class SVTest {
         createInternalConnection(s2vl1, 0, 3);
         createLoad(s2vl1, "S2VL1-Load", 45.0, 9.0, 1);
 
-        createDanglingLine(network, "S2VL1", "Dl-3", 70.0, 10.0, "ucteNode", 3);
+        createBoundaryLine(network, "S2VL1", "Dl-3", 70.0, 10.0, "ucteNode", 3);
 
         // Line between both substations
         createLine(network, "S1VL1", "S2VL1", "Line-2-2", 2, 2);
@@ -241,8 +241,8 @@ class SVTest {
             .add();
     }
 
-    private static void createDanglingLine(Network network, String vlId, String id, double p0, double q0, String ucteCode, int node) {
-        network.getVoltageLevel(vlId).newDanglingLine()
+    private static void createBoundaryLine(Network network, String vlId, String id, double p0, double q0, String ucteCode, int node) {
+        network.getVoltageLevel(vlId).newBoundaryLine()
             .setId(id)
             .setR(0.01)
             .setX(2.0)
@@ -260,7 +260,7 @@ class SVTest {
     void testWithGeneration() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.createWithGeneration();
-        BoundaryLine boundaryLine = network.getDanglingLine("DL");
+        BoundaryLine boundaryLine = network.getBoundaryLine("DL");
         assertTrue(Double.isNaN(boundaryLine.getBoundary().getP())); // there is no good solution here.
         // we run an DC load flow and fill state variable
         boundaryLine.getTerminal().setP(-298.937);
@@ -281,10 +281,10 @@ class SVTest {
     }
 
     @Test
-    void testWithZeroImpedanceDanglingLineWithGeneration() {
+    void testWithZeroImpedanceBoundaryLineWithGeneration() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.createWithGeneration();
-        BoundaryLine boundaryLine = network.getDanglingLine("DL");
+        BoundaryLine boundaryLine = network.getBoundaryLine("DL");
         boundaryLine.setR(0.0).setX(0.0);
         boundaryLine.getTerminal().setP(-298.937);
         boundaryLine.getTerminal().setQ(-7.413);
@@ -298,10 +298,10 @@ class SVTest {
     }
 
     @Test
-    void testWithZeroImpedanceDanglingLineWithoutGeneration() {
+    void testWithZeroImpedanceBoundaryLineWithoutGeneration() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine boundaryLine = network.getDanglingLine("DL");
+        BoundaryLine boundaryLine = network.getBoundaryLine("DL");
         boundaryLine.setR(0.0).setX(0.0);
         boundaryLine.getTerminal().setP(50.0);
         boundaryLine.getTerminal().setQ(30.0);
@@ -315,10 +315,10 @@ class SVTest {
     }
 
     @Test
-    void testWithZeroImpedanceDanglingLineWithoutGenerationWithNaNV() {
+    void testWithZeroImpedanceBoundaryLineWithoutGenerationWithNaNV() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine boundaryLine = network.getDanglingLine("DL");
+        BoundaryLine boundaryLine = network.getBoundaryLine("DL");
         boundaryLine.setR(0.0).setX(0.0);
         boundaryLine.getTerminal().setP(50.0);
         boundaryLine.getTerminal().setQ(30.0);

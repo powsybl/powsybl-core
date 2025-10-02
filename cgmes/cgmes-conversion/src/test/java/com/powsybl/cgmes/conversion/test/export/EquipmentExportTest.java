@@ -158,7 +158,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setName("controlAreaName")
                 .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
                 .setInterchangeTarget(Double.NaN)
-                .addAreaBoundary(tieLine.getDanglingLine2().getBoundary(), true)
+                .addAreaBoundary(tieLine.getBoundaryLine2().getBoundary(), true)
                 .add();
         area.addAlias("energyIdentCodeEic", CgmesNames.ENERGY_IDENT_CODE_EIC);
 
@@ -166,7 +166,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Network actual = exportImportBusBranch(network, dataSource);
         Area actualControlArea = actual.getArea("controlAreaId");
         assertEquals(1, actualControlArea.getAreaBoundaryStream().count());
-        assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualControlArea.getAreaBoundaries().iterator().next().getBoundary().get().getDanglingLine().getId());
+        assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualControlArea.getAreaBoundaries().iterator().next().getBoundary().get().getBoundaryLine().getId());
     }
 
     @Test
@@ -182,7 +182,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         // Remove aliases of equivalent injections, so they will have to be created during export
-        for (BoundaryLine boundaryLine : expected.getDanglingLines(BoundaryLineFilter.ALL)) {
+        for (BoundaryLine boundaryLine : expected.getBoundaryLines(BoundaryLineFilter.ALL)) {
             boundaryLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             boundaryLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         }
@@ -1727,7 +1727,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             compareFlowLimits(expectedTwt.getLeg2(), twt.getLeg2());
             compareFlowLimits(expectedTwt.getLeg3(), twt.getLeg3());
         }
-        for (BoundaryLine boundaryLine : actual.getDanglingLines(BoundaryLineFilter.ALL)) {
+        for (BoundaryLine boundaryLine : actual.getBoundaryLines(BoundaryLineFilter.ALL)) {
             compareFlowLimits((FlowsLimitsHolder) expected.getIdentifiable(boundaryLine.getId()), boundaryLine);
         }
     }

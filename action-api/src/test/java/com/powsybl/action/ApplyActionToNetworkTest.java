@@ -75,30 +75,30 @@ class ApplyActionToNetworkTest {
         NetworkModification disconnection = disconnectionAction.toModification();
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
-        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTrue(tieLine.getBoundaryLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getBoundaryLine2().getTerminal().isConnected());
         disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
-        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertFalse(tieLine.getBoundaryLine1().getTerminal().isConnected());
+        assertFalse(tieLine.getBoundaryLine2().getTerminal().isConnected());
 
         // Connection
         TerminalsConnectionAction connectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", false);
         NetworkModification connection = connectionAction.toModification();
         connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
-        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTrue(tieLine.getBoundaryLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getBoundaryLine2().getTerminal().isConnected());
     }
 
     @Test
     void dangingLineAction() {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        BoundaryLine boundaryLine = network.getDanglingLine("NHV1_XNODE1");
+        BoundaryLine boundaryLine = network.getBoundaryLine("NHV1_XNODE1");
         boundaryLine.setP0(10.0);
         boundaryLine.setQ0(4.0);
 
         assertEquals(10.0, boundaryLine.getP0());
         BoundaryLineAction action = new BoundaryLineActionBuilder().withId("id")
-                .withDanglingLineId("NHV1_XNODE1")
+                .withBoundaryLineId("NHV1_XNODE1")
                 .withRelativeValue(false)
                 .withActivePowerValue(5.0)
                 .build();
@@ -107,7 +107,7 @@ class ApplyActionToNetworkTest {
 
         assertEquals(4.0, boundaryLine.getQ0());
         BoundaryLineAction action2 = new BoundaryLineActionBuilder().withId("id")
-                .withDanglingLineId("NHV1_XNODE1")
+                .withBoundaryLineId("NHV1_XNODE1")
                 .withRelativeValue(true)
                 .withReactivePowerValue(2.0)
                 .build();

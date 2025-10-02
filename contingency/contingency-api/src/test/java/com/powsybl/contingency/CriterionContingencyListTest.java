@@ -503,14 +503,14 @@ class CriterionContingencyListTest {
     }
 
     @Test
-    void testDanglingLines() {
+    void testBoundaryLines() {
         // dangling lines
         Network network = BoundaryLineNetworkFactory.create();
         SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(
                 VoltageInterval.between(90.0, 130.0, true, false));
         InjectionCriterionContingencyList contingencyList = new InjectionCriterionContingencyList("list2",
-                IdentifiableType.DANGLING_LINE, countriesCriterion, nominalVoltageCriterion,
+                IdentifiableType.BOUNDARY_LINE, countriesCriterion, nominalVoltageCriterion,
                 Collections.emptyList(), null);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());

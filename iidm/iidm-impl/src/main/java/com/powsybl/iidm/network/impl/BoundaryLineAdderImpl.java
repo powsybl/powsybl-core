@@ -112,12 +112,12 @@ class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAdderImpl
             generation = generationAdder.build();
         }
 
-        BoundaryLineImpl danglingLine = new BoundaryLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, generation);
-        danglingLine.addTerminal(terminal);
+        BoundaryLineImpl boundaryLine = new BoundaryLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, generation);
+        boundaryLine.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
-        network.getIndex().checkAndAdd(danglingLine);
-        network.getListeners().notifyCreation(danglingLine);
-        return danglingLine;
+        network.getIndex().checkAndAdd(boundaryLine);
+        network.getListeners().notifyCreation(boundaryLine);
+        return boundaryLine;
     }
 
 }

@@ -60,7 +60,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     }
 
     @Override
-    public Optional<BoundaryLine> getDanglingLine() {
+    public Optional<BoundaryLine> getBoundaryLine() {
         return Optional.ofNullable(boundaryLine);
     }
 
@@ -71,8 +71,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
     public static void convertToTieLine(Context context, BoundaryLine dl1, BoundaryLine dl2) {
         TieLineAdder adder = context.network().newTieLine()
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId());
+                .setBoundaryLine1(dl1.getId())
+                .setBoundaryLine2(dl2.getId());
         identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(dl1.getId(), dl2.getId())),
                 TieLineUtil.buildMergedName(dl1.getId(), dl2.getId(), dl1.getNameOrId(), dl2.getNameOrId()));
         adder.add();
@@ -98,16 +98,15 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
             double bch = p.asDouble("bch");
 
             String eqInstance = p.get("graph");
-            boundaryLine = convertToDanglingLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.AC_LINE_SEGMENT);
+            boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.AC_LINE_SEGMENT);
         }
     }
 
     public static void update(Line line, Context context) {
         updateBranch(line, context);
     }
-  
-    public static void update(BoundaryLine boundaryLine, Context context) {
-        updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
 
+    public static void update(BoundaryLine boundaryLine, Context context) {
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 }

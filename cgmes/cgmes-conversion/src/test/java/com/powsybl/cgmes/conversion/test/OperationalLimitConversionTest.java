@@ -116,7 +116,7 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     void limitSetsAssociatedToTerminalsTest() {
         // CGMES network:
         //   OperationalLimitSet with CurrentLimit associated to the Terminal of:
-        //   a DanglingLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
+        //   a BoundaryLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
         // IIDM network:
         //   Limits associated to terminals of lines or transformers are imported,
         //   limits associated to terminals of switch are discarded.
@@ -124,8 +124,8 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
                 "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
         // OperationalLimitSet on dangling line terminal is imported smoothly.
-        assertNotNull(network.getDanglingLine("DL"));
-        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+        assertNotNull(network.getBoundaryLine("DL"));
+        assertTrue(network.getBoundaryLine("DL").getCurrentLimits().isPresent());
 
         // OperationalLimitSet on ACLineSegment terminals are imported smoothly.
         assertNotNull(network.getLine("ACL"));
@@ -150,15 +150,15 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     void limitSetsAssociatedToEquipmentsTest() {
         // CGMES network:
         //   OperationalLimitSet with CurrentLimit associated to:
-        //   a DanglingLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
+        //   a BoundaryLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
         // IIDM network:
         //   Limits associated to lines are imported, limits associated to transformers or switches are discarded.
         Network network = readCgmesResources(DIR, "limitsets_associated_to_equipments_EQ.xml",
                 "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
         // OperationalLimitSet on dangling line is imported on its single extremity.
-        assertNotNull(network.getDanglingLine("DL"));
-        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+        assertNotNull(network.getBoundaryLine("DL"));
+        assertTrue(network.getBoundaryLine("DL").getCurrentLimits().isPresent());
 
         // OperationalLimitSet on ACLineSegment is imported on its two extremities.
         assertNotNull(network.getLine("ACL"));

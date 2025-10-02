@@ -18,5 +18,5 @@ import java.util.Optional;
 public interface EquipmentAtBoundaryConversion {
     void convertAtBoundary();
 
-    Optional<BoundaryLine> getDanglingLine();
+    Optional<BoundaryLine> getBoundaryLine();
 }

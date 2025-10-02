@@ -187,11 +187,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return voltageLevel(n).isEmpty() || context.boundary().containsNode(nodeId(n));
     }
 
-    public BoundaryLine convertToDanglingLine(String eqInstance, int boundarySide, String originalClass) {
-        return convertToDanglingLine(eqInstance, boundarySide, 0.0, 0.0, 0.0, 0.0, originalClass);
+    public BoundaryLine convertToBoundaryLine(String eqInstance, int boundarySide, String originalClass) {
+        return convertToBoundaryLine(eqInstance, boundarySide, 0.0, 0.0, 0.0, 0.0, originalClass);
     }
 
-    public BoundaryLine convertToDanglingLine(String eqInstance, int boundarySide, double r, double x, double gch, double bch, String originalClass) {
+    public BoundaryLine convertToBoundaryLine(String eqInstance, int boundarySide, double r, double x, double gch, double bch, String originalClass) {
         // Non-boundary side (other side) of the line
         int modelSide = 3 - boundarySide;
         String boundaryNode = nodeId(boundarySide);
@@ -201,7 +201,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             throw new PowsyblException(String.format("Unexpected boundarySide and modelSide at boundaryNode: %s", boundaryNode));
         }
 
-        BoundaryLineAdder dlAdder = voltageLevel(modelSide).map(vl -> vl.newDanglingLine()
+        BoundaryLineAdder dlAdder = voltageLevel(modelSide).map(vl -> vl.newBoundaryLine()
                         .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                         .setR(r)
                         .setX(x)
@@ -211,10 +211,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);
         connectWithOnlyEq(dlAdder, modelSide);
-        Optional<EquivalentInjectionConversion> equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(context, boundaryNode, eqInstance);
+        Optional<EquivalentInjectionConversion> equivalentInjectionConversion = getEquivalentInjectionConversionForBoundaryLine(context, boundaryNode, eqInstance);
         BoundaryLine dl;
         if (equivalentInjectionConversion.isPresent()) {
-            dl = equivalentInjectionConversion.get().convertOverDanglingLine(dlAdder);
+            dl = equivalentInjectionConversion.get().convertOverBoundaryLine(dlAdder);
             Optional.ofNullable(dl.getGeneration()).ifPresent(equivalentInjectionConversion.get()::convertReactiveLimits);
         } else {
             dl = dlAdder
@@ -252,7 +252,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return context.boundary().containsNode(topologicalNode) || connectivityNodeId(boundarySide) == null;
     }
 
-    protected static void updateDanglingLine(BoundaryLine boundaryLine, boolean isBoundaryTerminalConnected, Context context) {
+    protected static void updateBoundaryLine(BoundaryLine boundaryLine, boolean isBoundaryTerminalConnected, Context context) {
         updateTerminals(boundaryLine, context, boundaryLine.getTerminal());
         updateTargetsAndRegulationAndOperationalLimits(boundaryLine, isBoundaryTerminalConnected, context);
         computeFlowsOnModelSide(boundaryLine, context);
@@ -282,7 +282,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     // We do not have SSH values at the model side, it is a line flow. We take directly SV values
 
     protected static void computeFlowsOnModelSide(BoundaryLine boundaryLine, Context context) {
-        if (context.config().computeFlowsAtBoundaryDanglingLines()
+        if (context.config().computeFlowsAtBoundaryBoundaryLines()
                 && boundaryLine.getTerminal().isConnected()
                 && !isFlowOnModelSideDefined(boundaryLine)) {
 
@@ -292,7 +292,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 boundaryLine.getTerminal().setP(boundaryLine.getP0() - generation.map(BoundaryLine.Generation::getTargetP).orElse(0.0));
                 boundaryLine.getTerminal().setQ(boundaryLine.getQ0() - generation.map(BoundaryLine.Generation::getTargetQ).orElse(0.0));
             } else {
-                setDanglingLineModelSideFlow(boundaryLine, context);
+                setBoundaryLineModelSideFlow(boundaryLine, context);
             }
         }
     }
@@ -358,7 +358,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return dl.getR() == 0.0 && dl.getX() == 0.0 && dl.getG() == 0.0 && dl.getB() == 0.0;
     }
 
-    private static void setDanglingLineModelSideFlow(BoundaryLine dl, Context context) {
+    private static void setBoundaryLineModelSideFlow(BoundaryLine dl, Context context) {
         Optional<PropertyBag> svVoltage = getCgmesSvVoltageOnBoundarySide(dl, context);
         if (svVoltage.isEmpty()) {
             return;
@@ -408,7 +408,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return null;
     }
 
-    private static Optional<EquivalentInjectionConversion> getEquivalentInjectionConversionForDanglingLine(Context context, String boundaryNode, String eqInstance) {
+    private static Optional<EquivalentInjectionConversion> getEquivalentInjectionConversionForBoundaryLine(Context context, String boundaryNode, String eqInstance) {
         List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
         if (eis.isEmpty()) {
             return Optional.empty();

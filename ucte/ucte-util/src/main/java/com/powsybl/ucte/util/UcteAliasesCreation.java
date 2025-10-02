@@ -36,7 +36,7 @@ public final class UcteAliasesCreation {
             addElementNameAlias(tieLine, duplicatedAliases);
         });
         network.getSwitchStream().forEach(switchEl -> addElementNameAlias(switchEl, duplicatedAliases));
-        network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED).forEach(dl -> addElementNameAlias(dl, duplicatedAliases));
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).forEach(dl -> addElementNameAlias(dl, duplicatedAliases));
     }
 
     private static void addElementNameAlias(Identifiable<?> identifiable, Set<String> duplicatedAliases) {
@@ -51,17 +51,17 @@ public final class UcteAliasesCreation {
     }
 
     private static void addHalfElementNameAliases(TieLine tieLine, Set<String> duplicatedAliases) {
-        String elementName1Property = tieLine.getDanglingLine1().getProperty(ELEMENT_NAME_PROPERTY_KEY);
+        String elementName1Property = tieLine.getBoundaryLine1().getProperty(ELEMENT_NAME_PROPERTY_KEY);
         if (elementName1Property != null && !elementName1Property.isEmpty()) {
-            Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getDanglingLine1().getId());
+            Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getBoundaryLine1().getId());
             if (ucteElementIdOptional.isPresent()) {
                 UcteElementId ucteElementId = ucteElementIdOptional.get();
                 safeAddAlias(tieLine, duplicatedAliases, String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementName1Property));
             }
         }
-        String elementName2Property = tieLine.getDanglingLine2().getProperty(ELEMENT_NAME_PROPERTY_KEY);
+        String elementName2Property = tieLine.getBoundaryLine2().getProperty(ELEMENT_NAME_PROPERTY_KEY);
         if (elementName2Property != null && !elementName2Property.isEmpty()) {
-            Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getDanglingLine2().getId());
+            Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getBoundaryLine2().getId());
             if (ucteElementIdOptional.isPresent()) {
                 UcteElementId ucteElementId = ucteElementIdOptional.get();
                 safeAddAlias(tieLine, duplicatedAliases, String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementName2Property));
