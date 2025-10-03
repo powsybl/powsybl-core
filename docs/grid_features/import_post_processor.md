@@ -63,46 +63,34 @@ import:
 (geographical-data-import-post-processor)=
 ## Geographical data import post-processor
 
-One way to add geographical positions on a network is to use the import post-processor named odreGeoDataImporter, that will automatically add the [LinePosition](../grid_model/extensions.md#line-position) and [SubstationPosition](../grid_model/extensions.md#substation-position) extensions to the network model.
+One way to add geographical positions on a network is to use the import post-processor named GeoJsonAdderPostProcessor, that will automatically add the [LinePosition](../grid_model/extensions.md#line-position) and [SubstationPosition](../grid_model/extensions.md#substation-position) extensions to the network model.
 
-This processor uses geographical position data formatted in multiple csv files, as it can be obtained on the website [OpenData Réseaux-Énergie](https://odre.opendatasoft.com) for the network of the French TSO RTE.
-
-Using the links in the table below, you can obtain the RTE data CSV files, to be used as reference for input data formatting.
-
-| Network element type | RTE data CSV file link                                                                                                                                               |
-|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Substations          | [https://odre.opendatasoft.com/explore/dataset/postes-electriques-rte/export/](https://odre.opendatasoft.com/explore/dataset/postes-electriques-rte/export/)         |
-| Aerial lines         | [https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/export/](https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/export/)       |
-| Underground lines    | [https://odre.opendatasoft.com/explore/dataset/lignes-souterraines-rte-nv/export/](https://odre.opendatasoft.com/explore/dataset/lignes-souterraines-rte-nv/export/) |
-
-<span style="font-size:0.75em;">(To download these files, you should first accept the usage conditions of the ODRÉ website, which can be found—in French only—at the bottom of the pages, and the Etalab Open License v2.0, available in English [here](https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf).)</span>
+This processor uses geographical position data formatted in two JSON files, as it can be obtained on the websites [Open Infra Map](https://openinframap.org) or [Open Street Map](https://www.openstreetmap.org).
 
 <br/>
 
-To use this import post-processor, add the `com.powsybl:powsybl-iidm-geodata` to your classpath and enable it setting the `postProcessors` and `odre-geo-data-importer-post-processor` modules :
+To use this import post-processor, add the `com.powsybl:powsybl-iidm-geodata` to your classpath and enable it setting the `postProcessors` and `geo-json-importer-post-processor` modules :
 
 **YAML configuration:**
 ```yaml
 import:
   postProcessors:
-    - odreGeoDataImporter
+    - geoJsonImporter
 
-odre-geo-data-importer-post-processor:
-  substations: /path/to/substations.csv
-  aerial-lines: /path/to/aerial-lines.csv
-  underground-lines: /path/to/underground-lines.csv
+geo-json-importer-post-processor:
+  substations: /path/to/substations.geojson
+  lines: /path/to/lines.geojson
 ```
 
 **XML configuration:**
 ```xml
 <import>
-    <postProcessors>odreGeoDataImporter</postProcessors>
+    <postProcessors>geoJsonImporter</postProcessors>
 </import>
-<odre-geo-data-importer-post-processor>
-    <substations>/path/to/substations.csv</substations>
-    <aerial-lines>/path/to/aerial-lines.csv</aerial-lines>
-    <underground-lines>/path/to/underground-lines.csv</underground-lines>
-</odre-geo-data-importer-post-processor>
+<geo-json-importer-post-processor>
+    <substations>/path/to/substations.geojson</substations>
+    <lines>/path/to/lines.geojson</lines>
+</geo-json-importer-post-processor>
 ```
 
 The paths to the different files can be absolute paths or paths relative to the directory where your command is launched.
