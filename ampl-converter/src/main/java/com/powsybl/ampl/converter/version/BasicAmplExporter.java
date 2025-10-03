@@ -7,10 +7,7 @@
  */
 package com.powsybl.ampl.converter.version;
 
-import com.powsybl.ampl.converter.AmplConstants;
-import com.powsybl.ampl.converter.AmplExportConfig;
-import com.powsybl.ampl.converter.AmplSubset;
-import com.powsybl.ampl.converter.AmplUtil;
+import com.powsybl.ampl.converter.*;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterHelper;
@@ -18,6 +15,8 @@ import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ConnectedComponents;
 import com.powsybl.iidm.network.util.SV;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -34,6 +33,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  */
 public class BasicAmplExporter implements AmplColumnsExporter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicAmplExporter.class);
     private final AmplExportConfig config;
     private final Network network;
     private final StringToIntMapper<AmplSubset> mapper;
@@ -818,6 +818,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             b2 = (l.getB2() * vb2 * vb2 + b * vb2 * (vb2 - vb1)) / AmplConstants.SB;
         }
 
+        if (bus1Num == bus2Num) {
+            LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", id);
+            return;
+        }
+
         formatter.writeCell(variantIndex)
             .writeCell(num)
             .writeCell(bus1Num)
@@ -865,6 +870,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double vb = vl1.getNominalV();
         double zb = vb * vb / AmplConstants.SB;
 
+        if (bus1Num == bus2Num) {
+            LOGGER.warn("Skipping tie line '{}' connected to the same bus at both sides", id);
+            return;
+        }
+
         boolean merged = !config.isExportXNodes();
         if (config.isExportXNodes()) {
             String dl1Id = l.getDanglingLine1().getId();
@@ -875,6 +885,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             String xnodeVoltageLevelId = AmplUtil.getXnodeVoltageLevelId(l);
             int xNodeBusNum = mapper.getInt(AmplSubset.BUS, xNodeBusId);
             int xNodeVoltageLevelNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, xnodeVoltageLevelId);
+
+            if (bus1Num == xNodeBusNum || bus2Num == xNodeBusNum) {
+                LOGGER.warn("Skipping tie line '{}': one of the dangling line has its bus as a pairing key.", id);
+                return;
+            }
 
             formatter.writeCell(variantIndex)
                 .writeCell(dl1Num)
@@ -984,6 +999,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double p2 = sv.getP();
         double q2 = sv.getQ();
         double patl = getPermanentLimit(dl.getCurrentLimits().orElse(null));
+
+        if (busNum == middleBusNum) { // Not sure if this condition might occur
+            LOGGER.warn("Skipping dangling line '{}': the pairing key refers to its bus.", id);
+            return;
+        }
+
         formatter.writeCell(variantIndex)
             .writeCell(num)
             .writeCell(busNum)
@@ -1056,6 +1077,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
         int rtcNum = rtc != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId()) : -1;
         int ptcNum = ptc != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, twt.getId()) : -1;
+
+        if (bus1Num == bus2Num) {
+            LOGGER.warn("Skipping two-winding transformer '{}' connected to the same bus at both sides", id);
+            return;
+        }
+
         formatter.writeCell(variantIndex)
             .writeCell(num)
             .writeCell(bus1Num)
@@ -1113,6 +1140,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         PhaseTapChanger ptc1 = twtLeg.getPhaseTapChanger();
         int rtc1Num = rtc1 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id) : -1;
         int ptc1Num = ptc1 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id) : -1;
+
+        if (legBusNum == middleBusNum) {
+            LOGGER.warn("Skipping three-winding transformer '{}' connected to the same bus on leg and middle side", id);
+            return;
+        }
 
         formatter.writeCell(variantIndex)
             .writeCell(num)
