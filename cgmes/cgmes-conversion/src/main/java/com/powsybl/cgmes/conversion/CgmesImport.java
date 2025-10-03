@@ -281,13 +281,18 @@ public class CgmesImport implements Importer {
             };
         }
 
+        private static boolean isEquipmentCore(String profile) {
+            return profile.contains("/EquipmentCore/") || profile.contains("/CIM/CoreEquipment");
+        }
+
         private Set<ReadOnlyDataSource> separateByModelingAuthority() {
             xmlInputFactory = getXMLInputFactory();
             Map<String, List<String>> igmNames = new CgmesOnDataSource(dataSource).names().stream()
                     // We consider IGMs only the modeling authorities that have an EQ file
                     // The CGM SV should have the MA of the merging agent
-                    .filter(CgmesSubset.EQUIPMENT::isValidName)
-                    .map(name -> readModelingAuthority(name).map(ma -> Map.entry(ma, name)))
+                    .map(name ->
+                            readModelingAuthority(name, MultipleGridModelChecker::isEquipmentCore)
+                            .map(ma -> Map.entry(ma, name)))
                     .flatMap(Optional::stream)
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(List.of(e.getValue()))));
             if (!igmNames.isEmpty()) {
@@ -299,10 +304,11 @@ public class CgmesImport implements Importer {
                 return Set.of(dataSource);
             }
             Set<String> shared = new HashSet<>();
+            Set<String> processed = igmNames.values().stream().flatMap(List::stream).collect(Collectors.toSet());
             new CgmesOnDataSource(dataSource).names().stream()
                     // We read the modeling authorities present in the rest of instance files
                     // and mark the instance name as linked to an IGM or as shared
-                    .filter(not(CgmesSubset.EQUIPMENT::isValidName))
+                    .filter(not(processed::contains))
                     .filter(not(MultipleGridModelChecker::isBoundary))
                     .forEach(name -> {
                         Optional<String> ma = readModelingAuthority(name);
@@ -334,37 +340,64 @@ public class CgmesImport implements Importer {
         }
 
         private Optional<String> readModelingAuthority(String name) {
-            String modellingAuthority = null;
+            return readModelingAuthority(name, profile -> true);
+        }
+
+        private Optional<String> readModelingAuthority(String name, Predicate<String> profileChecker) {
+            String modelingAuthority = null;
             try (InputStream in = dataSource.newInputStream(name)) {
                 String fileExtension = name.substring(name.lastIndexOf('.') + 1);
                 if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
                     try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 1, 1024000L)) {
                         zis.getNextEntry();
-                        modellingAuthority = readModelingAuthority(zis);
+                        modelingAuthority = readModelingAuthority(zis, profileChecker);
                     }
                 } else {
-                    modellingAuthority = readModelingAuthority(in);
+                    modelingAuthority = readModelingAuthority(in, profileChecker);
                 }
             } catch (IOException | XMLStreamException e) {
                 throw new PowsyblException(e);
             }
-            return Optional.ofNullable(modellingAuthority);
+            return Optional.ofNullable(modelingAuthority);
         }
 
-        private String readModelingAuthority(InputStream is) throws XMLStreamException {
-            String modellingAuthority = null;
+        private boolean isStartModelingAuthority(XMLStreamReader reader, int token) {
+            return token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.MODELING_AUTHORITY_SET);
+        }
+
+        private boolean isStartProfile(XMLStreamReader reader, int token) {
+            return token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.PROFILE);
+        }
+
+        private boolean isEndModel(XMLStreamReader reader, int token) {
+            return token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.FULL_MODEL);
+        }
+
+        private String readModelingAuthority(InputStream is, Predicate<String> profileChecker) throws XMLStreamException {
+            String modelingAuthority = null;
+            boolean profileChecked = false;
             XMLStreamReader reader = null;
             try {
                 reader = xmlInputFactory.createXMLStreamReader(is);
                 boolean stopReading = false;
                 while (reader.hasNext() && !stopReading) {
                     int token = reader.next();
-                    if (token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.MODELING_AUTHORITY_SET)) {
-                        modellingAuthority = reader.getElementText();
-                        stopReading = true;
-                    } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.FULL_MODEL)) {
+                    if (isStartModelingAuthority(reader, token)) {
+                        modelingAuthority = reader.getElementText();
+                        if (profileChecked) {
+                            stopReading = true;
+                        }
+                    } else if (isStartProfile(reader, token)) {
+                        String profile = reader.getElementText();
+                        // We may encounter multiple profiles,
+                        // Equipment core and short-circuits for example.
+                        // If at least one of the profiles checks ok it is enough to accept the modeling authority
+                        if (!profileChecked) {
+                            profileChecked = profileChecker.test(profile);
+                        }
+                    } else if (isEndModel(reader, token)) {
                         // Try to finish parsing the input file as soon as we can
-                        // If we do not have found a modelling authority set inside the FullModel object, exit with unknown
+                        // If we do not have found a modeling authority set inside the FullModel object, exit with unknown
                         stopReading = true;
                     }
                 }
@@ -373,7 +406,12 @@ public class CgmesImport implements Importer {
                     reader.close();
                 }
             }
-            return modellingAuthority;
+            // We may have read a modeling authority,
+            // but if we haven't been able to check that one of the profiles checks ok we discard it
+            if (!profileChecked) {
+                modelingAuthority = null;
+            }
+            return modelingAuthority;
         }
 
         private Set<ReadOnlyDataSource> separateByIgmName() {

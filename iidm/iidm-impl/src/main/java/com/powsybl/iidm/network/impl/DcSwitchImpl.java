@@ -96,6 +96,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
         boolean oldValue = this.open.get(variantIndex);
         if (oldValue != open) {
             this.open.set(variantIndex, open);
+            ((AbstractNetwork) getParentNetwork()).getDcTopologyModel().invalidateCache();
             String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
             getNetwork().getListeners().notifyUpdate(this, OPEN_ATTRIBUTE, variantId, oldValue, open);
         }
@@ -137,6 +138,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
         network.getListeners().notifyBeforeRemoval(this);
 
         network.getIndex().remove(this);
+        ((AbstractNetwork) getParentNetwork()).getDcTopologyModel().removeDcSwitch(getId());
 
         network.getListeners().notifyAfterRemoval(id);
         this.removed = true;
