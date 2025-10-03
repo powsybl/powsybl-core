@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,7 +26,7 @@ import java.util.Properties;
 import java.util.function.Supplier;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
-import static com.powsybl.iidm.serde.AbstractTreeDataExporter.TOPOLOGY_VOLTAGE_LEVEL_PREFIX;
+import static com.powsybl.iidm.serde.AbstractTreeDataExporter.*;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -54,15 +52,15 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         }
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"bus_branch", "bus_breaker", "node_breaker"})
-    void exportVoltageLevelTopology(String topologyLevel) throws IOException {
+    @Test
+    void exportTopologyLevelVoltageLevels() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
         Properties properties = new Properties();
-        String vlTopologyLevelParam = TOPOLOGY_VOLTAGE_LEVEL_PREFIX + "vl1";
-        properties.put(vlTopologyLevelParam, topologyLevel.toUpperCase());
-        String refString = "/vl_" + topologyLevel + ".xml";
-        exporterTest(network, () -> getClass().getResourceAsStream(refString), properties);
+        properties.put(VOLTAGE_LEVELS_NODE_BREAKER, "vl1");
+        properties.put(VOLTAGE_LEVELS_BUS_BREAKER, "vl2");
+        properties.put(VOLTAGE_LEVELS_BUS_BRANCH, "vl3");
+        properties.put(VOLTAGE_LEVELS_NODE_BREAKER, "vl3");
+        exporterTest(network, () -> getClass().getResourceAsStream("/topologyLevelVoltageLevels.xml"), properties);
     }
 
     @Test
@@ -95,7 +93,7 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
     @Test
     void paramsTest() {
         var xmlExporter = new XMLExporter();
-        assertEquals(11, xmlExporter.getParameters().size());
+        assertEquals(14, xmlExporter.getParameters().size());
         assertEquals("IIDM XML v" + CURRENT_IIDM_VERSION.toString(".") + " exporter", xmlExporter.getComment());
     }
 

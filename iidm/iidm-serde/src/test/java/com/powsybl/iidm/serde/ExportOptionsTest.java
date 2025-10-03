@@ -81,10 +81,12 @@ class ExportOptionsTest {
                 .add();
 
         ExportOptions options = new ExportOptions();
-        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.BUS_BRANCH);
-        assertEquals(TopologyLevel.BUS_BRANCH, options.getVoltageLevelTopologyLevel(vl1.getId()));
         options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.NODE_BREAKER);
         assertEquals(TopologyLevel.NODE_BREAKER, options.getVoltageLevelTopologyLevel(vl1.getId()));
+        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.BUS_BREAKER);
+        assertEquals(TopologyLevel.BUS_BREAKER, options.getVoltageLevelTopologyLevel(vl1.getId()));
+        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.BUS_BRANCH);
+        assertEquals(TopologyLevel.BUS_BRANCH, options.getVoltageLevelTopologyLevel(vl1.getId()));
         assertNull(options.getVoltageLevelTopologyLevel("undefined_vl"));
     }
 
