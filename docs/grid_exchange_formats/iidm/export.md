@@ -26,13 +26,14 @@ The `iidm.export.xml.topology-level` property is an optional property that defin
 
 The default value is `NODE_BREAKER` to export all voltage levels in the same level of details than the one they are described.
 
-**iidm.export.xml.topology-level-vl.<voltageLevelId>**  
-The `iidm.export.xml.topology-level-vl.<voltageLevelId>` property is an optional property that defines the topology level to apply by the IIDM exporter for the voltage level which ID is specified in the property name. The topology level can be:
-- `NODE_BREAKER`: the voltage level which ID is specified in the property will be exported using the [Node/Breaker view](). If the voltage level is described in Bus/Breaker topology, it will be exported using the Bus/Breaker view (export in Node/Breaker is not possible since the voltage level has not enough details).
-- `BUS_BREAKER`: the voltage level will be exported using the [Bus/Breaker view]()
-- `BUS_BRANCH`:  the voltage level will be exported using the [Bus view]()  
+**iidm.export.xml.topology-level.voltage-levels.node-breaker**  
+The iidm.export.xml.topology-level.voltage-levels.node-breaker property is an optional property to define the node breaker topology for a list of voltage levels IDs to apply by the IIDM exporter.  
 
-Usage : `iidm.export.xml.topology-level-vl.<voltageLevelId> <TopologyLevel>` (ex: iidm.export.xml.topology-level-vl.VL1 NODE_BREAKER)
+**iidm.export.xml.topology-level.voltage-levels.bus-breaker**  
+The iidm.export.xml.topology-level.voltage-levels.bus-breaker property is an optional property to define the bus breaker topology for a list of voltage levels IDs to apply by the IIDM exporter.  
+
+**iidm.export.xml.topology-level.voltage-levels.bus-branch**  
+The iidm.export.xml.topology-level.voltage-levels.bus-branch property is an optional property to define the bus branch topology for a list of voltage levels IDs to apply by the IIDM exporter.  
 
 **iidm.export.xml.throw-exception-if-extension-not-found**  
 The `iidm.export.xml.throw-exception-if-extension-not-found` property is an optional property that defines whether the XIIDM exporter throws an exception if the network contains an unknown or unserializable extension or if it just ignores it. Its default value is `false`.
