@@ -119,9 +119,17 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         ValidationUtil.checkModifyOfRemovedEquipment(dcConnectable.getId(), this.removed);
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         boolean oldValue = this.connected.set(variantIndex, connected);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "connected_dc" + getAttributeSideOrNumberSuffix(), variantId, oldValue, connected);
+        if (oldValue != connected) {
+            ((AbstractNetwork) dcConnectable.getParentNetwork()).getDcTopologyModel().invalidateCache();
+            String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+            getNetwork().getListeners().notifyUpdate(dcConnectable, () -> "connected_dc" + getAttributeSideOrNumberSuffix(), variantId, oldValue, connected);
+        }
         return this;
+    }
+
+    @Override
+    public DcBus getDcBus() {
+        return isConnected() ? dcNode.getDcBus() : null;
     }
 
     public void remove() {
