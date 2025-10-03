@@ -146,12 +146,6 @@ WHERE {
     OPTIONAL { ?OperationalLimitType eu:OperationalLimitType.kind ?limitType }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
-OPTIONAL { GRAPH ?graphSSH {
-    OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
-    OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
-    OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
-    OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
-}}
 }
 
 # query: switches
@@ -175,8 +169,5 @@ WHERE {
     OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
     FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
         || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
-}}
-OPTIONAL { GRAPH ?graphSSH {
-    ?Switch cim:Switch.open ?open
 }}
 }

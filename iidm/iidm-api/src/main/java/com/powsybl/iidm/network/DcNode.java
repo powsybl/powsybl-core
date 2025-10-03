@@ -57,7 +57,7 @@ package com.powsybl.iidm.network;
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface DcNode extends Identifiable<DcNode> {
+public interface DcNode extends Identifiable<DcNode>, DcTopologyVisitable {
 
     @Override
     default IdentifiableType getType() {
@@ -74,6 +74,22 @@ public interface DcNode extends Identifiable<DcNode> {
      * @return self for method chaining
      */
     DcNode setNominalV(double nominalV);
+
+    /**
+     * Get the voltage of the DC node in kV.
+     */
+    double getV();
+
+    /**
+     * Set the voltage of the DC node in kV.
+     * @return self for method chaining
+     */
+    DcNode setV(double v);
+
+    /**
+     * Get the DcBus the DcNode is part of.
+     */
+    DcBus getDcBus();
 
     /**
      * remove the DcNode from the network
