@@ -19,6 +19,7 @@ import static com.powsybl.iidm.serde.ExportOptions.IidmVersionIncompatibilityBeh
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -96,4 +97,18 @@ class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
         assertEquals(StandardCharsets.UTF_8, options.getCharset());
         assertEquals(Boolean.TRUE, options.isWithAutomationSystems());
     }
+
+    @Test
+    void testExcludeAndIncludedExtensionSuccessive() {
+        ExportOptions options = new ExportOptions();
+        options.addIncludedExtension("loadFoo").addIncludedExtension("loadBar"); // only "loadFoo" and "loadBar" are included
+        options.addExcludedExtension("loadBar").addExcludedExtension("loadTest"); // "loadBar" is excluded so only "loadFoo" is included
+
+        Set<String> includedExtensions = options.getIncludedExtensions().orElse(null);
+        assertNotNull(includedExtensions);
+        assertEquals(1, includedExtensions.size());
+        assertTrue(includedExtensions.contains("loadFoo"));
+        assertTrue(options.getExcludedExtensions().isEmpty()); // The second list is null (i.e., the optional is empty)
+    }
+
 }
