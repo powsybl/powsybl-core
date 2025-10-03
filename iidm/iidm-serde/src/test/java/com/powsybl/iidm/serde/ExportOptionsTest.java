@@ -16,12 +16,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.powsybl.iidm.serde.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ExportOptionsTest {
+class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
+
+    ExportOptions getOptions() {
+        return new ExportOptions();
+    }
 
     @Test
     void exportOptionsTest() {
@@ -90,61 +96,4 @@ class ExportOptionsTest {
         assertEquals(StandardCharsets.UTF_8, options.getCharset());
         assertEquals(Boolean.TRUE, options.isWithAutomationSystems());
     }
-
-    @Test
-    void exportOptionsTestFilteredExtensions() {
-
-        ExportOptions options = new ExportOptions();
-        options.setIncludedExtensions(Sets.newHashSet("loadFoo", "loadTest"));
-        options.setExcludedExtensions(Sets.newHashSet("loadBar"));
-
-        // here a warning should be logged : Previously included extensions [loadFoo, loadTest] will be ignored
-        assertEquals(-1, (int) options.getIncludedExtensions().map(Set::size).orElse(-1));
-        assertEquals(1, (int) options.getExcludedExtensions().map(Set::size).orElse(-1));
-
-        ExportOptions options2 = new ExportOptions();
-        options2.addIncludedExtension("loadFoo");
-        options2.addIncludedExtension("loadBar");
-        options2.addExcludedExtension("loadBar");
-        // here only loadFoo should be imported
-
-        assertEquals(1, (int) options2.getIncludedExtensions().map(Set::size).orElse(-1));
-        assertTrue(options2.getIncludedExtensions()
-                .filter(set -> set.size() == 1)
-                .filter(set -> set.contains("loadFoo"))
-                .isPresent());
-        assertEquals(1, (int) options2.getExcludedExtensions().map(Set::size).orElse(-1));
-
-        ExportOptions options3 = new ExportOptions();
-        options3.addIncludedExtension("loadFoo");
-        options3.addIncludedExtension("loadTest");
-        options3.addExcludedExtension("loadBar");
-        options3.addIncludedExtension("loadBar");
-        // here a warning  Extension loadBar is not already explicitly included [loadFoo, loadTest]
-
-        assertEquals(3, (int) options3.getIncludedExtensions().map(Set::size).orElse(-1));
-        assertEquals(0, (int) options3.getExcludedExtensions().map(Set::size).orElse(-1));
-
-        ExportOptions options4 = new ExportOptions();
-        options4.addExcludedExtension("loadBar");
-        options4.addIncludedExtension("loadFoo");
-        options4.addIncludedExtension("loadTest");
-        options4.addIncludedExtension("loadBar");
-        // here a warning  Extension loadBar is not already explicitly included [loadFoo, loadTest]
-
-        assertEquals(3, (int) options4.getIncludedExtensions().map(Set::size).orElse(-1));
-        assertEquals(0, (int) options4.getExcludedExtensions().map(Set::size).orElse(-1));
-
-        ExportOptions options5 = new ExportOptions();
-        options5.addIncludedExtension("loadBar");
-        options5.addIncludedExtension("loadBar");
-        options5.addExcludedExtension("loadTest");
-        options5.addExcludedExtension("loadTest");
-        // here the second call is a no op
-
-        assertEquals(1, (int) options5.getIncludedExtensions().map(Set::size).orElse(-1));
-        assertEquals(1, (int) options5.getExcludedExtensions().map(Set::size).orElse(-1));
-
-    }
-
 }
