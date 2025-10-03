@@ -10,11 +10,9 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.*;
-import com.powsybl.cgmes.conversion.PhaseAngleClock;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
@@ -27,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -330,58 +327,6 @@ class TransformerConversionTest {
 
         // RatioTapChanger
         boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.073341, -0.371275, -2.999565, -1.823453, 3.082299, 2.360557);
-        assertTrue(ok);
-    }
-
-    @Test
-    void miniBusBranchPhaseAngleClock() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
-
-        Network n = networkModel(CgmesConformity1Catalog.miniBusBranch(), config, postProcessors);
-
-        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
-        assertTrue(ok);
-        ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -7.505045, -1.896561, -288.380946, 1216.566903, 351.090362, 1199.878285);
-        assertTrue(ok);
-    }
-
-    @Test
-    void miniBusBranchPhaseAngleClockZero() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
-
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchPhaseAngleClockZero(), config, postProcessors);
-
-        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -0.087780, -0.178561, 0.087782, 0.178613);
-        assertTrue(ok);
-        ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -0.000001, -0.000022, 0.000002, 0.000068, -0.000001, -0.000045);
-        assertTrue(ok);
-    }
-
-    @Test
-    void miniBusBranchT2xPhaseAngleClock1NonZero() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
-
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchT2xPhaseAngleClock1NonZero(), config, postProcessors);
-
-        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
-        assertTrue(ok);
-    }
-
-    @Test
-    void miniBusBranchT3xAllPhaseAngleClockNonZero() {
-        Conversion.Config config = new Conversion.Config();
-        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
-        postProcessors.add(new PhaseAngleClock());
-
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchT3xAllPhaseAngleClockNonZero(), config, postProcessors);
-
-        boolean ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -1494.636083, 1530.638656, 981.686099, 1826.870720, 562.199867, 309.289551);
         assertTrue(ok);
     }
 
