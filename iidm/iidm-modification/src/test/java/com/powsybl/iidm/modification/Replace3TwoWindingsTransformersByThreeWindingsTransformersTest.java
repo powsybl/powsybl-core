@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
-
 import static com.powsybl.iidm.modification.TransformersTestUtils.*;
 import static com.powsybl.iidm.modification.TransformersTestUtils.addPhaseTapChanger;
 import static com.powsybl.iidm.modification.util.ModificationReports.lostTwoWindingsTransformerExtensions;
@@ -169,6 +168,36 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         assertTrue(compareOperationalLimitsGroups(t2w3.getOperationalLimitsGroups1(), t3w.getLeg3().getOperationalLimitsGroups()));
     }
 
+    @Test
+    void selectedOperationalLimitsGroupTest() {
+        modifyNetworkForFlowsNotWellOrientedTest(); // t2w2 not well oriented, t3w related leg is "3WT-Leg2-notWellOriented"
+        modifyNetworkForLoadingLimitsAtBothEndsTest();
+
+        t2w1.setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-summer");
+        t2w1.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-summer-end2");
+        network.getTwoWindingsTransformer("3WT-Leg1").setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-summer");
+        network.getTwoWindingsTransformer("3WT-Leg1").setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-summer-end2");
+
+        t2w2.setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        t2w2.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+        network.getTwoWindingsTransformer("3WT-Leg2-notWellOriented").setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        network.getTwoWindingsTransformer("3WT-Leg2-notWellOriented").setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+
+        t2w3.setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        t2w3.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+        network.getTwoWindingsTransformer("3WT-Leg3").setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        network.getTwoWindingsTransformer("3WT-Leg3").setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network);
+
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT-Leg1-3WT-Leg2-notWellOriented-3WT-Leg3");
+
+        assertEquals("OperationalLimitsGroup-summer", t3w.getLeg1().getSelectedOperationalLimitsGroupId().orElseThrow());
+        assertEquals("OperationalLimitsGroup-winter-end2", t3w.getLeg2().getSelectedOperationalLimitsGroupId().orElseThrow());
+        assertEquals("OperationalLimitsGroup-winter", t3w.getLeg3().getSelectedOperationalLimitsGroupId().orElseThrow());
+    }
+
     private void modifyNetworkForLoadingLimitsTest() {
         addLoadingLimitsEnd1(t2w1);
         addLoadingLimitsEnd1(t2w2);
@@ -176,6 +205,22 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w1.getId()));
         addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w2.getId()));
         addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w3.getId()));
+    }
+
+    private void modifyNetworkForLoadingLimitsAtBothEndsTest() {
+        addLoadingLimitsEnd1(t2w1);
+        addLoadingLimitsEnd1(t2w2);
+        addLoadingLimitsEnd1(t2w3);
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w1.getId()));
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w2.getId()));
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w3.getId()));
+
+        addLoadingLimitsEnd2(t2w1);
+        addLoadingLimitsEnd2(t2w2);
+        addLoadingLimitsEnd2(t2w3);
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w1.getId()));
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w2.getId()));
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w3.getId()));
     }
 
     @Test
