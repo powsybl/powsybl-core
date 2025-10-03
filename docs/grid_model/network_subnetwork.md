@@ -845,11 +845,11 @@ A VSC converter station is made with switching devices that can be turned both o
 ### Detailed DC model (beta)
 
 ```{warning}
-**The detailed DC model was introduced in iIDM v1.14 and is currently in beta.**
+**The detailed DC model was introduced in IIDM v1.14 and is currently in beta.**
 
-Future iIDM v1.15 will add support for DC equipment serialization/deserialization.
+Future IIDM v1.15 will add support for DC equipment serialization/deserialization.
 
-Currently, this model is only available in the iIDM representation.
+Currently, this model is only available in the IIDM representation.
 Support in exchange formats (CGMES, ...) as well as in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
 Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
 
@@ -1015,7 +1015,7 @@ DC equipment connectivity may be modified in two ways:
   - When `connected = false` the DC terminal is disconnected from its associated DC Node. 
 - By changing the `open` attribute of a `DcSwitch`.
 
-PowSyBl's iIDM topology processor computes DC Buses as follows:
+PowSyBl's IIDM topology processor computes DC Buses as follows:
 - A DC Bus is formed when there is at least one DC Terminal connected to a DC Node.
 - DC Nodes linked by a closed DC switch are considered part of the same DC Bus.
 - A DC Node with no switch connected but with at least a DC Terminal connected will form a DC Bus.
@@ -1025,14 +1025,14 @@ DC Buses linked together via DC Lines and/or AC/DC Converters are part of the sa
 *Synchronous Components* (also called *AC Islands*) connected together via a DC island through AC/DC converters will form a
 *Connected Component*.
 
-The iIDM API provides methods for navigating the network topology, for example:
+The IIDM API provides methods for navigating the network topology, for example:
 - getting the DC Bus of a DC Terminal,
 - getting the DC Nodes part of a DC Bus,
 - getting the DC Component/Island of a DC Bus,
 - getting all DC Buses of a network or a subnetwork
 - getting all DC Components/Islands of a network or a subnetwork
 - getting all DC Buses part of a DC Component or a Connected Component
-- etc ...
+- etc.
  
 Please refer to the javadoc for an exhaustive list of the available methods. 
 
@@ -1045,7 +1045,7 @@ either the main network or the same subnetwork. For example, the following assoc
 - creating a DC Ground in subnetwork A connecting a DC Node contained in subnetwork B
 - creating an AC/DC converter in a voltage level in subnetwork A connecting to DC nodes contained in main network
 - setting the Point of Common Coupling of an AC/DC converter in a voltage level in subnetwork A to be a line terminal in subnetwork B
-- etc ...
+- etc.
 
 For more details about working with subnetworks, see [Working with subnetworks](../grid_features/working_with_subnetworks.md).
 
