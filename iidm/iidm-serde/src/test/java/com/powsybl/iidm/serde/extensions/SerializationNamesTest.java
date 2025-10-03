@@ -86,12 +86,12 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         // Read a network with an old extension serialization name
         // To specify the extension to import, both the real extension name or the serialization name can be used.
         String file = "/extensionName_0_1_otherPrefix.xml";
-        ImportOptions importOptions = new ImportOptions().addExtension("loadElementMock");
+        ImportOptions importOptions = new ImportOptions().addIncludedExtension("loadElementMock");
         Network network = NetworkSerDe.read(getClass().getResourceAsStream(file), importOptions, null);
         assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class),
                 "Using the serialization name as extension to load should work.");
 
-        importOptions = new ImportOptions().addExtension("loadMock");
+        importOptions = new ImportOptions().addIncludedExtension("loadMock");
         network = NetworkSerDe.read(getClass().getResourceAsStream(file), importOptions, null);
         assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class),
                 "Using the real extension name as extension to load should work.");
