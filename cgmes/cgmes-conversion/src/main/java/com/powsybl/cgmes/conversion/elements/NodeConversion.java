@@ -206,6 +206,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (valid(v, angle)) {
             bus.setV(v).setAngle(angle);
         } else {
+            bus.setV(Double.NaN).setAngle(Double.NaN);
             invalidAngleVoltageReport(context.getReportNode(), bus, v, angle);
         }
     }
