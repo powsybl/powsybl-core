@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,15 +34,7 @@ class SvInjectionUpdateTest {
         Network network = readCgmesResources(DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
         assertEquals(1, network.getLoadCount());
 
-        Load load = network.getLoad("ConnectivityNode-TN-SvInjection");
-        assertNotNull(load);
-        double tol = 0.0000001;
-        assertSame(LoadType.FICTITIOUS, load.getLoadType());
-        assertTrue(load.isFictitious());
-        assertEquals(9.0, load.getP0(), tol);
-        assertEquals(1.2, load.getQ0(), tol);
-        assertEquals(9.0, load.getTerminal().getP(), tol);
-        assertEquals(1.2, load.getTerminal().getQ(), tol);
+        assertLoad(network.getLoad("ConnectivityNode-TN-SvInjection"));
     }
 
     @Test
@@ -50,5 +44,29 @@ class SvInjectionUpdateTest {
 
         readCgmesResources(network, DIR, "svInjection_TP.xml", "svInjection_SV.xml");
         assertEquals(0, network.getLoadCount());
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
+        assertEquals(1, network.getLoadCount());
+        Load load = network.getLoad("ConnectivityNode-TN-SvInjection");
+        assertLoad(load);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertLoad(load);
+    }
+
+    private static void assertLoad(Load load) {
+        assertNotNull(load);
+        double tol = 0.0000001;
+        assertSame(LoadType.FICTITIOUS, load.getLoadType());
+        assertTrue(load.isFictitious());
+        assertEquals(9.0, load.getP0(), tol);
+        assertEquals(1.2, load.getQ0(), tol);
+        assertEquals(9.0, load.getTerminal().getP(), tol);
+        assertEquals(1.2, load.getTerminal().getQ(), tol);
     }
 }

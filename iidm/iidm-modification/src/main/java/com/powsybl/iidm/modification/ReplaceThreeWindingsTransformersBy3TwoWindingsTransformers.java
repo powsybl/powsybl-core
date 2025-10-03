@@ -210,7 +210,12 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         leg.getOptionalPhaseTapChanger().ifPresent(rtc -> copyAndAddPhaseTapChanger(t2w.newPhaseTapChanger(), rtc));
         leg.getOperationalLimitsGroups().forEach(operationalLimitGroup -> copyOperationalLimitsGroup(t2w.newOperationalLimitsGroup1(operationalLimitGroup.getId()), operationalLimitGroup));
 
+        copySelectedOperationLimitsGroup(leg, t2w);
         return t2w;
+    }
+
+    private static void copySelectedOperationLimitsGroup(ThreeWindingsTransformer.Leg leg, TwoWindingsTransformer t2w) {
+        leg.getSelectedOperationalLimitsGroupId().ifPresent(t2w::setSelectedOperationalLimitsGroup1);
     }
 
     private static void connect(TwoWindingsTransformerAdder t2wAdder, ConnectivityR connectivityEnd1, ConnectivityR connectivityEnd2) {

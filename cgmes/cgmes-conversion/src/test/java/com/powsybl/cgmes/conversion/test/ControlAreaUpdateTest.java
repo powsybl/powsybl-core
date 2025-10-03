@@ -11,6 +11,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,6 +53,18 @@ class ControlAreaUpdateTest {
 
         readCgmesResources(network, DIR, "controlArea_SSH_1.xml");
         assertSsh(network.getArea("ControlArea"), 200.0, 1.1);
+    }
+
+    @Test
+    void usePreviousValuesTest() {
+        Network network = readCgmesResources(DIR, "controlArea_EQ.xml", "controlArea_EQ_BD.xml", "controlArea_SSH.xml");
+        assertEquals(1, network.getAreaCount());
+        assertSsh(network.getArea("ControlArea"), 235.0, 10.0);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+        readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
+        assertSsh(network.getArea("ControlArea"), 235.0, 10.0);
     }
 
     private static void assertEq(Area area) {
