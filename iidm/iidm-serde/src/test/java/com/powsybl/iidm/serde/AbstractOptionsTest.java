@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractOptionsTest<T> {
+public abstract class AbstractOptionsTest<T extends AbstractOptions<T>> {
 
     abstract AbstractOptions<T> getOptions();
 
@@ -231,5 +231,18 @@ public abstract class AbstractOptionsTest<T> {
         options.setIncludedExtensions(Set.of("loadBar"));
         assertTrue(options.hasAtLeastOneExtension(Set.of("loadBar")));
         assertFalse(options.hasAtLeastOneExtension(Set.of("loadFoo")));
+    }
+
+    @Test
+    void testExcludeAndIncludedExtensionSuccessive() {
+        AbstractOptions<T> options = getOptions();
+        options.addIncludedExtension("loadFoo").addIncludedExtension("loadBar"); // only "loadFoo" and "loadBar" are included
+        options.addExcludedExtension("loadBar").addExcludedExtension("loadTest"); // "loadBar" is excluded so only "loadFoo" is included
+
+        Set<String> includedExtensions = options.getIncludedExtensions().orElse(null);
+        assertNotNull(includedExtensions);
+        assertEquals(1, includedExtensions.size());
+        assertTrue(includedExtensions.contains("loadFoo"));
+        assertTrue(options.getExcludedExtensions().isEmpty()); // The second list is null (i.e., the optional is empty)
     }
 }

@@ -49,8 +49,10 @@ public abstract class AbstractOptionExtensionChecker {
         }
         if (includedExtensions != null) {
             options.setIncludedExtensions(new HashSet<>(includedExtensions));
-            if (shouldWarnOnInclusionEmptiness && includedExtensions.isEmpty()) {
-                LOGGER.info("All extensions are excluded.");
+            if (includedExtensions.isEmpty()) {
+                if (shouldWarnOnInclusionEmptiness) {
+                    LOGGER.info("All extensions are excluded.");
+                }
                 return false;
             }
         }

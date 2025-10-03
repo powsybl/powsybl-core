@@ -213,7 +213,7 @@ public final class NetworkSerDe {
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
                     .filter(e ->
-                            !isExtensionExcluded(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
+                            isExtensionIncluded(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
                             canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
                     .toList();
 
@@ -234,17 +234,11 @@ public final class NetworkSerDe {
                 || identifiable instanceof OverloadManagementSystem && !context.getOptions().isWithAutomationSystems();
     }
 
-    private static boolean isExtensionExcluded(ExtensionSerDe extensionSerDe, ExportOptions options) {
+    private static boolean isExtensionIncluded(ExtensionSerDe extensionSerDe, ExportOptions options) {
         if (extensionSerDe == null) {
             return false;
         }
-        return options.getIncludedExtensions().filter(Set::isEmpty).isPresent() ||
-                options.getExcludedExtensions()
-                        .map(extensions -> extensions.contains(extensionSerDe.getExtensionName()))
-                        .orElse(false) &&
-                        options.getIncludedExtensions()
-                                .map(extensions -> !extensions.contains(extensionSerDe.getExtensionName()))
-                                .orElse(false);
+        return options.withExtension(extensionSerDe.getExtensionName());
     }
 
     private static boolean canTheExtensionBeWritten(ExtensionSerDe extensionSerDe, IidmVersion version, ExportOptions options) {

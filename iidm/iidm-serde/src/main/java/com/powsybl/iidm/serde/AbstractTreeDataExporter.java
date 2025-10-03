@@ -32,6 +32,8 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.serde.AbstractOptionExtensionChecker.getAndCheckExtensionsToInclude;
+
 /**
  * Tree data export of an IIDM model.<p>
  * <table border="1">
@@ -180,11 +182,13 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             Parameter parameter = new Parameter("iidm.export.xml." + extensionName + ".version",
                     ParameterType.STRING, "Version of " + extensionName, null);
             String extensionVersion = Parameter.readString(getFormat(), parameters, parameter, defaultValueConfig);
-            if (options.getIncludedExtensions().map(extensions -> extensions.contains(extensionName)).orElse(true) &&
-                    (options.getExcludedExtensions().map(extensions -> !extensions.contains(extensionName)).orElse(true))) {
-                options.addExtensionVersion(extensionName, extensionVersion);
-            } else {
-                LOGGER.warn("Version of {} is ignored since {} is not in the extensions list to export.", extensionName, extensionName);
+            if (extensionVersion != null) {
+                if (options.getIncludedExtensions().map(extensions -> extensions.contains(extensionName)).orElse(true) &&
+                        (options.getExcludedExtensions().map(extensions -> !extensions.contains(extensionName)).orElse(true))) {
+                    options.addExtensionVersion(extensionName, extensionVersion);
+                } else {
+                    LOGGER.warn("Version of {} is ignored since {} is not in the extensions list to export.", extensionName, extensionName);
+                }
             }
         });
     }
@@ -202,7 +206,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setVersion(Parameter.readString(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig))
                 .setFormat(getTreeDataFormat())
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig));
-        boolean someExtensionsShouldBeIncluded = AbstractOptionExtensionChecker.getAndCheckExtensionsToInclude(parameters, options, getFormat(), defaultValueConfig, EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, true);
+        boolean someExtensionsShouldBeIncluded = getAndCheckExtensionsToInclude(parameters, options, getFormat(), defaultValueConfig, EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, true);
         if (someExtensionsShouldBeIncluded) {
             addExtensionsVersions(parameters, options);
         }

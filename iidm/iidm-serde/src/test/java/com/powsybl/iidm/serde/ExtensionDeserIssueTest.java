@@ -45,10 +45,11 @@ class ExtensionDeserIssueTest {
 
     /**
      * Sets up the common test environment:
+     * <pre>
      * 1. Creates the base Network.
      * 2. Adds the SlackTerminal extension.
      * 3. Creates the Jimfs filesystem and the test file path.
-     * 4. Writes the network to the temporary XIIDM file.
+     * </pre>
      */
     @BeforeEach
     void setup() {
