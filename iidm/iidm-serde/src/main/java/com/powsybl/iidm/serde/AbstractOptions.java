@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -30,53 +30,71 @@ public abstract class AbstractOptions<T> {
 
     protected TreeDataFormat format = TreeDataFormat.XML;
 
+    /**
+     * Set the set of extensions to be included from import / export
+     * @param extensions the set of extensions o be included from import / export
+     * @return this casted to T
+     */
     public T setIncludedExtensions(Set<String> extensions) {
         if (excludedExtensions != null) {
-            LOGGER.warn("Previously excluded extensions {} will be ignored !", excludedExtensions);
+            LOGGER.warn("Previously excluded extensions list will now be ignored: {}", excludedExtensions);
         }
         if (extensions != null && extensions.isEmpty()) {
-            LOGGER.warn("All Extensions will be disabled");
+            LOGGER.warn("All extensions will be excluded");
         }
         this.excludedExtensions = null;
         this.includedExtensions = extensions;
         return castThis();
     }
 
+    /**
+     * Set the set of extensions to be excluded from import / export
+     * @param extensions the set of extensions o be excluded from import / export
+     * @return this casted to T
+     */
     public T setExcludedExtensions(Set<String> extensions) {
         if (includedExtensions != null) {
-            LOGGER.warn("Previously included extensions {} will be ignored !", includedExtensions);
+            LOGGER.warn("Previously included extensions list will now be ignored: {}", includedExtensions);
         }
         this.includedExtensions = null;
         this.excludedExtensions = extensions;
         return castThis();
     }
 
+    /**
+     * Add an extension to the list of included extension for import / export
+     * @param extension the extension to be included for import / export
+     * @return this casted to T
+     */
     public T addIncludedExtension(String extension) {
-        if (excludedExtensions != null && excludedExtensions.contains(extension)) {
-            LOGGER.warn("Previously excluded extensions {} will be included", extension);
-        }
         if (excludedExtensions != null) {
-            excludedExtensions.remove(extension);
-        }
-        if (includedExtensions != null) {
-            includedExtensions.add(extension);
+            if (excludedExtensions.remove(extension)) {
+                LOGGER.warn("Previously excluded extensions {} will now be included", extension);
+            }
         } else {
-            this.includedExtensions = Sets.newHashSet(extension);
+            if (includedExtensions == null) {
+                includedExtensions = new HashSet<>();
+            }
+            includedExtensions.add(extension);
         }
         return castThis();
     }
 
+    /**
+     * Add an extension to the list of excluded extension for import / export
+     * @param extension the extension to be excluded for import / export
+     * @return this casted to T
+     */
     public T addExcludedExtension(String extension) throws PowsyblException {
-        if (includedExtensions != null && !includedExtensions.contains(extension)) {
-            LOGGER.warn("Extension {} is not already explicitly included {} ! It will still be added to the exclusion list as it may be included after", extension, includedExtensions);
-        }
         if (includedExtensions != null) {
-            includedExtensions.remove(extension);
-        }
-        if (excludedExtensions != null) {
-            excludedExtensions.add(extension);
+            if (includedExtensions.remove(extension)) {
+                LOGGER.warn("Previously included extensions {} will now be excluded", extension);
+            }
         } else {
-            this.excludedExtensions = Sets.newHashSet(extension);
+            if (excludedExtensions == null) {
+                excludedExtensions = new HashSet<>();
+            }
+            excludedExtensions.add(extension);
         }
         return castThis();
     }
@@ -94,7 +112,7 @@ public abstract class AbstractOptions<T> {
     }
 
     public boolean withAllExtensions() {
-        return includedExtensions == null;
+        return includedExtensions == null && (excludedExtensions == null || excludedExtensions.isEmpty());
     }
 
     public boolean hasAtLeastOneExtension(Set<String> extensions) {
@@ -102,7 +120,7 @@ public abstract class AbstractOptions<T> {
             return true;
         }
         for (String extension : extensions) {
-            if (this.includedExtensions.contains(extension)) {
+            if (withExtension(extension)) {
                 return true;
             }
         }
@@ -111,7 +129,7 @@ public abstract class AbstractOptions<T> {
 
     public boolean withExtension(String extensionName) {
         return (excludedExtensions == null || !excludedExtensions.contains(extensionName))
-                && (withAllExtensions() || includedExtensions.contains(extensionName));
+                && (includedExtensions == null || includedExtensions.contains(extensionName));
     }
 
     public abstract boolean isThrowExceptionIfExtensionNotFound();
@@ -126,7 +144,7 @@ public abstract class AbstractOptions<T> {
     }
 
     /**
-     * Cast to T is safe in practice (hence added SuprresWarning annotation).
+     * Cast to T is safe in practice (hence the added SuppressWarning annotation).
      * @return this casted to T
      */
     @SuppressWarnings("unchecked")
