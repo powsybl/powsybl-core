@@ -14,7 +14,7 @@ import java.util.Locale;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeRootBuilder {
+public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
 
     private String defaultTimestampPattern;
     private Locale locale;
@@ -42,14 +42,8 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
     }
 
     @Override
-    public ReportNodeRootBuilder self() {
+    public ReportNodeBuilder self() {
         return this;
     }
 
-    @Override
-    public ReportNodeRootBuilder withName(String name) {
-        this.key = "core.report.name";
-        values.put("reportName", TypedValue.untyped(name.replace("${reportName}", "reportName")));
-        return self();
-    }
 }

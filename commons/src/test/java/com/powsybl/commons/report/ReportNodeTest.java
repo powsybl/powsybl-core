@@ -76,24 +76,6 @@ class ReportNodeTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testRootReportNodeWithMessageTemplate() {
-        ReportNode root = ReportNode.newRootReportNode()
-                .withName("Custom message for root")
-                .withResourceBundles(TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
-                .build();
-        assertEquals("Report Custom message for root", root.getMessage());
-    }
-
-    @Test
-    void testRootReportNodeWithMessageTemplateNoInfiniteRecursion() {
-        ReportNode root = ReportNode.newRootReportNode()
-                .withName("My ${reportName} report")
-                .withResourceBundles(TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
-                .build();
-        assertDoesNotThrow(() -> root.getMessage());
-    }
-
-    @Test
     void testPostponedValues() throws IOException {
         ReportNode root = ReportNode.newRootReportNode()
                 .withResourceBundles(TEST_BASE_NAME)

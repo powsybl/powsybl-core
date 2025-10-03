@@ -69,7 +69,7 @@ public interface ReportNode {
      * Create a new builder for creating a root <code>ReportNode</code>.
      * @return a {@link ReportNodeBuilder}
      */
-    static ReportNodeRootBuilder newRootReportNode() {
+    static ReportNodeBuilder newRootReportNode() {
         return new ReportNodeRootBuilderImpl();
     }
 
