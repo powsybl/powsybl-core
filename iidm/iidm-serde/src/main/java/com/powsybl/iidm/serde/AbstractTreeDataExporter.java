@@ -137,11 +137,11 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
             "Export network with automation systems", Boolean.TRUE);
     private static final Parameter VOLTAGE_LEVELS_NODEBREAKER_PARAMETER = new Parameter(VOLTAGE_LEVELS_NODE_BREAKER, ParameterType.STRING_LIST,
-            "Export voltage level in this topology level", new ArrayList<>());
+            "Apply Node Breaker topology level for listed voltage levels", new ArrayList<>());
     private static final Parameter VOLTAGE_LEVELS_BUSBREAKER_PARAMETER = new Parameter(VOLTAGE_LEVELS_BUS_BREAKER, ParameterType.STRING_LIST,
-            "Export voltage level in this topology level", new ArrayList<>());
+            "Apply Bus Breaker topology level for listed voltage levels", new ArrayList<>());
     private static final Parameter VOLTAGE_LEVELS_BUSBRANCH_PARAMETER = new Parameter(VOLTAGE_LEVELS_BUS_BRANCH, ParameterType.STRING_LIST,
-            "Export voltage level in this topology level", new ArrayList<>());
+            "Apply Bus Branch topology level for listed voltage levels", new ArrayList<>());
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
@@ -195,38 +195,36 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     }
 
     private void addTopologyLevelVoltageLevels(Properties parameters, ExportOptions options) {
-        if (parameters != null) {
-            List<String> nodeBreakerVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_NODEBREAKER_PARAMETER, defaultValueConfig);
-            List<String> busBreakerVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, defaultValueConfig);
-            List<String> busBranchVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER, defaultValueConfig);
+        List<String> nodeBreakerVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_NODEBREAKER_PARAMETER, defaultValueConfig);
+        List<String> busBreakerVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, defaultValueConfig);
+        List<String> busBranchVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER, defaultValueConfig);
 
-            Set<String> allVoltageLevelIds = new HashSet<>();
-            allVoltageLevelIds.addAll(nodeBreakerVoltageLevelsList);
-            allVoltageLevelIds.addAll(busBreakerVoltageLevelsList);
-            allVoltageLevelIds.addAll(busBranchVoltageLevelsList);
+        Set<String> allVoltageLevelIds = new HashSet<>();
+        allVoltageLevelIds.addAll(nodeBreakerVoltageLevelsList);
+        allVoltageLevelIds.addAll(busBreakerVoltageLevelsList);
+        allVoltageLevelIds.addAll(busBranchVoltageLevelsList);
 
-            for (String voltageLevelId : allVoltageLevelIds) {
-                int count = 0;
-                TopologyLevel topologyLevel = null;
+        for (String voltageLevelId : allVoltageLevelIds) {
+            int count = 0;
+            TopologyLevel topologyLevel = null;
 
-                if (nodeBreakerVoltageLevelsList.contains(voltageLevelId)) {
-                    count++;
-                    topologyLevel = TopologyLevel.NODE_BREAKER;
-                }
-                if (busBreakerVoltageLevelsList.contains(voltageLevelId)) {
-                    count++;
-                    topologyLevel = TopologyLevel.BUS_BREAKER;
-                }
-                if (busBranchVoltageLevelsList.contains(voltageLevelId)) {
-                    count++;
-                    topologyLevel = TopologyLevel.BUS_BRANCH;
-                }
+            if (nodeBreakerVoltageLevelsList.contains(voltageLevelId)) {
+                count++;
+                topologyLevel = TopologyLevel.NODE_BREAKER;
+            }
+            if (busBreakerVoltageLevelsList.contains(voltageLevelId)) {
+                count++;
+                topologyLevel = TopologyLevel.BUS_BREAKER;
+            }
+            if (busBranchVoltageLevelsList.contains(voltageLevelId)) {
+                count++;
+                topologyLevel = TopologyLevel.BUS_BRANCH;
+            }
 
-                if (count == 1) {
-                    options.addVoltageLevelTopologyLevel(voltageLevelId, topologyLevel);
-                } else {
-                    LOGGER.warn(String.format("VoltageLevel %s is associated to different topology levels, we ignore it", voltageLevelId));
-                }
+            if (count == 1) {
+                options.addVoltageLevelTopologyLevel(voltageLevelId, topologyLevel);
+            } else {
+                LOGGER.warn(String.format("VoltageLevel %s is associated with different topology levels in property : we ignore it", voltageLevelId));
             }
         }
     }
