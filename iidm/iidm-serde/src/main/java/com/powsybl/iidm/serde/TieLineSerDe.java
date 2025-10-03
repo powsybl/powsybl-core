@@ -35,23 +35,23 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
         return ROOT_ELEMENT_NAME;
     }
 
-    private static void writeDanglingLine(DanglingLine danglingLine, NetworkSerializerContext context, int side) {
-        Boundary boundary = danglingLine.getBoundary();
-        context.getWriter().writeStringAttribute("id_" + side, context.getAnonymizer().anonymizeString(danglingLine.getId()));
-        context.getWriter().writeStringAttribute("name_" + side, danglingLine.getOptionalName().map(n -> context.getAnonymizer().anonymizeString(n)).orElse(null));
-        context.getWriter().writeDoubleAttribute("r_" + side, danglingLine.getR());
-        context.getWriter().writeDoubleAttribute("x_" + side, danglingLine.getX());
+    private static void writeDanglingLine(BoundaryLine boundaryLine, NetworkSerializerContext context, int side) {
+        Boundary boundary = boundaryLine.getBoundary();
+        context.getWriter().writeStringAttribute("id_" + side, context.getAnonymizer().anonymizeString(boundaryLine.getId()));
+        context.getWriter().writeStringAttribute("name_" + side, boundaryLine.getOptionalName().map(n -> context.getAnonymizer().anonymizeString(n)).orElse(null));
+        context.getWriter().writeDoubleAttribute("r_" + side, boundaryLine.getR());
+        context.getWriter().writeDoubleAttribute("x_" + side, boundaryLine.getX());
         // TODO change serialization
-        context.getWriter().writeDoubleAttribute("g1_" + side, danglingLine.getG() / 2);
-        context.getWriter().writeDoubleAttribute("b1_" + side, danglingLine.getB() / 2);
-        context.getWriter().writeDoubleAttribute("g2_" + side, danglingLine.getG() / 2);
-        context.getWriter().writeDoubleAttribute("b2_" + side, danglingLine.getB() / 2);
+        context.getWriter().writeDoubleAttribute("g1_" + side, boundaryLine.getG() / 2);
+        context.getWriter().writeDoubleAttribute("b1_" + side, boundaryLine.getB() / 2);
+        context.getWriter().writeDoubleAttribute("g2_" + side, boundaryLine.getG() / 2);
+        context.getWriter().writeDoubleAttribute("b2_" + side, boundaryLine.getB() / 2);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_4, context, () -> {
             context.getWriter().writeDoubleAttribute(X_NODE_P + side, boundary.getP());
             context.getWriter().writeDoubleAttribute(X_NODE_Q + side, boundary.getQ());
         });
 
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> context.getWriter().writeBooleanAttribute("fictitious_" + side, danglingLine.isFictitious(), false));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> context.getWriter().writeBooleanAttribute("fictitious_" + side, boundaryLine.isFictitious(), false));
     }
 
     @Override
@@ -86,7 +86,7 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
         return n.newTieLine();
     }
 
-    private static DanglingLine readDanglingLine(DanglingLineAdder adder, String pairingKey, NetworkDeserializerContext context, int side) {
+    private static BoundaryLine readDanglingLine(BoundaryLineAdder adder, String pairingKey, NetworkDeserializerContext context, int side) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id_" + side));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("name_" + side));
         double r = context.getReader().readDoubleAttribute("r_" + side);
@@ -117,7 +117,7 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
             adder.setFictitious(fictitious);
         });
 
-        DanglingLine dl = adder.add();
+        BoundaryLine dl = adder.add();
 
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_4, context, () -> {
             checkBoundaryValue(halfBoundaryP[0], dl.getBoundary().getP(), X_NODE_P + side, pairingKey);
@@ -131,14 +131,14 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
     protected TieLine readRootElementAttributes(TieLineAdder adder, Network network, NetworkDeserializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_9, context, () -> {
             String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
-            DanglingLineAdder adderDl1 = readVlAndNodeOrBus(context, network, 1);
-            DanglingLineAdder adderDl2 = readVlAndNodeOrBus(context, network, 2);
+            BoundaryLineAdder adderDl1 = readVlAndNodeOrBus(context, network, 1);
+            BoundaryLineAdder adderDl2 = readVlAndNodeOrBus(context, network, 2);
             OptionalDouble p1 = context.getReader().readOptionalDoubleAttribute("p1");
             OptionalDouble q1 = context.getReader().readOptionalDoubleAttribute("q1");
             OptionalDouble p2 = context.getReader().readOptionalDoubleAttribute("p2");
             OptionalDouble q2 = context.getReader().readOptionalDoubleAttribute("q2");
-            DanglingLine dl1 = readDanglingLine(adderDl1, pairingKey, context, 1);
-            DanglingLine dl2 = readDanglingLine(adderDl2, pairingKey, context, 2);
+            BoundaryLine dl1 = readDanglingLine(adderDl1, pairingKey, context, 1);
+            BoundaryLine dl2 = readDanglingLine(adderDl2, pairingKey, context, 2);
             p1.ifPresent(dl1.getTerminal()::setP);
             q1.ifPresent(dl1.getTerminal()::setQ);
             p2.ifPresent(dl2.getTerminal()::setP);
@@ -153,10 +153,10 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
         return adder.add();
     }
 
-    private static DanglingLineAdder readVlAndNodeOrBus(NetworkDeserializerContext context, Network network, int side) {
+    private static BoundaryLineAdder readVlAndNodeOrBus(NetworkDeserializerContext context, Network network, int side) {
         String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + side));
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-        DanglingLineAdder adderDl1 = voltageLevel.newDanglingLine();
+        BoundaryLineAdder adderDl1 = voltageLevel.newDanglingLine();
         readNodeOrBus(adderDl1, String.valueOf(side), context, voltageLevel.getTopologyKind());
         return adderDl1;
     }

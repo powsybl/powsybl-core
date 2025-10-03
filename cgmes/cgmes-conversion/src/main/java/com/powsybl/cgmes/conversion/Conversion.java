@@ -317,12 +317,12 @@ public class Conversion {
         updateStaticVarCompensators(network, cgmes, updateContext);
         updateShuntCompensators(network, cgmes, updateContext);
         updateHvdcLines(network, cgmes, updateContext);
-        updateDanglingLines(network, updateContext);
+        updateBoundaryLines(network, cgmes, updateContext);
 
         // Fix dangling lines issues
-        updateContext.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
+        updateContext.pushReportNode(CgmesReports.fixingBoundaryLinesIssuesReport(reportNode));
         handleDangingLineDisconnectedAtBoundary(network, updateContext);
-        adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, updateContext);
+        adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(network, updateContext);
         updateContext.popReportNode();
 
         updateVoltageLevels(network, updateContext);
@@ -359,7 +359,7 @@ public class Conversion {
         });
 
         // Set selected limits group for Dangling lines
-        context.network().getDanglingLineStream().forEach(dl -> {
+        context.network().getBoundaryLineStream().forEach(dl -> {
             Collection<OperationalLimitsGroup> limitsHolder = dl.getOperationalLimitsGroups();
             if (limitsHolder.size() == 1) {
                 dl.setSelectedOperationalLimitsGroup(limitsHolder.iterator().next().getId());
@@ -376,28 +376,28 @@ public class Conversion {
     }
 
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
-        if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
-            for (DanglingLine dl : network.getDanglingLines()) {
+        if (config.disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected()) {
+            for (BoundaryLine dl : network.getBoundaryLines()) {
                 if (!isBoundaryTerminalConnected(dl, context) && dl.getTerminal().isConnected()) {
-                    LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                    CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
+                    LOG.warn("BoundaryLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
+                    CgmesReports.boundaryLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
                     dl.getTerminal().disconnect();
                 }
             }
         }
     }
 
-    private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(Network network, Context context) {
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+    private void adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(Network network, Context context) {
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED)
                 .filter(dl -> dl.getTerminal().isConnected())
-                .collect(groupingBy(Conversion::getDanglingLineBoundaryNode))
+                .collect(groupingBy(Conversion::getBoundaryLineBoundaryNode))
                 .values().stream()
                 // Only perform adjustment for the groups with more than one connected dangling line
                 .filter(dls -> dls.size() > 1)
-                .forEach(dls -> adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(dls, context));
+                .forEach(dls -> adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(dls, context));
     }
 
-    private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(List<DanglingLine> dls, Context context) {
+    private void adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(List<BoundaryLine> dls, Context context) {
         // All dangling lines will have same value for p0, q0. Take it from the first one
         double p0 = dls.get(0).getP0();
         double q0 = dls.get(0).getQ0();
@@ -407,14 +407,14 @@ public class Conversion {
         final double p0Adjusted = p0 / count;
         final double q0Adjusted = q0 / count;
         dls.forEach(dl -> {
-            LOG.warn("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for dangling line {}.", p0, q0, p0Adjusted, q0Adjusted, dl.getId());
-            CgmesReports.multipleUnpairedDanglingLinesAtSameBoundaryReport(context.getReportNode(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
+            LOG.warn("Multiple unpaired BoundaryLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for dangling line {}.", p0, q0, p0Adjusted, q0Adjusted, dl.getId());
+            CgmesReports.multipleUnpairedBoundaryLinesAtSameBoundaryReport(context.getReportNode(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
             dl.setP0(p0Adjusted);
             dl.setQ0(q0Adjusted);
         });
     }
 
-    public static String getDanglingLineBoundaryNode(DanglingLine dl) {
+    public static String getBoundaryLineBoundaryNode(BoundaryLine dl) {
         String node;
         node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
         if (node == null) {
@@ -788,6 +788,36 @@ public class Conversion {
     private static void convertTwoEquipmentsAtBoundaryNode(Context context, String node, BoundaryEquipment beq1, BoundaryEquipment beq2) {
         EquipmentAtBoundaryConversion conversion1 = beq1.createConversion(context);
         EquipmentAtBoundaryConversion conversion2 = beq2.createConversion(context);
+
+        conversion1.convertAtBoundary();
+        Optional<BoundaryLine> dl1 = conversion1.getBoundaryLine();
+        conversion2.convertAtBoundary();
+        Optional<BoundaryLine> dl2 = conversion2.getBoundaryLine();
+
+        if (dl1.isPresent() && dl2.isPresent()) {
+            // there can be several dangling lines linked to same x-node in one IGM for planning purposes
+            // in this case, we don't merge them
+            // please note that only one of them should be connected
+            String regionName1 = obtainRegionName(dl1.get().getTerminal().getVoltageLevel());
+            String regionName2 = obtainRegionName(dl2.get().getTerminal().getVoltageLevel());
+
+            String pairingKey1 = dl1.get().getPairingKey();
+            String pairingKey2 = dl2.get().getPairingKey();
+
+            if (!(pairingKey1 != null && pairingKey1.equals(pairingKey2))) {
+                context.ignored(node, "Both dangling lines do not have the same pairingKey: we do not consider them as a merged line");
+            } else if (regionName1 != null && regionName1.equals(regionName2)) {
+                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
+            } else if (dl2.get().getId().compareTo(dl1.get().getId()) >= 0) {
+                ACLineSegmentConversion.convertToTieLine(context, dl1.get(), dl2.get());
+            } else {
+                ACLineSegmentConversion.convertToTieLine(context, dl2.get(), dl1.get());
+            }
+        }
+    }
+
+    private static String obtainRegionName(VoltageLevel voltageLevel) {
+        return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
         TieLineConversion.create(node, conversion1, conversion2, context);
     }
 
@@ -862,7 +892,7 @@ public class Conversion {
             return this;
         }
 
-        public boolean computeFlowsAtBoundaryDanglingLines() {
+        public boolean computeFlowsAtBoundaryBoundaryLines() {
             return true;
         }
 
@@ -1007,13 +1037,13 @@ public class Conversion {
             return this;
         }
 
-        public Config setDisconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected(boolean b) {
-            disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected = b;
+        public Config setDisconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected(boolean b) {
+            disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected = b;
             return this;
         }
 
-        public boolean disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected() {
-            return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
+        public boolean disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected() {
+            return disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected;
         }
 
         public boolean updateTerminalConnectionInNodeBreakerVoltageLevel() {
@@ -1053,7 +1083,7 @@ public class Conversion {
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
         private boolean importNodeBreakerAsBusBreaker = false;
-        private boolean disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected = true;
+        private boolean disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected = true;
 
         private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 

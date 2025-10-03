@@ -160,7 +160,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
     private void checkInjectionClass(Injection<?> injection) {
         if (!(injection instanceof Generator
             || injection instanceof Load
-            || injection instanceof DanglingLine)) {
+            || injection instanceof BoundaryLine)) {
             throw new PowsyblException(String.format(GENERIC_SCALABLE_CLASS_ERROR, injection.getClass()));
         }
     }
@@ -177,8 +177,8 @@ public class ProportionalScalable extends AbstractCompoundScalable {
     private double getP0(Injection<?> injection) {
         if (injection instanceof Load load) {
             return load.getP0();
-        } else if (injection instanceof DanglingLine danglingLine) {
-            return danglingLine.getP0();
+        } else if (injection instanceof BoundaryLine boundaryLine) {
+            return boundaryLine.getP0();
         } else {
             throw new PowsyblException(String.format(GENERIC_INCONSISTENCY_ERROR,
                 "P0", injection.getClass()));

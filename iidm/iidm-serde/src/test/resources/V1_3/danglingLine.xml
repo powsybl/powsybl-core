@@ -5,8 +5,8 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="NHV2" v="389.9526763916016" angle="-3.5063576698303223"/>
             </iidm:busBreakerTopology>
-            <iidm:danglingLine id="NHV1_NHV2_1" p0="-300.43389892578125" q0="-137.18849182128906" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
-            <iidm:danglingLine id="NHV1_NHV2_2" p0="-300.43389892578125" q0="-137.18849182128906" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
+            <iidm:boundaryLine id="NHV1_NHV2_1" p0="-300.43389892578125" q0="-137.18849182128906" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
+            <iidm:boundaryLine id="NHV1_NHV2_2" p0="-300.43389892578125" q0="-137.18849182128906" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>

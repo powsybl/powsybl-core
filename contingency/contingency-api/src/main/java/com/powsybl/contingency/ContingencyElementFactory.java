@@ -31,7 +31,7 @@ public final class ContingencyElementFactory {
             Map.entry(ThreeWindingsTransformer.class, id -> new ThreeWindingsTransformerContingency(id.getId())),
             Map.entry(Generator.class, id -> new GeneratorContingency(id.getId())),
             Map.entry(Switch.class, id -> new SwitchContingency(id.getId())),
-            Map.entry(DanglingLine.class, id -> new DanglingLineContingency(id.getId())),
+            Map.entry(BoundaryLine.class, id -> new BoundaryLineContingency(id.getId())),
             Map.entry(Load.class, id -> new LoadContingency(id.getId())),
             Map.entry(HvdcLine.class, id -> new HvdcLineContingency(id.getId())),
             Map.entry(ShuntCompensator.class, id -> new ShuntCompensatorContingency(id.getId())),

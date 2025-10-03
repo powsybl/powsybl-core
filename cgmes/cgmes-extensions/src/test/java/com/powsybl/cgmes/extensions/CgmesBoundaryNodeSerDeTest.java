@@ -35,11 +35,11 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
     void testDanglingLine() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         var tl = network.getTieLine("NHV1_NHV2_1");
-        tl.getDanglingLine1().newExtension(CgmesDanglingLineBoundaryNodeAdder.class)
+        tl.getDanglingLine1().newExtension(CgmesBoundaryLineBoundaryNodeAdder.class)
                 .setHvdc(false)
                 .setLineEnergyIdentificationCodeEic("EIC_CODE")
                 .add();
-        tl.getDanglingLine2().newExtension(CgmesDanglingLineBoundaryNodeAdder.class)
+        tl.getDanglingLine2().newExtension(CgmesBoundaryLineBoundaryNodeAdder.class)
                 .setHvdc(false)
                 .add();
         tl.remove();

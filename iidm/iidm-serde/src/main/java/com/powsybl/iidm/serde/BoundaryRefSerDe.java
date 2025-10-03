@@ -8,7 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Network;
 
 import java.util.function.Consumer;
@@ -27,8 +27,8 @@ public final class BoundaryRefSerDe {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         context.getReader().readEndNode();
         context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
-            DanglingLine danglingLine = network.getDanglingLine(id);
-            endTaskTerminalConsumer.accept(danglingLine.getBoundary());
+            BoundaryLine boundaryLine = network.getDanglingLine(id);
+            endTaskTerminalConsumer.accept(boundaryLine.getBoundary());
         });
     }
 

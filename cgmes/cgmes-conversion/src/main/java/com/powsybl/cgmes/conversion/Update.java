@@ -132,20 +132,20 @@ public final class Update {
         context.popReportNode();
     }
 
-    static void updateDanglingLines(Network network, Context context) {
+    static void updateBoundaryLines(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.DANGLING_LINE.name()));
-        network.getDanglingLines().forEach(danglingLine -> updateDanglingLine(danglingLine, context));
+        network.getBoundaryLines().forEach(danglingLine -> updateDanglingLine(danglingLine, context));
         context.popReportNode();
     }
 
-    private static void updateDanglingLine(DanglingLine danglingLine, Context context) {
-        String originalClass = danglingLine.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+    private static void updateBoundaryLine(BoundaryLine boundaryLine, Map<String, PropertyBag> equipmentIdPropertyBag, Context context) {
+        String originalClass = boundaryLine.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
         switch (originalClass) {
-            case CgmesNames.AC_LINE_SEGMENT -> ACLineSegmentConversion.update(danglingLine, context);
-            case CgmesNames.POWER_TRANSFORMER -> TwoWindingsTransformerConversion.update(danglingLine, context);
-            case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(danglingLine, context);
-            case CgmesNames.SWITCH -> SwitchConversion.update(danglingLine, getSwitchPropertyBag(danglingLine.getId(), context), context);
-            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for DanglingLine: " + danglingLine.getId());
+            case CgmesNames.AC_LINE_SEGMENT -> ACLineSegmentConversion.update(boundaryLine, context);
+            case CgmesNames.POWER_TRANSFORMER -> TwoWindingsTransformerConversion.update(boundaryLine, context);
+            case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(boundaryLine, context);
+            case CgmesNames.SWITCH -> SwitchConversion.update(boundaryLine, getPropertyBag(boundaryLine.getId(), equipmentIdPropertyBag), context);
+            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for BoundaryLine: " + boundaryLine.getId());
         }
     }
 
@@ -246,11 +246,11 @@ public final class Update {
         network.getBusView().getBuses().forEach(bus -> NodeConversion.update(bus, context));
 
         // Voltage and angle in boundary buses
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED)
                 .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
 
         // Now in tieLines
-        network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
+        network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2()));
 
         // Voltage and angle in starBus as properties
         network.getThreeWindingsTransformers().forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);

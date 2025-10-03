@@ -63,7 +63,7 @@ public class TerminalMapping {
     public Terminal findForFlowLimits(String cgmesTerminalId) {
         // We only considered Terminals assigned to an iidm equipment
         // Terminals not included in the iidm model are:
-        // - boundary terminal of danglingLines (paired an unpaired)
+        // - boundary terminal of boundaryLines (paired an unpaired)
         // - terminal of switches
         // Limits associated to these terminals are discarded
         return terminals.get(cgmesTerminalId);
