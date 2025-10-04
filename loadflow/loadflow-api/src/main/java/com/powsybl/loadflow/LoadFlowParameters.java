@@ -71,6 +71,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public enum ConnectedComponentMode {
         MAIN,
         ALL,
+        MAIN_SYNCHRONOUS
     }
 
     public static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowParameters.class);
