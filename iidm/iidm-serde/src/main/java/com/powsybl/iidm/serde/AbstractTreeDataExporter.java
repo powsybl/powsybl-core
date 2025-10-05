@@ -199,7 +199,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
         List<String> busBreakerVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, defaultValueConfig);
         List<String> busBranchVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER, defaultValueConfig);
 
-        Set<String> allVoltageLevelIds = new HashSet<>();
+        List<String> allVoltageLevelIds = new ArrayList<>();
         allVoltageLevelIds.addAll(nodeBreakerVoltageLevelsList);
         allVoltageLevelIds.addAll(busBreakerVoltageLevelsList);
         allVoltageLevelIds.addAll(busBranchVoltageLevelsList);

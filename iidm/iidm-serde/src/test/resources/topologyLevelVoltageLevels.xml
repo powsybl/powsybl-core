@@ -2,44 +2,40 @@
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14" id="testCase11" caseDate="2022-07-26T13:56:23.057+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="subst" name="subst" country="FR">
         <iidm:voltageLevel id="vl1" name="vl1" nominalV="380.0" topologyKind="NODE_BREAKER">
-            <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="bbs1" name="bbs1" node="0"/>
-                <iidm:busbarSection id="bbs2" name="bbs2" node="1"/>
-                <iidm:busbarSection id="bbs3" name="bbs3" node="2"/>
-                <iidm:busbarSection id="bbs4" name="bbs4" node="3"/>
-                <iidm:switch id="dsect11" name="dsect11" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="14"/>
-                <iidm:switch id="dtrct11" name="dtrct11" fictitious="true" kind="BREAKER" retained="true" open="false" node1="14" node2="15"/>
-                <iidm:switch id="dsect12" name="dsect12" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="15" node2="1"/>
-                <iidm:switch id="dsect21" name="dsect21" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="16"/>
-                <iidm:switch id="dtrct21" name="dtrct21" fictitious="true" kind="BREAKER" retained="true" open="false" node1="16" node2="17"/>
-                <iidm:switch id="dsect22" name="dsect22" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="17" node2="3"/>
-                <iidm:switch id="dload1" name="dload1" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
-                <iidm:switch id="bload1" name="bload1" fictitious="true" kind="BREAKER" retained="true" open="false" node1="4" node2="5"/>
-                <iidm:switch id="dgen1" name="dgen1" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="7"/>
-                <iidm:switch id="bgen1" name="bgen1" fictitious="true" kind="BREAKER" retained="true" open="false" node1="6" node2="7"/>
-                <iidm:switch id="dload2" name="dload2" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="9"/>
-                <iidm:switch id="bload2" name="bload2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="8" node2="9"/>
-                <iidm:switch id="dgen2" name="dgen2" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="11"/>
-                <iidm:switch id="bgen2" name="bgen2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="10" node2="11"/>
-                <iidm:switch id="dtrf11" name="dtrf11" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="18"/>
-                <iidm:switch id="btrf11" name="btrf11" fictitious="true" kind="BREAKER" retained="true" open="false" node1="18" node2="19"/>
-                <iidm:switch id="dtrf12" name="dtrf12" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="20"/>
-                <iidm:switch id="btrf12" name="btrf12" fictitious="true" kind="BREAKER" retained="true" open="false" node1="20" node2="21"/>
-                <iidm:switch id="dtrf13" name="dtrf13" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="22"/>
-                <iidm:switch id="btrf13" name="btrf13" fictitious="true" kind="BREAKER" retained="true" open="false" node1="22" node2="23"/>
-                <iidm:switch id="dtrf14" name="dtrf14" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="24"/>
-                <iidm:switch id="btrf14" name="btrf14" fictitious="true" kind="BREAKER" retained="true" open="false" node1="24" node2="25"/>
-                <iidm:switch id="dtrf15" name="dtrf15" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="26"/>
-                <iidm:switch id="btrf15" name="btrf15" fictitious="true" kind="BREAKER" retained="true" open="false" node1="26" node2="27"/>
-                <iidm:switch id="dtrf16" name="dtrf16" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="28"/>
-                <iidm:switch id="btrf16" name="btrf16" fictitious="true" kind="BREAKER" retained="true" open="false" node1="28" node2="29"/>
-                <iidm:switch id="dtrf17" name="dtrf17" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="30"/>
-                <iidm:switch id="btrf17" name="btrf17" fictitious="true" kind="BREAKER" retained="true" open="false" node1="30" node2="31"/>
-                <iidm:switch id="dtrf18" name="dtrf18" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="32"/>
-                <iidm:switch id="btrf18" name="btrf18" fictitious="true" kind="BREAKER" retained="true" open="false" node1="32" node2="33"/>
-                <iidm:switch id="dline11_2" name="dline11_2" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="34"/>
-                <iidm:switch id="bline11_2" name="bline11_2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="34" node2="35"/>
-            </iidm:nodeBreakerTopology>
+            <iidm:busBreakerTopology>
+                <iidm:bus id="vl1_0" name="vl1_0"/>
+                <iidm:bus id="vl1_1" name="vl1_1"/>
+                <iidm:bus id="vl1_2" name="vl1_2"/>
+                <iidm:bus id="vl1_3" name="vl1_3"/>
+                <iidm:bus id="vl1_4" name="vl1_4"/>
+                <iidm:bus id="vl1_6" name="vl1_6"/>
+                <iidm:bus id="vl1_8" name="vl1_8"/>
+                <iidm:bus id="vl1_10" name="vl1_10"/>
+                <iidm:bus id="vl1_19" name="vl1_19"/>
+                <iidm:bus id="vl1_21" name="vl1_21"/>
+                <iidm:bus id="vl1_23" name="vl1_23"/>
+                <iidm:bus id="vl1_25" name="vl1_25"/>
+                <iidm:bus id="vl1_27" name="vl1_27"/>
+                <iidm:bus id="vl1_29" name="vl1_29"/>
+                <iidm:bus id="vl1_31" name="vl1_31"/>
+                <iidm:bus id="vl1_33" name="vl1_33"/>
+                <iidm:bus id="vl1_35" name="vl1_35"/>
+                <iidm:switch id="dtrct11" name="dtrct11" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_0" bus2="vl1_1"/>
+                <iidm:switch id="dtrct21" name="dtrct21" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_2" bus2="vl1_3"/>
+                <iidm:switch id="bload1" name="bload1" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_4" bus2="vl1_0"/>
+                <iidm:switch id="bgen1" name="bgen1" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_6" bus2="vl1_2"/>
+                <iidm:switch id="bload2" name="bload2" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_8" bus2="vl1_1"/>
+                <iidm:switch id="bgen2" name="bgen2" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_10" bus2="vl1_3"/>
+                <iidm:switch id="btrf11" name="btrf11" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_0" bus2="vl1_19"/>
+                <iidm:switch id="btrf12" name="btrf12" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_1" bus2="vl1_21"/>
+                <iidm:switch id="btrf13" name="btrf13" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_2" bus2="vl1_23"/>
+                <iidm:switch id="btrf14" name="btrf14" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_3" bus2="vl1_25"/>
+                <iidm:switch id="btrf15" name="btrf15" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_0" bus2="vl1_27"/>
+                <iidm:switch id="btrf16" name="btrf16" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_0" bus2="vl1_29"/>
+                <iidm:switch id="btrf17" name="btrf17" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_2" bus2="vl1_31"/>
+                <iidm:switch id="btrf18" name="btrf18" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_1" bus2="vl1_33"/>
+                <iidm:switch id="bline11_2" name="bline11_2" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_0" bus2="vl1_35"/>
+            </iidm:busBreakerTopology>
             <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="6">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>

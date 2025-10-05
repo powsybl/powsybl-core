@@ -56,10 +56,8 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
     void exportTopologyLevelVoltageLevels() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
         Properties properties = new Properties();
-        properties.put(VOLTAGE_LEVELS_NODE_BREAKER, "vl1");
-        properties.put(VOLTAGE_LEVELS_BUS_BREAKER, "vl2");
-        properties.put(VOLTAGE_LEVELS_BUS_BRANCH, "vl3");
-        properties.put(VOLTAGE_LEVELS_NODE_BREAKER, "vl3");
+        properties.put(VOLTAGE_LEVELS_BUS_BREAKER, "vl1,vl2,vl3");
+        properties.put(VOLTAGE_LEVELS_BUS_BRANCH, "vl3"); // vl3 is not unique and will be ignored
         exporterTest(network, () -> getClass().getResourceAsStream("/topologyLevelVoltageLevels.xml"), properties);
     }
 
