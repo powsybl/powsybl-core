@@ -205,26 +205,27 @@ public abstract class AbstractTreeDataExporter implements Exporter {
         allVoltageLevelIds.addAll(busBranchVoltageLevelsList);
 
         for (String voltageLevelId : allVoltageLevelIds) {
-            int count = 0;
+            int foundVoltageLevelId = 0;
             TopologyLevel topologyLevel = null;
 
             if (nodeBreakerVoltageLevelsList.contains(voltageLevelId)) {
-                count++;
+                foundVoltageLevelId++;
                 topologyLevel = TopologyLevel.NODE_BREAKER;
             }
             if (busBreakerVoltageLevelsList.contains(voltageLevelId)) {
-                count++;
+                foundVoltageLevelId++;
                 topologyLevel = TopologyLevel.BUS_BREAKER;
             }
             if (busBranchVoltageLevelsList.contains(voltageLevelId)) {
-                count++;
+                foundVoltageLevelId++;
                 topologyLevel = TopologyLevel.BUS_BRANCH;
             }
 
-            if (count == 1) {
+            if (foundVoltageLevelId == 1) {
                 options.addVoltageLevelTopologyLevel(voltageLevelId, topologyLevel);
             } else {
-                LOGGER.warn(String.format("VoltageLevel %s is associated with different topology levels in property : we ignore it", voltageLevelId));
+                String warnNotUniqueVoltageLevel = String.format("VoltageLevel %s is associated with different topology levels in property : we ignore it", voltageLevelId);
+                LOGGER.warn(warnNotUniqueVoltageLevel);
             }
         }
     }
