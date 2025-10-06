@@ -114,6 +114,9 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String SORTED = "iidm.export.xml.sorted";
     public static final String VERSION = "iidm.export.xml.version";
     public static final String WITH_AUTOMATION_SYSTEMS = "iidm.export.xml.with-automation-systems";
+    public static final String VOLTAGE_LEVELS_NODE_BREAKER = "iidm.export.xml.topology-level.voltage-levels.node-breaker";
+    public static final String VOLTAGE_LEVELS_BUS_BREAKER = "iidm.export.xml.topology-level.voltage-levels.bus-breaker";
+    public static final String VOLTAGE_LEVELS_BUS_BRANCH = "iidm.export.xml.topology-level.voltage-levels.bus-branch";
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
@@ -133,11 +136,17 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             Arrays.stream(IidmVersion.values()).map(v -> v.toString(".")).collect(Collectors.toList()));
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
             "Export network with automation systems", Boolean.TRUE);
+    private static final Parameter VOLTAGE_LEVELS_NODEBREAKER_PARAMETER = new Parameter(VOLTAGE_LEVELS_NODE_BREAKER, ParameterType.STRING_LIST,
+            "Apply Node/Breaker topology level at export for listed voltage levels", List.of());
+    private static final Parameter VOLTAGE_LEVELS_BUSBREAKER_PARAMETER = new Parameter(VOLTAGE_LEVELS_BUS_BREAKER, ParameterType.STRING_LIST,
+            "Apply Bus/Breaker topology level at export for listed voltage levels", List.of());
+    private static final Parameter VOLTAGE_LEVELS_BUSBRANCH_PARAMETER = new Parameter(VOLTAGE_LEVELS_BUS_BRANCH, ParameterType.STRING_LIST,
+            "Apply Bus/Branch topology level at export for listed voltage levels", List.of());
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
-            SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER);
-
+            SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER, VOLTAGE_LEVELS_NODEBREAKER_PARAMETER,
+            VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER);
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     protected AbstractTreeDataExporter(PlatformConfig platformConfig) {
@@ -185,6 +194,41 @@ public abstract class AbstractTreeDataExporter implements Exporter {
         });
     }
 
+    private void addTopologyLevelVoltageLevels(Properties parameters, ExportOptions options) {
+        List<String> nodeBreakerVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_NODEBREAKER_PARAMETER, defaultValueConfig);
+        List<String> busBreakerVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, defaultValueConfig);
+        List<String> busBranchVoltageLevelsList = Parameter.readStringList(getFormat(), parameters, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER, defaultValueConfig);
+
+        Set<String> allVoltageLevelIds = new HashSet<>();
+        allVoltageLevelIds.addAll(nodeBreakerVoltageLevelsList);
+        allVoltageLevelIds.addAll(busBreakerVoltageLevelsList);
+        allVoltageLevelIds.addAll(busBranchVoltageLevelsList);
+
+        for (String voltageLevelId : allVoltageLevelIds) {
+            int foundVoltageLevelId = 0;
+            TopologyLevel topologyLevel = null;
+
+            if (nodeBreakerVoltageLevelsList.contains(voltageLevelId)) {
+                foundVoltageLevelId++;
+                topologyLevel = TopologyLevel.NODE_BREAKER;
+            }
+            if (busBreakerVoltageLevelsList.contains(voltageLevelId)) {
+                foundVoltageLevelId++;
+                topologyLevel = TopologyLevel.BUS_BREAKER;
+            }
+            if (busBranchVoltageLevelsList.contains(voltageLevelId)) {
+                foundVoltageLevelId++;
+                topologyLevel = TopologyLevel.BUS_BRANCH;
+            }
+
+            if (foundVoltageLevelId == 1) {
+                options.addVoltageLevelTopologyLevel(voltageLevelId, topologyLevel);
+            } else {
+                LOGGER.warn("VoltageLevel {} is associated with different topology levels in property => ignored", voltageLevelId);
+            }
+        }
+    }
+
     private ExportOptions createExportOptions(Properties parameters) {
         ExportOptions options = new ExportOptions()
                 .setIndent(Parameter.readBoolean(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
@@ -200,6 +244,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setFormat(getTreeDataFormat())
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig));
         addExtensionsVersions(parameters, options);
+        addTopologyLevelVoltageLevels(parameters, options);
         return options;
     }
 }
