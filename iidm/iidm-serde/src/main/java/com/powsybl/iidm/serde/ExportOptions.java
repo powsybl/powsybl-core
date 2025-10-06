@@ -50,6 +50,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private final Map<String, String> extensionsVersions = new HashMap<>();
 
+    private final Map<String, TopologyLevel> voltageLevelTopologyLevel = new HashMap<>();
+
     private Charset charset = StandardCharsets.UTF_8;
 
     /**
@@ -230,6 +232,17 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     public Optional<String> getExtensionVersion(String extensionName) {
         return Optional.ofNullable(extensionsVersions.get(extensionName));
+    }
+
+    public ExportOptions addVoltageLevelTopologyLevel(String voltageLevelId, TopologyLevel topologyLevel) {
+        if (!voltageLevelId.isEmpty()) {
+            voltageLevelTopologyLevel.put(voltageLevelId, topologyLevel);
+        }
+        return this;
+    }
+
+    public TopologyLevel getVoltageLevelTopologyLevel(String voltageLevelId) {
+        return voltageLevelTopologyLevel.get(voltageLevelId);
     }
 
     public boolean isSorted() {
