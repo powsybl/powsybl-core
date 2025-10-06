@@ -42,14 +42,6 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
                                                              new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", "yes", List.of("yes", "no")));
 
     @Override
-    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, ReportNode reportNode) {
-        return run(network, workingStateId, LoadFlowRunParameters.getDefault()
-            .setParameters(parameters)
-            .setComputationManager(computationManager)
-            .setReportNode(reportNode));
-    }
-
-    @Override
     public CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
         Executor executor = runParameters.getComputationManager().getExecutor();
         if (executor != null) {

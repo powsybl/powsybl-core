@@ -62,7 +62,12 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @return a {@link CompletableFuture} on {@link LoadFlowResult]
      */
     @Deprecated(since = "6.9.0", forRemoval = true)
-    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode);
+    default CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
+        return run(network, workingVariantId, new LoadFlowRunParameters()
+            .setComputationManager(computationManager)
+            .setParameters(parameters)
+            .setReportNode(reportNode));
+    }
 
     /**
      * Run a loadflow on variant {@code workingVariantId} of {@code network} delegating external program execution to
