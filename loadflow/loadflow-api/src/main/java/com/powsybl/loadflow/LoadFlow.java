@@ -67,7 +67,7 @@ public final class LoadFlow {
         }
 
         /**
-         * @deprecated use {@link #runAsync(Network, String, LoadFlowRunParameters)} instead
+         * @deprecated use {@link #runAsync(Network, LoadFlowRunParameters)} instead
          */
         @Deprecated(since = "6.9.0", forRemoval = true)
         public CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
