@@ -152,7 +152,7 @@ public class ReportNodeNoOp implements ReportNode {
         // No-op
     }
 
-    private static class ChildAdder implements ReportNodeAdder {
+    private static final class ChildAdder implements ReportNodeAdder {
         @Override
         public ReportNode add() {
             return new ReportNodeNoOp();
@@ -160,6 +160,16 @@ public class ReportNodeNoOp implements ReportNode {
 
         @Override
         public ReportNodeAdder withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider) {
+            return this;
+        }
+
+        @Override
+        public ReportNodeAdder withResourceBundles(String... bundleBaseNames) {
+            return this;
+        }
+
+        @Override
+        public ReportNodeAdder withStrictMode(boolean strictMode) {
             return this;
         }
 

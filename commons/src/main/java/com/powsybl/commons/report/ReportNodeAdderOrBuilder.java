@@ -7,11 +7,8 @@
  */
 package com.powsybl.commons.report;
 
-import com.powsybl.commons.PowsyblException;
-
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Objects;
 
 public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>> {
 
@@ -30,14 +27,18 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
      * @param bundleBaseNames The base names for the {@link java.util.ResourceBundle} to use
      * @return a {@link ReportNodeBuilder}
      */
-    default T withResourceBundles(String... bundleBaseNames) {
-        Objects.requireNonNull(bundleBaseNames);
-        return switch (bundleBaseNames.length) {
-            case 0 -> throw new PowsyblException("bundleBaseNames must not be empty");
-            case 1 -> withMessageTemplateProvider(new BundleMessageTemplateProvider(bundleBaseNames[0]));
-            default -> withMessageTemplateProvider(new MultiBundleMessageTemplateProvider(bundleBaseNames));
-        };
-    }
+    T withResourceBundles(String... bundleBaseNames);
+
+    /**
+     * Provide the mode to use when a key doesn't match a message template in the {@link java.util.ResourceBundle}.
+     * <ul>
+     *     <li>In strict mode, unknown keys are reported as missing.</li>
+     *     <li>In loose mode, unknown keys are displayed as if they were messages. Values replacement is handled.</li>
+     * </ul>
+     * @param strictMode boolean indicating if the mode should be strict (<code>true</code>) or loose (<code>false</code>)
+     * @return a reference to this object
+     */
+    T withStrictMode(boolean strictMode);
 
     /**
      * Provide the message template to build the {@link ReportNode} with, through the referred ResourcesBundle and the

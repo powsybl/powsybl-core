@@ -7,6 +7,8 @@
  */
 package com.powsybl.commons.report;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,7 +24,8 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     protected String messageTemplate;
     protected boolean withTimestamp = false;
     protected String timestampPattern;
-    protected MessageTemplateProvider messageTemplateProvider = MessageTemplateProvider.EMPTY;
+    protected boolean strictMode = true;
+    protected MessageTemplateProvider messageTemplateProvider = MessageTemplateProvider.EMPTY_STRICT;
 
     @Override
     public T withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider) {
@@ -132,6 +135,30 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
         this.withTimestamp = true;
         this.timestampPattern = Objects.requireNonNull(pattern);
         return self();
+    }
+
+    @Override
+    public T withStrictMode(boolean strictMode) {
+        this.strictMode = strictMode;
+
+        if (strictMode && messageTemplateProvider == MessageTemplateProvider.EMPTY_LOOSE) {
+            messageTemplateProvider = MessageTemplateProvider.EMPTY_STRICT;
+        } else if (!strictMode && messageTemplateProvider == MessageTemplateProvider.EMPTY_STRICT) {
+            messageTemplateProvider = MessageTemplateProvider.EMPTY_LOOSE;
+        } else {
+            messageTemplateProvider.setStrictMode(strictMode);
+        }
+        return self();
+    }
+
+    @Override
+    public T withResourceBundles(String... bundleBaseNames) {
+        Objects.requireNonNull(bundleBaseNames);
+        return switch (bundleBaseNames.length) {
+            case 0 -> throw new PowsyblException("bundleBaseNames must not be empty");
+            case 1 -> withMessageTemplateProvider(new BundleMessageTemplateProvider(bundleBaseNames[0], false, strictMode));
+            default -> withMessageTemplateProvider(new MultiBundleMessageTemplateProvider(false, strictMode, bundleBaseNames));
+        };
     }
 
     protected void updateTreeDictionary(TreeContext treeContext) {
