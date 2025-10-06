@@ -137,11 +137,11 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
             "Export network with automation systems", Boolean.TRUE);
     private static final Parameter VOLTAGE_LEVELS_NODEBREAKER_PARAMETER = new Parameter(VOLTAGE_LEVELS_NODE_BREAKER, ParameterType.STRING_LIST,
-            "Apply Node Breaker topology level for listed voltage levels", new ArrayList<>());
+            "Apply Node Breaker topology level at export for listed voltage levels", List.of());
     private static final Parameter VOLTAGE_LEVELS_BUSBREAKER_PARAMETER = new Parameter(VOLTAGE_LEVELS_BUS_BREAKER, ParameterType.STRING_LIST,
-            "Apply Bus Breaker topology level for listed voltage levels", new ArrayList<>());
+            "Apply Bus Breaker topology level at export for listed voltage levels", List.of());
     private static final Parameter VOLTAGE_LEVELS_BUSBRANCH_PARAMETER = new Parameter(VOLTAGE_LEVELS_BUS_BRANCH, ParameterType.STRING_LIST,
-            "Apply Bus Branch topology level for listed voltage levels", new ArrayList<>());
+            "Apply Bus Branch topology level at export for listed voltage levels", List.of());
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
@@ -224,8 +224,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             if (foundVoltageLevelId == 1) {
                 options.addVoltageLevelTopologyLevel(voltageLevelId, topologyLevel);
             } else {
-                String warnNotUniqueVoltageLevel = String.format("VoltageLevel %s is associated with different topology levels in property : we ignore it", voltageLevelId);
-                LOGGER.warn(warnNotUniqueVoltageLevel);
+                LOGGER.warn("VoltageLevel {} is associated with different topology levels in property => ignored", voltageLevelId);
             }
         }
     }
