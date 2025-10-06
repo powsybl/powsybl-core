@@ -67,6 +67,14 @@ class LoadFlowProviderTest {
         var provider = new AbstractNoSpecificParametersLoadFlowProvider() {
             @Override
             public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
+                return run(network, workingVariantId, LoadFlowRunParameters.getDefault()
+                    .setParameters(parameters)
+                    .setComputationManager(computationManager)
+                    .setReportNode(reportNode));
+            }
+
+            @Override
+            public CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
                 return null;
             }
 

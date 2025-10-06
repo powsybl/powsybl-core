@@ -25,6 +25,14 @@ public class LFMock extends AbstractNoSpecificParametersLoadFlowProvider {
 
     @Override
     public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, ReportNode reportNode) {
+        return run(network, workingStateId, LoadFlowRunParameters.getDefault()
+            .setParameters(parameters)
+            .setComputationManager(computationManager)
+            .setReportNode(reportNode));
+    }
+
+    @Override
+    public CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
         return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
     }
 

@@ -43,7 +43,15 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
 
     @Override
     public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, ReportNode reportNode) {
-        Executor executor = computationManager.getExecutor();
+        return run(network, workingStateId, LoadFlowRunParameters.getDefault()
+            .setParameters(parameters)
+            .setComputationManager(computationManager)
+            .setReportNode(reportNode));
+    }
+
+    @Override
+    public CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
+        Executor executor = runParameters.getComputationManager().getExecutor();
         if (executor != null) {
             executor.execute(new Runnable() {
                 @Override
@@ -52,15 +60,17 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
                 }
             });
         }
+        ReportNode reportNode = runParameters.getReportNode();
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withMessageTemplate("testLoadflow")
-                    .withUntypedValue("variantId", workingStateId)
-                    .add();
+                .withMessageTemplate("testLoadflow")
+                .withUntypedValue("variantId", workingStateId)
+                .add();
         }
         String logs = "";
+        LoadFlowParameters parameters = runParameters.getLoadFlowParameters();
         if (parameters != null) {
-            logs = "Loadflow parameters: " + parameters.toString();
+            logs = "Loadflow parameters: " + parameters;
         }
         return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), logs));
     }

@@ -13,7 +13,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
@@ -37,98 +36,120 @@ public final class LoadFlow {
     public static class Runner implements Versionable {
 
         private final LoadFlowProvider provider;
-        private Network network = null;
-        private LoadFlowParameters parameters = LoadFlowParameters.load();
-        private ComputationManager computationManager = LocalComputationManager.getDefault();
-        private ReportNode reportNode = ReportNode.NO_OP;
-        private String variantId = null;
 
         public Runner(LoadFlowProvider provider) {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public Runner setNetwork(Network network) {
-            this.network = Objects.requireNonNull(network);
-            this.variantId = getVariantId(network);
-            return this;
-        }
-
-        public Runner setParameters(LoadFlowParameters parameters) {
-            this.parameters = parameters;
-            return this;
-        }
-
-        public Runner setComputationManager(ComputationManager computationManager) {
-            this.computationManager = computationManager;
-            return this;
-        }
-
-        public Runner setReportNode(ReportNode reportNode) {
-            this.reportNode = reportNode;
-            return this;
-        }
-
-        public Runner setVariantId(String variantId) {
-            this.variantId = variantId;
-            return this;
-        }
-
-        private String getVariantId(Network network) {
-            return this.variantId == null ? network.getVariantManager().getWorkingVariantId() : this.variantId;
-        }
-
+        /**
+         * @deprecated use {@link #runAsync(Network, String, LoadFlowRunParameters)} instead
+         */
+        @Deprecated(since = "6.9.0", forRemoval = true)
         public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
-            Objects.requireNonNull(workingStateId);
-            Objects.requireNonNull(parameters);
-            Objects.requireNonNull(reportNode);
-            return provider.run(network, computationManager, workingStateId, parameters, reportNode);
+            return runAsync(network,
+                workingStateId,
+                new LoadFlowRunParameters()
+                    .setComputationManager(computationManager)
+                    .setParameters(parameters)
+                    .setReportNode(reportNode));
         }
 
+        /**
+         * @deprecated use {@link #runAsync(Network, String, LoadFlowRunParameters)} instead
+         */
+        @Deprecated(since = "6.9.0", forRemoval = true)
         public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return runAsync(network, workingStateId, computationManager, parameters, reportNode);
+            return runAsync(network,
+                workingStateId,
+                new LoadFlowRunParameters()
+                    .setComputationManager(computationManager)
+                    .setParameters(parameters));
         }
 
+        /**
+         * @deprecated use {@link #runAsync(Network, String, LoadFlowRunParameters)} instead
+         */
+        @Deprecated(since = "6.9.0", forRemoval = true)
         public CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return runAsync(network, getVariantId(network), computationManager, parameters);
+            return runAsync(network,
+                network.getVariantManager().getWorkingVariantId(),
+                new LoadFlowRunParameters()
+                    .setComputationManager(computationManager)
+                    .setParameters(parameters));
+        }
+
+        public CompletableFuture<LoadFlowResult> runAsync(Network network,
+                                                          String workingStateId,
+                                                          LoadFlowRunParameters runParameters) {
+            Objects.requireNonNull(network, "Network should not be null");
+            Objects.requireNonNull(workingStateId, "WorkingVariantId should not be null");
+            Objects.requireNonNull(runParameters, "LoadFlowRunParameters should not be null");
+            return provider.run(network, workingStateId, runParameters);
+        }
+
+        public CompletableFuture<LoadFlowResult> runAsync(Network network, LoadFlowRunParameters runParameters) {
+            return runAsync(network, network.getVariantManager().getWorkingVariantId(), runParameters);
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, LoadFlowParameters parameters) {
-            return runAsync(network, computationManager, parameters);
+            return runAsync(network, network.getVariantManager().getWorkingVariantId(), new LoadFlowRunParameters().setParameters(parameters));
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network) {
-            return runAsync(network, parameters);
+            return runAsync(network, LoadFlowRunParameters.getDefault());
         }
 
-        public CompletableFuture<LoadFlowResult> runAsync() {
-            return runAsync(network);
-        }
-
+        /**
+         * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
+         */
+        @Deprecated(since = "6.9.0", forRemoval = true)
         public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
-            Objects.requireNonNull(workingStateId);
-            Objects.requireNonNull(parameters);
-            Objects.requireNonNull(reportNode);
-            return provider.run(network, computationManager, workingStateId, parameters, reportNode).join();
+            return run(network,
+                workingStateId,
+                new LoadFlowRunParameters()
+                    .setComputationManager(computationManager)
+                    .setParameters(parameters)
+                    .setReportNode(reportNode));
         }
 
+        /**
+         * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
+         */
+        @Deprecated(since = "6.9.0", forRemoval = true)
         public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return run(network, workingStateId, computationManager, parameters, reportNode);
+            return run(network,
+                workingStateId,
+                new LoadFlowRunParameters()
+                    .setComputationManager(computationManager)
+                    .setParameters(parameters));
         }
 
+        /**
+         * @deprecated use {@link #run(Network, LoadFlowRunParameters)} instead
+         */
+        @Deprecated(since = "6.9.0", forRemoval = true)
         public LoadFlowResult run(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return run(network, getVariantId(network), computationManager, parameters);
+            return run(network,
+                network.getVariantManager().getWorkingVariantId(),
+                new LoadFlowRunParameters()
+                    .setComputationManager(computationManager)
+                    .setParameters(parameters));
+        }
+
+        public LoadFlowResult run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
+            return runAsync(network, workingStateId, runParameters).join();
+        }
+
+        public LoadFlowResult run(Network network, LoadFlowRunParameters runParameters) {
+            return run(network, network.getVariantManager().getWorkingVariantId(), runParameters);
         }
 
         public LoadFlowResult run(Network network, LoadFlowParameters parameters) {
-            return run(network, computationManager, parameters);
+            return run(network, network.getVariantManager().getWorkingVariantId(), new LoadFlowRunParameters().setParameters(parameters));
         }
 
         public LoadFlowResult run(Network network) {
-            return run(network, parameters);
-        }
-
-        public LoadFlowResult run() {
-            return run(network);
+            return run(network, LoadFlowRunParameters.getDefault());
         }
 
         @Override
@@ -165,16 +186,38 @@ public final class LoadFlow {
         return find(null);
     }
 
+    /**
+     * @deprecated use {@link #runAsync(Network, String, LoadFlowRunParameters)} instead
+     */
+    @Deprecated(since = "6.9.0", forRemoval = true)
     public static CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
         return find().runAsync(network, workingStateId, computationManager, parameters, reportNode);
     }
 
+    /**
+     * @deprecated use {@link #runAsync(Network, String, LoadFlowRunParameters)} instead
+     */
+    @Deprecated(since = "6.9.0", forRemoval = true)
     public static CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().runAsync(network, workingStateId, computationManager, parameters);
     }
 
+    /**
+     * @deprecated use {@link #runAsync(Network, LoadFlowRunParameters)} instead
+     */
+    @Deprecated(since = "6.9.0", forRemoval = true)
     public static CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().runAsync(network, computationManager, parameters);
+    }
+
+    public static CompletableFuture<LoadFlowResult> runAsync(Network network,
+                                                             String workingStateId,
+                                                             LoadFlowRunParameters runParameters) {
+        return find().runAsync(network, workingStateId, runParameters);
+    }
+
+    public static CompletableFuture<LoadFlowResult> runAsync(Network network, LoadFlowRunParameters runParameters) {
+        return find().runAsync(network, runParameters);
     }
 
     public static CompletableFuture<LoadFlowResult> runAsync(Network network, LoadFlowParameters parameters) {
@@ -185,16 +228,41 @@ public final class LoadFlow {
         return find().runAsync(network);
     }
 
+
+    /**
+     * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
+     */
+    @Deprecated(since = "6.9.0", forRemoval = true)
     public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
         return find().run(network, workingStateId, computationManager, parameters, reportNode);
     }
 
+
+    /**
+     * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
+     */
+    @Deprecated(since = "6.9.0", forRemoval = true)
     public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().run(network, workingStateId, computationManager, parameters);
     }
 
+
+    /**
+     * @deprecated use {@link #runAsync(Network, LoadFlowRunParameters)} instead
+     */
+    @Deprecated(since = "6.9.0", forRemoval = true)
     public static LoadFlowResult run(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().run(network, computationManager, parameters);
+    }
+
+    public static LoadFlowResult run(Network network,
+                                     String workingStateId,
+                                     LoadFlowRunParameters runParameters) {
+        return find().run(network, workingStateId, runParameters);
+    }
+
+    public static LoadFlowResult run(Network network, LoadFlowRunParameters runParameters) {
+        return find().run(network, runParameters);
     }
 
     public static LoadFlowResult run(Network network, LoadFlowParameters parameters) {
