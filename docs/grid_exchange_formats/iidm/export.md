@@ -30,7 +30,7 @@ The default value is `NODE_BREAKER` to export all voltage levels in the same lev
 The `iidm.export.xml.topology-level.voltage-levels.node-breaker` property is an optional property that defines a list of voltage level IDs to be exported using the [Node/Breaker view]() by the IIDM exporter. Note: if the voltage level is described using a lower detailed topology (Bus/Breaker or Bus/Branch), it will be exported using the Bus/Breaker (or Bus/Branch) view (Node/Breaker is not possible since the voltage level has not enough details).  
 
 **iidm.export.xml.topology-level.voltage-levels.bus-breaker**  
-The `iidm.export.xml.topology-level.voltage-levels.bus-breaker` property is an optional property that defines a list of voltage level IDs to be exported using the [Bus/Breaker view]() by the IIDM exporter. Note: if the voltage level is described in Bus/Branch topology, it will be exported using the Bus/Branch view (Bus/Breaker is not possible since the voltage level has not enough details).  
+The `iidm.export.xml.topology-level.voltage-levels.bus-breaker` property is an optional property that defines a list of voltage level IDs to be exported using the [Bus/Breaker view]() by the IIDM exporter.  
 
 **iidm.export.xml.topology-level.voltage-levels.bus-branch**  
 The `iidm.export.xml.topology-level.voltage-levels.bus-branch` property is an optional property that defines a list of voltage level IDs to be exported using the [Bus/Branch view]() by the IIDM exporter.  
