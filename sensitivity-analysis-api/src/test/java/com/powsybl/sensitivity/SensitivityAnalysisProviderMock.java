@@ -31,7 +31,12 @@ import java.util.stream.IntStream;
 public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, ReportNode reportNode) {
+    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, SensitivityAnalysisRunParameters runParameters) {
+        List<Contingency> contingencies = runParameters.getContingencies();
+        List<SensitivityVariableSet> variableSets = runParameters.getVariableSets();
+        SensitivityAnalysisParameters parameters = runParameters.getSensitivityAnalysisParameters();
+        ComputationManager computationManager = runParameters.getComputationManager();
+        ReportNode reportNode = runParameters.getReportNode();
         int[] factorIndex = new int[1];
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             switch (contingencyContext.getContextType()) {

@@ -68,59 +68,97 @@ class SensitivityAnalysisTest {
     @Test
     void testRunAsyncWithReaderAndWriter() {
         SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, factorReader, resultWriter,
-                contingencies, variableSets, parameters, computationManager, ReportNode.NO_OP)
+                new SensitivityAnalysisRunParameters()
+                    .setContingencies(contingencies)
+                    .setVariableSets(variableSets)
+                    .setParameters(parameters)
+                    .setComputationManager(computationManager)
+                    .setReportNode(ReportNode.NO_OP))
                 .join();
         assertEquals(1, resultWriter.getValues().size());
     }
 
     @Test
+    void testDeprecatedRunAsync() {
+        assertEquals(1, SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
+            contingencies, variableSets, parameters, computationManager, ReportNode.NO_OP).join().getValues().size());
+        SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, factorReader, resultWriter,
+            contingencies, variableSets, parameters, computationManager, ReportNode.NO_OP).join();
+        assertEquals(1, resultWriter.getValues().size());
+    }
+
+    @Test
     void testRunAsync() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
-                        contingencies, variableSets, parameters, computationManager, ReportNode.NO_OP)
-                .join();
-        assertEquals(1, result.getValues().size());
+        assertEquals(1, SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
+            new SensitivityAnalysisRunParameters()
+                .setContingencies(contingencies)
+                .setVariableSets(variableSets)
+                .setParameters(parameters)
+                .setComputationManager(computationManager)
+                .setReportNode(ReportNode.NO_OP)).join().getValues().size());
+        assertEquals(1, SensitivityAnalysis.runAsync(network, List.of(factor)).join().getValues().size());
+    }
+
+    @Test
+    void testDeprecatedRun() {
+        assertEquals(1, SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
+            contingencies, variableSets, parameters, computationManager, ReportNode.NO_OP).getValues().size());
+        assertEquals(1, SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
+            contingencies, variableSets, parameters).getValues().size());
+        assertEquals(1, SensitivityAnalysis.run(network, List.of(factor), contingencies, variableSets, parameters).getValues().size());
+        assertEquals(1, SensitivityAnalysis.run(network, List.of(factor), contingencies, parameters).getValues().size());
+        assertEquals(1, SensitivityAnalysis.run(network, List.of(factor), contingencies).getValues().size());
+    }
+
+    @Test
+    void testRunWithReaderAndWriter() {
+        SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factorReader, resultWriter,
+            new SensitivityAnalysisRunParameters()
+                .setContingencies(contingencies)
+                .setVariableSets(variableSets)
+                .setParameters(parameters)
+                .setComputationManager(computationManager)
+                .setReportNode(ReportNode.NO_OP));
+        assertEquals(1, resultWriter.getValues().size());
     }
 
     @Test
     void testRun() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
-                        contingencies, variableSets, parameters, computationManager, ReportNode.NO_OP);
-        assertEquals(1, result.getValues().size());
+        assertEquals(1, SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
+            new SensitivityAnalysisRunParameters()
+                .setContingencies(contingencies)
+                .setVariableSets(variableSets)
+                .setParameters(parameters)
+                .setComputationManager(computationManager)
+                .setReportNode(ReportNode.NO_OP)).getValues().size());
     }
 
     @Test
     void testRunShort1() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
-                contingencies, variableSets, parameters);
-        assertEquals(1, result.getValues().size());
+        assertEquals(1, SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
+            new SensitivityAnalysisRunParameters()
+                .setContingencies(contingencies)
+                .setVariableSets(variableSets)
+                .setParameters(parameters)).getValues().size());
     }
 
     @Test
     void testRunShort2() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), contingencies, variableSets, parameters);
-        assertEquals(1, result.getValues().size());
+        assertEquals(1, SensitivityAnalysis.run(network, List.of(factor),
+            new SensitivityAnalysisRunParameters()
+                .setContingencies(contingencies)
+                .setVariableSets(variableSets)
+                .setParameters(parameters)).getValues().size());
     }
 
     @Test
     void testRunShort3() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), contingencies, parameters);
-        assertEquals(1, result.getValues().size());
-    }
-
-    @Test
-    void testRunShort4() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), contingencies);
-        assertEquals(1, result.getValues().size());
-    }
-
-    @Test
-    void testRunShort5() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor));
         assertEquals(1, result.getValues().size());
     }
 
     @Test
-    void testRunShort6() {
+    void testRunShort4() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), parameters);
         assertEquals(1, result.getValues().size());
     }
@@ -128,8 +166,7 @@ class SensitivityAnalysisTest {
     @Test
     void testRunWithDefaultParameters() {
         SensitivityAnalysis.Runner runner = SensitivityAnalysis.find();
-        runner.setNetwork(network).setSensitivityFactors(List.of(factor));
-        SensitivityAnalysisResult result = runner.run();
+        SensitivityAnalysisResult result = runner.run(network, List.of(factor));
         assertEquals(1, result.getValues().size());
     }
 
@@ -142,17 +179,14 @@ class SensitivityAnalysisTest {
             .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
             .withMessageTemplate("testSensitivityAnalysis")
             .build();
-        SensitivityAnalysis.Runner runner = SensitivityAnalysis.find();
-        runner.setNetwork(network)
-            .setSensitivityFactors(List.of(factor))
+        SensitivityAnalysisRunParameters runParameters = new SensitivityAnalysisRunParameters()
             .setVariableSets(sensitivityVariableSets)
             .setComputationManager(computationManager)
             .setReportNode(reportRoot)
-            .setVariant("VariantId")
             .setContingencies(List.of(new Contingency("contingency1")))
             .setParameters(sensitivityParameters.setVoltageVoltageSensitivityValueThreshold(0.1d));
 
-        SensitivityAnalysisResult result = runner.run();
+        SensitivityAnalysisResult result = SensitivityAnalysis.find().run(network, "VariantId", List.of(factor), runParameters);
         assertEquals(5, reportRoot.getChildren().size());
         assertEquals("Test sensitivity factor functionId = " + factor.getFunctionId(), reportRoot.getChildren().get(0).getMessage());
         assertEquals("Test sensititity analysis variant = VariantId", reportRoot.getChildren().get(1).getMessage());
