@@ -8,10 +8,12 @@
 package com.powsybl.action.ial.simulator;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.*;
+import com.powsybl.loadflow.AbstractNoSpecificParametersLoadFlowProvider;
+import com.powsybl.loadflow.LoadFlowProvider;
+import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.loadflow.LoadFlowResultImpl;
+import com.powsybl.loadflow.LoadFlowRunParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +36,6 @@ public class LoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowPr
     @Override
     public String getVersion() {
         return "1.0";
-    }
-
-    @Override
-    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, ReportNode reportNode) {
-        return run(network, workingStateId, LoadFlowRunParameters.getDefault()
-            .setParameters(parameters)
-            .setComputationManager(computationManager)
-            .setReportNode(reportNode));
     }
 
     @Override
