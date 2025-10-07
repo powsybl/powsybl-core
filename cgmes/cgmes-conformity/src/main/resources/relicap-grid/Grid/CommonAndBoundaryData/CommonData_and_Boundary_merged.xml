@@ -335,23 +335,7 @@
     <cim:IdentifiedObject.name>BP_GA-NH2</cim:IdentifiedObject.name>
     <eu:IdentifiedObject.shortName>BP_GA-NH2</eu:IdentifiedObject.shortName>
   </eu:BoundaryPoint>
-  <cim:ConnectivityNode rdf:ID="_892ef502-162b-469f-b93f-266aae828227">
-    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_e61f8ecf-8129-4702-a3a2-826bdf5ad13d" />
-    <cim:IdentifiedObject.mRID>892ef502-162b-469f-b93f-266aae828227</cim:IdentifiedObject.mRID>
-    <cim:IdentifiedObject.name>BP HVDC GA-NH NH side</cim:IdentifiedObject.name>
-  </cim:ConnectivityNode>  
-  <cim:VoltageLevel rdf:ID="_e61f8ecf-8129-4702-a3a2-826bdf5ad13d">
-    <cim:IdentifiedObject.mRID>e61f8ecf-8129-4702-a3a2-826bdf5ad13d</cim:IdentifiedObject.mRID>
-    <cim:IdentifiedObject.name>VL 220 kV</cim:IdentifiedObject.name>
-    <cim:VoltageLevel.BaseVoltage rdf:resource="#_a7f1d8de-d658-428a-821b-3a5ae5965fd1" />
-    <cim:VoltageLevel.Substation rdf:resource="#_c39c3eb8-9cce-4778-9069-6952a117ba2b" />
-  </cim:VoltageLevel>
-  <cim:Substation rdf:ID="_c39c3eb8-9cce-4778-9069-6952a117ba2b">
-    <cim:IdentifiedObject.mRID>c39c3eb8-9cce-4778-9069-6952a117ba2b</cim:IdentifiedObject.mRID>
-    <cim:IdentifiedObject.name>HVDV Station</cim:IdentifiedObject.name>
-    <cim:Substation.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78" />
-  </cim:Substation>
-   <eu:BoundaryPoint rdf:ID="_e364f3e7-a2a8-3561-5540-6e74801a20ff">
+  <eu:BoundaryPoint rdf:ID="_e364f3e7-a2a8-3561-5540-6e74801a20ff">
     <eu:BoundaryPoint.ConnectivityNode rdf:resource="#_4905819a-7927-4112-8e3b-4e8178b7daa5"/>
     <eu:BoundaryPoint.fromEndIsoCode>GA</eu:BoundaryPoint.fromEndIsoCode>
     <eu:BoundaryPoint.fromEndName>Alfheim6</eu:BoundaryPoint.fromEndName>
@@ -753,14 +737,5 @@
     <cim:IdentifiedObject.name>BP_SD-EH1</cim:IdentifiedObject.name>
     <eu:IdentifiedObject.shortName>BP_SD-EH1</eu:IdentifiedObject.shortName>
     <cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
-  </cim:Line>  
-  <cim:SubGeographicalRegion rdf:ID="_77467625-a8fe-8792-7cf2-06c5dfd5fba9">
-    <cim:IdentifiedObject.mRID>77467625-a8fe-8792-7cf2-06c5dfd5fba9</cim:IdentifiedObject.mRID>
-    <cim:IdentifiedObject.name>Nordheim</cim:IdentifiedObject.name>
-    <cim:SubGeographicalRegion.Region rdf:resource="#_9356077b-f716-0d6c-0cac-32c074bd8fa3" />
-  </cim:SubGeographicalRegion>  
-  <cim:GeographicalRegion rdf:ID="_9356077b-f716-0d6c-0cac-32c074bd8fa3">
-    <cim:IdentifiedObject.mRID>9356077b-f716-0d6c-0cac-32c074bd8fa3</cim:IdentifiedObject.mRID>
-    <cim:IdentifiedObject.name>NH</cim:IdentifiedObject.name>
-  </cim:GeographicalRegion>
+  </cim:Line>
 </rdf:RDF>
