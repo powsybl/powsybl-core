@@ -32,6 +32,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.powsybl.ucte.converter.export.elements.LoadUcteExport.convertLoads;
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
 
@@ -182,9 +183,6 @@ public class UcteExporter implements Exporter {
         if (bus.getGeneratorStream().count() > 1) {
             throw new UcteException("Too many generators connected to this bus");
         }
-        if (bus.getLoadStream().count() > 1) {
-            throw new UcteException("Too many loads connected to this bus");
-        }
 
         UcteNodeCode ucteNodeCode = context.getNamingStrategy().getUcteNodeCode(bus);
         String geographicalName = bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
@@ -218,23 +216,6 @@ public class UcteExporter implements Exporter {
         if (isSlackBus(bus)) {
             ucteNode.setTypeCode(UcteNodeTypeCode.UT);
         }
-    }
-
-    /**
-     * Initialize the power consumption fields from the loads connected to the specified bus.
-     *
-     * @param ucteNode The UCTE node to fill
-     * @param bus The bus the loads are connected to
-     */
-    private static void convertLoads(UcteNode ucteNode, Bus bus) {
-        double activeLoad = 0.0;
-        double reactiveLoad = 0.0;
-        for (Load load : bus.getLoads()) {
-            activeLoad += load.getP0();
-            reactiveLoad += load.getQ0();
-        }
-        ucteNode.setActiveLoad(activeLoad);
-        ucteNode.setReactiveLoad(reactiveLoad);
     }
 
     /**
