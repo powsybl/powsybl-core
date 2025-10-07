@@ -17,7 +17,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.io.TreeDataHeader;
 import com.powsybl.commons.io.TreeDataReader;
@@ -211,7 +212,9 @@ public final class NetworkSerDe {
                 continue;
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e -> canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
+                    .filter(e ->
+                            isExtensionIncluded(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
+                            canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
                     .toList();
 
             if (!extensions.isEmpty()) {
@@ -229,6 +232,13 @@ public final class NetworkSerDe {
     private static boolean ignoreEquipmentAtExport(Identifiable<?> identifiable, NetworkSerializerContext context) {
         return !context.isExportedEquipment(identifiable)
                 || identifiable instanceof OverloadManagementSystem && !context.getOptions().isWithAutomationSystems();
+    }
+
+    private static boolean isExtensionIncluded(ExtensionSerDe extensionSerDe, ExportOptions options) {
+        if (extensionSerDe == null) {
+            return false;
+        }
+        return options.withExtension(extensionSerDe.getExtensionName());
     }
 
     private static boolean canTheExtensionBeWritten(ExtensionSerDe extensionSerDe, IidmVersion version, ExportOptions options) {
@@ -860,8 +870,8 @@ public final class NetworkSerDe {
             // missing extension serializer, we must not check for an extension in sub elements.
             ExtensionSerDe extensionSerde = extensionsSupplier.get().findProvider(extensionSerializationName);
             String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
-            if (!context.isIgnoredEquipment(id)
-                    && (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
+            if (!context.isIgnoredEquipment(id) &&
+                    (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
                 if (extensionSerde != null) {
                     extensionSerde.checkReadingCompatibility(context);
                     Identifiable identifiable = getIdentifiable(network, id);

@@ -7,15 +7,15 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyLevel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.powsybl.iidm.serde.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
 
@@ -29,8 +29,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         THROW_EXCEPTION,
         LOG_ERROR
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExportOptions.class);
 
     private boolean withBranchSV = true;
 
@@ -98,16 +96,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
     }
 
-    @Override
-    public ExportOptions addExtension(String extension) {
-        if (extensions != null) {
-            extensions.add(extension);
-        } else {
-            this.extensions = Sets.newHashSet(extension);
-        }
-        return this;
-    }
-
     public boolean isWithBranchSV() {
         return withBranchSV;
     }
@@ -150,18 +138,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setTopologyLevel(TopologyLevel topologyLevel) {
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
-        return this;
-    }
-
-    @Override
-    public ExportOptions setExtensions(Set<String> extensions) {
-        // this warning is to prevent people to use setSkipExtensions and setExtensions at the same time
-        Optional.ofNullable(this.extensions).ifPresent(e -> {
-            if (e.isEmpty()) {
-                LOGGER.warn("Extensions have already been set as empty. This call will override it.");
-            }
-        });
-        this.extensions = extensions;
         return this;
     }
 
@@ -217,8 +193,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      * serialization name is used for the <code>extensionName</code> parameter, the method will have no effect.</p>
      */
     public ExportOptions addExtensionVersion(String extensionName, String extensionVersion) {
-        if (extensions != null && !extensions.contains(extensionName)) {
-            throw new PowsyblException(extensionName + " is not an extension you have passed in the extensions list to export.");
+        if (includedExtensions != null && !includedExtensions.contains(extensionName)) {
+            throw new PowsyblException(extensionName + " is not an extension you have included in the extensions inclusion list to export.");
+        }
+        if (excludedExtensions != null && excludedExtensions.contains(extensionName)) {
+            throw new PowsyblException(extensionName + " is an extension you have excluded in the extensions exclusion list to export.");
         }
         if (extensionsVersions.putIfAbsent(extensionName, extensionVersion) != null) {
             throw new PowsyblException("The version of " + extensionName + "'s XML serializer has already been set.");

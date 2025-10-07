@@ -55,7 +55,7 @@ class PhaseShifterXmlTest extends AbstractIidmSerDeTest {
 
         // Export network and read it again
         ExportOptions exportOptions = new ExportOptions();
-        exportOptions.setExtensions(Collections.emptySet());
+        exportOptions.setIncludedExtensions(Collections.emptySet());
         Path exportedPath = tmpDir.resolve("exported.xml");
         NetworkSerDe.write(network, exportOptions, exportedPath);
 
