@@ -631,6 +631,8 @@ Optional property that defines if control areas must be imported or not. `true` 
 
 **iidm.import.cgmes.naming-strategy**  
 Optional property that defines which naming strategy is used to transform CGMES identifiers to IIDM identifiers. Currently, all naming strategies assign CGMES Ids directly to IIDM Ids during import, without any transformation. The default value is `identity`.
+You can also define a custom naming strategy by implementing the `NamingStrategy` interface on your own project and declare
+a `NamingStrategyProvider` that can be automatically discovered. Then in this parameter, you can specify the name of the provider.
 
 **iidm.import.cgmes.post-processors**  
 Optional property that defines all the CGMES post-processors which will be activated after import.
@@ -669,3 +671,9 @@ Its default value is `MODELING_AUTHORITY`.
 Optional property that defines the fictitious voltage levels created by line container. If it is set to `true`, a fictitious voltage level is created for each connectivity node inside the line container.
 If it is set to `false`, only one fictitious voltage level is created for each line container. 
 `true` by default.
+
+**iidm.import.cgmes.use-previous-values-during-update**  
+Optional property that defines whether the CGMES importer should use previous values to fill in missing SSH attributes during an update.
+When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
+If set to `false`, missing SSH attributes will be filled using default values.
+`false` by default.

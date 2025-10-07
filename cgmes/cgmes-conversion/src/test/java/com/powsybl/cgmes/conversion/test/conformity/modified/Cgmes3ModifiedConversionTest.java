@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity3ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
@@ -50,7 +49,7 @@ class Cgmes3ModifiedConversionTest {
     void microGridSingleFile() {
         Network network0 = Importers.importData("CGMES", Cgmes3Catalog.microGrid().dataSource(), importParams);
         Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), importParams);
-        assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
+        assertEquals(7, network.getVoltageLevelStream().mapToInt(voltageLevel -> voltageLevel.getBusBreakerView().getBusCount()).sum());
         assertEquals(5, network.getDanglingLineCount());
     }
 

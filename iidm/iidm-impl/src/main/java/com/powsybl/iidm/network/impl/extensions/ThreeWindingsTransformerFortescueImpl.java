@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.extensions.LegFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 
 import java.util.Objects;

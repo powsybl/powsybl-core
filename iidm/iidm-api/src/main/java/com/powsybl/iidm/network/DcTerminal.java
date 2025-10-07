@@ -25,6 +25,11 @@ public interface DcTerminal {
     TwoSides getSide();
 
     /**
+     * @return the DC equipment terminal number
+     */
+    TerminalNumber getTerminalNumber();
+
+    /**
      * @return the DC node the DC terminal connects to
      */
     DcNode getDcNode();
@@ -43,6 +48,14 @@ public interface DcTerminal {
      * @see VariantManager
      */
     DcTerminal setConnected(boolean connected);
+
+    /**
+     * Get the DC connection bus of this DC terminal.
+     * <p>Depends on the working variant.
+     * @return the DC connection bus or null if not connected
+     * @see VariantManager
+     */
+    DcBus getDcBus();
 
     /**
      * @return the active power in MW injected at the DC terminal.<br/>

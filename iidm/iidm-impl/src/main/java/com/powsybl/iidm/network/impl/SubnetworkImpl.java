@@ -48,6 +48,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         super(id, name, sourceFormat);
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
         this.ref = new RefChain<>(new RefObj<>(this));
+        this.dcTopologyModel = new DcTopologyModel(rootNetworkRef, ref);
     }
 
     SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, RefChain<SubnetworkImpl> subnetworkRef, String id, String name, String sourceFormat, ZonedDateTime caseDate) {
@@ -55,6 +56,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
         this.ref = Objects.requireNonNull(subnetworkRef);
         this.ref.setRef(new RefObj<>(this));
+        this.dcTopologyModel = new DcTopologyModel(rootNetworkRef, ref);
         setCaseDate(caseDate);
     }
 
@@ -998,12 +1000,16 @@ public class SubnetworkImpl extends AbstractNetwork {
         transferExtensions(this, detachedNetwork);
         transferProperties(this, detachedNetwork);
 
+        // Transfer the DC topology model from the subnetwork to the detached network.
+        // Note that the refs are not yet updated here, they are updated later on below.
+        detachedNetwork.attachDcTopologyModel(this.detachDcTopologyModel(), rootNetworkRef, ref);
+
         // Memorize the network identifiables/voltageAngleLimits before moving references (to use them later)
         Collection<Identifiable<?>> identifiables = getIdentifiables();
         Iterable<VoltageAngleLimit> vals = getVoltageAngleLimits();
 
         // Move the substations and voltageLevels to the new network
-        ref.setRef(new RefObj<>(null));
+        ref.setRef(detachedNetwork.getSubnetworkRef());
 
         // Remove the old subnetwork from the subnetworks list of the current parent network
         NetworkImpl previousRootNetwork = rootNetworkRef.get();
@@ -1183,5 +1189,33 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
         return getNetwork().getIdentifiableStream(identifiableType).filter(this::contains);
+    }
+
+    @Override
+    public Iterable<DcBus> getDcBuses() {
+        return getDcTopologyModel().getDcBuses();
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        return getDcTopologyModel().getDcBusStream();
+    }
+
+    @Override
+    public int getDcBusCount() {
+        return getDcTopologyModel().getDcBusCount();
+    }
+
+    @Override
+    public DcBus getDcBus(String id) {
+        return getDcTopologyModel().getDcBus(id);
+    }
+
+    @Override
+    public Collection<Component> getDcComponents() {
+        return getNetwork().getDcComponents().stream()
+                .filter(c -> c.getDcBusStream().anyMatch(SubnetworkImpl.this::contains))
+                .map(c -> (Component) new Subcomponent(c, SubnetworkImpl.this))
+                .toList();
     }
 }
