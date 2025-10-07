@@ -90,9 +90,9 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return switch (psseTwoTerminalDc.getMdc()) {
             case 1 ->
                 // The desired real power demand
-                    Math.abs(psseTwoTerminalDc.getSetvl());
+                Math.abs(psseTwoTerminalDc.getSetvl());
             case 2 ->
-                    currentInAmpsToMw(psseTwoTerminalDc.getSetvl(), psseTwoTerminalDc.getVschd());
+                currentInAmpsToMw(psseTwoTerminalDc.getSetvl(), psseTwoTerminalDc.getVschd());
             default -> 0.0;
         };
     }
