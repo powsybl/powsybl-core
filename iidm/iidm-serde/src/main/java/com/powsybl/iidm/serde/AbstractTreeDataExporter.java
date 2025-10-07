@@ -32,7 +32,7 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.serde.AbstractOptionExtensionChecker.getAndCheckExtensionsToInclude;
+import static com.powsybl.iidm.serde.ExtensionOptionsUtil.getAndCheckExtensionsToInclude;
 
 /**
  * Tree data export of an IIDM model.<p>

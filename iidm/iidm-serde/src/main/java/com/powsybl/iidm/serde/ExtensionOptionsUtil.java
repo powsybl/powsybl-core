@@ -13,17 +13,17 @@ import java.util.Properties;
 /**
  * This delegate class avoid code duplication in AbstractTreeDataImporter and AbstractTreeDataExporter classes
  */
-public abstract class AbstractOptionExtensionChecker {
+public final class ExtensionOptionsUtil {
 
     /**
      * The logger
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOptionExtensionChecker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionOptionsUtil.class);
 
     /**
      * Avoid instantiating this class
      */
-    private AbstractOptionExtensionChecker() {
+    private ExtensionOptionsUtil() {
     }
 
     /**

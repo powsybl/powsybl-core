@@ -35,7 +35,7 @@ import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import static com.powsybl.iidm.serde.AbstractOptionExtensionChecker.getAndCheckExtensionsToInclude;
+import static com.powsybl.iidm.serde.ExtensionOptionsUtil.getAndCheckExtensionsToInclude;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
