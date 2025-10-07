@@ -57,7 +57,7 @@ public class PropertyCriterion implements Criterion {
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
         return switch (equipmentToCheck) {
             case SELF ->
-                    identifiable.hasProperty(propertyKey) && propertyValues.contains(identifiable.getProperty(propertyKey));
+                identifiable.hasProperty(propertyKey) && propertyValues.contains(identifiable.getProperty(propertyKey));
             case VOLTAGE_LEVEL, SUBSTATION -> filterEquipment(identifiable, type);
         };
     }
@@ -69,18 +69,17 @@ public class PropertyCriterion implements Criterion {
     private boolean filterEquipment(Identifiable<?> identifiable, IdentifiableType type) {
         return switch (type) {
             case STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BUSBAR_SECTION, GENERATOR, DANGLING_LINE, LOAD, BATTERY, HVDC_CONVERTER_STATION ->
-                    filterSubstationOrVoltageLevel(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+                filterSubstationOrVoltageLevel(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH -> filterSubstationOrVoltageLevel(((Switch) identifiable).getVoltageLevel());
             case TWO_WINDINGS_TRANSFORMER, LINE ->
-                    filterBranch(((Branch<?>) identifiable).getTerminal1().getVoltageLevel(),
-                            ((Branch<?>) identifiable).getTerminal2().getVoltageLevel());
+                filterBranch(((Branch<?>) identifiable).getTerminal1().getVoltageLevel(),
+                        ((Branch<?>) identifiable).getTerminal2().getVoltageLevel());
             case HVDC_LINE ->
-                    filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal().getVoltageLevel(),
-                            ((HvdcLine) identifiable).getConverterStation2().getTerminal().getVoltageLevel());
+                filterBranch(((HvdcLine) identifiable).getConverterStation1().getTerminal().getVoltageLevel(),
+                        ((HvdcLine) identifiable).getConverterStation2().getTerminal().getVoltageLevel());
             case THREE_WINDINGS_TRANSFORMER -> filterThreeWindingsTransformer((ThreeWindingsTransformer) identifiable);
             case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> filterSubstationOrVoltageLevel(((AcDcConverter<?>) identifiable).getTerminal1().getVoltageLevel());
-            default ->
-                    throw new PowsyblException(String.format("type %s has no implementation for ContingencyElement", type));
+            default -> throw new PowsyblException(String.format("type %s has no implementation for ContingencyElement", type));
         };
     }
 
@@ -102,16 +101,16 @@ public class PropertyCriterion implements Criterion {
         }
         return switch (sideToCheck) {
             case ONE ->
-                    filterSubstationOrVoltageLevel(voltageLevel1) || filterSubstationOrVoltageLevel(voltageLevel2) ||
-                            filterSubstationOrVoltageLevel(voltageLevel3);
+                filterSubstationOrVoltageLevel(voltageLevel1) || filterSubstationOrVoltageLevel(voltageLevel2) ||
+                        filterSubstationOrVoltageLevel(voltageLevel3);
             case BOTH -> filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2)
                     || filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel3)
                     || filterSubstationOrVoltageLevel(voltageLevel2) && filterSubstationOrVoltageLevel(voltageLevel3);
             case ALL_THREE ->
-                    filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2) &&
-                            filterSubstationOrVoltageLevel(voltageLevel3);
+                filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2) &&
+                        filterSubstationOrVoltageLevel(voltageLevel3);
             default ->
-                    throw new IllegalArgumentException("enum to check side must be ONE, BOTH or ALL_THREE for threeWindingsTransformer");
+                throw new IllegalArgumentException("enum to check side must be ONE, BOTH or ALL_THREE for threeWindingsTransformer");
         };
     }
 
