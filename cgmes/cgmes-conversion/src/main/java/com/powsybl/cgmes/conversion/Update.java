@@ -52,9 +52,8 @@ public final class Update {
                 case CgmesNames.ENERGY_SOURCE -> EnergySourceConversion.update(load, cgmesData, context);
                 case CgmesNames.ASYNCHRONOUS_MACHINE -> AsynchronousMachineConversion.update(load, cgmesData, context);
                 case CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY, CgmesNames.ENERGY_CONSUMER ->
-                        EnergyConsumerConversion.update(load, cgmesData, context);
-                default ->
-                        throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Load: " + load.getId());
+                    EnergyConsumerConversion.update(load, cgmesData, context);
+                default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Load: " + load.getId());
             }
         }
     }
@@ -182,7 +181,7 @@ public final class Update {
             case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(sw, context);
             case CgmesNames.SERIES_COMPENSATOR -> SeriesCompensatorConversion.update(sw, context);
             case CgmesNames.SWITCH, "Breaker", "Disconnector", "LoadBreakSwitch", "ProtectedSwitch", "GroundDisconnector", "Jumper" ->
-                    SwitchConversion.update(sw, getSwitchPropertyBag(sw.getId(), context), context);
+                SwitchConversion.update(sw, getSwitchPropertyBag(sw.getId(), context), context);
             default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for Switch: " + sw.getId());
         }
     }
