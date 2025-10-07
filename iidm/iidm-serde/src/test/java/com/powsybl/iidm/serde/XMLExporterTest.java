@@ -26,6 +26,7 @@ import java.util.Properties;
 import java.util.function.Supplier;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
+import static com.powsybl.iidm.serde.AbstractTreeDataExporter.*;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 class XMLExporterTest extends AbstractIidmSerDeTest {
+    private static final String NODE_BREAKER_FILE = "/testNetworkNodeBreaker.xiidm";
     private FileSystem fileSystem;
 
     void exporterTest(Network network, IidmVersion version, String xmlFileName, Properties properties) throws IOException {
@@ -48,6 +50,15 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
             assertXmlEquals(refFileIs.get(), is);
         }
+    }
+
+    @Test
+    void exportTopologyLevelVoltageLevels() throws IOException {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
+        Properties properties = new Properties();
+        properties.put(VOLTAGE_LEVELS_BUS_BREAKER, "vl1,vl2,vl3");
+        properties.put(VOLTAGE_LEVELS_BUS_BRANCH, "vl3"); // vl3 is not unique and will be ignored
+        exporterTest(network, () -> getClass().getResourceAsStream("/topologyLevelVoltageLevels.xml"), properties);
     }
 
     @Test
@@ -80,7 +91,7 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
     @Test
     void paramsTest() {
         var xmlExporter = new XMLExporter();
-        assertEquals(12, xmlExporter.getParameters().size());
+        assertEquals(15, xmlExporter.getParameters().size());
         assertEquals("IIDM XML v" + CURRENT_IIDM_VERSION.toString(".") + " exporter", xmlExporter.getComment());
     }
 

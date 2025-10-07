@@ -8,7 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.google.common.collect.Sets;
-import com.powsybl.iidm.network.TopologyLevel;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -18,6 +18,7 @@ import java.util.Set;
 import static com.powsybl.iidm.serde.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -71,6 +72,29 @@ class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(1, (int) options.getIncludedExtensions().map(Set::size).orElse(-1));
         assertEquals(Boolean.TRUE, options.isSorted());
+    }
+
+    @Test
+    void exportOptionsVoltageLevelTopologyLevelTest() {
+        Network network = Network.create("test", "test");
+        Substation substation = network.newSubstation()
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = substation.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        ExportOptions options = new ExportOptions();
+        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.NODE_BREAKER);
+        assertEquals(TopologyLevel.NODE_BREAKER, options.getVoltageLevelTopologyLevel(vl1.getId()));
+        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.BUS_BREAKER);
+        assertEquals(TopologyLevel.BUS_BREAKER, options.getVoltageLevelTopologyLevel(vl1.getId()));
+        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.BUS_BRANCH);
+        assertEquals(TopologyLevel.BUS_BRANCH, options.getVoltageLevelTopologyLevel(vl1.getId()));
+        assertNull(options.getVoltageLevelTopologyLevel("undefined_vl"));
     }
 
     @Test
