@@ -148,8 +148,7 @@ public final class Importers {
         List<ReadOnlyDataSource> dataSources = new ArrayList<>();
         importAll(dir, importer, dataSources);
         if (parallel) {
-            ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-            try {
+            try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
                 List<Future<?>> futures = dataSources.stream()
                         .map(ds -> {
                             ReportNode child = NetworkReports.createChildReportNode(reportNode, ds);
@@ -159,8 +158,6 @@ public final class Importers {
                 for (Future<?> future : futures) {
                     future.get();
                 }
-            } finally {
-                executor.shutdownNow();
             }
         } else {
             for (ReadOnlyDataSource dataSource : dataSources) {
