@@ -10,9 +10,11 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.iidm.network.DcBus;
 import com.powsybl.iidm.network.DcConnectable;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.ValidationUtil;
 

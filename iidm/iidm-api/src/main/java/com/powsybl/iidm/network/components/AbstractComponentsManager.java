@@ -9,8 +9,13 @@
 
 package com.powsybl.iidm.network.components;
 
+import com.powsybl.iidm.network.AcDcConverter;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
+import com.powsybl.iidm.network.DcBus;
+import com.powsybl.iidm.network.DcLine;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
