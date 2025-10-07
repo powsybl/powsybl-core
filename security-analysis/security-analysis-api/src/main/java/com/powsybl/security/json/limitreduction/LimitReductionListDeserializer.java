@@ -26,7 +26,7 @@ public class LimitReductionListDeserializer extends StdDeserializer<LimitReducti
         super(LimitReductionList.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         String version;
         List<LimitReduction> limitReductions;
     }

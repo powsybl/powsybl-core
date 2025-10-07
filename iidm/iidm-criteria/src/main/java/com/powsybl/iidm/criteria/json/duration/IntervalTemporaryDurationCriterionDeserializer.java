@@ -32,7 +32,7 @@ public class IntervalTemporaryDurationCriterionDeserializer extends StdDeseriali
         super(IntervalTemporaryDurationCriterion.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         Integer lowBound;
         Boolean lowClosed;
         Integer highBound;

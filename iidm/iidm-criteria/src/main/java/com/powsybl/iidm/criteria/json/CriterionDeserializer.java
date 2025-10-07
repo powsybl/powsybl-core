@@ -85,8 +85,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                     parser.nextToken();
                     propertyValues = JsonUtil.readList(deserializationContext, parser, String.class);
                 }
-                case "equipmentToCheck" ->
-                        equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextTextValue());
+                case "equipmentToCheck" -> equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextTextValue());
                 case "sideToCheck" -> sideToCheck = PropertyCriterion.SideToCheck.valueOf(parser.nextTextValue());
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
@@ -103,8 +102,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
             case AT_LEAST_ONE_NOMINAL_VOLTAGE -> new AtLeastOneNominalVoltageCriterion(voltageInterval);
             case SINGLE_NOMINAL_VOLTAGE -> new SingleNominalVoltageCriterion(voltageInterval);
             case TWO_NOMINAL_VOLTAGE -> new TwoNominalVoltageCriterion(voltageInterval1, voltageInterval2);
-            case THREE_NOMINAL_VOLTAGE ->
-                    new ThreeNominalVoltageCriterion(voltageInterval1, voltageInterval2, voltageInterval3);
+            case THREE_NOMINAL_VOLTAGE -> new ThreeNominalVoltageCriterion(voltageInterval1, voltageInterval2, voltageInterval3);
             case REGEX -> new RegexCriterion(regex);
         };
     }

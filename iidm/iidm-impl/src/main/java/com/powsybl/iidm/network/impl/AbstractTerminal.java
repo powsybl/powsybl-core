@@ -33,6 +33,8 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected final ThreeSides side;
 
+    protected final TerminalNumber terminalNumber;
+
     protected AbstractConnectable connectable;
 
     protected VoltageLevelExt voltageLevel;
@@ -47,8 +49,12 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected boolean removed = false;
 
-    AbstractTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side) {
+    AbstractTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, TerminalNumber terminalNumber) {
+        if (side != null && terminalNumber != null) {
+            throw new IllegalStateException("cannot have both side and number");
+        }
         this.side = side;
+        this.terminalNumber = terminalNumber;
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         p = new ExtendedDoubleArrayList(variantArraySize, Double.NaN);
@@ -60,8 +66,13 @@ abstract class AbstractTerminal implements TerminalExt {
         return side;
     }
 
-    protected String getAttributeSideSuffix() {
-        return "" + (side != null ? side.getNum() : "");
+    @Override
+    public TerminalNumber getTerminalNumber() {
+        return terminalNumber;
+    }
+
+    protected String getAttributeSideOrNumberSuffix() {
+        return "" + (side != null ? side.getNum() : "") + (terminalNumber != null ? terminalNumber.getNum() : "");
     }
 
     protected VariantManagerHolder getVariantManagerHolder() {
@@ -113,7 +124,7 @@ abstract class AbstractTerminal implements TerminalExt {
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.p.set(variantIndex, p);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate(() -> "p" + getAttributeSideSuffix(), variantId, oldValue, p);
+        getConnectable().notifyUpdate(() -> "p" + getAttributeSideOrNumberSuffix(), variantId, oldValue, p);
         return this;
     }
 
@@ -136,7 +147,7 @@ abstract class AbstractTerminal implements TerminalExt {
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.q.set(variantIndex, q);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate(() -> "q" + getAttributeSideSuffix(), variantId, oldValue, q);
+        getConnectable().notifyUpdate(() -> "q" + getAttributeSideOrNumberSuffix(), variantId, oldValue, q);
         return this;
     }
 

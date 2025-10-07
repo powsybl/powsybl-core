@@ -97,7 +97,7 @@ public class TimeSeriesTable {
         }
     }
 
-    private static class TimeSeriesNameMap {
+    private static final class TimeSeriesNameMap {
 
         private final BiList<String> names = new BiList<>();
 
@@ -594,7 +594,7 @@ public class TimeSeriesTable {
         writer.write(System.lineSeparator());
     }
 
-    private class CsvCache {
+    private final class CsvCache {
 
         static final int CACHE_SIZE = 10;
 

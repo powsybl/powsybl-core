@@ -119,8 +119,8 @@ class NodeTerminal extends AbstractTerminal {
 
     };
 
-    NodeTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, int node) {
-        super(network, side);
+    NodeTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, TerminalNumber terminalNumber, int node) {
+        super(network, side, terminalNumber);
         this.node = node;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         v = new ExtendedDoubleArrayList(variantArraySize, Double.NaN);
