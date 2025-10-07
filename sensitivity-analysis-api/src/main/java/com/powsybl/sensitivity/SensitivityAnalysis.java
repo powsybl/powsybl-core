@@ -15,7 +15,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManagerConstants;
 
 import java.util.List;
 import java.util.Objects;
@@ -121,7 +120,7 @@ public final class SensitivityAnalysis {
                                                                      List<SensitivityFactor> factors) {
 
             return runAsync(network,
-                VariantManagerConstants.INITIAL_VARIANT_ID,
+                network.getVariantManager().getWorkingVariantId(),
                 factors,
                 SensitivityAnalysisRunParameters.getDefault());
         }
@@ -195,7 +194,7 @@ public final class SensitivityAnalysis {
                                              List<Contingency> contingencies,
                                              List<SensitivityVariableSet> variableSets,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors,
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
                 new SensitivityAnalysisRunParameters()
                     .setContingencies(contingencies)
                     .setVariableSets(variableSets)
@@ -210,7 +209,7 @@ public final class SensitivityAnalysis {
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors,
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
                 new SensitivityAnalysisRunParameters()
                     .setContingencies(contingencies)
                     .setParameters(parameters));
@@ -223,7 +222,7 @@ public final class SensitivityAnalysis {
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors,
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
                 new SensitivityAnalysisRunParameters().setContingencies(contingencies));
         }
 
@@ -245,14 +244,14 @@ public final class SensitivityAnalysis {
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors,
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
                 new SensitivityAnalysisRunParameters().setParameters(parameters));
         }
 
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              SensitivityAnalysisRunParameters runParameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors, runParameters);
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors, runParameters);
         }
 
         public SensitivityAnalysisResult run(Network network,

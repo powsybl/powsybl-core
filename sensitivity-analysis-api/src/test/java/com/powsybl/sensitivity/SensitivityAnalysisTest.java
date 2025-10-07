@@ -197,4 +197,24 @@ class SensitivityAnalysisTest {
         assertEquals(1, result.getValues().size());
     }
 
+    @Test
+    void testDefaultVariant() {
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+            .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("testSensitivityAnalysis")
+            .build();
+        SensitivityAnalysisRunParameters runParameters = new SensitivityAnalysisRunParameters()
+            .setComputationManager(computationManager)
+            .setReportNode(reportRoot);
+
+        Network n = EurostagTutorialExample1Factory.create();
+        n.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "Another variant");
+        n.getVariantManager().setWorkingVariant("Another variant");
+
+        SensitivityAnalysisResult result = SensitivityAnalysis.find().run(n, List.of(factor), runParameters);
+        assertEquals(5, reportRoot.getChildren().size());
+        assertEquals("Test sensititity analysis variant = Another variant", reportRoot.getChildren().get(1).getMessage());
+        assertEquals(1, Mockito.mockingDetails(computationManager).getInvocations().size());
+        assertEquals(1, result.getValues().size());
+    }
 }
