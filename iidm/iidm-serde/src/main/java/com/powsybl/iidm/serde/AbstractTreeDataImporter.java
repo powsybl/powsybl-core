@@ -48,9 +48,9 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.import.xml.throw-exception-if-extension-not-found";
 
-    public static final String EXTENSIONS_INCLUDED_LIST = "iidm.import.xml.extensions";
+    public static final String EXTENSIONS_INCLUDED_LIST = "iidm.import.xml.included.extensions";
 
-    public static final String EXTENSIONS_EXCLUDED_LIST = "iidm.import.xml.filtered-extensions";
+    public static final String EXTENSIONS_EXCLUDED_LIST = "iidm.import.xml.excluded.extensions";
 
     public static final String WITH_AUTOMATION_SYSTEMS = "iidm.import.xml.with-automation-systems";
 
