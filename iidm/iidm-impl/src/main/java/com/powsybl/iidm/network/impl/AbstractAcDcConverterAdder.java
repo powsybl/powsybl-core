@@ -89,7 +89,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
     }
 
     protected TerminalExt checkAndGetTerminal1() {
-        return new TerminalBuilder(voltageLevel.getNetworkRef(), this, ThreeSides.ONE)
+        return new TerminalBuilder(voltageLevel.getNetworkRef(), this, null, TerminalNumber.ONE)
                 .setNode(node1)
                 .setBus(bus1)
                 .setConnectableBus(connectableBus1)
@@ -113,7 +113,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
 
     protected Optional<TerminalExt> checkAndGetTerminal2() {
         if (hasTwoAcTerminals()) {
-            return Optional.of(new TerminalBuilder(voltageLevel.getNetworkRef(), this, ThreeSides.TWO)
+            return Optional.of(new TerminalBuilder(voltageLevel.getNetworkRef(), this, null, TerminalNumber.TWO)
                     .setNode(node2)
                     .setBus(bus2)
                     .setConnectableBus(connectableBus2)
@@ -184,10 +184,13 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
             dcConverter.addTerminal(terminal);
             voltageLevel.getTopologyModel().attach(terminal, false);
         });
-        DcTerminalImpl dcTerminal1 = new DcTerminalImpl(voltageLevel.getNetworkRef(), TwoSides.ONE, dcNode1, dcConnected1);
-        DcTerminalImpl dcTerminal2 = new DcTerminalImpl(voltageLevel.getNetworkRef(), TwoSides.TWO, dcNode2, dcConnected2);
+        DcTerminalImpl dcTerminal1 = new DcTerminalImpl(voltageLevel.getNetworkRef(), null, TerminalNumber.ONE, dcNode1, dcConnected1);
+        DcTerminalImpl dcTerminal2 = new DcTerminalImpl(voltageLevel.getNetworkRef(), null, TerminalNumber.TWO, dcNode2, dcConnected2);
         dcConverter.addDcTerminal(dcTerminal1);
         dcConverter.addDcTerminal(dcTerminal2);
+        DcTopologyModel dcTopologyModel = ((AbstractNetwork) voltageLevel.getParentNetwork()).getDcTopologyModel();
+        dcTopologyModel.attach(dcTerminal1);
+        dcTopologyModel.attach(dcTerminal2);
         getNetwork().getIndex().checkAndAdd(dcConverter);
         getNetwork().getListeners().notifyCreation(dcConverter);
     }
