@@ -204,6 +204,10 @@ public class UcteImporter implements Importer {
         return !Double.isNaN(value) && value != 0;
     }
 
+    private static double validValue(double value) {
+        return isValueValid(value) ? value : 0;
+    }
+
     private static void createLoad(UcteNode ucteNode, VoltageLevel voltageLevel, Bus bus) {
         String loadId = bus.getId() + "_load";
 
@@ -243,24 +247,24 @@ public class UcteImporter implements Importer {
             };
         }
 
-        double generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
-        double generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
+        double generatorP = -validValue(ucteNode.getActivePowerGeneration());
+        double generatorQ = -validValue(ucteNode.getReactivePowerGeneration());
 
         Generator generator = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setEnergySource(energySource)
                 .setBus(bus.getId())
                 .setConnectableBus(bus.getId())
-                .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
-                .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
+                .setMinP(-validValue(ucteNode.getMinimumPermissibleActivePowerGeneration()))
+                .setMaxP(-validValue(ucteNode.getMaximumPermissibleActivePowerGeneration()))
                 .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage())
                 .setTargetP(generatorP)
                 .setTargetQ(generatorQ)
                 .setTargetV(ucteNode.getVoltageReference())
                 .add();
         generator.newMinMaxReactiveLimits()
-                .setMinQ(-ucteNode.getMinimumPermissibleReactivePowerGeneration())
-                .setMaxQ(-ucteNode.getMaximumPermissibleReactivePowerGeneration())
+                .setMinQ(-validValue(ucteNode.getMinimumPermissibleReactivePowerGeneration()))
+                .setMaxQ(-validValue(ucteNode.getMaximumPermissibleReactivePowerGeneration()))
                 .add();
         if (ucteNode.getPowerPlantType() != null) {
             generator.setProperty(POWER_PLANT_TYPE_PROPERTY_KEY, ucteNode.getPowerPlantType().toString());
@@ -272,10 +276,10 @@ public class UcteImporter implements Importer {
                                            Network network) {
         LOGGER.trace("Create dangling line '{}' (X-node='{}')", ucteLine.getId(), xnode.getCode());
 
-        double p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
-        double q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
-        double targetP = isValueValid(xnode.getActivePowerGeneration()) ? xnode.getActivePowerGeneration() : 0;
-        double targetQ = isValueValid(xnode.getReactivePowerGeneration()) ? xnode.getReactivePowerGeneration() : 0;
+        double p0 = validValue(xnode.getActiveLoad());
+        double q0 = validValue(xnode.getReactiveLoad());
+        double targetP = validValue(xnode.getActivePowerGeneration());
+        double targetQ = validValue(xnode.getReactivePowerGeneration());
 
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
         DanglingLine dl = voltageLevel.newDanglingLine()
@@ -294,18 +298,18 @@ public class UcteImporter implements Importer {
                 .newGeneration()
                 .setTargetP(-targetP)
                 .setTargetQ(-targetQ)
+                .setMaxP(-validValue(xnode.getMaximumPermissibleActivePowerGeneration()))
+                .setMinP(-validValue(xnode.getMinimumPermissibleActivePowerGeneration()))
                 .add()
                 .add();
 
         if (xnode.isRegulatingVoltage()) {
             dl.getGeneration()
                     .setTargetV(xnode.getVoltageReference())
-                    .setVoltageRegulationOn(true)
-                    .setMaxP(-xnode.getMaximumPermissibleActivePowerGeneration())
-                    .setMinP(-xnode.getMinimumPermissibleActivePowerGeneration());
+                    .setVoltageRegulationOn(true);
             dl.getGeneration().newMinMaxReactiveLimits()
-                    .setMinQ(-xnode.getMinimumPermissibleReactivePowerGeneration())
-                    .setMaxQ(-xnode.getMaximumPermissibleReactivePowerGeneration())
+                    .setMinQ(-validValue(xnode.getMinimumPermissibleReactivePowerGeneration()))
+                    .setMaxQ(-validValue(xnode.getMaximumPermissibleReactivePowerGeneration()))
                     .add();
         }
 
@@ -651,10 +655,10 @@ public class UcteImporter implements Importer {
         LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to X-node '{}')",
                 xNodeName, yNodeName, ucteXnode.getCode());
 
-        double p0 = isValueValid(ucteXnode.getActiveLoad()) ? ucteXnode.getActiveLoad() : 0;
-        double q0 = isValueValid(ucteXnode.getReactiveLoad()) ? ucteXnode.getReactiveLoad() : 0;
-        double targetP = isValueValid(ucteXnode.getActivePowerGeneration()) ? ucteXnode.getActivePowerGeneration() : 0;
-        double targetQ = isValueValid(ucteXnode.getReactivePowerGeneration()) ? ucteXnode.getReactivePowerGeneration() : 0;
+        double p0 = validValue(ucteXnode.getActiveLoad());
+        double q0 = validValue(ucteXnode.getReactiveLoad());
+        double targetP = validValue(ucteXnode.getActivePowerGeneration());
+        double targetQ = validValue(ucteXnode.getReactivePowerGeneration());
 
         // create a small impedance dangling line connected to the YNODE
         DanglingLine yDanglingLine = yVoltageLevel.newDanglingLine()
@@ -670,6 +674,8 @@ public class UcteImporter implements Importer {
                 .setPairingKey(ucteXnode.getCode().toString())
                 .newGeneration()
                 .setTargetP(-targetP)
+                .setMinP(-validValue(ucteXnode.getMinimumPermissibleActivePowerGeneration()))
+                .setMaxP(-validValue(ucteXnode.getMaximumPermissibleActivePowerGeneration()))
                 .setTargetQ(-targetQ)
                 .add()
                 .add();
