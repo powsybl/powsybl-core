@@ -30,7 +30,6 @@ class CalculatedTimeSeriesGroovyDslInterruptionsTest extends AbstractTaskInterru
     double[] fooValues = new double[] {3d, 5d};
     TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
 
-
     // Script to evaluate
     String script = "ts['toCache'] = (timeSeries['foo'] < 4.0)" +
         "+0".repeat(Math.max(0, NodeCalcVisitors.RECURSION_THRESHOLD + 1)) +
