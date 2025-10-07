@@ -1,9 +1,9 @@
 {
-  "version" : "1.6",
+  "version" : "1.9",
   "voltageInitMode" : "PREVIOUS_VALUES",
   "transformerVoltageControlOn" : true,
   "phaseShifterRegulationOn" : false,
-  "noGeneratorReactiveLimits" : true,
+  "useReactiveLimits" : false,
   "twtSplitShuntAdmittance" : false,
   "shuntCompensatorVoltageControlOn" : false,
   "readSlackBus" : false,
@@ -13,5 +13,7 @@
   "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
   "dcUseTransformerRatio" : true,
   "countriesToBalance" : [ "FR" , "KI" ],
-  "componentMode" : "MAIN_CONNECTED"
+  "componentMode" : "MAIN_SYNCHRONOUS",
+  "hvdcAcEmulation" : false,
+  "dcPowerFactor": 0.8
 }
