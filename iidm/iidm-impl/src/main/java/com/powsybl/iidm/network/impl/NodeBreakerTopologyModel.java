@@ -12,7 +12,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusAdder;
 import com.powsybl.iidm.network.BusbarSection;
@@ -26,6 +25,7 @@ import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
+import com.powsybl.iidm.network.impl.utils.Subgraph;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -42,11 +42,10 @@ import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
-import org.anarres.graphviz.builder.GraphVizAttribute;
-import org.anarres.graphviz.builder.GraphVizEdge;
-import org.anarres.graphviz.builder.GraphVizGraph;
-import org.anarres.graphviz.builder.GraphVizNode;
-import org.anarres.graphviz.builder.GraphVizScope;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.nio.Attribute;
+import org.jgrapht.nio.DefaultAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +77,14 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.FILL_COLOR;
+import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.LABEL;
+import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.LINE_SEPARATOR;
+import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.SHAPE;
+import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.STYLE;
+import static com.powsybl.iidm.network.impl.utils.Subgraph.DEFAULT_CLUSTER_ATTRIBUTES;
+import static com.powsybl.iidm.network.impl.utils.Subgraph.DEFAULT_SUBGRAPH_ATTRIBUTES;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -1476,26 +1483,14 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
-    public void exportTopology(Writer writer, Random random) {
-        Objects.requireNonNull(writer);
-        Objects.requireNonNull(random);
-
-        GraphVizScope scope = new GraphVizScope.Impl();
-        GraphVizGraph gvGraph = new GraphVizGraph();
-
-        exportNodes(random, gvGraph, scope);
-        exportEdges(gvGraph, scope);
-
-        try {
-            gvGraph.writeTo(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void exportNodes(Random random, GraphVizGraph gvGraph, GraphVizScope scope) {
+    protected void exportVertices(Map<String, Map<String, Attribute>> vertexAttributes,
+                                  Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
+                                  Random random,
+                                  Graph<String, DefaultEdge> jGraph,
+                                  Map<String, Subgraph<String>> subgraphs) {
         // create bus color scale
-        Map<String, String> busColor = createBusColorScale(random);
+        Map<String, String> busColor = createBusColorScale(random,
+            getCalculatedBusBreakerTopology().getBuses().stream().map(BusExt::getId).toList());
 
         for (int n = 0; n < graph.getVertexCapacity(); n++) {
             if (!graph.vertexExists(n)) {
@@ -1505,49 +1500,57 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             String label = "" + n;
             TerminalExt terminal = graph.getVertexObject(n);
             if (terminal != null) {
-                AbstractConnectable connectable = terminal.getConnectable();
-                label += System.lineSeparator() + connectable.getType().toString()
-                        + System.lineSeparator() + connectable.getId()
-                        + connectable.getOptionalName().map(name -> System.lineSeparator() + name).orElse("");
+                AbstractConnectable<?> connectable = terminal.getConnectable();
+                label += LINE_SEPARATOR + connectable.getType().toString()
+                    + LINE_SEPARATOR + connectable.getId()
+                    + connectable.getOptionalName().map(name -> LINE_SEPARATOR + name).orElse("");
             }
-            GraphVizNode gvNode = gvGraph.node(scope, n)
-                    .label(label)
-                    .shape("ellipse");
+
+            String vertexId = String.valueOf(n);
+            jGraph.addVertex(vertexId);
+
+            Map<String, Attribute> va = new LinkedHashMap<>();
+            va.put(LABEL, DefaultAttribute.createAttribute(label));
+            va.put(SHAPE, DefaultAttribute.createAttribute("ellipse"));
             if (bus != null) {
-                gvNode.style("filled")
-                        .attr(GraphVizAttribute.fillcolor, busColor.get(bus.getId()));
-                gvGraph.cluster(scope, bus).add(gvNode)
-                        .attr(GraphVizAttribute.pencolor, "transparent");
+                va.put(STYLE, DefaultAttribute.createAttribute("filled"));
+                va.put(FILL_COLOR, DefaultAttribute.createAttribute(busColor.get(bus.getId())));
+                if (!subgraphs.containsKey(bus.getId())) {
+                    subgraphs.put(bus.getId(), new Subgraph<>(DEFAULT_SUBGRAPH_ATTRIBUTES, DEFAULT_CLUSTER_ATTRIBUTES));
+                }
+                subgraphs.get(bus.getId()).addVertex(vertexId);
             }
+            vertexAttributes.put(vertexId, va);
         }
     }
 
-    private void exportEdges(GraphVizGraph gvGraph, GraphVizScope scope) {
-        // Iterate over non-removed edges
+    @Override
+    protected void exportEdges(Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
+                             Graph<String, DefaultEdge> jGraph) {
         for (int e : graph.getEdges()) {
-            GraphVizEdge edge = gvGraph.edge(scope, graph.getEdgeVertex1(e), graph.getEdgeVertex2(e));
+            int v1 = graph.getEdgeVertex1(e);
+            int v2 = graph.getEdgeVertex2(e);
+
+            String s1 = String.valueOf(v1);
+            String s2 = String.valueOf(v2);
+
+            // Ajouter arête
+            DefaultEdge edge = jGraph.addEdge(s1, s2);
+
+            Map<String, Attribute> ea = new LinkedHashMap<>();
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (aSwitch != null) {
                 if (DRAW_SWITCH_ID) {
-                    edge.label(aSwitch.getKind().toString()
-                            + System.lineSeparator() + aSwitch.getId()
-                            + aSwitch.getOptionalName().map(n -> System.lineSeparator() + n).orElse(""))
-                            .attr(GraphVizAttribute.fontsize, "10");
+                    String label = aSwitch.getKind().toString()
+                        + LINE_SEPARATOR + aSwitch.getId()
+                        + aSwitch.getOptionalName().map(n -> LINE_SEPARATOR + n).orElse("");
+                    ea.put(LABEL, DefaultAttribute.createAttribute(label));
+                    ea.put("fontsize", DefaultAttribute.createAttribute("10"));
                 }
-                edge.style(aSwitch.isOpen() ? "dotted" : "solid");
+                ea.put(STYLE, DefaultAttribute.createAttribute(aSwitch.isOpen() ? "dotted" : "solid"));
             }
+            edgeAttributes.put(edge, ea);
         }
-    }
-
-    private Map<String, String> createBusColorScale(Random random) {
-        Map<String, String> busColor = new HashMap<>();
-        List<CalculatedBus> buses = new ArrayList<>(getCalculatedBusBreakerTopology().getBuses());
-        String[] colors = Colors.generateColorScale(buses.size(), random);
-        for (int i = 0; i < buses.size(); i++) {
-            CalculatedBus bus = buses.get(i);
-            busColor.put(bus.getId(), colors[i]);
-        }
-        return busColor;
     }
 
     private static String getExceptionMessageElementNotFound(String element, String id) {

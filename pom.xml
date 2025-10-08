@@ -114,6 +114,7 @@
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <gdata.version>1.47.1_1</gdata.version>
+        <graph.support.version>1.5.2</graph.support.version>
         <!-- graphviz-builder seems abandoned - to be replaced ? -->
         <graphviz-builder.version>1.0.12</graphviz-builder.version>
         <groovy.version>4.0.26</groovy.version>
@@ -862,8 +863,18 @@
                 <version>${ejml.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.graphper</groupId>
+                <artifactId>graph-support-core</artifactId>
+                <version>${graph.support.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
+                <version>${jgrapht.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-io</artifactId>
                 <version>${jgrapht.version}</version>
             </dependency>
             <dependency>
