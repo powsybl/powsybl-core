@@ -271,10 +271,20 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         getOperationalLimitsGroups1(t2w, isWellOriented)
                 .forEach(operationalLimitGroup -> copyOperationalLimitsGroup(leg.newOperationalLimitsGroup(operationalLimitGroup.getId()), operationalLimitGroup));
 
+        copySelectedOperationalLimitsGroup(t2w, leg, isWellOriented);
+
         regulatedTerminalControllers.replaceRegulatedTerminal(getTerminal1(t2w, isWellOriented), leg.getTerminal());
         replaceRegulatedTerminal(leg, twoR);
 
         copyTerminalActiveAndReactivePower(leg.getTerminal(), getTerminal1(t2w, isWellOriented));
+    }
+
+    private static void copySelectedOperationalLimitsGroup(TwoWindingsTransformer t2w, ThreeWindingsTransformer.Leg leg, boolean isWellOriented) {
+        if (isWellOriented) {
+            t2w.getSelectedOperationalLimitsGroupId1().ifPresent(leg::setSelectedOperationalLimitsGroup);
+        } else {
+            t2w.getSelectedOperationalLimitsGroupId2().ifPresent(leg::setSelectedOperationalLimitsGroup);
+        }
     }
 
     private Substation findSubstation(TwoR twoR, boolean throwException) {
@@ -470,19 +480,19 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         boolean copied = true;
         switch (extensionName) {
             case "twoWindingsTransformerFortescue" ->
-                    copyAndAddFortescue(t3w.newExtension(ThreeWindingsTransformerFortescueAdder.class),
-                            twoR.t2w1.getExtension(TwoWindingsTransformerFortescue.class), twoR.isWellOrientedT2w1,
-                            twoR.t2w2.getExtension(TwoWindingsTransformerFortescue.class), twoR.isWellOrientedT2w2,
-                            twoR.t2w3.getExtension(TwoWindingsTransformerFortescue.class), twoR.isWellOrientedT2w3);
+                copyAndAddFortescue(t3w.newExtension(ThreeWindingsTransformerFortescueAdder.class),
+                        twoR.t2w1.getExtension(TwoWindingsTransformerFortescue.class), twoR.isWellOrientedT2w1,
+                        twoR.t2w2.getExtension(TwoWindingsTransformerFortescue.class), twoR.isWellOrientedT2w2,
+                        twoR.t2w3.getExtension(TwoWindingsTransformerFortescue.class), twoR.isWellOrientedT2w3);
             case "twoWindingsTransformerPhaseAngleClock" ->
-                    copyAndAddPhaseAngleClock(t3w.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class),
-                            twoR.t2w2.getExtension(TwoWindingsTransformerPhaseAngleClock.class),
-                            twoR.t2w3.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+                copyAndAddPhaseAngleClock(t3w.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class),
+                        twoR.t2w2.getExtension(TwoWindingsTransformerPhaseAngleClock.class),
+                        twoR.t2w3.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
             case "twoWindingsTransformerToBeEstimated" ->
-                    copyAndAddToBeEstimated(t3w.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class),
-                            twoR.t2w1.getExtension(TwoWindingsTransformerToBeEstimated.class),
-                            twoR.t2w2.getExtension(TwoWindingsTransformerToBeEstimated.class),
-                            twoR.t2w3.getExtension(TwoWindingsTransformerToBeEstimated.class));
+                copyAndAddToBeEstimated(t3w.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class),
+                        twoR.t2w1.getExtension(TwoWindingsTransformerToBeEstimated.class),
+                        twoR.t2w2.getExtension(TwoWindingsTransformerToBeEstimated.class),
+                        twoR.t2w3.getExtension(TwoWindingsTransformerToBeEstimated.class));
             default -> copied = false;
         }
         return copied;

@@ -52,11 +52,11 @@ public class SingleCountryCriterion implements Criterion {
                     getCountry(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH -> getCountry(((Switch) identifiable).getVoltageLevel());
             case TWO_WINDINGS_TRANSFORMER ->
-                    getCountry(((TwoWindingsTransformer) identifiable).getNullableSubstation());
+                getCountry(((TwoWindingsTransformer) identifiable).getNullableSubstation());
             case THREE_WINDINGS_TRANSFORMER ->
-                    getCountry(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
+                getCountry(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
             case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER ->
-                    getCountry(((AcDcConverter<?>) identifiable).getTerminal1().getVoltageLevel());
+                getCountry(((AcDcConverter<?>) identifiable).getTerminal1().getVoltageLevel());
             default -> null;
         };
     }

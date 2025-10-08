@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.IntStream;
 
 /**
@@ -30,7 +31,12 @@ import java.util.stream.IntStream;
 public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, ReportNode reportNode) {
+    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, SensitivityAnalysisRunParameters runParameters) {
+        List<Contingency> contingencies = runParameters.getContingencies();
+        List<SensitivityVariableSet> variableSets = runParameters.getVariableSets();
+        SensitivityAnalysisParameters parameters = runParameters.getSensitivityAnalysisParameters();
+        ComputationManager computationManager = runParameters.getComputationManager();
+        ReportNode reportNode = runParameters.getReportNode();
         int[] factorIndex = new int[1];
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             switch (contingencyContext.getContextType()) {
@@ -52,9 +58,42 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
                     resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
                     break;
             }
+            if (reportNode != null) {
+                reportNode.newReportNode()
+                    .withMessageTemplate("testSensitivityFactors")
+                    .withUntypedValue("functionId", functionId)
+                    .add();
+            }
         });
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
             resultWriter.writeContingencyStatus(contingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
+        }
+        Executor executor = computationManager.getExecutor();
+        if (executor != null) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // Simulate some processing
+                }
+            });
+        }
+        if (reportNode != null) {
+            reportNode.newReportNode()
+                    .withMessageTemplate("testSensitivityAnalysis")
+                    .withUntypedValue("variantId", workingVariantId)
+                    .add();
+            reportNode.newReportNode()
+                    .withMessageTemplate("testContingenciesList")
+                    .withUntypedValue("size", contingencies.size())
+                    .add();
+            reportNode.newReportNode()
+                    .withMessageTemplate("testSensitivityParameters")
+                    .withUntypedValue("threshold", parameters.getVoltageVoltageSensitivityValueThreshold())
+                    .add();
+            reportNode.newReportNode()
+                    .withMessageTemplate("testVariableSets")
+                    .withUntypedValue("size", variableSets.size())
+                    .add();
         }
         return CompletableFuture.completedFuture(null);
     }

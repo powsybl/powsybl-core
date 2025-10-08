@@ -333,7 +333,12 @@ class LocalComputationManagerTest {
             }
         };
 
-        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool()) {
+            @Override
+            protected long getTimeout() {
+                return 2L;
+            }
+        }) {
 
             CompletableFuture<Object> result = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Object>() {
                 @Override

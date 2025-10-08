@@ -15,7 +15,6 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummyExtension;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummySerializer;
@@ -42,8 +41,8 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
                                                              new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", "yes", List.of("yes", "no")));
 
     @Override
-    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, ReportNode reportNode) {
-        Executor executor = computationManager.getExecutor();
+    public CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
+        Executor executor = runParameters.getComputationManager().getExecutor();
         if (executor != null) {
             executor.execute(new Runnable() {
                 @Override
@@ -52,15 +51,17 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
                 }
             });
         }
+        ReportNode reportNode = runParameters.getReportNode();
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withMessageTemplate("testLoadflow")
-                    .withUntypedValue("variantId", workingStateId)
-                    .add();
+                .withMessageTemplate("testLoadflow")
+                .withUntypedValue("variantId", workingStateId)
+                .add();
         }
         String logs = "";
+        LoadFlowParameters parameters = runParameters.getLoadFlowParameters();
         if (parameters != null) {
-            logs = "Loadflow parameters: " + parameters.toString();
+            logs = "Loadflow parameters: " + parameters;
         }
         return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), logs));
     }

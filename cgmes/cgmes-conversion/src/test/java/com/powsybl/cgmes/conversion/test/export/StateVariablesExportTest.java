@@ -283,10 +283,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                     } else if (reader.getLocalName().equals(svShuntCompensatorSectionsShuntCompensator)) {
                         shuntCompensatorId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
                     }
-                } else if (next == XMLStreamConstants.END_ELEMENT) {
-                    if (reader.getLocalName().equals(svShuntCompensatorSections) && sections != null) {
-                        svdata.add(shuntCompensatorId, sections);
-                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(svShuntCompensatorSections) && sections != null) {
+                    svdata.add(shuntCompensatorId, sections);
                 }
             }
             reader.close();
@@ -513,10 +511,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                     } else if (reader.getLocalName().equals(svTapStepTapChanger)) {
                         tapChangerId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
                     }
-                } else if (next == XMLStreamConstants.END_ELEMENT) {
-                    if (reader.getLocalName().equals(svTapStep) && position != null) {
-                        svTapSteps.add(tapChangerId, position);
-                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(svTapStep) && position != null) {
+                    svTapSteps.add(tapChangerId, position);
                 }
             }
             reader.close();
@@ -643,7 +639,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         // Export original and with new SV
         // comparison without extensions, only Networks
         ExportOptions exportOptions = new ExportOptions().setSorted(true);
-        exportOptions.setExtensions(Collections.emptySet());
+        exportOptions.setIncludedExtensions(Collections.emptySet());
         Path expectedPath = tmpDir.resolve("expected.xml");
         Path actualPath = tmpDir.resolve("actual.xml");
         NetworkSerDe.write(expected, exportOptions, expectedPath);

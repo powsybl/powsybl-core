@@ -274,7 +274,7 @@ public final class EquipmentExport {
                 String loadId = context.getNamingStrategy().getCgmesId(load);
                 switch (className) {
                     case CgmesNames.ASYNCHRONOUS_MACHINE ->
-                            writeAsynchronousMachine(loadId, load.getNameOrId(), cimNamespace, writer, context);
+                        writeAsynchronousMachine(loadId, load.getNameOrId(), cimNamespace, writer, context);
                     case CgmesNames.ENERGY_SOURCE -> writeEnergySource(loadId, load.getNameOrId(), context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
                     case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
                         String loadGroup = loadGroups.groupFor(className, context);
@@ -1339,7 +1339,7 @@ public final class EquipmentExport {
             }
             case MIN_MAX ->
                 //Do not have to export anything
-                    reactiveLimitsId = null;
+                reactiveLimitsId = null;
             default ->
                     throw new PowsyblException("Unexpected type of ReactiveLimits on the VsConverter " + converter.getNameOrId());
         }

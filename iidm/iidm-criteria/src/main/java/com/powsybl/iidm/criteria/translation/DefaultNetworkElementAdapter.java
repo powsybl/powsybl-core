@@ -112,13 +112,13 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
                     side != ThreeSides.ONE ? Optional.empty() :
                             Optional.of(((Injection<?>) identifiable).getTerminal().getVoltageLevel().getNominalV());
             case LINE, TIE_LINE, TWO_WINDINGS_TRANSFORMER ->
-                    side == ThreeSides.THREE ? Optional.empty() :
-                            Optional.of(((Branch<?>) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV());
+                side == ThreeSides.THREE ? Optional.empty() :
+                        Optional.of(((Branch<?>) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV());
             case HVDC_LINE ->
-                    side == ThreeSides.THREE ? Optional.empty() :
-                            Optional.of(((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel().getNominalV());
+                side == ThreeSides.THREE ? Optional.empty() :
+                        Optional.of(((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel().getNominalV());
             case THREE_WINDINGS_TRANSFORMER ->
-                    Optional.of(((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV());
+                Optional.of(((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV());
             default -> Optional.empty();
         };
     }

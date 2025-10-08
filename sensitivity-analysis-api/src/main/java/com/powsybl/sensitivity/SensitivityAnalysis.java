@@ -13,12 +13,9 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManagerConstants;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -47,6 +44,10 @@ public final class SensitivityAnalysis {
             this.provider = Objects.requireNonNull(provider);
         }
 
+        /**
+         * @deprecated use {@link #runAsync(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
+         */
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public CompletableFuture<Void> runAsync(Network network,
                                                 String workingVariantId,
                                                 SensitivityFactorReader factorReader,
@@ -56,19 +57,19 @@ public final class SensitivityAnalysis {
                                                 SensitivityAnalysisParameters parameters,
                                                 ComputationManager computationManager,
                                                 ReportNode reportNode) {
-            Objects.requireNonNull(network, "Network should not be null");
-            Objects.requireNonNull(workingVariantId, "Working variant ID should not be null");
-            Objects.requireNonNull(factorReader, "Sensitivity factors reader should not be null");
-            Objects.requireNonNull(resultWriter, "Sensitivity results writer should not be null");
-            Objects.requireNonNull(contingencies, "Contingency list should not be null");
-            Objects.requireNonNull(variableSets, "VariableSet list should not be null");
-            Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
-            Objects.requireNonNull(computationManager, "Computation manager should not be null");
-            Objects.requireNonNull(reportNode, "ReportNode should not be null");
-
-            return provider.run(network, workingVariantId, factorReader, resultWriter, contingencies, variableSets, parameters, computationManager, reportNode);
+            return runAsync(network, workingVariantId, factorReader, resultWriter,
+                new SensitivityAnalysisRunParameters()
+                    .setContingencies(contingencies)
+                    .setVariableSets(variableSets)
+                    .setParameters(parameters)
+                    .setComputationManager(computationManager)
+                    .setReportNode(reportNode));
         }
 
+        /**
+         * @deprecated use {@link #runAsync(Network, String, List, SensitivityAnalysisRunParameters)} instead
+         */
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
                                                                      String workingVariantId,
                                                                      List<SensitivityFactor> factors,
@@ -77,22 +78,57 @@ public final class SensitivityAnalysis {
                                                                      SensitivityAnalysisParameters parameters,
                                                                      ComputationManager computationManager,
                                                                      ReportNode reportNode) {
-            Objects.requireNonNull(network, "Network should not be null");
-            Objects.requireNonNull(workingVariantId, "Working variant ID should not be null");
-            Objects.requireNonNull(factors, "Sensitivity factor list should not be null");
-            Objects.requireNonNull(contingencies, "Contingency list should not be null");
-            Objects.requireNonNull(variableSets, "VariableSet list should not be null");
-            Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
-            Objects.requireNonNull(computationManager, "Computation manager should not be null");
-            Objects.requireNonNull(reportNode, "ReportNode should not be null");
-
-            SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
-            SensitivityResultModelWriter resultWriter = new SensitivityResultModelWriter(contingencies);
-
-            return provider.run(network, workingVariantId, factorReader, resultWriter, contingencies, variableSets, parameters, computationManager, reportNode)
-                    .thenApply(unused -> new SensitivityAnalysisResult(factors, resultWriter.getContingencyStatuses(), resultWriter.getValues()));
+            return runAsync(network, workingVariantId, factors, new SensitivityAnalysisRunParameters()
+                .setContingencies(contingencies)
+                .setVariableSets(variableSets)
+                .setParameters(parameters)
+                .setComputationManager(computationManager)
+                .setReportNode(reportNode));
         }
 
+        public CompletableFuture<Void> runAsync(Network network,
+                                                String workingVariantId,
+                                                SensitivityFactorReader factorReader,
+                                                SensitivityResultWriter resultWriter,
+                                                SensitivityAnalysisRunParameters runParameters) {
+            Objects.requireNonNull(network, "Network should not be null");
+            Objects.requireNonNull(workingVariantId, "Working variant ID should not be null");
+            Objects.requireNonNull(factorReader, "Sensitivity factors reader should not be null");
+            Objects.requireNonNull(resultWriter, "Sensitivity results writer should not be null");
+            Objects.requireNonNull(runParameters, "Sensitivity analysis run parameters should not be null");
+
+            return provider.run(network, workingVariantId, factorReader, resultWriter, runParameters);
+        }
+
+        public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
+                                                String workingVariantId,
+                                                List<SensitivityFactor> factors,
+                                                SensitivityAnalysisRunParameters runParameters) {
+            Objects.requireNonNull(network, "Network should not be null");
+            Objects.requireNonNull(workingVariantId, "Working variant ID should not be null");
+            Objects.requireNonNull(factors, "Sensitivity factors reader should not be null");
+            Objects.requireNonNull(runParameters, "Sensitivity analysis run parameters should not be null");
+
+            SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+            SensitivityResultModelWriter resultWriter = new SensitivityResultModelWriter(runParameters.getContingencies());
+
+            return provider.run(network, workingVariantId, factorReader, resultWriter, runParameters)
+                .thenApply(unused -> new SensitivityAnalysisResult(factors, resultWriter.getContingencyStatuses(), resultWriter.getValues()));
+        }
+
+        public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
+                                                                     List<SensitivityFactor> factors) {
+
+            return runAsync(network,
+                network.getVariantManager().getWorkingVariantId(),
+                factors,
+                SensitivityAnalysisRunParameters.getDefault());
+        }
+
+        /**
+         * @deprecated use {@link #run(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
+         */
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public void run(Network network,
                         String workingVariantId,
                         SensitivityFactorReader factorReader,
@@ -102,9 +138,19 @@ public final class SensitivityAnalysis {
                         SensitivityAnalysisParameters parameters,
                         ComputationManager computationManager,
                         ReportNode reportNode) {
-            runAsync(network, workingVariantId, factorReader, resultWriter, contingencies, variableSets, parameters, computationManager, reportNode).join();
+            run(network, workingVariantId, factorReader, resultWriter,
+                new SensitivityAnalysisRunParameters()
+                    .setContingencies(contingencies)
+                    .setVariableSets(variableSets)
+                    .setParameters(parameters)
+                    .setComputationManager(computationManager)
+                    .setReportNode(reportNode));
         }
 
+        /**
+         * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
+         */
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              String workingVariantId,
                                              List<SensitivityFactor> factors,
@@ -113,48 +159,104 @@ public final class SensitivityAnalysis {
                                              SensitivityAnalysisParameters parameters,
                                              ComputationManager computationManager,
                                              ReportNode reportNode) {
-            return runAsync(network, workingVariantId, factors, contingencies, variableSets, parameters, computationManager, reportNode).join();
+            return run(network, workingVariantId, factors,
+                new SensitivityAnalysisRunParameters()
+                    .setContingencies(contingencies)
+                    .setVariableSets(variableSets)
+                    .setParameters(parameters)
+                    .setComputationManager(computationManager)
+                    .setReportNode(reportNode));
         }
 
+        /**
+         * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
+         */
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              String workingVariantId,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies,
                                              List<SensitivityVariableSet> variableSets,
                                              SensitivityAnalysisParameters parameters) {
-            return runAsync(network, workingVariantId, factors, contingencies, variableSets, parameters, LocalComputationManager.getDefault(), ReportNode.NO_OP).join();
+            return run(network, workingVariantId, factors,
+                new SensitivityAnalysisRunParameters()
+                    .setContingencies(contingencies)
+                    .setVariableSets(variableSets)
+                    .setParameters(parameters));
         }
 
+        /**
+         * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
+         */
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies,
                                              List<SensitivityVariableSet> variableSets,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors, contingencies, variableSets, parameters);
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
+                new SensitivityAnalysisRunParameters()
+                    .setContingencies(contingencies)
+                    .setVariableSets(variableSets)
+                    .setParameters(parameters));
         }
 
+        /**
+         * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
+         */
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors, contingencies, Collections.emptyList(), parameters);
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
+                new SensitivityAnalysisRunParameters()
+                    .setContingencies(contingencies)
+                    .setParameters(parameters));
         }
 
+        /**
+         * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
+         */
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies) {
-            return run(network, factors, contingencies, Collections.emptyList(), SensitivityAnalysisParameters.load());
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
+                new SensitivityAnalysisRunParameters().setContingencies(contingencies));
+        }
+
+        public void run(Network network,
+                        String workingVariantId,
+                        SensitivityFactorReader factorReader,
+                        SensitivityResultWriter resultWriter,
+                        SensitivityAnalysisRunParameters runParameters) {
+            runAsync(network, workingVariantId, factorReader, resultWriter, runParameters).join();
         }
 
         public SensitivityAnalysisResult run(Network network,
-                                             List<SensitivityFactor> factors) {
-            return run(network, factors, Collections.emptyList());
+                                             String workingVariantId,
+                                             List<SensitivityFactor> factors,
+                                             SensitivityAnalysisRunParameters runParameters) {
+            return runAsync(network, workingVariantId, factors, runParameters).join();
         }
 
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, factors, Collections.emptyList(), parameters);
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
+                new SensitivityAnalysisRunParameters().setParameters(parameters));
+        }
+
+        public SensitivityAnalysisResult run(Network network,
+                                             List<SensitivityFactor> factors,
+                                             SensitivityAnalysisRunParameters runParameters) {
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors, runParameters);
+        }
+
+        public SensitivityAnalysisResult run(Network network,
+                                             List<SensitivityFactor> factors) {
+            return run(network, factors, SensitivityAnalysisRunParameters.getDefault());
         }
 
         @Override
@@ -191,6 +293,10 @@ public final class SensitivityAnalysis {
         return find(null);
     }
 
+    /**
+     * @deprecated use {@link #runAsync(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
+     */
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static CompletableFuture<Void> runAsync(Network network,
                                                    String workingVariantId,
                                                    SensitivityFactorReader factorReader,
@@ -203,6 +309,10 @@ public final class SensitivityAnalysis {
         return find().runAsync(network, workingVariantId, factorReader, resultWriter, contingencies, variableSets, parameters, computationManager, reportNode);
     }
 
+    /**
+     * @deprecated use {@link #runAsync(Network, String, List, SensitivityAnalysisRunParameters)} instead
+     */
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
                                                                         String workingVariantId,
                                                                         List<SensitivityFactor> factors,
@@ -214,6 +324,30 @@ public final class SensitivityAnalysis {
         return find().runAsync(network, workingVariantId, factors, contingencies, variableSets, parameters, computationManager, reportNode);
     }
 
+    public static CompletableFuture<Void> runAsync(Network network,
+                                                   String workingVariantId,
+                                                   SensitivityFactorReader factorReader,
+                                                   SensitivityResultWriter resultWriter,
+                                                   SensitivityAnalysisRunParameters runParameters) {
+        return find().runAsync(network, workingVariantId, factorReader, resultWriter, runParameters);
+    }
+
+    public static CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
+                                                                        String workingVariantId,
+                                                                        List<SensitivityFactor> factors,
+                                                                        SensitivityAnalysisRunParameters runParameters) {
+        return find().runAsync(network, workingVariantId, factors, runParameters);
+    }
+
+    public static CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
+                                                                        List<SensitivityFactor> factors) {
+        return find().runAsync(network, factors);
+    }
+
+    /**
+     * @deprecated use {@link #run(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
+     */
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static void run(Network network,
                            String workingVariantId,
                            SensitivityFactorReader factorReader,
@@ -226,6 +360,10 @@ public final class SensitivityAnalysis {
         find().run(network, workingVariantId, factorReader, resultWriter, contingencies, variableSets, parameters, computationManager, reportNode);
     }
 
+    /**
+     * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
+     */
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 String workingVariantId,
                                                 List<SensitivityFactor> factors,
@@ -237,6 +375,31 @@ public final class SensitivityAnalysis {
         return find().run(network, workingVariantId, factors, contingencies, variableSets, parameters, computationManager, reportNode);
     }
 
+    public static void run(Network network,
+                           String workingVariantId,
+                           SensitivityFactorReader factorReader,
+                           SensitivityResultWriter resultWriter,
+                           SensitivityAnalysisRunParameters runParameters) {
+        find().run(network, workingVariantId, factorReader, resultWriter, runParameters);
+    }
+
+    public static SensitivityAnalysisResult run(Network network,
+                                                String workingVariantId,
+                                                List<SensitivityFactor> factors,
+                                                SensitivityAnalysisRunParameters runParameters) {
+        return find().run(network, workingVariantId, factors, runParameters);
+    }
+
+    public static SensitivityAnalysisResult run(Network network,
+                                                List<SensitivityFactor> factors,
+                                                SensitivityAnalysisRunParameters runParameters) {
+        return find().run(network, factors, runParameters);
+    }
+
+    /**
+     * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
+     */
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 String workingVariantId,
                                                 List<SensitivityFactor> factors,
@@ -246,6 +409,10 @@ public final class SensitivityAnalysis {
         return find().run(network, workingVariantId, factors, contingencies, variableSets, parameters);
     }
 
+    /**
+     * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
+     */
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 List<SensitivityFactor> factors,
                                                 List<Contingency> contingencies,
@@ -254,6 +421,10 @@ public final class SensitivityAnalysis {
         return find().run(network, factors, contingencies, variableSets, parameters);
     }
 
+    /**
+     * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
+     */
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 List<SensitivityFactor> factors,
                                                 List<Contingency> contingencies,
@@ -261,6 +432,10 @@ public final class SensitivityAnalysis {
         return find().run(network, factors, contingencies, parameters);
     }
 
+    /**
+     * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
+     */
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 List<SensitivityFactor> factors,
                                                 List<Contingency> contingencies) {

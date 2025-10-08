@@ -200,7 +200,6 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
         throw ValidationUtil.createUnsetMethodException();
     }
 
-
     /**
      * Get the susceptance (in S) of the shunt in its current state i.e. the sum of the sections' susceptances for all sections in service.
      * Return 0 if no section is in service (disconnected state).

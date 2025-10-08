@@ -57,7 +57,7 @@ class MeasurementTest {
 
     }
 
-    private static class MyMeasurement implements Measurement {
+    private static final class MyMeasurement implements Measurement {
         double d = Double.NaN;
         boolean valid = false;
 

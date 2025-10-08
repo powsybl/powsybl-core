@@ -8,7 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.google.common.collect.Sets;
-import com.powsybl.iidm.network.TopologyLevel;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -16,19 +16,26 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.powsybl.iidm.serde.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ExportOptionsTest {
+class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
+
+    ExportOptions getOptions() {
+        return new ExportOptions();
+    }
 
     @Test
     void exportOptionsTest() {
         ExportOptions options = new ExportOptions();
 
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
-        options.setExtensions(extensionsList);
+        options.setIncludedExtensions(extensionsList);
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertTrue(options.withExtension("loadFoo"));
 
@@ -37,8 +44,8 @@ class ExportOptionsTest {
         assertEquals(Boolean.TRUE, options.isIndent());
         assertEquals(Boolean.TRUE, options.isWithBranchSV());
 
-        options.addExtension("loadTest");
-        assertEquals(3, (int) options.getExtensions().map(Set::size).orElse(-1));
+        options.addIncludedExtension("loadTest");
+        assertEquals(3, (int) options.getIncludedExtensions().map(Set::size).orElse(-1));
     }
 
     @Test
@@ -46,9 +53,9 @@ class ExportOptionsTest {
         Set<String> extensionsList = new HashSet<>();
         ExportOptions options = new ExportOptions();
         options.setCharset(StandardCharsets.ISO_8859_1);
-        options.setExtensions(extensionsList);
+        options.setIncludedExtensions(extensionsList);
         options.setWithAutomationSystems(false);
-        assertEquals(0, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(0, (int) options.getIncludedExtensions().map(Set::size).orElse(-1));
         assertEquals(StandardCharsets.ISO_8859_1, options.getCharset());
         assertFalse(options.isWithAutomationSystems());
     }
@@ -57,14 +64,37 @@ class ExportOptionsTest {
     void exportOptionsTest3() {
         Set<String> extensionsList = Sets.newHashSet("loadFoo");
         ExportOptions options = new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.BUS_BREAKER, Boolean.FALSE, Boolean.TRUE);
-        options.setExtensions(extensionsList);
+        options.setIncludedExtensions(extensionsList);
         assertEquals(Boolean.TRUE, options.isWithBranchSV());
         assertEquals(Boolean.TRUE, options.isIndent());
         assertEquals(Boolean.FALSE, options.isOnlyMainCc());
         assertEquals(TopologyLevel.BUS_BREAKER, options.getTopologyLevel());
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
-        assertEquals(1, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(1, (int) options.getIncludedExtensions().map(Set::size).orElse(-1));
         assertEquals(Boolean.TRUE, options.isSorted());
+    }
+
+    @Test
+    void exportOptionsVoltageLevelTopologyLevelTest() {
+        Network network = Network.create("test", "test");
+        Substation substation = network.newSubstation()
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = substation.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        ExportOptions options = new ExportOptions();
+        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.NODE_BREAKER);
+        assertEquals(TopologyLevel.NODE_BREAKER, options.getVoltageLevelTopologyLevel(vl1.getId()));
+        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.BUS_BREAKER);
+        assertEquals(TopologyLevel.BUS_BREAKER, options.getVoltageLevelTopologyLevel(vl1.getId()));
+        options.addVoltageLevelTopologyLevel(vl1.getId(), TopologyLevel.BUS_BRANCH);
+        assertEquals(TopologyLevel.BUS_BRANCH, options.getVoltageLevelTopologyLevel(vl1.getId()));
+        assertNull(options.getVoltageLevelTopologyLevel("undefined_vl"));
     }
 
     @Test
@@ -78,7 +108,7 @@ class ExportOptionsTest {
     }
 
     private void testDefaultExportOptions(ExportOptions options) {
-        assertEquals(-1, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(-1, (int) options.getIncludedExtensions().map(Set::size).orElse(-1));
         assertEquals(Boolean.TRUE, options.isWithBranchSV());
         assertEquals(Boolean.TRUE, options.isIndent());
         assertEquals(Boolean.FALSE, options.isOnlyMainCc());
@@ -90,4 +120,5 @@ class ExportOptionsTest {
         assertEquals(StandardCharsets.UTF_8, options.getCharset());
         assertEquals(Boolean.TRUE, options.isWithAutomationSystems());
     }
+
 }

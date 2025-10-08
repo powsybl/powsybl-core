@@ -31,7 +31,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
         super(PostContingencyResult.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         Contingency contingency = null;
         PostContingencyComputationStatus status = null;
         ConnectivityResult connectivityResult = null;

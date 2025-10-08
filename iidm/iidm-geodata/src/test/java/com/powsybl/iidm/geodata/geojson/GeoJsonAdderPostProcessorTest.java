@@ -1,11 +1,11 @@
-/**
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.geodata.odre;
+package com.powsybl.iidm.geodata.geojson;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -23,24 +23,29 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class OdreGeoDataAdderPostProcessorTest {
+class GeoJsonAdderPostProcessorTest {
 
     private FileSystem fileSystem;
     private Network network;
     private PlatformConfig platformConfig;
-    private OdreGeoDataAdderPostProcessor processor;
+    private GeoJsonAdderPostProcessor processor;
     private ComputationManager computationManager;
 
     @BeforeEach
@@ -48,7 +53,7 @@ class OdreGeoDataAdderPostProcessorTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         network = EurostagTutorialExample1Factory.create();
         platformConfig = new InMemoryPlatformConfig(fileSystem);
-        processor = new OdreGeoDataAdderPostProcessor(platformConfig);
+        processor = new GeoJsonAdderPostProcessor(platformConfig);
         computationManager = LocalComputationManager.getDefault();
     }
 
@@ -59,16 +64,18 @@ class OdreGeoDataAdderPostProcessorTest {
 
     @Test
     void test() {
-        OdreGeoDataAdderPostProcessor.DEFAULT_FILE_NAMES.forEach(
-                (name, fileName) -> {
-                    Path path = platformConfig.getConfigDir().map(p -> p.resolve(fileName)).orElse(null);
-                    assertNotNull(path);
-                    try {
-                        Files.copy(getClass().getResourceAsStream("/eurostag-test/default-headers/" + fileName), path);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        assertEquals("geoJsonImporter", processor.getName());
+
+        GeoJsonAdderPostProcessor.DEFAULT_FILE_NAMES.forEach(
+            (name, fileName) -> {
+                Path path = platformConfig.getConfigDir().map(p -> p.resolve(fileName)).orElse(null);
+                assertNotNull(path);
+                try {
+                    Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/eurostag-test/" + fileName)), path);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
         try { // Launch process
             processor.process(network, computationManager);
@@ -91,43 +98,39 @@ class OdreGeoDataAdderPostProcessorTest {
         Line line = network.getLine("NHV1_NHV2_2");
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
         assertNotNull(linePosition);
-        assertEquals(List.of(new Coordinate(4, 4), new Coordinate(5, 5)),
-                linePosition.getCoordinates());
+        assertEquals(List.of(new Coordinate(6, 6), new Coordinate(7, 7), new Coordinate(8, 8)),
+            linePosition.getCoordinates());
 
         Line line2 = network.getLine("NHV1_NHV2_1");
         LinePosition<Line> linePosition2 = line2.getExtension(LinePosition.class);
         assertNotNull(linePosition2);
-        assertEquals(List.of(new Coordinate(1, 1),
-                        new Coordinate(2, 2),
-                        new Coordinate(3, 3),
-                        new Coordinate(4, 4),
-                        new Coordinate(5, 5)),
-                linePosition2.getCoordinates());
+        assertEquals(List.of(new Coordinate(1.5, 1),
+                new Coordinate(2.5, 2),
+                new Coordinate(3.5, 3),
+                new Coordinate(4.5, 4),
+                new Coordinate(5.5, 5)),
+            linePosition2.getCoordinates());
     }
 
     @Test
-    void missingFiles() throws IOException {
+    void bothFilesMissing() throws IOException {
+        // Process with two files missing: geographical data is unavailable in the network
         processor.process(network, computationManager);
         assertNull(network.getSubstation("P2").getExtension(SubstationPosition.class));
-
-        Path path = platformConfig.getConfigDir().map(p -> p.resolve("substations.csv")).orElse(null);
-        Files.copy(getClass().getResourceAsStream("/eurostag-test/default-headers/substations.csv"), path);
-        processor.process(network, computationManager);
-
-        assertNotNull(network.getSubstation("P2").getExtension(SubstationPosition.class));
-        assertNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
-
-        Path aerialLinePath = platformConfig.getConfigDir().map(p -> p.resolve("aerial-lines.csv")).orElse(null);
-        Files.copy(getClass().getResourceAsStream("/eurostag-test/default-headers/aerial-lines.csv"), aerialLinePath);
-        processor.process(network, computationManager);
-
-        assertNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
-
-        Path undergroundLinePath = platformConfig.getConfigDir().map(p -> p.resolve("underground-lines.csv")).orElse(null);
-        Files.copy(getClass().getResourceAsStream("/eurostag-test/default-headers/underground-lines.csv"), undergroundLinePath);
-        processor.process(network, computationManager);
-
-        assertNotNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
+        LinePosition<Line> linePosition = network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class);
+        assertNull(linePosition);
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"substations.geojson", "lines.geojson"})
+    void oneFileMissing(String filename) throws IOException {
+        // Process with one file missing: geographical data is unavailable in the network
+        Path path = platformConfig.getConfigDir().map(p -> p.resolve(filename)).orElse(null);
+        assertNotNull(path);
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/eurostag-test/" + filename)), path);
+        processor.process(network, computationManager);
+        assertNull(network.getSubstation("P2").getExtension(SubstationPosition.class));
+        LinePosition<Line> linePosition = network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class);
+        assertNull(linePosition);
+    }
 }

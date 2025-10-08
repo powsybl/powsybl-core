@@ -29,7 +29,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
         super(LimitReduction.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         float value;
         LimitType limitType;
         Boolean monitoringOnly;
