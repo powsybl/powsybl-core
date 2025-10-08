@@ -27,7 +27,7 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
         super(OperatorStrategyList.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         String version;
         List<OperatorStrategy> operatorStrategies;
     }
