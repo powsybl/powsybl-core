@@ -44,7 +44,7 @@ public final class LoadFlow {
         /**
          * @deprecated use {@link #runAsync(Network, String, LoadFlowRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
             return runAsync(network,
                 workingStateId,
@@ -57,7 +57,7 @@ public final class LoadFlow {
         /**
          * @deprecated use {@link #runAsync(Network, String, LoadFlowRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
             return runAsync(network,
                 workingStateId,
@@ -69,7 +69,7 @@ public final class LoadFlow {
         /**
          * @deprecated use {@link #runAsync(Network, LoadFlowRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
             return runAsync(network,
                 network.getVariantManager().getWorkingVariantId(),
@@ -102,7 +102,7 @@ public final class LoadFlow {
         /**
          * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
             return run(network,
                 workingStateId,
@@ -115,7 +115,7 @@ public final class LoadFlow {
         /**
          * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
             return run(network,
                 workingStateId,
@@ -127,7 +127,7 @@ public final class LoadFlow {
         /**
          * @deprecated use {@link #run(Network, LoadFlowRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public LoadFlowResult run(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
             return run(network,
                 network.getVariantManager().getWorkingVariantId(),
@@ -189,7 +189,7 @@ public final class LoadFlow {
     /**
      * @deprecated use {@link #runAsync(Network, String, LoadFlowRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
         return find().runAsync(network, workingStateId, computationManager, parameters, reportNode);
     }
@@ -197,7 +197,7 @@ public final class LoadFlow {
     /**
      * @deprecated use {@link #runAsync(Network, String, LoadFlowRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().runAsync(network, workingStateId, computationManager, parameters);
     }
@@ -205,7 +205,7 @@ public final class LoadFlow {
     /**
      * @deprecated use {@link #runAsync(Network, LoadFlowRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().runAsync(network, computationManager, parameters);
     }
@@ -232,7 +232,7 @@ public final class LoadFlow {
     /**
      * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
         return find().run(network, workingStateId, computationManager, parameters, reportNode);
     }
@@ -241,7 +241,7 @@ public final class LoadFlow {
     /**
      * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().run(network, workingStateId, computationManager, parameters);
     }
@@ -250,7 +250,7 @@ public final class LoadFlow {
     /**
      * @deprecated use {@link #runAsync(Network, LoadFlowRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static LoadFlowResult run(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().run(network, computationManager, parameters);
     }
