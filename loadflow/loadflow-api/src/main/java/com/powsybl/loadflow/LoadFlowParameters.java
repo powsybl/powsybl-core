@@ -7,6 +7,7 @@
  */
 package com.powsybl.loadflow;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
@@ -71,7 +72,19 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public enum ComponentMode {
         MAIN_CONNECTED,
         ALL_CONNECTED,
-        MAIN_SYNCHRONOUS
+        MAIN_SYNCHRONOUS;
+
+        @JsonCreator
+        public static ComponentMode fromString(String value) {
+            return switch (value) {
+                case "MAIN" -> MAIN_CONNECTED;
+                case "ALL" -> ALL_CONNECTED;
+                case "MAIN_CONNECTED" -> MAIN_CONNECTED;
+                case "ALL_CONNECTED" -> ALL_CONNECTED;
+                case "MAIN_SYNCHRONOUS" -> MAIN_SYNCHRONOUS;
+                default -> throw new IllegalArgumentException("ComponentMode unknown value: " + value);
+            };
+        }
     }
 
     public static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowParameters.class);
@@ -86,8 +99,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     // VERSION = 1.7 hvdcAcEmulation
     // VERSION = 1.8 noGeneratorReactiveLimits -> useReactiveLimits
     // VERSION = 1.9 dcPowerFactor
-    // VERSION = 1.10 componentMode instead of computedConnectedComponentScope/connectedComponentMode
-    public static final String VERSION = "1.10";
+    // VERSION = 2.0 componentMode instead of connectedComponentMode
+    public static final String VERSION = "2.0";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
