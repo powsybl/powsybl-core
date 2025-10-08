@@ -12,9 +12,20 @@ import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import gnu.trove.list.array.TDoubleArrayList;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -23,7 +34,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *
@@ -145,16 +159,13 @@ class VariantManagerImplTest {
 
     private static final class LoadExtension extends AbstractExtension<Load> implements MultiVariantObject {
 
-        private final TDoubleArrayList values;
+        private final ExtendedDoubleArrayList values;
 
         LoadExtension(Load load, double value) {
             super(load);
 
             int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
-            this.values = new TDoubleArrayList(variantArraySize);
-            for (int i = 0; i < variantArraySize; ++i) {
-                this.values.add(value);
-            }
+            this.values = new ExtendedDoubleArrayList(variantArraySize, value);
         }
 
         @Override
@@ -164,15 +175,12 @@ class VariantManagerImplTest {
 
         @Override
         public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-            values.ensureCapacity(values.size() + number);
-            for (int i = 0; i < number; ++i) {
-                values.add(values.get(sourceIndex));
-            }
+            values.growAndFill(number, values.getDouble(sourceIndex));
         }
 
         @Override
         public void reduceVariantArraySize(int number) {
-            values.remove(values.size() - number, number);
+            values.removeElements(number);
         }
 
         @Override
@@ -183,12 +191,12 @@ class VariantManagerImplTest {
         @Override
         public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
             for (int index : indexes) {
-                values.set(index, values.get(sourceIndex));
+                values.set(index, values.getDouble(sourceIndex));
             }
         }
 
         double getValue() {
-            return this.values.get(getNetwork().getVariantIndex());
+            return this.values.getDouble(getNetwork().getVariantIndex());
         }
 
         LoadExtension setValue(double value) {
