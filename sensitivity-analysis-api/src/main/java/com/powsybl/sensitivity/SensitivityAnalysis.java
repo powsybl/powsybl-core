@@ -47,7 +47,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #runAsync(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public CompletableFuture<Void> runAsync(Network network,
                                                 String workingVariantId,
                                                 SensitivityFactorReader factorReader,
@@ -69,7 +69,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #runAsync(Network, String, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
                                                                      String workingVariantId,
                                                                      List<SensitivityFactor> factors,
@@ -128,7 +128,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public void run(Network network,
                         String workingVariantId,
                         SensitivityFactorReader factorReader,
@@ -150,7 +150,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              String workingVariantId,
                                              List<SensitivityFactor> factors,
@@ -171,7 +171,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              String workingVariantId,
                                              List<SensitivityFactor> factors,
@@ -188,7 +188,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies,
@@ -204,7 +204,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies,
@@ -218,7 +218,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies) {
@@ -296,7 +296,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #runAsync(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static CompletableFuture<Void> runAsync(Network network,
                                                    String workingVariantId,
                                                    SensitivityFactorReader factorReader,
@@ -312,7 +312,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #runAsync(Network, String, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
                                                                         String workingVariantId,
                                                                         List<SensitivityFactor> factors,
@@ -347,7 +347,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static void run(Network network,
                            String workingVariantId,
                            SensitivityFactorReader factorReader,
@@ -363,7 +363,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 String workingVariantId,
                                                 List<SensitivityFactor> factors,
@@ -399,7 +399,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 String workingVariantId,
                                                 List<SensitivityFactor> factors,
@@ -412,7 +412,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 List<SensitivityFactor> factors,
                                                 List<Contingency> contingencies,
@@ -424,7 +424,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 List<SensitivityFactor> factors,
                                                 List<Contingency> contingencies,
@@ -435,7 +435,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 List<SensitivityFactor> factors,
                                                 List<Contingency> contingencies) {

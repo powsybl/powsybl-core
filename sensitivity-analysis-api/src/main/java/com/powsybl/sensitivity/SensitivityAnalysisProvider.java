@@ -61,7 +61,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param reportNode a reportNode for functional logs
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     default CompletableFuture<Void> run(Network network,
                                 String workingVariantId,
                                 SensitivityFactorReader factorReader,
