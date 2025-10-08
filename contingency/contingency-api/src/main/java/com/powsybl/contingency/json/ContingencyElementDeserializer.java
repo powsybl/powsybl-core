@@ -51,7 +51,7 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case SHUNT_COMPENSATOR -> new ShuntCompensatorContingency(id);
                 case HVDC_LINE -> new HvdcLineContingency(id, voltageLevelId);
                 case BUSBAR_SECTION -> new BusbarSectionContingency(id);
-                case DANGLING_LINE -> new DanglingLineContingency(id);
+                case DANGLING_LINE -> new BoundaryLineContingency(id);
                 case LINE -> new LineContingency(id, voltageLevelId);
                 case TWO_WINDINGS_TRANSFORMER -> new TwoWindingsTransformerContingency(id, voltageLevelId);
                 case THREE_WINDINGS_TRANSFORMER -> new ThreeWindingsTransformerContingency(id);

@@ -16,7 +16,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="NHV1" v="402.1428451538086" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:danglingLine id="NHV1_NHV2_1.1" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X1"
+            <iidm:boundaryLine id="NHV1_NHV2_1.1" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X1"
                                bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"
                                selectedOperationalLimitsGroupId="DEFAULT">
                 <iidm:operationalLimitsGroup id="DEFAULT">
@@ -33,8 +33,8 @@
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:currentLimits>
                 </iidm:operationalLimitsGroup>
-            </iidm:danglingLine>
-            <iidm:danglingLine id="NHV1_NHV2_2.1" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X2"
+            </iidm:boundaryLine>
+            <iidm:boundaryLine id="NHV1_NHV2_2.1" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X2"
                                bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0"
@@ -48,7 +48,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="NHV2" v="389.9526763916016" angle="-3.5063576698303223"/>
             </iidm:busBreakerTopology>
-            <iidm:danglingLine id="NHV1_NHV2_1.2" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X1"
+            <iidm:boundaryLine id="NHV1_NHV2_1.2" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X1"
                                bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"
                                selectedOperationalLimitsGroupId="DEFAULT">
                 <iidm:operationalLimitsGroup id="DEFAULT">
@@ -65,8 +65,8 @@
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:currentLimits>
                 </iidm:operationalLimitsGroup>
-            </iidm:danglingLine>
-            <iidm:danglingLine id="NHV1_NHV2_2.2" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X2"
+            </iidm:boundaryLine>
+            <iidm:boundaryLine id="NHV1_NHV2_2.2" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X2"
                                bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">

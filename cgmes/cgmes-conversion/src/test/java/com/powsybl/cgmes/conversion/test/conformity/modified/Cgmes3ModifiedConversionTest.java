@@ -50,7 +50,7 @@ class Cgmes3ModifiedConversionTest {
         Network network0 = Importers.importData("CGMES", Cgmes3Catalog.microGrid().dataSource(), importParams);
         Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), importParams);
         assertEquals(7, network.getVoltageLevelStream().mapToInt(voltageLevel -> voltageLevel.getBusBreakerView().getBusCount()).sum());
-        assertEquals(5, network.getDanglingLineCount());
+        assertEquals(5, network.getBoundaryLineCount());
     }
 
     @Test
@@ -81,29 +81,29 @@ class Cgmes3ModifiedConversionTest {
         // In the base case each line is connected to a different boundary node
         // All have different values of p0, q0
         Network networkBase = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
-        assertEquals(nodeGY11, Conversion.getDanglingLineBoundaryNode(networkBase.getDanglingLine(line5Id)));
-        assertEquals(-27.0286, networkBase.getDanglingLine(line5Id).getP0(), 1e-4);
-        assertEquals(120.7887, networkBase.getDanglingLine(line5Id).getQ0(), 1e-4);
-        assertEquals(nodeMA11, Conversion.getDanglingLineBoundaryNode(networkBase.getDanglingLine(line4Id)));
-        assertEquals(-8.9532, networkBase.getDanglingLine(line4Id).getP0(), 1e-4);
-        assertEquals(67.2335, networkBase.getDanglingLine(line4Id).getQ0(), 1e-4);
-        assertEquals(nodeAL11, Conversion.getDanglingLineBoundaryNode(networkBase.getDanglingLine(line3Id)));
-        assertEquals(-14.0675, networkBase.getDanglingLine(line3Id).getP0(), 1e-4);
-        assertEquals(63.9583, networkBase.getDanglingLine(line3Id).getQ0(), 1e-4);
+        assertEquals(nodeGY11, Conversion.getBoundaryLineBoundaryNode(networkBase.getBoundaryLine(line5Id)));
+        assertEquals(-27.0286, networkBase.getBoundaryLine(line5Id).getP0(), 1e-4);
+        assertEquals(120.7887, networkBase.getBoundaryLine(line5Id).getQ0(), 1e-4);
+        assertEquals(nodeMA11, Conversion.getBoundaryLineBoundaryNode(networkBase.getBoundaryLine(line4Id)));
+        assertEquals(-8.9532, networkBase.getBoundaryLine(line4Id).getP0(), 1e-4);
+        assertEquals(67.2335, networkBase.getBoundaryLine(line4Id).getQ0(), 1e-4);
+        assertEquals(nodeAL11, Conversion.getBoundaryLineBoundaryNode(networkBase.getBoundaryLine(line3Id)));
+        assertEquals(-14.0675, networkBase.getBoundaryLine(line3Id).getP0(), 1e-4);
+        assertEquals(63.9583, networkBase.getBoundaryLine(line3Id).getQ0(), 1e-4);
 
         // We have prepared a modified case where lines 4 and 5 both connect to the same node
         // p0, q0 is adjusted for connected dangling lines
         // p0, q0 of the disconnected is not modified
-        Network network3dls = Network.read(CgmesConformity3ModifiedCatalog.microGridBE3DanglingLinesSameBoundary1Disconnected().dataSource(), importParams);
-        assertEquals(nodeGY11, Conversion.getDanglingLineBoundaryNode(network3dls.getDanglingLine(line5Id)));
-        assertEquals(-13.5143, network3dls.getDanglingLine(line5Id).getP0(), 1e-4);
-        assertEquals(60.3944, network3dls.getDanglingLine(line5Id).getQ0(), 1e-4);
-        assertEquals(nodeGY11, Conversion.getDanglingLineBoundaryNode(network3dls.getDanglingLine(line4Id)));
-        assertEquals(-13.5143, network3dls.getDanglingLine(line4Id).getP0(), 1e-4);
-        assertEquals(60.3944, network3dls.getDanglingLine(line4Id).getQ0(), 1e-4);
-        assertEquals(nodeGY11, Conversion.getDanglingLineBoundaryNode(network3dls.getDanglingLine(line3Id)));
-        assertEquals(-27.0286, network3dls.getDanglingLine(line3Id).getP0(), 1e-4);
-        assertEquals(120.7887, network3dls.getDanglingLine(line3Id).getQ0(), 1e-4);
+        Network network3dls = Network.read(CgmesConformity3ModifiedCatalog.microGridBE3BoundaryLinesSameBoundary1Disconnected().dataSource(), importParams);
+        assertEquals(nodeGY11, Conversion.getBoundaryLineBoundaryNode(network3dls.getBoundaryLine(line5Id)));
+        assertEquals(-13.5143, network3dls.getBoundaryLine(line5Id).getP0(), 1e-4);
+        assertEquals(60.3944, network3dls.getBoundaryLine(line5Id).getQ0(), 1e-4);
+        assertEquals(nodeGY11, Conversion.getBoundaryLineBoundaryNode(network3dls.getBoundaryLine(line4Id)));
+        assertEquals(-13.5143, network3dls.getBoundaryLine(line4Id).getP0(), 1e-4);
+        assertEquals(60.3944, network3dls.getBoundaryLine(line4Id).getQ0(), 1e-4);
+        assertEquals(nodeGY11, Conversion.getBoundaryLineBoundaryNode(network3dls.getBoundaryLine(line3Id)));
+        assertEquals(-27.0286, network3dls.getBoundaryLine(line3Id).getP0(), 1e-4);
+        assertEquals(120.7887, network3dls.getBoundaryLine(line3Id).getQ0(), 1e-4);
     }
 
     private FileSystem fileSystem;

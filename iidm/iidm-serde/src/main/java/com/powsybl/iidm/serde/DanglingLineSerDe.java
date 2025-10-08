@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.DanglingLine.Generation;
-import com.powsybl.iidm.network.DanglingLineAdder;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.BoundaryLine.Generation;
+import com.powsybl.iidm.network.BoundaryLineAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
@@ -24,7 +24,10 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, DanglingLineAdder, VoltageLevel> {
+
+// TODO: Manage versioning to chang DanglingLine to BoundaryLine
+
+class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, BoundaryLineAdder, VoltageLevel> {
     private static final String GENERATION = "generation";
     private static final String GENERATION_MAX_P = "generationMaxP";
     private static final String GENERATION_MIN_P = "generationMinP";
@@ -43,11 +46,11 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     }
 
     @Override
-    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkSerializerContext context) {
+    protected void writeRootElementAttributes(BoundaryLine dl, VoltageLevel vl, NetworkSerializerContext context) {
         writeRootElementAttributesInternal(dl, dl::getTerminal, context);
     }
 
-    static void writeRootElementAttributesInternal(DanglingLine dl, Supplier<Terminal> terminalGetter, NetworkSerializerContext context) {
+    static void writeRootElementAttributesInternal(BoundaryLine dl, Supplier<Terminal> terminalGetter, NetworkSerializerContext context) {
         Generation generation = dl.getGeneration();
         double[] p0 = new double[1];
         double[] q0 = new double[1];
@@ -96,12 +99,12 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     }
 
     @Override
-    protected DanglingLineAdder createAdder(VoltageLevel parent) {
+    protected BoundaryLineAdder createAdder(VoltageLevel parent) {
         return parent.newDanglingLine();
     }
 
     @Override
-    protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkSerializerContext context) {
+    protected void writeSubElements(BoundaryLine dl, VoltageLevel vl, NetworkSerializerContext context) {
         if (dl.getGeneration() != null) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> ReactiveLimitsSerDe.INSTANCE.write(dl.getGeneration(), context));
         }
@@ -109,7 +112,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     }
 
     @Override
-    protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+    protected BoundaryLine readRootElementAttributes(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         readRootElementAttributesInternal(adder, voltageLevel, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context, () -> {
             String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
@@ -119,14 +122,14 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
             String pairingKey = context.getReader().readStringAttribute("pairingKey");
             adder.setPairingKey(pairingKey);
         });
-        DanglingLine dl = adder.add();
+        BoundaryLine dl = adder.add();
         readPQ(null, dl.getTerminal(), context.getReader());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
                 readSelectedGroupId(null, dl::setSelectedOperationalLimitsGroup, context));
         return dl;
     }
 
-    public static void readRootElementAttributesInternal(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+    public static void readRootElementAttributesInternal(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
         double r = context.getReader().readDoubleAttribute("r");
@@ -141,7 +144,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
             OptionalDouble targetV = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_V);
             OptionalDouble targetQ = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_Q);
             if (voltageRegulationOn.isPresent()) {
-                DanglingLineAdder.GenerationAdder generationAdder = adder.newGeneration()
+                BoundaryLineAdder.GenerationAdder generationAdder = adder.newGeneration()
                         .setVoltageRegulationOn(voltageRegulationOn.get());
                 minP.ifPresent(generationAdder::setMinP);
                 maxP.ifPresent(generationAdder::setMaxP);
@@ -161,7 +164,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     }
 
     @Override
-    protected void readSubElements(DanglingLine dl, NetworkDeserializerContext context) {
+    protected void readSubElements(BoundaryLine dl, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case LIMITS_GROUP -> {

@@ -48,13 +48,13 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
         vl2.getBusBreakerView().newBus().setId("N3").add();
 
         final Load load1 = vl1.newLoad().setId("L1").setBus("N1").setP0(0).setQ0(0).add();
-        final DanglingLine danglingLine = vl1.newDanglingLine().setId("DL1").setBus("N2").setR(0.0).setX(0.0).setP0(0).setQ0(0).add();
+        final BoundaryLine boundaryLine = vl1.newDanglingLine().setId("DL1").setBus("N2").setR(0.0).setX(0.0).setP0(0).setQ0(0).add();
 
         // Add area types and areas to the network
         final String biddingZoneType = "BiddingZone";
         final String controlAreaType = "ControlArea";
         network.newArea().setAreaType(biddingZoneType).setId("BidZoneId1").setName("BidZoneName1").addAreaBoundary(load1.getTerminal(), true)
-               .addAreaBoundary(danglingLine.getBoundary(), false).add();
+               .addAreaBoundary(boundaryLine.getBoundary(), false).add();
         network.newArea().setAreaType(biddingZoneType).setId("BidZoneId2").setName("BidZoneName2").addAreaBoundary(line.getTerminal1(), true)
                .setInterchangeTarget(100.).add();
         network.newArea().setAreaType(controlAreaType).setId("ControlAreaId1").setName("ControlAreaName1").add();

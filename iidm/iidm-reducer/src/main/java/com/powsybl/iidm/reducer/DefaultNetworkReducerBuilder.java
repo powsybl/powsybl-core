@@ -30,8 +30,8 @@ public class DefaultNetworkReducerBuilder {
         return this;
     }
 
-    public DefaultNetworkReducerBuilder withDanglingLines(boolean withDanglingLines) {
-        options.withDanglingLlines(withDanglingLines);
+    public DefaultNetworkReducerBuilder withBoundaryLines(boolean withBoundaryLines) {
+        options.withDanglingLlines(withBoundaryLines);
         return this;
     }
 

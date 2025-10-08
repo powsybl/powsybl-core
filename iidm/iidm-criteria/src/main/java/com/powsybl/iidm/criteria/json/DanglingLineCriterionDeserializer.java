@@ -11,28 +11,31 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
-import com.powsybl.iidm.criteria.DanglingLineCriterion;
+import com.powsybl.iidm.criteria.BoundaryLineCriterion;
 import com.powsybl.iidm.criteria.SingleCountryCriterion;
 import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
 
 import java.io.IOException;
 
 /**
- * <p>Deserializer for {@link DanglingLineCriterion} objects.</p>
+ * <p>Deserializer for {@link BoundaryLineCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class DanglingLineCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<DanglingLineCriterion> {
+
+// TODO: Manage versioning to chang DanglingLine to BoundaryLine
+
+public class DanglingLineCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<BoundaryLineCriterion> {
     public DanglingLineCriterionDeserializer() {
-        super(DanglingLineCriterion.class);
+        super(BoundaryLineCriterion.class);
     }
 
     @Override
-    public DanglingLineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public BoundaryLineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = new AbstractNetworkElementCriterionDeserializer.ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
-                DanglingLineCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.SINGLE_NOMINAL_VOLTAGE));
+                BoundaryLineCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.SINGLE_NOMINAL_VOLTAGE));
 
-        return new DanglingLineCriterion(parsingContext.name,
+        return new BoundaryLineCriterion(parsingContext.name,
                 (SingleCountryCriterion) parsingContext.countryCriterion,
                 (SingleNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
     }

@@ -214,7 +214,7 @@ Each country present results in the creation of an Area in the IIDM model with:
 - Area **ID**: set to the country alpha-2 code
 - Area **Type**: hardcoded to `ControlArea`
 - Area **VoltageLevels**: all VoltageLevels created in the Country (see [Node conversion](#node-conversion))
-- Area **Boundaries**: all DanglingLines in the Country
+- Area **Boundaries**: all BoundaryLines in the Country
 
 By default, all Area Boundaries are flagged as AC, because the UCTE-DEF format does not have any HVDC explicit description.
 To specify which boundaries should be considered as DC in the conversion, you may supply a list of X-nodes IDs in the 

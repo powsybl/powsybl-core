@@ -48,8 +48,8 @@ public class SingleCountryCriterion implements Criterion {
 
     protected static Country getCountry(Identifiable<?> identifiable, IdentifiableType type) {
         return switch (type) {
-            case DANGLING_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY, HVDC_CONVERTER_STATION ->
-                getCountry(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case BOUNDARY_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY, HVDC_CONVERTER_STATION ->
+                    getCountry(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH -> getCountry(((Switch) identifiable).getVoltageLevel());
             case TWO_WINDINGS_TRANSFORMER ->
                 getCountry(((TwoWindingsTransformer) identifiable).getNullableSubstation());
