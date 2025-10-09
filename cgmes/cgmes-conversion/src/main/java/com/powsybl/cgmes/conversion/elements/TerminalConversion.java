@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -130,9 +131,17 @@ public final class TerminalConversion {
 
     private static void createSwitchForTerminal(Terminal terminal, String cgmesTerminalId, Context context) {
         int node = terminal.getNodeBreakerView().getNode();
-        int newNode = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
-        createSwitch(terminal.getVoltageLevel(), cgmesTerminalId, node, newNode, context);
-        terminal.getNodeBreakerView().moveConnectable(newNode, terminal.getVoltageLevel().getId());
+        List<Integer> nodesInternalConnectedTo = terminal.getVoltageLevel().getNodeBreakerView().getNodesInternalConnectedTo(node);
+        if (nodesInternalConnectedTo.size() == 1) {
+            // There is no need anymore of the internal connection with the addition of the fictitious switch.
+            int otherNode = nodesInternalConnectedTo.get(0);
+            createSwitch(terminal.getVoltageLevel(), cgmesTerminalId, node, otherNode, context);
+            terminal.getVoltageLevel().getNodeBreakerView().removeInternalConnections(node, otherNode);
+        } else {
+            int newNode = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
+            createSwitch(terminal.getVoltageLevel(), cgmesTerminalId, node, newNode, context);
+            terminal.getNodeBreakerView().moveConnectable(newNode, terminal.getVoltageLevel().getId());
+        }
     }
 
     // The terminal associated with the fictitious switch is recorded as a property because the alias must be unique.
