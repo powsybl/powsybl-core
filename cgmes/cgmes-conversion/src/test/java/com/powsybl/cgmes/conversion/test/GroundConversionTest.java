@@ -79,7 +79,7 @@ class GroundConversionTest extends AbstractSerDeTest {
                 8;
               }
             }
-            """);
+            """.replaceAll("\n", System.lineSeparator()));
         assertEquals(expected, actual);
     }
 
