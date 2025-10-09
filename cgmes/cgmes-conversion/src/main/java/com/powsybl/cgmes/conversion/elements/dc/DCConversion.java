@@ -61,8 +61,12 @@ public class DCConversion {
 
     private void computeDcEquipments() {
         // Store the CGMES terminal to CGMES node association.
-        String node = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
-        cgmesDcTerminalNodes.forEach(t -> dcTerminalNodes.put(t.getId(DC_TERMINAL), t.getId(node)));
+        String nodeTag = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
+        cgmesDcTerminalNodes.forEach(t -> dcTerminalNodes.put(t.getId(DC_TERMINAL), t.getId(nodeTag)));
+        dcTerminalNodes.entrySet().stream()
+                .filter(e -> e.getValue() == null)
+                .map(Map.Entry::getKey)
+                .forEach(t -> context.missing(String.format("Association to a DCNode or DCTerminalNode for DCTerminal %s", t)));
 
         // Store the CGMES DCEquipment base data: id, type, node1, node2
         cgmesAcDcConverters.forEach(c -> addDcEquipment(c, ACDC_CONVERTER));
