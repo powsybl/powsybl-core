@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.reducer;
 
@@ -66,6 +67,21 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         }
 
         observers.forEach(o -> o.lineRemoved(line));
+    }
+
+    @Override
+    protected void reduce(TieLine tieLine) {
+        Terminal terminal1 = tieLine.getTerminal1();
+        Terminal terminal2 = tieLine.getTerminal2();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+
+        // just remove the tie line if one of its voltage levels has to be removed
+        if (!test(vl1) || !test(vl2)) {
+            tieLine.remove();
+        }
+
+        observers.forEach(o -> o.tieLineRemoved(tieLine));
     }
 
     @Override

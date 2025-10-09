@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -19,14 +20,6 @@ package com.powsybl.iidm.network;
  * @see LineAdder
  */
 public interface Line extends Branch<Line>, Connectable<Line>, MutableLineCharacteristics<Line> {
-
-    /**
-     * @deprecated tie lines are not lines anymore.
-     */
-    @Deprecated(since = "5.2.0")
-    default boolean isTieLine() {
-        return false;
-    }
 
     @Override
     default IdentifiableType getType() {

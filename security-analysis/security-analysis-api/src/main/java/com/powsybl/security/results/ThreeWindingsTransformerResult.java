@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.results;
 
@@ -11,10 +12,9 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import java.util.Objects;
 
 /**
+ * Contains state variables of a three-windings transformer which is monitored during security analysis through a {@link com.powsybl.security.monitor.StateMonitor}.
+ * The state variables supported are active and reactive power for each leg (voltage level side of course), current for each leg.
  *
- * provide electrical information on a three windings transformer
- * after a security analysis. it belongs to pre and post Contingency results.
- * it is the result of the three windings transformer id specified in StateMonitor.
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class ThreeWindingsTransformerResult extends AbstractExtendable<ThreeWindingsTransformerResult> {

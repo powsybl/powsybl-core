@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
@@ -27,14 +28,12 @@ class SimpleCommandTest {
                 .inputFiles(new InputFile("file1"))
                 .args("arg1", "file1")
                 .outputFiles(new OutputFile("out1"))
-                .timeout(30)
                 .build();
 
         assertEquals(CommandType.SIMPLE, cmd1.getType());
         assertEquals("cmd1", cmd1.getId());
         assertEquals("prg1", cmd1.getProgram());
         assertEquals(ImmutableList.of("arg1", "file1"), cmd1.getArgs(1));
-        assertEquals(30, cmd1.getTimeout());
         assertEquals(1, cmd1.getInputFiles().size());
         assertEquals(1, cmd1.getOutputFiles().size());
         assertEquals("[prg1, arg1, file1]", cmd1.toString(1));
@@ -76,15 +75,6 @@ class SimpleCommandTest {
                 .build();
 
         assertEquals(ImmutableList.of("--opt1=val1", "--opt2=val2-3", "--flag2"), cmd1.getArgs(3));
-    }
-
-    @Test
-    void testErrorTimeout() {
-        assertThrows(RuntimeException.class, () -> new SimpleCommandBuilder()
-                .id("cmd1")
-                .program("prg1")
-                .timeout(-34)
-                .build());
     }
 
     @Test

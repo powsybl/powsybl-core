@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.validation;
 
@@ -36,14 +37,14 @@ class Transformers3WValidationTest extends AbstractValidationTest {
 
     @Test
     void checkTwts() {
-        assertFalse(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
         strictConfig.setThreshold(.3);
-        assertTrue(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
         // check NaN values
         twtValidationData.setNanLeg1P();
-        assertFalse(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
         strictConfig.setOkMissingValues(true);
-        assertTrue(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
@@ -55,11 +56,11 @@ class Transformers3WValidationTest extends AbstractValidationTest {
         assertFalse(Transformers3WValidation.INSTANCE.checkTransformers(network, strictConfig, data));
         assertFalse(ValidationType.TWTS3W.check(network, strictConfig, tmpDir));
 
-        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.NULL_WRITER, ValidationType.TWTS);
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.INSTANCE, ValidationType.TWTS);
         assertFalse(ValidationType.TWTS3W.check(network, strictConfig, validationWriter));
 
         strictConfig.setThreshold(.3);
-        assertTrue(Transformers3WValidation.INSTANCE.checkTransformers(network, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(Transformers3WValidation.INSTANCE.checkTransformers(network, strictConfig, NullWriter.INSTANCE));
     }
 
 }

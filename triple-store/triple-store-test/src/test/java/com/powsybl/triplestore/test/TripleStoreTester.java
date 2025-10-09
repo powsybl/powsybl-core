@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.test;
@@ -14,12 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,11 +82,11 @@ class TripleStoreTester {
         if (expected.isEmpty()) {
             assertTrue(results.isEmpty());
         } else {
-            assertTrue(!results.isEmpty());
+            assertFalse(results.isEmpty());
             int size = expected.values().iterator().next().size();
             assertEquals(size, results.size());
             expected.keySet()
-                .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
+                .forEach(property -> assertEquals(expected.get(property), results.pluckLocalsUnsorted(property)));
         }
     }
 
@@ -122,7 +118,7 @@ class TripleStoreTester {
             String qcontextName = namespace + contextName;
             assertTrue(before.contains(qcontextName));
             assertFalse(after.contains(qcontextName));
-            Set<String> expected = before.stream().collect(Collectors.toSet());
+            Set<String> expected = new HashSet<>(before);
             expected.remove(qcontextName);
             Set<String> actual = after;
             assertEquals(expected, actual);

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
@@ -42,18 +43,17 @@ public class InputFile {
         }
         if (preProcessor != null) {
             switch (preProcessor) {
-                case FILE_GUNZIP:
+                case FILE_GUNZIP -> {
                     if (!name.endsWith(".gz")) {
                         throw new IllegalArgumentException(name + " is expected to end with .gz");
                     }
-                    break;
-                case ARCHIVE_UNZIP:
+                }
+                case ARCHIVE_UNZIP -> {
                     if (!name.endsWith(".zip")) {
                         throw new IllegalArgumentException(name + " is expected to end with .zip");
                     }
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected FilePreProcessor value: " + preProcessor);
+                }
+                default -> throw new IllegalStateException("Unexpected FilePreProcessor value: " + preProcessor);
             }
         }
         return name;

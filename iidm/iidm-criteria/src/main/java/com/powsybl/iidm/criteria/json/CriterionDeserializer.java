@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.criteria.json;
 
@@ -31,10 +32,10 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
     @Override
     public Criterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         CriterionType type = null;
-        SingleNominalVoltageCriterion.VoltageInterval voltageInterval = null;
-        SingleNominalVoltageCriterion.VoltageInterval voltageInterval1 = null;
-        SingleNominalVoltageCriterion.VoltageInterval voltageInterval2 = null;
-        SingleNominalVoltageCriterion.VoltageInterval voltageInterval3 = null;
+        VoltageInterval voltageInterval = null;
+        VoltageInterval voltageInterval1 = null;
+        VoltageInterval voltageInterval2 = null;
+        VoltageInterval voltageInterval3 = null;
         List<String> countries = Collections.emptyList();
         List<String> countries1 = Collections.emptyList();
         List<String> countries2 = Collections.emptyList();
@@ -44,27 +45,27 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         PropertyCriterion.EquipmentToCheck equipmentToCheck = null;
         PropertyCriterion.SideToCheck sideToCheck = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "type" -> type = CriterionType.valueOf(parser.nextTextValue());
                 case "voltageInterval" -> {
                     parser.nextToken();
                     voltageInterval = JsonUtil.readValue(deserializationContext, parser,
-                            SingleNominalVoltageCriterion.VoltageInterval.class);
+                            VoltageInterval.class);
                 }
                 case "voltageInterval1" -> {
                     parser.nextToken();
                     voltageInterval1 = JsonUtil.readValue(deserializationContext, parser,
-                            SingleNominalVoltageCriterion.VoltageInterval.class);
+                            VoltageInterval.class);
                 }
                 case "voltageInterval2" -> {
                     parser.nextToken();
                     voltageInterval2 = JsonUtil.readValue(deserializationContext, parser,
-                            SingleNominalVoltageCriterion.VoltageInterval.class);
+                            VoltageInterval.class);
                 }
                 case "voltageInterval3" -> {
                     parser.nextToken();
                     voltageInterval3 = JsonUtil.readValue(deserializationContext, parser,
-                            SingleNominalVoltageCriterion.VoltageInterval.class);
+                            VoltageInterval.class);
                 }
                 case "countries" -> {
                     parser.nextToken();
@@ -84,14 +85,13 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                     parser.nextToken();
                     propertyValues = JsonUtil.readList(deserializationContext, parser, String.class);
                 }
-                case "equipmentToCheck" ->
-                        equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextTextValue());
+                case "equipmentToCheck" -> equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextTextValue());
                 case "sideToCheck" -> sideToCheck = PropertyCriterion.SideToCheck.valueOf(parser.nextTextValue());
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         if (type == null) {
-            throw new IllegalArgumentException("type of criterion can not be null");
+            throw new IllegalArgumentException("type of criterion cannot be null");
         }
         return switch (type) {
             case PROPERTY -> new PropertyCriterion(propertyKey, propertyValues, equipmentToCheck, sideToCheck);
@@ -102,8 +102,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
             case AT_LEAST_ONE_NOMINAL_VOLTAGE -> new AtLeastOneNominalVoltageCriterion(voltageInterval);
             case SINGLE_NOMINAL_VOLTAGE -> new SingleNominalVoltageCriterion(voltageInterval);
             case TWO_NOMINAL_VOLTAGE -> new TwoNominalVoltageCriterion(voltageInterval1, voltageInterval2);
-            case THREE_NOMINAL_VOLTAGE ->
-                    new ThreeNominalVoltageCriterion(voltageInterval1, voltageInterval2, voltageInterval3);
+            case THREE_NOMINAL_VOLTAGE -> new ThreeNominalVoltageCriterion(voltageInterval1, voltageInterval2, voltageInterval3);
             case REGEX -> new RegexCriterion(regex);
         };
     }

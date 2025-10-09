@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model;
@@ -51,7 +52,11 @@ public final class CgmesNames {
     public static final String LOW_STEP = "lowStep";
     public static final String HIGH_STEP = "highStep";
 
+    public static final String DC_NODE = "DCNode";
+    public static final String DC_TOPOLOGICAL_NODE = "DCTopologicalNode";
     public static final String DC_TERMINAL = "DCTerminal";
+    public static final String DC_TERMINAL1 = "DCTerminal1";
+    public static final String DC_TERMINAL2 = "DCTerminal2";
     public static final String RATED_UDC = "ratedUdc";
 
     public static final String B_PER_SECTION = "bPerSection";
@@ -106,15 +111,33 @@ public final class CgmesNames {
 
     public static final Set<String> SWITCH_TYPES = Set.of(SWITCH, "Breaker", "Disconnector", "LoadBreakSwitch", "ProtectedSwitch", "GroundDisconnector");
 
+    public static final String BUSBAR_SECTION = "BusbarSection";
+    public static final String GROUND = "Ground";
+    public static final String SHUNT_COMPENSATOR = "ShuntCompensator";
+    public static final String EQUIVALENT_SHUNT = "EquivalentShunt";
+    public static final String EQUIVALENT_BRANCH = "EquivalentBranch";
+    public static final String STATIC_VAR_COMPENSATOR = "StaticVarCompensator";
+    public static final String REGULATING_CONTROL = "RegulatingControl";
+    public static final String CONTROL_AREA = "ControlArea";
+    public static final String CONTROL_AREA_TYPE_KIND_INTERCHANGE = "ControlAreaTypeKind.Interchange";
+    public static final String TIE_FLOW = "TieFlow";
     public static final String CONFORM_LOAD = "ConformLoad";
     public static final String NONCONFORM_LOAD = "NonConformLoad";
     public static final String ENERGY_CONSUMER = "EnergyConsumer";
     public static final String STATION_SUPPLY = "StationSupply";
     public static final String ASYNCHRONOUS_MACHINE = "AsynchronousMachine";
+    public static final String SYNCHRONOUS_MACHINE = "SynchronousMachine";
     public static final String ENERGY_SOURCE = "EnergySource";
     public static final String SV_INJECTION = "SvInjection";
     public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
     public static final String NONCONFORM_LOAD_GROUP = "NonConformLoadGroup";
+    public static final String ACDC_CONVERTER = "ACDCConverter";
+    public static final String VS_CONVERTER = "VsConverter";
+    public static final String CS_CONVERTER = "CsConverter";
+    public static final String DC_LINE_SEGMENT = "DCLineSegment";
+    public static final String DC_LINE_SEGMENT2 = "DCLineSegment2";
+    public static final String DC_SWITCH = "DCSwitch";
+    public static final String DC_GROUND = "DCGround";
 
     public static final String CONNECTIVITY_NODE_BOUNDARY = "ConnectivityNode_Boundary";
     public static final String TOPOLOGICAL_NODE_BOUNDARY = "TopologicalNode_Boundary";
@@ -125,6 +148,41 @@ public final class CgmesNames {
 
     public static final String EQUIVALENT_INJECTION = "EquivalentInjection";
     public static final String EQUIVALENT_INJECTION_TERMINAL = "EquivalentInjectionTerminal";
+    public static final String EXTERNAL_NETWORK_INJECTION = "ExternalNetworkInjection";
+
+    public static final String OPERATIONAL_LIMIT = "OperationalLimit";
+    public static final String OPERATIONAL_LIMIT_SET = "OperationalLimitSet";
+    public static final String NORMAL_VALUE = "normalValue";
+    public static final String CURRENT_LIMIT = "CurrentLimit";
+    public static final String ACTIVE_POWER_LIMIT = "ActivePowerLimit";
+    public static final String APPARENT_POWER_LIMIT = "ApparentPowerLimit";
+    public static final String P_FIXED = "pFixed";
+    public static final String Q_FIXED = "qFixed";
+    public static final String TERMINAL_SIGN = "terminalSign";
+    public static final String GENERATING_UNIT = "GeneratingUnit";
+    public static final String NORMAL_PF = "normalPF";
+    public static final String REGULATION_CAPABILITY = "regulationCapability";
+    public static final String REGULATION_TARGET = "regulationTarget";
+    public static final String REGULATION_STATUS = "regulationStatus";
+    public static final String MODE = "mode";
+    public static final String INITIAL_P = "initialP";
+    public static final String NORMAL_SECTIONS = "normalSections";
+    public static final String TARGET_VALUE = "targetValue";
+    public static final String TARGET_DEADBAND = "targetDeadband";
+    public static final String ENABLED = "enabled";
+    public static final String CONTROL_ENABLED = "controlEnabled";
+    public static final String REACTIVE_POWER = "reactivepower";
+    public static final String VOLTAGE_TAG = "voltage";
+    public static final String NORMAL_OPEN = "normalOpen";
+    public static final String CONNECTED = "connected";
+    public static final String OPEN = "open";
+    public static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
+    public static final String HIGH_VOLTAGE_LIMIT = "highVoltageLimit";
+    public static final String LOW_VOLTAGE_LIMIT = "lowVoltageLimit";
+    public static final String SVC_EQ_VOLTAGE_SET_POINT = "svcEquipmentVoltageSetPoint";
+
+    public static final String ENERGY_IDENT_CODE_EIC = "energyIdentCodeEic";
+    public static final String P_TOLERANCE = "pTolerance";
 
     private CgmesNames() {
     }

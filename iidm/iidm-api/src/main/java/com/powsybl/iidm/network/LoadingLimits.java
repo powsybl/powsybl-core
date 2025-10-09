@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -43,6 +44,7 @@ public interface LoadingLimits extends OperationalLimits {
          * @return false if it is a real limit, false otherwise
          */
         boolean isFictitious();
+
     }
 
     /**
@@ -79,4 +81,14 @@ public interface LoadingLimits extends OperationalLimits {
      * @return the temporary limit value or NaN if there is no temporary limit for this acceptable duration
      */
     double getTemporaryLimitValue(int acceptableDuration);
+
+    /**
+     * Set the temporary limit value.
+     * <p>Throws an exception when no temporary limit of the given acceptable duration is found,
+     * and changes the value but logs a warning when the new value is not valid.</p>
+     * @param acceptableDuration the acceptable duration
+     * @param temporaryLimitValue the temporary limit value
+     * @return itself for method chaining
+     */
+    LoadingLimits setTemporaryLimitValue(int acceptableDuration, double temporaryLimitValue);
 }

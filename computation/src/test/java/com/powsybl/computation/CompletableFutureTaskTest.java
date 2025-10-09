@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
@@ -39,8 +40,37 @@ class CompletableFutureTaskTest {
                 Executors.newSingleThreadExecutor(),
                 Executors.newCachedThreadPool(),
                 Executors.newWorkStealingPool(),
+                new MyTestExecutorWithException(),
                 ForkJoinPool.commonPool()
         );
+    }
+
+    // Very basic executor that spawns a new thread
+    // and allows to wait for the end of the command.
+    // It just keeps an exception to be able to assert it.
+    // You should use it to launch only one command
+    // because it has just one latch and one exception
+    private static final class MyTestExecutorWithException implements Executor {
+
+        Exception exception = null;
+        CountDownLatch waitForDone;
+
+        @Override
+        public void execute(Runnable command) {
+            (new Thread() {
+                @Override
+                public void run() {
+                    waitForDone = new CountDownLatch(1);
+                    try {
+                        command.run();
+                    } catch (Exception e) {
+                        MyTestExecutorWithException.this.exception = e;
+                    } finally {
+                        waitForDone.countDown();
+                    }
+                }
+            }).start();
+        }
     }
 
     @ParameterizedTest
@@ -52,7 +82,7 @@ class CompletableFutureTaskTest {
         assertSame(res, task.get());
     }
 
-    private static class MyException extends RuntimeException {
+    private static final class MyException extends RuntimeException {
     }
 
     @ParameterizedTest
@@ -124,6 +154,10 @@ class CompletableFutureTaskTest {
         //Second call to cancel should return false
         cancelled = task.cancel(true);
         assertFalse(cancelled);
+        if (executor instanceof MyTestExecutorWithException myTestExecutor) {
+            myTestExecutor.waitForDone.await();
+            assertNull(myTestExecutor.exception);
+        }
     }
 
     @ParameterizedTest

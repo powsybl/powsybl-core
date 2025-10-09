@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     private DanglingLine danglingLine;
 
     public SwitchConversion(PropertyBag sw, Context context) {
-        super("Switch", sw, context, 2);
+        super(CgmesNames.SWITCH, sw, context, 2);
     }
 
     @Override
@@ -73,28 +75,24 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private Switch convertToSwitch() {
-        boolean normalOpen = p.asBoolean("normalOpen", false);
-        boolean open = p.asBoolean("open", normalOpen);
+        boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
         Switch s;
         if (context.nodeBreaker()) {
             VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
             identify(adder);
-            connect(adder, open);
+            connectWithOnlyEq(adder);
             boolean retained = p.asBoolean("retained", false);
-            adder.setRetained(retained);
-            s = adder.add();
-            if (!kindHasDirectMapToIiidm()) {
-                addTypeAsProperty(s);
-            }
+            s = adder.setOpen(normalOpen).setRetained(retained).add();
         } else {
             VoltageLevel.BusBreakerView.SwitchAdder adder = voltageLevel().getBusBreakerView().newSwitch();
             identify(adder);
-            connect(adder, open);
-            s = adder.add();
-            // Always preserve the original type, because all switches at bus/breaker view will be of kind "breaker"
-            addTypeAsProperty(s);
+            connectWithOnlyEq(adder);
+            s = adder.setOpen(normalOpen).add();
         }
+        // Always preserve the original type
         addAliasesAndProperties(s);
+        s.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
+        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         return s;
     }
 
@@ -104,33 +102,50 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         } else {
             warnDanglingLineCreated();
             String eqInstance = p.get("graph");
-            danglingLine = convertToDanglingLine(eqInstance, boundarySide);
+            danglingLine = convertToDanglingLine(eqInstance, boundarySide, CgmesNames.SWITCH);
+            boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
+            danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         }
     }
 
     private SwitchKind kind() {
-        String type = p.getLocal("type").toLowerCase();
-        if (type.contains("breaker")) {
-            return SwitchKind.BREAKER;
-        } else if (type.contains("disconnector")) {
-            return SwitchKind.DISCONNECTOR;
-        } else if (type.contains("loadbreak")) {
-            return SwitchKind.LOAD_BREAK_SWITCH;
-        }
-        return SwitchKind.BREAKER;
-    }
-
-    private boolean kindHasDirectMapToIiidm() {
-        String type = p.getLocal("type").toLowerCase();
-        return type.contains("breaker") || type.contains("disconnector") || type.contains("loadbreak");
-    }
-
-    private void addTypeAsProperty(Switch s) {
-        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType", p.getLocal("type"));
+        String type = p.getLocal("type");
+        return switch (type) {
+            case "Disconnector", "GroundDisconnector", "Jumper" -> SwitchKind.DISCONNECTOR;
+            case "LoadBreakSwitch" -> SwitchKind.LOAD_BREAK_SWITCH;
+            case "Breaker" -> SwitchKind.BREAKER;
+            default -> SwitchKind.DISCONNECTOR;  // Switch, ProtectedSwitch
+        };
     }
 
     private void warnDanglingLineCreated() {
         fixed("Dangling line with low impedance", "Connected to a boundary node");
+    }
+
+    public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {
+        boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultOpen(danglingLine, context));
+        updateDanglingLine(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
+    }
+
+    // In the danglingLines, the status of the terminal on the boundary side cannot be explicitly represented.
+    // Instead, it is implicitly indicated by setting both active and reactive power to zero.
+    // Then, we assume that the previous value is always false
+    private static boolean defaultOpen(DanglingLine danglingLine, Context context) {
+        return getDefaultValue(getNormalOpen(danglingLine), false, false, false, context);
+    }
+
+    private static Boolean getNormalOpen(DanglingLine danglingLine) {
+        String property = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN);
+        return property != null ? Boolean.parseBoolean(property) : null;
+    }
+
+    public static void update(Switch sw, PropertyBag cgmesData, Context context) {
+        // The terminal status of switches is only taken into account in bus-breaker models.
+        // In node-breaker models, only the switch status is considered
+        boolean isOpenFromAtLeastOneTerminal = sw.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER
+                && isOpenFromAtLeastOneTerminal(sw, context).orElse(false);
+        boolean isOpen = cgmesData.asBoolean(CgmesNames.OPEN).orElse(getDefaultIsOpen(sw, context));
+        sw.setOpen(isOpen || isOpenFromAtLeastOneTerminal);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);

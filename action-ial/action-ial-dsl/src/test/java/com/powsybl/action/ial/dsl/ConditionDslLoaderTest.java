@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.action.ial.dsl;
 
@@ -157,19 +158,18 @@ class ConditionDslLoaderTest {
     void testIsOverloadedNode() throws IOException {
         line1.getTerminal1().setP(100.0).setQ(50.0);
         evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
-
-        line1.newCurrentLimits1().setPermanentLimit(0.00001).add();
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(0.00001).add();
         assertTrue(line1.getCurrentLimits1().isPresent());
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
 
         line1.getTerminal1().setP(600.0).setQ(300.0); // i = 1019.2061
         double current = line1.getTerminal1().getI();
-        line1.newCurrentLimits1().setPermanentLimit(current - 100).add();
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(current - 100).add();
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.05)");
-        line1.newCurrentLimits1().setPermanentLimit(current).add();
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(current).add();
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])"); // permanent = real current
-        line1.newCurrentLimits1().setPermanentLimit(current * 2).add();
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(current * 2).add();
         evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.9)");
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'], 0.1)");
 
@@ -195,13 +195,13 @@ class ConditionDslLoaderTest {
         // Only line1 is overloaded
         line1.getTerminal1().setP(600.0f).setQ(300.0f); // i = 1019.2061
         double current1 = line1.getTerminal1().getI();
-        line1.newCurrentLimits1().setPermanentLimit(current1 - 100).add();
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(current1 - 100).add();
         evalAndAssert(false, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
 
         // Both lines are overloaded
         line2.getTerminal1().setP(600.0f).setQ(300.0f); // i = 1019.2061
         double current2 = line2.getTerminal1().getI();
-        line2.newCurrentLimits1().setPermanentLimit(current2 - 100).add();
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(current2 - 100).add();
         evalAndAssert(true, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
 
         // Only line2 is overloaded
@@ -218,7 +218,7 @@ class ConditionDslLoaderTest {
     }
 
     private void addCurrentLimitsOnLine1() {
-        line1.newCurrentLimits1()
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")
@@ -241,7 +241,7 @@ class ConditionDslLoaderTest {
     @Test
     void testNetworkAccess() throws IOException {
         // add temporary limits
-        line1.newCurrentLimits1()
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                 .setName("20")
@@ -261,7 +261,7 @@ class ConditionDslLoaderTest {
     @Test
     void testLoadingRank() throws IOException {
         // add temporary limits
-        line1.newCurrentLimits1()
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")
@@ -269,7 +269,7 @@ class ConditionDslLoaderTest {
                     .setValue(800)
                 .endTemporaryLimit()
                 .add();
-        line2.newCurrentLimits1()
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")
@@ -306,7 +306,7 @@ class ConditionDslLoaderTest {
     @Test
     void testLoadingRankWithDifferentAcceptableDuration() throws IOException {
         // add temporary limits
-        line1.newCurrentLimits1()
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")
@@ -314,7 +314,7 @@ class ConditionDslLoaderTest {
                     .setValue(800)
                 .endTemporaryLimit()
                 .add();
-        line2.newCurrentLimits1()
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")
@@ -338,7 +338,7 @@ class ConditionDslLoaderTest {
     @Test
     void testLoadingRankWithUndefinedCurrentLimitsForLine2() throws IOException {
         // add temporary limits
-        line1.newCurrentLimits1()
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")
@@ -357,7 +357,7 @@ class ConditionDslLoaderTest {
     @Test
     void testLoadingRankWithCurrentLimitsAtBothSides() throws IOException {
         // add temporary limits
-        line1.newCurrentLimits1()
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")
@@ -365,7 +365,7 @@ class ConditionDslLoaderTest {
                     .setValue(800)
                 .endTemporaryLimit()
                 .add();
-        line1.newCurrentLimits2()
+        line1.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")
@@ -378,7 +378,7 @@ class ConditionDslLoaderTest {
                     .setValue(800)
                 .endTemporaryLimit()
                 .add();
-        line2.newCurrentLimits1()
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")
@@ -407,7 +407,7 @@ class ConditionDslLoaderTest {
     @Test
     void testMostLoaded() throws IOException {
         // add temporary limits
-        line1.newCurrentLimits1()
+        line1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                 .setName("20")
@@ -415,7 +415,7 @@ class ConditionDslLoaderTest {
                 .setValue(800)
                 .endTemporaryLimit()
                 .add();
-        line2.newCurrentLimits1()
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                 .setName("20")

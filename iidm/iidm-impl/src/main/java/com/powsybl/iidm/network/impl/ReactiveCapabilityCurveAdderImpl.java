@@ -3,15 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
+import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,15 +23,15 @@ import java.util.TreeMap;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Validable> implements ReactiveCapabilityCurveAdder {
+class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable> implements ReactiveCapabilityCurveAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityCurveAdderImpl.class);
 
-    private final OWNER owner;
+    private final O owner;
 
     private final TreeMap<Double, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
 
-    private class PointAdderImpl implements PointAdder {
+    private final class PointAdderImpl implements PointAdder {
 
         private double p = Double.NaN;
 
@@ -75,12 +76,8 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
                             minQ + ", " + maxQ + "] != " + "[" + point.getMinQ() + ", " + point.getMaxQ() + "]");
                 } else {
                     LOGGER.warn("{}duplicate point for active power {}", owner.getMessageHeader(), p);
-                    owner.getNetwork().getReportNodeContext().getReportNode().newReportNode()
-                            .withMessageTemplate("validationWarning", "${parent} duplicate point for active power {p}")
-                            .withUntypedValue("parent", owner.getMessageHeader())
-                            .withUntypedValue("p", p)
-                            .withSeverity(TypedValue.WARN_SEVERITY)
-                            .add();
+                    NetworkReports.parentHasDuplicatePointForActivePower(owner.getNetwork().getReportNodeContext().getReportNode(),
+                            owner.getMessageHeader().id(), p);
                 }
             }
             // TODO: to be activated in IIDM v1.1
@@ -94,12 +91,12 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
 
     }
 
-    ReactiveCapabilityCurveAdderImpl(OWNER owner) {
+    ReactiveCapabilityCurveAdderImpl(O owner) {
         this.owner = owner;
     }
 
     @Override
-    public PointAdderImpl beginPoint() {
+    public PointAdder beginPoint() {
         return new PointAdderImpl();
     }
 
@@ -108,7 +105,7 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
         if (points.size() < 2) {
             throw new ValidationException(owner, "a reactive capability curve should have at least two points");
         }
-        ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(points);
+        ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(points, owner.getMessageHeader().toString());
         owner.setReactiveLimits(curve);
         return curve;
     }

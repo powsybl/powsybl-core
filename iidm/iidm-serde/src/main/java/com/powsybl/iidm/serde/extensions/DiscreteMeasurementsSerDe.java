@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -35,7 +36,7 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
     private static final String PROPERTY_ARRAY = "properties";
 
     public DiscreteMeasurementsSerDe() {
-        super("discreteMeasurements", "network", DiscreteMeasurements.class,
+        super(DISCRETE_MEASUREMENT_ARRAY, "network", DiscreteMeasurements.class,
                 "discreteMeasurements.xsd", "http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0", "dm");
     }
 

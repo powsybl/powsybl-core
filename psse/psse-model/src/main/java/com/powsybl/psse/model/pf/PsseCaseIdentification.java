@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
@@ -39,9 +40,11 @@ public class PsseCaseIdentification {
     private float rev = 33;
 
     @Parsed
+    @Format(formats = {"0"})
     private double xfrrat = Double.NaN;
 
     @Parsed
+    @Format(formats = {"0"})
     private double nxfrat = Double.NaN;
 
     @Parsed
@@ -127,7 +130,7 @@ public class PsseCaseIdentification {
         }
     }
 
-    private static class RevisionSerializer extends JsonSerializer<Float> {
+    private static final class RevisionSerializer extends JsonSerializer<Float> {
         @Override
         public void serialize(Float value, JsonGenerator generator, SerializerProvider provider) throws IOException {
             String rev = PsseVersion.fromRevision(value).toString();

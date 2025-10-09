@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -27,27 +28,11 @@ package com.powsybl.iidm.network;
 public interface BatteryAdder extends InjectionAdder<Battery, BatteryAdder> {
 
     /**
-     * @deprecated Use {@link #setTargetP(double)} instead.
-     */
-    @Deprecated(since = "4.9.0")
-    default BatteryAdder setP0(double p0) {
-        return setTargetP(p0);
-    }
-
-    /**
      * Set the target active power in MW.
      * <p>Depends on the working variant.
      * @see VariantManager
      */
     BatteryAdder setTargetP(double targetP);
-
-    /**
-     * @deprecated Use {@link #setTargetQ(double)} instead.
-     */
-    @Deprecated(since = "4.9.0")
-    default BatteryAdder setQ0(double q0) {
-        return setTargetQ(q0);
-    }
 
     /**
      * Set the target reactive power in MVar.

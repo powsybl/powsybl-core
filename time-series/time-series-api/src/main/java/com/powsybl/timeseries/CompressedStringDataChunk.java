@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -114,7 +115,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                StringPoint point = new StringPoint(i, index.getTimeAt(i), stepValues[step]);
+                StringPoint point = new StringPoint(i, index.getInstantAt(i), stepValues[step]);
                 i += stepLengths[step];
                 step++;
                 return point;
@@ -189,7 +190,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
             //Step lengths
             newStepLengths = new int[stepLengths.length + chunk.getStepLengths().length - 1];
             System.arraycopy(stepLengths, 0, newStepLengths, 0, stepLengths.length);
-            newStepLengths[stepLengths.length - 1] = stepLengths[stepLengths.length - 1] + newStepLengths[0];
+            newStepLengths[stepLengths.length - 1] = stepLengths[stepLengths.length - 1] + chunk.getStepLengths()[0];
             System.arraycopy(chunk.getStepLengths(), 1, newStepLengths, stepLengths.length, chunk.getStepLengths().length - 1);
 
             //Step values

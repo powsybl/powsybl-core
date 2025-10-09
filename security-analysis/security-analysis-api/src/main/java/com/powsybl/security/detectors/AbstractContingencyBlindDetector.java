@@ -3,14 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.detectors;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationDetector;
 
 import java.util.function.Consumer;
+
+import static com.powsybl.security.LimitViolationDetection.getTerminalIOrAnApproximation;
 
 /**
  * Provides implementations for aggregation methods of {@link LimitViolationDetector}.
@@ -36,15 +38,6 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     @Override
     public void checkCurrent(ThreeWindingsTransformer transformer, ThreeSides side, Consumer<LimitViolation> consumer) {
         checkCurrent(transformer, side, transformer.getTerminal(side).getI(), consumer);
-    }
-
-    private double getTerminalIOrAnApproximation(Terminal terminal, double dcPowerFactor) {
-        // After a DC load flow, the current at terminal can be undefined (NaN). In that case, we use the DC power factor,
-        // the nominal voltage and the active power at terminal in order to approximate the current following formula
-        // P = sqrt(3) x Vnom x I x dcPowerFactor
-        return Double.isNaN(terminal.getI()) ?
-                (1000. * terminal.getP()) / (terminal.getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
-                : terminal.getI();
     }
 
     /**

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.validation.io;
 
@@ -545,6 +546,7 @@ class ValidationFormatterCsvMultilineWriterTest extends AbstractValidationFormat
                            String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint)),
                            String.join(";", svcId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected)),
                            String.join(";", svcId, "regulationMode", regulationMode.name()),
+                           String.join(";", svcId, "regulating", Boolean.toString(regulating)),
                            String.join(";", svcId, "bMin", String.format(Locale.getDefault(), "%g", bMin)),
                            String.join(";", svcId, "bMax", String.format(Locale.getDefault(), "%g", bMax)),
                            String.join(";", svcId, AbstractValidationFormatterWriter.MAIN_COMPONENT, Boolean.toString(mainComponent)),
@@ -600,6 +602,7 @@ class ValidationFormatterCsvMultilineWriterTest extends AbstractValidationFormat
                            String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint), String.format(Locale.getDefault(), "%g", voltageSetpoint)),
                            String.join(";", svcId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected), Boolean.toString(connected)),
                            String.join(";", svcId, "regulationMode", regulationMode.name(), regulationMode.name()),
+                           String.join(";", svcId, "regulating", Boolean.toString(regulating), Boolean.toString(regulating)),
                            String.join(";", svcId, "bMin", String.format(Locale.getDefault(), "%g", bMin), String.format(Locale.getDefault(), "%g", bMin)),
                            String.join(";", svcId, "bMax", String.format(Locale.getDefault(), "%g", bMax), String.format(Locale.getDefault(), "%g", bMax)),
                            String.join(";", svcId, AbstractValidationFormatterWriter.MAIN_COMPONENT, Boolean.toString(mainComponent), Boolean.toString(mainComponent)),
@@ -620,6 +623,7 @@ class ValidationFormatterCsvMultilineWriterTest extends AbstractValidationFormat
                            String.join(";", otherSvcId, "voltageSetpoint", "", String.format(Locale.getDefault(), "%g", voltageSetpoint)),
                            String.join(";", otherSvcId, AbstractValidationFormatterWriter.CONNECTED, "", Boolean.toString(connected)),
                            String.join(";", otherSvcId, "regulationMode", "", regulationMode.name()),
+                           String.join(";", otherSvcId, "regulating", "", Boolean.toString(regulating)),
                            String.join(";", otherSvcId, "bMin", "", String.format(Locale.getDefault(), "%g", bMin)),
                            String.join(";", otherSvcId, "bMax", "", String.format(Locale.getDefault(), "%g", bMax)),
                            String.join(";", otherSvcId, AbstractValidationFormatterWriter.MAIN_COMPONENT, "", Boolean.toString(mainComponent)),
@@ -633,6 +637,7 @@ class ValidationFormatterCsvMultilineWriterTest extends AbstractValidationFormat
                            String.join(";", svcId, "voltageSetpoint", String.format(Locale.getDefault(), "%g", voltageSetpoint), ""),
                            String.join(";", svcId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected), ""),
                            String.join(";", svcId, "regulationMode", regulationMode.name(), ""),
+                           String.join(";", svcId, "regulating", Boolean.toString(regulating), ""),
                            String.join(";", svcId, "bMin", String.format(Locale.getDefault(), "%g", bMin), ""),
                            String.join(";", svcId, "bMax", String.format(Locale.getDefault(), "%g", bMax), ""),
                            String.join(";", svcId, AbstractValidationFormatterWriter.MAIN_COMPONENT, Boolean.toString(mainComponent), ""),

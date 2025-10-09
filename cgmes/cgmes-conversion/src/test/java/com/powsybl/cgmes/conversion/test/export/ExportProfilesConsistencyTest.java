@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -11,6 +12,8 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.ExportersServiceLoader;
@@ -33,11 +36,17 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     void testSVSmallGridNodeBreaker() {
         Network network = importNetwork(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
 
-        ReportNode reportNodeOnlySv = ReportNode.newRootReportNode().withMessageTemplate("onlySV", "").build();
+        ReportNode reportNodeOnlySv = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("onlySV")
+                .build();
         exportProfiles(List.of("SV"), network, reportNodeOnlySv);
         assertTrue(inconsistentProfilesReported(reportNodeOnlySv));
 
-        ReportNode reportNodeSvAndTp = ReportNode.newRootReportNode().withMessageTemplate("SVandTP", "").build();
+        ReportNode reportNodeSvAndTp = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("SVandTP")
+                .build();
         exportProfiles(List.of("SV", "TP"), network, reportNodeSvAndTp);
         assertFalse(inconsistentProfilesReported(reportNodeSvAndTp));
     }
@@ -45,7 +54,7 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     private boolean inconsistentProfilesReported(ReportNode reportNode) {
         return reportNode.getChildren().stream()
                 .map(ReportNode::getMessageKey)
-                .anyMatch(key -> key.equals("inconsistentProfilesTPRequired"));
+                .anyMatch(key -> key.equals("core.cgmes.conversion.inconsistentProfilesTPRequired"));
     }
 
     private Network importNetwork(ReadOnlyDataSource dataSource) {

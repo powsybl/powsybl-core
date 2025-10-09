@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.io;
 
@@ -19,6 +20,10 @@ public class ForwardingInputStream<I extends InputStream> extends InputStream {
 
     public ForwardingInputStream(I delegate) {
         this.delegate = Objects.requireNonNull(delegate);
+    }
+
+    protected I getDelegate() {
+        return delegate;
     }
 
     @Override

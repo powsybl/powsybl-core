@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.comparator;
 
@@ -33,7 +34,7 @@ public class LimitViolationEquivalence extends Equivalence<LimitViolation> {
                && Math.abs(violation1.getAcceptableDuration() - violation2.getAcceptableDuration()) <= threshold
                && Math.abs(violation1.getLimitReduction() - violation2.getLimitReduction()) <= threshold
                && Math.abs(violation1.getValue() - violation2.getValue()) <= threshold
-               && (violation1.getLimitType() == LimitViolationType.CURRENT ? violation1.getSide() == violation2.getSide() : true);
+               && (violation1.getLimitType() != LimitViolationType.CURRENT || violation1.getSide() == violation2.getSide());
     }
 
     @Override

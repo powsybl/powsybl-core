@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.action.json;
 
@@ -27,7 +28,9 @@ public class SwitchActionSerializer extends StdSerializer<SwitchAction> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("switchId", action.getSwitchId());
+        if (action.getSwitchId() != null) {
+            jsonGenerator.writeStringField("switchId", action.getSwitchId());
+        }
         jsonGenerator.writeBooleanField("open", action.isOpen());
         jsonGenerator.writeEndObject();
     }

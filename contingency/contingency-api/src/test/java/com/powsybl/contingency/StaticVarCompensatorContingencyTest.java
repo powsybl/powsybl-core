@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency;
 
@@ -33,7 +34,7 @@ class StaticVarCompensatorContingencyTest {
         assertEquals(ContingencyElementType.STATIC_VAR_COMPENSATOR, svcContingency.getType());
 
         assertNotNull(svcContingency.toModification());
-        assertTrue(svcContingency.toModification() instanceof StaticVarCompensatorTripping);
+        assertInstanceOf(StaticVarCompensatorTripping.class, svcContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new StaticVarCompensatorContingency("svc1"), new StaticVarCompensatorContingency("svc1"))

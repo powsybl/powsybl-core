@@ -230,7 +230,32 @@ public class JsonReader extends AbstractTreeDataReader {
     }
 
     @Override
+    public void skipNode() {
+        AttributeReader skipAttribute = attributeName -> {
+            // nothing to do
+        };
+        readNode(nodeName -> skipNode(), skipAttribute);
+    }
+
+    @Override
     public void readChildNodes(ChildNodeReader childNodeReader) {
+        AttributeReader throwingAttributeReader = attributeName -> {
+            throw new PowsyblException("Unexpected attribute while reading child node '" + attributeName + "', attributes are expected to be before children nodes");
+        };
+        readNode(childNodeReader, throwingAttributeReader);
+    }
+
+    @FunctionalInterface
+    private interface AttributeReader {
+        void onScalar(String attributeName);
+    }
+
+    /**
+     * Read current node until its {@link JsonToken#END_OBJECT} is encountered; this token is marked as consumed when exiting this method
+     * @param childNodeReader reader to use if a child is encountered
+     * @param attributeReader reader to use if a scalar attribute is encountered
+     */
+    private void readNode(ChildNodeReader childNodeReader, AttributeReader attributeReader) {
         Objects.requireNonNull(childNodeReader);
         try {
             Context startContext = contextQueue.peekLast();
@@ -244,7 +269,9 @@ public class JsonReader extends AbstractTreeDataReader {
                                 contextQueue.add(new Context(ContextType.OBJECT, parser.currentName()));
                                 childNodeReader.onStartNode(contextQueue.getLast().getFieldName());
                             }
-                            default -> throw new PowsyblException("JSON parsing: unexpected token '" + parser.currentToken() + "' after field name");
+                            case VALUE_FALSE, VALUE_TRUE, VALUE_NULL, VALUE_STRING, VALUE_EMBEDDED_OBJECT,
+                                 VALUE_NUMBER_FLOAT, VALUE_NUMBER_INT -> attributeReader.onScalar(parser.currentName());
+                            default -> throw newUnexpectedTokenException();
                         }
                     }
                     case START_OBJECT -> {
@@ -257,7 +284,7 @@ public class JsonReader extends AbstractTreeDataReader {
                         contextQueue.removeLast();
                     }
                     case END_OBJECT -> throw new PowsyblException("JSON parsing: unexpected END_OBJECT");
-                    default -> throw new PowsyblException("JSON parsing: unexpected token '" + parser.currentToken() + "'.");
+                    default -> throw newUnexpectedTokenException();
                 }
             }
 
@@ -272,14 +299,24 @@ public class JsonReader extends AbstractTreeDataReader {
     private Context checkNodeChain(ContextType expectedNodeType) {
         return Optional.ofNullable(contextQueue.peekLast())
                 .filter(n -> n.getType() == expectedNodeType)
-                .orElseThrow(() -> new PowsyblException("JSON parsing: unexpected " + parser.currentToken()));
+                .orElseThrow(this::newUnexpectedTokenException);
+    }
+
+    private PowsyblException newUnexpectedTokenException() {
+        try {
+            return new PowsyblException("JSON parsing: unexpected token '" + parser.currentToken() + "'" +
+                    " (value = '" + parser.getValueAsString() + "')" +
+                    " after field name '" + parser.currentName() + "'");
+        } catch (IOException e) {
+            return new PowsyblException("JSON parsing: unexpected " + parser.currentToken());
+        }
     }
 
     @Override
     public void readEndNode() {
         try {
             if (getNextToken() != JsonToken.END_OBJECT) {
-                throw new PowsyblException("JSON parsing: unexpected token " + parser.currentToken());
+                throw newUnexpectedTokenException();
             }
             checkNodeChain(ContextType.OBJECT);
             contextQueue.removeLast();

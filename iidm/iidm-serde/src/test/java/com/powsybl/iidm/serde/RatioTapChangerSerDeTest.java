@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -31,7 +32,19 @@ class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
         });
     }
 
+    @Test
+    void roundTripWithSolvedTapPosition() throws IOException {
+        allFormatsRoundTripTest(createTestNetwork(0), "ratioTapChangerReactivePowerControlRefWithSolvedTapPosition.xml", CURRENT_IIDM_VERSION);
+
+        // Backward compatibility
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("ratioTapChangerReactivePowerControlRefWithSolvedTapPosition.xml", IidmVersion.V_1_14);
+    }
+
     Network createTestNetwork() {
+        return createTestNetwork(null);
+    }
+
+    Network createTestNetwork(Integer solvedTapPosition) {
         Network network = Network.create("test", "test");
         network.setCaseDate(ZonedDateTime.parse("2024-01-08T09:17:53.764Z"));
 
@@ -77,6 +90,7 @@ class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
                 .setB(0.08264462809917356)
                 .endStep()
                 .setTapPosition(0)
+                .setSolvedTapPosition(solvedTapPosition)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
                 .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)

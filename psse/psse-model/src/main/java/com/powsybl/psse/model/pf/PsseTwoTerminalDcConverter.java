@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
@@ -216,5 +217,28 @@ public class PsseTwoTerminalDcConverter extends PsseVersioned {
 
     public void setNd(int nd) {
         this.nd = nd;
+    }
+
+    public PsseTwoTerminalDcConverter copy() {
+        PsseTwoTerminalDcConverter copy = new PsseTwoTerminalDcConverter();
+        copy.ip = this.ip;
+        copy.nb = this.nb;
+        copy.anmx = this.anmx;
+        copy.anmn = this.anmn;
+        copy.rc = this.rc;
+        copy.xc = this.xc;
+        copy.ebas = this.ebas;
+        copy.tr = this.tr;
+        copy.tap = this.tap;
+        copy.tmx = this.tmx;
+        copy.tmn = this.tmn;
+        copy.stp = this.stp;
+        copy.ic = this.ic;
+        copy.ifx = this.ifx;
+        copy.it = this.it;
+        copy.id = this.id;
+        copy.xcap = this.xcap;
+        copy.nd = this.nd;
+        return copy;
     }
 }

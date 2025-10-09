@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -44,7 +45,7 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
         OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             operatorStrategies.write(bos);
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/OperatorStrategyFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/OperatorStrategyFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
         }
     }
 
@@ -52,21 +53,21 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
     void operatorStrategyRoundTrip() throws IOException {
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
         operatorStrategies.add(new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"),
-                List.of(new ConditionalActions("stage1", new TrueCondition(), List.of("actionId1", "actionId2", "actionId3")))));
+            List.of(new ConditionalActions("stage1", new TrueCondition(), List.of("actionId1", "actionId2", "actionId3")))));
         operatorStrategies.add(new OperatorStrategy("id2", ContingencyContext.specificContingency("contingencyId2"),
-                List.of(new ConditionalActions("stage1", new AnyViolationCondition(), List.of("actionId4")))));
+            List.of(new ConditionalActions("stage1", new AnyViolationCondition(), List.of("actionId4")))));
         operatorStrategies.add(new OperatorStrategy("id3", ContingencyContext.specificContingency("contingencyId1"),
-                List.of(new ConditionalActions("stage1", new AnyViolationCondition(Collections.singleton(CURRENT)),
+            List.of(new ConditionalActions("stage1", new AnyViolationCondition(Collections.singleton(CURRENT)),
                 List.of("actionId1", "actionId3")))));
         operatorStrategies.add(new OperatorStrategy("id4", ContingencyContext.specificContingency("contingencyId3"),
-                List.of(new ConditionalActions("stage1", new AnyViolationCondition(Collections.singleton(LOW_VOLTAGE)),
+            List.of(new ConditionalActions("stage1", new AnyViolationCondition(Collections.singleton(LOW_VOLTAGE)),
                 List.of("actionId1", "actionId2", "actionId4")))));
         operatorStrategies.add(new OperatorStrategy("id5", ContingencyContext.specificContingency("contingencyId4"),
-                List.of(new ConditionalActions("stage1", new AllViolationCondition(List.of("violation1", "violation2"),
-                        Collections.singleton(HIGH_VOLTAGE)),
+            List.of(new ConditionalActions("stage1", new AllViolationCondition(List.of("violation1", "violation2"),
+                Collections.singleton(HIGH_VOLTAGE)),
                 List.of("actionId1", "actionId5")))));
         operatorStrategies.add(new OperatorStrategy("id6", ContingencyContext.specificContingency("contingencyId5"),
-                List.of(new ConditionalActions("stage1", new AllViolationCondition(List.of("violation1", "violation2")),
+            List.of(new ConditionalActions("stage1", new AllViolationCondition(List.of("violation1", "violation2")),
                 List.of("actionId3")))));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
@@ -89,15 +90,47 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
         }
     }
 
+    @JsonTypeName(DummyAction.NAME)
+    static class DummyActionBuilder implements ActionBuilder<DummyActionBuilder> {
+
+        String id;
+
+        @Override
+        @JsonProperty(value = "type", access = JsonProperty.Access.READ_ONLY)
+        public String getType() {
+            return DummyAction.NAME;
+        }
+
+        @Override
+        public DummyActionBuilder withId(String id) {
+            this.id = id;
+            return this;
+        }
+
+        @Override
+        public String getId() {
+            return this.id;
+        }
+
+        @Override
+        public DummyActionBuilder withNetworkElementId(String elementId) {
+            return null;
+        }
+
+        @Override
+        public Action build() {
+            return new DummyAction(id);
+        }
+    }
+
     @Test
     void testJsonPlugins() throws JsonProcessingException {
-
         Module jsonModule = new SimpleModule()
-                .registerSubtypes(DummyAction.class);
+            .registerSubtypes(DummyAction.class, DummyActionBuilder.class);
         SecurityAnalysisJsonPlugin plugin = () -> List.of(jsonModule);
         ObjectMapper mapper = new ObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule(List.of(plugin)))
-                .registerModule(new ActionJsonModule());
+            .registerModule(new SecurityAnalysisJsonModule(List.of(plugin)))
+            .registerModule(new ActionJsonModule());
 
         DummyAction action = new DummyAction("hello");
         ActionList actions = new ActionList(List.of(action));
@@ -106,7 +139,7 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
 
         assertEquals(1, parsed.getActions().size());
         Action parsedAction = parsed.getActions().get(0);
-        assertTrue(parsedAction instanceof DummyAction);
+        assertInstanceOf(DummyAction.class, parsedAction);
         assertEquals("hello", parsedAction.getId());
     }
 }

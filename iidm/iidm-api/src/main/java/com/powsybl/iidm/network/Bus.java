@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -11,9 +12,8 @@ import java.util.stream.Stream;
 
 /**
  * A bus is a set of equipments connected together through a closed switch.
- *
- * It could be a configured object ot a result of a computation depending of the
- * context.
+ * <p>It could be a configured object ot a result of a computation depending of the
+ * context.</p>
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -30,7 +30,7 @@ public interface Bus extends Identifiable<Bus> {
     double getV();
 
     /**
-     * Set the voltage magnituge of the bus in kV.
+     * Set the voltage magnitude of the bus in kV.
      */
     Bus setV(double v);
 
@@ -50,7 +50,7 @@ public interface Bus extends Identifiable<Bus> {
     double getP();
 
     /**
-     * Get the reactive power in MVAR injected by equiments connected to the bus.
+     * Get the reactive power in MVAR injected by equipments connected to the bus.
      */
     double getQ();
 

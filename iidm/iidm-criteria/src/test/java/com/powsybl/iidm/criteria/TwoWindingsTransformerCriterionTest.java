@@ -7,17 +7,19 @@
  */
 package com.powsybl.iidm.criteria;
 
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapter;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.Optional;
 
+import static com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapterTest.mockTwoWindingsTransformer;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -43,36 +45,36 @@ public class TwoWindingsTransformerCriterionTest {
     @Test
     void emptyCriterionTest() {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(null, null);
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
+        assertCriterionTrue(criterion, twt1);
+        assertCriterionTrue(criterion, twt2);
+        assertCriterionTrue(criterion, twt3);
 
         NetworkElement anotherTypeElement = Mockito.mock(NetworkElement.class);
-        assertFalse(criterion.accept(new NetworkElementVisitor(anotherTypeElement)));
+        assertCriterionFalse(criterion, anotherTypeElement);
     }
 
     @Test
     void nominalVoltagesTest() {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(null,
                 new TwoNominalVoltageCriterion(
-                        new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true),
-                        new SingleNominalVoltageCriterion.VoltageInterval(40., 70., true, true)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
+                        VoltageInterval.between(80., 100., true, true),
+                        VoltageInterval.between(40., 70., true, true)));
+        assertCriterionTrue(criterion, twt1);
+        assertCriterionFalse(criterion, twt2);
+        assertCriterionTrue(criterion, twt3);
     }
 
     @Test
     void countryTest() {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.BE)), null);
-        assertFalse(criterion.accept(new NetworkElementVisitor(twt1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
+        assertCriterionFalse(criterion, twt1);
+        assertCriterionFalse(criterion, twt2);
+        assertCriterionTrue(criterion, twt3);
 
         criterion = new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
+        assertCriterionTrue(criterion, twt1);
+        assertCriterionTrue(criterion, twt2);
+        assertCriterionTrue(criterion, twt3);
     }
 
     @Test
@@ -80,25 +82,28 @@ public class TwoWindingsTransformerCriterionTest {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(
                 new SingleCountryCriterion(List.of(Country.FR)),
                 new TwoNominalVoltageCriterion(
-                        new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true),
-                        new SingleNominalVoltageCriterion.VoltageInterval(40., 70., true, true)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(twt3)));
+                        VoltageInterval.between(80., 100., true, true),
+                        VoltageInterval.between(40., 70., true, true)));
+        assertCriterionTrue(criterion, twt1);
+        assertCriterionFalse(criterion, twt2);
+        assertCriterionFalse(criterion, twt3);
+    }
+
+    private void assertCriterionTrue(TwoWindingsTransformerCriterion criterion, NetworkElement twt) {
+        assertTrue(criterion.accept(new NetworkElementVisitor(twt)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twt, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twt, ThreeSides.TWO)));
+    }
+
+    private void assertCriterionFalse(TwoWindingsTransformerCriterion criterion, NetworkElement twt) {
+        assertFalse(criterion.accept(new NetworkElementVisitor(twt)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(twt, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(twt, ThreeSides.TWO)));
     }
 
     protected static NetworkElement createTwoWindingsTransformer(String id, Country country, double nominalVoltage1, double nominalVoltage2) {
-        NetworkElement n = Mockito.mock(NetworkElement.class);
-        when(n.getId()).thenReturn(id);
-        when(n.getCountry()).thenReturn(Optional.of(country));
-        when(n.getCountry1()).thenReturn(Optional.of(country));
-        when(n.getCountry2()).thenReturn(Optional.empty());
-        when(n.getNominalVoltage1()).thenReturn(Optional.of(nominalVoltage1));
-        when(n.getNominalVoltage2()).thenReturn(Optional.of(nominalVoltage2));
-        when(n.getNominalVoltage3()).thenReturn(Optional.empty());
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER)).thenReturn(true);
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIABLE)).thenReturn(true);
-        return n;
+        TwoWindingsTransformer twt = mockTwoWindingsTransformer(id, country, nominalVoltage1, nominalVoltage2);
+        return new DefaultNetworkElementAdapter(twt);
     }
 }
 

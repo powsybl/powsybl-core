@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -19,7 +20,7 @@ package com.powsybl.iidm.network;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -86,13 +87,13 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
     VscConverterStation setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * Get the voltage setpoint (Kv).
+     * Get the voltage setpoint (kV).
      * @return the voltage setpoint
      */
     double getVoltageSetpoint();
 
     /**
-     * Set the voltage setpoint (Kv).
+     * Set the voltage setpoint (kV).
      * @param voltageSetpoint the voltage setpoint
      * @return the converter itself to allow method chaining
      */

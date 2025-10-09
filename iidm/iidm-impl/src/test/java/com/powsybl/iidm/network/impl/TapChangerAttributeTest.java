@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -191,7 +192,7 @@ class TapChangerAttributeTest {
             .setTapPosition(1)
             .setLowTapPosition(0)
             .setRegulating(false)
-            .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
             .beginStep()
             .setR(1.0)
             .setX(2.0)

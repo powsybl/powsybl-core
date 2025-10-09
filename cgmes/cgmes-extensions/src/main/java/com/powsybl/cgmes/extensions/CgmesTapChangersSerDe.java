@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.extensions;
 
@@ -51,8 +52,8 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
             writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
             writer.writeStringAttribute("type", tapChanger.getType());
             writer.writeBooleanAttribute("hidden", tapChanger.isHidden(), false);
-            writer.writeOptionalIntAttribute("step",
-                    !tapChanger.isHidden() ? null : tapChanger.getStep().orElseThrow(() -> new PowsyblException("Step should be defined")));
+            Integer step = tapChanger.getStep().isPresent() ? tapChanger.getStep().getAsInt() : null;
+            writer.writeOptionalIntAttribute("step", step);
             writer.writeStringAttribute("controlId", tapChanger.getControlId());
             writer.writeEndNode();
         }
@@ -71,9 +72,9 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
                         .setId(reader.readStringAttribute("id"))
                         .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))
                         .setType(reader.readStringAttribute("type"))
-                        .setHiddenStatus(reader.readBooleanAttribute("hidden", false))
-                        .setControlId(reader.readStringAttribute("controlId"));
+                        .setHiddenStatus(reader.readBooleanAttribute("hidden", false));
                 reader.readOptionalIntAttribute("step").ifPresent(adder::setStep);
+                adder.setControlId(reader.readStringAttribute("controlId"));
                 context.getReader().readEndNode();
                 adder.add();
             } else {

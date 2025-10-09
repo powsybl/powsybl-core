@@ -3,17 +3,25 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.measurements;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
+import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
+import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +38,10 @@ class CgmesMeasurementsTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseMeasurements().dataSource(),
                 NetworkFactory.findDefault(), properties);
         assertNotNull(network);
+        assertBusBranchMeasurements(network);
+    }
 
+    private void assertBusBranchMeasurements(Network network) {
         Measurements<Line> measExt = network.getLine("b58bf21a-096a-4dae-9a01-3f03b60c24c7").getExtension(Measurements.class);
         assertNotNull(measExt);
         assertEquals(2, measExt.getMeasurements().size());
@@ -206,5 +217,26 @@ class CgmesMeasurementsTest {
         assertEquals(1, meas.getPropertyNames().size());
         String property = meas.getProperty("cgmesType");
         assertEquals("TestType", property);
+    }
+
+    @Test
+    void testDeprecated() {
+        Properties properties = new Properties();
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseMeasurements().dataSource(),
+                NetworkFactory.findDefault(), properties);
+        assertNotNull(network);
+        CgmesModelExtension cgmesModelExt = network.getExtensionByName("CgmesModel");
+        CgmesMeasurementsModel model = new CgmesMeasurementsModel(cgmesModelExt.getCgmesModel().tripleStore());
+        PropertyBags bays = model.bays();
+
+        for (PropertyBag analog : model.analogs()) {
+            CgmesAnalogPostProcessor.process(network, analog.getId("Analog"), analog.getId("Terminal"),
+                    analog.getId("powerSystemResource"), analog.getId("type"), bays, Map.of());
+        }
+        for (PropertyBag discrete : model.discretes()) {
+            CgmesDiscretePostProcessor.process(network, discrete.getId("Discrete"), discrete.getId("Terminal"),
+                    discrete.getId("powerSystemResource"), discrete.getId("type"), bays, Map.of());
+        }
+        assertBusBranchMeasurements(network);
     }
 }

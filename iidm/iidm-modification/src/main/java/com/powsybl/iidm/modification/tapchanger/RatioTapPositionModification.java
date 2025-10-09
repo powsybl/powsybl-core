@@ -3,12 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.tapchanger;
 
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
-
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
@@ -34,6 +37,11 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
      */
     public RatioTapPositionModification(String transformerId, int tapPosition, ThreeSides leg) {
         super(transformerId, tapPosition, Objects.requireNonNull(leg));
+    }
+
+    @Override
+    public String getName() {
+        return "RatioTapPositionModification";
     }
 
     @Override
@@ -65,4 +73,33 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
         }
     }
 
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(getTransformerId());
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(getTransformerId());
+        if (twoWindingsTransformer == null && threeWindingsTransformer == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (twoWindingsTransformer != null) {
+            if (!twoWindingsTransformer.hasRatioTapChanger()
+                || isValueOutsideRange(getTapPosition(),
+                twoWindingsTransformer.getRatioTapChanger().getLowTapPosition(),
+                twoWindingsTransformer.getRatioTapChanger().getHighTapPosition())) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            } else if (areValuesEqual(getTapPosition(), twoWindingsTransformer.getRatioTapChanger().getTapPosition(), false)) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+            }
+        } else {
+            RatioTapChangerHolder rtcHolder = getLeg(threeWindingsTransformer, RatioTapChangerHolder::hasRatioTapChanger, false);
+            if (!rtcHolder.hasRatioTapChanger()
+                || isValueOutsideRange(getTapPosition(),
+                rtcHolder.getRatioTapChanger().getLowTapPosition(),
+                rtcHolder.getRatioTapChanger().getHighTapPosition())) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            } else if (areValuesEqual(getTapPosition(), rtcHolder.getRatioTapChanger().getTapPosition(), false)) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+            }
+        }
+        return impact;
+    }
 }

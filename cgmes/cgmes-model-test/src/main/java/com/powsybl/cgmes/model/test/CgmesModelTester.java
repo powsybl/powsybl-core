@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model.test;
@@ -88,6 +89,7 @@ public class CgmesModelTester {
         testPropertyBags(expected.phaseTapChangers(), actual.phaseTapChangers());
         testPropertyBags(expected.energyConsumers(), actual.energyConsumers());
         testPropertyBags(expected.shuntCompensators(), actual.shuntCompensators());
+        testPropertyBags(expected.nonlinearShuntCompensatorPoints(), actual.nonlinearShuntCompensatorPoints());
         testPropertyBags(expected.staticVarCompensators(), actual.staticVarCompensators());
         testPropertyBags(expected.synchronousMachinesGenerators(), actual.synchronousMachinesGenerators());
         testPropertyBags(expected.synchronousMachinesCondensers(), actual.synchronousMachinesCondensers());

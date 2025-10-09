@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
 /**
  *
@@ -94,7 +94,7 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
     }
 
     @Override
-    public String getMessageHeader() {
-        return "VoltageAngleLimit '" + id + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("VoltageAngleLimit", id);
     }
 }

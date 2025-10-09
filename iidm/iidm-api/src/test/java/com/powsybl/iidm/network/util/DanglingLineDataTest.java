@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
@@ -26,7 +27,7 @@ class DanglingLineDataTest {
         DanglingLine danglingLine = new DanglingLineTestData().getDanglingLine();
         DanglingLineData dlData = new DanglingLineData(danglingLine);
 
-        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.63382758266334, -8.573434828294932);
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.63378691, -8.57343339);
         assertTrue(ok);
     }
 
@@ -38,7 +39,7 @@ class DanglingLineDataTest {
         DanglingLine danglingLine = dlTestData.getDanglingLine();
         DanglingLineData dlData = new DanglingLineData(danglingLine);
 
-        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.6200406620039, -8.60000143239463);
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.62, -8.60);
         assertTrue(ok);
     }
 

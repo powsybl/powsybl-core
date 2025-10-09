@@ -205,7 +205,7 @@ class LoadingLimitsUtilTest {
     private record LoggedData(String what, String reason, double wrongValue, double fixedValue) {
     }
 
-    private static class CustomLogger implements LoadingLimitsUtil.LimitFixLogger {
+    private static final class CustomLogger implements LoadingLimitsUtil.LimitFixLogger {
         private LoggedData loggedData;
 
         public void log(String what, String reason, double wrongValue, double fixedValue) {

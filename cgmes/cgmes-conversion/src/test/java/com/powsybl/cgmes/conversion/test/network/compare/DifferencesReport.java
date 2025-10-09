@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.network.compare;
@@ -134,7 +135,7 @@ public class DifferencesReport implements Differences {
         UNEXPECTED, MISSING, MATCHES, DIFFS
     }
 
-    private static class Summary {
+    private static final class Summary {
         void inc(Category cat, String context, int size) {
             Map<String, Integer> s = data.get(cat);
             if (s == null) {

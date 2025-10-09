@@ -3,13 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
-import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -77,7 +77,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setTargetP(double targetP) {
             NetworkImpl n = danglingLine.getNetwork();
-            ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, n.getMinValidationLevel());
+            ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
             int variantIndex = danglingLine.network.get().getVariantIndex();
             double oldValue = this.targetP.set(variantIndex, targetP);
             String variantId = danglingLine.network.get().getVariantManager().getVariantId(variantIndex);
@@ -125,7 +125,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         public GenerationImpl setTargetQ(double targetQ) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = n.getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ, n.getMinValidationLevel());
+            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ,
+                    n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
             double oldValue = this.targetQ.set(variantIndex, targetQ);
             String variantId = n.getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
@@ -142,8 +143,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn,
-                    targetV.get(variantIndex), targetQ.get(variantIndex), n.getMinValidationLevel());
+            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn, targetV.get(variantIndex), targetQ.get(variantIndex),
+                    n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
             boolean oldValue = this.voltageRegulationOn.get(variantIndex);
             this.voltageRegulationOn.set(variantIndex, voltageRegulationOn);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -166,8 +167,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         public GenerationImpl setTargetV(double targetV) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex),
-                    targetV, targetQ.get(variantIndex), n.getMinValidationLevel());
+            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV, targetQ.get(variantIndex),
+                    n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
             double oldValue = this.targetV.set(variantIndex, targetV);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
@@ -201,7 +202,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public String getMessageHeader() {
+        public MessageHeader getMessageHeader() {
             return danglingLine.getMessageHeader();
         }
 
@@ -257,7 +258,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final TDoubleArrayList q0;
 
-    private final DanglingLineBoundaryImpl boundary;
+    private final DanglingLineBoundaryImplExt boundary;
 
     DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, GenerationImpl generation) {
         super(network, id, name, fictitious);
@@ -275,7 +276,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.b = b;
         this.pairingKey = pairingKey;
         this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, "limits");
-        this.boundary = new DanglingLineBoundaryImpl(this);
+        this.boundary = new DanglingLineBoundaryImplExt(this);
         this.generation = generation != null ? generation.attach(this) : null;
     }
 
@@ -307,6 +308,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             throw new UnsupportedOperationException("Parent tie line " + tieLine.getId() + " should be removed before the child dangling line");
         }
         super.remove();
+        boundary.remove();
     }
 
     void removeTieLine() {
@@ -493,18 +495,35 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public CurrentLimitsAdder newCurrentLimits() {
-        return operationalLimitsGroups.newCurrentLimits();
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
+    @Override
+    public CurrentLimitsAdder newCurrentLimits() {
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+    }
+
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return operationalLimitsGroups.newActivePowerLimits();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return operationalLimitsGroups.newApparentPowerLimits();
+        return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override
@@ -553,4 +572,5 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             generation.allocateVariantArrayElement(indexes, sourceIndex);
         }
     }
+
 }

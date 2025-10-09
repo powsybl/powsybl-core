@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.criteria.duration;
 
+import org.apache.commons.lang3.IntegerRange;
+
 import java.util.Optional;
 
 /**
@@ -38,8 +40,8 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
     public static class Builder {
         private Integer lowBound = null;
         private Integer highBound = null;
-        private boolean lowClosed = false;
-        private boolean highClosed = false;
+        private boolean lowClosed = true;
+        private boolean highClosed = true;
 
         /**
          * Define the lower bound of the interval.
@@ -49,7 +51,7 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
          */
         public Builder setLowBound(int value, boolean closed) {
             checkValue(value);
-            checkBounds(value, highBound);
+            checkBounds(value, highBound, closed, highClosed);
             this.lowBound = value;
             this.lowClosed = closed;
             return this;
@@ -63,21 +65,26 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
          */
         public Builder setHighBound(int value, boolean closed) {
             checkValue(value);
-            checkBounds(lowBound, value);
+            checkBounds(lowBound, value, lowClosed, closed);
             this.highBound = value;
             this.highClosed = closed;
             return this;
         }
 
         private void checkValue(int value) {
-            if (value <= 0) {
-                throw new IllegalArgumentException("Invalid bound value (must be > 0).");
+            if (value < 0) {
+                throw new IllegalArgumentException("Invalid bound value (must be >= 0).");
             }
         }
 
-        private void checkBounds(Integer low, Integer high) {
+        private void checkBounds(Integer low, Integer high, boolean closedLow, boolean closedHigh) {
             if (low != null && high != null && low > high) {
                 throw new IllegalArgumentException("Invalid interval bounds values (low must be <= high).");
+            }
+            int l = low != null ? low : 0;
+            int h = high != null ? high : Integer.MAX_VALUE;
+            if (l == h && (!closedLow || !closedHigh)) {
+                throw new IllegalArgumentException("Invalid interval: it should not be empty");
             }
         }
 
@@ -97,6 +104,45 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
         return new Builder();
     }
 
+    /**
+     * <p>Convenient method to easily create an {@link IntervalTemporaryDurationCriterion} with only a lower bound.</p>
+     * @param value the lower bound (in seconds) of the interval to create (it corresponds to the <code>lowBound</code> attribute of the interval)
+     * @param closed is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
+     * @return an interval
+     */
+    public static IntervalTemporaryDurationCriterion greaterThan(int value, boolean closed) {
+        return IntervalTemporaryDurationCriterion.builder()
+                .setLowBound(value, closed)
+                .build();
+    }
+
+    /**
+     * <p>Convenient method to easily create an {@link IntervalTemporaryDurationCriterion} with only a upper bound.</p>
+     * @param value the upper bound (in seconds) of the interval to create (it corresponds to the <code>highBound</code> attribute of the interval)
+     * @param closed is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
+     * @return an interval
+     */
+    public static IntervalTemporaryDurationCriterion lowerThan(int value, boolean closed) {
+        return IntervalTemporaryDurationCriterion.builder()
+                .setHighBound(value, closed)
+                .build();
+    }
+
+    /**
+     * <p>Convenient method to easily create an {@link IntervalTemporaryDurationCriterion} with only a upper bound.</p>
+     * @param lowBound the lower bound (in seconds) of the interval to create (it corresponds to the <code>lowBound</code> attribute of the interval)
+     * @param lowClosed is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
+     * @param highBound the upper bound (in seconds) of the interval to create (it corresponds to the <code>highBound</code> attribute of the interval)
+     * @param highClosed is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
+     * @return an interval
+     */
+    public static IntervalTemporaryDurationCriterion between(int lowBound, int highBound, boolean lowClosed, boolean highClosed) {
+        return IntervalTemporaryDurationCriterion.builder()
+                .setLowBound(lowBound, lowClosed)
+                .setHighBound(highBound, highClosed)
+                .build();
+    }
+
     @Override
     public TemporaryDurationCriterionType getComparisonType() {
         return TemporaryDurationCriterionType.INTERVAL;
@@ -104,6 +150,9 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
 
     @Override
     public boolean filter(int acceptableDuration) {
+        if (acceptableDuration < 0) {
+            return false;
+        }
         boolean lowBoundOk = lowBound == null || acceptableDuration > lowBound
                 || lowClosed && acceptableDuration == lowBound;
         boolean highBoundOk = highBound == null || acceptableDuration < highBound
@@ -141,5 +190,27 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
      */
     public boolean isHighClosed() {
         return highClosed;
+    }
+
+    /**
+     * <p>Return an {@link IntegerRange} representation corresponding to the criterion's interval.</p>
+     * @return the criterion's interval as an {@link IntegerRange}
+     */
+    public IntegerRange asRange() {
+        int min = 0;
+        if (lowBound != null) {
+            min = lowBound;
+            if (!lowClosed) {
+                min++;
+            }
+        }
+        int max = Integer.MAX_VALUE;
+        if (highBound != null) {
+            max = highBound;
+            if (!highClosed) {
+                max--;
+            }
+        }
+        return IntegerRange.of(min, max);
     }
 }

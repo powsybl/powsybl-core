@@ -3,7 +3,7 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.datasource.ZipFileDataSource;
+import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Disabled;
@@ -30,7 +30,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
     @Test
     void testExportSwitchesNodeBreaker() {
         test(createSwitchesNBNetwork(), true, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_2", "voltageLevel1_8"});
+                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
     }
 
     @Test
@@ -39,7 +39,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
         // The condition for a valid bus in the BusView for bus-breaker and node-breaker is slightly different
         // So we end up with different bus-view buses
         test(createGeneratorDisconnectedTransformerBBNetwork(), false, false,
-                new String[] {"voltageLevel1_0", "voltageLevel2_0", "voltageLevel2_1"});
+                new String[] {"voltageLevel1_0", "voltageLevel2_0", "voltageLevel2_3"});
     }
 
     @Test
@@ -59,7 +59,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
     @Test
     void testExportDisconnectedLoadNodeBreaker() {
         test(createDisconnectedLoadNBNetwork(), false, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
+                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_7"});
     }
 
     private void test(Network network,
@@ -75,10 +75,10 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
             checkAllTerminalsConnected(network, name);
         }
 
-        // Export as CGMES 3
+        // Export as node-breaker
         Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), name);
+        params.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
+        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
         Properties importParams = new Properties();
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");

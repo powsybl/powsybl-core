@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -10,13 +11,9 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
+import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -26,8 +23,10 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Properties;
+import java.util.function.Supplier;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
+import static com.powsybl.iidm.serde.AbstractTreeDataExporter.*;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,16 +35,30 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 class XMLExporterTest extends AbstractIidmSerDeTest {
+    private static final String NODE_BREAKER_FILE = "/testNetworkNodeBreaker.xiidm";
     private FileSystem fileSystem;
 
     void exporterTest(Network network, IidmVersion version, String xmlFileName, Properties properties) throws IOException {
+        exporterTest(network, () -> getVersionedNetworkAsStream(xmlFileName, version), properties);
+    }
+
+    void exporterTest(Network network, Supplier<InputStream> refFileIs, Properties properties) throws IOException {
         properties.put(XMLExporter.ANONYMISED, "false");
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter().export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            compareXml(getVersionedNetworkAsStream(xmlFileName, version), is);
+            assertXmlEquals(refFileIs.get(), is);
         }
+    }
+
+    @Test
+    void exportTopologyLevelVoltageLevels() throws IOException {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
+        Properties properties = new Properties();
+        properties.put(VOLTAGE_LEVELS_BUS_BREAKER, "vl1,vl2,vl3");
+        properties.put(VOLTAGE_LEVELS_BUS_BRANCH, "vl3"); // vl3 is not unique and will be ignored
+        exporterTest(network, () -> getClass().getResourceAsStream("/topologyLevelVoltageLevels.xml"), properties);
     }
 
     @Test
@@ -54,9 +67,31 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void exportWithNamespacePrefixCollisionTest() throws IOException {
+        Network network = MultipleExtensionsTestNetworkFactory.create();
+        VoltageLevel vl = network.getVoltageLevel("VL");
+        vl.addExtension(VoltageLevelFooExt.class, new VoltageLevelFooExt(vl));
+        exporterTest(network, () -> getClass().getResourceAsStream("/namespace-prefix-collision.xml"), new Properties());
+    }
+
+    @Test
+    void exportXiidmWithAnotherPrefixTest() throws IOException {
+        Network network = NetworkFactory.findDefault().createNetwork("test", "test");
+        network.setCaseDate(ZonedDateTime.parse("2024-09-17T13:36:37.831Z"));
+        Substation s1 = network.newSubstation().setId("S1").add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(450).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        Load load1 = vl1.newLoad().setId("Load1").setNode(0).setP0(10.).setQ0(20.).add();
+        load1.addExtension(LoadMockExt.class, new LoadMockExt(load1));
+        Properties properties = new Properties();
+        properties.put(XMLExporter.VERSION, IidmVersion.V_1_0.toString("."));
+        properties.put("iidm.export.xml.loadMock.version", "0.2");
+        exporterTest(network, () -> getClass().getResourceAsStream("/extensionName_0_2.xml"), properties);
+    }
+
+    @Test
     void paramsTest() {
         var xmlExporter = new XMLExporter();
-        assertEquals(11, xmlExporter.getParameters().size());
+        assertEquals(15, xmlExporter.getParameters().size());
         assertEquals("IIDM XML v" + CURRENT_IIDM_VERSION.toString(".") + " exporter", xmlExporter.getComment());
     }
 

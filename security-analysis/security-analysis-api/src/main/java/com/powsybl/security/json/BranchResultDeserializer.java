@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -33,7 +34,7 @@ public class BranchResultDeserializer extends StdDeserializer<BranchResult> {
         super(BranchResult.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         String branchId;
 
         double p1 = Double.NaN;

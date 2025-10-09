@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.test;
@@ -28,7 +29,7 @@ class TripleStoreClearTest {
         tester.load();
 
         expectedTapChangerControls = new Expected().expect("TapChangerControl",
-            "_97110e84-7da6-479c-846c-696fdaa83d56", "_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b");
+            "_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b", "_97110e84-7da6-479c-846c-696fdaa83d56");
         expectedEmpty = new Expected();
     }
 

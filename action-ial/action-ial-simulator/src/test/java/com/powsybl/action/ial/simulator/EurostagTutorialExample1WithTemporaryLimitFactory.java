@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.action.ial.simulator;
 
@@ -19,7 +20,7 @@ public interface EurostagTutorialExample1WithTemporaryLimitFactory {
         Network network = EurostagTutorialExample1Factory.create();
         // add a temporary limit
         Line l2 = network.getLine("NHV1_NHV2_2");
-        l2.newCurrentLimits1()
+        l2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(400)
                 .beginTemporaryLimit()
                     .setName("20")

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -30,9 +31,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         Network network = DanglingLineNetworkFactory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         DanglingLine dl = network.getDanglingLine("DL");
-        createLoadingLimits(dl::newActivePowerLimits);
-        createLoadingLimits(dl::newApparentPowerLimits);
-        createLoadingLimits(dl::newCurrentLimits);
+        OperationalLimitsGroup operationalLimitsGroup = dl.getOrCreateSelectedOperationalLimitsGroup();
+        createLoadingLimits(operationalLimitsGroup::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup::newCurrentLimits);
         allFormatsRoundTripTest(network, "dl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
@@ -60,19 +62,23 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         Line line = network.getLine("NHV1_NHV2_2");
-        createLoadingLimits(line::newActivePowerLimits1);
-        createLoadingLimits(line::newActivePowerLimits2);
-        createLoadingLimits(line::newApparentPowerLimits1);
-        createLoadingLimits(line::newApparentPowerLimits2);
-        createLoadingLimits(line::newCurrentLimits1);
-        createLoadingLimits(line::newCurrentLimits2);
+        OperationalLimitsGroup operationalLimitsGroup1 = line.getOrCreateSelectedOperationalLimitsGroup1();
+        OperationalLimitsGroup operationalLimitsGroup2 = line.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup1::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
+        createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NGEN_NHV1");
-        createLoadingLimits(twt::newActivePowerLimits1);
-        createLoadingLimits(twt::newActivePowerLimits2);
-        createLoadingLimits(twt::newApparentPowerLimits1);
-        createLoadingLimits(twt::newApparentPowerLimits2);
-        createLoadingLimits(twt::newCurrentLimits1);
-        createLoadingLimits(twt::newCurrentLimits2);
+        operationalLimitsGroup1 = twt.getOrCreateSelectedOperationalLimitsGroup1();
+        operationalLimitsGroup2 = twt.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup1::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
+        createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
         allFormatsRoundTripTest(network, "eurostag-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
@@ -99,12 +105,14 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     void testTieLine() throws IOException {
         Network network = NetworkSerDe.read(getVersionedNetworkAsStream("tieline.xml", CURRENT_IIDM_VERSION));
         TieLine tl = network.getTieLine("NHV1_NHV2_1");
-        createLoadingLimits(tl.getDanglingLine1()::newActivePowerLimits);
-        createLoadingLimits(tl.getDanglingLine2()::newActivePowerLimits);
-        createLoadingLimits(tl.getDanglingLine1()::newApparentPowerLimits);
-        createLoadingLimits(tl.getDanglingLine2()::newApparentPowerLimits);
-        createLoadingLimits(tl.getDanglingLine1()::newCurrentLimits);
-        createLoadingLimits(tl.getDanglingLine2()::newCurrentLimits);
+        OperationalLimitsGroup operationalLimitsGroup1 = tl.getOrCreateSelectedOperationalLimitsGroup1();
+        OperationalLimitsGroup operationalLimitsGroup2 = tl.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup1::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
+        createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
         allFormatsRoundTripTest(network, "tl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
@@ -131,12 +139,12 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     void testThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
-        createLoadingLimits(() -> twt.getLeg1().newActivePowerLimits());
-        createLoadingLimits(() -> twt.getLeg1().newApparentPowerLimits());
-        createLoadingLimits(() -> twt.getLeg2().newActivePowerLimits());
-        createLoadingLimits(() -> twt.getLeg2().newApparentPowerLimits());
-        createLoadingLimits(() -> twt.getLeg3().newActivePowerLimits());
-        createLoadingLimits(() -> twt.getLeg3().newApparentPowerLimits());
+        createLoadingLimits(() -> twt.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits());
+        createLoadingLimits(() -> twt.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits());
+        createLoadingLimits(() -> twt.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits());
+        createLoadingLimits(() -> twt.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits());
+        createLoadingLimits(() -> twt.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits());
+        createLoadingLimits(() -> twt.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits());
         allFormatsRoundTripTest(network, "t3w-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
@@ -160,8 +168,30 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void testWithProperties() throws IOException {
+        Network network = DanglingLineNetworkFactory.create();
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        DanglingLine dl = network.getDanglingLine("DL");
+        OperationalLimitsGroup g1 = dl.getOperationalLimitsGroup("DEFAULT").orElseThrow();
+        g1.setProperty("type", "A");
+        g1.setProperty("source", "s1");
+        createLoadingLimits(g1::newCurrentLimits);
+        OperationalLimitsGroup g2 = dl.newOperationalLimitsGroup("GROUP_2");
+        g2.setProperty("type", "B");
+        g2.setProperty("source", "s2");
+        createLoadingLimits(g2::newCurrentLimits);
+        allFormatsRoundTripTest(network, "operational-limits-groups-with-properties.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility from version 1.14
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("operational-limits-groups-with-properties.xml", IidmVersion.V_1_14);
+
+        // properties are not exported for previous versions (no properties in ref files)
+        testWriteVersionedXml(network, new ExportOptions(), "operational-limits-groups-with-properties.xml", IidmVersion.V_1_12, IidmVersion.V_1_13);
+    }
+
+    @Test
     void testImportWithoutPermanentLimit() {
-        // Check that import succeed for versions prior to 1.12
+        // Check that import succeeds for versions prior to 1.12
         // (the permanent limit is computed)
         ImportOptions options = new ImportOptions()
                 .setMissingPermanentLimitPercentage(90.);
@@ -178,6 +208,27 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
                     () -> NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null));
             assertTrue(e.getMessage().contains("permanentLimit is absent"));
         });
+    }
+
+    @Test
+    void testImportWithoutPermanentLimit2() {
+        // Check that import succeeds for all versions:
+        // with the minimalValidationLevel option set to EQUIPMENT, the limits are imported to Double.NaN
+        ImportOptions options = new ImportOptions()
+                .setMinimalValidationLevel(ValidationLevel.EQUIPMENT.toString());
+        testForAllVersionsSince(IidmVersion.V_1_0, version -> {
+            Network n = NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null);
+            Line line = n.getLine("NHV1_NHV2_1");
+            assertEquals(Double.NaN, line.getCurrentLimits1().orElseThrow().getPermanentLimit());
+            assertEquals(Double.NaN, line.getCurrentLimits2().orElseThrow().getPermanentLimit());
+        });
+    }
+
+    @Test
+    void testWrongParametersValue() {
+        ImportOptions options = new ImportOptions();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> options.setMinimalValidationLevel("Unknown value"));
+        assertEquals("Unexpected value for minimalValidationLevel: Unknown value", e.getMessage());
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier) {

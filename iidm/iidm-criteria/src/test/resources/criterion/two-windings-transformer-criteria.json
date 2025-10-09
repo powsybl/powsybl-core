@@ -10,14 +10,14 @@
     "type" : "TWO_NOMINAL_VOLTAGE",
     "voltageInterval1" : {
       "nominalVoltageLowBound" : 80.0,
-      "nominalVoltageHighBound" : 100.0,
       "lowClosed" : true,
+      "nominalVoltageHighBound" : 100.0,
       "highClosed" : true
     },
     "voltageInterval2" : {
       "nominalVoltageLowBound" : 380.0,
-      "nominalVoltageHighBound" : 420.0,
       "lowClosed" : true,
+      "nominalVoltageHighBound" : 420.0,
       "highClosed" : false
     }
   }

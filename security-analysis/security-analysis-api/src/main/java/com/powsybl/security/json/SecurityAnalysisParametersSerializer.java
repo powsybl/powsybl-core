@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -29,6 +30,7 @@ public class SecurityAnalysisParametersSerializer extends StdSerializer<Security
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", SecurityAnalysisParameters.VERSION);
         serializerProvider.defaultSerializeField("increased-violations-parameters", parameters.getIncreasedViolationsParameters(), jsonGenerator);
+        jsonGenerator.writeBooleanField("intermediate-results-in-operator-strategy", parameters.getIntermediateResultsInOperatorStrategy());
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSecurityAnalysisParameters.getExtensionSerializers()::get);

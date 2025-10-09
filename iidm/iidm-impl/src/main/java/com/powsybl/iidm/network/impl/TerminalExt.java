@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -17,7 +18,7 @@ import java.util.Set;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-interface TerminalExt extends Terminal, MultiVariantObject {
+public interface TerminalExt extends Terminal, MultiVariantObject {
 
     interface BusBreakerViewExt extends BusBreakerView {
 
@@ -54,11 +55,7 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     TopologyPoint getTopologyPoint();
 
-    void removeAsRegulationPoint();
-
     void remove();
 
-    void setAsRegulatingPoint(RegulatingPoint rp);
-
-    void removeRegulatingPoint(RegulatingPoint rp);
+    ReferrerManager<Terminal> getReferrerManager();
 }

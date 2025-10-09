@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.util;
 
@@ -294,10 +295,10 @@ class SwitchesFlowTest {
             .setNode2(node2)
             .setVoltageLevel2(vl2id)
             .add();
-        twt.newCurrentLimits1()
+        twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
             .setPermanentLimit(1030.0)
             .add();
-        twt.newCurrentLimits2()
+        twt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
             .setPermanentLimit(1030.0)
             .add();
         twt.getTerminal1().setP(p1).setQ(q1);
@@ -420,10 +421,10 @@ class SwitchesFlowTest {
             .setBus2(busId2)
             .setVoltageLevel2(vl2id)
             .add();
-        twt.newCurrentLimits1()
+        twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
             .setPermanentLimit(1030.0)
             .add();
-        twt.newCurrentLimits2()
+        twt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
             .setPermanentLimit(1030.0)
             .add();
         twt.getTerminal1().setP(p1).setQ(q1);

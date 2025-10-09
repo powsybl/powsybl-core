@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.PropertiesHolder;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
@@ -25,12 +26,12 @@ public final class PropertiesSerDe {
     static final String NAME = "name";
     static final String VALUE = "value";
 
-    public static void write(Identifiable<?> identifiable, NetworkSerializerContext context) {
-        if (identifiable.hasProperty()) {
+    public static void write(PropertiesHolder propertiesHolder, NetworkSerializerContext context) {
+        if (propertiesHolder.hasProperty()) {
             context.getWriter().writeStartNodes();
-            for (String name : IidmSerDeUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
-                String value = identifiable.getProperty(name);
-                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), ROOT_ELEMENT_NAME);
+            for (String name : IidmSerDeUtil.sortedNames(propertiesHolder.getPropertyNames(), context.getOptions())) {
+                String value = propertiesHolder.getProperty(name);
+                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(propertiesHolder.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), ROOT_ELEMENT_NAME);
                 context.getWriter().writeStringAttribute(NAME, name);
                 context.getWriter().writeStringAttribute(VALUE, value);
                 context.getWriter().writeEndNode();
@@ -39,19 +40,19 @@ public final class PropertiesSerDe {
         }
     }
 
-    public static void read(Identifiable identifiable, NetworkDeserializerContext context) {
-        read(context).accept(identifiable);
+    public static void read(PropertiesHolder propertiesHolder, NetworkDeserializerContext context) {
+        read(context).accept(propertiesHolder);
     }
 
-    public static <T extends Identifiable> void read(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+    public static <T extends PropertiesHolder> void read(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
         toApply.add(read(context));
     }
 
-    private static <T extends Identifiable> Consumer<T> read(NetworkDeserializerContext context) {
+    private static <T extends PropertiesHolder> Consumer<T> read(NetworkDeserializerContext context) {
         String name = context.getReader().readStringAttribute(NAME);
         String value = context.getReader().readStringAttribute(VALUE);
         context.getReader().readEndNode();
-        return identifiable -> identifiable.setProperty(name, value);
+        return propertiesBearer -> propertiesBearer.setProperty(name, value);
     }
 
     private PropertiesSerDe() {

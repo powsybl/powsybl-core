@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
@@ -43,10 +44,22 @@ public enum PowerFlowRecordGroup implements RecordGroupIdentification {
     SWITCHED_SHUNT("swshunt", "SWITCHED SHUNT"),
     GNE_DEVICE("gne", "GNE DEVICE"),
     INDUCTION_MACHINE("indmach", "INDUCTION MACHINE"),
-    SUBSTATION("sub");
-
+    SUBSTATION("sub", "SUBSTATION"),
+    INTERNAL_SUBSTATION_NODE("subnode"),
+    INTERNAL_SUBSTATION_SWITCHING_DEVICE("subswd"),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL("subterm"),
+    // only needed in raw format, not used in rawx format
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_COMMON_START(),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS(),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES(),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES();
     private final String rawxNodeName;
     private final String rawName;
+
+    PowerFlowRecordGroup() {
+        this.rawxNodeName = name();
+        this.rawName = name();
+    }
 
     PowerFlowRecordGroup(String rawxNodeName) {
         this.rawxNodeName = rawxNodeName;

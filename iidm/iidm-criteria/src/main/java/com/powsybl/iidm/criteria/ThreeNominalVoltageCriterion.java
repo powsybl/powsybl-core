@@ -13,10 +13,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.powsybl.iidm.criteria.util.NominalVoltageUtils.getNominalVoltage;
@@ -27,31 +24,25 @@ import static com.powsybl.iidm.network.IdentifiableType.THREE_WINDINGS_TRANSFORM
  */
 public class ThreeNominalVoltageCriterion implements Criterion {
 
-    private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval1;
-    private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval2;
-    private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval3;
+    private final VoltageInterval voltageInterval1;
+    private final VoltageInterval voltageInterval2;
+    private final VoltageInterval voltageInterval3;
     @JsonIgnore
-    private final List<SingleNominalVoltageCriterion.VoltageInterval> voltageIntervals = new ArrayList<>();
+    private final List<VoltageInterval> voltageIntervals = new ArrayList<>();
 
-    public ThreeNominalVoltageCriterion(SingleNominalVoltageCriterion.VoltageInterval voltageInterval1,
-                                        SingleNominalVoltageCriterion.VoltageInterval voltageInterval2,
-                                        SingleNominalVoltageCriterion.VoltageInterval voltageInterval3) {
-        this.voltageInterval1 = voltageInterval1 == null ?
-                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
-                        null, null) : voltageInterval1;
-        this.voltageInterval2 = voltageInterval2 == null ?
-                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
-                        null, null) : voltageInterval2;
-        this.voltageInterval3 = voltageInterval3 == null ?
-                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
-                        null, null) : voltageInterval3;
-        if (!this.voltageInterval1.isNull()) {
+    public ThreeNominalVoltageCriterion(VoltageInterval voltageInterval1,
+                                        VoltageInterval voltageInterval2,
+                                        VoltageInterval voltageInterval3) {
+        this.voltageInterval1 = voltageInterval1;
+        this.voltageInterval2 = voltageInterval2;
+        this.voltageInterval3 = voltageInterval3;
+        if (this.voltageInterval1 != null) {
             voltageIntervals.add(voltageInterval1);
         }
-        if (!this.voltageInterval2.isNull()) {
+        if (this.voltageInterval2 != null) {
             voltageIntervals.add(voltageInterval2);
         }
-        if (!this.voltageInterval3.isNull()) {
+        if (this.voltageInterval3 != null) {
             voltageIntervals.add(voltageInterval3);
         }
     }
@@ -99,15 +90,15 @@ public class ThreeNominalVoltageCriterion implements Criterion {
         return filter.get();
     }
 
-    public SingleNominalVoltageCriterion.VoltageInterval getVoltageInterval1() {
-        return voltageInterval1;
+    public Optional<VoltageInterval> getVoltageInterval1() {
+        return Optional.ofNullable(voltageInterval1);
     }
 
-    public SingleNominalVoltageCriterion.VoltageInterval getVoltageInterval2() {
-        return voltageInterval2;
+    public Optional<VoltageInterval> getVoltageInterval2() {
+        return Optional.ofNullable(voltageInterval2);
     }
 
-    public SingleNominalVoltageCriterion.VoltageInterval getVoltageInterval3() {
-        return voltageInterval3;
+    public Optional<VoltageInterval> getVoltageInterval3() {
+        return Optional.ofNullable(voltageInterval3);
     }
 }

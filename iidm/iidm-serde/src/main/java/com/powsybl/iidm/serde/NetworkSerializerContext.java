@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -11,7 +12,6 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
-import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
 /**
@@ -50,15 +50,6 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
 
     public boolean isValid() {
         return valid;
-    }
-
-    /**
-     * @deprecated Should not be used anymore.
-     */
-    @Deprecated(since = "3.8.1")
-    public void setExtensionsWriter(XMLStreamWriter extensionsWriter) {
-        // does nothing
-        // only kept to prevent breaking change
     }
 
     public Set<Identifiable> getExportedEquipments() {

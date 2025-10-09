@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -160,7 +161,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     //To remove if we ever get it from somewhere else
-    @FunctionalInterface private interface DoubleIntConsumer { public void accept(double a, int b); }
+    @FunctionalInterface private interface DoubleIntConsumer { void accept(double a, int b); }
 
     private void forEachMaterializedValueIndex(DoubleIntConsumer consumer) {
         if (metadata.getIndex() == InfiniteTimeSeriesIndex.INSTANCE) {
@@ -217,12 +218,12 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     private static DoublePoint evaluateMultiPoint(NodeCalc resolvedNodeCalc, DoubleMultiPoint multiPoint) {
         double value = NodeCalcEvaluator.eval(resolvedNodeCalc, multiPoint);
-        return new DoublePoint(multiPoint.getIndex(), multiPoint.getTime(), value);
+        return new DoublePoint(multiPoint.getIndex(), multiPoint.getInstant(), value);
     }
 
     private static DoublePoint evaluate(NodeCalc resolvedNodeCalc) {
         double value = NodeCalcEvaluator.eval(resolvedNodeCalc, null);
-        return new DoublePoint(0, InfiniteTimeSeriesIndex.START_TIME, value);
+        return new DoublePoint(0, InfiniteTimeSeriesIndex.START_INSTANT, value);
     }
 
     @Override

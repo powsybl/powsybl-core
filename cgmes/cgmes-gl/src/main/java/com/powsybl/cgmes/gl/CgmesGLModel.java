@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.gl;
 
@@ -21,7 +22,7 @@ import java.util.Objects;
  */
 public class CgmesGLModel {
 
-    public static final String SUBSTASTION_POSITION_QUERY_KEY = "substationPosition";
+    public static final String SUBSTATION_VL_POSITION_QUERY_KEY = "substationVoltageLevelPosition";
     public static final String LINE_POSITION_QUERY_KEY = "linePosition";
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesGLModel.class);
@@ -48,9 +49,9 @@ public class CgmesGLModel {
         return tripleStore.query(query);
     }
 
-    public PropertyBags getSubstationsPosition() {
-        LOG.info("Querying triple store for substations positions");
-        return queryTripleStore(SUBSTASTION_POSITION_QUERY_KEY);
+    public PropertyBags getSubstationVoltageLevelPositions() {
+        LOG.info("Querying triple store for substation and voltage level positions");
+        return queryTripleStore(SUBSTATION_VL_POSITION_QUERY_KEY);
     }
 
     public PropertyBags getLinesPositions() {

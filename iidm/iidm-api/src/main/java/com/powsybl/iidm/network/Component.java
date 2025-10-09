@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -36,5 +37,15 @@ public interface Component {
      * Get buses in the component.
      */
     Stream<Bus> getBusStream();
+
+    /**
+     * Get DC buses in the component.
+     */
+    Iterable<DcBus> getDcBuses();
+
+    /**
+     * Get DC buses in the component.
+     */
+    Stream<DcBus> getDcBusStream();
 
 }

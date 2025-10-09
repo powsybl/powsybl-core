@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -99,8 +100,8 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
 
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);
@@ -113,7 +114,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
         DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, generation);
         danglingLine.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(danglingLine);
         network.getListeners().notifyCreation(danglingLine);
         return danglingLine;

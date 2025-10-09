@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -106,7 +107,8 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
         return Optional.ofNullable(selectedLimitsId);
     }
 
-    private OperationalLimitsGroupImpl getOrCreateSelectedOperationalLimitsGroup() {
+    @Override
+    public OperationalLimitsGroupImpl getOrCreateSelectedOperationalLimitsGroup() {
         return getSelectedOperationalLimitsGroupImpl().orElseGet(() -> {
             String groupId = DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
             OperationalLimitsGroupImpl group = Optional.ofNullable(operationalLimitsGroupById.get(groupId))
@@ -116,22 +118,34 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
         });
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
         return new CurrentLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
-                identifiable, identifiable.getId());
+                identifiable, identifiable.getId(), identifiable.getNetwork());
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
         return new ActivePowerLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
-                identifiable, identifiable.getId());
+                identifiable, identifiable.getId(), identifiable.getNetwork());
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
         return new ApparentPowerLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
-                identifiable, identifiable.getId());
+                identifiable, identifiable.getId(), identifiable.getNetwork());
     }
 
     private void notifyUpdate(OperationalLimitsGroup oldValue, OperationalLimitsGroup newValue) {

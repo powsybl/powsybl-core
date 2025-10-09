@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.action.ial.dsl;
 
@@ -82,7 +83,7 @@ class ActionDslLoaderTest {
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         fixedTapAction.run(network);
         assertEquals(2, phaseTapChanger.getTapPosition());
-        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());
     }
 
@@ -106,7 +107,7 @@ class ActionDslLoaderTest {
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         fixedTapAction.run(network);
         assertEquals(1, phaseTapChanger.getTapPosition());
-        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());
     }
 
@@ -137,7 +138,7 @@ class ActionDslLoaderTest {
             assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
             deltaTapAction.run(network);
             assertEquals(data.getExpectedTapPosition(), phaseTapChanger.getTapPosition());
-            assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+            assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
             assertFalse(phaseTapChanger.isRegulating());
         }
     }
@@ -158,8 +159,10 @@ class ActionDslLoaderTest {
         Action deltaTapAction = actionDb.getAction("TransformerWithoutPhaseShifter");
         assertNotNull(deltaTapAction);
         assertEquals(-10, ((PhaseShifterShiftTap) deltaTapAction.getModifications().get(0)).getTapDelta());
-        PowsyblException e = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network));
-        assertTrue(e.getMessage().contains("Transformer 'NGEN_NHV1' is not a phase shifter"));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network));
+        assertTrue(e1.getMessage().contains("Transformer 'NGEN_NHV1' is not a phase shifter"));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network, true));
+        assertTrue(e2.getMessage().contains("Transformer 'NGEN_NHV1' is not a phase shifter"));
     }
 
     @Test

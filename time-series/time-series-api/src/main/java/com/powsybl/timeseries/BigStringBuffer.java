@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -20,7 +21,7 @@ public class BigStringBuffer {
     private static final int BUFFER_SIZE_INTS = 1 << BUFFER_SHIFT;
     private static final int BUFFER_MASK = BUFFER_SIZE_INTS - 1;
     private CompactStringBuffer[] buffers;
-    private long size;
+    private final long size;
 
     //To remove if we ever get it from somewhere else
     //package private for tests

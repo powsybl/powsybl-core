@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
@@ -169,5 +170,23 @@ public class PsseBus extends PsseVersioned {
     public void setEvlo(double evlo) {
         checkVersion("evlo");
         this.evlo = evlo;
+    }
+
+    public PsseBus copy() {
+        PsseBus copy = new PsseBus();
+        copy.i = this.i;
+        copy.name = this.name;
+        copy.baskv = this.baskv;
+        copy.ide = this.ide;
+        copy.area = this.area;
+        copy.zone = this.zone;
+        copy.owner = this.owner;
+        copy.vm = this.vm;
+        copy.va = this.va;
+        copy.nvhi = this.nvhi;
+        copy.nvlo = this.nvlo;
+        copy.evhi = this.evhi;
+        copy.evlo = this.evlo;
+        return copy;
     }
 }

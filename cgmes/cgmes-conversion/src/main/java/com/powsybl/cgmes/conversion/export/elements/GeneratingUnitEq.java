@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
@@ -25,8 +26,8 @@ public final class GeneratingUnitEq {
     private static final String EQ_GENERATINGUNIT_MAXP = "GeneratingUnit.maxOperatingP";
     private static final String EQ_GENERATINGUNIT_INITIALP = "GeneratingUnit.initialP";
 
-    public static void write(String id, String generatingUnitName, EnergySource energySource, double minP, double maxP, double initialP, String cimNamespace, boolean writeInitialP,
-                             String equipmentContainer, String hydroPowerPlantId, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void write(String id, String generatingUnitName, EnergySource energySource, double minP, double maxP, double initialP, String cimNamespace,
+                             String equipmentContainer, String hydroPowerPlantId, String windGenUnitType, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(generatingUnitClassName(energySource), id, generatingUnitName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MINP);
         writer.writeCharacters(CgmesExportUtil.format(minP));
@@ -34,7 +35,7 @@ public final class GeneratingUnitEq {
         writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MAXP);
         writer.writeCharacters(CgmesExportUtil.format(maxP));
         writer.writeEndElement();
-        if (writeInitialP) {
+        if (context.getCimVersion() == 16) {
             writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_INITIALP);
             writer.writeCharacters(CgmesExportUtil.format(initialP));
             writer.writeEndElement();
@@ -44,7 +45,7 @@ public final class GeneratingUnitEq {
         }
         if (energySource == EnergySource.WIND) {
             writer.writeEmptyElement(cimNamespace, "WindGeneratingUnit.windGenUnitType");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "WindGenUnitKind.onshore")); // all generators are considered onshore
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s%s", cimNamespace, "WindGenUnitKind.", windGenUnitType));
         }
         if (hydroPowerPlantId != null) {
             CgmesExportUtil.writeReference("HydroGeneratingUnit.HydroPowerPlant", hydroPowerPlantId, cimNamespace, writer, context);

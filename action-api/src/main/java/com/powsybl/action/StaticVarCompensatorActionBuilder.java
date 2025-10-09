@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class StaticVarCompensatorActionBuilder {
+public class StaticVarCompensatorActionBuilder implements ActionBuilder<StaticVarCompensatorActionBuilder> {
 
     private String id;
     private String staticVarCompensatorId;
@@ -20,8 +20,25 @@ public class StaticVarCompensatorActionBuilder {
     private Double voltageSetpoint;
     private Double reactivePowerSetpoint;
 
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public StaticVarCompensatorActionBuilder withNetworkElementId(String staticVarCompensatorId) {
+        this.staticVarCompensatorId = staticVarCompensatorId;
+        return this;
+    }
+
+    @Override
     public StaticVarCompensatorAction build() {
         return new StaticVarCompensatorAction(id, staticVarCompensatorId, regulationMode, voltageSetpoint, reactivePowerSetpoint);
+    }
+
+    @Override
+    public String getType() {
+        return StaticVarCompensatorAction.NAME;
     }
 
     public StaticVarCompensatorActionBuilder withId(String id) {
@@ -30,8 +47,7 @@ public class StaticVarCompensatorActionBuilder {
     }
 
     public StaticVarCompensatorActionBuilder withStaticVarCompensatorId(String staticVarCompensatorId) {
-        this.staticVarCompensatorId = staticVarCompensatorId;
-        return this;
+        return withNetworkElementId(staticVarCompensatorId);
     }
 
     public StaticVarCompensatorActionBuilder withRegulationMode(StaticVarCompensator.RegulationMode regulationMode) {

@@ -3,11 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -44,29 +47,33 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
         return true;
     }
 
-    protected void convertBranch(double r, double x, double gch, double bch) {
+    protected void convertBranch(double r, double x, double gch, double bch, String originalClass) {
         if (isZeroImpedanceInsideVoltageLevel(r, x)) {
             // Convert to switch
+            boolean normalOpen = false;
             Switch sw;
-            boolean open = !(terminalConnected(1) && terminalConnected(2));
             if (context.nodeBreaker()) {
                 VoltageLevel.NodeBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getNodeBreakerView().newSwitch()
                                 .setKind(SwitchKind.BREAKER)
+                                .setOpen(normalOpen)
                                 .setRetained(true)
                                 .setFictitious(true);
                 identify(adder);
-                connect(adder, open);
+                connectWithOnlyEq(adder);
                 sw = adder.add();
             } else {
                 VoltageLevel.BusBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getBusBreakerView().newSwitch()
+                                .setOpen(normalOpen)
                                 .setFictitious(true);
                 identify(adder);
-                connect(adder, open);
+                connectWithOnlyEq(adder);
                 sw = adder.add();
             }
             addAliasesAndProperties(sw);
+            sw.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
+            sw.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         } else {
             final LineAdder adder = context.network().newLine()
                     .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
@@ -77,10 +84,11 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
                     .setB1(bch / 2)
                     .setB2(bch / 2);
             identify(adder);
-            connect(adder);
+            connectWithOnlyEq(adder);
             final Line l = adder.add();
             addAliasesAndProperties(l);
-            convertedTerminals(l.getTerminal1(), l.getTerminal2());
+            convertedTerminalsWithOnlyEq(l.getTerminal1(), l.getTerminal2());
+            l.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
         }
     }
 
@@ -98,5 +106,16 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
             }
             return r == 0.0 && x == 0.0;
         }
+    }
+
+    protected static void updateBranch(Line line, Context context) {
+        updateTerminals(line, context, line.getTerminal1(), line.getTerminal2());
+        line.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
+        line.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
+    }
+
+    protected static void updateBranch(Switch sw, Context context) {
+        boolean isOpen = isOpenFromAtLeastOneTerminal(sw, context).orElse(getDefaultIsOpen(sw, context));
+        sw.setOpen(isOpen);
     }
 }

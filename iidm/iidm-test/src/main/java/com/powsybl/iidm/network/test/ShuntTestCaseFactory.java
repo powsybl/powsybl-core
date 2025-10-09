@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
@@ -139,5 +140,64 @@ public final class ShuntTestCaseFactory {
                 .setQ0(50.0)
                 .add();
         return network;
+    }
+
+    public static Network createLocalLinear() {
+        return createLocalShunt(create());
+    }
+
+    public static Network createLocalShunt(Network network) {
+        network.getShuntCompensator(SHUNT)
+                .setRegulatingTerminal(network.getShuntCompensator(SHUNT).getTerminal());
+        return network;
+    }
+
+    public static Network createDisabledRemoteLinear() {
+        return createDisabledShunt(create());
+    }
+
+    public static Network createDisabledLocalLinear() {
+        return createDisabledShunt(createLocalLinear());
+    }
+
+    public static Network createDisabledRemoteNonLinear() {
+        return createDisabledShunt(createNonLinear());
+    }
+
+    public static Network createDisabledLocalNonLinear() {
+        return createDisabledShunt(createLocalNonLinear());
+    }
+
+    public static Network createDisabledShunt(Network network) {
+        network.getShuntCompensator(SHUNT)
+                .setVoltageRegulatorOn(false);
+        return network;
+    }
+
+    private static Network createShuntWithNoTarget(Network network) {
+        network.getShuntCompensator(SHUNT)
+                .setVoltageRegulatorOn(false)
+                .setTargetV(Double.NaN);
+        return network;
+    }
+
+    public static Network createRemoteLinearNoTarget() {
+        return createShuntWithNoTarget(create());
+    }
+
+    public static Network createRemoteNonLinearNoTarget() {
+        return createShuntWithNoTarget(createNonLinear());
+    }
+
+    public static Network createLocalLinearNoTarget() {
+        return createShuntWithNoTarget(createLocalLinear());
+    }
+
+    public static Network createLocalNonLinearNoTarget() {
+        return createShuntWithNoTarget(createLocalNonLinear());
+    }
+
+    public static Network createLocalNonLinear() {
+        return createLocalShunt(createNonLinear());
     }
 }

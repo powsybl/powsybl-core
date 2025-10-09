@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tools;
 
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -83,7 +85,7 @@ public final class ConversionToolUtils {
         Properties properties = new Properties();
 
         // Read the parameters file
-        String filename = line.getOptionValue(optionType.getLongOpt(), null);
+        String filename = line.getOptionValue(optionType.getLongOpt(), (Supplier<String>) null);
         if (filename != null) {
             try (InputStream inputStream = Files.newInputStream(context.getFileSystem().getPath(filename))) {
                 if (filename.endsWith(".xml")) {

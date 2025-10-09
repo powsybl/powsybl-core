@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -24,6 +25,17 @@ package com.powsybl.iidm.network;
  * @see Network
  */
 public interface LineAdder extends BranchAdder<Line, LineAdder> {
+
+    static LineAdder fillLineAdder(LineAdder adder, Line line) {
+        return adder.setR(line.getR())
+                .setX(line.getX())
+                .setG1(line.getG1())
+                .setG2(line.getG2())
+                .setB1(line.getB1())
+                .setB2(line.getB2())
+                .setVoltageLevel1(line.getTerminal1().getVoltageLevel().getId())
+                .setVoltageLevel2(line.getTerminal2().getVoltageLevel().getId());
+    }
 
     LineAdder setR(double r);
 

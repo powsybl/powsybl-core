@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency;
 
@@ -44,7 +45,7 @@ class ContingencyTest {
         assertEquals(ContingencyElementType.GENERATOR, elements.get(1).getType());
 
         NetworkModification modification = contingency.toModification();
-        assertTrue(modification instanceof NetworkModificationList);
+        assertInstanceOf(NetworkModificationList.class, modification);
 
         ContingencyElement bbsElement = new BusbarSectionContingency("bbs");
         contingency.addElement(bbsElement);
@@ -70,7 +71,7 @@ class ContingencyTest {
         List<String> expectedValidIds = Arrays.asList("GEN contingency", "NHV1_NHV2_1 contingency");
 
         assertEquals(expectedValidIds,
-                validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
+                validContingencies.stream().map(Contingency::getId).toList());
 
         assertEquals(expectedValidIds,
                 ContingencyList.getValidContingencies(Arrays.asList(generatorContingency, generatorInvalidContingency, lineContingency, lineInvalidContingency), network)

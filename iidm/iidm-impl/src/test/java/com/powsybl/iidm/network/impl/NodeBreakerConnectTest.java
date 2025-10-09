@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -157,8 +158,8 @@ class NodeBreakerConnectTest {
         assertTrue(network.getSwitch("B2").isOpen());
 
         if (l.getTerminal() instanceof TerminalExt terminal) {
-            NodeBreakerVoltageLevel voltageLevel = (NodeBreakerVoltageLevel) network.getVoltageLevel("VL");
-            voltageLevel.connect(terminal);
+            NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) network.getVoltageLevel("VL")).getTopologyModel();
+            topologyModel.connect(terminal);
         }
         assertTrue(network.getSwitch("B2").isOpen());
         assertTrue(l.getTerminal().isConnected());
@@ -182,8 +183,8 @@ class NodeBreakerConnectTest {
         Load l = network.getLoad("L");
         assertTrue(l.getTerminal().isConnected());
         if (l.getTerminal() instanceof TerminalExt terminal) {
-            NodeBreakerVoltageLevel voltageLevel = (NodeBreakerVoltageLevel) network.getVoltageLevel("VL");
-            voltageLevel.disconnect(terminal);
+            NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) network.getVoltageLevel("VL")).getTopologyModel();
+            topologyModel.disconnect(terminal);
         }
         assertFalse(l.getTerminal().isConnected());
     }

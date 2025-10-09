@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -30,6 +31,11 @@ public interface Boundary {
      * Get the reactive power at the fictitious terminal going from the boundary fictitious bus to the network.
      */
     double getQ();
+
+    /**
+     * Get the current in A at the fictitious boundary terminal.
+     */
+    double getI();
 
     /**
      * Get the danglingLine the boundary is associated to.

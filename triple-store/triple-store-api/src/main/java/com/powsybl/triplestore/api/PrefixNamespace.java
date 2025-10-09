@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.triplestore.api;
 
@@ -39,10 +40,9 @@ public class PrefixNamespace {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof PrefixNamespace)) {
+        if (!(obj instanceof PrefixNamespace other)) {
             return false;
         }
-        PrefixNamespace other = (PrefixNamespace) obj;
         return prefix.equals(other.getPrefix()) && namespace.equals(other.getNamespace());
     }
 

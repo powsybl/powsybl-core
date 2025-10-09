@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynamicsimulation.tool;
 
@@ -45,7 +46,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "case-file", true, true);
         assertOption(command.getOptions(), "dynamic-models-file", true, true);
         assertOption(command.getOptions(), "event-models-file", false, true);
-        assertOption(command.getOptions(), "curves-file", false, true);
+        assertOption(command.getOptions(), "output-variables-file", false, true);
         assertOption(command.getOptions(), "output-file", false, true);
         assertOption(command.getOptions(), "output-log-file", false, true);
     }
@@ -58,25 +59,25 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/network.xiidm")), fileSystem.getPath("/network.xiidm"));
         Files.createFile(fileSystem.getPath("/dynamicModels.groovy"));
         Files.createFile(fileSystem.getPath("/eventModels.groovy"));
-        Files.createFile(fileSystem.getPath("/curves.groovy"));
-        Files.createFile(fileSystem.getPath("/curves.json"));
+        Files.createFile(fileSystem.getPath("/outputVariables.groovy"));
+        Files.createFile(fileSystem.getPath("/outputVariables.json"));
     }
 
     @Test
-    void testDynamicSimulation() throws IOException {
+    void testDynamicSimulation() {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
-                "+ Dynamic Simulation Tool",
+                "Dynamic Simulation Tool",
                 "dynamic simulation results:",
-                "+--------+",
-                "| Result |",
-                "+--------+",
-                "| true   |",
-                "+--------+");
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy"}, 0, expectedOut, "");
+                "+---------+",
+                "| Result  |",
+                "+---------+",
+                "| SUCCESS |",
+                "+---------+" + System.lineSeparator());
+        assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy"}, expectedOut);
 
-        // Run with curves
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, expectedOut, "");
+        // Run with outputVariables
+        assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-variables-file", "/outputVariables.groovy"}, expectedOut);
     }
 
     @Test
@@ -90,10 +91,11 @@ class DynamicSimulationToolTest extends AbstractToolTest {
                           "version" : "1.0",
                           "status" : "SUCCESS",
                           "curves" : [ ],
+                          "finalStateValues" : [ ],
                           "timeLine" : [ ]
                         }""";
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-file", "outputTest.json"}, 0, expectedOut, "");
-        ComparisonUtils.compareTxt(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.json")));
+        assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-file", "outputTest.json"}, expectedOut);
+        ComparisonUtils.assertTxtEquals(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.json")));
     }
 
     @Test
@@ -102,32 +104,32 @@ class DynamicSimulationToolTest extends AbstractToolTest {
                 "Loading network '/network.xiidm'",
                 "Writing logs to 'outputTest.log'",
                 "dynamic simulation results:",
-                "+--------+",
-                "| Result |",
-                "+--------+",
-                "| true   |",
-                "+--------+");
+                "+---------+",
+                "| Result  |",
+                "+---------+",
+                "| SUCCESS |",
+                "+---------+" + System.lineSeparator());
         String expectedOutputFile = "Dynamic Simulation Tool\n";
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-log-file", "outputTest.log"}, 0, expectedOut, "");
-        ComparisonUtils.compareTxt(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.log")));
+        assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-log-file", "outputTest.log"}, expectedOut);
+        ComparisonUtils.assertTxtEquals(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.log")));
     }
 
     @Test
-    void testDynamicSimulationWithEvents() throws IOException {
+    void testDynamicSimulationWithEvents() {
         // Run with events in groovy
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--event-models-file", "/eventModels.groovy"}, 0, null, "");
+        assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--event-models-file", "/eventModels.groovy"});
 
         // Run with events in JSON (not supported)
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--event-models-file", "/eventModels.json"}, 3, null, "Unsupported events format: json");
+        assertCommandErrorMatch(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--event-models-file", "/eventModels.json"}, "Unsupported events format: json");
     }
 
     @Test
-    void testDynamicSimulationWithCurves() throws IOException {
-        // Run with curves in groovy
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, null, "");
+    void testDynamicSimulationWithOutputVariables() {
+        // Run with outputVariables in groovy
+        assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-variables-file", "/outputVariables.groovy"});
 
-        // Run with curves in JSON (not supported)
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.json"}, 3, null, "Unsupported curves format: json");
+        // Run with outputVariables in JSON (not supported)
+        assertCommandErrorMatch(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-variables-file", "/outputVariables.json"}, "Unsupported output variables format: json");
     }
 
 }

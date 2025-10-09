@@ -3,11 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.itools;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -26,6 +30,7 @@ import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -63,6 +68,9 @@ public class ItoolsPackagerMojo extends AbstractMojo {
         }
     }
 
+    @Parameter(defaultValue = "zip")
+    private String packageType;
+
     @Parameter
     private CopyTo copyToBin;
 
@@ -72,7 +80,8 @@ public class ItoolsPackagerMojo extends AbstractMojo {
     @Parameter
     private CopyTo copyToEtc;
 
-    private static void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
+    private void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
+        getLog().info("Zip package");
         try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(Files.newOutputStream(zipFilePath))) {
             Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
                 @Override
@@ -97,6 +106,38 @@ public class ItoolsPackagerMojo extends AbstractMojo {
                 }
             });
         }
+    }
+
+    private void targz(Path dir, Path baseDir, Path zipFilePath) throws IOException {
+        getLog().info("Targz package");
+        try (TarArchiveOutputStream zos =
+                new TarArchiveOutputStream(new GzipCompressorOutputStream(Files.newOutputStream(zipFilePath)))) {
+            zos.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX); // allow long file paths
+            zos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX); // allow large numbers (for instance a big GID)
+            Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    TarArchiveEntry entry = new TarArchiveEntry(file.toFile(), baseDir.relativize(file).toString());
+                    if (Files.isExecutable(file)) {
+                        entry.setMode(0100770);
+                    } else {
+                        entry.setMode(0100660);
+                    }
+                    zos.putArchiveEntry(entry);
+                    Files.copy(file, zos);
+                    zos.closeArchiveEntry();
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    zos.putArchiveEntry(new TarArchiveEntry(baseDir.relativize(dir).toString() + "/"));
+                    zos.closeArchiveEntry();
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+
     }
 
     private void copyFiles(CopyTo copyTo, Path destDir) {
@@ -126,6 +167,32 @@ public class ItoolsPackagerMojo extends AbstractMojo {
         writer.write("java_xmx=");
         writer.write(javaXmx);
         writer.newLine();
+    }
+
+    private void addLicenseFiles(Path packageDir) {
+        // List of the license files to copy
+        List<String> licenseFiles = Arrays.asList("LICENSE.txt", "THIRD-PARTY.txt");
+
+        // Get the root directory of the project
+        File projectRoot = project.getBasedir();
+        if (project.getParent() != null) {
+            projectRoot = projectRoot.getParentFile();
+        }
+
+        // Copy each license file to the package directory
+        for (String licenseFile : licenseFiles) {
+            Path sourcePath = Paths.get(projectRoot.getPath(), licenseFile);
+            if (Files.exists(sourcePath)) {
+                try {
+                    getLog().info("Copy license file " + sourcePath + " to " + packageDir);
+                    Files.copy(sourcePath, packageDir.resolve(licenseFile), StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    getLog().warn("Failed to copy license file " + sourcePath + ": " + e.getMessage());
+                }
+            } else {
+                getLog().warn("License file " + sourcePath + " not found");
+            }
+        }
     }
 
     @Override
@@ -178,9 +245,17 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             Files.createDirectories(libDir);
             copyFiles(copyToLib, libDir);
 
-            getLog().info("Zip package");
+            // Add licenses
+            addLicenseFiles(packageDir);
+
             String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
-            zip(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".zip"));
+            if (packageType.equalsIgnoreCase("zip")) {
+                zip(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".zip"));
+            } else if (packageType.equalsIgnoreCase("tgz")) {
+                targz(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".tgz"));
+            } else {
+                throw new IllegalArgumentException("Unknown filetype '" + packageType + "': should be either zip or tgz");
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

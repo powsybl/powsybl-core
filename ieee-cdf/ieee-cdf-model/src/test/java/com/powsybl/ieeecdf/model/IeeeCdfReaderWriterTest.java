@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ieeecdf.model;
 
@@ -18,12 +19,14 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -114,6 +117,15 @@ class IeeeCdfReaderWriterTest {
             assertEquals(3, tieLine.getNonMeteredBusNumber());
             assertEquals(4, tieLine.getNonMeteredAreaNumber());
             assertEquals(5, tieLine.getCircuitNumber());
+        }
+    }
+
+    @Test
+    void testInvalidFile() throws IOException {
+        try (BufferedReader reader = new BufferedReader(new StringReader(""))) {
+            IeeeCdfReader r = new IeeeCdfReader();
+            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> r.read(reader));
+            assertEquals("Failed to parse the IeeeCdfModel", e.getMessage());
         }
     }
 }

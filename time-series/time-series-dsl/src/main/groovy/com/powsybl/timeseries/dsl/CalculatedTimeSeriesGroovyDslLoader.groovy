@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.dsl
 
@@ -12,6 +13,7 @@ import com.powsybl.timeseries.ReadOnlyTimeSeriesStore
 import com.powsybl.timeseries.TimeSeriesException
 import com.powsybl.timeseries.TimeSeriesFilter
 import com.powsybl.timeseries.ast.*
+import groovy.transform.ThreadInterrupt
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.slf4j.Logger
@@ -120,6 +122,9 @@ class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoad
         def astCustomizer = new ASTTransformationCustomizer(new CalculatedTimeSeriesGroovyDslAstTransformation())
         def config = new CompilerConfiguration()
         config.addCompilationCustomizers(astCustomizer)
+
+        // Add a check on thread interruption in every loop (for, while) in the script
+        config.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt.class))
     }
 
     public Map<String, NodeCalc> load(String script, ReadOnlyTimeSeriesStore store) {
@@ -132,6 +137,9 @@ class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoad
 
         def shell = new GroovyShell(binding, createCompilerConfig())
         def dslSrc = new GroovyCodeSource(script, SCRIPT_NAME, GroovyShell.DEFAULT_CODE_BASE)
+
+        // Check for thread interruption right before beginning the evaluation
+        if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Execution Interrupted")
         shell.evaluate(dslSrc)
 
         LOGGER.trace("Calculated time series DSL loaded in {} ms", (System.currentTimeMillis() -start))

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation.local;
 
@@ -44,6 +45,8 @@ class LocalComputationManagerTest {
     private FileSystem fileSystem;
 
     private Path localDir;
+
+    private static final String DEBUG_DIR = "/tmp/debugDir";
 
     private LocalComputationConfig config;
 
@@ -97,7 +100,7 @@ class LocalComputationManagerTest {
             }
         };
         try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
-            computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false),
+            computationManager.execute(new ExecutionEnvironment(ImmutableMap.of("var1", "val1"), PREFIX, false, DEBUG_DIR),
                     new AbstractExecutionHandler<Object>() {
                         @Override
                         public List<CommandExecution> before(Path workingDir) throws IOException {
@@ -115,7 +118,6 @@ class LocalComputationManagerTest {
                                     .id("prog1_cmd")
                                     .program("prog1")
                                     .args("file1", "file2", "file3")
-                                    .timeout(60)
                                     .inputFiles(new InputFile("file1"),
                                                 new InputFile("file2.gz", FilePreProcessor.FILE_GUNZIP),
                                                 new InputFile("file3.zip", FilePreProcessor.ARCHIVE_UNZIP))
@@ -130,7 +132,7 @@ class LocalComputationManagerTest {
                             assertEquals("prog1_cmd", report.getErrors().get(0).getCommand().getId());
                             assertEquals(0, report.getErrors().get(0).getIndex());
                             assertEquals(1, report.getErrors().get(0).getExitCode());
-
+                            assertTrue(Files.exists(fileSystem.getPath(DEBUG_DIR).resolve(workingDir)));
                             return null;
                         }
                     }).join();
@@ -331,7 +333,12 @@ class LocalComputationManagerTest {
             }
         };
 
-        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool()) {
+            @Override
+            protected long getTimeout() {
+                return 2L;
+            }
+        }) {
 
             CompletableFuture<Object> result = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Object>() {
                 @Override

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.extensions;
 
@@ -63,10 +64,10 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals(BASE_VOLTAGE_ROOT_ELEMENT)) {
                 double nominalV = context.getReader().readDoubleAttribute("nominalVoltage");
-                String sourceBV = context.getReader().readStringAttribute("source");
+                Source sourceBV = context.getReader().readEnumAttribute("source", Source.class);
                 String baseVoltageId = context.getReader().readStringAttribute("id");
                 context.getReader().readEndNode();
-                mapping.addBaseVoltage(nominalV, baseVoltageId, Source.valueOf(sourceBV));
+                mapping.addBaseVoltage(nominalV, baseVoltageId, sourceBV);
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'baseVoltageMapping'");
             }

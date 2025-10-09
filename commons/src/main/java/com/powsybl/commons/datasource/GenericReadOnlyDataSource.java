@@ -4,6 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.datasource;
 
@@ -20,15 +21,16 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
 
     private final ReadOnlyDataSource[] dataSources;
 
-    public GenericReadOnlyDataSource(Path directory, String baseName, DataSourceObserver observer) {
+    public GenericReadOnlyDataSource(Path directoryOrFile, String baseName, String dataExtension, boolean allFiles, DataSourceObserver observer) {
         dataSources = new DataSource[] {
-            new FileDataSource(directory, baseName, observer),
-            new ZstdFileDataSource(directory, baseName, observer),
-            new ZipFileDataSource(directory),
-            new ZipFileDataSource(directory, baseName + ".zip", baseName, observer),
-            new XZFileDataSource(directory, baseName, observer),
-            new GzFileDataSource(directory, baseName, observer),
-            new Bzip2FileDataSource(directory, baseName, observer)
+            new DirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new ZstdDirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new ZipArchiveDataSource(directoryOrFile, observer),
+            new ZipArchiveDataSource(directoryOrFile, baseName, dataExtension, observer),
+            new TarArchiveDataSource(directoryOrFile, observer),
+            new XZDirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new GzDirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new Bzip2DirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer)
         };
     }
 
@@ -36,11 +38,19 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
      * The data source contains all files inside the given directory.
      */
     public GenericReadOnlyDataSource(Path directory) {
-        this(directory, "");
+        this(directory, "", null);
     }
 
     public GenericReadOnlyDataSource(Path directory, String baseName) {
         this(directory, baseName, null);
+    }
+
+    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension) {
+        this(directory, baseName, dataExtension, false);
+    }
+
+    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, boolean allFiles) {
+        this(directory, baseName, dataExtension, allFiles, null);
     }
 
     @Override
@@ -49,9 +59,24 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
+    public String getDataExtension() {
+        return dataSources[0].getDataExtension();
+    }
+
+    @Override
     public boolean exists(String suffix, String ext) throws IOException {
         for (ReadOnlyDataSource dataSource : dataSources) {
             if (dataSource.exists(suffix, ext)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isDataExtension(String ext) {
+        for (ReadOnlyDataSource dataSource : dataSources) {
+            if (dataSource.isDataExtension(ext)) {
                 return true;
             }
         }

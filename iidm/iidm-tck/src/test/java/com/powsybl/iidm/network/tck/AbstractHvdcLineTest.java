@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -214,5 +216,45 @@ public abstract class AbstractHvdcLineTest {
                     .setConverterStationId1(converterStationId1)
                     .setConverterStationId2(converterStationId2)
                 .add();
+    }
+
+    @Test
+    void testConnectDisconnect() {
+        HvdcLine hvdcLine = network.getHvdcLine("L");
+
+        // Check that the HVDC line is connected
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        // Connection fails since it's already connected
+        assertFalse(hvdcLine.connectConverterStations());
+
+        // Disconnection fails if switches cannot be opened (here, only fictional switches could be opened)
+        assertFalse(hvdcLine.disconnectConverterStations(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
+
+        // Disconnection
+        assertTrue(hvdcLine.disconnectConverterStations());
+        assertHvdcLineConnection(hvdcLine, false, false);
+
+        // Disconnection fails since it's already disconnected
+        assertFalse(hvdcLine.disconnectConverterStations());
+
+        // Connection fails if switches cannot be opened (here, only fictional switches could be closed)
+        assertFalse(hvdcLine.connectConverterStations(SwitchPredicates.IS_NONFICTIONAL.negate()));
+
+        // Connection
+        assertTrue(hvdcLine.connectConverterStations());
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        // Disconnect one side
+        assertTrue(hvdcLine.disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, TwoSides.ONE));
+        assertHvdcLineConnection(hvdcLine, false, true);
+
+        // Connection on the other side fails since it's still connected
+        assertFalse(hvdcLine.connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
+    }
+
+    private void assertHvdcLineConnection(HvdcLine hvdcLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
+        assertEquals(expectedConnectionOnSide1, hvdcLine.getConverterStation1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, hvdcLine.getConverterStation2().getTerminal().isConnected());
     }
 }

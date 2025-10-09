@@ -39,6 +39,7 @@ Here is how to configure itools package Maven plugin in your project
                 <configuration>
                     <packageName>powsybl</packageName>
                     <archiveName>powsybl-x-y-x</archiveName>
+                    <packageType>zip</packageType>
                     <javaXmx>8G</javaXmx>
                     <mpiTasks>2</mpiTasks>
                     <mpiHosts>
@@ -68,6 +69,7 @@ Here is how to configure itools package Maven plugin in your project
 
 - packageName is optional, project final name is used as default value.
 - archiveName is optional, packageName is used as default value.
+- packageType is optional, "zip" is the default value. It can be either zip or tgz.
 - javaXmx, mpiTasks and mpiHosts are used to generate itools.conf, are all optional and default values are respectively 8G, 2 and localhost.
 - additional binaries, libraries and configurations file can be added to the package using optional copyToBin, copyToLib and copyToEtc tags.
 - all of the jars with compile and runtime scope will be included in the package

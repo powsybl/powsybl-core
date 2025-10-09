@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.dynamicsimulation.groovy;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +38,7 @@ class GroovyDynamicModelSupplierTest {
     void setup() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
-        Files.copy(getClass().getResourceAsStream("/dynamicModels.groovy"), fileSystem.getPath("/dynamicModels.groovy"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/dynamicModels.groovy")), fileSystem.getPath("/dynamicModels.groovy"));
     }
 
     @AfterEach
@@ -72,12 +74,12 @@ class GroovyDynamicModelSupplierTest {
         List<DynamicModel> dynamicModels = supplier.get(network);
         assertEquals(2, dynamicModels.size());
 
-        assertTrue(dynamicModels.get(0) instanceof DummyDynamicModel);
+        assertInstanceOf(DummyDynamicModel.class, dynamicModels.get(0));
         DummyDynamicModel dynamicModel1 = (DummyDynamicModel) dynamicModels.get(0);
         assertEquals("id", dynamicModel1.getId());
         assertEquals("parameterSetId", dynamicModel1.getParameterSetId());
 
-        assertTrue(dynamicModels.get(1) instanceof DummyDynamicModel);
+        assertInstanceOf(DummyDynamicModel.class, dynamicModels.get(1));
         DummyDynamicModel dynamicModel2 = (DummyDynamicModel) dynamicModels.get(1);
         assertEquals("LOAD", dynamicModel2.getId());
         assertEquals("LOAD", dynamicModel2.getParameterSetId());

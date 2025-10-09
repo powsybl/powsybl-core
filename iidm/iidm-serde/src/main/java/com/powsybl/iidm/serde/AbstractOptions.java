@@ -3,11 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -17,24 +22,97 @@ import java.util.Set;
  */
 public abstract class AbstractOptions<T> {
 
-    protected Set<String> extensions;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOptions.class);
+
+    protected Set<String> includedExtensions;
+
+    protected Set<String> excludedExtensions;
 
     protected TreeDataFormat format = TreeDataFormat.XML;
 
-    public abstract T setExtensions(Set<String> extensions);
+    /**
+     * Set the set of extensions to be included from import / export
+     * @param extensions the set of extensions o be included from import / export
+     * @return this casted to T
+     */
+    public T setIncludedExtensions(Set<String> extensions) {
+        if (excludedExtensions != null) {
+            LOGGER.warn("Previously excluded extensions list will now be ignored: {}", excludedExtensions);
+        }
+        if (extensions != null && extensions.isEmpty()) {
+            LOGGER.warn("All extensions will be excluded");
+        }
+        this.excludedExtensions = null;
+        this.includedExtensions = extensions;
+        return castThis();
+    }
 
-    public abstract T addExtension(String extension);
+    /**
+     * Set the set of extensions to be excluded from import / export
+     * @param extensions the set of extensions o be excluded from import / export
+     * @return this casted to T
+     */
+    public T setExcludedExtensions(Set<String> extensions) {
+        if (includedExtensions != null) {
+            LOGGER.warn("Previously included extensions list will now be ignored: {}", includedExtensions);
+        }
+        this.includedExtensions = null;
+        this.excludedExtensions = extensions;
+        return castThis();
+    }
 
-    public Optional<Set<String>> getExtensions() {
-        return Optional.ofNullable(extensions);
+    /**
+     * Add an extension to the list of included extension for import / export
+     * @param extension the extension to be included for import / export
+     * @return this casted to T
+     */
+    public T addIncludedExtension(String extension) {
+        if (excludedExtensions != null) {
+            if (excludedExtensions.remove(extension)) {
+                LOGGER.warn("Previously excluded extensions {} will now be included", extension);
+            }
+        } else {
+            if (includedExtensions == null) {
+                includedExtensions = new HashSet<>();
+            }
+            includedExtensions.add(extension);
+        }
+        return castThis();
+    }
+
+    /**
+     * Add an extension to the list of excluded extension for import / export
+     * @param extension the extension to be excluded for import / export
+     * @return this casted to T
+     */
+    public T addExcludedExtension(String extension) throws PowsyblException {
+        if (includedExtensions != null) {
+            if (includedExtensions.remove(extension)) {
+                LOGGER.warn("Previously included extensions {} will now be excluded", extension);
+            }
+        } else {
+            if (excludedExtensions == null) {
+                excludedExtensions = new HashSet<>();
+            }
+            excludedExtensions.add(extension);
+        }
+        return castThis();
+    }
+
+    public Optional<Set<String>> getIncludedExtensions() {
+        return Optional.ofNullable(includedExtensions);
+    }
+
+    public Optional<Set<String>> getExcludedExtensions() {
+        return Optional.ofNullable(excludedExtensions);
     }
 
     public boolean withNoExtension() {
-        return extensions != null && extensions.isEmpty();
+        return includedExtensions != null && includedExtensions.isEmpty();
     }
 
     public boolean withAllExtensions() {
-        return extensions == null;
+        return includedExtensions == null && (excludedExtensions == null || excludedExtensions.isEmpty());
     }
 
     public boolean hasAtLeastOneExtension(Set<String> extensions) {
@@ -42,7 +120,7 @@ public abstract class AbstractOptions<T> {
             return true;
         }
         for (String extension : extensions) {
-            if (this.extensions.contains(extension)) {
+            if (withExtension(extension)) {
                 return true;
             }
         }
@@ -50,7 +128,8 @@ public abstract class AbstractOptions<T> {
     }
 
     public boolean withExtension(String extensionName) {
-        return withAllExtensions() || extensions.contains(extensionName);
+        return (excludedExtensions == null || !excludedExtensions.contains(extensionName))
+                && (includedExtensions == null || includedExtensions.contains(extensionName));
     }
 
     public abstract boolean isThrowExceptionIfExtensionNotFound();
@@ -61,6 +140,16 @@ public abstract class AbstractOptions<T> {
 
     public T setFormat(TreeDataFormat format) {
         this.format = Objects.requireNonNull(format);
+        return castThis();
+    }
+
+    /**
+     * Cast to T is safe in practice (hence the added SuppressWarning annotation).
+     * @return this casted to T
+     */
+    @SuppressWarnings("unchecked")
+    private T castThis() {
         return (T) this;
     }
+
 }

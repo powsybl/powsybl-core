@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.distributed;
 
@@ -121,7 +122,7 @@ class SecurityAnalysisExecutionHandlersTest {
     void forwardedBeforeWithCompleteInput() throws IOException {
         Action action = new SwitchAction("action", "switch", false);
         OperatorStrategy strategy = new OperatorStrategy("strat", ContingencyContext.specificContingency("cont"), new TrueCondition(), List.of("action"));
-        LimitReduction limitReduction = new LimitReduction(LimitType.CURRENT, 0.9f, false);
+        LimitReduction limitReduction = new LimitReduction(LimitType.CURRENT, 0.9);
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())
@@ -308,7 +309,7 @@ class SecurityAnalysisExecutionHandlersTest {
                 "security-analysis-task_1.out",
                 "security-analysis-task_1.err");
         for (String logFileName : expectedLogs) {
-            Files.write(workingDir.resolve(logFileName), "logs".getBytes(StandardCharsets.UTF_8));
+            Files.writeString(workingDir.resolve(logFileName), "logs");
         }
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
@@ -330,7 +331,7 @@ class SecurityAnalysisExecutionHandlersTest {
             fail();
         } catch (Exception e) {
             // ignored
-            assertTrue(e instanceof ComputationException);
+            assertInstanceOf(ComputationException.class, e);
         }
 
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_0_result.json"))) {
@@ -367,7 +368,7 @@ class SecurityAnalysisExecutionHandlersTest {
                 "security-analysis.err");
 
         for (String logFileName : expectedLogs) {
-            Files.write(workingDir.resolve(logFileName), "logs".getBytes(StandardCharsets.UTF_8));
+            Files.writeString(workingDir.resolve(logFileName), "logs");
         }
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()

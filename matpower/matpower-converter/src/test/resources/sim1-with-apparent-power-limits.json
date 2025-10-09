@@ -4,7 +4,7 @@
   "version" : "2",
   "buses" : [ {
     "number" : 1,
-    "type" : "PV",
+    "type" : "REF",
     "name" : "VLGEN_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
@@ -19,7 +19,7 @@
     "minimumVoltageMagnitude" : 0.0
   }, {
     "number" : 2,
-    "type" : "REF",
+    "type" : "PQ",
     "name" : "VLHV1_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,

@@ -3,11 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
@@ -17,6 +17,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionSerDe;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -31,11 +32,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import static com.powsybl.iidm.serde.ExtensionOptionsUtil.getAndCheckExtensionsToInclude;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -48,18 +48,26 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.import.xml.throw-exception-if-extension-not-found";
 
-    public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
+    public static final String EXTENSIONS_INCLUDED_LIST = "iidm.import.xml.included.extensions";
+
+    public static final String EXTENSIONS_EXCLUDED_LIST = "iidm.import.xml.excluded.extensions";
 
     public static final String WITH_AUTOMATION_SYSTEMS = "iidm.import.xml.with-automation-systems";
 
     public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.xml.missing-permanent-limit-percentage";
 
+    public static final String MINIMAL_VALIDATION_LEVEL = "iidm.import.minimal-validation-level";
+
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
             .addAdditionalNames("throwExceptionIfExtensionNotFound");
 
-    private static final Parameter EXTENSIONS_LIST_PARAMETER
-            = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null,
+    private static final Parameter EXTENSIONS_INCLUDED_LIST_PARAMETER
+            = new Parameter(EXTENSIONS_INCLUDED_LIST, ParameterType.STRING_LIST, "The list of extension file to be imported ", null,
+            EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
+
+    private static final Parameter EXTENSIONS_EXCLUDED_LIST_PARAMETER
+            = new Parameter(EXTENSIONS_EXCLUDED_LIST, ParameterType.STRING_LIST, "The list of extension files that will be excluded and not imported ", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
 
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
@@ -68,6 +76,10 @@ public abstract class AbstractTreeDataImporter implements Importer {
     public static final Parameter MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER = new Parameter(MISSING_PERMANENT_LIMIT_PERCENTAGE,
             ParameterType.DOUBLE, "Percentage applied to lowest temporary limit to compute the permanent limit when missing (for IIDM < 1.12 only)",
             100.);
+
+    public static final Parameter MINIMAL_VALIDATION_LEVEL_PARAMETER = new Parameter(MINIMAL_VALIDATION_LEVEL,
+            ParameterType.STRING, "Minimal validation level accepted",
+            null);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -83,13 +95,16 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
-                WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER);
+        List<Parameter> parameters = List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER,
+                EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER,
+                WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
+                MINIMAL_VALIDATION_LEVEL_PARAMETER);
+        return ConfiguredParameter.load(parameters, getFormat(), defaultValueConfig);
     }
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
         for (String ext : getExtensions()) {
-            if (dataSource.exists(null, ext)) {
+            if (dataSource.isDataExtension(ext) && dataSource.exists(null, ext)) {
                 return ext;
             }
         }
@@ -97,6 +112,11 @@ public abstract class AbstractTreeDataImporter implements Importer {
     }
 
     protected abstract String[] getExtensions();
+
+    @Override
+    public List<String> getSupportedExtensions() {
+        return Arrays.asList(getExtensions());
+    }
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
@@ -150,7 +170,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
             }
 
             network = NetworkSerDe.read(dataSource, networkFactory, options, ext, reportNode);
-            ReportNode subReportNode = reportNode.newReportNode().withMessageTemplate("xiidmImportDone", "XIIDM import done").add();
+            ReportNode subReportNode = DeserializerReports.doneImportingXiidm(reportNode);
             DeserializerReports.importedNetworkReport(subReportNode, network.getId(), options.getFormat().toString());
             LOGGER.debug("{} import done in {} ms", getFormat(), System.currentTimeMillis() - startTime);
         } catch (IOException e) {
@@ -160,11 +180,15 @@ public abstract class AbstractTreeDataImporter implements Importer {
     }
 
     protected ImportOptions createImportOptions(Properties parameters) {
-        return new ImportOptions()
+        ImportOptions importOptions = new ImportOptions()
                 .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setIncludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setExcludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
-                .setMissingPermanentLimitPercentage(Parameter.readDouble(getFormat(), parameters, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER, defaultValueConfig));
+                .setMissingPermanentLimitPercentage(Parameter.readDouble(getFormat(), parameters, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER, defaultValueConfig))
+                .setMinimalValidationLevel(Parameter.readString(getFormat(), parameters, MINIMAL_VALIDATION_LEVEL_PARAMETER, defaultValueConfig));
+        getAndCheckExtensionsToInclude(parameters, importOptions, getFormat(), defaultValueConfig, EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, false);
+        return importOptions;
     }
 }
 

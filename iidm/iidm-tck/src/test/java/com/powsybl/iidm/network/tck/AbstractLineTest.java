@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -19,11 +20,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractLineTest {
@@ -39,6 +44,22 @@ public abstract class AbstractLineTest {
     private Network network;
     private VoltageLevel voltageLevelA;
     private VoltageLevel voltageLevelB;
+
+    public static boolean areLinesIdentical(Line line1, Line line2) {
+        boolean areIdentical = false;
+
+        if (line1 != null && line2 != null) {
+            areIdentical = line1.getR() == line2.getR()
+                    && line1.getX() == line2.getX()
+                    && line1.getG1() == line2.getG1()
+                    && line1.getG2() == line2.getG2()
+                    && line1.getB1() == line2.getB1()
+                    && line1.getB2() == line2.getB2()
+                    && Objects.equals(line1.getTerminal1().getVoltageLevel().getId(), line2.getTerminal1().getVoltageLevel().getId())
+                    && Objects.equals(line1.getTerminal2().getVoltageLevel().getId(), line2.getTerminal2().getVoltageLevel().getId());
+        }
+        return areIdentical;
+    }
 
     @BeforeEach
     public void setUp() {
@@ -90,6 +111,8 @@ public abstract class AbstractLineTest {
         assertSame(busB, acLine.getTerminal("vl2").getBusBreakerView().getConnectableBus());
         assertSame(busA, acLine.getTerminal(TwoSides.ONE).getBusBreakerView().getConnectableBus());
         assertSame(busB, acLine.getTerminal(TwoSides.TWO).getBusBreakerView().getConnectableBus());
+        assertNull(acLine.getTerminal1().getTerminalNumber());
+        assertNull(acLine.getTerminal2().getTerminalNumber());
 
         assertEquals(IdentifiableType.LINE, acLine.getType());
 
@@ -113,7 +136,7 @@ public abstract class AbstractLineTest {
         acLine.setB2(b2);
         assertEquals(b2, acLine.getB2(), 0.0);
 
-        CurrentLimits currentLimits1 = acLine.newCurrentLimits1()
+        CurrentLimits currentLimits1 = acLine.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100)
                 .beginTemporaryLimit()
                 .setName("5'")
@@ -121,7 +144,7 @@ public abstract class AbstractLineTest {
                 .setValue(1400)
                 .endTemporaryLimit()
                 .add();
-        CurrentLimits currentLimits2 = acLine.newCurrentLimits2()
+        CurrentLimits currentLimits2 = acLine.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(50)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -129,10 +152,12 @@ public abstract class AbstractLineTest {
                 .setValue(1200)
                 .endTemporaryLimit()
                 .add();
-        assertSame(currentLimits1, acLine.getCurrentLimits1().orElse(null));
-        assertSame(currentLimits2, acLine.getCurrentLimits2().orElse(null));
-        assertSame(currentLimits1, acLine.getLimits(LimitType.CURRENT, TwoSides.ONE).orElse(null));
-        assertSame(currentLimits2, acLine.getLimits(LimitType.CURRENT, TwoSides.TWO).orElse(null));
+        currentLimits1.setPermanentLimit(110);
+        assertEquals(110, currentLimits1.getPermanentLimit(), 0.0);
+        assertEquals(currentLimits1.getPermanentLimit(), acLine.getCurrentLimits1().orElseThrow().getPermanentLimit(), 0.0);
+        currentLimits2.setPermanentLimit(120);
+        assertEquals(120, currentLimits2.getPermanentLimit(), 0.0);
+        assertEquals(currentLimits2.getPermanentLimit(), acLine.getCurrentLimits2().orElseThrow().getPermanentLimit(), 0.0);
 
         // add power on line
         Terminal terminal1 = acLine.getTerminal1();
@@ -176,6 +201,81 @@ public abstract class AbstractLineTest {
 
         assertSame(voltageLevelA, acLine.getTerminal1().getVoltageLevel());
         assertSame(voltageLevelB, acLine.getTerminal2().getVoltageLevel());
+    }
+
+    @Test
+    public void testLineCopier() {
+        // First limit normally created
+        LineAdder acLineAdder1 = network.newLine()
+                .setId("line1")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG1(3.0)
+                .setG2(3.5)
+                .setB1(4.0)
+                .setB2(4.5)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB");
+        acLineAdder1.add();
+        Line acLine1 = network.getLine("line1");
+        // Group and limits creation 1
+        acLine1.newOperationalLimitsGroup1("group1").newCurrentLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<CurrentLimits> optionalLimits1 = acLine1.getCurrentLimits1();
+        assertTrue(optionalLimits1.isPresent());
+        CurrentLimits limits1 = optionalLimits1.get();
+        assertNotNull(limits1);
+
+        acLine1.getOperationalLimitsGroup1("group1").get().newActivePowerLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<ActivePowerLimits> optionalActivePowerLimits1 = acLine1.getActivePowerLimits1();
+        assertTrue(optionalActivePowerLimits1.isPresent());
+        ActivePowerLimits activePowerLimits1 = optionalActivePowerLimits1.get();
+        assertNotNull(activePowerLimits1);
+
+        acLine1.getOperationalLimitsGroup1("group1").get().newApparentPowerLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<ApparentPowerLimits> optionalApparentPowerLimits1 = acLine1.getApparentPowerLimits1();
+        assertTrue(optionalApparentPowerLimits1.isPresent());
+        ApparentPowerLimits apparentPowerLimits1 = optionalApparentPowerLimits1.get();
+        assertNotNull(apparentPowerLimits1);
+
+        // Group and limit creation 2
+        acLine1.newOperationalLimitsGroup2("group2").newCurrentLimits().setPermanentLimit(80.0).add();
+        acLine1.setSelectedOperationalLimitsGroup2("group2");
+        Optional<CurrentLimits> optionalLimits2 = acLine1.getCurrentLimits2();
+        assertTrue(optionalLimits2.isPresent());
+        CurrentLimits limits2 = optionalLimits2.get();
+        assertNotNull(limits2);
+
+        // Second limit created by copy
+        LineAdder acLineAdder2 = network.newLine(acLine1);
+        acLineAdder2
+                .setId("line2")
+                .setName(LINE_NAME)
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB");
+        acLineAdder2.add();
+        Line acLine2 = network.getLine("line2");
+        // Limits check to set up test
+        Optional<CurrentLimits> optionalLimits3 = acLine2.getCurrentLimits1();
+        assertTrue(optionalLimits3.isPresent());
+        CurrentLimits limits3 = optionalLimits3.get();
+
+        // Tests
+        assertNotNull(acLine2);
+        assertTrue(areLinesIdentical(acLine1, acLine2));
+        assertEquals(limits1.getPermanentLimit(), limits3.getPermanentLimit());
+        assertNotNull(acLine2.getOperationalLimitsGroup2("group2"));
+        assertEquals(acLine1.getSelectedOperationalLimitsGroupId2(), acLine2.getSelectedOperationalLimitsGroupId2());
+
     }
 
     @Test
@@ -326,9 +426,7 @@ public abstract class AbstractLineTest {
     public void testChangesNotification() {
         // Changes listener
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), any(), any());
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), any(), anyString(), any(),
-                any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), anyString(), any(), any());
 
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
@@ -366,12 +464,12 @@ public abstract class AbstractLineTest {
 
         // Change values that not depend on the variant
         acLine.setR(1.5);
-        verify(mockedListener, times(1)).onUpdate(acLine, "r", 1.0, 1.5);
+        verify(mockedListener, times(1)).onUpdate(acLine, "r", null, 1.0, 1.5);
 
         // Simulate exception for onUpdate calls
         doThrow(new PowsyblException())
                 .when(mockedListener)
-                .onUpdate(any(Line.class), anyString(), anyDouble(), anyDouble());
+                .onUpdate(any(Line.class), anyString(), anyString(), anyDouble(), anyDouble());
         // Change P1 value
         try {
             acLine.getTerminal1().setP(1.1);
@@ -583,16 +681,16 @@ public abstract class AbstractLineTest {
     static Stream<Arguments> getLimitType() {
         return Stream.of(
                 Arguments.of(LimitType.CURRENT),
-                Arguments.of(LimitType.APPARENT_POWER),
-                Arguments.of(LimitType.ACTIVE_POWER)
+                Arguments.of(LimitType.ACTIVE_POWER),
+                Arguments.of(LimitType.APPARENT_POWER)
         );
     }
 
     private LoadingLimitsAdder<?, ?> getAdder(Line l, LimitType limitType) {
         return switch (limitType) {
-            case CURRENT -> l.newCurrentLimits1();
-            case ACTIVE_POWER -> l.newActivePowerLimits1();
-            case APPARENT_POWER -> l.newApparentPowerLimits1();
+            case CURRENT -> l.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
+            case ACTIVE_POWER -> l.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits();
+            case APPARENT_POWER -> l.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits();
             default -> throw new IllegalArgumentException("Invalid type");
         };
     }
@@ -608,7 +706,7 @@ public abstract class AbstractLineTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getLimitType")
-    void dontChangeSelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
+    void addEmptySelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
                 .setName(LINE_NAME)
@@ -622,14 +720,16 @@ public abstract class AbstractLineTest {
         assertTrue(line.getOperationalLimitsGroups1().isEmpty());
         LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
         adder.setPermanentLimit(1000.);
-        // The adder is voluntarily NOT added. The default group should not be updated.
-        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        // The adder is voluntarily NOT added. The default group is updated, but no limit is added.
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isPresent());
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
+        assertEquals("DEFAULT", line.getSelectedOperationalLimitsGroup1().get().getId());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().get().isEmpty());
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getLimitType")
-    void dontChangeDefaultOperationalLimitsGroupIfAdderValidationFails(LimitType limitType) {
+    void addEmptyDefaultOperationalLimitsGroupIfAdderValidationFails(LimitType limitType) {
         Line line = network.newLine()
                 .setId("line")
                 .setName(LINE_NAME)
@@ -645,8 +745,10 @@ public abstract class AbstractLineTest {
         adder.setPermanentLimit(Double.NaN);
         adder.beginTemporaryLimit().setName("10'").setValue(500.).setAcceptableDuration(600).endTemporaryLimit();
         assertThrows(ValidationException.class, adder::add);
-        // The limits' validation of the adder fails. The default group should not be updated.
-        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
-        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        // The limits' validation of the adder fails. The default group is updated, but no limit is added.
+        assertFalse(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
+        assertEquals("DEFAULT", line.getSelectedOperationalLimitsGroup1().get().getId());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().get().isEmpty());
     }
 }

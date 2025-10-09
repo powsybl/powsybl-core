@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.naming;
 
@@ -25,6 +26,15 @@ public final class NamingStrategyFactory {
 
     public static NamingStrategy create(String impl, UUID uuidNamespace) {
         Objects.requireNonNull(impl);
+
+        // First, try to find a provider via ServiceLoader
+        NamingStrategiesServiceLoader serviceLoader = new NamingStrategiesServiceLoader();
+        var providerOpt = serviceLoader.findProviderByName(impl);
+        if (providerOpt.isPresent()) {
+            return providerOpt.get().create(uuidNamespace);
+        }
+
+        // Fallback to built-in implementations for backward compatibility
         return switch (impl) {
             case IDENTITY -> new NamingStrategy.Identity();
             case CGMES -> new SimpleCgmesAliasNamingStrategy(uuidNamespace);

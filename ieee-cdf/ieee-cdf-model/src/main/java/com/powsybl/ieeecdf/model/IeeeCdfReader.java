@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ieeecdf.model;
 
@@ -32,7 +33,13 @@ public class IeeeCdfReader {
     public IeeeCdfModel read(BufferedReader reader) throws IOException {
         String line = reader.readLine();
 
-        IeeeCdfTitle title = parseLines(Collections.singletonList(line), IeeeCdfTitle.class).get(0);
+        // Ensure malformed input does not trigger unexpected ArrayIndexOutOfBoundException
+        List<IeeeCdfTitle> parsedLines = parseLines(Collections.singletonList(line), IeeeCdfTitle.class);
+        if (parsedLines.isEmpty()) {
+            throw new IllegalArgumentException("Failed to parse the IeeeCdfModel");
+        }
+
+        IeeeCdfTitle title = parsedLines.get(0);
         IeeeCdfModel model = new IeeeCdfModel(title);
 
         IeeeCdfSection section = null;

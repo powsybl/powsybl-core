@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
@@ -12,7 +13,6 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.ArrayList;
@@ -82,14 +82,6 @@ public class TerminalMapping {
      */
     @Deprecated(since = "6.1.2")
     public Terminal find(String cgmesTerminalId, boolean loadingLimits) {
-        throw new ConversionException("Deprecated. Not used anymore");
-    }
-
-    /**
-     * @deprecated Not used anymore.
-     */
-    @Deprecated(since = "4.8.0")
-    public Terminal find(String cgmesTerminalId, CgmesModel cgmesModel, Network network) {
         throw new ConversionException("Deprecated. Not used anymore");
     }
 

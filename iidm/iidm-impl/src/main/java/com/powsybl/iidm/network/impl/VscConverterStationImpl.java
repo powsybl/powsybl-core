@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -35,7 +36,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
         this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
-        regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, voltageRegulatorOn);
+        regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, true);
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
     }
 
@@ -58,10 +59,10 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex), n.getMinValidationLevel());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex),
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         boolean oldValue = this.regulatingPoint.isRegulating(variantIndex);
         this.regulatingPoint.setRegulating(variantIndex, voltageRegulatorOn);
-        regulatingPoint.setUseVoltageRegulation(voltageRegulatorOn);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
@@ -77,7 +78,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), voltageSetpoint, reactivePowerSetpoint.get(variantIndex), n.getMinValidationLevel());
+        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), voltageSetpoint, reactivePowerSetpoint.get(variantIndex),
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -94,7 +96,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), voltageSetpoint.get(variantIndex), reactivePowerSetpoint, n.getMinValidationLevel());
+        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), voltageSetpoint.get(variantIndex), reactivePowerSetpoint,
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -123,7 +126,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     }
 
     @Override
-    public <RL extends ReactiveLimits> RL getReactiveLimits(Class<RL> type) {
+    public <L extends ReactiveLimits> L getReactiveLimits(Class<L> type) {
         return reactiveLimits.getReactiveLimits(type);
     }
 

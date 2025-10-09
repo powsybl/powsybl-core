@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.io;
 
@@ -17,7 +18,6 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
@@ -74,7 +74,7 @@ public abstract class AbstractRecordGroup<T> {
 
     /**
      * Some record groups have a fine level of detail on which field names should be saved in the context depending on each record
-     * This function will be override for Transformer data:
+     * This function will be overridden for Transformer data:
      * We want to save different field names for transformers with 2 / 3 windings
      *
      * @param object the object to be evaluated for a specific record group identification
@@ -128,7 +128,7 @@ public abstract class AbstractRecordGroup<T> {
         return ioFor(context.getFileFormat(), context.getVersion().major());
     }
 
-    public List<T> read(BufferedReader reader, Context context) throws IOException {
+    public List<T> read(LegacyTextReader reader, Context context) throws IOException {
         return ioFor(context).read(reader, context);
     }
 
@@ -136,7 +136,7 @@ public abstract class AbstractRecordGroup<T> {
         ioFor(context).write(psseObjects, context, outputStream);
     }
 
-    public T readHead(BufferedReader reader, Context context) throws IOException {
+    public T readHead(LegacyTextReader reader, Context context) throws IOException {
         return ioFor(context).readHead(reader, context);
     }
 
@@ -145,6 +145,10 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     public List<T> readFromStrings(List<String> records, Context context) {
+        // fieldNames should not be updated when recordsList is empty
+        if (records.isEmpty()) {
+            return new ArrayList<>();
+        }
         String[] allFieldNames = fieldNames(context.getVersion());
         List<T> psseObjects = parseRecords(records, allFieldNames, context);
         String[] actualFieldNames = ArrayUtils.subarray(allFieldNames, 0, context.getCurrentRecordGroupMaxNumFields());
@@ -166,6 +170,12 @@ public abstract class AbstractRecordGroup<T> {
         context.resetCurrentRecordGroup();
         for (String record : records) {
             String[] fields = parser.parseLine(record);
+
+            // CsvParser::parseLine could return null for malformed record
+            if (fields == null) {
+                throw new PsseException("Parsing error");
+            }
+
             context.setCurrentRecordNumFields(fields.length);
         }
         List<T> beans = processor.getBeans();

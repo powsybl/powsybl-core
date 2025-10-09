@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.dsl;
 
@@ -68,7 +69,12 @@ class CalculatedTimeSeriesGroovyDslTest {
 
                 @Override
                 public long getTime() {
-                    return index.getTimeAt(finalPoint);
+                    return getInstant().toEpochMilli();
+                }
+
+                @Override
+                public Instant getInstant() {
+                    return index.getInstantAt(finalPoint);
                 }
 
                 @Override
@@ -237,7 +243,7 @@ class CalculatedTimeSeriesGroovyDslTest {
 
     @Test
     void splitWithCalcTest() {
-        TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10002, 1);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(10000), Instant.ofEpochMilli(10002), Duration.ofMillis(1));
         DoubleTimeSeries a = TimeSeries.createDouble("a", index, 1d, 2d, 3d);
         DoubleTimeSeries b = DoubleTimeSeries.fromTimeSeries(a).build("ts['b'] = ts['a'] + 1").get(0);
         List<DoubleTimeSeries> timeSeriesList = Arrays.asList(a, b);

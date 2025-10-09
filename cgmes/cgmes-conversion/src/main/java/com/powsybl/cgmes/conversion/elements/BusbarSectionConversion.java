@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.BusbarSectionAdder;
@@ -22,7 +24,7 @@ import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TE
 public class BusbarSectionConversion extends AbstractConductingEquipmentConversion {
 
     public BusbarSectionConversion(PropertyBag bbs, Context context) {
-        super("BusbarSection", bbs, context);
+        super(CgmesNames.BUSBAR_SECTION, bbs, context);
     }
 
     @Override
@@ -41,7 +43,7 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
             bbsAdder.setNode(iidmNode());
             BusbarSection bbs = bbsAdder.add();
             addAliasesAndProperties(bbs);
-            convertedTerminals(bbs.getTerminal());
+            convertedTerminalsWithOnlyEq(bbs.getTerminal());
         } else {
             // If we are reading CGMES input data as bus/branch,
             // we just keep track of this busbar section terminal
@@ -52,7 +54,7 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
 
     private void addBusbarSectionTerminalToBus() {
         // Some isolated busbar sections may not have a topological node.
-        // This means that we can not determine the voltage level of the busbar section in bus/branch model,
+        // This means that we cannot determine the voltage level of the busbar section in bus/branch model,
         // So we need to check if the voltage level is present before trying to access the bus
         // voltageLevel() assumes voltage level is present, throws an exception if not available
         // voltageLevel(1) returns the optional voltage level of the first terminal

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
@@ -231,10 +232,10 @@ public final class FictitiousSwitchFactory {
                 .setNode2(10)
                 .setVoltageLevel2("N")
                 .add();
-        twtCI.newCurrentLimits1()
+        twtCI.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
-        twtCI.newCurrentLimits2()
+        twtCI.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
         twtCI.newPhaseTapChanger()
@@ -292,10 +293,10 @@ public final class FictitiousSwitchFactory {
                 .setNode2(5)
                 .setVoltageLevel2("N")
                 .add();
-        lineCJ.newCurrentLimits1()
+        lineCJ.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
-        lineCJ.newCurrentLimits2()
+        lineCJ.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .beginTemporaryLimit()
                     .setName("IST")

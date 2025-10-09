@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -11,6 +12,7 @@ import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +93,7 @@ public final class Importers {
      * @return           the model
      */
     public static Network importData(String format, String directory, String baseName, Properties parameters) {
-        return importData(format, new FileDataSource(Paths.get(directory), baseName), parameters);
+        return importData(format, new DirectoryDataSource(Paths.get(directory), baseName), parameters);
     }
 
     private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) {
@@ -146,32 +148,22 @@ public final class Importers {
         List<ReadOnlyDataSource> dataSources = new ArrayList<>();
         importAll(dir, importer, dataSources);
         if (parallel) {
-            ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-            try {
+            try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
                 List<Future<?>> futures = dataSources.stream()
                         .map(ds -> {
-                            ReportNode child = createChildReportNode(reportNode, ds);
+                            ReportNode child = NetworkReports.createChildReportNode(reportNode, ds);
                             return executor.submit(() -> doImport(ds, importer, parameters, consumer, listener, networkFactory, child));
                         })
                         .collect(Collectors.toList());
                 for (Future<?> future : futures) {
                     future.get();
                 }
-            } finally {
-                executor.shutdownNow();
             }
         } else {
             for (ReadOnlyDataSource dataSource : dataSources) {
-                doImport(dataSource, importer, parameters, consumer, listener, networkFactory, createChildReportNode(reportNode, dataSource));
+                doImport(dataSource, importer, parameters, consumer, listener, networkFactory, NetworkReports.createChildReportNode(reportNode, dataSource));
             }
         }
-    }
-
-    private static ReportNode createChildReportNode(ReportNode reportNode, ReadOnlyDataSource ds) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("importDataSource", "Import data source ${dataSource}")
-                .withUntypedValue("dataSource", ds.getBaseName())
-                .add();
     }
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {

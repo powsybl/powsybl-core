@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -42,7 +43,7 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
         LccConverterStationImpl converterStation
                 = new LccConverterStationImpl(getNetworkRef(), id, name, isFictitious(), getLossFactor(), powerFactor);
         converterStation.addTerminal(terminal);
-        getVoltageLevel().attach(terminal, false);
+        getVoltageLevel().getTopologyModel().attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(converterStation);
         getNetwork().getListeners().notifyCreation(converterStation);
         return converterStation;

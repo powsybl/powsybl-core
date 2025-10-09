@@ -3,23 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.powsybl.psse.model.io.*;
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.powsybl.psse.model.io.AbstractRecordGroup;
-import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.io.FileFormat;
-import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseGneDevice;
 
 /**
@@ -53,8 +50,8 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
         }
 
         @Override
-        public List<PsseGneDevice> read(BufferedReader reader, Context context) throws IOException {
-            List<String> records = readRecords(reader);
+        public List<PsseGneDevice> read(LegacyTextReader reader, Context context) throws IOException {
+            List<String> records = reader.readRecords();
 
             List<PsseGneDevice> gneDeviceList = new ArrayList<>();
             int maxNumMainHeaders = 0;

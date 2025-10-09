@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.criteria;
 
+import java.util.Objects;
+
 /**
  * <p>{@link NetworkElementCriterion} on identifiables of a network.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -17,14 +19,34 @@ public class IdentifiableCriterion extends AbstractNetworkElementEquipmentCriter
     private final AtLeastOneCountryCriterion atLeastOneCountryCriterion;
     private final AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion;
 
+    public IdentifiableCriterion(AtLeastOneCountryCriterion atLeastOneCountryCriterion) {
+        this(null, atLeastOneCountryCriterion);
+    }
+
+    public IdentifiableCriterion(String name, AtLeastOneCountryCriterion atLeastOneCountryCriterion) {
+        super(name);
+        this.atLeastOneCountryCriterion = Objects.requireNonNull(atLeastOneCountryCriterion);
+        this.atLeastOneNominalVoltageCriterion = null;
+    }
+
+    public IdentifiableCriterion(AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion) {
+        this((String) null, atLeastOneNominalVoltageCriterion);
+    }
+
+    public IdentifiableCriterion(String name, AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion) {
+        super(name);
+        this.atLeastOneCountryCriterion = null;
+        this.atLeastOneNominalVoltageCriterion = Objects.requireNonNull(atLeastOneNominalVoltageCriterion);
+    }
+
     public IdentifiableCriterion(AtLeastOneCountryCriterion atLeastOneCountryCriterion, AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion) {
         this(null, atLeastOneCountryCriterion, atLeastOneNominalVoltageCriterion);
     }
 
     public IdentifiableCriterion(String name, AtLeastOneCountryCriterion atLeastOneCountryCriterion, AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion) {
         super(name);
-        this.atLeastOneCountryCriterion = atLeastOneCountryCriterion;
-        this.atLeastOneNominalVoltageCriterion = atLeastOneNominalVoltageCriterion;
+        this.atLeastOneCountryCriterion = Objects.requireNonNull(atLeastOneCountryCriterion);
+        this.atLeastOneNominalVoltageCriterion = Objects.requireNonNull(atLeastOneNominalVoltageCriterion);
     }
 
     @Override

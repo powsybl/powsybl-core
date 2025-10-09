@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.config.test;
 
@@ -73,6 +74,7 @@ public class TestPlatformConfigProvider implements PlatformConfigProvider {
                 // The resources have relative paths (no leading slash) with full package path.
                 Path dest = cfgDir.resolve(resource);
                 LOGGER.info("Copying classpath resource: {} -> {}", resource, dest);
+                Files.createDirectories(dest.getParent());
                 Files.copy(TestPlatformConfigProvider.class.getResourceAsStream(resource), dest);
             }
         } catch (IOException e) {

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.comparator;
 
@@ -29,7 +30,7 @@ class SecurityAnalysisResultEquivalenceTest {
 
     @Test
     void equivalent() {
-        SecurityAnalysisResultEquivalence resultEquivalence = new SecurityAnalysisResultEquivalence(0.1, NullWriter.NULL_WRITER);
+        SecurityAnalysisResultEquivalence resultEquivalence = new SecurityAnalysisResultEquivalence(0.1, NullWriter.INSTANCE);
 
         LimitViolation line1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
         LimitViolation similarLine1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.09, TwoSides.ONE);

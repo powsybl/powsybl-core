@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.action.ial.simulator.tools;
 
@@ -14,7 +15,6 @@ import com.powsybl.security.*;
 import com.powsybl.security.results.PostContingencyResult;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -89,7 +89,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     @Override
     public void afterPostContingencyAnalysis() {
         onFinalStateResult(new SecurityAnalysisResult(preContingencyResult, preContingencyStatus,
-                postContingencyResults.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList())));
+            new ArrayList<>(postContingencyResults.values())));
     }
 
     public abstract void onFinalStateResult(SecurityAnalysisResult result);

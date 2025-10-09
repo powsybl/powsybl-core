@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -52,11 +53,11 @@ public class VoltageExtensionSerializer implements ExtensionJsonSerializer<Limit
         double value = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("preContingencyValue")) {
+            if (parser.currentName().equals("preContingencyValue")) {
                 parser.nextToken();
                 value = parser.readValueAs(Float.class);
             } else {
-                throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
+                throw new PowsyblException("Unexpected field: " + parser.currentName());
             }
         }
 

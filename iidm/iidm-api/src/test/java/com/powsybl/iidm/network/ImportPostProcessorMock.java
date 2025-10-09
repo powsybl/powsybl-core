@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.util.NetworkReports;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -28,8 +30,6 @@ public class ImportPostProcessorMock implements ImportPostProcessor {
     @Override
     public void process(Network network, ComputationManager computationManager, ReportNode reportNode) throws Exception {
         network.setCaseDate(ZonedDateTime.of(2021, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC));
-        reportNode.newReportNode()
-            .withMessageTemplate("testImportPostProcessor", "testing import post processor")
-            .add();
+        NetworkReports.testImportPostProcessor(reportNode);
     }
 }

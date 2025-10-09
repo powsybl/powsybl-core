@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -103,6 +104,14 @@ class MeasurementImpl implements Measurement {
     public Measurement setValid(boolean valid) {
         MeasurementValidationUtil.checkValue(value, valid);
         this.valid = valid;
+        return this;
+    }
+
+    @Override
+    public Measurement setValueAndValidity(double value, boolean valid) {
+        MeasurementValidationUtil.checkValue(value, valid);
+        this.valid = valid;
+        this.value = value;
         return this;
     }
 

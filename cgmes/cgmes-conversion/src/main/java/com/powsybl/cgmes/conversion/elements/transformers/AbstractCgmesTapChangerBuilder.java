@@ -3,13 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
-import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -46,28 +45,13 @@ abstract class AbstractCgmesTapChangerBuilder {
         return new CgmesPhaseTapChangerBuilder(phaseTapChanger, xtx, context);
     }
 
-    protected int initialTapPosition(int defaultStep) {
-        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH:
-                return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, defaultStep)));
-            case SV:
-                return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, defaultStep)));
-            default:
-                throw new CgmesModelException("Unexpected profile used for initial values: " + context.config().getProfileForInitialValuesShuntSectionsTapPositions());
-        }
-    }
-
     protected TapChanger build() {
         lowStep = p.asInt(CgmesNames.LOW_STEP);
         highStep = p.asInt(CgmesNames.HIGH_STEP);
         addSteps();
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
-        int position = initialTapPosition(normalStep);
-        if (position > highStep || position < lowStep) {
-            position = neutralStep;
-        }
-        tapChanger.setLowTapPosition(lowStep).setTapPosition(position);
+        tapChanger.setLowTapPosition(lowStep).setTapPosition(normalStep);
 
         boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);

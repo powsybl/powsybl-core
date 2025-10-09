@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.executor;
 
@@ -34,6 +35,13 @@ public interface AmplParameters {
      * @return true if debug mode is on, else otherwise
      */
     boolean isDebug();
+
+    /**
+     * Get the directory where execution files will be dumped
+     *
+     * @return the debug directory
+     */
+    String getDebugDir();
 
     /**
      * Configuration for AmplExporter

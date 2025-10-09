@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -13,10 +14,7 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.iidm.serde.PropertiesSerDe.NAME;
 import static com.powsybl.iidm.serde.PropertiesSerDe.VALUE;
@@ -56,22 +54,13 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkSerializerContext context) {
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
+        TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
+        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
         switch (topologyLevel) {
-            case NODE_BREAKER:
-                writeNodeBreakerTopology(vl, context);
-                break;
-
-            case BUS_BREAKER:
-                writeBusBreakerTopology(vl, context);
-                break;
-
-            case BUS_BRANCH:
-                writeBusBranchTopology(vl, context);
-                break;
-
-            default:
-                throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
+            case NODE_BREAKER -> writeNodeBreakerTopology(vl, context);
+            case BUS_BREAKER -> writeBusBreakerTopology(vl, context);
+            case BUS_BRANCH -> writeBusBranchTopology(vl, context);
+            default -> throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
         }
 
         writeGenerators(vl, context);
@@ -369,7 +358,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 throw new PowsyblException(String.format("Unknown element name '%s' in 'bus'", elementName));
             }
         });
-        context.getEndTasks().add(() -> {
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
             for (int node : busNodes) {
                 Terminal terminal = vl.getNodeBreakerView().getTerminal(node);
                 if (terminal != null) {

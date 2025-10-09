@@ -14,7 +14,7 @@
             </iidm:generator>
             <iidm:danglingLine id="DL" p0="50.0" q0="30.0" r="10.0" x="1.0" g="1.0E-4" b="1.0E-5" generationMinP="0.0"
                                generationMaxP="900.0" generationVoltageRegulationOn="true" generationTargetP="440.0"
-                               generationTargetV="400.0" bus="BUS" connectableBus="BUS" selectedOperationalLimitsGroupId="DEFAULT">
+                               generationTargetV="101.0" bus="BUS" connectableBus="BUS" selectedOperationalLimitsGroupId="DEFAULT">
                 <iidm:property name="test" value="test"/>
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-59.3" maxQ="60.0"/>

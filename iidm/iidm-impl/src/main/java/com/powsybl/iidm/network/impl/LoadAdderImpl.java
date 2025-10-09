@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -69,14 +70,14 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkLoadType(this, loadType);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         LoadImpl load = new LoadImpl(getNetworkRef(), id, getName(), isFictitious(), loadType, model, p0, q0);
         if (model != null) {
             model.setLoad(load);
         }
         load.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
+        voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(load);
         network.getListeners().notifyCreation(load);
         return load;

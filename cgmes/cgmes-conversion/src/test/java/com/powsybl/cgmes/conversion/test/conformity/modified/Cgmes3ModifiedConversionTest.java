@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.conformity.modified;
 
@@ -13,7 +14,6 @@ import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity3ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
@@ -49,7 +49,7 @@ class Cgmes3ModifiedConversionTest {
     void microGridSingleFile() {
         Network network0 = Importers.importData("CGMES", Cgmes3Catalog.microGrid().dataSource(), importParams);
         Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), importParams);
-        assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
+        assertEquals(7, network.getVoltageLevelStream().mapToInt(voltageLevel -> voltageLevel.getBusBreakerView().getBusCount()).sum());
         assertEquals(5, network.getDanglingLineCount());
     }
 

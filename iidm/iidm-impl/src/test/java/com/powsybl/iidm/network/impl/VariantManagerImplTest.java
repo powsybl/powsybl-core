@@ -3,9 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
@@ -400,7 +402,7 @@ class VariantManagerImplTest {
         }).start();
         cdl1.await();
         if (exceptionThrown[0] != null) {
-            throw new IllegalStateException(exceptionThrown[0]);
+            fail(exceptionThrown[0]);
         }
     }
 
@@ -433,5 +435,41 @@ class VariantManagerImplTest {
         variantManager.removeVariant("ClonedVariant2");
         variantManager.allowVariantMultiThreadAccess(false);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId());
+    }
+
+    @Test
+    void testRetainedPropertyStateful() {
+        Network network = Network.create("test", "test");
+        Substation s = network.newSubstation()
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl = s.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        Switch b1 = vl.getNodeBreakerView().newBreaker()
+                .setId("B1")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(false)
+                .setRetained(true)
+                .add();
+
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.allowVariantMultiThreadAccess(true);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "backup");
+
+        assertTrue(b1.isRetained());
+        assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
+
+        b1.setRetained(false);
+        assertFalse(b1.isRetained());
+        assertEquals(1, Iterables.size(vl.getBusBreakerView().getBuses()));
+
+        variantManager.setWorkingVariant("backup");
+        assertTrue(b1.isRetained());
+        assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
     }
 }

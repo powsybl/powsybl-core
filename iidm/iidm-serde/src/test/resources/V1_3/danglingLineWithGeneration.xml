@@ -8,7 +8,7 @@
             <iidm:generator id="G" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="50.0" targetV="100.0" targetQ="30.0" bus="BUS" connectableBus="BUS">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
-            <iidm:danglingLine id="DL" p0="50.0" q0="30.0" r="10.0" x="1.0" g="1.0E-4" b="1.0E-5" generationMinP="0.0" generationMaxP="900.0" generationVoltageRegulationOn="true" generationTargetP="440.0" generationTargetV="400.0" bus="BUS" connectableBus="BUS">
+            <iidm:danglingLine id="DL" p0="50.0" q0="30.0" r="10.0" x="1.0" g="1.0E-4" b="1.0E-5" generationMinP="0.0" generationMaxP="900.0" generationVoltageRegulationOn="true" generationTargetP="440.0" generationTargetV="101.0" bus="BUS" connectableBus="BUS">
                 <iidm:property name="test" value="test"/>
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-59.3" maxQ="60.0"/>

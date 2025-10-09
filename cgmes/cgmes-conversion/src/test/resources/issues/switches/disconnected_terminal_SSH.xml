@@ -1,0 +1,17 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:ModelID_SSH">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>Disconnected terminal</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+    <md:Model.DependentOn rdf:resource="urn:uuid:ModelID_EQ" />
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:Terminal rdf:about="#_T_BBS">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_T_LD">
+    <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+</cim:Terminal>
+</rdf:RDF>

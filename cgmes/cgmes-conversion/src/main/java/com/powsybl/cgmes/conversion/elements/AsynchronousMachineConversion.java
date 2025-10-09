@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
@@ -10,6 +11,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
@@ -30,20 +32,34 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         // We make no difference based on the type (motor/generator)
         LoadType loadType = id.contains("fict") ? LoadType.FICTITIOUS : LoadType.UNDEFINED;
         LoadAdder adder = voltageLevel().newLoad()
-                .setP0(p0())
-                .setQ0(q0())
                 .setLoadType(loadType);
         identify(adder);
-        connect(adder);
-        Load load = adder.add();
-        addAliasesAndProperties(load);
-        convertedTerminals(load.getTerminal());
+        connectWithOnlyEq(adder);
+        Load newLoad = adder.add();
+        addAliasesAndProperties(newLoad);
+        convertedTerminalsWithOnlyEq(newLoad.getTerminal());
 
-        addSpecificProperties(load);
+        addSpecificProperties(newLoad);
     }
 
-    private static void addSpecificProperties(Load load) {
-        load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ASYNCHRONOUS_MACHINE);
+    private static void addSpecificProperties(Load newLoad) {
+        newLoad.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ASYNCHRONOUS_MACHINE);
+    }
+
+    public static void update(Load load, PropertyBag cgmesData, Context context) {
+        updateTerminals(load, context, load.getTerminal());
+
+        PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
+        load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : getDefaultP0(load, context));
+        load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : getDefaultQ0(load, context));
+    }
+
+    private static double getDefaultP0(Load load, Context context) {
+        return getDefaultValue(null, load.getP0(), 0.0, Double.NaN, context);
+    }
+
+    private static double getDefaultQ0(Load load, Context context) {
+        return getDefaultValue(null, load.getQ0(), 0.0, Double.NaN, context);
     }
 }
 

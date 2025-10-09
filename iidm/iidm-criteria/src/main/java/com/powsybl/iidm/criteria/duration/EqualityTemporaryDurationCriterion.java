@@ -21,8 +21,8 @@ public final class EqualityTemporaryDurationCriterion extends AbstractTemporaryD
      * @param durationEqualityValue duration in seconds
      */
     public EqualityTemporaryDurationCriterion(int durationEqualityValue) {
-        if (durationEqualityValue <= 0) {
-            throw new IllegalArgumentException("Invalid value (must be > 0).");
+        if (durationEqualityValue < 0) {
+            throw new IllegalArgumentException("Invalid value (must be >= 0).");
         }
         this.durationEqualityValue = durationEqualityValue;
     }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -14,10 +15,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -94,7 +92,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -146,6 +144,14 @@ import java.util.stream.Stream;
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The kind of topology</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Areas</td>
+ *             <td style="border: 1px solid black">Set of Areas</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">List of Areas it belongs to (at most one area for each area type)</td>
  *         </tr>
  *     </tbody>
  * </table>
@@ -466,7 +472,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         SwitchAdder newSwitch();
 
         /**
-         * Get a builder to create a new switch.
+         * Get a builder to create a new internal connection.
          */
         InternalConnectionAdder newInternalConnection();
 
@@ -899,6 +905,43 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     Optional<Substation> getSubstation();
 
+    /**
+     * Get an iterable on all the Areas that this voltage level belongs to.
+     *
+     * @return all the areas
+     */
+    Iterable<Area> getAreas();
+
+    /**
+     * Get a stream on all the Areas that this voltage level belongs to.
+     *
+     * @return all the areas
+     */
+    Stream<Area> getAreasStream();
+
+    /**
+     * Get the Area that this voltage level belongs to for a given area type.
+     *
+     * @param areaType the area type
+     * @return the optional area or empty if not found
+     */
+    Optional<Area> getArea(String areaType);
+
+    /**
+     * Add the voltage level to an area.
+     *
+     * @param area the area
+     * @throws PowsyblException if the area is in another network or if the voltage level already belongs to an area of the same type
+     */
+    void addArea(Area area);
+
+    /**
+     * Remove the voltage level from an area.
+     *
+     * @param area the area
+     */
+    void removeArea(Area area);
+
     default Substation getNullableSubstation() {
         return getSubstation().orElse(null);
     }
@@ -1273,6 +1316,48 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getGroundCount();
 
     /**
+     * Get a builder to create a new AC/DC Line-Commutated Converter.
+     * @return a builder to create a new AC/DC Line-Commutated Converter
+     */
+    LineCommutatedConverterAdder newLineCommutatedConverter();
+
+    /**
+     * Get AC/DC Line-Commutated Converters connected to this voltage level.
+     */
+    Iterable<LineCommutatedConverter> getLineCommutatedConverters();
+
+    /**
+     * Get AC/DC Line-Commutated Converters connected to this voltage level.
+     */
+    Stream<LineCommutatedConverter> getLineCommutatedConverterStream();
+
+    /**
+     * Get AC/DC Line-Commutated Converter connected to this voltage level count.
+     */
+    int getLineCommutatedConverterCount();
+
+    /**
+     * Get a builder to create a new AC/DC Voltage-Source Converter.
+     * @return a builder to create a new AC/DC Voltage-Source Converter
+     */
+    VoltageSourceConverterAdder newVoltageSourceConverter();
+
+    /**
+     * Get AC/DC Voltage-Source Converters connected to this voltage level.
+     */
+    Iterable<VoltageSourceConverter> getVoltageSourceConverters();
+
+    /**
+     * Get AC/DC Voltage-Source Converters connected to this voltage level.
+     */
+    Stream<VoltageSourceConverter> getVoltageSourceConverterStream();
+
+    /**
+     * Get AC/DC Voltage-Source Converter connected to this voltage level count.
+     */
+    int getVoltageSourceConverterCount();
+
+    /**
      * Remove this voltage level from the network.
      */
     default void remove() {
@@ -1311,6 +1396,15 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return a bus view of the topology
      */
     BusView getBusView();
+
+    /**
+     * Convert the topology model to another one. Notice that when converting from a
+     * node/breaker model to a bus/breaker model, we definitely lost some information as
+     * we are converting to a simpler topology model.
+     *
+     * @param newTopologyKind the new topology model kind
+     */
+    void convertToTopology(TopologyKind newTopologyKind);
 
     /**
      * Print an ASCII representation of the topology on the standard ouput.

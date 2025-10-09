@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
@@ -33,16 +34,4 @@ public interface SimpleCommand extends Command {
      * @return                the list of arguments to be passed to the program, for the specified execution number.
      */
     List<String> getArgs(int executionNumber);
-
-    /**
-     * @deprecated {@link ComputationParameters#getTimeout} should be used instead.
-     *
-     * A timeout in milliseconds for this command execution.
-     * If less than zero, the execution time should be considered as unlimited.
-     *
-     * @return the timeout in milliseconds for this command execution.
-     */
-    @Deprecated(since = "2.5.0")
-    int getTimeout();
-
 }

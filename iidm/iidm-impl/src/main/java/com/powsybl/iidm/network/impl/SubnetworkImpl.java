@@ -10,8 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.RefChain;
-import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.commons.ref.RefChain;
+import com.powsybl.commons.ref.RefObj;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +33,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     /**
      * Reference to the root network, hence the parent network in this implementation (only one level of subnetworks).
      * This is used to easily update the root network in all equipments when detaching this subnetwork.
+     * <p>This {@link RefChain} should reference the {@code ref} attribute of the root network in order for the {@link #flatten()}
+     * method to work.</p>
      */
     private final RefChain<NetworkImpl> rootNetworkRef;
 
@@ -46,6 +48,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         super(id, name, sourceFormat);
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
         this.ref = new RefChain<>(new RefObj<>(this));
+        this.dcTopologyModel = new DcTopologyModel(rootNetworkRef, ref);
     }
 
     SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, RefChain<SubnetworkImpl> subnetworkRef, String id, String name, String sourceFormat, ZonedDateTime caseDate) {
@@ -53,12 +56,17 @@ public class SubnetworkImpl extends AbstractNetwork {
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
         this.ref = Objects.requireNonNull(subnetworkRef);
         this.ref.setRef(new RefObj<>(this));
+        this.dcTopologyModel = new DcTopologyModel(rootNetworkRef, ref);
         setCaseDate(caseDate);
     }
 
     @Override
     public RefChain<NetworkImpl> getRootNetworkRef() {
         return rootNetworkRef;
+    }
+
+    protected RefChain<SubnetworkImpl> getRef() {
+        return ref;
     }
 
     @Override
@@ -108,10 +116,51 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     private Stream<Country> getCountryStream() {
         return getNetwork().getSubstationStream()
-                .filter(this::contains)
-                .map(s -> s.getCountry().orElse(null))
-                .filter(Objects::nonNull)
-                .distinct();
+                           .filter(this::contains)
+                           .map(s -> s.getCountry().orElse(null))
+                           .filter(Objects::nonNull)
+                           .distinct();
+    }
+
+    @Override
+    public Iterable<String> getAreaTypes() {
+        return getAreaTypeStream().toList();
+    }
+
+    @Override
+    public Stream<String> getAreaTypeStream() {
+        return getAreaStream().map(Area::getAreaType).distinct();
+    }
+
+    @Override
+    public int getAreaTypeCount() {
+        return (int) getAreaTypeStream().count();
+    }
+
+    @Override
+    public AreaAdder newArea() {
+        return new AreaAdderImpl(rootNetworkRef, ref);
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        return getAreaStream().toList();
+    }
+
+    @Override
+    public Stream<Area> getAreaStream() {
+        return getNetwork().getAreaStream().filter(this::contains);
+    }
+
+    @Override
+    public Area getArea(String id) {
+        Area area = getNetwork().getArea(id);
+        return contains(area) ? area : null;
+    }
+
+    @Override
+    public int getAreaCount() {
+        return (int) getAreaStream().count();
     }
 
     @Override
@@ -183,6 +232,11 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public LineAdder newLine() {
         return getNetwork().newLine(id);
+    }
+
+    @Override
+    public LineAdder newLine(Line line) {
+        return getNetwork().newLine(id, line);
     }
 
     @Override
@@ -641,6 +695,152 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public DcNodeAdder newDcNode() {
+        return new DcNodeAdderImpl(rootNetworkRef, ref);
+    }
+
+    @Override
+    public Iterable<DcNode> getDcNodes() {
+        return getDcNodeStream().toList();
+    }
+
+    @Override
+    public Stream<DcNode> getDcNodeStream() {
+        return getNetwork().getDcNodeStream().filter(this::contains);
+    }
+
+    @Override
+    public int getDcNodeCount() {
+        return (int) getDcNodeStream().count();
+    }
+
+    @Override
+    public DcNode getDcNode(String id) {
+        DcNode n = getNetwork().getDcNode(id);
+        return contains(n) ? n : null;
+    }
+
+    @Override
+    public DcLineAdder newDcLine() {
+        return new DcLineAdderImpl(rootNetworkRef, ref);
+    }
+
+    @Override
+    public Iterable<DcLine> getDcLines() {
+        return getDcLineStream().toList();
+    }
+
+    @Override
+    public Stream<DcLine> getDcLineStream() {
+        return getNetwork().getDcLineStream().filter(this::contains);
+    }
+
+    @Override
+    public int getDcLineCount() {
+        return (int) getDcLineStream().count();
+    }
+
+    @Override
+    public DcLine getDcLine(String id) {
+        DcLine l = getNetwork().getDcLine(id);
+        return contains(l) ? l : null;
+    }
+
+    @Override
+    public DcSwitchAdder newDcSwitch() {
+        return new DcSwitchAdderImpl(rootNetworkRef, ref);
+    }
+
+    @Override
+    public Iterable<DcSwitch> getDcSwitches() {
+        return getDcSwitchStream().toList();
+    }
+
+    @Override
+    public Stream<DcSwitch> getDcSwitchStream() {
+        return getNetwork().getDcSwitchStream().filter(this::contains);
+    }
+
+    @Override
+    public int getDcSwitchCount() {
+        return (int) getDcSwitchStream().count();
+    }
+
+    @Override
+    public DcSwitch getDcSwitch(String id) {
+        DcSwitch s = getNetwork().getDcSwitch(id);
+        return contains(s) ? s : null;
+    }
+
+    @Override
+    public DcGroundAdder newDcGround() {
+        return new DcGroundAdderImpl(rootNetworkRef, ref);
+    }
+
+    @Override
+    public Iterable<DcGround> getDcGrounds() {
+        return getDcGroundStream().toList();
+    }
+
+    @Override
+    public Stream<DcGround> getDcGroundStream() {
+        return getNetwork().getDcGroundStream().filter(this::contains);
+    }
+
+    @Override
+    public int getDcGroundCount() {
+        return (int) getDcGroundStream().count();
+    }
+
+    @Override
+    public DcGround getDcGround(String id) {
+        DcGround g = getNetwork().getDcGround(id);
+        return contains(g) ? g : null;
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        return getLineCommutatedConverterStream().toList();
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        return getNetwork().getLineCommutatedConverterStream().filter(this::contains);
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        return (int) getLineCommutatedConverterStream().count();
+    }
+
+    @Override
+    public LineCommutatedConverter getLineCommutatedConverter(String id) {
+        LineCommutatedConverter c = getNetwork().getLineCommutatedConverter(id);
+        return contains(c) ? c : null;
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        return getVoltageSourceConverterStream().toList();
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        return getNetwork().getVoltageSourceConverterStream().filter(this::contains);
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        return (int) getVoltageSourceConverterStream().count();
+    }
+
+    @Override
+    public VoltageSourceConverter getVoltageSourceConverter(String id) {
+        VoltageSourceConverter c = getNetwork().getVoltageSourceConverter(id);
+        return contains(c) ? c : null;
+    }
+
+    @Override
     public Identifiable<?> getIdentifiable(String id) {
         Identifiable<?> i = getNetwork().getIdentifiable(id);
         return contains(i) ? i : null;
@@ -685,6 +885,42 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public int getConnectableCount() {
         return (int) getConnectableStream().count();
+    }
+
+    @Override
+    public <C extends DcConnectable> Iterable<C> getDcConnectables(Class<C> clazz) {
+        return getDcConnectableStream(clazz).toList();
+    }
+
+    @Override
+    public <C extends DcConnectable> Stream<C> getDcConnectableStream(Class<C> clazz) {
+        return getNetwork().getDcConnectableStream(clazz).filter(this::contains);
+    }
+
+    @Override
+    public <C extends DcConnectable> int getDcConnectableCount(Class<C> clazz) {
+        return (int) getDcConnectableStream(clazz).count();
+    }
+
+    @Override
+    public Iterable<DcConnectable> getDcConnectables() {
+        return getDcConnectableStream().toList();
+    }
+
+    @Override
+    public Stream<DcConnectable> getDcConnectableStream() {
+        return getNetwork().getDcConnectableStream().filter(this::contains);
+    }
+
+    @Override
+    public DcConnectable<?> getDcConnectable(String id) {
+        DcConnectable<?> c = getNetwork().getDcConnectable(id);
+        return contains(c) ? c : null;
+    }
+
+    @Override
+    public int getDcConnectableCount() {
+        return (int) getDcConnectableStream().count();
     }
 
     class BusBreakerViewImpl extends AbstractNetwork.AbstractBusBreakerViewImpl {
@@ -764,12 +1000,16 @@ public class SubnetworkImpl extends AbstractNetwork {
         transferExtensions(this, detachedNetwork);
         transferProperties(this, detachedNetwork);
 
-        // Memorize the network identifiables/voltageAngleLimits before moving references (to use them latter)
+        // Transfer the DC topology model from the subnetwork to the detached network.
+        // Note that the refs are not yet updated here, they are updated later on below.
+        detachedNetwork.attachDcTopologyModel(this.detachDcTopologyModel(), rootNetworkRef, ref);
+
+        // Memorize the network identifiables/voltageAngleLimits before moving references (to use them later)
         Collection<Identifiable<?>> identifiables = getIdentifiables();
         Iterable<VoltageAngleLimit> vals = getVoltageAngleLimits();
 
         // Move the substations and voltageLevels to the new network
-        ref.setRef(new RefObj<>(null));
+        ref.setRef(detachedNetwork.getSubnetworkRef());
 
         // Remove the old subnetwork from the subnetworks list of the current parent network
         NetworkImpl previousRootNetwork = rootNetworkRef.get();
@@ -862,6 +1102,11 @@ public class SubnetworkImpl extends AbstractNetwork {
         };
     }
 
+    @Override
+    public void flatten() {
+        throw new UnsupportedOperationException("Subnetworks cannot be flattened.");
+    }
+
     private boolean isBoundary(Branch<?> branch) {
         return isBoundary(branch.getTerminal1(), branch.getTerminal2());
     }
@@ -944,5 +1189,33 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
         return getNetwork().getIdentifiableStream(identifiableType).filter(this::contains);
+    }
+
+    @Override
+    public Iterable<DcBus> getDcBuses() {
+        return getDcTopologyModel().getDcBuses();
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        return getDcTopologyModel().getDcBusStream();
+    }
+
+    @Override
+    public int getDcBusCount() {
+        return getDcTopologyModel().getDcBusCount();
+    }
+
+    @Override
+    public DcBus getDcBus(String id) {
+        return getDcTopologyModel().getDcBus(id);
+    }
+
+    @Override
+    public Collection<Component> getDcComponents() {
+        return getNetwork().getDcComponents().stream()
+                .filter(c -> c.getDcBusStream().anyMatch(SubnetworkImpl.this::contains))
+                .map(c -> (Component) new Subcomponent(c, SubnetworkImpl.this))
+                .toList();
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -52,11 +53,11 @@ public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
     public FooExt deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         Boolean value = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("value")) {
+            if (parser.currentName().equals("value")) {
                 parser.nextToken();
                 value = parser.readValueAs(Boolean.class);
             } else {
-                throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
+                throw new PowsyblException("Unexpected field: " + parser.currentName());
             }
         }
 

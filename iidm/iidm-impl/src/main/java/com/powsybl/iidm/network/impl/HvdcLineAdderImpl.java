@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
 import java.util.Objects;
 
@@ -97,9 +98,9 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         String id = checkAndGetUniqueId();
         String name = getName();
         ValidationUtil.checkR(this, r);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkConvertersMode(this, convertersMode, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkConvertersMode(this, convertersMode, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkNominalV(this, nominalV);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkHvdcMaxP(this, maxP);
         AbstractHvdcConverterStation<?> converterStation1 = network.getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {

@@ -3,9 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.tapchanger.PhaseTapPositionModification;
 import com.powsybl.iidm.network.ThreeSides;
 
 /**
@@ -28,5 +31,11 @@ public class PhaseTapChangerTapPositionAction extends AbstractTapChangerTapPosit
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public NetworkModification toModification() {
+        return getSide().map(side -> new PhaseTapPositionModification(getTransformerId(), getTapPosition(), side, isRelativeValue()))
+                        .orElse(new PhaseTapPositionModification(getTransformerId(), getTapPosition(), isRelativeValue()));
     }
 }

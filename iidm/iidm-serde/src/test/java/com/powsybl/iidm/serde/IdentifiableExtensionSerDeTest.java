@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -25,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -161,7 +162,7 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
             assertNotNull(is);
             // check that loadMock has been serialized in v1.1
-            compareXml(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-loadMockExt-1_1.xml", IidmVersion.V_1_1),
+            assertXmlEquals(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-loadMockExt-1_1.xml", IidmVersion.V_1_1),
                     is);
         }
     }

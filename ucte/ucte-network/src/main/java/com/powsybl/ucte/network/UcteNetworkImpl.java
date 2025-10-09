@@ -4,10 +4,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.ucte.network.util.UcteReports;
 
 import java.util.*;
 
@@ -121,25 +123,24 @@ public class UcteNetworkImpl implements UcteNetwork {
     @Override
     public void fix(ReportNode reportNode) {
 
-        ReportNode nodesReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteNodes", "Fix UCTE nodes").add();
+        ReportNode nodesReportNode = UcteReports.fixUcteNodes(reportNode);
         for (UcteNode node : nodes.values()) {
             node.fix(nodesReportNode);
         }
 
-        ReportNode linesReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteLines", "Fix UCTE lines").add();
+        ReportNode linesReportNode = UcteReports.fixUcteLines(reportNode);
         for (UcteLine line : lines.values()) {
             line.fix(linesReportNode);
         }
 
-        ReportNode transfoReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteTransformer", "Fix UCTE transformers").add();
+        ReportNode transfoReportNode = UcteReports.fixUcteTransformers(reportNode);
         for (UcteTransformer transfo : transformers.values()) {
             transfo.fix(transfoReportNode);
         }
 
-        ReportNode regulationsReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteRegulations", "Fix UCTE regulations").add();
+        ReportNode regulationsReportNode = UcteReports.fixUcteRegulations(reportNode);
         for (UcteRegulation regulation : regulations.values()) {
             regulation.fix(regulationsReportNode);
         }
     }
-
 }

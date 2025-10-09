@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.converter;
 
@@ -24,6 +25,9 @@ import com.powsybl.security.results.*;
 import com.powsybl.security.strategy.ConditionalActions;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -31,6 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,8 +55,8 @@ class ExporterTest extends AbstractSerDeTest {
         violation2.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0, 230.0));
         violation2.addExtension(CurrentExtension.class, new CurrentExtension(95.0));
 
-        LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100, 0.9f, 110);
-        LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115);
+        LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100, 0.9f, 110, new BusBreakerViolationLocation(List.of("BUSID")));
+        LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115, new NodeBreakerViolationLocation("VL", Arrays.asList(0, 1)));
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
         LimitViolation violation5 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, "20'", 1200, 100, 1.0f, 110.0, TwoSides.ONE);
@@ -110,22 +115,34 @@ class ExporterTest extends AbstractSerDeTest {
         assertEquals(3.3, result.getPreContingencyResult().getNetworkResult().getBranchResult("branch1").getI2(), 0.01);
     }
 
-    @Test
-    void testCompatibilityV12Deserialization() {
-        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.2.json"));
+    private static Stream<Arguments> provideArguments() {
+        return Stream.of(
+            Arguments.of("/SecurityAnalysisResultV1.2.json"),
+            Arguments.of("/SecurityAnalysisResultV1.3.json"),
+            Arguments.of("/SecurityAnalysisResultV1.4.json")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideArguments")
+    void testCompatibilityV12To14Deserialization(String jsonFileName) {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream(jsonFileName));
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
     }
 
-    @Test
-    void testCompatibilityV13Deserialization() {
-        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.3.json"));
-        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
+    private static Stream<Arguments> provideArguments2() {
+        return Stream.of(
+            Arguments.of("/SecurityAnalysisResultV1.5.json"),
+            Arguments.of("/SecurityAnalysisResultV1.6.json")
+        );
     }
 
-    @Test
-    void testCompatibilityV14Deserialization() {
-        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.4.json"));
+    @ParameterizedTest
+    @MethodSource("provideArguments2")
+    void testCompatibilityV15Deserialization(String jsonFileName) {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream(jsonFileName));
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
+        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getOperatorStrategyResults().get(0).getConditionalActionsResults().get(0).getStatus());
     }
 
     @Test
@@ -134,15 +151,15 @@ class ExporterTest extends AbstractSerDeTest {
 
         roundTripTest(result, ExporterTest::writeJson, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
-        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
-            SecurityAnalysisResultExporters.export(res, path, "JSON");
-        };
+        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> SecurityAnalysisResultExporters.export(res, path, "JSON");
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         // Check invalid path
-        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, Paths.get(""), "JSON"));
+        Path path = Paths.get("");
+        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, path, "JSON"));
         // Check invalid format
-        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, tmpDir.resolve("data"), "XXX"));
+        Path pathInvalidFormat = tmpDir.resolve("data");
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, pathInvalidFormat, "XXX"));
     }
 
     @Test
@@ -151,15 +168,15 @@ class ExporterTest extends AbstractSerDeTest {
 
         roundTripTest(result, ExporterTest::writeJsonWithProperties, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
-        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
-            SecurityAnalysisResultExporters.export(res, null, path, "JSON");
-        };
+        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> SecurityAnalysisResultExporters.export(res, null, path, "JSON");
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         // Check invalid path
-        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, null, Paths.get(""), "JSON"));
+        Path emptyPath = Paths.get("");
+        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, null, emptyPath, "JSON"));
         // Check invalid format
-        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, null, tmpDir.resolve("data"), "XXX"));
+        Path pathInvalidFormat = tmpDir.resolve("data");
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, null, pathInvalidFormat, "XXX"));
     }
 
     private static void writeJson(SecurityAnalysisResult result, Path path) {

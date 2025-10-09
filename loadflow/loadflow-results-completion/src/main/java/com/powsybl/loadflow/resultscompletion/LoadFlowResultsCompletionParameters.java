@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.PlatformConfig;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -65,9 +67,11 @@ public class LoadFlowResultsCompletionParameters {
     }
 
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("epsilonX", epsilonX,
-                               "applyReactanceCorrection", applyReactanceCorrection,
-                               "z0ThresholdDiffVoltageAngle", z0ThresholdDiffVoltageAngle);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("epsilonX", epsilonX);
+        map.put("applyReactanceCorrection", applyReactanceCorrection);
+        map.put("z0ThresholdDiffVoltageAngle", z0ThresholdDiffVoltageAngle);
+        return Collections.unmodifiableMap(map);
     }
 
     @Override

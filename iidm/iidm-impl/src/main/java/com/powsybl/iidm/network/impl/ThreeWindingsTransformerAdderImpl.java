@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -120,7 +121,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected TerminalExt checkAndGetTerminal() {
             VoltageLevelExt voltageLevel = checkAndGetVoltageLevel();
-            return new TerminalBuilder(voltageLevel.getNetworkRef(), this, side)
+            return new TerminalBuilder(voltageLevel.getNetworkRef(), this, side, null)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)
@@ -164,24 +165,17 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         public ThreeWindingsTransformerAdderImpl add() {
             checkParams();
             switch (side) {
-                case ONE:
-                    legAdder1 = this;
-                    break;
-                case TWO:
-                    legAdder2 = this;
-                    break;
-                case THREE:
-                    legAdder3 = this;
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected side: " + side);
+                case ONE -> legAdder1 = this;
+                case TWO -> legAdder2 = this;
+                case THREE -> legAdder3 = this;
+                default -> throw new IllegalStateException("Unexpected side: " + side);
             }
             return ThreeWindingsTransformerAdderImpl.this;
         }
 
         @Override
-        public String getMessageHeader() {
-            return String.format("3 windings transformer leg%d in substation %s: ", side.getNum(), substation.getId());
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader("3 windings transformer leg" + side.getNum(), substation.getId(), "substation");
         }
     }
 
@@ -297,14 +291,14 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         // check that the 3 windings transformer is attachable on the 3 sides (only
         // verify)
-        voltageLevel1.attach(terminal1, true);
-        voltageLevel2.attach(terminal2, true);
-        voltageLevel3.attach(terminal3, true);
+        voltageLevel1.getTopologyModel().attach(terminal1, true);
+        voltageLevel2.getTopologyModel().attach(terminal2, true);
+        voltageLevel3.getTopologyModel().attach(terminal3, true);
 
         // do attach
-        voltageLevel1.attach(terminal1, false);
-        voltageLevel2.attach(terminal2, false);
-        voltageLevel3.attach(terminal3, false);
+        voltageLevel1.getTopologyModel().attach(terminal1, false);
+        voltageLevel2.getTopologyModel().attach(terminal2, false);
+        voltageLevel3.getTopologyModel().attach(terminal3, false);
 
         getNetwork().getIndex().checkAndAdd(transformer);
         getNetwork().getListeners().notifyCreation(transformer);

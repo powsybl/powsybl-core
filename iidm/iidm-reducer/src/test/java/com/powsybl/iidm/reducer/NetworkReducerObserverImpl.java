@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.reducer;
 
@@ -20,6 +21,8 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
     private int lineRemovedCount = 0;
 
     private int lineReplacedCount = 0;
+
+    private int tieLineRemovedCount = 0;
 
     private int twoWindingsTransformerRemovedCount = 0;
 
@@ -47,6 +50,10 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
 
     int getLineReplacedCount() {
         return lineReplacedCount;
+    }
+
+    public int getTieLineRemovedCount() {
+        return tieLineRemovedCount;
     }
 
     int getTwoWindingsTransformerRemovedCount() {
@@ -99,6 +106,13 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
         super.lineRemoved(line);
 
         lineRemovedCount++;
+    }
+
+    @Override
+    public void tieLineRemoved(TieLine tieLine) {
+        super.tieLineRemoved(tieLine);
+
+        tieLineRemovedCount++;
     }
 
     @Override

@@ -3,12 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.execution;
 
-import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProviders;
-import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisInput;
 import com.powsybl.security.distributed.DistributedSecurityAnalysisExecution;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
@@ -23,15 +22,9 @@ import java.util.function.Supplier;
  *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class SecurityAnalysisExecutionBuilder {
+public class SecurityAnalysisExecutionBuilder extends AbstractSecurityAnalysisExecutionBuilder<SecurityAnalysisExecutionBuilder> {
 
-    private final Supplier<ExternalSecurityAnalysisConfig> externalConfig;
-    private final String providerName;
     private final SecurityAnalysisInputBuildStrategy inputBuildStrategy;
-
-    private boolean forward = false;
-    private Integer taskCount = null;
-    private Partition subPart = null;
 
     /**
      * Create a new builder.
@@ -43,24 +36,8 @@ public class SecurityAnalysisExecutionBuilder {
     public SecurityAnalysisExecutionBuilder(Supplier<ExternalSecurityAnalysisConfig> externalConfig,
                                             String providerName,
                                             SecurityAnalysisInputBuildStrategy inputBuildStrategy) {
-        this.externalConfig = Objects.requireNonNull(externalConfig);
-        this.providerName = providerName;
+        super(externalConfig, providerName);
         this.inputBuildStrategy = Objects.requireNonNull(inputBuildStrategy);
-    }
-
-    public SecurityAnalysisExecutionBuilder forward(boolean forward) {
-        this.forward = forward;
-        return this;
-    }
-
-    public SecurityAnalysisExecutionBuilder distributed(Integer taskCount) {
-        this.taskCount = taskCount;
-        return this;
-    }
-
-    public SecurityAnalysisExecutionBuilder subTask(Partition part) {
-        this.subPart = part;
-        return this;
     }
 
     public SecurityAnalysisExecution build() {
@@ -69,11 +46,15 @@ public class SecurityAnalysisExecutionBuilder {
         } else if (taskCount != null) {
             return new DistributedSecurityAnalysisExecution(externalConfig.get(), taskCount);
         } else {
-            return new SecurityAnalysisExecutionImpl(SecurityAnalysis.find(providerName), inputBuildStrategy());
+            return new SecurityAnalysisExecutionImpl(providerName, inputBuildStrategy());
         }
     }
 
-    private SecurityAnalysisInputBuildStrategy subPartBuildStrategy() {
+    private SecurityAnalysisInputBuildStrategy inputBuildStrategy() {
+        return subPart != null ? subPartBuildStrategy() : inputBuildStrategy;
+    }
+
+    protected SecurityAnalysisInputBuildStrategy subPartBuildStrategy() {
         return executionInput -> {
             SecurityAnalysisInput input = inputBuildStrategy.buildFrom(executionInput);
             input.setContingencies(ContingenciesProviders.newSubProvider(input.getContingenciesProvider(), subPart));
@@ -81,12 +62,8 @@ public class SecurityAnalysisExecutionBuilder {
         };
     }
 
-    private SecurityAnalysisInputBuildStrategy inputBuildStrategy() {
-        if (subPart != null) {
-            return subPartBuildStrategy();
-        } else {
-            return inputBuildStrategy;
-        }
+    @Override
+    protected SecurityAnalysisExecutionBuilder self() {
+        return this;
     }
-
 }

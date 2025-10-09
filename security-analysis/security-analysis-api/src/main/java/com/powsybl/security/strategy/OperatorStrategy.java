@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.strategy;
 
@@ -14,13 +15,19 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Describes a strategy that an operator would apply to solve violations occuring after a contingency.
+ * Describes a strategy that an operator would apply to solve violations occurring after a contingency.
  *
- * <p>A strategy is defined for a contingency, and defines a {@link Condition} under which
- * some {@link com.powsybl.action.Action}s will be taken.
+ * <p>A single stage strategy is defined for a contingency, and defines a {@link Condition} under which
+ * some {@link com.powsybl.action.Action}s will be taken. A multiple stage strategy is defined after a contingency
+ * too through a list of conditional actions (also called stage). For each stage, if the {@link Condition} is verified
+ * the list of actions is applied.
  *
- * <p>The security analysis implementation will check that condition after the simulation
- * of the contingency, and if true, it will simulate the actions.
+ * <p>For single stage operator strategy, the security analysis implementation will check the condition
+ * after the simulation of the contingency, and if true, it will simulate the actions. For a multiple stage operator
+ * strategy, the security analysis implementation will check the condition of the first stage. If verified,
+ * the list of actions of this stage is applied. Then, on the network with maybe partial actions applied,
+ * the condition of the second stage is checked and so on until the last stage of the strategy.
+ *
  *
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
@@ -392,7 +393,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
     public static Network createWithCurrentLimits() {
         Network network = create();
 
-        network.getThreeWindingsTransformer("3WT").getLeg1().newCurrentLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1000.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -406,7 +407,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endTemporaryLimit()
                 .add();
 
-        network.getThreeWindingsTransformer("3WT").getLeg2().newCurrentLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -420,7 +421,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endTemporaryLimit()
                 .add();
 
-        network.getThreeWindingsTransformer("3WT").getLeg3().newCurrentLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg3().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -440,7 +441,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
     public static Network createWithUnsortedEndsAndCurrentLimits() {
         Network network = createWithUnsortedEnds(NetworkFactory.findDefault());
 
-        network.getThreeWindingsTransformer("3WT").getLeg1().newCurrentLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(1000.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -454,7 +455,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endTemporaryLimit()
                 .add();
 
-        network.getThreeWindingsTransformer("3WT").getLeg2().newCurrentLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -468,7 +469,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endTemporaryLimit()
                 .add();
 
-        network.getThreeWindingsTransformer("3WT").getLeg3().newCurrentLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg3().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -488,7 +489,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
     public static Network createWithApparentPowerLimits() {
         Network network = create();
 
-        network.getThreeWindingsTransformer("3WT").getLeg1().newApparentPowerLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(1000.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -502,7 +503,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endTemporaryLimit()
                 .add();
 
-        network.getThreeWindingsTransformer("3WT").getLeg2().newApparentPowerLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -516,7 +517,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endTemporaryLimit()
                 .add();
 
-        network.getThreeWindingsTransformer("3WT").getLeg3().newApparentPowerLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg3().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -536,7 +537,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
     public static Network createWithActivePowerLimits() {
         Network network = create();
 
-        network.getThreeWindingsTransformer("3WT").getLeg1().newActivePowerLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(1000.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -550,7 +551,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endTemporaryLimit()
                 .add();
 
-        network.getThreeWindingsTransformer("3WT").getLeg2().newActivePowerLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -564,7 +565,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endTemporaryLimit()
                 .add();
 
-        network.getThreeWindingsTransformer("3WT").getLeg3().newActivePowerLimits()
+        network.getThreeWindingsTransformer("3WT").getLeg3().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("20'")

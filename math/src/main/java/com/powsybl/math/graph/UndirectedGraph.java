@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.graph;
 
@@ -36,19 +37,30 @@ public interface UndirectedGraph<V, E> {
     int addVertex();
 
     /**
+     * Create a new vertex and notify the {@link UndirectedGraphListener}s.
+     *
+     * @param notify notify the {@link UndirectedGraphListener}s if true.
+     * @return the index of the new vertex.
+     */
+    int addVertex(boolean notify);
+
+    /**
      * If the specified vertex does not exist or is null, create it and notify the {@link UndirectedGraphListener}
      */
-    default void addVertexIfNotPresent(int v) {
-        throw new UnsupportedOperationException();
-    }
+    void addVertexIfNotPresent(int v);
+
+    /**
+     * If the specified vertex does not exist or is null, create it and notify the {@link UndirectedGraphListener}
+     *
+     * @param notify notify the {@link UndirectedGraphListener}s if true.
+     */
+    void addVertexIfNotPresent(int v, boolean notify);
 
     /**
      * Check if a specified vertex exists.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex index is invalid (negative).
      */
-    default boolean vertexExists(int v) {
-        throw new UnsupportedOperationException();
-    }
+    boolean vertexExists(int v);
 
     /**
      * Remove the specified vertex and notify the {@link UndirectedGraphListener}s.
@@ -58,6 +70,16 @@ public interface UndirectedGraph<V, E> {
      * @return the value attached to the vertex.
      */
     V removeVertex(int v);
+
+    /**
+     * Remove the specified vertex and notify the {@link UndirectedGraphListener}s.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist or if an edge is connected to this vertex.
+     *
+     * @param v the vertex index to remove.
+     * @param notify notify the {@link UndirectedGraphListener}s if true.
+     * @return the value attached to the vertex.
+     */
+    V removeVertex(int v, boolean notify);
 
     /**
      * Return the number of non-null vertices.
@@ -79,6 +101,18 @@ public interface UndirectedGraph<V, E> {
     int addEdge(int v1, int v2, E obj);
 
     /**
+     * Create an edge between the two specified vertices and notify the {@link UndirectedGraphListener}s.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if one of the vertices doesn't exist.
+     *
+     * @param v1 the first end of the edge.
+     * @param v2 the second end of the edge.
+     * @param obj the value attached to the edge.
+     * @param notify notify the {@link UndirectedGraphListener}s if true.
+     * @return the index of the new edge.
+     */
+    int addEdge(int v1, int v2, E obj, boolean notify);
+
+    /**
      * Remove the specified edge and notify the {@link UndirectedGraphListener}s.
      * This method thows a {@link com.powsybl.commons.PowsyblException} if the edge doesn't exist.
      *
@@ -88,9 +122,26 @@ public interface UndirectedGraph<V, E> {
     E removeEdge(int e);
 
     /**
+     * Remove the specified edge and notify the {@link UndirectedGraphListener}s.
+     * This method thows a {@link com.powsybl.commons.PowsyblException} if the edge doesn't exist.
+     *
+     * @param e the edge index to remove.
+     * @param notify notify the {@link UndirectedGraphListener}s if true.
+     * @return the value attached to the edge.
+     */
+    E removeEdge(int e, boolean notify);
+
+    /**
      * Remove all the edges and notify the {@link UndirectedGraphListener}s.
      */
     void removeAllEdges();
+
+    /**
+     * Remove all the edges and notify the {@link UndirectedGraphListener}s.
+     *
+     * @param notify notify the {@link UndirectedGraphListener}s if true.
+     */
+    void removeAllEdges(boolean notify);
 
     /**
      * Return the number of edges.
@@ -115,32 +166,12 @@ public interface UndirectedGraph<V, E> {
 
     /**
      * Return the maximum number of vertices that this graph can contain. The vertex indices are in the range [0, getVertexCapacity[
-     *
      * As the contiguity of the vertices is not mandatory, do not use this method to iterate over the vertices. Use {@link #getVertices()} instead.
-     *
-     * To get the number of vertices in this graph, use {@link #getVertexCount()}.
-     *
-     * @return the maximum number of vertices contained in this graph.
-     *
-     * @deprecated Use {@link #getVertexCapacity} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    default int getMaxVertex() {
-        return getVertexCapacity();
-    }
-
-    /**
-     * Return the maximum number of vertices that this graph can contain. The vertex indices are in the range [0, getVertexCapacity[
-     *
-     * As the contiguity of the vertices is not mandatory, do not use this method to iterate over the vertices. Use {@link #getVertices()} instead.
-     *
      * To get the number of vertices in this graph, use {@link #getVertexCount()}.
      *
      * @return the maximum number of vertices contained in this graph.
      */
-    default int getVertexCapacity() {
-        return getMaxVertex();
-    }
+    int getVertexCapacity();
 
     /**
      * Return an {@link Iterable} to iterate over the values attached to the vertices.
@@ -166,13 +197,23 @@ public interface UndirectedGraph<V, E> {
     V getVertexObject(int v);
 
     /**
-     * Set the value attached to the specified vertex.
+     * Set the value attached to the specified vertex and notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
      *
      * @param v the vertex index.
      * @param obj the value to attach to the vertex.
      */
     void setVertexObject(int v, V obj);
+
+    /**
+     * Set the value attached to the specified vertex and notify the {@link UndirectedGraphListener}s.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @param obj the value to attach to the vertex.
+     * @param notify notify the {@link UndirectedGraphListener}s if true.
+     */
+    void setVertexObject(int v, V obj, boolean notify);
 
     /**
      * Return the index of the first vertex that the specified edge is connected to.
@@ -229,10 +270,18 @@ public interface UndirectedGraph<V, E> {
     int getEdgeVertex2(int e);
 
     /**
-     * Remove all the vertices of this graph.
+     * Remove all the vertices of this graph and notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if edges exist.
      */
     void removeAllVertices();
+
+    /**
+     * Remove all the vertices of this graph and notify the {@link UndirectedGraphListener}s.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if edges exist.
+     *
+     * @param notify notify the {@link UndirectedGraphListener}s if true.
+     */
+    void removeAllVertices(boolean notify);
 
     /**
      * Return an {@link Iterable} to iterate over the values attached to the edges.
@@ -266,18 +315,21 @@ public interface UndirectedGraph<V, E> {
     /**
      * Traverse the entire graph, starting at the specified vertex v.
      * This method relies on a {@link Traverser} instance to know if the traverse of the graph should continue or stop.
-     * This method throws a {@link com.powsybl.commons.PowsyblException} if the encountered table size is less than the maximum vertex index.
-     *
-     * At the end of the method, the encountered array contains {@literal true} for all the traversed vertices, {@literal false} otherwise.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the verticesEncountered table size is less than the maximum vertex index.
+     * At the end of the method, the verticesEncountered array contains {@literal true} for all the traversed vertices, {@literal false} otherwise.
      *
      * @param v the vertex index where the traverse has to start.
      * @param traversalType the type of traversal (breadth-first or depth-first)
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
-     * @param encountered the list of traversed vertices.
+     * @param verticesEncountered the list of traversed vertices - a vertex is considered as traversed:
+     *                           <ul>
+     *                            <li>if it is the starting vertex</li>
+     *                            <li>if one of its edges has been traversed, with a traverser result {@link TraverseResult#CONTINUE}</li>
+     *                           </ul>
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encountered);
+    boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] verticesEncountered);
 
     /**
      * Traverse the entire graph, starting at the specified vertex v.
@@ -350,7 +402,16 @@ public interface UndirectedGraph<V, E> {
     void print(PrintStream out, Function<V, String> vertexToString, Function<E, String> edgeToString);
 
     /**
-     * Remove from the vertices which are not connected to any edge, and which have no associated object.
+     * Remove from the vertices which are not connected to any edge, and which have no associated object
+     * and notify the {@link UndirectedGraphListener}s.
      */
     void removeIsolatedVertices();
+
+    /**
+     * Remove from the vertices which are not connected to any edge, and which have no associated object
+     * and notify the {@link UndirectedGraphListener}s.
+     *
+     * @param notify notify the {@link UndirectedGraphListener}s if true.
+     */
+    void removeIsolatedVertices(boolean notify);
 }

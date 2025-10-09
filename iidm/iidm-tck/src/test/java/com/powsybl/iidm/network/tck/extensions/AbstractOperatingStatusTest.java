@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck.extensions;
 
@@ -44,6 +45,11 @@ public abstract class AbstractOperatingStatusTest {
         HvdcLine hvdcl = network.getHvdcLine("HVDC1");
         hvdcl.newExtension(OperatingStatusAdder.class)
                 .withStatus(OperatingStatus.Status.PLANNED_OUTAGE)
+                .add();
+
+        BusbarSection bbs = network.getBusbarSection("S1VL1_BBS");
+        bbs.newExtension(OperatingStatusAdder.class)
+                .withStatus(OperatingStatus.Status.FORCED_OUTAGE)
                 .add();
 
         Generator g = network.getGenerator("GH1");

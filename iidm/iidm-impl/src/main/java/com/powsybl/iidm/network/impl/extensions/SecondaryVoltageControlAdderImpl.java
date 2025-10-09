@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.ControlZone;
 import com.powsybl.iidm.network.extensions.ControlZoneAdder;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
+import com.powsybl.iidm.network.impl.NetworkImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,5 +54,9 @@ public class SecondaryVoltageControlAdderImpl extends AbstractIidmExtensionAdder
             ((ControlZoneImpl) controlZone).setSecondaryVoltageControl(secondaryVoltageControl);
         }
         return secondaryVoltageControl;
+    }
+
+    NetworkImpl getNetwork() {
+        return (NetworkImpl) extendable;
     }
 }

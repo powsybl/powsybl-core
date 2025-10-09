@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck.extensions;
 
@@ -172,5 +173,89 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         } catch (PowsyblException e) {
             assertEquals("Variant index not set", e.getMessage());
         }
+    }
+
+    @Test
+    public void adderTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        var adder = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withEnabled(true);
+        var e = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Regulating terminal must be set", e.getMessage());
+        adder = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
+                .withEnabled(true);
+        e = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Reactive power target must be set", e.getMessage());
+        var extension = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
+                .add();
+        assertTrue(extension.isEnabled());
+    }
+
+    @Test
+    public void terminalRemoveTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
+                .withEnabled(true)
+                .add();
+        assertNotNull(g.getExtension(RemoteReactivePowerControl.class));
+        l.remove();
+        // extension has been removed because regulating terminal is invalid
+        assertNull(g.getExtension(RemoteReactivePowerControl.class));
+    }
+
+    @Test
+    public void terminalReplacementTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        Line l2 = network.getLine("l12");
+        RemoteReactivePowerControl remoteReactivePowerControl = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
+                .withEnabled(true)
+                .add();
+        assertNotNull(g.getExtension(RemoteReactivePowerControl.class));
+        remoteReactivePowerControl.setRegulatingTerminal(l2.getTerminal(TwoSides.ONE));
+        l.remove();
+        // extension should not be removed
+        assertNotNull(g.getExtension(RemoteReactivePowerControl.class));
+        l2.remove();
+        // extension should be removed
+        assertNull(g.getExtension(RemoteReactivePowerControl.class));
+    }
+
+    @Test
+    void replacementTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        Terminal lTerminal = l.getTerminal(TwoSides.ONE);
+        RemoteReactivePowerControl remoteReactivePowerControl = g.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(200.0)
+                .withRegulatingTerminal(lTerminal)
+                .withEnabled(true)
+                .add();
+
+        assertEquals(lTerminal, remoteReactivePowerControl.getRegulatingTerminal());
+        assertEquals("b3", remoteReactivePowerControl.getRegulatingTerminal().getBusBreakerView().getBus().getId());
+
+        // Replacement
+        Terminal.BusBreakerView bbView = lTerminal.getBusBreakerView();
+        bbView.moveConnectable("b2", true);
+        assertEquals("b2", remoteReactivePowerControl.getRegulatingTerminal().getBusBreakerView().getBus().getId());
+
+        // Extension should be removed
+        l.remove();
+        assertNull(g.getExtension(RemoteReactivePowerControl.class));
     }
 }

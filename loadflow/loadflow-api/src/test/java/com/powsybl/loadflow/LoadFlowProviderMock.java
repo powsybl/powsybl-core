@@ -3,17 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummyExtension;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummySerializer;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -39,8 +41,29 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
                                                              new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", "yes", List.of("yes", "no")));
 
     @Override
-    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, ReportNode reportNode) {
-        return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
+    public CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
+        Executor executor = runParameters.getComputationManager().getExecutor();
+        if (executor != null) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // Simulate some processing
+                }
+            });
+        }
+        ReportNode reportNode = runParameters.getReportNode();
+        if (reportNode != null) {
+            reportNode.newReportNode()
+                .withMessageTemplate("testLoadflow")
+                .withUntypedValue("variantId", workingStateId)
+                .add();
+        }
+        String logs = "";
+        LoadFlowParameters parameters = runParameters.getLoadFlowParameters();
+        if (parameters != null) {
+            logs = "Loadflow parameters: " + parameters;
+        }
+        return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), logs));
     }
 
     @Override
@@ -66,11 +89,7 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     @Override
     public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig config) {
         DummyExtension extension = new DummyExtension();
-        config.getOptionalModuleConfig("dummy-extension").ifPresent(moduleConfig -> {
-            extension.setParameterDouble(moduleConfig.getDoubleProperty(DOUBLE_PARAMETER_NAME, DummyExtension.PARAMETER_DOUBLE_DEFAULT_VALUE));
-            extension.setParameterBoolean(moduleConfig.getBooleanProperty(BOOLEAN_PARAMETER_NAME, DummyExtension.PARAMETER_BOOLEAN_DEFAULT_VALUE));
-            extension.setParameterString(moduleConfig.getStringProperty(STRING_PARAMETER_NAME, DummyExtension.PARAMETER_STRING_DEFAULT_VALUE));
-        });
+        updateSpecificParameters(extension, config);
         return Optional.of(extension);
     }
 
@@ -99,7 +118,24 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     }
 
     @Override
+    public void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig config) {
+        config.getOptionalModuleConfig("dummy-extension").ifPresent(moduleConfig -> {
+            moduleConfig.getOptionalDoubleProperty(DOUBLE_PARAMETER_NAME)
+                    .ifPresent(((DummyExtension) extension)::setParameterDouble);
+            moduleConfig.getOptionalBooleanProperty(BOOLEAN_PARAMETER_NAME)
+                    .ifPresent(((DummyExtension) extension)::setParameterBoolean);
+            moduleConfig.getOptionalStringProperty(STRING_PARAMETER_NAME)
+                    .ifPresent(((DummyExtension) extension)::setParameterString);
+        });
+    }
+
+    @Override
     public List<Parameter> getSpecificParameters() {
         return PARAMETERS;
+    }
+
+    @Override
+    public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
+        return platformConfig.getOptionalModuleConfig("dummy-extension");
     }
 }

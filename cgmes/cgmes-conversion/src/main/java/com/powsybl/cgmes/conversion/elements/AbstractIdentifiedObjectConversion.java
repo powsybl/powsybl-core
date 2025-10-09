@@ -3,14 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.List;
+
+import static com.powsybl.cgmes.conversion.Conversion.Config.DefaultValue.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -90,6 +96,36 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         } else {
             return String.format("%s at %s %s", what, type, id);
         }
+    }
+
+    // The previous value is only considered if it is defined; NaN values are discarded.
+    // We preserve the received value in equipmentValue (from the EQ file) and in defaultValue (from the code)
+    protected static double getDefaultValue(Double equipmentValue, Double previousValue, Double defaultValue, double emptyValue, Context context) {
+        Double properPreviousValue = previousValue == null || Double.isNaN(previousValue) ? null : previousValue;
+        return getDefaultValue(equipmentValue, properPreviousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
+    }
+
+    protected static int getDefaultValue(Integer equipmentValue, Integer previousValue, Integer defaultValue, int emptyValue, Context context) {
+        return getDefaultValue(equipmentValue, previousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
+    }
+
+    protected static boolean getDefaultValue(Boolean equipmentValue, Boolean previousValue, Boolean defaultValue, boolean emptyValue, Context context) {
+        return getDefaultValue(equipmentValue, previousValue, defaultValue, emptyValue, context.config().updateDefaultValuesPriority());
+    }
+
+    private static <T> T getDefaultValue(T equipmentValue, T previousValue, T defaultValue, T emptyValue, List<Conversion.Config.DefaultValue> selectors) {
+        for (Conversion.Config.DefaultValue selector : selectors) {
+            if (selector == EQ && equipmentValue != null) {
+                return equipmentValue;
+            } else if (selector == PREVIOUS && previousValue != null) {
+                return previousValue;
+            } else if (selector == DEFAULT && defaultValue != null) {
+                return defaultValue;
+            } else if (selector == EMPTY) {
+                return emptyValue;
+            }
+        }
+        return emptyValue;
     }
 
     protected final String id;

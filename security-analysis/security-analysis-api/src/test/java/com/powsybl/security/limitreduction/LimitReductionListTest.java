@@ -40,19 +40,22 @@ class LimitReductionListTest {
     static void init() {
         networkElementCriterion1 = new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"));
         networkElementCriterion2 = new LineCriterion(null, new TwoNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null));
+                VoltageInterval.between(350., 410., true, false),
+                null));
         networkElementCriterion3 = new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
         networkElementCriterion4 = new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
         networkElementCriterion5 = new TieLineCriterion(null, new TwoNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null));
+                VoltageInterval.between(350., 410., true, false),
+                null));
 
         contingencyContext1 = ContingencyContext.specificContingency("contingency1");
-        limitReduction1 = new LimitReduction(LimitType.CURRENT, 0.9f, false,
-                contingencyContext1,
-                List.of(networkElementCriterion1, networkElementCriterion2,
-                        networkElementCriterion3, networkElementCriterion4, networkElementCriterion5),
-                List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion()));
-        limitReduction2 = new LimitReduction(LimitType.ACTIVE_POWER, 0.8f, true);
+        limitReduction1 = LimitReduction.builder(LimitType.CURRENT, 0.9)
+                .withContingencyContext(contingencyContext1)
+                .withNetworkElementCriteria(networkElementCriterion1, networkElementCriterion2,
+                        networkElementCriterion3, networkElementCriterion4, networkElementCriterion5)
+                .withLimitDurationCriteria(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion())
+                .build();
+        limitReduction2 = new LimitReduction(LimitType.ACTIVE_POWER, 0.8, true);
     }
 
     @Test
@@ -103,17 +106,17 @@ class LimitReductionListTest {
 
     @Test
     void unsupportedLimitType() {
-        Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.VOLTAGE, 0.9f, false));
+        Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.VOLTAGE, 0.9));
         assertEquals("VOLTAGE is not a supported limit type for limit reduction", e.getMessage());
     }
 
     @Test
     void unsupportedLimitReductionValues() {
         String expectedMessage = "Limit reduction value should be in [0;1]";
-        Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.CURRENT, -0.5f, true));
+        Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.CURRENT, -0.5, true));
         assertEquals(expectedMessage, e.getMessage());
 
-        e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.CURRENT, 1.3f, false));
+        e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.CURRENT, 1.3));
         assertEquals(expectedMessage, e.getMessage());
     }
 }

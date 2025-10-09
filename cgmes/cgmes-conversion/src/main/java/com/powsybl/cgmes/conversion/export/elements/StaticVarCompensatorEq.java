@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
@@ -61,10 +62,6 @@ public final class StaticVarCompensatorEq {
         if (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svcControlMode)) {
             return "SVCControlMode.voltage";
         } else if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svcControlMode)) {
-            return "SVCControlMode.reactivePower";
-        } else if (StaticVarCompensator.RegulationMode.OFF.equals(svcControlMode)) {
-            // CGMES does not have a "none" value for SVCControlMode enumeration,
-            // so we have to take a default here
             return "SVCControlMode.reactivePower";
         }
         throw new PowsyblException("Invalid regulation mode for Static Var Compensator " + svcControlMode);

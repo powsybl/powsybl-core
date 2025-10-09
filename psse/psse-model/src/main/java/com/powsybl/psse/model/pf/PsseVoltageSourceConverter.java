@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
@@ -208,5 +209,27 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
 
     public void setNreg(int nreg) {
         this.nreg = nreg;
+    }
+
+    public PsseVoltageSourceConverter copy() {
+        PsseVoltageSourceConverter copy = new PsseVoltageSourceConverter();
+        copy.ibus = this.ibus;
+        copy.type = this.type;
+        copy.mode = this.mode;
+        copy.dcset = this.dcset;
+        copy.acset = this.acset;
+        copy.aloss = this.aloss;
+        copy.bloss = this.bloss;
+        copy.minloss = this.minloss;
+        copy.smax = this.smax;
+        copy.imax = this.imax;
+        copy.pwf = this.pwf;
+        copy.maxq = this.maxq;
+        copy.minq = this.minq;
+        copy.remot = this.remot;
+        copy.rmpct = this.rmpct;
+        copy.vsreg = this.vsreg;
+        copy.nreg = this.nreg;
+        return copy;
     }
 }

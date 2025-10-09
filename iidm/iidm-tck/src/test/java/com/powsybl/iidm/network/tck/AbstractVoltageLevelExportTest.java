@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -18,8 +19,8 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,7 +37,7 @@ public abstract class AbstractVoltageLevelExportTest extends AbstractSerDeTest {
             writer.flush();
             // as Graphviz builder library do not have to stable export (order of nodes and edges can change at each run)
             // we only compare unsorted lines
-            List<String> linesRef = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/fictitious-switch-c.dot"))).lines().collect(Collectors.toList());
+            List<String> linesRef = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/fictitious-switch-c.dot")))).lines().toList();
             List<String> lines = Arrays.asList(writer.toString().split("[\\r\\n]+"));
             assertTrue(lines.containsAll(linesRef));
         }
@@ -50,7 +51,7 @@ public abstract class AbstractVoltageLevelExportTest extends AbstractSerDeTest {
             writer.flush();
             // as Graphviz builder library do not have to stable export (order of nodes and edges can change at each run)
             // we only compare unsorted lines
-            List<String> linesRef = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/eurostag-tutorial-example1-vlhv1.dot"))).lines().collect(Collectors.toList());
+            List<String> linesRef = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/eurostag-tutorial-example1-vlhv1.dot")))).lines().toList();
             List<String> lines = Arrays.asList(writer.toString().split("[\\r\\n]+"));
             assertTrue(lines.containsAll(linesRef));
         }

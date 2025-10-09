@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -26,7 +27,7 @@ public class LimitViolationBuilder {
     private Double limit;
     private String limitName;
     private Integer duration;
-    private float reduction = 1.0f;
+    private double reduction = 1.0;
     private Double value;
     private ThreeSides side;
 
@@ -70,7 +71,7 @@ public class LimitViolationBuilder {
         return this;
     }
 
-    public LimitViolationBuilder reduction(float reduction) {
+    public LimitViolationBuilder reduction(double reduction) {
         this.reduction = reduction;
         return this;
     }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.model;
 
@@ -33,11 +34,11 @@ public final class MatpowerWriter {
         Matrix busesM = fillBusesMatrix(model.getBuses());
         Cell busesNames = fillBusesNames(model.getBuses(), withBusNames);
 
-        Matrix gensM = fillGeneratorsMatrix(model.getGenerators());
+        Matrix gensM = fillGeneratorsMatrix(model.getGenerators(), model.getVersion());
         Matrix branchesM = fillBranchesMatrix(model.getBranches());
         Matrix dcLinesM = fillDcLinesMatrix(model.getDcLines());
 
-        struct.set("version", Mat5.newString(model.getVersion()))
+        struct.set("version", Mat5.newString(model.getVersion().toString()))
                 .set("baseMVA", Mat5.newScalar(model.getBaseMva()))
                 .set("bus", busesM)
                 .set("gen", gensM)
@@ -94,8 +95,8 @@ public final class MatpowerWriter {
         return busesNames;
     }
 
-    private static Matrix fillGeneratorsMatrix(List<MGen> gens) {
-        Matrix gensM = Mat5.newMatrix(gens.size(), MatpowerReader.MATPOWER_GENERATORS_COLUMNS);
+    private static Matrix fillGeneratorsMatrix(List<MGen> gens, MatpowerFormatVersion version) {
+        Matrix gensM = Mat5.newMatrix(gens.size(), version.getGeneratorColumns());
 
         for (int row = 0; row < gens.size(); row++) {
             gensM.setInt(row, 0, gens.get(row).getNumber());

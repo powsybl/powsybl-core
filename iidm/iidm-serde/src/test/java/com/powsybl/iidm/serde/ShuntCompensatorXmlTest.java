@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -84,6 +85,17 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         Network n2 = NetworkSerDe.read(path);
         ShuntCompensator sc2 = n2.getShuntCompensator("SHUNT");
         assertEquals(Double.MIN_NORMAL, sc2.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
+    }
+
+    @Test
+    void solvedSectionCount() throws IOException {
+        Network network = ShuntTestCaseFactory.create();
+        network.getShuntCompensator("SHUNT").setSolvedSectionCount(1);
+
+        allFormatsRoundTripTest(network, "shuntWithSolvedSectionCountRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("shuntWithSolvedSectionCountRoundTripRef.xml", IidmVersion.V_1_14);
     }
 
     private void write(Network network, String version) {

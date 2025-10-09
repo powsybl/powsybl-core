@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.converter;
 
@@ -56,7 +57,7 @@ class AmplNetworkReaderTest {
         twt.getLeg1().newPhaseTapChanger()
                 .setTapPosition(1)
                 .setRegulationTerminal(twt.getTerminal(ThreeSides.TWO))
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(200)
                 .beginStep()
                     .setAlpha(-20.0)

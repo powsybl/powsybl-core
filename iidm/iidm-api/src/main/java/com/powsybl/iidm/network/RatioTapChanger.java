@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -36,7 +37,6 @@ public interface RatioTapChanger extends TapChanger<
      * @return itself for method chaining
      */
     RatioTapChanger setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
-
 
     /**
      * Get the regulation value.
@@ -76,15 +76,4 @@ public interface RatioTapChanger extends TapChanger<
      * @return itself for method chaining.
      */
     RatioTapChanger setTargetV(double targetV);
-
-    /**
-     * Get the load tap changing capabilities status.
-     */
-    boolean hasLoadTapChangingCapabilities();
-
-    /**
-     * Set the load tap changing capabilities status.
-     * @return itself for method chaining.
-     */
-    RatioTapChanger setLoadTapChangingCapabilities(boolean status);
 }

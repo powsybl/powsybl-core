@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -46,6 +47,8 @@ public class LoadZipModelSerDe extends AbstractExtensionSerDe<Load, LoadZipModel
         double a6 = context.getReader().readDoubleAttribute("a6");
         double v0 = context.getReader().readDoubleAttribute("v0");
         context.getReader().readEndNode();
-        return new LoadZipModel(load, a1, a2, a3, a4, a5, a6, v0);
+        var zipModel = new LoadZipModel(load, a1, a2, a3, a4, a5, a6, v0);
+        load.addExtension(LoadZipModel.class, zipModel);
+        return zipModel;
     }
 }

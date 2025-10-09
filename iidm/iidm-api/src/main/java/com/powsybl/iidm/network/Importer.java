@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -13,8 +14,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.commons.parameters.Parameter;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
  *
  * <p><code>Importer</code> lookup is based on the <code>ServiceLoader</code>
  * architecture so do not forget to create a
- * <code>META-INF/services/com.powsybl.iidm.importData.Importer</code> file
+ * <code>META-INF/services/com.powsybl.iidm.network.Importer</code> file
  * with the fully qualified name of your <code>Importer</code> implementation.
  *
  * @see java.util.ServiceLoader
@@ -57,6 +58,11 @@ public interface Importer {
         @Override
         public String getFormat() {
             return importer.getFormat();
+        }
+
+        @Override
+        public List<String> getSupportedExtensions() {
+            return importer.getSupportedExtensions();
         }
 
         @Override
@@ -275,6 +281,10 @@ public interface Importer {
      */
     String getFormat();
 
+    default List<String> getSupportedExtensions() {
+        return Collections.emptyList();
+    }
+
     /**
      * Get a description of import parameters
      * @return
@@ -294,14 +304,6 @@ public interface Importer {
      * @return true if the data source is importable, false otherwise
      */
     boolean exists(ReadOnlyDataSource dataSource);
-
-    /**
-     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties)} instead.
-     */
-    @Deprecated(since = "2.6.0")
-    default Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        return importData(dataSource, NetworkFactory.findDefault(), parameters);
-    }
 
     /**
      * Create a model.
@@ -335,5 +337,28 @@ public interface Importer {
      */
     default void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         throw new UnsupportedOperationException("Copy not implemented");
+    }
+
+    /**
+     * Update a given network with contents coming from a data source.
+     *
+     * @param network network
+     * @param dataSource data source
+     * @param parameters some properties to configure the import
+     * @param reportNode the reportNode used for functional logs
+     */
+    default void update(Network network, ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+        throw new UnsupportedOperationException("Importer do not implement updates");
+    }
+
+    /**
+     * Update a given network with contents coming from a data source.
+     *
+     * @param network network
+     * @param dataSource data source
+     * @param parameters some properties to configure the import
+     */
+    default void update(Network network, ReadOnlyDataSource dataSource, Properties parameters) {
+        update(network, dataSource, parameters, ReportNode.NO_OP);
     }
 }

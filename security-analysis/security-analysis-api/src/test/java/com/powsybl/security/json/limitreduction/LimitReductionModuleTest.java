@@ -35,37 +35,39 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         List<NetworkElementCriterion> networkElementCriteria1 =
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
                         new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR)), new TwoNominalVoltageCriterion(
-                                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null)),
+                                VoltageInterval.between(350., 410., true, false),
+                                null)),
                         new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
                         new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
                         new TieLineCriterion(null, new TwoNominalVoltageCriterion(
-                                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null)),
+                                VoltageInterval.between(350., 410., true, false),
+                                null)),
                         new DanglingLineCriterion(null, new SingleNominalVoltageCriterion(
-                                new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, false))));
+                                VoltageInterval.between(80., 100., true, false))));
         List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
-        LimitReduction limitReduction1 = new LimitReduction(LimitType.CURRENT, 0.9f, false,
-                contingencyContext1, networkElementCriteria1, durationCriteria1);
+        LimitReduction limitReduction1 = LimitReduction.builder(LimitType.CURRENT, 0.9)
+                .withContingencyContext(contingencyContext1)
+                .withNetworkElementCriteria(networkElementCriteria1)
+                .withLimitDurationCriteria(durationCriteria1)
+                .build();
 
-        LimitReduction limitReduction2 = new LimitReduction(LimitType.APPARENT_POWER, 0.5f, false,
-                ContingencyContext.all(),
-                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
-                List.of(IntervalTemporaryDurationCriterion.builder()
+        LimitReduction limitReduction2 = LimitReduction.builder(LimitType.APPARENT_POWER, 0.5)
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
+                .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.builder()
                         .setLowBound(10 * 60, true)
                         .setHighBound(20 * 60, true)
-                        .build()));
-        LimitReduction limitReduction3 = new LimitReduction(LimitType.ACTIVE_POWER, 0.8f, true);
+                        .build())
+                .build();
+        LimitReduction limitReduction3 = new LimitReduction(LimitType.ACTIVE_POWER, 0.8, true);
 
-        LimitReduction limitReduction4 = new LimitReduction(LimitType.CURRENT, 0.9f, false,
-                ContingencyContext.all(),
-                List.of(new IdentifiableCriterion(
+        LimitReduction limitReduction4 = LimitReduction.builder(LimitType.CURRENT, 0.9)
+                .withNetworkElementCriteria(new IdentifiableCriterion(
                         new AtLeastOneCountryCriterion(List.of(Country.FR)),
                         new AtLeastOneNominalVoltageCriterion(
-                                new SingleNominalVoltageCriterion.VoltageInterval(380., 410., true, true)
-                        ))),
-                List.of(IntervalTemporaryDurationCriterion.builder()
-                        .setLowBound(300, true)
-                        .setHighBound(600, false)
-                        .build()));
+                                VoltageInterval.between(380., 410., true, true)
+                        )))
+                .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.between(300, 600, true, false))
+                .build();
 
         LimitReductionList limitReductionList = new LimitReductionList(List.of(limitReduction1, limitReduction2, limitReduction3, limitReduction4));
 

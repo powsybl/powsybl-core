@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -70,9 +71,9 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         validate();
         VscConverterStationImpl converterStation
                 = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetworkRef(),
-                voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint, regulatingTerminal == null ? terminal : regulatingTerminal);
+                voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint, regulatingTerminal);
         converterStation.addTerminal(terminal);
-        getVoltageLevel().attach(terminal, false);
+        getVoltageLevel().getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(converterStation);
         network.getListeners().notifyCreation(converterStation);
         return converterStation;
@@ -83,7 +84,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         super.validate();
         NetworkImpl network = getNetwork();
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
-                reactivePowerSetpoint, network.getMinValidationLevel()));
+                reactivePowerSetpoint, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
     }
 

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.test;
 
@@ -14,6 +15,8 @@ import org.xmlunit.diff.Diff;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +31,7 @@ public final class ComparisonUtils {
     private ComparisonUtils() {
     }
 
-    public static void compareXml(InputStream expected, InputStream actual) {
+    public static void assertXmlEquals(InputStream expected, InputStream actual) {
         Diff myDiff = DiffBuilder.compare(expected).withTest(actual).ignoreWhitespace().ignoreComments().build();
         boolean hasDiff = myDiff.hasDifferences();
         if (hasDiff) {
@@ -37,15 +40,24 @@ public final class ComparisonUtils {
         assertFalse(hasDiff);
     }
 
-    public static void compareTxt(InputStream expected, InputStream actual) {
-        try {
-            compareTxt(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
+    public static void assertTxtEquals(Path expected, Path actual) {
+        try (InputStream expectedStream = Files.newInputStream(expected);
+            InputStream actualStream = Files.newInputStream(actual)) {
+            assertTxtEquals(expectedStream, actualStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static void compareBytes(InputStream expected, InputStream actual) {
+    public static void assertTxtEquals(InputStream expected, InputStream actual) {
+        try {
+            assertTxtEquals(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void assertBytesEquals(InputStream expected, InputStream actual) {
         try {
             assertArrayEquals(expected.readAllBytes(), actual.readAllBytes());
         } catch (IOException e) {
@@ -53,7 +65,7 @@ public final class ComparisonUtils {
         }
     }
 
-    public static void compareTxt(InputStream expected, InputStream actual, List<Integer> excludedLines) {
+    public static void assertTxtEquals(InputStream expected, InputStream actual, List<Integer> excludedLines) {
         BufferedReader expectedReader = new BufferedReader(new InputStreamReader(expected));
         List<String> expectedLines = expectedReader.lines().toList();
         BufferedReader actualReader = new BufferedReader(new InputStreamReader(actual));
@@ -66,23 +78,23 @@ public final class ComparisonUtils {
         }
     }
 
-    public static void compareTxt(InputStream expected, String actual) {
+    public static void assertTxtEquals(InputStream expected, String actual) {
         try {
-            compareTxt(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8), actual);
+            assertTxtEquals(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8), actual);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static void compareTxt(String expected, InputStream actual) {
+    public static void assertTxtEquals(String expected, InputStream actual) {
         try {
-            compareTxt(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
+            assertTxtEquals(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static void compareTxt(String expected, String actual) {
+    public static void assertTxtEquals(String expected, String actual) {
         String expectedStr = TestUtil.normalizeLineSeparator(expected);
         String actualStr = TestUtil.normalizeLineSeparator(actual);
         assertEquals(expectedStr, actualStr);

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
@@ -21,14 +22,11 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
 
     private final Function<Integer, List<String>> args;
 
-    private final int timeout;
-
-    SimpleCommandImpl(String id, String program, Function<Integer, List<String>> args, int timeout,
+    SimpleCommandImpl(String id, String program, Function<Integer, List<String>> args,
                       List<InputFile> inputFiles, List<OutputFile> outputFiles) {
         super(id, inputFiles, outputFiles);
         this.program = program;
         this.args = args;
-        this.timeout = timeout;
     }
 
     @Override
@@ -44,11 +42,6 @@ class SimpleCommandImpl extends AbstractCommand implements SimpleCommand {
     @Override
     public List<String> getArgs(int executionNumber) {
         return args.apply(executionNumber);
-    }
-
-    @Override
-    public int getTimeout() {
-        return timeout;
     }
 
     @Override

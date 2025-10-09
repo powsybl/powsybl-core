@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.contingency.list;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.iidm.criteria.Criterion;
 import com.powsybl.iidm.criteria.PropertyCriterion;
 import com.powsybl.iidm.criteria.RegexCriterion;
@@ -47,7 +48,7 @@ public abstract class AbstractEquipmentCriterionContingencyList implements Conti
                 .filter(identifiable -> getNominalVoltageCriterion() == null || getNominalVoltageCriterion().filter(identifiable, getIdentifiableType()))
                 .filter(identifiable -> getPropertyCriteria().stream().allMatch(propertyCriterion -> propertyCriterion.filter(identifiable, getIdentifiableType())))
                 .filter(identifiable -> getRegexCriterion() == null || getRegexCriterion().filter(identifiable, getIdentifiableType()))
-                .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
+                .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElementFactory.create(identifiable)))
                 .collect(Collectors.toList());
     }
 

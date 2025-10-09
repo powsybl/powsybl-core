@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -42,7 +43,7 @@ class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
                 new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3"));
         operatorStrategy.addExtension(DummyExtension.class, new DummyExtension());
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(Collections.singletonList(operatorStrategy));
-        writeTest(operatorStrategyList, OperatorStrategyList::write, ComparisonUtils::compareTxt,
+        writeTest(operatorStrategyList, OperatorStrategyList::write, ComparisonUtils::assertTxtEquals,
                 "/OperatorStrategyFileExtensionsTest.json");
     }
 
@@ -138,7 +139,7 @@ class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
                                           DeserializationContext deserializationContext) throws IOException {
             DummyExtension dummyExtension = new DummyExtension();
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case "parameterBoolean":
                         jsonParser.nextToken();
                         dummyExtension.setParameterBoolean(jsonParser.getValueAsBoolean());
@@ -151,7 +152,7 @@ class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
                         dummyExtension.setParameterString(jsonParser.nextTextValue());
                         break;
                     default:
-                        throw new PowsyblException("Unexpected field " + jsonParser.getCurrentName());
+                        throw new PowsyblException("Unexpected field " + jsonParser.currentName());
                 }
             }
             return dummyExtension;

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements.transformers;
@@ -219,6 +220,7 @@ public class TapChangerConversion {
         });
         tapChanger.setLowTapPosition(tc.getLowTapPosition());
         tapChanger.setTapPosition(tc.getTapPosition());
+        tapChanger.setSolvedTapPosition(tc.getSolvedTapPosition());
     }
 
     /**
@@ -394,10 +396,12 @@ public class TapChangerConversion {
         boolean isTapChangerControlEnabled = rtc.isTapChangerControlEnabled();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
+        Integer solvedPosition = rtc.getSolvedTapPosition();
         String type = rtc.getType();
         TapChanger hiddenCombinedTapChanger = rtc.getHiddenCombinedTapChanger();
         tapChanger.setLowTapPosition(lowStep)
             .setTapPosition(position)
+            .setSolvedTapPosition(solvedPosition)
             .setLtcFlag(isLtcFlag)
             .setId(id)
             .setRegulating(isRegulating)

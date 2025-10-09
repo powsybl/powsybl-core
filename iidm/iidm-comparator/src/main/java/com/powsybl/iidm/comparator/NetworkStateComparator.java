@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.comparator;
 
@@ -71,7 +72,7 @@ public class NetworkStateComparator {
         }
     };
 
-    private static class BranchP1ColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchP1ColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -86,7 +87,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class BranchQ1ColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchQ1ColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -101,7 +102,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class BranchP2ColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchP2ColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -116,7 +117,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class BranchQ2ColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchQ2ColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -131,7 +132,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class BranchRatioColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchRatioColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -152,7 +153,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class BranchDephaColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchDephaColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -298,7 +299,7 @@ public class NetworkStateComparator {
         }
     };
 
-    private static class InjectionPColumnMapper<T extends Injection> implements ColumnMapper<T> {
+    private static final class InjectionPColumnMapper<T extends Injection> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -313,7 +314,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class InjectionQColumnMapper<T extends Injection> implements ColumnMapper<T> {
+    private static final class InjectionQColumnMapper<T extends Injection> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -328,7 +329,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class InjectionVColumnMapper<T extends Injection> implements ColumnMapper<T> {
+    private static final class InjectionVColumnMapper<T extends Injection> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {

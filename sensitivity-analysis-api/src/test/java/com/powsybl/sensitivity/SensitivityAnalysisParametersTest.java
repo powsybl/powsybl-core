@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -173,7 +174,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, (parameters1, path) -> JsonUtil.writeJson(path, parameters1, objectMapper),
-                ComparisonUtils::compareTxt, "/SensitivityAnalysisParametersWithExtension.json");
+                ComparisonUtils::assertTxtEquals, "/SensitivityAnalysisParametersWithExtension.json");
     }
 
     @Test

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -115,17 +116,17 @@ public abstract class AbstractDanglingLineTest {
         danglingLine.setPairingKey(newPairingKey);
         assertEquals(newPairingKey, danglingLine.getPairingKey());
 
-        danglingLine.newCurrentLimits()
+        danglingLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .add();
         assertEquals(100.0, danglingLine.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
-        danglingLine.newActivePowerLimits()
+        danglingLine.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits()
                 .setPermanentLimit(60.0)
                 .add();
         assertEquals(60.0, danglingLine.getActivePowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
-        danglingLine.newApparentPowerLimits()
+        danglingLine.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits()
                 .setPermanentLimit(132.0)
                 .add();
         assertEquals(132.0, danglingLine.getApparentPowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
@@ -293,7 +294,7 @@ public abstract class AbstractDanglingLineTest {
                 .setMinQ(-500)
                 .add();
         assertNotNull(generation.getReactiveLimits());
-        assertTrue(generation.getReactiveLimits() instanceof MinMaxReactiveLimits);
+        assertInstanceOf(MinMaxReactiveLimits.class, generation.getReactiveLimits());
 
         // Test if new Generation is instantiate at each add
         DanglingLine dl2 = adder.setId(id + "_2").add();

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.gl;
 
@@ -35,13 +36,12 @@ public class CgmesGLImporter {
 
     private void importSubstationsPosition() {
         LOG.info("Importing substations position");
-        SubstationPositionImporter positionImporter = new SubstationPositionImporter(network);
-        cgmesGLModel.getSubstationsPosition().forEach(positionImporter::importPosition);
+        new SubstationPositionImporter(network, cgmesGLModel).importPositions();
     }
 
     private void importLinesPosition() {
         LOG.info("Importing lines position");
-        new LinePositionImporter(network, cgmesGLModel).importPosition();
+        new LinePositionImporter(network, cgmesGLModel).importPositions();
     }
 
 }

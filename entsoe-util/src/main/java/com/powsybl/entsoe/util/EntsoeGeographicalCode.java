@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.entsoe.util;
 
@@ -18,7 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum EntsoeGeographicalCode {
-    // see. http://cimug.ucaiug.org/Groups/Model%20Exchange/UCTE-format.pdf
+    // see. https://eepublicdownloads.entsoe.eu/clean-documents/pre2015/publications/ce/otherreports/UCTE-format.pdf
     AL(Country.AL),
     AT(Country.AT),
     BA(Country.BA),

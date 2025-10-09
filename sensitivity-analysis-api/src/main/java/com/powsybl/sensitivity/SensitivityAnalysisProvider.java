@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -47,6 +48,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * Factors are given by a {@code factorReader} on the {@code workingVariantId} of the {@code network}
      * on pre-contingency state and after each {@link com.powsybl.contingency.Contingency} provided by
      * {@code contingencies} according to the {@code parameters}.
+     * @deprecated use {@link #run(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
      *
      * @param network IIDM network on which the sensitivity analysis will be performed
      * @param workingVariantId network variant ID on which the analysis will be performed
@@ -59,7 +61,8 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param reportNode a reportNode for functional logs
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
-    CompletableFuture<Void> run(Network network,
+    @Deprecated(since = "7.0.0", forRemoval = true)
+    default CompletableFuture<Void> run(Network network,
                                 String workingVariantId,
                                 SensitivityFactorReader factorReader,
                                 SensitivityResultWriter resultWriter,
@@ -67,7 +70,33 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
                                 List<SensitivityVariableSet> variableSets,
                                 SensitivityAnalysisParameters parameters,
                                 ComputationManager computationManager,
-                                ReportNode reportNode);
+                                ReportNode reportNode) {
+        return run(network, workingVariantId, factorReader, resultWriter, new SensitivityAnalysisRunParameters()
+            .setContingencies(contingencies)
+            .setVariableSets(variableSets)
+            .setParameters(parameters)
+            .setComputationManager(computationManager)
+            .setReportNode(reportNode));
+    }
+
+    /**
+     * Run a single sensitivity analysis.
+     * Factors are given by a {@code factorReader} on the {@code workingVariantId} of the {@code network}
+     * on pre-contingency state and after each {@link com.powsybl.contingency.Contingency} provided by
+     * {@code contingencies} according to the {@code parameters}.
+     *
+     * @param network IIDM network on which the sensitivity analysis will be performed
+     * @param workingVariantId network variant ID on which the analysis will be performed
+     * @param factorReader provider of sensitivity factors to be computed
+     * @param resultWriter provider of sensitivity results
+     * @param runParameters sensitivity analysis run parameters
+     * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
+     */
+    CompletableFuture<Void> run(Network network,
+                                String workingVariantId,
+                                SensitivityFactorReader factorReader,
+                                SensitivityResultWriter resultWriter,
+                                SensitivityAnalysisRunParameters runParameters);
 
     /**
      * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation

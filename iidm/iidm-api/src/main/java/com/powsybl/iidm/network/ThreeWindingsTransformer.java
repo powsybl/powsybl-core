@@ -3,10 +3,9 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
-
-import com.powsybl.commons.PowsyblException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +37,7 @@ import java.util.stream.Stream;
  * two or more regulating controls are enabled.
  *
  * <p>
- *  Characteristics
+ * Characteristics
  * </p>
  * <table style="border: 1px solid black; border-collapse: collapse">
  *     <thead>
@@ -47,7 +46,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -117,7 +116,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Transformer leg
      *
      * <p>
-     *     Characteristics
+     * Characteristics
      * </p>
      *
      * <table style="border: 1px solid black; border-collapse: collapse">
@@ -127,7 +126,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      *             <th style="border: 1px solid black">Type</th>
      *             <th style="border: 1px solid black">Unit</th>
      *             <th style="border: 1px solid black">Required</th>
-     *             <th style="border: 1px solid black">Defaut value</th>
+     *             <th style="border: 1px solid black">Default value</th>
      *             <th style="border: 1px solid black">Description</th>
      *         </tr>
      *     </thead>
@@ -292,9 +291,16 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         ThreeSides getSide();
 
         Optional<? extends LoadingLimits> getLimits(LimitType type);
+
+        /**
+         * Get the associated three-windings transformer.
+         */
+        ThreeWindingsTransformer getTransformer();
     }
 
     Terminal getTerminal(ThreeSides side);
+
+    Terminal getTerminal(String voltageLevelId);
 
     /**
      * Get the side the terminal is connected to.
@@ -323,16 +329,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     Leg getLeg3();
 
     default Leg getLeg(ThreeSides side) {
-        switch (side) {
-            case ONE:
-                return getLeg1();
-            case TWO:
-                return getLeg2();
-            case THREE:
-                return getLeg3();
-            default:
-                throw new PowsyblException("Can't get leg from side. Unsupported Side \"" + side + "\"");
-        }
+        return switch (side) {
+            case ONE -> getLeg1();
+            case TWO -> getLeg2();
+            case THREE -> getLeg3();
+        };
     }
 
     /**
@@ -353,6 +354,13 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Get the ratedU at the fictitious bus in kV (also used as nominal voltage)
      */
     double getRatedU0();
+
+    /**
+     * Set the rated voltage at the fictitious bus.
+     */
+    default ThreeWindingsTransformer setRatedU0(double ratedU0) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     default IdentifiableType getType() {
@@ -402,4 +410,17 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     Overload checkTemporaryLimits3(double limitReductionValue, LimitType type);
 
     Overload checkTemporaryLimits3(LimitType type);
+
+    default void applySolvedValues() {
+        setRatioTapPositionToSolvedTapPosition();
+        setPhaseTapPositionToSolvedTapPosition();
+    }
+
+    default void setRatioTapPositionToSolvedTapPosition() {
+        this.getLegStream().forEach(leg -> leg.getOptionalRatioTapChanger().ifPresent(TapChanger::applySolvedValues));
+    }
+
+    default void setPhaseTapPositionToSolvedTapPosition() {
+        this.getLegStream().forEach(leg -> leg.getOptionalPhaseTapChanger().ifPresent(TapChanger::applySolvedValues));
+    }
 }

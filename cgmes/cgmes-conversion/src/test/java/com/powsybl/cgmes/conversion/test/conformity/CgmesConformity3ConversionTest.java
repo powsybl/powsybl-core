@@ -106,7 +106,6 @@ class CgmesConformity3ConversionTest {
 
     private void checkExportSvTerminals(Network network) {
         CgmesExportContext context = new CgmesExportContext(network);
-        context.getSvModelDescription().setVersion(2);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(true);
 

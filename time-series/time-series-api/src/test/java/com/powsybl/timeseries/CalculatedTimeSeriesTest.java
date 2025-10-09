@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -18,6 +19,7 @@ import org.threeten.extra.Interval;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,14 +50,14 @@ class CalculatedTimeSeriesTest {
 
     @Test
     void splitSmallChunkTest() {
-        timeSeries.synchronize(new RegularTimeSeriesIndex(0, 99, 1));
+        timeSeries.synchronize(new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(99), Duration.ofMillis(1)));
         List<List<DoubleTimeSeries>> list = TimeSeries.split(Collections.singletonList(timeSeries), 50);
         assertEquals(2, list.size());
     }
 
     @Test
     void splitBigChunkTest() {
-        timeSeries.synchronize(new RegularTimeSeriesIndex(0, 99, 1));
+        timeSeries.synchronize(new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(99), Duration.ofMillis(1)));
         List<List<DoubleTimeSeries>> list = TimeSeries.split(Collections.singletonList(timeSeries), 2);
         assertEquals(50, list.size());
     }
@@ -159,8 +161,8 @@ class CalculatedTimeSeriesTest {
         assertEquals(jsonRef, json);
 
         List<TimeSeries> timeSeriesList = TimeSeries.parseJson(json);
-        for (TimeSeries timeSeries : timeSeriesList) {
-            timeSeries.setTimeSeriesNameResolver(resolver);
+        for (TimeSeries tss : timeSeriesList) {
+            tss.setTimeSeriesNameResolver(resolver);
         }
 
         assertEquals(4, timeSeriesList.size());

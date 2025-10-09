@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.contingency.dsl;
@@ -10,13 +11,19 @@ package com.powsybl.contingency.dsl;
 import com.google.common.collect.Sets;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.contingency.*;
+import com.powsybl.computation.AbstractTaskInterruptionTest;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.LineContingency;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -25,6 +32,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-class GroovyContingencyListTest {
+class GroovyContingencyListTest extends AbstractTaskInterruptionTest {
     private FileSystem fileSystem;
 
     private Path dslFile;
@@ -155,5 +163,41 @@ class GroovyContingencyListTest {
         assertEquals(1, contingencies.size());
         assertEquals(1, contingencies.get(0).getExtensions().size());
         assertEquals("myTs", contingencies.get(0).getExtension(ProbabilityContingencyExtension.class).getProbabilityTimeSeriesRef());
+    }
+
+    @ParameterizedTest
+    @Timeout(3)
+    @ValueSource(booleans = {false, true})
+    void testCancelTask(boolean isDelayed) throws Exception {
+        writeToDslFile("contingency('c1') {",
+            "    equipments 'NHV1_NHV2_1'",
+            "}");
+        ContingencyList contingencyList = ContingencyList.load(dslFile);
+
+        // Cancel the task
+        testCancelShortTask(isDelayed, () -> contingencyList.getContingencies(network));
+
+    }
+
+    @Test
+    void testElementsNotFound() throws IOException {
+        writeToDslFile(
+                "contingency('c1') {",
+                "    equipments 'NHV1_NHV2_1'",
+                "}",
+                "contingency('c2') {",
+                "    equipments 'NHV1_NHV2_2'",
+                "}",
+                "contingency('c3') {",
+                "    equipments 'unknown'",
+                "}"
+        );
+        List<Contingency> contingencies = ContingencyList.load(dslFile)
+                .getContingencies(network);
+        assertEquals(2, contingencies.size());
+        Map<String, Set<String>> elementsNotFound = ((GroovyContingencyList) ContingencyList.load(dslFile)).getNotFoundElements(network);
+        assertEquals(1, elementsNotFound.size());
+        assertEquals(1, elementsNotFound.get("c3").size());
+        assertTrue(elementsNotFound.get("c3").contains("unknown"));
     }
 }

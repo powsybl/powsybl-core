@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.monitor;
 
@@ -19,19 +20,21 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
+ *  A state monitor allows to output in security analysis results some state variables related to branches, buses and three
+ *  windings transformers. The supported state variables are active power, reactive power and current at both side for branches
+ *  (see {@link com.powsybl.security.results.BranchResult}), active power, reactive power and current at voltage level side for
+ *  three windings transformers (see {@link com.powsybl.security.results.ThreeWindingsTransformerResult}) and voltage angle and voltage
+ *  magnitude for buses (see {@link com.powsybl.security.results.BusResult}).
+ *  <p>
+ *  A state monitor is defined for some contingencies through a {@link ContingencyContext}.
+ *  A {@link com.powsybl.contingency.ContingencyContextType#NONE} or {@link com.powsybl.contingency.ContingencyContextType#ALL}
+ *  (because it includes the base case) contingency context will output monitoring results in
+ *  {@link com.powsybl.security.results.PreContingencyResult}.
+ *  If a contingency has a state monitor declared (through a {@link com.powsybl.contingency.ContingencyContextType#ALL},
+ *  a {@link com.powsybl.contingency.ContingencyContextType#ONLY_CONTINGENCIES} or a {@link com.powsybl.contingency.ContingencyContextType#SPECIFIC}),
+ *  monitoring results are output in the dedicated {@link com.powsybl.security.results.PostContingencyResult}.
+ *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
- * <p>
- * <p>
- * A stateMonitor allows to get information about branch, bus and three windings transformers on the network after a security analysis computation.
- * Contingency context allows to specify if the information asked are about N situation N-k situation with a contingency id
- * or both.
- * <p>
- * for example if we want information about a branch after security analysis on contingency c1
- * contingencyContext will contained the contingencyId c1, contextType SPECIFIC and StateMonitor will contained the id of the branch
- * if we want information about a branch in N situation
- * contingencyContext will contained a null contingencyId, contextType NONE and StateMonitor will contained the id of the branch
- * if we want information about a branch in N situation and after security analysis on contingency c1
- * contingencyContext will contained contingencyId c1, contextType ALL and StateMonitor will contained the id of the branch
  */
 public class StateMonitor {
 

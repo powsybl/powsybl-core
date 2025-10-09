@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -20,6 +21,17 @@ public interface TapChanger<
     S extends TapChangerStep<S>,
     R extends TapChangerStepsReplacer<R, A>,
     A extends TapChangerStepAdder<A, R>> {
+
+    /**
+     * Get the load tap changing capabilities status.
+     */
+    boolean hasLoadTapChangingCapabilities();
+
+    /**
+     * Set the load tap changing capabilities status.
+     * @return itself for method chaining.
+     */
+    C setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 
     /**
      * Get the lowest tap position corresponding to the first step of the tap changer.
@@ -56,6 +68,27 @@ public interface TapChanger<
     }
 
     /**
+     * Get the solved tap position.
+     * Can be null if no calculation has been done on the network.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     * </p>
+     */
+    Integer getSolvedTapPosition();
+
+    /**
+     * Get an optional containing the solved tap position if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSolvedTapPosition() {
+        return OptionalInt.of(getSolvedTapPosition());
+    }
+
+    /**
      * Set the current tap position.
      * <p>
      * It is expected to be contained between the lowest and the highest tap position.
@@ -72,6 +105,25 @@ public interface TapChanger<
      * Note: this can be done <b>only</b> in SCADA validation level.
      */
     default C unsetTapPosition() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
+
+    /**
+     * Set the solved tap position.
+     * <p>
+     * It is expected to be contained between the lowest and the highest tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     *
+     * @param solvedTapPosition the solved tap position
+     */
+    C setSolvedTapPosition(int solvedTapPosition);
+
+    /**
+     * Unset the solved tap position: solved tap position is now undefined.
+     */
+    default C unsetSolvedTapPosition() {
         throw ValidationUtil.createUnsetMethodException();
     }
 
@@ -94,12 +146,20 @@ public interface TapChanger<
     R stepsReplacer();
 
     /**
-     * Get the current step.
+     * Get the current step associated to the tap position.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
     S getCurrentStep();
+
+    /**
+     * Get the current step associated to the solved tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    S getSolvedCurrentStep();
 
     /**
      * Get the position of the neutral step (rho = 1, alpha = 0) if it exists.
@@ -127,6 +187,7 @@ public interface TapChanger<
 
     /**
      * Set the regulating status.
+     * Tap changer must support onload tap changing capabilities to enable regulation.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
@@ -179,5 +240,13 @@ public interface TapChanger<
             steps.put(i, getStep(i));
         }
         return steps;
+    }
+
+    default void applySolvedValues() {
+        setTapPositionToSolvedTapPosition();
+    }
+
+    default void setTapPositionToSolvedTapPosition() {
+        this.findSolvedTapPosition().ifPresent(this::setTapPosition);
     }
 }

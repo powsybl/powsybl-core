@@ -7,8 +7,11 @@
  */
 package com.powsybl.cgmes.conversion.test.export.issues;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.extensions.CgmesSshMetadataAdder;
+import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
@@ -23,8 +26,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,7 +46,7 @@ class ModelIdTest extends AbstractSerDeTest {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
 
-        // Check ids of the different export parts (EQ, SSH, SV, TP) are different
+        // Check ids of the different exported subsets (EQ, SSH, SV, TP) are different
         network.setCaseDate(t0);
         Map<String, String> ids0 = exportedIds(network, exportParams);
         Set<String> uniqueIds = new HashSet<>(ids0.values());
@@ -62,12 +63,15 @@ class ModelIdTest extends AbstractSerDeTest {
         // The way to force a different version number in the output
         // is to give a previous version number inside metadata extension
         // Export will increase the version number available in the metadata
-        network.newExtension(CgmesSshMetadataAdder.class)
-                .setId("not-relevant")
-                .setDescription("not-relevant")
-                .setSshVersion(42)
-                .setModelingAuthoritySet("not-relevant")
-                .addDependency("not-relevant")
+        network.newExtension(CgmesMetadataModelsAdder.class)
+                .newModel()
+                    .setSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS)
+                    .setDescription("not-relevant")
+                    .setVersion(42)
+                    .setModelingAuthoritySet("not-relevant")
+                    .addProfile("not-relevant")
+                    .addDependentOn("not-relevant")
+                    .add()
                 .add();
         Map<String, String> ids1v = exportedIds(network, exportParams);
         // We only have added previous version for SSH data, so only SSH id must have changed

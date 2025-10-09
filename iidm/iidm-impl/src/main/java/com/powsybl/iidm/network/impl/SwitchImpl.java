@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -69,7 +70,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         boolean oldValue = this.open.get(index);
         if (oldValue != open) {
             this.open.set(index, open);
-            voltageLevel.invalidateCache(isRetained());
+            voltageLevel.getTopologyModel().invalidateCache(isRetained());
             String variantId = network.getVariantManager().getVariantId(index);
             network.getListeners().notifyUpdate(this, "open", variantId, oldValue, open);
         }
@@ -90,7 +91,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         boolean oldValue = this.retained.get(index);
         if (oldValue != retained) {
             this.retained.set(index, retained);
-            voltageLevel.invalidateCache();
+            voltageLevel.getTopologyModel().invalidateCache();
             String variantId = network.getVariantManager().getVariantId(index);
             network.getListeners().notifyUpdate(this, "retained", variantId, oldValue, retained);
         }
@@ -101,7 +102,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         boolean oldValue = this.fictitious;
         if (oldValue != fictitious) {
             this.fictitious = fictitious;
-            voltageLevel.invalidateCache();
+            voltageLevel.getTopologyModel().invalidateCache();
             NetworkImpl network = getNetwork();
             network.getListeners().notifyUpdate(this, "fictitious", oldValue, fictitious);
         }

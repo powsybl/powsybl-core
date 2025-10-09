@@ -3,15 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TopologyPoint;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.math.graph.TraversalType;
 
 import java.util.ArrayList;
@@ -25,10 +27,14 @@ import java.util.Set;
  */
 class BusTerminal extends AbstractTerminal {
 
+    private BusBreakerTopologyModel getTopologyModel() {
+        return (BusBreakerTopologyModel) voltageLevel.getTopologyModel();
+    }
+
     private final NodeBreakerView nodeBreakerView = new NodeBreakerView() {
         @Override
         public int getNode() {
-            throw BusBreakerVoltageLevel.createNotSupportedBusBreakerTopologyException();
+            throw BusBreakerTopologyModel.createNotSupportedBusBreakerTopologyException();
         }
 
         @Override
@@ -36,7 +42,7 @@ class BusTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
             }
-            getConnectable().move(BusTerminal.this, getTopologyPoint(), node, voltageLevelId);
+            getConnectable().move(BusTerminal.this, node, voltageLevelId);
         }
     };
 
@@ -55,7 +61,7 @@ class BusTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
             }
-            return ((BusBreakerVoltageLevel) voltageLevel).getBus(getConnectableBusId(), true);
+            return getTopologyModel().getBus(getConnectableBusId(), true);
         }
 
         @Override
@@ -64,15 +70,15 @@ class BusTerminal extends AbstractTerminal {
                 throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
             }
             Objects.requireNonNull(busId);
-            BusBreakerVoltageLevel vl = (BusBreakerVoltageLevel) voltageLevel;
+            BusBreakerTopologyModel topologyModel = getTopologyModel();
 
             // Assert that the new bus exists
-            vl.getBus(busId, true);
+            topologyModel.getBus(busId, true);
 
-            vl.detach(BusTerminal.this);
+            topologyModel.detach(BusTerminal.this);
             int variantIndex = getVariantManagerHolder().getVariantIndex();
             String oldValue = BusTerminal.this.connectableBusId.set(variantIndex, busId);
-            vl.attach(BusTerminal.this, false);
+            topologyModel.attach(BusTerminal.this, false);
             String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
             getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, busId);
         }
@@ -82,7 +88,7 @@ class BusTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
             }
-            getConnectable().move(BusTerminal.this, getTopologyPoint(), busId, connected);
+            getConnectable().move(BusTerminal.this, busId, connected);
         }
 
     };
@@ -107,8 +113,8 @@ class BusTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
             }
-            ConfiguredBus bus = ((BusBreakerVoltageLevel) voltageLevel).getBus(getConnectableBusId(), true);
-            return ((BusBreakerVoltageLevel) voltageLevel).calculatedBusTopology.getMergedBus(bus);
+            ConfiguredBus bus = getTopologyModel().getBus(getConnectableBusId(), true);
+            return getTopologyModel().calculatedBusTopology.getMergedBus(bus);
         }
 
     };
@@ -119,8 +125,8 @@ class BusTerminal extends AbstractTerminal {
 
     private final ArrayList<String> connectableBusId;
 
-    BusTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, String connectableBusId, boolean connected) {
-        super(network, side);
+    BusTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, TerminalNumber terminalNumber, String connectableBusId, boolean connected) {
+        super(network, side, terminalNumber);
         Objects.requireNonNull(connectableBusId);
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.connected = new TBooleanArrayList(variantArraySize);
@@ -131,14 +137,12 @@ class BusTerminal extends AbstractTerminal {
         }
     }
 
-    void setConnectableBusId(String connectableBusId) {
+    void unsetConnectableBusId() {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
         int variantIndex = getVariantManagerHolder().getVariantIndex();
-        String oldValue = this.connectableBusId.set(variantIndex, connectableBusId);
-        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, connectableBusId);
+        this.connectableBusId.set(variantIndex, null);
     }
 
     String getConnectableBusId() {
@@ -155,7 +159,7 @@ class BusTerminal extends AbstractTerminal {
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         boolean oldValue = this.connected.set(variantIndex, connected);
         String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate("connected" + getAttributeSideSuffix(), variantId, oldValue, connected);
+        getConnectable().notifyUpdate("connected" + getAttributeSideOrNumberSuffix(), variantId, oldValue, connected);
     }
 
     @Override
@@ -171,7 +175,7 @@ class BusTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException(String.format("Associated equipment %s is removed", connectable.id));
         }
-        return ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals, traversalType);
+        return getTopologyModel().traverse(this, traverser, visitedTerminals, traversalType);
     }
 
     @Override
@@ -184,7 +188,7 @@ class BusTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException(String.format("Associated equipment %s is removed", connectable.id));
         }
-        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversalType);
+        getTopologyModel().traverse(this, traverser, traversalType);
     }
 
     @Override

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.contingency.list;
 
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ListOfContingencyLists implements ContingencyList {
-
+    private static final String VERSION = "1.1";
     public static final String TYPE = "list";
     private final String name;
     private final List<ContingencyList> contingencyLists;
@@ -26,6 +27,10 @@ public class ListOfContingencyLists implements ContingencyList {
     public ListOfContingencyLists(String name, List<ContingencyList> contingencyLists) {
         this.name = Objects.requireNonNull(name);
         this.contingencyLists = ImmutableList.copyOf(contingencyLists);
+    }
+
+    public static String getVersion() {
+        return VERSION;
     }
 
     @Override

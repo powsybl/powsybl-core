@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -51,10 +52,15 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
     }
 
     @Override
+    public String getName() {
+        return "ConnectVoltageLevelOnLine";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         // Checks
-        if (failChecks(network, throwException, reportNode, LOG)) {
+        if (failChecks(network, throwException, reportNode)) {
             return;
         }
 
@@ -78,8 +84,8 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
                     .newBus()
                     .setId(namingStrategy.getBusId(line2Id))
                     .add();
-            createBusBreakerSwitch(bus1.getId(), bus.getId(), namingStrategy.getSwitchId(line1Id, 1), voltageLevel.getBusBreakerView());
-            createBusBreakerSwitch(bus.getId(), bus2.getId(), namingStrategy.getSwitchId(line2Id, 2), voltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus1.getId(), bus.getId(), namingStrategy.getSwitchId(line1Id, 1), namingStrategy.getSwitchName(line1Id, 1), voltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus.getId(), bus2.getId(), namingStrategy.getSwitchId(line2Id, 2), namingStrategy.getSwitchName(line1Id, 2), voltageLevel.getBusBreakerView());
             adder1.setBus2(bus1.getId());
             adder2.setBus1(bus2.getId());
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
@@ -118,13 +124,6 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         addLoadingLimits(line1, limits1, TwoSides.ONE);
         addLoadingLimits(line2, limits2, TwoSides.TWO);
         LOG.info("Voltage level {} connected to lines {} and {} replacing line {}.", voltageLevel.getId(), line1Id, line2Id, originalLineId);
-        reportNode.newReportNode()
-                .withMessageTemplate("voltageConnectedOnLine", "Voltage level ${voltageLevelId} connected to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
-                .withUntypedValue("voltageLevelId", voltageLevel.getId())
-                .withUntypedValue("line1Id", line1Id)
-                .withUntypedValue("line2Id", line2Id)
-                .withUntypedValue("originalLineId", originalLineId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+        ModificationReports.connectVoltageLevelToLines(reportNode, voltageLevel.getId(), line1Id, line2Id, originalLineId);
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
@@ -27,7 +28,7 @@ import java.util.stream.Stream;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-final class RegulatingTerminalMapper {
+public final class RegulatingTerminalMapper {
 
     private RegulatingTerminalMapper() {
         // Empty constructor for utility class
@@ -104,7 +105,7 @@ final class RegulatingTerminalMapper {
                 .filter(terminal -> vertices.contains(terminalToVertex.apply(terminal)));
     }
 
-    static class TerminalAndSign {
+    public static class TerminalAndSign {
         private final Terminal terminal;
         private final int sign;
 

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements.transformers;
@@ -39,13 +40,13 @@ public class CgmesRatioTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     protected void addSteps() {
         String tableId = p.getId(CgmesNames.RATIO_TAP_CHANGER_TABLE);
         if (tableId != null) {
-            PropertyBags table = context.ratioTapChangerTable(tableId);
-            if (table == null) {
+            PropertyBags tablePoints = context.ratioTapChangerTablePoints(tableId);
+            if (tablePoints.isEmpty()) {
                 addStepsFromLowHighIncrement();
                 return;
             }
-            if (isTableValid(tableId, table)) {
-                addStepsFromTable(table, tableId);
+            if (isTableValid(tableId, tablePoints)) {
+                addStepsFromTable(tablePoints, tableId);
             } else {
                 addStepsFromLowHighIncrement();
             }

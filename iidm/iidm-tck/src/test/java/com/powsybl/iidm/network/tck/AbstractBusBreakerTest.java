@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -18,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 public abstract class AbstractBusBreakerTest {
 
-    private static Network createTestNetwork() {
+    protected static Network createTestNetwork() {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S1")

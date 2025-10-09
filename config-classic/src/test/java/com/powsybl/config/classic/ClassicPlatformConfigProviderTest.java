@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.config.classic;
 
@@ -50,22 +51,22 @@ class ClassicPlatformConfigProviderTest {
 
     @Test
     void testNoUserHome() {
-        assertEquals(Arrays.asList("/.itools"), getAbsolutePaths(null));
+        assertEquals(List.of("/.itools"), getAbsolutePaths(null));
     }
 
     @Test
     void testEdgeCaseEmptyAfterSplit() {
-        assertEquals(Arrays.asList("/.itools"), getAbsolutePaths(":"));
+        assertEquals(List.of("/.itools"), getAbsolutePaths(":"));
     }
 
     @Test
     void workDir() {
-        assertEquals(Arrays.asList("/work"), getAbsolutePaths("."));
+        assertEquals(List.of("/work"), getAbsolutePaths("."));
     }
 
     @Test
     void testEmptyConfigDirs() {
-        assertEquals(Arrays.asList("/.itools"), getAbsolutePaths(""));
+        assertEquals(List.of("/.itools"), getAbsolutePaths(""));
     }
 
     @Test
@@ -80,6 +81,6 @@ class ClassicPlatformConfigProviderTest {
         }
         ModuleConfigRepository loadModuleRepository = ClassicPlatformConfigProvider
                 .loadModuleRepository(new Path[] {fileSystem.getPath("/") }, "config");
-        assertEquals("baz", loadModuleRepository.getModuleConfig("foo").get().getStringProperty("bar"));
+        assertEquals("baz", loadModuleRepository.getModuleConfig("foo").orElseThrow().getStringProperty("bar"));
     }
 }

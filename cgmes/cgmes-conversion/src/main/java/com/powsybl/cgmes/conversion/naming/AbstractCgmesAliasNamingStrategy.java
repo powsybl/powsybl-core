@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.naming;
 
@@ -31,9 +32,9 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
  */
 public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy {
 
-    private final BiMap<String, String> idByUuid = HashBiMap.create();
-    private final Map<String, String> uuidSeed = new HashMap<>();
-    private final NameBasedGenerator nameBasedGenerator;
+    protected final BiMap<String, String> idByUuid = HashBiMap.create();
+    protected final Map<String, String> uuidSeed = new HashMap<>();
+    protected final NameBasedGenerator nameBasedGenerator;
 
     protected AbstractCgmesAliasNamingStrategy(UUID uuidNamespace) {
         // The namespace for generating stable name-based UUIDs is also a UUID

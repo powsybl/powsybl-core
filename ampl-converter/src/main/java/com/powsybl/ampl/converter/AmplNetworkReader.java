@@ -3,10 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -20,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;

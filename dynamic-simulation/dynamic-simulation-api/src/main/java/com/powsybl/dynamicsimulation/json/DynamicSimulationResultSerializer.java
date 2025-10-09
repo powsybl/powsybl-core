@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynamicsimulation.json;
 
@@ -50,16 +51,31 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
             entry.getValue().writeJson(jsonGenerator);
         }
         jsonGenerator.writeEndArray();
-        jsonGenerator.writeFieldName("timeLine");
+        // fsv
+        jsonGenerator.writeFieldName("finalStateValues");
         jsonGenerator.writeStartArray();
-        for (TimelineEvent event : result.getTimeLine()) {
+        for (Entry<String, Double> fsv : result.getFinalStateValues().entrySet()) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeNumberField("time", event.time());
-            jsonGenerator.writeStringField("modelName", event.modelName());
-            jsonGenerator.writeStringField("message", event.message());
+            jsonGenerator.writeStringField("name", fsv.getKey());
+            jsonGenerator.writeNumberField("value", fsv.getValue());
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
+        // timeline
+        jsonGenerator.writeFieldName("timeLine");
+        jsonGenerator.writeStartArray();
+        for (TimelineEvent event : result.getTimeLine()) {
+            writeTimeline(event, jsonGenerator);
+        }
+        jsonGenerator.writeEndArray();
+        jsonGenerator.writeEndObject();
+    }
+
+    private void writeTimeline(TimelineEvent event, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeNumberField("time", event.time());
+        jsonGenerator.writeStringField("modelName", event.modelName());
+        jsonGenerator.writeStringField("message", event.message());
         jsonGenerator.writeEndObject();
     }
 

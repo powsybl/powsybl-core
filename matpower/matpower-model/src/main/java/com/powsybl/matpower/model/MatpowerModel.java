@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.model;
 
@@ -19,7 +20,7 @@ public class MatpowerModel {
     @JsonProperty("caseName")
     private String caseName;
     private double baseMva;
-    private String version;
+    private MatpowerFormatVersion version;
 
     private final List<MBus> buses = new ArrayList<>();
 
@@ -38,12 +39,12 @@ public class MatpowerModel {
         this.caseName = Objects.requireNonNull(caseName);
     }
 
-    public String getVersion() {
+    public MatpowerFormatVersion getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setVersion(MatpowerFormatVersion version) {
+        this.version = Objects.requireNonNull(version);
     }
 
     public String getCaseName() {

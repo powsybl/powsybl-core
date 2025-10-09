@@ -4,6 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.converter;
 
@@ -11,6 +12,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -121,6 +123,6 @@ public class AmplExporter implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return STATIC_PARAMETERS;
+        return ConfiguredParameter.load(STATIC_PARAMETERS, getFormat(), defaultValueConfig);
     }
 }

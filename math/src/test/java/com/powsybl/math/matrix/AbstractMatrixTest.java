@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
@@ -426,18 +427,6 @@ abstract class AbstractMatrixTest {
         assertEquals(6d, a.toDense().get(1, 1), 0d);
         assertEquals(7d, a.toDense().get(2, 1), 0d);
         assertEquals(8d, a.toDense().get(0, 2), 0d);
-    }
-
-    @Test
-    void testDeprecated() {
-        Matrix a = getMatrixFactory().create(2, 2, 2);
-        assertEquals(a.getRowCount(), a.getM());
-        assertEquals(a.getColumnCount(), a.getN());
-        a.setValue(0, 0, 1d);
-        a.setValue(0, 1, 1d);
-        assertEquals(1d, a.toDense().get(0, 1), 0d);
-        a.addValue(0, 1, 2d);
-        assertEquals(3d, a.toDense().get(0, 1), 0d);
     }
 
     @Test

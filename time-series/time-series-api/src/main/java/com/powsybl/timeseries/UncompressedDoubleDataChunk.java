@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -132,7 +133,7 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
     @Override
     public Stream<DoublePoint> stream(TimeSeriesIndex index) {
         Objects.requireNonNull(index);
-        return IntStream.range(0, values.length).mapToObj(i -> new DoublePoint(offset + i, index.getTimeAt(offset + i), values[i]));
+        return IntStream.range(0, values.length).mapToObj(i -> new DoublePoint(offset + i, index.getInstantAt(offset + i), values[i]));
     }
 
     @Override
@@ -152,7 +153,7 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                DoublePoint point = new DoublePoint(offset + i, index.getTimeAt(offset + i), values[i]);
+                DoublePoint point = new DoublePoint(offset + i, index.getInstantAt(offset + i), values[i]);
                 i++;
                 return point;
             }
@@ -166,7 +167,7 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
 
     @Override
     public int hashCode() {
-        return Objects.hash(offset, values);
+        return Objects.hash(offset, Arrays.hashCode(values));
     }
 
     @Override

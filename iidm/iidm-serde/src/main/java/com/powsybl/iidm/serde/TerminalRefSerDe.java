@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.iidm.serde;
@@ -82,7 +83,7 @@ public final class TerminalRefSerDe {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         ThreeSides side = context.getReader().readEnumAttribute(SIDE, ThreeSides.class);
         context.getReader().readEndNode();
-        context.getEndTasks().add(() -> {
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
             Terminal t = resolve(id, side, network);
             endTaskTerminalConsumer.accept(t);
         });

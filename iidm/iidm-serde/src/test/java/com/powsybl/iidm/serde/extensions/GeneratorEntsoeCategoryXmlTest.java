@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
 
     static Network createTestNetwork() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")

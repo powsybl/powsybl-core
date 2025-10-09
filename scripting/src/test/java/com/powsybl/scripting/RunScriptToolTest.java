@@ -3,13 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.scripting;
 
 import com.powsybl.tools.test.AbstractToolTest;
-import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -17,6 +18,7 @@ import java.util.Collections;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
+@Order(1)
 class RunScriptToolTest extends AbstractToolTest {
 
     private RunScriptTool tool;
@@ -44,7 +46,7 @@ class RunScriptToolTest extends AbstractToolTest {
         String helloFile = "/hello.groovy";
         createFile(helloFile, "print 'hello'");
 
-        assertCommand(new String[] {"run-script", "--file", helloFile}, CommandLineTools.COMMAND_OK_STATUS, "hello", "");
+        assertCommandSuccessful(new String[] {"run-script", "--file", helloFile}, "hello");
     }
 
     @Test
@@ -52,6 +54,6 @@ class RunScriptToolTest extends AbstractToolTest {
         String helloFile = "/hello.groovy";
         createFile(helloFile, "print 'hello ' + args[0]");
 
-        assertCommand(new String[] {"run-script", "--file", helloFile, "John Doe"}, CommandLineTools.COMMAND_OK_STATUS, "hello John Doe", "");
+        assertCommandSuccessful(new String[] {"run-script", "--file", helloFile, "John Doe"}, "hello John Doe");
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -31,6 +32,15 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
         Network network = SvcTestCaseFactory.create();
         addProperties(network);
         allFormatsRoundTripTest(network, "staticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
+    }
+
+    @Test
+    void noRegulatioModeTest() throws IOException {
+        // backward compatibility: regulation mode is exported as OFF if it was not set in input file
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("staticVarCompensatorNoRegulationMode.xml", "staticVarCompensatorRegulationModeOFF.xml", IidmVersion.V_1_7);
+
+        // regulation mode is exported as VOLTAGE and regulating is set to false if regulation mode was not set in input file
+        allFormatsRoundTripFromVersionedXmlTest("staticVarCompensatorNoRegulationMode.xml", "notRegulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test

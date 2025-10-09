@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -20,7 +21,7 @@ package com.powsybl.iidm.network;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -241,8 +242,40 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
 
     Generator setRatedS(double ratedS);
 
+    /**
+     * Get whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
+     */
+    boolean isCondenser();
+
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.GENERATOR;
+    }
+
+    default void applySolvedValues() {
+        setTargetPToP();
+        setTargetQToQ();
+        setTargetVToV();
+    }
+
+    default void setTargetPToP() {
+        double p = this.getTerminal().getP();
+        if (!Double.isNaN(p)) {
+            this.setTargetP(-p);
+        }
+    }
+
+    default void setTargetQToQ() {
+        double q = this.getTerminal().getQ();
+        if (!Double.isNaN(q)) {
+            this.setTargetQ(-q);
+        }
+    }
+
+    default void setTargetVToV() {
+        Bus bus = this.getTerminal().getBusView().getBus();
+        if (bus != null && !Double.isNaN(bus.getV())) {
+            this.setTargetV(bus.getV());
+        }
     }
 }

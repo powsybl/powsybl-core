@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test;
@@ -34,7 +35,7 @@ class TopologyTester {
     // When we create the voltage-level connectivity at node-breaker level we will
     // be able to
     // set the retained flag for each switch and this problem will be avoided
-    // For connectivity created at bus-breaker level we can not set the "retained"
+    // For connectivity created at bus-breaker level we cannot set the "retained"
     // flag
     boolean test(boolean strict) {
         // Only makes sense if the network has been obtained

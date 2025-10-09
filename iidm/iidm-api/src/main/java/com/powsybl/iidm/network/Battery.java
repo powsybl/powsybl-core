@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -20,7 +21,7 @@ package com.powsybl.iidm.network;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -42,20 +43,20 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">Human-readable name of the battery</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">P0</td>
+ *             <td style="border: 1px solid black">TargetP</td>
  *             <td style="border: 1px solid black">double</td>
  *             <td style="border: 1px solid black">MW</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The constant active power</td>
+ *             <td style="border: 1px solid black">The active power target</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">Q0</td>
+ *             <td style="border: 1px solid black">TargetQ</td>
  *             <td style="border: 1px solid black">double</td>
  *             <td style="border: 1px solid black">MVar</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The constant reactive power</td>
+ *             <td style="border: 1px solid black">The reactive power target</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">MinP</td>
@@ -63,7 +64,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">MW</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The minimum active power</td>
+ *             <td style="border: 1px solid black">The minimum active power (charging limit)</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">MaxP</td>
@@ -71,7 +72,15 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">MW</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The maximum active power</td>
+ *             <td style="border: 1px solid black">The maximum active power (discharging limit)</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ReactiveLimits</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black">min/max</td>
+ *             <td style="border: 1px solid black">Operational limits of the battery (P/Q/U diagram)</td>
  *         </tr>
  *     </tbody>
  * </table>
@@ -87,27 +96,11 @@ package com.powsybl.iidm.network;
 public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
 
     /**
-     * @deprecated Use {@link #getTargetP()} instead.
-     */
-    @Deprecated(since = "4.9.0")
-    default double getP0() {
-        return getTargetP();
-    }
-
-    /**
      * Get the target active power in MW.
      * <p>Depends on the working variant.
      * @see VariantManager
      */
     double getTargetP();
-
-    /**
-     * @deprecated Use {@link #setTargetP(double)} instead.
-     */
-    @Deprecated(since = "4.9.0")
-    default Battery setP0(double p0) {
-        return setTargetP(p0);
-    }
 
     /**
      * Set the target active power in MW.
@@ -117,27 +110,11 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
     Battery setTargetP(double targetP);
 
     /**
-     * @deprecated Use {@link #getTargetQ()} instead.
-     */
-    @Deprecated(since = "4.9.0")
-    default double getQ0() {
-        return getTargetQ();
-    }
-
-    /**
      * Get the target reactive power in MVar.
      * <p>Depends on the working variant.
      * @see VariantManager
      */
     double getTargetQ();
-
-    /**
-     * @deprecated Use {@link #setTargetP(double)} instead.
-     */
-    @Deprecated(since = "4.9.0")
-    default Battery setQ0(double q0) {
-        return setTargetQ(q0);
-    }
 
     /**
      * Set the target reactive power in MVar.
@@ -169,5 +146,18 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.BATTERY;
+    }
+
+    default void applySolvedValues() {
+        setTargetPToP();
+        setTargetQToQ();
+    }
+
+    default void setTargetPToP() {
+        this.setTargetP(-this.getTerminal().getP());
+    }
+
+    default void setTargetQToQ() {
+        this.setTargetQ(-this.getTerminal().getQ());
     }
 }

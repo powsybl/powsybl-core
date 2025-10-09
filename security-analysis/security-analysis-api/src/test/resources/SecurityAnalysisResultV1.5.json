@@ -1,0 +1,180 @@
+{
+  "version" : "1.5",
+  "network" : {
+    "id" : "sim1",
+    "sourceFormat" : "test",
+    "caseDate" : "2018-01-01T11:00:00.000+01:00",
+    "forecastDistance" : 0
+  },
+  "preContingencyResult" : {
+    "status" : "CONVERGED",
+    "limitViolationsResult" : {
+      "limitViolations" : [ {
+        "subjectId" : "NHV1_NHV2_1",
+        "limitType" : "CURRENT",
+        "limit" : 100.0,
+        "limitReduction" : 0.949999988079071,
+        "value" : 110.0,
+        "side" : "ONE",
+        "extensions" : {
+          "ActivePower" : {
+            "value" : 220.0
+          }
+        }
+      } ],
+      "actionsTaken" : [ ]
+    },
+    "networkResult" : {
+      "branchResults" : [ {
+        "branchId" : "branch1",
+        "p1" : 1.0,
+        "q1" : 2.0,
+        "i1" : 3.0,
+        "p2" : 1.1,
+        "q2" : 2.2,
+        "i2" : 3.3
+      }, {
+        "branchId" : "branch2",
+        "p1" : 0.0,
+        "q1" : 0.0,
+        "i1" : 0.0,
+        "p2" : 0.0,
+        "q2" : 0.0,
+        "i2" : 0.0,
+        "flowTransfer" : 10.0
+      } ],
+      "busResults" : [ {
+        "voltageLevelId" : "voltageLevelId",
+        "busId" : "busId",
+        "v" : 400.0,
+        "angle" : 3.14
+      } ],
+      "threeWindingsTransformerResults" : [ {
+        "threeWindingsTransformerId" : "threeWindingsTransformerId",
+        "p1" : 1.0,
+        "q1" : 2.0,
+        "i1" : 3.0,
+        "p2" : 1.1,
+        "q2" : 2.1,
+        "i2" : 3.1,
+        "p3" : 1.2,
+        "q3" : 2.2,
+        "i3" : 3.2
+      } ]
+    }
+  },
+  "postContingencyResults" : [ {
+    "contingency" : {
+      "id" : "contingency",
+      "elements" : [ {
+        "id" : "NHV1_NHV2_2",
+        "type" : "BRANCH",
+        "voltageLevelId" : "VLNHV1"
+      }, {
+        "id" : "NHV1_NHV2_1",
+        "type" : "BRANCH"
+      }, {
+        "id" : "GEN",
+        "type" : "GENERATOR"
+      }, {
+        "id" : "BBS1",
+        "type" : "BUSBAR_SECTION"
+      } ]
+    },
+    "status" : "CONVERGED",
+    "limitViolationsResult" : {
+      "limitViolations" : [ {
+        "subjectId" : "NHV1_NHV2_2",
+        "limitType" : "CURRENT",
+        "limitName" : "20'",
+        "acceptableDuration" : 1200,
+        "limit" : 100.0,
+        "limitReduction" : 1.0,
+        "value" : 110.0,
+        "side" : "TWO",
+        "extensions" : {
+          "ActivePower" : {
+            "preContingencyValue" : 220.0,
+            "postContingencyValue" : 230.0
+          },
+          "Current" : {
+            "preContingencyValue" : 95.0
+          }
+        }
+      }, {
+        "subjectId" : "GEN",
+        "limitType" : "HIGH_VOLTAGE",
+        "limit" : 100.0,
+        "limitReduction" : 0.8999999761581421,
+        "value" : 110.0
+      }, {
+        "subjectId" : "GEN2",
+        "limitType" : "LOW_VOLTAGE",
+        "limit" : 100.0,
+        "limitReduction" : 0.699999988079071,
+        "value" : 115.0,
+        "extensions" : {
+          "Voltage" : {
+            "preContingencyValue" : 400.0
+          }
+        }
+      }, {
+        "subjectId" : "NHV1_NHV2_2",
+        "limitType" : "ACTIVE_POWER",
+        "limitName" : "20'",
+        "acceptableDuration" : 1200,
+        "limit" : 100.0,
+        "limitReduction" : 1.0,
+        "value" : 110.0,
+        "side" : "ONE"
+      }, {
+        "subjectId" : "NHV1_NHV2_2",
+        "limitType" : "APPARENT_POWER",
+        "limitName" : "20'",
+        "acceptableDuration" : 1200,
+        "limit" : 100.0,
+        "limitReduction" : 1.0,
+        "value" : 110.0,
+        "side" : "TWO"
+      } ],
+      "actionsTaken" : [ "action1", "action2" ]
+    },
+    "networkResult" : {
+      "branchResults" : [ ],
+      "busResults" : [ ],
+      "threeWindingsTransformerResults" : [ ]
+    },
+    "connectivityResult" : {
+      "createdSynchronousComponentCount" : 0,
+      "createdConnectedComponentCount" : 0,
+      "disconnectedLoadActivePower" : 0.0,
+      "disconnectedGenerationActivePower" : 0.0,
+      "disconnectedElements" : [ ]
+    }
+  } ],
+  "operatorStrategyResults" : [ {
+    "operatorStrategy" : {
+      "id" : "strategyId",
+      "contingencyContextType" : "SPECIFIC",
+      "contingencyId" : "contingency1",
+      "conditionalActions" : [ {
+        "id" : "stage1",
+        "condition" : {
+          "type" : "AT_LEAST_ONE_VIOLATION",
+          "violationIds" : [ "violationId1" ]
+        },
+        "actionIds" : [ "actionId1" ]
+      } ]
+    },
+    "status" : "CONVERGED",
+    "limitViolationsResult" : {
+      "limitViolations" : [ ],
+      "actionsTaken" : [ ]
+    },
+    "networkResult" : {
+      "branchResults" : [ ],
+      "busResults" : [ ],
+      "threeWindingsTransformerResults" : [ ]
+    }
+  } ]
+}

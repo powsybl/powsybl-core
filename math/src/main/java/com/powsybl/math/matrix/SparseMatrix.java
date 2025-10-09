@@ -3,19 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a></a> format.
@@ -25,8 +26,13 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SparseMatrix extends AbstractMatrix implements Serializable {
-
     private static final long serialVersionUID = -7810324161942335828L;
+
+    // Classes allowed during deserialization
+    private static final Set<Class<?>> ALLOWED_CLASSES = Set.of(SparseMatrix.class,
+            int[].class, double[].class,
+            TIntArrayListHack.class, TDoubleArrayListHack.class,
+            TIntArrayList.class, TDoubleArrayList.class);
 
     /**
      * Sparse Element implementation.
@@ -486,6 +492,11 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
     public static SparseMatrix read(InputStream inputStream) {
         Objects.requireNonNull(inputStream);
         try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+            // Check that the object to deserialize is really a SparseMatrix.
+            // This check is done prior to its complete deserialization to prevent security problems (RCE).
+            // - Check that all non-null encountered classes are among the accepted ones (the one composing a SparseMatrix).
+            ObjectInputFilter allowedClassesFilter = ObjectInputFilter.allowFilter(ALLOWED_CLASSES::contains, ObjectInputFilter.Status.REJECTED);
+            objectInputStream.setObjectInputFilter(allowedClassesFilter);
             return (SparseMatrix) objectInputStream.readObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

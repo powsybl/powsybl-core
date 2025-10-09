@@ -3,10 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -43,7 +48,8 @@ class GeneratorTrippingTest extends AbstractTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         GeneratorTripping tripping = new GeneratorTripping("generator");
-        assertThrows(PowsyblException.class, () -> tripping.apply(network));
+        assertThrows(PowsyblException.class, () -> tripping.apply(network, true, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> tripping.apply(network));
     }
 
     @Test
@@ -67,5 +73,30 @@ class GeneratorTrippingTest extends AbstractTrippingTest {
 
         List<Boolean> switchStates = getSwitchStates(network, switchIds);
         assertEquals(expectedSwitchStates, switchStates);
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new GeneratorTripping("ID");
+        assertEquals("GeneratorTripping", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        NetworkModification modification1 = new GeneratorTripping("WRONG_ID");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new GeneratorTripping("GEN");
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+        modification2.apply(network);
+
+        NetworkModification modification3 = new GeneratorTripping("GEN");
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
+        Network network2 = FictitiousSwitchFactory.create();
+        NetworkModification modification4 = new GeneratorTripping("CD");
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network2));
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -38,7 +39,7 @@ public class FooDeserializer extends StdDeserializer<Foo> {
         List<Extension<Foo>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("extensions")) {
+            if (parser.currentName().equals("extensions")) {
                 parser.nextToken();
                 extensions = JsonUtil.readExtensions(parser, context);
             }
@@ -61,7 +62,7 @@ public class FooDeserializer extends StdDeserializer<Foo> {
         List<Extension<Foo>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("extensions")) {
+            if (parser.currentName().equals("extensions")) {
                 parser.nextToken();
                 extensions = JsonUtil.updateExtensions(parser, context, initFoo);
             }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
@@ -74,6 +75,10 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         return ownership;
     }
 
+    public void setOwnership(PsseOwnership ownership) {
+        this.ownership = ownership;
+    }
+
     public void setConverter1(PsseVoltageSourceConverter converter1) {
         this.converter1 = converter1;
     }
@@ -88,6 +93,17 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
 
     public PsseVoltageSourceConverter getConverter2() {
         return converter2;
+    }
+
+    public PsseVoltageSourceConverterDcTransmissionLine copy() {
+        PsseVoltageSourceConverterDcTransmissionLine copy = new PsseVoltageSourceConverterDcTransmissionLine();
+        copy.name = this.name;
+        copy.mdc = this.mdc;
+        copy.rdc = this.rdc;
+        copy.ownership = this.ownership.copy();
+        copy.converter1 = this.converter1.copy();
+        copy.converter2 = this.converter2.copy();
+        return copy;
     }
 
     public static class ConverterHeaderTransformer extends HeaderTransformer {

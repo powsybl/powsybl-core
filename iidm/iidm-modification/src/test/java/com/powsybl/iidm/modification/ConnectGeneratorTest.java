@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification;
 
@@ -99,5 +100,27 @@ class ConnectGeneratorTest {
         new GeneratorModification(g2.getId(), modifs).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getTargetV(), 0.01);
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ConnectGenerator("ID");
+        assertEquals("ConnectGenerator", networkModification.getName());
+
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        networkModification = new GeneratorModification("ID", modifs);
+        assertEquals("GeneratorModification", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        ConnectGenerator modification = new ConnectGenerator("WRONG_ID");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+
+        modification = new ConnectGenerator(g2.getId());
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+
+        modification = new ConnectGenerator(g3.getId());
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
     }
 }

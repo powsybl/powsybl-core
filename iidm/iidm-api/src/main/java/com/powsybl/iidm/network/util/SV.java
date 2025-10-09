@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
@@ -65,6 +66,10 @@ public class SV {
 
     public double getA() {
         return a;
+    }
+
+    public double getI() {
+        return Math.hypot(p, q) / (Math.sqrt(3.) * u / 1000);
     }
 
     public TwoSides getSide() {
@@ -159,6 +164,14 @@ public class SV {
 
     public double otherSideA(DanglingLine dl, boolean splitShuntAdmittance) {
         return otherSide(dl, splitShuntAdmittance).getA();
+    }
+
+    public double otherSideI(DanglingLine dl) {
+        return otherSide(dl).getI();
+    }
+
+    public double otherSideI(DanglingLine dl, boolean splitShuntAdmittance) {
+        return otherSide(dl, splitShuntAdmittance).getI();
     }
 
     private static double getRho(TwoWindingsTransformer twt) {

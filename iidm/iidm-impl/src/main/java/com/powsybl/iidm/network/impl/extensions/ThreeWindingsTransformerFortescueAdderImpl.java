@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.extensions.LegFortescue;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescueAdder;
@@ -107,9 +109,9 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
 
     @Override
     protected ThreeWindingsTransformerFortescueImpl createExtension(ThreeWindingsTransformer twt) {
-        var leg1 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder1.rz, legAdder1.xz, legAdder1.freeFluxes, legAdder1.connectionType, legAdder1.groundingR, legAdder1.groundingX);
-        var leg2 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder2.rz, legAdder2.xz, legAdder2.freeFluxes, legAdder2.connectionType, legAdder2.groundingR, legAdder2.groundingX);
-        var leg3 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder3.rz, legAdder3.xz, legAdder3.freeFluxes, legAdder3.connectionType, legAdder3.groundingR, legAdder3.groundingX);
+        LegFortescue leg1 = new LegFortescueImpl(legAdder1.rz, legAdder1.xz, legAdder1.freeFluxes, legAdder1.connectionType, legAdder1.groundingR, legAdder1.groundingX);
+        LegFortescue leg2 = new LegFortescueImpl(legAdder2.rz, legAdder2.xz, legAdder2.freeFluxes, legAdder2.connectionType, legAdder2.groundingR, legAdder2.groundingX);
+        LegFortescue leg3 = new LegFortescueImpl(legAdder3.rz, legAdder3.xz, legAdder3.freeFluxes, legAdder3.connectionType, legAdder3.groundingR, legAdder3.groundingX);
         return new ThreeWindingsTransformerFortescueImpl(twt, leg1, leg2, leg3);
     }
 

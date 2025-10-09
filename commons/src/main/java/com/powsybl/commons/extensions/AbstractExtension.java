@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -31,15 +32,11 @@ public abstract class AbstractExtension<T> implements Extension<T> {
         if (extendable != null && this.extendable != null && this.extendable != extendable) {
             throw new PowsyblException("Extension is already associated to the extendable " + this.extendable);
         }
-        if (extendable == null) {
-            cleanup();
-        }
         this.extendable = extendable;
     }
 
-    /**
-     * Method called when the extension is removed from its holder.
-     * Can be used for e.g. resource cleanup.
-     */
-    protected void cleanup() { }
+    @Override
+    public void cleanup() {
+        // nothing by default
+    }
 }
