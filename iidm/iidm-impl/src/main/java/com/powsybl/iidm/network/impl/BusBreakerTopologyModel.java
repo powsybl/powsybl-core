@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.impl.utils.Subgraph;
+import com.powsybl.iidm.network.dot.Subgraph;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
@@ -48,12 +48,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.FILL_COLOR;
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.FONT_SIZE;
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.LABEL;
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.LINE_SEPARATOR;
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.SHAPE;
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.STYLE;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.FILL_COLOR;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.FONT_SIZE;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.LABEL;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.LINE_SEPARATOR;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.SHAPE;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.STYLE;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.createBusColorScale;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

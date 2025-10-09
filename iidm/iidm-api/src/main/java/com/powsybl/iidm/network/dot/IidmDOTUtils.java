@@ -5,9 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.impl.utils;
+package com.powsybl.iidm.network.dot;
 
 import com.google.re2j.Pattern;
+import com.powsybl.commons.util.Colors;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -17,6 +23,15 @@ public final class IidmDOTUtils {
         // Utility class
     }
 
+    /** Line separator. */
+    public static final String LINE_SEPARATOR = "\\l";
+    /** Attributes */
+    public static final String FILL_COLOR = "fillcolor";
+    public static final String FONT_SIZE = "fontsize";
+    public static final String LABEL = "label";
+    public static final String SHAPE = "shape";
+    public static final String STYLE = "style";
+    public static final String TOOL_TIP = "tooltip";
     /** Keyword for representing strict graphs. */
     static final String DONT_ALLOW_MULTIPLE_EDGES_KEYWORD = "strict";
     /** Keyword for directed graphs. */
@@ -30,20 +45,21 @@ public final class IidmDOTUtils {
     /** Indentation. */
     static final String INDENT = "  ";
     static final String DOUBLE_INDENT = INDENT + INDENT;
-    /** Line separator. */
-    public static final String LINE_SEPARATOR = "\\l";
-    /** Attributes */
-    public static final String LABEL = "label";
-    public static final String SHAPE = "shape";
-    public static final String STYLE = "style";
-    public static final String FILL_COLOR = "fillcolor";
-    public static final String FONT_SIZE = "fontsize";
 
     // patterns for IDs
     private static final Pattern ALPHA_DIG = Pattern.compile("[a-zA-Z_][\\w]*");
     private static final Pattern DOUBLE_QUOTE = Pattern.compile("\".*\"");
     private static final Pattern DOT_NUMBER = Pattern.compile("[-]?([.][0-9]+|[0-9]+([.][0-9]*)?)");
     private static final Pattern HTML = Pattern.compile("<.*>");
+
+    public static Map<String, String> createBusColorScale(Random random, List<String> busIds) {
+        Map<String, String> busColor = new HashMap<>();
+        String[] colors = Colors.generateColorScale(busIds.size(), random);
+        for (int i = 0; i < busIds.size(); i++) {
+            busColor.put(busIds.get(i), colors[i]);
+        }
+        return busColor;
+    }
 
     /**
      * Test if the ID candidate is a valid ID.

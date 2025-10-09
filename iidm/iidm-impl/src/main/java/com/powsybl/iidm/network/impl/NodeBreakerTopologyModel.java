@@ -25,7 +25,7 @@ import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
-import com.powsybl.iidm.network.impl.utils.Subgraph;
+import com.powsybl.iidm.network.dot.Subgraph;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -78,13 +78,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.FILL_COLOR;
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.LABEL;
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.LINE_SEPARATOR;
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.SHAPE;
-import static com.powsybl.iidm.network.impl.utils.IidmDOTUtils.STYLE;
-import static com.powsybl.iidm.network.impl.utils.Subgraph.DEFAULT_CLUSTER_ATTRIBUTES;
-import static com.powsybl.iidm.network.impl.utils.Subgraph.DEFAULT_SUBGRAPH_ATTRIBUTES;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.FILL_COLOR;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.LABEL;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.LINE_SEPARATOR;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.SHAPE;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.STYLE;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.createBusColorScale;
+import static com.powsybl.iidm.network.dot.Subgraph.DEFAULT_CLUSTER_ATTRIBUTES;
+import static com.powsybl.iidm.network.dot.Subgraph.DEFAULT_SUBGRAPH_ATTRIBUTES;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

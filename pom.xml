@@ -115,8 +115,6 @@
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <gdata.version>1.47.1_1</gdata.version>
         <graph.support.version>1.5.2</graph.support.version>
-        <!-- graphviz-builder seems abandoned - to be replaced ? -->
-        <graphviz-builder.version>1.0.12</graphviz-builder.version>
         <groovy.version>4.0.26</groovy.version>
         <guava.version>33.4.8-jre</guava.version>
         <jackson.version>2.19.0</jackson.version>
@@ -766,11 +764,6 @@
                 <groupId>net.sf.trove4j</groupId>
                 <artifactId>trove4j</artifactId>
                 <version>${trove4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.anarres.graphviz</groupId>
-                <artifactId>graphviz-builder</artifactId>
-                <version>${graphviz-builder.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.luben</groupId>

@@ -28,24 +28,22 @@ public abstract class AbstractVoltageLevelExportTest extends AbstractSerDeTest {
     @Test
     public void nodeBreakerTest() throws IOException {
         Network network = FictitiousSwitchFactory.create();
-        try (StringWriter writer = new StringWriter()) {
+        try (StringWriter writer = new StringWriter();
+             InputStream inputStream = getClass().getResourceAsStream("/fictitious-switch-c.dot")) {
             network.getVoltageLevel("C").exportTopology(writer, new Random(0));
             writer.flush();
-            try (InputStream inputStream = getClass().getResourceAsStream("/fictitious-switch-c.dot")) {
-                assertTxtEquals(inputStream, writer.toString());
-            }
+            assertTxtEquals(inputStream, writer.toString());
         }
     }
 
     @Test
     public void busBreakerTest() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        try (StringWriter writer = new StringWriter()) {
+        try (StringWriter writer = new StringWriter();
+             InputStream inputStream = getClass().getResourceAsStream("/eurostag-tutorial-example1-vlhv1.dot")) {
             network.getVoltageLevel("VLHV1").exportTopology(writer, new Random(0));
             writer.flush();
-            try (InputStream inputStream = getClass().getResourceAsStream("/eurostag-tutorial-example1-vlhv1.dot")) {
-                assertTxtEquals(inputStream, writer.toString());
-            }
+            assertTxtEquals(inputStream, writer.toString());
         }
     }
 }
