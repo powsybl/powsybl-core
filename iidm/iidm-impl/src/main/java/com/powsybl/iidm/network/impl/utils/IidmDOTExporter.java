@@ -56,7 +56,7 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
     }
 
     private static String escapeDoubleQuotes(String labelName) {
-        return labelName.replaceAll("\"", Matcher.quoteReplacement("\\\""));
+        return labelName.replace("\"", Matcher.quoteReplacement("\\\""));
     }
 
     /**
@@ -87,6 +87,7 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
     public void exportGraph(Graph<V, E> g, Writer writer) {
         PrintWriter out = new PrintWriter(writer);
 
+        // Header
         out.println(computeHeader(g));
 
         // graph attributes
@@ -101,11 +102,9 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
         // vertex set
         for (V v : g.vertexSet()) {
             out.print(IidmDOTUtils.INDENT);
-            out.print(getVertexID(v));
+            out.print(getValidatedVertexId(v));
 
-            getVertexAttributes(v).ifPresent(m -> {
-                renderEdgesAndVerticesAttributes(out, m);
-            });
+            getVertexAttributes(v).ifPresent(m -> renderEdgesAndVerticesAttributes(out, m));
 
             out.println(";");
         }
@@ -114,17 +113,15 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
 
         // edge set
         for (E e : g.edgeSet()) {
-            String source = getVertexID(g.getEdgeSource(e));
-            String target = getVertexID(g.getEdgeTarget(e));
+            String source = getValidatedVertexId(g.getEdgeSource(e));
+            String target = getValidatedVertexId(g.getEdgeTarget(e));
 
             out.print(IidmDOTUtils.INDENT);
             out.print(source);
             out.print(connector);
             out.print(target);
 
-            getEdgeAttributes(e).ifPresent(m -> {
-                renderEdgesAndVerticesAttributes(out, m);
-            });
+            getEdgeAttributes(e).ifPresent(m -> renderEdgesAndVerticesAttributes(out, m));
 
             out.println(";");
         }
@@ -134,7 +131,8 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
             writeSubgraph(out, subgraphEntry.getKey(), subgraphEntry.getValue());
         }
 
-        out.println(computeFooter(g));
+        // Footer
+        out.println("}");
 
         out.flush();
     }
@@ -143,7 +141,7 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
         out.println(IidmDOTUtils.INDENT + "subgraph " + subgraphName + " {");
         renderSubgraphAttributes(out, subgraphName, subgraph);
         for (V v : subgraph.getVertices()) {
-            out.println(IidmDOTUtils.DOUBLE_INDENT + getVertexID(v) + ";");
+            out.println(IidmDOTUtils.DOUBLE_INDENT + getValidatedVertexId(v) + ";");
         }
         out.println(IidmDOTUtils.INDENT + "}");
     }
@@ -164,18 +162,8 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
         } else {
             headerBuilder.append(IidmDOTUtils.UNDIRECTED_GRAPH_KEYWORD);
         }
-        headerBuilder.append(" ").append(computeGraphId(graph)).append(" {");
+        headerBuilder.append(" ").append(computeGraphId()).append(" {");
         return headerBuilder.toString();
-    }
-
-    /**
-     * Compute the footer
-     *
-     * @param graph the graph
-     * @return the footer
-     */
-    private String computeFooter(Graph<V, E> graph) {
-        return "}";
     }
 
     /**
@@ -197,12 +185,11 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
     /**
      * Get the id of the graph.
      *
-     * @param graph the graph
      * @return the graph id
      */
-    private String computeGraphId(Graph<V, E> graph) {
+    private String computeGraphId() {
         String graphId = getGraphId().orElse(DEFAULT_GRAPH_ID);
-        if (!IidmDOTUtils.isValidID(graphId)) {
+        if (IidmDOTUtils.isNotValidID(graphId)) {
             throw new ExportException(
                 "Generated graph ID '" + graphId
                     + "' is not valid with respect to the .dot language");
@@ -262,7 +249,7 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
 
     /**
      * Return a valid vertex ID (with respect to the .dot language definition as described in
-     * http://www.graphviz.org/doc/info/lang.html
+     * <a href="http://www.graphviz.org/doc/info/lang.html">...</a>
      *
      * <p>
      * Quoted from above mentioned source: An ID is valid if it meets one of the following criteria:
@@ -277,7 +264,7 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
      * @throws ExportException if the given <code>vertexIDProvider</code> didn't generate a valid
      *                         vertex ID.
      */
-    private String getVertexID(V v) {
+    protected String getValidatedVertexId(V v) {
         String vertexId = validatedIds.get(v);
         if (vertexId == null) {
             /*
@@ -288,7 +275,7 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
             /*
              * test if it is a valid ID
              */
-            if (!IidmDOTUtils.isValidID(vertexId)) {
+            if (IidmDOTUtils.isNotValidID(vertexId)) {
                 throw new ExportException(
                     "Generated id '" + vertexId + "'for vertex '" + v
                         + "' is not valid with respect to the .dot language");

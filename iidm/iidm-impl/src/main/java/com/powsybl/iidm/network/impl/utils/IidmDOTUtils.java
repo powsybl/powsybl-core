@@ -52,10 +52,9 @@ public final class IidmDOTUtils {
      *
      * @return <code>true</code> if it is valid; <code>false</code> otherwise.
      */
-    static boolean isValidID(String idCandidate)
-    {
-        return ALPHA_DIG.matcher(idCandidate).matches()
-            || DOUBLE_QUOTE.matcher(idCandidate).matches()
-            || DOT_NUMBER.matcher(idCandidate).matches() || HTML.matcher(idCandidate).matches();
+    static boolean isNotValidID(String idCandidate) {
+        return !ALPHA_DIG.matcher(idCandidate).matches()
+            && !DOUBLE_QUOTE.matcher(idCandidate).matches()
+            && !DOT_NUMBER.matcher(idCandidate).matches() && !HTML.matcher(idCandidate).matches();
     }
 }
