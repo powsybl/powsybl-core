@@ -98,7 +98,7 @@ class TopologyExportTest extends AbstractSerDeTest {
 
         // Export original and with new TP
         ExportOptions exportOptions = new ExportOptions();
-        exportOptions.setExtensions(Collections.emptySet());
+        exportOptions.setIncludedExtensions(Collections.emptySet());
         exportOptions.setSorted(true);
         Path expectedPath = tmpDir.resolve("expected.xml");
         Path actualPath = tmpDir.resolve("actual.xml");

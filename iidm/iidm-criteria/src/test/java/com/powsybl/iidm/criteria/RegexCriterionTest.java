@@ -52,7 +52,7 @@ class RegexCriterionTest {
         assertFalse(result.get());
     }
 
-    private static class MaliciousIdentifiable implements Identifiable<MaliciousIdentifiable> {
+    private static final class MaliciousIdentifiable implements Identifiable<MaliciousIdentifiable> {
         @Override
         public String getId() {
             return "a".repeat(100) + "!";
