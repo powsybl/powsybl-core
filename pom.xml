@@ -114,7 +114,6 @@
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <gdata.version>1.47.1_1</gdata.version>
-        <graph.support.version>1.5.2</graph.support.version>
         <groovy.version>4.0.26</groovy.version>
         <guava.version>33.4.8-jre</guava.version>
         <jackson.version>2.19.0</jackson.version>
@@ -854,11 +853,6 @@
                 <groupId>org.ejml</groupId>
                 <artifactId>ejml-core</artifactId>
                 <version>${ejml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.graphper</groupId>
-                <artifactId>graph-support-core</artifactId>
-                <version>${graph.support.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jgrapht</groupId>
