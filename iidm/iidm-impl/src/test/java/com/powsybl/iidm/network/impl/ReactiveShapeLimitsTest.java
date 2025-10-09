@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.apache.commons.math3.util.Precision.EPSILON;
 import static org.ejml.UtilEjml.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ReactiveShapeLimitsTest {
 
@@ -59,7 +59,7 @@ class ReactiveShapeLimitsTest {
         ReactiveShapePolyhedron operatingEnvelope = new ReactiveShapePolyhedron(envelopeConstraints);
         // ... (Previous print statements) ...
         LOGGER.info("--- Operating Envelope Constraints ---");
-        LOGGER.info("{}",operatingEnvelope);
+        LOGGER.info("{}", operatingEnvelope);
 
 
         // --- 2. Test Points ---
@@ -98,25 +98,7 @@ class ReactiveShapeLimitsTest {
         double minQ4 = operatingEnvelope.getMinQ(p4, u4);
         double maxQ4 = operatingEnvelope.getMaxQ(p4, u4);
 
-
-        assertFalse(true);
-
-        // FIX THIS CODE
-
-        // Expected limits for (P=30, U=1.0)
-        // Q > 20.0
-        // Q < 100.0
-        // Q + 1*P > 10.0 -> Q > 10 - 30 = -20.0
-        // Q + 1*P < 50.0 -> Q < 50 - 30 = 20.0
-        // Q + 10*U + 1*P < 150 -> Q < 150 - 10*1.0 - 30 = 110.0
-
-        // Resulting Min Q: max(20.0, -20.0) = 20.0
-        // Resulting Max Q: min(100.0, 20.0, 110.0) = 20.0
-
-
-
-        LOGGER.info("For (P={}, U={}: Min Q = {}, Max Q = {}",p4, u4, minQ4, maxQ4); // Expected: Min Q=20.0, Max Q=20.0
-
+        LOGGER.info("For (P={}, U={}: Min Q = {}, Max Q = {}", p4, u4, minQ4, maxQ4); // Expected: Min Q=20.0, Max Q=20.0
 
         // Test 5: Infeasible P-U point (U=0.5 violates U > 0.9 constraint)
         double p5 = 30.0;
@@ -124,20 +106,60 @@ class ReactiveShapeLimitsTest {
         double minQ5 = operatingEnvelope.getMinQ(p5, u5);
         double maxQ5 = operatingEnvelope.getMaxQ(p5, u5);
 
-        LOGGER.info("For (P={}, U={}): Min Q = {}, Max Q = {}",p5, u5, minQ5, maxQ5); // Expected: Min Q=0.4, Max Q=0.6 (But P-U is infeasible)
-
+        LOGGER.info("For (P={}, U={}): Min Q = {}, Max Q = {}", p5, u5, minQ5, maxQ5); // Expected: Min Q=0.4, Max Q=0.6 (But P-U is infeasible)
 
         // Test 6: Demonstration of the P-only methods
         double p6 = 30.0;
-        assertThrows(PowsyblException.class,() -> {
-            operatingEnvelope.getMinQ(p6);
-        });
 
-        assertThrows(PowsyblException.class,() -> {
-            operatingEnvelope.getMaxQ(p6);
-        });
+        assertTrue(Math.abs(operatingEnvelope.getMinQ(p6) - 20.0) < EPSILON);
+        assertTrue(Math.abs(operatingEnvelope.getMaxQ(p6) - 21.1) < EPSILON);
 
+
+        double p7 = 60.0;
+        // test infeasible case
+        assertThrows(PowsyblException.class, () -> operatingEnvelope.getMinQ(p7));
 
     }
 
+    @Test
+    void testGeneratorReactivePlaneToString() {
+        // Generator PQV upper limit: Q + 0.002*U - 0.300*P ≤ 200
+        ReactiveShapePlane plane = new ReactiveShapePlane(0.002, -0.3, 200.0, true);
+
+        assertEquals(0.002, plane.alpha, 1e-9);
+        assertEquals(-0.3, plane.beta, 1e-9);
+        assertEquals(200.0, plane.gamma, 1e-9);
+        assertTrue(plane.isLowerThan);
+
+        String expected = "Q + 0.002 * U - 0.300 * P ≤ 200.000";
+        String actual = plane.toString();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testBatteryReactivePlaneToString() {
+        // Battery PQV lower limit: Q - 0.001*U + 0.200*P ≥ -150
+        ReactiveShapePlane plane = new ReactiveShapePlane(-0.001, 0.2, -150.0, false);
+
+        assertEquals(-0.001, plane.alpha, 1e-9);
+        assertEquals(0.2, plane.beta, 1e-9);
+        assertEquals(-150.0, plane.gamma, 1e-9);
+        assertFalse(plane.isLowerThan);
+
+        String expected = "Q - 0.001 * U + 0.200 * P ≥ -150.000";
+        String actual = plane.toString();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testZeroCoefficientsSimplifiedOutput() {
+        // Pure Q limit: Q ≤ 50
+        ReactiveShapePlane plane = new ReactiveShapePlane(0.0, 0.0, 50.0, true);
+
+        String expected = "Q ≤ 50.000";
+        String actual = plane.toString();
+        assertEquals(expected, actual);
+    }
 }
+
+
