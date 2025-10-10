@@ -31,7 +31,7 @@ load-flow-default-parameters:
     phaseShifterRegulationOn: false
     transformerVoltageControlOn: false
     shuntCompensatorVoltageControlOn: false
-    connectedComponentMode: MAIN
+    componentMode: MAIN_CONNECTED
     twtSplitShuntAdmittance: false
     dcUseTransformerRatio: true
     dcPowerFactor: 1.0
@@ -53,7 +53,7 @@ The parameters may also be overridden with a JSON file, in which case the config
   "phaseShifterRegulationOn": false,
   "transformerVoltageControlOn": false,
   "shuntCompensatorVoltageControlOn": false,
-  "connectedComponentMode": "MAIN",
+  "componentMode": "MAIN_CONNECTED",
   "twtSplitShuntAdmittance": false,
   "dcUseTransformerRatio": true,
   "dcPowerFactor": 1.0,
@@ -120,9 +120,11 @@ The default value is `false`.
 The `shuntCompensatorVoltageControlOn` property is an optional property that defines whether shunt compensator voltage regulating controls should be simulated in the load flow.  
 The default value is `false`.
 
-**connectedComponentMode**  
-The `connectedComponentMode` property is an optional property that defines if the power flow has to be computed over all connected components (choose `ALL` mode) or just on the main connected component (choose `MAIN` mode).  
-The default value of this parameter is `MAIN`.
+**componentMode**  
+The `componentMode` property is an optional property that defines 3 possibles modes to run power flow. These modes can be :  
+- `ALL_CONNECTED`: the power flow is computed over all connected components  
+- `MAIN_CONNECTED` : the power flow is computed on the main connected component  
+- `MAIN_SYNCHRONOUS` : the power flow is computed on the main synchronous component  
 
 **twtSplitShuntAdmittance**  
 The `twtSplitShuntAdmittance` property is an optional property that defines whether the shunt admittance is split at each side of the series impedance for transformers.  
