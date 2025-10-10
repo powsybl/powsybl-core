@@ -23,13 +23,13 @@ class ManualFrequencyRestorationReserveTest {
     void testTrueSetIsTrueGet() {
         Network network = EurostagTutorialExample1Factory.create();
         var generator = network.getGenerator("GEN");
-        var tertiaryReserve = generator.newExtension(ManualFrequencyRestorationReserveAdderImpl.class)
+        var mFRR = generator.newExtension(ManualFrequencyRestorationReserveAdderImpl.class)
                  .withParticipate(true)
                  .add();
-        assertNotNull(tertiaryReserve);
-        assertTrue(tertiaryReserve.isParticipate());
-        tertiaryReserve.setParticipate(false);
-        assertFalse(tertiaryReserve.isParticipate());
+        assertNotNull(mFRR);
+        assertTrue(mFRR.isParticipate());
+        mFRR.setParticipate(false);
+        assertFalse(mFRR.isParticipate());
     }
 
 }
