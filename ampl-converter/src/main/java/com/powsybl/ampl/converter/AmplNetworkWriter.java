@@ -54,7 +54,7 @@ public class AmplNetworkWriter {
 
     private final AmplColumnsExporter columnsExporter;
 
-    private static class AmplExportContext {
+    private static final class AmplExportContext {
 
         private int otherCcNum = Integer.MAX_VALUE;
 

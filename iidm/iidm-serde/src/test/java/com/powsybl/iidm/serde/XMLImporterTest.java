@@ -139,7 +139,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         assertEquals("XIIDM", importer.getFormat());
         assertEquals("IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
         assertEquals(List.of("xiidm", "iidm", "xml"), importer.getSupportedExtensions());
-        assertEquals(5, importer.getParameters().size());
+        assertEquals(6, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }
