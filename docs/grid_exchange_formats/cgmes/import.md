@@ -576,10 +576,33 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 The `TapPosition` of the IIDM `TapChanger` is copied from the CGMES SSH `step` if present. If not, it is copied from CGMES `SVtapStep` or `normalStep` from EQ.
 The `SolvedTapPosition` is copied from `SVtapStep` if the SV is imported, and left to `null` otherwise.
 
-(cgmes-metadata-model-import)=
-### CGMES metadata model
+(cgmes-metadata-models-import)=
+### CGMES metadata models
 
-<span style="color: red">TODO</span>
+This extension is attached to a Network and is used to store the metadata information about the imported CGMES dataset.
+The extension consists of a collection of `CgmesMetadataModel` objects, one per CGMES instance file or _subset_, 
+that hold the metadata information present in the `FullModel` tag in the header of the CGMES instance file.
+
+| Attribute            | Type          | Unit | Required | Default value      | Description                                                                                    |
+|----------------------|---------------|------|----------|--------------------|------------------------------------------------------------------------------------------------|
+| id                   | String        | -    | no       | -                  | Unique identifier of the model                                                                 |
+| subset               | CgmesSubset   | -    | yes      | -                  | The imported instance file<br/>(EQUIPMENT, TOPOLOGY, STEADY_STATE_HYPOTHESIS, STATE_VARIABLES) |
+| description          | String        | -    | no       | \<subset\> + Model | The description of the model and explanation of the purpose                                    |
+| version              | int           | -    | no       | 1                  | The version number of the model                                                                |
+| modelingAuthoritySet | String        | -    | yes      | -                  | The organisation role which is the source of the model                                         |
+| profiles             | Set\<String\> | -    | no       | -                  | The profiles included in this subset                                                           |
+| dependentOn          | Set\<String\> | -    | no       | -                  | References to other models this model depends on                                               |
+| supersedes           | Set\<String\> | -    | no       | -                  | References to other models this model supsersedes                                              |
+
+Example of code to read the extension and retrieve the modeling authority set assuming the network has been imported from a CGMES datasource:
+
+```java
+CgmesMetadataModels models = network.getExtension(CgmesMetadataModels.class);
+CgmesMetadataModel eqModel = models.getModelForSubset(CgmesSubset.EQUIPMENT).orElseThrow();
+String modelingAuthoritySet = eqModel.getModelingAuthoritySet();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 (cgmes-cim-characteristics-import)=
 ### CIM characteristics
