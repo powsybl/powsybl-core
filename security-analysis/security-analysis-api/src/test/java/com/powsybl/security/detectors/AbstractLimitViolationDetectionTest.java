@@ -89,6 +89,15 @@ public abstract class AbstractLimitViolationDetectionTest {
                     .setAcceptableDuration(60)
                 .endTemporaryLimit()
                 .add();
+        networkMultiSets.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+                .newOperationalLimitsGroup1("OneTempCase").newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("TL")
+                    .setValue(120.0)
+                    .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .add();
     }
 
     protected abstract void checkLimitViolation(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer,
@@ -513,6 +522,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     private static Stream<Arguments> provideDetectCurrentLimitArguments() {
         String case1 = "CASE1";
         String case2 = "CASE2";
+        String case3 = "OneTempCase";
         return Stream.of(
                 // Case 1: no upper infinite limit
                 Arguments.of(case1, 90., null), // below the permanent limit
@@ -523,7 +533,11 @@ public abstract class AbstractLimitViolationDetectionTest {
                 Arguments.of(case2, 90., null), // below the permanent limit
                 Arguments.of(case2, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and IT20
                 Arguments.of(case2, 130., new ExpectedResults("IT20", 120., 600)), // between IT20 and IT10
-                Arguments.of(case2, 150., new ExpectedResults("IT10", 140., 60)) // between IT10 and IT1 (over IT1 is not possible)
+                Arguments.of(case2, 150., new ExpectedResults("IT10", 140., 60)), // between IT10 and IT1 (over IT1 is not possible)
+                // Case 3: same as 1 but with a single temp limit
+                Arguments.of(case3, 90., null), // below the permanent limit
+                Arguments.of(case3, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL
+                Arguments.of(case3, 130., new ExpectedResults("TL", 120., 0)) // over the highest temp limit (TL)
         );
     }
 
