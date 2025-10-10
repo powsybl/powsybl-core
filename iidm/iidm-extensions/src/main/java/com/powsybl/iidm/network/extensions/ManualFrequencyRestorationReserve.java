@@ -13,9 +13,9 @@ import com.powsybl.iidm.network.Generator;
 /**
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
-public interface TertiaryReserve extends Extension<Generator> {
+public interface ManualFrequencyRestorationReserve extends Extension<Generator> {
 
-    String NAME = "tertiaryReserve";
+    String NAME = "manualFrequencyRestorationReserve";
 
     @Override
     default String getName() {
@@ -24,5 +24,5 @@ public interface TertiaryReserve extends Extension<Generator> {
 
     boolean isParticipate();
 
-    TertiaryReserve setParticipate(boolean participate);
+    ManualFrequencyRestorationReserve setParticipate(boolean participate);
 }

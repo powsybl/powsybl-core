@@ -13,8 +13,8 @@ import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.extensions.TertiaryReserve;
-import com.powsybl.iidm.network.extensions.TertiaryReserveAdder;
+import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
+import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserveAdder;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
@@ -24,25 +24,25 @@ import static com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtens
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
 @AutoService(ExtensionSerDe.class)
-public class TertiaryReserveSerDe extends AbstractExtensionSerDe<Generator, TertiaryReserve> {
+public class ManualFrequencyRestorationReserveSerDe extends AbstractExtensionSerDe<Generator, ManualFrequencyRestorationReserve> {
 
-    public TertiaryReserveSerDe() {
-        super(TertiaryReserve.NAME, "network", TertiaryReserve.class, "tertiaryReserve_V1_0.xsd",
-                "http://www.powsybl.org/schema/iidm/ext/tertiary_reserve/1_0", "tr");
+    public ManualFrequencyRestorationReserveSerDe() {
+        super(ManualFrequencyRestorationReserve.NAME, "network", ManualFrequencyRestorationReserve.class, "manualFrequencyRestorationReserve.xsd",
+                "http://www.powsybl.org/schema/iidm/ext/manual_frequency_restoration_reserve/1_0", "tr");
     }
 
     @Override
-    public void write(TertiaryReserve tertiaryReserve, SerializerContext context) {
+    public void write(ManualFrequencyRestorationReserve manualFrequencyRestorationReserve, SerializerContext context) {
         NetworkSerializerContext networkContext = convertContext(context);
-        networkContext.getWriter().writeBooleanAttribute("participate", tertiaryReserve.isParticipate());
+        networkContext.getWriter().writeBooleanAttribute("participate", manualFrequencyRestorationReserve.isParticipate());
     }
 
     @Override
-    public TertiaryReserve read(Generator generator, DeserializerContext context) {
+    public ManualFrequencyRestorationReserve read(Generator generator, DeserializerContext context) {
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         boolean participate = networkContext.getReader().readBooleanAttribute("participate");
         context.getReader().readEndNode();
-        return generator.newExtension(TertiaryReserveAdder.class)
+        return generator.newExtension(ManualFrequencyRestorationReserveAdder.class)
                 .withParticipate(participate)
                 .add();
     }
