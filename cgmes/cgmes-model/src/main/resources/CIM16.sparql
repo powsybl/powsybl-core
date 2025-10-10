@@ -195,14 +195,15 @@ WHERE {
         ?SubRegion cim:IdentifiedObject.name ?subRegionName .
         OPTIONAL {
             {
-                SELECT ?SubRegion (MIN(?Region) AS ?Region)
+                SELECT ?SubRegion (MIN(?Region) AS ?Region) (MIN(?regionName) AS ?regionName)
                 WHERE {
                     ?SubRegion cim:SubGeographicalRegion.Region ?Region .
-                    ?Region a cim:GeographicalRegion .
+                    ?Region
+                        a cim:GeographicalRegion ;
+                        cim:IdentifiedObject.name ?regionName .
                 }
                 GROUP BY ?SubRegion
             }
-            ?Region cim:IdentifiedObject.name ?regionName .
         }
     }
     # ... But we do not want results where the regions are missing
