@@ -10,14 +10,14 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.extensions.TertiaryReserve;
+import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
 
 /**
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
 @AutoService(ExtensionAdderProvider.class)
-public class TertiaryReserveAdderImplProvider implements
-        ExtensionAdderProvider<Generator, TertiaryReserve, TertiaryReserveAdderImpl> {
+public class ManualFrequencyRestorationReserveAdderImplProvider implements
+        ExtensionAdderProvider<Generator, ManualFrequencyRestorationReserve, ManualFrequencyRestorationReserveAdderImpl> {
 
     @Override
     public String getImplementationName() {
@@ -26,16 +26,16 @@ public class TertiaryReserveAdderImplProvider implements
 
     @Override
     public String getExtensionName() {
-        return TertiaryReserve.NAME;
+        return ManualFrequencyRestorationReserve.NAME;
     }
 
     @Override
-    public Class<TertiaryReserveAdderImpl> getAdderClass() {
-        return TertiaryReserveAdderImpl.class;
+    public Class<ManualFrequencyRestorationReserveAdderImpl> getAdderClass() {
+        return ManualFrequencyRestorationReserveAdderImpl.class;
     }
 
     @Override
-    public TertiaryReserveAdderImpl newAdder(Generator generator) {
-        return new TertiaryReserveAdderImpl(generator);
+    public ManualFrequencyRestorationReserveAdderImpl newAdder(Generator generator) {
+        return new ManualFrequencyRestorationReserveAdderImpl(generator);
     }
 }

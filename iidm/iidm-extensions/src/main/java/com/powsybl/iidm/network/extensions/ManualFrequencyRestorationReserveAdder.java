@@ -13,13 +13,13 @@ import com.powsybl.iidm.network.Generator;
 /**
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
-public interface TertiaryReserveAdder
-        extends ExtensionAdder<Generator, TertiaryReserve> {
+public interface ManualFrequencyRestorationReserveAdder
+        extends ExtensionAdder<Generator, ManualFrequencyRestorationReserve> {
 
     @Override
-    default Class<TertiaryReserve> getExtensionClass() {
-        return TertiaryReserve.class;
+    default Class<ManualFrequencyRestorationReserve> getExtensionClass() {
+        return ManualFrequencyRestorationReserve.class;
     }
 
-    TertiaryReserveAdder withParticipate(boolean participate);
+    ManualFrequencyRestorationReserveAdder withParticipate(boolean participate);
 }

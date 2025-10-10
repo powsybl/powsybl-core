@@ -8,8 +8,8 @@
 package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.TertiaryReserve;
-import com.powsybl.iidm.network.extensions.TertiaryReserveAdder;
+import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
+import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserveAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
-class TertiaryReserveXmlTest extends AbstractIidmSerDeTest {
+class ManualFrequencyRestorationReserveXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -31,13 +31,13 @@ class TertiaryReserveXmlTest extends AbstractIidmSerDeTest {
         network.setCaseDate(ZonedDateTime.parse("2022-04-06T13:43:05.020+02:00"));
 
         // create substation and line position extensions
-        network.getGenerator("GEN").newExtension(TertiaryReserveAdder.class)
+        network.getGenerator("GEN").newExtension(ManualFrequencyRestorationReserveAdder.class)
                 .withParticipate(true)
                 .add();
 
-        Network network2 = allFormatsRoundTripTest(network, "/tertiaryReserveRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/manualFrequencyRestorationReserve.xml", CURRENT_IIDM_VERSION);
 
-        var tertiaryReserve = network2.getGenerator("GEN").getExtension(TertiaryReserve.class);
+        var tertiaryReserve = network2.getGenerator("GEN").getExtension(ManualFrequencyRestorationReserve.class);
         assertNotNull(tertiaryReserve);
 
     }

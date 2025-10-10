@@ -9,16 +9,16 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.extensions.TertiaryReserve;
+import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
 
 /**
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
-public class TertiaryReserveImpl extends AbstractExtension<Generator> implements TertiaryReserve {
+public class ManualFrequencyRestorationReserveImpl extends AbstractExtension<Generator> implements ManualFrequencyRestorationReserve {
 
     private boolean participate;
 
-    public TertiaryReserveImpl(Generator generator, boolean participate) {
+    public ManualFrequencyRestorationReserveImpl(Generator generator, boolean participate) {
         super(generator);
         this.participate = participate;
     }
@@ -29,7 +29,7 @@ public class TertiaryReserveImpl extends AbstractExtension<Generator> implements
     }
 
     @Override
-    public TertiaryReserve setParticipate(boolean participate) {
+    public ManualFrequencyRestorationReserve setParticipate(boolean participate) {
         this.participate = participate;
         return this;
     }

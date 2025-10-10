@@ -9,27 +9,27 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.extensions.TertiaryReserve;
-import com.powsybl.iidm.network.extensions.TertiaryReserveAdder;
+import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
+import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserveAdder;
 
 /**
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
-public class TertiaryReserveAdderImpl extends AbstractExtensionAdder<Generator, TertiaryReserve> implements TertiaryReserveAdder {
+public class ManualFrequencyRestorationReserveAdderImpl extends AbstractExtensionAdder<Generator, ManualFrequencyRestorationReserve> implements ManualFrequencyRestorationReserveAdder {
 
     private boolean participate = false;
 
-    protected TertiaryReserveAdderImpl(Generator generator) {
+    protected ManualFrequencyRestorationReserveAdderImpl(Generator generator) {
         super(generator);
     }
 
     @Override
-    protected TertiaryReserve createExtension(Generator generator) {
-        return new TertiaryReserveImpl(generator, participate);
+    protected ManualFrequencyRestorationReserve createExtension(Generator generator) {
+        return new ManualFrequencyRestorationReserveImpl(generator, participate);
     }
 
     @Override
-    public TertiaryReserveAdder withParticipate(boolean participate) {
+    public ManualFrequencyRestorationReserveAdder withParticipate(boolean participate) {
         this.participate = participate;
         return this;
     }
