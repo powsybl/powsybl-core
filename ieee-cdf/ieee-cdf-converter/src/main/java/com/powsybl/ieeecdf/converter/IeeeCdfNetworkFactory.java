@@ -16,10 +16,12 @@ import com.powsybl.ieeecdf.model.IeeeCdfModel;
 import com.powsybl.ieeecdf.model.IeeeCdfTitle;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.ToDoubleFunction;
 
@@ -136,42 +138,48 @@ public final class IeeeCdfNetworkFactory {
         return create9zeroimpedance(NetworkFactory.findDefault());
     }
 
-    private static void parseBuses(IeeeCdfModel model, CsvParserSettings settings, String fileName, double baseKv) {
-        CsvParser csvParser = new CsvParser(settings);
-        for (String[] nextLine : csvParser.iterate(IeeeCdfNetworkFactory.class.getResourceAsStream("/" + fileName))) {
-            int busNo = Integer.parseInt(nextLine[0]);
-            int busCode = Integer.parseInt(nextLine[1]);
-            double loadP = Double.parseDouble(nextLine[2]);
-            double loadQ = Double.parseDouble(nextLine[3]);
-            IeeeCdfBus bus = new IeeeCdfBus();
-            bus.setNumber(busNo);
-            bus.setName("bus-" + busNo);
-            bus.setBaseVoltage(baseKv);
-            bus.setActiveLoad(loadP / 1000);
-            bus.setReactiveLoad(loadQ / 1000);
-            if (busCode == 1) {
-                bus.setType(IeeeCdfBus.Type.HOLD_VOLTAGE_AND_ANGLE);
-                bus.setDesiredVoltage(1);
-            } else {
-                bus.setType(IeeeCdfBus.Type.UNREGULATED);
-            }
-            model.getBuses().add(bus);
+    private static void parseBuses(IeeeCdfModel model, CsvReader.CsvReaderBuilder builder, String fileName, double baseKv) {
+        try (CsvReader<CsvRecord> csvReader = builder.ofCsvRecord(Objects.requireNonNull(IeeeCdfNetworkFactory.class.getResourceAsStream("/" + fileName)))) {
+            csvReader.forEach(csvRecord -> {
+                int busNo = Integer.parseInt(csvRecord.getField(0));
+                int busCode = Integer.parseInt(csvRecord.getField(1));
+                double loadP = Double.parseDouble(csvRecord.getField(2));
+                double loadQ = Double.parseDouble(csvRecord.getField(3));
+                IeeeCdfBus bus = new IeeeCdfBus();
+                bus.setNumber(busNo);
+                bus.setName("bus-" + busNo);
+                bus.setBaseVoltage(baseKv);
+                bus.setActiveLoad(loadP / 1000);
+                bus.setReactiveLoad(loadQ / 1000);
+                if (busCode == 1) {
+                    bus.setType(IeeeCdfBus.Type.HOLD_VOLTAGE_AND_ANGLE);
+                    bus.setDesiredVoltage(1);
+                } else {
+                    bus.setType(IeeeCdfBus.Type.UNREGULATED);
+                }
+                model.getBuses().add(bus);
+            });
+        } catch (IOException exception) {
+            throw new PowsyblException("Failed to read the CSV", exception);
         }
     }
 
-    private static void parseLines(IeeeCdfModel model, CsvParserSettings settings, String fileName) {
-        CsvParser csvParser = new CsvParser(settings);
-        for (String[] nextLine : csvParser.iterate(IeeeCdfNetworkFactory.class.getResourceAsStream("/" + fileName))) {
-            int sendingBus = Integer.parseInt(nextLine[0]);
-            int receivingBus = Integer.parseInt(nextLine[1]);
-            double r = Double.parseDouble(nextLine[2]);
-            double x = Double.parseDouble(nextLine[3]);
-            IeeeCdfBranch branch = new IeeeCdfBranch();
-            branch.setTapBusNumber(sendingBus);
-            branch.setzBusNumber(receivingBus);
-            branch.setResistance(r);
-            branch.setReactance(x);
-            model.getBranches().add(branch);
+    private static void parseLines(IeeeCdfModel model, CsvReader.CsvReaderBuilder builder, String fileName) {
+        try (CsvReader<CsvRecord> csvReader = builder.ofCsvRecord(Objects.requireNonNull(IeeeCdfNetworkFactory.class.getResourceAsStream("/" + fileName)))) {
+            csvReader.forEach(csvRecord -> {
+                int sendingBus = Integer.parseInt(csvRecord.getField(0));
+                int receivingBus = Integer.parseInt(csvRecord.getField(1));
+                double r = Double.parseDouble(csvRecord.getField(2));
+                double x = Double.parseDouble(csvRecord.getField(3));
+                IeeeCdfBranch branch = new IeeeCdfBranch();
+                branch.setTapBusNumber(sendingBus);
+                branch.setzBusNumber(receivingBus);
+                branch.setResistance(r);
+                branch.setReactance(x);
+                model.getBranches().add(branch);
+            });
+        } catch (IOException exception) {
+            throw new PowsyblException("Failed to read the CSV", exception);
         }
     }
 
@@ -183,13 +191,12 @@ public final class IeeeCdfNetworkFactory {
         title.setMvaBase(100);
         title.setDate(LocalDate.parse("2022-09-23"));
         IeeeCdfModel model = new IeeeCdfModel(title);
-        CsvParserSettings settings = new CsvParserSettings();
-        settings.getFormat().setLineSeparator(System.lineSeparator());
-        settings.getFormat().setDelimiter(" ");
-        parseBuses(model, settings, name + "-bus.csv", baseKv);
-        parseLines(model, settings, name + "-line.csv");
+        CsvReader.CsvReaderBuilder builder = CsvReader.builder()
+            .fieldSeparator(" ");
+        parseBuses(model, builder, name + "-bus.csv", baseKv);
+        parseLines(model, builder, name + "-line.csv");
         if (meshed) {
-            parseLines(model, settings, name + "-mesh.csv");
+            parseLines(model, builder, name + "-mesh.csv");
         }
         return new IeeeCdfImporter().convert(model, networkFactory, name, false);
     }
