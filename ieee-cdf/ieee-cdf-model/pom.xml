@@ -43,8 +43,8 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.univocity</groupId>
-            <artifactId>univocity-parsers</artifactId>
+            <groupId>org.tigris.jsapar</groupId>
+            <artifactId>jsapar</artifactId>
         </dependency>
 
         <dependency>

@@ -7,9 +7,6 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.annotations.FixedWidth;
-import com.univocity.parsers.annotations.Parsed;
-
 /**
  * <p>
  * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
@@ -30,36 +27,26 @@ public class IeeeCdfTieLine {
     /**
      * Metered bus number
      */
-    @FixedWidth(from = 0, to = 4)
-    @Parsed
     private int meteredBusNumber;
 
     /**
      * Metered area number
      */
-    @FixedWidth(from = 6, to = 8)
-    @Parsed
     private int meteredAreaNumber;
 
     /**
      * Non-metered bus number
      */
-    @FixedWidth(from = 10, to = 14)
-    @Parsed
     private int nonMeteredBusNumber;
 
     /**
      * Non-metered area number
      */
-    @FixedWidth(from = 16, to = 18)
-    @Parsed
     private int nonMeteredAreaNumber;
 
     /**
      * Circuit number
      */
-    @FixedWidth(from = 20, to = 21)
-    @Parsed
     private int circuitNumber;
 
     public int getMeteredBusNumber() {

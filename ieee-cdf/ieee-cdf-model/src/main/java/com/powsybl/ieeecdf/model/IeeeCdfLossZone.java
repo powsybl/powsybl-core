@@ -7,9 +7,6 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.annotations.FixedWidth;
-import com.univocity.parsers.annotations.Parsed;
-
 /**
  * <p>
  * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
@@ -27,15 +24,11 @@ public class IeeeCdfLossZone {
     /**
      * Loss zone number
      */
-    @FixedWidth(from = 0, to = 3)
-    @Parsed
     private int number;
 
     /**
      * Loss zone name
      */
-    @FixedWidth(from = 4, to = 16)
-    @Parsed
     private String name;
 
     public int getNumber() {

@@ -7,100 +7,48 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.common.processor.BeanListProcessor;
-import com.univocity.parsers.fixed.FixedWidthParser;
-import com.univocity.parsers.fixed.FixedWidthParserSettings;
-
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static com.powsybl.ieeecdf.model.reader.IeeeCdfBranchReader.parseBranches;
+import static com.powsybl.ieeecdf.model.reader.IeeeCdfBusReader.parseBuses;
+import static com.powsybl.ieeecdf.model.reader.IeeeCdfInterchangeDataReader.parseInterchangeData;
+import static com.powsybl.ieeecdf.model.reader.IeeeCdfLossZoneReader.parseLossZones;
+import static com.powsybl.ieeecdf.model.reader.IeeeCdfTieLineReader.parseTieLine;
+import static com.powsybl.ieeecdf.model.reader.IeeeCdfTitleReader.parseTitle;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class IeeeCdfReader {
 
-    enum IeeeCdfSection {
-        BUS,
-        BRANCH,
-        LOSS_ZONES,
-        INTERCHANGE_DATA,
-        TIE_LINES
-    }
-
     public IeeeCdfModel read(BufferedReader reader) throws IOException {
-        String line = reader.readLine();
+        String line;
 
         // Ensure malformed input does not trigger unexpected ArrayIndexOutOfBoundException
-        List<IeeeCdfTitle> parsedLines = parseLines(Collections.singletonList(line), IeeeCdfTitle.class);
+        List<IeeeCdfTitle> parsedLines = parseTitle(reader);
         if (parsedLines.isEmpty()) {
             throw new IllegalArgumentException("Failed to parse the IeeeCdfModel");
         }
 
-        IeeeCdfTitle title = parsedLines.get(0);
+        IeeeCdfTitle title = parsedLines.getFirst();
         IeeeCdfModel model = new IeeeCdfModel(title);
 
-        IeeeCdfSection section = null;
-        List<String> lines = new ArrayList<>();
         while ((line = reader.readLine()) != null) {
             if (line.startsWith("BUS DATA FOLLOWS")) {
-                section = IeeeCdfSection.BUS;
+                model.getBuses().addAll(parseBuses(reader));
             } else if (line.startsWith("BRANCH DATA FOLLOWS")) {
-                section = IeeeCdfSection.BRANCH;
+                model.getBranches().addAll(parseBranches(reader));
             } else if (line.startsWith("LOSS ZONES FOLLOWS")) {
-                section = IeeeCdfSection.LOSS_ZONES;
+                model.getLossZones().addAll(parseLossZones(reader));
             } else if (line.startsWith("INTERCHANGE DATA FOLLOWS")) {
-                section = IeeeCdfSection.INTERCHANGE_DATA;
+                model.getInterchangeData().addAll(parseInterchangeData(reader));
             } else if (line.startsWith("TIE LINES FOLLOWS ")) {
-                section = IeeeCdfSection.TIE_LINES;
-            } else if (line.startsWith("-9")) {
-                if (section != null) {
-                    parseLines(lines, model, section);
-                    lines.clear();
-                    section = null;
-                }
-            } else {
-                if (section != null) {
-                    lines.add(line);
-                }
+                model.getTieLines().addAll(parseTieLine(reader));
             }
         }
 
         return model;
-    }
-
-    private static <T> List<T> parseLines(List<String> lines, Class<T> aClass) {
-        FixedWidthParserSettings settings = new FixedWidthParserSettings();
-        BeanListProcessor<T> processor = new BeanListProcessor<>(aClass);
-        settings.setProcessor(processor);
-        FixedWidthParser parser = new FixedWidthParser(settings);
-        for (String line : lines) {
-            parser.parseLine(line);
-        }
-        return processor.getBeans();
-    }
-
-    private void parseLines(List<String> lines, IeeeCdfModel model, IeeeCdfSection section) {
-        switch (section) {
-            case BUS:
-                model.getBuses().addAll(parseLines(lines, IeeeCdfBus.class));
-                break;
-            case BRANCH:
-                model.getBranches().addAll(parseLines(lines, IeeeCdfBranch.class));
-                break;
-            case LOSS_ZONES:
-                model.getLossZones().addAll(parseLines(lines, IeeeCdfLossZone.class));
-                break;
-            case INTERCHANGE_DATA:
-                model.getInterchangeData().addAll(parseLines(lines, IeeeCdfInterchangeData.class));
-                break;
-            case TIE_LINES:
-                model.getTieLines().addAll(parseLines(lines, IeeeCdfTieLine.class));
-                break;
-            default:
-                throw new IllegalStateException("Section unknown: " + section);
-        }
     }
 }

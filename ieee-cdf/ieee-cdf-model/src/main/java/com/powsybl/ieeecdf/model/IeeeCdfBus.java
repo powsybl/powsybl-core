@@ -7,11 +7,6 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.annotations.Convert;
-import com.univocity.parsers.annotations.FixedWidth;
-import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.fixed.FieldAlignment;
-
 /**
  * <p>
  * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
@@ -62,132 +57,93 @@ public class IeeeCdfBus {
     /**
      * Bus number
      */
-    @FixedWidth(from = 0, to = 4, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int number;
 
     /**
      * Name
      */
-    @FixedWidth(from = 5, to = 17)
-    @Parsed
     private String name;
 
     /**
      * Load flow area number
      */
-    @FixedWidth(from = 18, to = 20, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int areaNumber;
 
     /**
      * Loss zone number
      */
-    @FixedWidth(from = 20, to = 23, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int lossZoneNumber;
 
     /**
      * Type
      */
-    @FixedWidth(from = 24, to = 26, alignment = FieldAlignment.RIGHT)
-    @Parsed
-    @Convert(conversionClass = BusTypeConversion.class)
     private Type type;
 
     /**
      * Final voltage, p.u.
      */
-    @FixedWidth(from = 27, to = 33)
-    @Parsed
     private double finalVoltage;
 
     /**
      * Final angle, degrees
      */
-    @FixedWidth(from = 33, to = 40)
-    @Parsed
     private double finalAngle;
 
     /**
      * Load MW
      */
-    @FixedWidth(from = 40, to = 49)
-    @Parsed
     private double activeLoad;
 
     /**
      * Load MVAR
      */
-    @FixedWidth(from = 49, to = 59)
-    @Parsed
     private double reactiveLoad;
 
     /**
      * Generation MW
      */
-    @FixedWidth(from = 59, to = 67)
-    @Parsed
     private double activeGeneration;
 
     /**
      * Generation MVAR
      */
-    @FixedWidth(from = 67, to = 75)
-    @Parsed
     private double reactiveGeneration;
 
     /**
      * Base KV
      */
-    @FixedWidth(from = 76, to = 83)
-    @Parsed
     private double baseVoltage;
 
     /**
      * Desired volts (pu) (F) (This is desired remote voltage if this bus is controlling another bus.
      */
-    @FixedWidth(from = 84, to = 90)
-    @Parsed
     private double desiredVoltage;
 
     /**
      * Maximum MVAR or voltage limit
      */
-    @FixedWidth(from = 90, to = 98)
-    @Parsed
     private double maxReactivePowerOrVoltageLimit;
 
     /**
      * Minimum MVAR or voltage limit
      */
-    @FixedWidth(from = 98, to = 106)
-    @Parsed
     private double minReactivePowerOrVoltageLimit;
 
     /**
      * Shunt conductance G (per unit)
      */
-    @FixedWidth(from = 106, to = 114)
-    @Parsed
     private double shuntConductance;
 
     /**
      * Shunt susceptance B (per unit)
      */
-    @FixedWidth(from = 114, to = 122)
-    @Parsed
     private double shuntSusceptance;
 
     /**
      * Remote controlled bus number
      */
-    @FixedWidth(from = 123, to = 127)
-    @Parsed
     private int remoteControlledBusNumber;
 
-    @FixedWidth(from = 127, to = 133)
-    @Parsed
     private int unused;
 
     public int getNumber() {
