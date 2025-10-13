@@ -41,7 +41,6 @@ public abstract class AbstractLimitViolationDetectionTest {
     private static Network networkWithFixedCurrentLimits;
     private static Network networkWithFixedCurrentLimitsOnDanglingLines;
     private static Network networkWithVoltageAngleLimit;
-    protected static Network networkMultiSets;
     protected List<LimitViolation> violationsCollector;
 
     @BeforeAll
@@ -54,50 +53,6 @@ public abstract class AbstractLimitViolationDetectionTest {
         networkWithCurrentLimitsOn3WT = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         networkWithApparentLimitsOn3WT = ThreeWindingsTransformerNetworkFactory.createWithApparentPowerLimits();
         networkWithActiveLimitsOn3WT = ThreeWindingsTransformerNetworkFactory.createWithActivePowerLimits();
-
-        networkMultiSets = EurostagTutorialExample1Factory.create();
-        networkMultiSets.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
-            .newOperationalLimitsGroup1("CASE1").newCurrentLimits()
-            .setPermanentLimit(100.0)
-                .beginTemporaryLimit()
-                    .setName("TL1")
-                    .setValue(120.0)
-                    .setAcceptableDuration(20 * 60)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName("TL2")
-                    .setValue(140.0)
-                    .setAcceptableDuration(10 * 60)
-                    .endTemporaryLimit()
-                .add();
-        networkMultiSets.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
-                .newOperationalLimitsGroup1("CASE2").newCurrentLimits()
-                .setPermanentLimit(100.0)
-                .beginTemporaryLimit()
-                    .setName("IT20")
-                    .setValue(120.0)
-                    .setAcceptableDuration(20 * 60)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName("IT10")
-                    .setValue(140.0)
-                    .setAcceptableDuration(10 * 60)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName("IT1")
-                    .setValue(Double.POSITIVE_INFINITY)
-                    .setAcceptableDuration(60)
-                .endTemporaryLimit()
-                .add();
-        networkMultiSets.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
-                .newOperationalLimitsGroup1("OneTempCase").newCurrentLimits()
-                .setPermanentLimit(100.0)
-                .beginTemporaryLimit()
-                    .setName("TL")
-                    .setValue(120.0)
-                    .setAcceptableDuration(20 * 60)
-                .endTemporaryLimit()
-                .add();
     }
 
     protected abstract void checkLimitViolation(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer,
@@ -497,8 +452,8 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @ParameterizedTest
     @MethodSource("provideDetectCurrentLimitArguments")
-    void detectCurrentLimit(String limitsSetId, double currentValue, ExpectedResults expected) {
-        Line line = networkMultiSets.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+    void detectCurrentLimit(Network network, String limitsSetId, double currentValue, ExpectedResults expected) {
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         line.setSelectedOperationalLimitsGroup1(limitsSetId);
         checkCurrent(line, TwoSides.ONE, currentValue, violationsCollector::add);
 
@@ -523,21 +478,66 @@ public abstract class AbstractLimitViolationDetectionTest {
         String case1 = "CASE1";
         String case2 = "CASE2";
         String case3 = "OneTempCase";
+
+        Network network = EurostagTutorialExample1Factory.create();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+                .newOperationalLimitsGroup1(case1).newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("TL1")
+                    .setValue(120.0)
+                    .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL2")
+                    .setValue(140.0)
+                    .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+                .newOperationalLimitsGroup1(case2).newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("IT20")
+                    .setValue(120.0)
+                    .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT10")
+                    .setValue(140.0)
+                    .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT1")
+                    .setValue(Double.POSITIVE_INFINITY)
+                    .setAcceptableDuration(60)
+                .endTemporaryLimit()
+                .add();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+                .newOperationalLimitsGroup1(case3).newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("TL")
+                    .setValue(120.0)
+                    .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .add();
+
         return Stream.of(
                 // Case 1: no upper infinite limit
-                Arguments.of(case1, 90., null), // below the permanent limit
-                Arguments.of(case1, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL1
-                Arguments.of(case1, 130., new ExpectedResults("TL1", 120., 600)), // between TL1 and TL2
-                Arguments.of(case1, 150., new ExpectedResults("TL2", 140., 0)), // over the highest temp limit (TL2)
+                Arguments.of(network, case1, 90., null), // below the permanent limit
+                Arguments.of(network, case1, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL1
+                Arguments.of(network, case1, 130., new ExpectedResults("TL1", 120., 600)), // between TL1 and TL2
+                Arguments.of(network, case1, 150., new ExpectedResults("TL2", 140., 0)), // over the highest temp limit (TL2)
                 // Case 2: with an upper infinite limit
-                Arguments.of(case2, 90., null), // below the permanent limit
-                Arguments.of(case2, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and IT20
-                Arguments.of(case2, 130., new ExpectedResults("IT20", 120., 600)), // between IT20 and IT10
-                Arguments.of(case2, 150., new ExpectedResults("IT10", 140., 60)), // between IT10 and IT1 (over IT1 is not possible)
+                Arguments.of(network, case2, 90., null), // below the permanent limit
+                Arguments.of(network, case2, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and IT20
+                Arguments.of(network, case2, 130., new ExpectedResults("IT20", 120., 600)), // between IT20 and IT10
+                Arguments.of(network, case2, 150., new ExpectedResults("IT10", 140., 60)), // between IT10 and IT1 (over IT1 is not possible)
                 // Case 3: same as 1 but with a single temp limit
-                Arguments.of(case3, 90., null), // below the permanent limit
-                Arguments.of(case3, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL
-                Arguments.of(case3, 130., new ExpectedResults("TL", 120., 0)) // over the highest temp limit (TL)
+                Arguments.of(network, case3, 90., null), // below the permanent limit
+                Arguments.of(network, case3, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL
+                Arguments.of(network, case3, 130., new ExpectedResults("TL", 120., 0)) // over the highest temp limit (TL)
         );
     }
 
