@@ -16,15 +16,22 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
-import com.univocity.parsers.csv.*;
+import de.siegmar.fastcsv.writer.CsvWriter;
+import de.siegmar.fastcsv.writer.LineDelimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.combine;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -117,37 +124,33 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
             return;
         }
         String mappingFilename = baseName + "_debug_naming_strategy.csv";
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ds.newOutputStream(mappingFilename, false)))) {
-            CsvWriterSettings settings = new CsvWriterSettings();
-            settings.getFormat().setLineSeparator(System.lineSeparator());
-            settings.getFormat().setDelimiter(';');
-            settings.getFormat().setQuoteEscape('"');
-            CsvWriter csvWriter = new CsvWriter(writer, settings);
-            try {
-                String[] nextLine = new String[3];
-                nextLine[0] = "CgmesUuid";
-                nextLine[1] = "IidmId";
-                nextLine[2] = "Seed";
-                csvWriter.writeRow(nextLine);
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ds.newOutputStream(mappingFilename, false)));
+             CsvWriter csvWriter = CsvWriter.builder()
+                 .fieldSeparator(';')
+                 .lineDelimiter(LineDelimiter.PLATFORM)
+                 .quoteCharacter('"')
+                 .build(writer)) {
+            String[] nextLine = new String[3];
+            nextLine[0] = "CgmesUuid";
+            nextLine[1] = "IidmId";
+            nextLine[2] = "Seed";
+            csvWriter.writeRecord(nextLine);
 
-                for (Map.Entry<String, String> e : idByUuid.entrySet()) {
-                    String uuid = e.getKey();
+            for (Map.Entry<String, String> e : idByUuid.entrySet()) {
+                String uuid = e.getKey();
+                nextLine[0] = uuid;
+                nextLine[1] = e.getValue();
+                nextLine[2] = uuidSeed.get(uuid);
+                csvWriter.writeRecord(nextLine);
+            }
+            for (Map.Entry<String, String> e : uuidSeed.entrySet()) {
+                String uuid = e.getKey();
+                if (!idByUuid.containsKey(uuid)) {
                     nextLine[0] = uuid;
-                    nextLine[1] = e.getValue();
+                    nextLine[1] = "unknown";
                     nextLine[2] = uuidSeed.get(uuid);
-                    csvWriter.writeRow(nextLine);
+                    csvWriter.writeRecord(nextLine);
                 }
-                for (Map.Entry<String, String> e : uuidSeed.entrySet()) {
-                    String uuid = e.getKey();
-                    if (!idByUuid.containsKey(uuid)) {
-                        nextLine[0] = uuid;
-                        nextLine[1] = "unknown";
-                        nextLine[2] = uuidSeed.get(uuid);
-                        csvWriter.writeRow(nextLine);
-                    }
-                }
-            } finally {
-                csvWriter.close();
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
