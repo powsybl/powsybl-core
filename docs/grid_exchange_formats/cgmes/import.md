@@ -607,7 +607,24 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 (cgmes-cim-characteristics-import)=
 ### CIM characteristics
 
-<span style="color: red">TODO</span>
+This extension is attached to a network and is used to store characteristics about the imported CGMES dataset.
+
+| Attribute         | Type              | Unit | Required | Default value      | Description                                                                             |
+|-------------------|-------------------|------|----------|--------------------|-----------------------------------------------------------------------------------------|
+| cimVersion        | int               | -    | yes      | -                  | Version number of imported dataset: 16 for CIM16/CGMES 2.4.15, 100 for CIM100/CGMES 3.0 |
+| cgmesTopologyKind | CgmesTopologyKind | -    | yes      | -                  | Topology kind: NODE_BREAKER or BUS_BRANCH                                               |
+
+Please note that the cgmesTopologyKind attribute reflects how the dataset has been considered:
+if the `iidm.import.cgmes.import-node-breaker-as-bus-breaker` import parameter has been set to `true`, cgmesTopologyKind will be `BUS_BRANCH`, even if the network has `NODE_BREAKER` model details. 
+
+Example of code to read the extension and retrieve the topology kind assuming the network has been imported from a CGMES datasource:
+
+```java
+CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
+CgmesTopologyKind topologyKind = cimCharacteristics.getTopologyKind();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 (cgmes-model-import)=
 ### CGMES model
