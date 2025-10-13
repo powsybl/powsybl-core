@@ -7,10 +7,6 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.annotations.Convert;
-import com.univocity.parsers.annotations.FixedWidth;
-import com.univocity.parsers.annotations.Parsed;
-
 import java.time.LocalDate;
 
 /**
@@ -39,45 +35,31 @@ public class IeeeCdfTitle {
     /**
      * Date
      */
-    @FixedWidth(from = 1, to = 10)
-    @Parsed
-    @Convert(conversionClass = LocalDateConversion.class)
     private LocalDate date;
 
     /**
      * Originator's name
      */
-    @FixedWidth(from = 10, to = 30)
-    @Parsed
     private String originatorName;
 
     /**
      * MVA Base
      */
-    @FixedWidth(from = 31, to = 37)
-    @Parsed
     private double mvaBase;
 
     /**
      * Year
      */
-    @FixedWidth(from = 38, to = 42)
-    @Parsed
     private int year;
 
     /**
      *  Season
      */
-    @FixedWidth(from = 43, to = 44)
-    @Parsed
-    @Convert(conversionClass = SeasonConversion.class)
     private Season season;
 
     /**
      * Case identification
      */
-    @FixedWidth(from = 45, to = 73)
-    @Parsed
     private String caseIdentification;
 
     public LocalDate getDate() {
