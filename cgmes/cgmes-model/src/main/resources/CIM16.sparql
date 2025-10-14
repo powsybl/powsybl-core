@@ -177,38 +177,33 @@ WHERE {
 }
 
 # query: substations
-SELECT *
+SELECT ?Substation ?name
+        ?SubRegion (MIN(?subRegionName) AS ?subRegionName)
+        ?Region (MIN(?regionName) AS ?regionName)
 WHERE {
-    ?Substation
-        a cim:Substation ;
+    ?Substation a cim:Substation ;
         cim:IdentifiedObject.name ?name .
-    # Optional is required to keep the ?Substation variable already bounded in the sub-queries ...
-    OPTIONAL {
-        {
-            SELECT ?Substation (MIN(?SubRegion) AS ?SubRegion)
-            WHERE {
-                ?Substation cim:Substation.Region ?SubRegion .
-                ?SubRegion a cim:SubGeographicalRegion .
-            }
-            GROUP BY ?Substation
+    {
+        SELECT ?Substation (MIN(?sr) AS ?SubRegion)
+        WHERE {
+            ?Substation cim:Substation.Region ?sr .
+            ?sr a cim:SubGeographicalRegion .
         }
-        ?SubRegion cim:IdentifiedObject.name ?subRegionName .
-        OPTIONAL {
-            {
-                SELECT ?SubRegion (MIN(?Region) AS ?Region) (MIN(?regionName) AS ?regionName)
-                WHERE {
-                    ?SubRegion cim:SubGeographicalRegion.Region ?Region .
-                    ?Region
-                        a cim:GeographicalRegion ;
-                        cim:IdentifiedObject.name ?regionName .
-                }
-                GROUP BY ?SubRegion
-            }
-        }
+        GROUP BY ?Substation
     }
-    # ... But we do not want results where the regions are missing
-    FILTER (bound(?SubRegion) && bound(?Region))
-}
+    ?SubRegion cim:IdentifiedObject.name ?subRegionName .
+    {
+        SELECT ?SubRegion (MIN(?r) AS ?Region)
+        WHERE {
+            ?SubRegion cim:SubGeographicalRegion.Region ?r .
+            ?r a cim:GeographicalRegion .
+        }
+        GROUP BY ?SubRegion
+    }
+    ?Region cim:IdentifiedObject.name ?regionName .
+    }
+GROUP BY ?Substation ?name ?SubRegion ?Region
+ORDER BY ?Substation
 
 # query: voltageLevels
 SELECT *
