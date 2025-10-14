@@ -212,6 +212,25 @@ generator.newExtension(GeneratorShortCircuitAdder.class)
     .add();
 ```
 
+##(manual-frequency-restoration-reserve)=
+## Manual frequency restoration reserve
+
+This extension models whether a generator is part of the manual frequency restoration reserve.
+
+| Attribute  | Type    | Unit | Required |Default value| Description                                                    |
+|------------|---------|------|----------|-------------|----------------------------------------------------------------|
+| participate| boolean | -    | yes      | -           | indicates if the generator participates in the manual frequency restoration reserve|
+
+This extension is provided in the  `com.powsybl:powsybl-iidm-extensions` module.
+
+To add this extension to a generator, the code to be used is 
+```java
+generator.newExtension(ManualFrequencyRestorationReserve.class)
+    .withParticipate(true)
+    .add();
+       
+```
+
 (battery-short-circuit)=
 ## Battery short-circuit
 
