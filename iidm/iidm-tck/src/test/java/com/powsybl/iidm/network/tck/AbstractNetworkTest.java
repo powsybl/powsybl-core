@@ -693,7 +693,7 @@ public abstract class AbstractNetworkTest {
     }
 
     @Test
-    void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
+    public void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
         Network network = Network.create("test", "iidm");
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         VoltageLevel vl = network.newSubstation().setId("s1").add()
