@@ -132,9 +132,10 @@ public final class TerminalConversion {
     private static void createSwitchForTerminal(Terminal terminal, String cgmesTerminalId, Context context) {
         int node = terminal.getNodeBreakerView().getNode();
         List<Integer> nodesInternalConnectedTo = terminal.getVoltageLevel().getNodeBreakerView().getNodesInternalConnectedTo(node);
-        if (nodesInternalConnectedTo.size() == 1) {
+        int numberOfSwitchesConnectedTo = terminal.getVoltageLevel().getNodeBreakerView().getSwitches(node).size();
+        if (nodesInternalConnectedTo.size() == 1 && numberOfSwitchesConnectedTo == 0) {
             // There is no need anymore of the internal connection with the addition of the fictitious switch.
-            int otherNode = nodesInternalConnectedTo.get(0);
+            int otherNode = nodesInternalConnectedTo.getFirst();
             createSwitch(terminal.getVoltageLevel(), cgmesTerminalId, node, otherNode, context);
             terminal.getVoltageLevel().getNodeBreakerView().removeInternalConnections(node, otherNode);
         } else {

@@ -21,8 +21,8 @@ import java.util.Map;
  */
 public class NodeMapping {
 
-    private final Map<String, Integer> cgmes2iidm = new HashMap<>(100);
-    private final Map<VoltageLevel, Integer> voltageLevelNumNodes = new HashMap<>(100);
+    private final Map<String, Integer> cgmes2iidm = HashMap.newHashMap(100);
+    private final Map<VoltageLevel, Integer> voltageLevelNumNodes = HashMap.newHashMap(100);
     private final Context context;
 
     public NodeMapping(Context context) {

@@ -198,8 +198,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             throw new PowsyblException(String.format("Unexpected boundarySide and modelSide at boundaryNode: %s", boundaryNode));
         }
 
-        // The IIDM dangling line comes from a CGMES switch. Its terminals haven't been added to the mapping.
-        // They need to, so that the dangling line gets its own IIDM node.
+        // When the IIDM dangling line comes from a CGMES switch (this happens when the switch is at the boundary),
+        // its terminals haven't been added to the mapping. They need to, so that the dangling line gets its own IIDM node.
         if (CgmesNames.SWITCH_TYPES.contains(originalClass)) {
             CgmesTerminal t = terminals[modelSide - 1].t;
             context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t);
