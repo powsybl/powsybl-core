@@ -80,7 +80,9 @@ public final class LimitViolationUtils {
                 reduction = container.getTemporaryLimitReduction(previousAcceptableDuration);
             }
         }
-        return new OverloadImpl(tl, previousLimitName, limit, reduction);
+        return tl != null ?
+            new OverloadImpl(tl, previousLimitName, limit, reduction) :
+            new OverloadImpl(previousLimitName, limit, reduction);
     }
 
     private static OverloadImpl getOverload(LoadingLimits limits, double i, double limitReductionValue) {
@@ -101,7 +103,7 @@ public final class LimitViolationUtils {
             lastTemporaryLimit = tl;
         }
         if (lastTemporaryLimit != null && i >= limitReductionValue * lastTemporaryLimit.getValue()) {
-            return createOverload(lastTemporaryLimit, previousLimit, previousLimitName, null, temporaryLimits.size() == 1, -1, limitReductionValue);
+            return createOverload(null, previousLimit, previousLimitName, null, temporaryLimits.size() == 1, -1, limitReductionValue);
         }
         return null;
     }
@@ -128,7 +130,7 @@ public final class LimitViolationUtils {
             lastTemporaryLimit = tl;
         }
         if (lastTemporaryLimit != null && i >= lastTemporaryLimit.getValue()) {
-            return createOverload(lastTemporaryLimit, previousLimit, previousLimitName, limitsContainer, temporaryLimits.size() == 1, previousAcceptableDuration, 1);
+            return createOverload(null, previousLimit, previousLimitName, limitsContainer, temporaryLimits.size() == 1, previousAcceptableDuration, 1);
         }
         return null;
     }
