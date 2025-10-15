@@ -45,12 +45,14 @@ public interface Bus extends Identifiable<Bus> {
     Bus setAngle(double angle);
 
     /**
-     * Get the active power in MW injected by equipments connected to the bus.
+     * Get the active power in MW injected by equipments connected to the bus using the load sign convention (a positive value means that
+     * the equipments connected to the bus consume active power)
      */
     double getP();
 
     /**
-     * Get the reactive power in MVAR injected by equipments connected to the bus.
+     * Get the reactive power in MVAR injected by equipments connected to the bus using the load sign convention (a positive value means
+     * that the equipments connected to the bus consume reactive power).
      */
     double getQ();
 
@@ -58,6 +60,11 @@ public interface Bus extends Identifiable<Bus> {
         return 0.0;
     }
 
+    /**
+     * Adds a fictioous active power injection to the bus using the load sign convention (a positive value has the same effact as a load connected to the bus)
+     * @param p0 fictitious load in MW, using the load sign convention.
+     * @return
+     */
     default Bus setFictitiousP0(double p0) {
         // do nothing
         return this;
@@ -67,6 +74,11 @@ public interface Bus extends Identifiable<Bus> {
         return 0.0;
     }
 
+    /**
+     * Adds a fictioous reactive power injection to the bus using the load sign convention (a positive value has the same effact as a load connected to the bus)
+     * @param q0 fictitious load in MVar, using the load sign convention.
+     * @return
+     */
     default Bus setFictitiousQ0(double q0) {
         // do nothing
         return this;
