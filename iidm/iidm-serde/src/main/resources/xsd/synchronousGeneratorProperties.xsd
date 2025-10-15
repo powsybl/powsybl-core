@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2025, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/synchronous_generator_properties/1_0"
+           elementFormDefault="qualified">
+    <xs:element name="synchronousGeneratorProperties">
+        <xs:complexType>
+            <xs:attribute name="numberOfWindings" use="required" type="xs:int"/>
+            <xs:attribute name="governor" use="required" type="xs:string"/>
+            <xs:attribute name="voltageRegulator" use="required" type="xs:string"/>
+            <xs:attribute name="pss" use="required" type="xs:string"/>
+            <xs:attribute name="auxiliaries" use="required" type="xs:boolean"/>
+            <xs:attribute name="internalTransformer" use="required" type="xs:boolean"/>
+            <xs:attribute name="rpcl" use="required" type="xs:boolean"/>
+            <xs:attribute name="rpcl2" use="required" type="xs:boolean"/>
+            <xs:attribute name="uva" use="required" type="xs:string"/>
+            <xs:attribute name="fictitious" use="required" type="xs:boolean"/>
+            <xs:attribute name="qlim" use="required" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
