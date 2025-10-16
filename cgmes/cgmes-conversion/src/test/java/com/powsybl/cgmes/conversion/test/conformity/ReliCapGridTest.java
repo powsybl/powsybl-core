@@ -101,5 +101,6 @@ class ReliCapGridTest {
 
         assertNotNull(network);
         assertEquals(8, network.getSubnetworks().size());
+        assertEquals(168, network.getSubstationCount());
     }
 }
