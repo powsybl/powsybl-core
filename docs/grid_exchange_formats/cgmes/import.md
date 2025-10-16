@@ -592,7 +592,7 @@ that hold the metadata information present in the `FullModel` tag in the header 
 | modelingAuthoritySet | String        | -    | yes      | -                  | The organisation role which is the source of the model                                         |
 | profiles             | Set\<String\> | -    | no       | -                  | The profiles included in this subset                                                           |
 | dependentOn          | Set\<String\> | -    | no       | -                  | References to other models this model depends on                                               |
-| supersedes           | Set\<String\> | -    | no       | -                  | References to other models this model supsersedes                                              |
+| supersedes           | Set\<String\> | -    | no       | -                  | References to other models this model supersedes                                               |
 
 Example of code to read the extension and retrieve the modeling authority set assuming the network has been imported from a CGMES datasource:
 
