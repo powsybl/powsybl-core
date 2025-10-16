@@ -62,7 +62,7 @@ public final class ReactiveCapabilityShapePolyhedron {
     /**
      * Set the list of hyperplanes forming the convex polyhedron
      * @param planes the list of Plane defining the convex polyhedron
-     * @return
+     * @return this
      */
     public static ReactiveCapabilityShapePolyhedron build(final List<ReactiveCapabilityShapePlane> planes) {
         return new ReactiveCapabilityShapePolyhedron(planes);
