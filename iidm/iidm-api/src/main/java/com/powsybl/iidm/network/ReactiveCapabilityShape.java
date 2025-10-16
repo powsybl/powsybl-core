@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * Base class for <code>Generator</code> reactive limits.
+ * Base interface for <code>Generator</code> reactive capabilities shape limits.
  * <pre>
  *           U (kV) ^
  *                     |
@@ -38,7 +38,7 @@ package com.powsybl.iidm.network;
  *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
-public interface ReactiveShape extends ReactiveLimits {
+public interface ReactiveCapabilityShape extends ReactiveLimits {
 
     /**
      * Get the reactive power minimum value at a given active power and voltage values.
