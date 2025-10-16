@@ -72,23 +72,22 @@ class ReactiveCapabilityShapeLimitsTest {
     void testReactiveLimits() {
 
         List<ReactiveCapabilityShapePlane> envelopeConstraints = Arrays.asList(
-            ReactiveCapabilityShapePlane.build(0.0, 0.0).lessOrEqual(100.0),    // Q ≤ 100
-            ReactiveCapabilityShapePlane.build(0.0, 0.0).greaterOrEqual(20.0),  // Q ≥ 20
             ReactiveCapabilityShapePlane.build(0.0, 1.0).lessOrEqual(80.0),     // Q + P ≤ 80
             ReactiveCapabilityShapePlane.build(0.0, 1.0).greaterOrEqual(10.0),  // Q + P ≥ 10
             ReactiveCapabilityShapePlane.build(1.0, 0.0).lessOrEqual(51.1),     // Q + U ≤ 51.1
             ReactiveCapabilityShapePlane.build(1.0, 0.0).greaterOrEqual(20)     // Q + U ≥ 20
         );
-        ReactiveCapabilityShapePolyhedron operatingEnvelope = ReactiveCapabilityShapePolyhedron.build(envelopeConstraints);
+        // 20 ≤ Q ≤ 100
+        ReactiveCapabilityShapePolyhedron operatingEnvelope = ReactiveCapabilityShapePolyhedron.build(envelopeConstraints)
+                .withReactivePowerBounds(20, 100);
 
         assertPQUInEnveloppe(operatingEnvelope, 25, 20, 1, true);
         assertPQUInEnveloppe(operatingEnvelope, 30, 120, 1, false);
         assertPQUInEnveloppe(operatingEnvelope, 130, 50, 2, false);
 
-        assertQBoundsInEnveloppe(operatingEnvelope, 30, 1, 20, 50);
-        assertQBoundsInEnveloppe(operatingEnvelope, 30, 0.5, 20, 50);
+        assertQBoundsInEnveloppe(operatingEnvelope, 35, 1, 20, 45);
+        assertQBoundsInEnveloppe(operatingEnvelope, 30, 10.5, 20, 40.6);
 
-        // Test 6: Demonstration of the P-only methods
         double p6 = 30.0;
         assertTrue(Math.abs(operatingEnvelope.getMinQ(p6) - 20.0) < EPSILON_PRECISION);
         assertTrue(Math.abs(operatingEnvelope.getMaxQ(p6) - 50.0) < EPSILON_PRECISION);
