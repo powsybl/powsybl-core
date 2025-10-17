@@ -21,6 +21,24 @@ class ReactiveCapabilityShapePolyhedronTest {
     }
 
     @Test
+    void testBuildAndToStringEmptyPlanesWithBounds() {
+        ReactiveCapabilityShapePolyhedron poly = ReactiveCapabilityShapePolyhedron.build(Collections.emptyList())
+                .withActivePowerBounds(0, 100)
+                .withVoltageBounds(200, 400)
+                .withReactivePowerBounds(-20, 40);
+        String s = poly.toString();
+        assertNotNull(s);
+        assertTrue(s.contains("unbounded") || s.toLowerCase().contains("undefined"),
+                "Expected message about unbounded/undefined polyhedron when no planes are provided");
+        assertTrue(s.contains("Q ≥ -20"));
+        assertTrue(s.contains("Q ≤ 40"));
+        assertTrue(s.contains("P ≥ 0"));
+        assertTrue(s.contains("P ≤ 100"));
+        assertTrue(s.contains("U ≥ 200"));
+        assertTrue(s.contains("U ≤ 400"));
+    }
+
+    @Test
     void testBoundsSettersAppearInToString() {
         // Create a simple plane so toString lists something beyond the bounds section
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlane.build(0.0, 0.0).lessOrEqual(5.0);

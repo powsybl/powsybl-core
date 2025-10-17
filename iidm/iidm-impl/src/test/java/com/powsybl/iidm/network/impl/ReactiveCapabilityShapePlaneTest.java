@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReactiveCapabilityShapePlaneTest {
 
-    private static final double DELTA = 1e-6;
+    private static final double DELTA = 1e-9;
 
     @Test
     void testBuildCreatesInstanceWithAlphaAndBeta() {

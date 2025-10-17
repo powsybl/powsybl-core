@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ReactiveCapabilityShapeImplTest {
 
+    public static final double DELTA = 1e-9;
     private ReactiveCapabilityShapeImpl shape;
 
     @BeforeEach
@@ -62,21 +63,34 @@ class ReactiveCapabilityShapeImplTest {
     void testNominalOperatingPoint() {
         double p = 50.0;
         double u = 400.0;
-        assertEquals(-10.0, shape.getMinQ(p, u), 1e-9);
-        assertEquals(10.0, shape.getMaxQ(p, u), 1e-9);
+        assertEquals(-10.0, shape.getMinQ(p, u), DELTA);
+        assertEquals(10.0, shape.getMaxQ(p, u), DELTA);
     }
 
     @Test
-    void testAtBoundaryConditions() {
+    void testAtBoundaryConditionsWithPVFixed() {
 
-        assertEquals(-10.0, shape.getMinQ(120.0, 400.0), 1e-9);
-        assertEquals(0, shape.getMaxQ(120.0, 400.0), 1e-9);
+        assertEquals(-10.0, shape.getMinQ(120.0, 400.0), DELTA);
+        assertEquals(0, shape.getMaxQ(120.0, 400.0), DELTA);
 
-        assertEquals(0.0, shape.getMinQ(-50.0, 400.0), 1e-9);
-        assertEquals(10, shape.getMaxQ(-50.0, 400.0), 1e-9);
+        assertEquals(0.0, shape.getMinQ(-50.0, 400.0), DELTA);
+        assertEquals(10, shape.getMaxQ(-50.0, 400.0), DELTA);
 
-        assertEquals(0, shape.getMinQ(0.0, 390.0), 1e-9);
-        assertEquals(0, shape.getMaxQ(0.0, 410.0), 1e-9);
+        assertEquals(0, shape.getMinQ(0.0, 390.0), DELTA);
+        assertEquals(0, shape.getMaxQ(0.0, 410.0), DELTA);
+    }
+
+    @Test
+    void testAtBoundaryConditionsWithPFixed() {
+
+        assertEquals(-60.0, shape.getMinQ(120.0), DELTA);
+        assertEquals(0, shape.getMaxQ(120.0), DELTA);
+
+        assertEquals(0.0, shape.getMinQ(-50.0), DELTA);
+        assertEquals(80, shape.getMaxQ(-50.0), DELTA);
+
+        assertEquals(-50, shape.getMinQ(0.0), DELTA);
+        assertEquals(80, shape.getMaxQ(0.0), DELTA);
     }
 
     @Test
@@ -120,11 +134,11 @@ class ReactiveCapabilityShapeImplTest {
 
         // Qmax attendu = 100 - 0.1*U - 0.2*P = 100 - 40 - 10 = 50
         double qMax = poly.getOptimalQ(p, GoalType.MAXIMIZE, additional);
-        assertEquals(50.0, qMax, 1e-9);
+        assertEquals(50.0, qMax, DELTA);
 
         // Qmin attendu = -50 - 0.05*U - 0.1*P = -50 -20 -5 = -75
         double qMin = poly.getOptimalQ(p, GoalType.MINIMIZE, additional);
-        assertEquals(-75.0, qMin, 1e-9);
+        assertEquals(-75.0, qMin, DELTA);
     }
 
     @Test
@@ -136,7 +150,7 @@ class ReactiveCapabilityShapeImplTest {
         ReactiveCapabilityShapePolyhedron poly = ReactiveCapabilityShapePolyhedron.build(Arrays.asList(wrong, qUpper, qLower));
         // Si on fixe P = 130, contrainte wrong => Q + 130 ≤ 120 -> Q ≤ -10.
         double q = poly.getOptimalQ(130.0, GoalType.MAXIMIZE, null);
-        assertEquals(-10.0, q, 1e-9); // montre que 'wrong' encode Q+P<=120, pas P<=120.
+        assertEquals(-10.0, q, DELTA); // montre que 'wrong' encode Q+P<=120, pas P<=120.
     }
 
 }

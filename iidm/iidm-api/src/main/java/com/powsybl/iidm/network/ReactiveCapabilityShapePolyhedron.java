@@ -276,13 +276,9 @@ public final class ReactiveCapabilityShapePolyhedron {
      */
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if (listOfPlanes.isEmpty()) {
-            sb.append("The Polyhedron is unbounded and undefined (no constraints).");
-            return sb.toString();
-        }
         String separator = "=======================================================\n";
         sb.append("\n").append(separator);
-        sb.append("  UPPER AND LOWER BOUNDS ON (P, Q, U)\n");
+        sb.append("| UPPER AND LOWER BOUNDS ON (P, Q, U)\n");
         if (!Double.isNaN(this.minQ)) {
             sb.append(" Q ≥ ").append(this.minQ).append(" MVaR");
         }
@@ -301,7 +297,11 @@ public final class ReactiveCapabilityShapePolyhedron {
         if (!Double.isNaN(this.maxV)) {
             sb.append(" U ≤ ").append(this.maxV).append(" KV");
         }
-        sb.append("  CONVEX POLYHEDRON CONSTRAINTS (P, Q, U Operating Envelope)\n");
+        if (listOfPlanes.isEmpty()) {
+            sb.append("\nThe Polyhedron is unbounded and undefined (no constraints).");
+            return sb.toString();
+        }
+        sb.append("| CONVEX POLYHEDRON CONSTRAINTS\n");
         sb.append(separator);
 
         int index = 1;

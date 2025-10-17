@@ -105,10 +105,6 @@ public final class ReactiveCapabilityShapePlane {
         sb.append(" ").append(inequalityType.equals(InequalityType.LESS_OR_EQUAL) ? '≤' : '≥').append(" ");
         sb.append(String.format("%.3f", gamma));
 
-        if (sb.toString().startsWith("Q ")) {
-            return sb.toString();
-        }
-
         return sb.toString();
     }
 
