@@ -41,6 +41,14 @@ public class ConditionSerializer extends StdSerializer<Condition> {
             case AnyViolationCondition.NAME:
                 serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializerProvider);
                 break;
+            case ThresholdCondition.NAME:
+                ThresholdCondition thresholdCondition = (ThresholdCondition) condition;
+                jsonGenerator.writeNumberField("threshold", thresholdCondition.getThreshold());
+                jsonGenerator.writeStringField("equipmentId", thresholdCondition.getEquipmentId());
+                jsonGenerator.writeStringField("side", thresholdCondition.getSide().name());
+                jsonGenerator.writeStringField("comparisonType", thresholdCondition.getComparisonType().name());
+                jsonGenerator.writeStringField("variable", thresholdCondition.getVariable().name());
+                break;
             default:
                 throw new IllegalArgumentException("condition type \'" + condition.getType() + "\' does not exist");
         }

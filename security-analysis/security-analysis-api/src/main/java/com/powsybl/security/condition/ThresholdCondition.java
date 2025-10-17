@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2025, Coreso SA (https://www.coreso.eu/) and TSCNET Services GmbH (https://www.tscnet.eu/)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
 package com.powsybl.security.condition;
 
 import com.powsybl.iidm.network.ThreeSides;
@@ -42,10 +50,6 @@ public class ThresholdCondition implements Condition {
         this.type = type;
         this.side = side;
         this.variable = variable;
-    }
-
-    public ThresholdCondition(double threshold, ComparisonType type, String equipmentId, Variable variable) {
-        this(threshold, type, equipmentId, null, variable);
     }
 
     public double getThreshold() {

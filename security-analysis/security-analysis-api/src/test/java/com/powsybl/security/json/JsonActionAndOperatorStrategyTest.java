@@ -19,8 +19,10 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.action.*;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.condition.AllViolationCondition;
 import com.powsybl.security.condition.AnyViolationCondition;
+import com.powsybl.security.condition.ThresholdCondition;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
@@ -68,6 +70,9 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
                 List.of("actionId1", "actionId5")))));
         operatorStrategies.add(new OperatorStrategy("id6", ContingencyContext.specificContingency("contingencyId5"),
             List.of(new ConditionalActions("stage1", new AllViolationCondition(List.of("violation1", "violation2")),
+                List.of("actionId3")))));
+        operatorStrategies.add(new OperatorStrategy("id7", ContingencyContext.specificContingency("contingencyId5"),
+            List.of(new ConditionalActions("stage1", new ThresholdCondition(2.0, ThresholdCondition.ComparisonType.GREATER_THAN, "Line1", ThreeSides.ONE, ThresholdCondition.Variable.CURRENT),
                 List.of("actionId3")))));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
