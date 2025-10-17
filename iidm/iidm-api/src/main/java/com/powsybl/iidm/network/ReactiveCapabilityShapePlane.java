@@ -42,22 +42,22 @@ public final class ReactiveCapabilityShapePlane {
     /**
      * private constructor for a ReactiveCapabilityShapePlane.
      *
-     * @param alpha    The coefficient for U.
-     * @param beta     The coefficient for P.
+     * @param alphaU    The coefficient for U.
+     * @param betaP     The coefficient for P.
      */
-    private ReactiveCapabilityShapePlane(double alpha, double beta) {
-        this.alpha = alpha;
-        this.beta = beta;
+    private ReactiveCapabilityShapePlane(double alphaU, double betaP) {
+        this.alpha = alphaU;
+        this.beta = betaP;
     }
 
     /**
      * Builder for a ReactiveCapabilityShapePlane.
      *
-     * @param alpha    The coefficient for U.
-     * @param beta     The coefficient for P.
+     * @param alphaU    The coefficient for U.
+     * @param betaP     The coefficient for P.
      */
-    public static ReactiveCapabilityShapePlane build(double alpha, double beta) {
-        return new ReactiveCapabilityShapePlane(alpha, beta);
+    public static ReactiveCapabilityShapePlane build(double alphaU, double betaP) {
+        return new ReactiveCapabilityShapePlane(alphaU, betaP);
     }
 
     /**
