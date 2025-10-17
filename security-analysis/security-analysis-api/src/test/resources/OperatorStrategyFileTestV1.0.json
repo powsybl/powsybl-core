@@ -71,5 +71,21 @@
       },
       "actionIds" : [ "actionId3" ]
     } ]
+  }, {
+    "id" : "id7",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId5",
+    "conditionalActions" : [ {
+      "id" : "stage1",
+      "condition" : {
+        "type" : "THRESHOLD_CONDITION",
+        "threshold" : 2.0,
+        "equipmentId" : "Line1",
+        "side" : "ONE",
+        "comparisonType" : "GREATER_THAN",
+        "variable" : "CURRENT"
+      },
+      "actionIds" : [ "actionId3" ]
+    } ]
   } ]
 }
