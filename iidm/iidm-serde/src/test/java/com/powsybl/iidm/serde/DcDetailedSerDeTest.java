@@ -7,14 +7,12 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.ZonedDateTime;
-import java.util.Properties;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
@@ -26,22 +24,22 @@ class DcDetailedSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testNetworkDcDetailed() throws IOException {
         Network network = createBaseNetwork();
-        network.write("XIIDM", new Properties(), Paths.get("D:\\powsybl-dev\\powsybl-core\\iidm\\iidm-serde\\src\\test\\resources\\V1_15\\dcDetailedRoundTripRef.xml"));
+        // network.write("XIIDM", new Properties(), Paths.get("D:\\powsybl-dev\\powsybl-core\\iidm\\iidm-serde\\src\\test\\resources\\V1_15\\dcDetailedRoundTripRef.xml"));
         allFormatsRoundTripTest(network, "/dcDetailedRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     private static Network createBaseNetwork() {
         // Create a base network
-        Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturnWithDcLineSegments();
         ZonedDateTime caseDate = ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00");
         network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_POS).setV(502.34);
         network.getDcGround(DcDetailedNetworkFactory.DC_GROUND_FR)
                 .setR(0.3).getDcTerminal().setP(1.1).setI(1000.);
         network.getDcGround(DcDetailedNetworkFactory.DC_GROUND_GB)
                 .setR(0.6).getDcTerminal().setConnected(false);
-        network.getDcLine(DcDetailedNetworkFactory.DC_LINE1)
+        network.getDcLine("dcLineSegmentFrPosA")
                         .getDcTerminal1().setI(1.1).setP(2.2);
-        network.getDcLine(DcDetailedNetworkFactory.DC_LINE1)
+        network.getDcLine("dcLineSegmentFrPosA")
                         .getDcTerminal2().setConnected(false);
         network.setCaseDate(caseDate);
         network.getSubnetworks().forEach(subnetwork -> subnetwork.setCaseDate(caseDate));
