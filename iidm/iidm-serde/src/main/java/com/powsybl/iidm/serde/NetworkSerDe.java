@@ -384,6 +384,7 @@ public final class NetworkSerDe {
     private static void writeDcDetailed(Network n, NetworkSerializerContext context) {
         writeDcNodes(n, context);
         writeDcGrounds(n, context);
+        writeDcLines(n, context);
     }
 
     private static void writeDcNodes(Network n, NetworkSerializerContext context) {
@@ -405,6 +406,18 @@ public final class NetworkSerDe {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
                 DcGroundSerDe.INSTANCE.write(dcGround, n, context);
+            }
+        }
+        context.getWriter().writeEndNodes();
+    }
+
+    private static void writeDcLines(Network n, NetworkSerializerContext context) {
+        context.getWriter().writeStartNodes();
+        for (DcLine dcLine : IidmSerDeUtil.sorted(n.getDcLines(), context.getOptions())) {
+            if (isElementWrittenInsideNetwork(dcLine, n, context)) {
+                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
+                        IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
+                DcLineSerDe.INSTANCE.write(dcLine, n, context);
             }
         }
         context.getWriter().writeEndNodes();
@@ -643,6 +656,7 @@ public final class NetworkSerDe {
                 Map.entry(DanglingLineSerDe.ARRAY_ELEMENT_NAME, DanglingLineSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(DcNodeSerDe.ARRAY_ELEMENT_NAME, DcNodeSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(DcGroundSerDe.ARRAY_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(DcLineSerDe.ARRAY_ELEMENT_NAME, DcLineSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(GeneratorSerDe.ARRAY_ELEMENT_NAME, GeneratorSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(HvdcLineSerDe.ARRAY_ELEMENT_NAME, HvdcLineSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(LccConverterStationSerDe.ARRAY_ELEMENT_NAME, LccConverterStationSerDe.ROOT_ELEMENT_NAME),
@@ -710,6 +724,7 @@ public final class NetworkSerDe {
             case VoltageAngleLimitSerDe.ROOT_ELEMENT_NAME -> VoltageAngleLimitSerDe.read(networks.peek(), context);
             case DcNodeSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadDcNode(context, networks);
             case DcGroundSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadDcGround(context, networks);
+            case DcLineSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadDcLine(context, networks);
             case EXTENSION_ROOT_ELEMENT_NAME -> readExtensionTag(networks.getFirst(), context,
                     extensionNamesImported, extensionNamesNotFound, extensionsSupplier, reportNode);
             default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'network'");
@@ -756,6 +771,12 @@ public final class NetworkSerDe {
         IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME,
                 IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
         DcGroundSerDe.INSTANCE.read(networks.peek(), context);
+    }
+
+    private static void checkSupportedAndReadDcLine(NetworkDeserializerContext context, Deque<Network> networks) {
+        IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcLineSerDe.ROOT_ELEMENT_NAME,
+                IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
+        DcLineSerDe.INSTANCE.read(networks.peek(), context);
     }
 
     private static void checkSupportedAndReadVoltageLevel(NetworkDeserializerContext context, Deque<Network> networks) {
