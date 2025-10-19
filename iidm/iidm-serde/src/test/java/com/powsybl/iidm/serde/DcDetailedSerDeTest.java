@@ -35,6 +35,10 @@ class DcDetailedSerDeTest extends AbstractIidmSerDeTest {
         Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
         ZonedDateTime caseDate = ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00");
         network.getDcNode(DcDetailedNetworkFactory.DC_NODE_FR_POS).setV(502.34);
+        network.getDcGround(DcDetailedNetworkFactory.DC_GROUND_FR)
+                .setR(0.3).getDcTerminal().setP(1.1).setI(1000.);
+        network.getDcGround(DcDetailedNetworkFactory.DC_GROUND_GB)
+                .setR(0.6).getDcTerminal().setConnected(false);
         network.setCaseDate(caseDate);
         network.getSubnetworks().forEach(subnetwork -> subnetwork.setCaseDate(caseDate));
         return network;
