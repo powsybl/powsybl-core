@@ -23,6 +23,7 @@
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="network" type="iidm:Network" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="dcNode" type="iidm:DcNode" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="dcSwitch" type="iidm:DcSwitch" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="dcGround" type="iidm:DcGround" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="dcLine" type="iidm:DcLine" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="voltageLevel" type="iidm:VoltageLevel" minOccurs="0" maxOccurs="unbounded"/>
@@ -763,6 +764,22 @@
                 <xs:attribute name="connected2" use="required" type="xs:boolean"/>
                 <xs:attribute name="p2" use="optional" type="xs:double"/>
                 <xs:attribute name="i2" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="DcSwitchKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BREAKER"/>
+            <xs:enumeration value="DISCONNECTOR"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="DcSwitch">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="kind" use="required" type="iidm:DcSwitchKind"/>
+                <xs:attribute name="open" use="required" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
