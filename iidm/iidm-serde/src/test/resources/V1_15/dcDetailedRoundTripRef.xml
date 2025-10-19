@@ -5,6 +5,8 @@
         <iidm:dcNode id="dcNodeGbPos" nominalV="500.0"/>
         <iidm:dcNode id="dcNodeFrNeg" nominalV="1.0"/>
         <iidm:dcNode id="dcNodeFrPos" nominalV="500.0" v="502.34"/>
+        <iidm:dcGround id="dcGroundGb" dcNode="dcNodeGbNeg" r="0.6" connected="false"/>
+        <iidm:dcGround id="dcGroundFr" dcNode="dcNodeFrNeg" r="0.3" connected="true" p="1.1" i="1000.0"/>
         <iidm:substation id="SDC-GB-xNodeDc1gb">
             <iidm:voltageLevel id="VLDC-GB-xNodeDc1gb-400" nominalV="400.0" lowVoltageLimit="380.0" highVoltageLimit="420.0" topologyKind="BUS_BREAKER">
                 <iidm:busBreakerTopology>
