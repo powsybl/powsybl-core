@@ -39,6 +39,10 @@ class DcDetailedSerDeTest extends AbstractIidmSerDeTest {
                 .setR(0.3).getDcTerminal().setP(1.1).setI(1000.);
         network.getDcGround(DcDetailedNetworkFactory.DC_GROUND_GB)
                 .setR(0.6).getDcTerminal().setConnected(false);
+        network.getDcLine(DcDetailedNetworkFactory.DC_LINE1)
+                        .getDcTerminal1().setI(1.1).setP(2.2);
+        network.getDcLine(DcDetailedNetworkFactory.DC_LINE1)
+                        .getDcTerminal2().setConnected(false);
         network.setCaseDate(caseDate);
         network.getSubnetworks().forEach(subnetwork -> subnetwork.setCaseDate(caseDate));
         return network;
