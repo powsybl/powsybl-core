@@ -7,13 +7,10 @@
  */
 package com.powsybl.cgmes.gl;
 
-import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesNamespace.Cim;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.iidm.network.extensions.Coordinate;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,10 +34,6 @@ public abstract class AbstractPositionExporter {
     private static final String Y_POSITION = "yPosition";
     private static final String SEQUENCE_NUMBER = "sequenceNumber";
 
-    protected AbstractPositionExporter(TripleStore tripleStore, ExportContext context) {
-        this(tripleStore, context, CIM_16);
-    }
-
     protected AbstractPositionExporter(TripleStore tripleStore, ExportContext context, Cim cimModel) {
         this.tripleStore = Objects.requireNonNull(tripleStore);
         this.context = Objects.requireNonNull(context);
@@ -56,7 +49,7 @@ public abstract class AbstractPositionExporter {
         locationProperties.put(POWER_SYSTEM_RESOURCES, id);
         locationProperties.put(COORDINATE_SYSTEM, context.getCoordinateSystemId());
 
-        return tripleStore.add(context.getGlContext(), cimModel.getVersion() == 100 ? CgmesNamespace.CIM_100_NAMESPACE : CgmesNamespace.CIM_16_NAMESPACE, LOCATION, locationProperties);
+        return tripleStore.add(context.getGlContext(), cimModel.getNamespace(), LOCATION, locationProperties);
     }
 
     protected void addLocationPoint(String locationId, Coordinate coordinate, int seq) {
@@ -70,7 +63,7 @@ public abstract class AbstractPositionExporter {
         locationPointProperties.put(X_POSITION, Double.toString(coordinate.getLongitude()));
         locationPointProperties.put(Y_POSITION, Double.toString(coordinate.getLatitude()));
         locationPointProperties.put(LOCATION, locationId);
-        tripleStore.add(context.getGlContext(), cimModel.getVersion() == 100 ? CgmesNamespace.CIM_100_NAMESPACE : CgmesNamespace.CIM_16_NAMESPACE, "PositionPoint", locationPointProperties);
+        tripleStore.add(context.getGlContext(), cimModel.getNamespace(), "PositionPoint", locationPointProperties);
     }
 
 }

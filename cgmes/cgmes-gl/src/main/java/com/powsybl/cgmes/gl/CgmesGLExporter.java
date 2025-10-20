@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.gl;
 
-import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesNamespace.Cim;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
@@ -50,7 +49,7 @@ public class CgmesGLExporter {
     public CgmesGLExporter(Network network, Cim cimModel, TripleStore tripleStore) {
         this.network = Objects.requireNonNull(network);
         this.tripleStore = Objects.requireNonNull(tripleStore);
-        this.cimModel = cimModel;
+        this.cimModel = Objects.requireNonNull(cimModel);
     }
 
     public CgmesGLExporter(Network network, Cim cimModel) {
@@ -75,7 +74,7 @@ public class CgmesGLExporter {
             tripleStore.addNamespace("data", "http://" + context.getBasename().toLowerCase() + "/#");
         }
         if (isMissedNamespace("cim")) {
-            tripleStore.addNamespace("cim", cimModel.getVersion() == 100 ? CgmesNamespace.CIM_100_NAMESPACE : CgmesNamespace.CIM_16_NAMESPACE);
+            tripleStore.addNamespace("cim", cimModel.getNamespace());
         }
         if (isMissedNamespace("md")) {
             tripleStore.addNamespace("md", MD_NAMESPACE);
@@ -93,8 +92,8 @@ public class CgmesGLExporter {
         modelProperties.put(MODEL_SCENARIO_TIME, network.getCaseDate().toString());
         modelProperties.put(MODEL_CREATED, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date()));
         modelProperties.put(MODEL_DESCRIPTION, network.getNameOrId());
-        modelProperties.put(MODEL_VERSION, "4");
-        modelProperties.put(MODEL_PROFILE, cimModel.getVersion() == 100 ? CgmesNamespace.CIM_100_GL_PROFILE : CgmesNamespace.CIM_16_GL_PROFILE);
+        modelProperties.put(MODEL_VERSION, "1");
+        modelProperties.put(MODEL_PROFILE, cimModel.getProfileUri("GL"));
         modelProperties.put(MODEL_DEPENDENT_ON, network.getId());
         tripleStore.add(context.getGlContext(), MD_NAMESPACE, "FullModel", modelProperties);
     }
@@ -104,7 +103,7 @@ public class CgmesGLExporter {
         coordinateSystemProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
         coordinateSystemProperties.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);
         coordinateSystemProperties.put(IDENTIFIED_OBJECT_NAME, "WGS84");
-        context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), cimModel.getVersion() == 100 ? CgmesNamespace.CIM_100_NAMESPACE : CgmesNamespace.CIM_16_NAMESPACE, "CoordinateSystem", coordinateSystemProperties));
+        context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), cimModel.getNamespace(), "CoordinateSystem", coordinateSystemProperties));
     }
 
     private void exportSubstationsPosition(ExportContext context) {

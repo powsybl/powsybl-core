@@ -450,7 +450,7 @@ public class Conversion {
                 continue;
             }
             String profile = CgmesNamespace.getProfile(modelProfile.getId("profile"));
-            if (profile != null && !"EQ_OP".equals(profile) && !"SV".equals(profile)) { // don't import EQ_OP and SV profiles as they are not used for CGMES export
+            if (profile != null && !"EQ_OP".equals(profile) && !"SV".equals(profile) && !"GL".equals(profile)) { // don't import EQ_OP and SV and GL profiles as they are not used for CGMES export
                 context.network()
                         .setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID", property -> context.network().hasProperty(property)),
                                 modelProfile.getId(fullModel));
