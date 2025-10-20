@@ -232,57 +232,57 @@ public abstract class AbstractTieLineTest {
 
     @Test
     public void invalidBoundaryLineCharacteristicsR() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithBoundaryLine2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("r is invalid"));
     }
 
     @Test
     public void invalidBoundaryLineCharacteristicsX() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithBoundaryLine2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("x is invalid"));
     }
 
     @Test
     public void invalidBoundaryLineCharacteristicsG() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithBoundaryLine2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
                 Double.NaN, 8.5, "code"));
         assertTrue(e.getMessage().contains("g is invalid"));
     }
 
     @Test
     public void invalidBoundaryLineCharacteristicsB() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithBoundaryLine2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
                 6.5, Double.NaN, "code"));
         assertTrue(e.getMessage().contains("b is invalid"));
     }
 
     @Test
     public void boundaryLineIdNull() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithBoundaryLine2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("Dangling line id is not set"));
     }
 
     @Test
     public void boundaryLineIdEmpty() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithBoundaryLine2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("Invalid id ''"));
     }
 
     @Test
     public void duplicate() {
-        createTieLineWithDanglingline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
+        createTieLineWithBoundaryLine2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
                 6.5, 8.5, DUPLICATE);
-        assertThrows(PowsyblException.class, () -> createTieLineWithDanglingline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
+        assertThrows(PowsyblException.class, () -> createTieLineWithBoundaryLine2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
                 6.5, 8.5, DUPLICATE));
     }
 
     @Test
     public void testRemove() {
-        createTieLineWithDanglingline2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
+        createTieLineWithBoundaryLine2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
                 6.5, 8.5, TO_REMOVE);
         TieLine line = network.getTieLine(TO_REMOVE);
         assertNotNull(line);
@@ -402,7 +402,7 @@ public abstract class AbstractTieLineTest {
         assertEquals(0, line2.getBoundaryLine2().getQ0(), 0.001);
     }
 
-    private void createTieLineWithDanglingline2ByDefault(String id, String name, String boundaryLineId, double r, double x,
+    private void createTieLineWithBoundaryLine2ByDefault(String id, String name, String boundaryLineId, double r, double x,
                                                          double g, double b, String code) {
         BoundaryLine dl1 = voltageLevelA.newBoundaryLine()
                 .setBus("busA")
