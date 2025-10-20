@@ -24,8 +24,15 @@ class DcDetailedSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testNetworkDcDetailed() throws IOException {
         Network network = createBaseNetwork();
-        // network.write("XIIDM", new Properties(), Paths.get("D:\\powsybl-dev\\powsybl-core\\iidm\\iidm-serde\\src\\test\\resources\\V1_15\\dcDetailedRoundTripRef.xml"));
+//        network.write("XIIDM", new Properties(), Paths.get("D:\\powsybl-dev\\powsybl-core\\iidm\\iidm-serde\\src\\test\\resources\\V1_15\\dcDetailedRoundTripRef.xml"));
         allFormatsRoundTripTest(network, "/dcDetailedRoundTripRef.xml", CURRENT_IIDM_VERSION);
+    }
+
+    @Test
+    void testNetworkDcDetailed2() throws IOException {
+        Network network = createBaseNetwork2();
+//        network.write("XIIDM", new Properties(), Paths.get("D:\\powsybl-dev\\powsybl-core\\iidm\\iidm-serde\\src\\test\\resources\\V1_15\\dcDetailedRoundTripRef2.xml"));
+        allFormatsRoundTripTest(network, "/dcDetailedRoundTripRef2.xml", CURRENT_IIDM_VERSION);
     }
 
     private static Network createBaseNetwork() {
@@ -41,6 +48,15 @@ class DcDetailedSerDeTest extends AbstractIidmSerDeTest {
                         .getDcTerminal1().setI(1.1).setP(2.2);
         network.getDcLine("dcLineSegmentFrPosA")
                         .getDcTerminal2().setConnected(false);
+        network.setCaseDate(caseDate);
+        network.getSubnetworks().forEach(subnetwork -> subnetwork.setCaseDate(caseDate));
+        return network;
+    }
+
+    private static Network createBaseNetwork2() {
+        // Create a base network
+        Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
+        ZonedDateTime caseDate = ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00");
         network.setCaseDate(caseDate);
         network.getSubnetworks().forEach(subnetwork -> subnetwork.setCaseDate(caseDate));
         return network;

@@ -114,6 +114,8 @@
                         <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensator"/>
                         <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
                         <xs:element name="lccConverterStation" type="iidm:LccConverterStation"/>
+                        <xs:element name="voltageSourceConverter" type="iidm:VoltageSourceConverter"/>
+                        <xs:element name="lineCommutatedConverter" type="iidm:LineCommutatedConverter"/>
                         <xs:element name="ground" type="iidm:Ground"/>
                     </xs:choice>
                 </xs:sequence>
@@ -521,6 +523,61 @@
                 <xs:attribute name="enabled" use="optional" type="xs:boolean"/>
                 <xs:attribute name="monitoredElementId" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="side" use="optional" type="iidm:Side"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="AcDcConverterControlMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="P_PCC"/>
+            <xs:enumeration value="V_DC"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="AcDcConverter">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="dcConnected1" use="required" type="xs:boolean"/>
+                <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="dcConnected2" use="required" type="xs:boolean"/>
+                <xs:attribute name="idleLoss" use="required" type="xs:double"/>
+                <xs:attribute name="switchingLoss" use="required" type="xs:double"/>
+                <xs:attribute name="resistiveLoss" use="required" type="xs:double"/>
+                <xs:attribute name="controlMode" use="required" type="iidm:AcDcConverterControlMode"/>
+                <xs:attribute name="targetP" use="optional" type="xs:double"/>
+                <xs:attribute name="targetVdc" use="optional" type="xs:double"/>
+                <xs:attribute name="node1" use="optional" type="xs:int"/>
+                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="node2" use="optional" type="xs:int"/>
+                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="p1" use="optional" type="xs:double"/>
+                <xs:attribute name="q1" use="optional" type="xs:double"/>
+                <xs:attribute name="p2" use="optional" type="xs:double"/>
+                <xs:attribute name="q2" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="LineCommutatedConverterReactiveModel">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="FIXED_POWER_FACTOR"/>
+            <xs:enumeration value="CALCULATED_POWER_FACTOR"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="LineCommutatedConverter">
+        <xs:complexContent>
+            <xs:extension base="iidm:AcDcConverter">
+                <xs:attribute name="reactiveModel" use="required" type="iidm:LineCommutatedConverterReactiveModel"/>
+                <xs:attribute name="powerFactor" use="required" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="VoltageSourceConverter">
+        <xs:complexContent>
+            <xs:extension base="iidm:AcDcConverter">
+                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
+                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
+                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

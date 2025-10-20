@@ -71,6 +71,8 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         writeStaticVarCompensators(vl, context);
         writeVscConverterStations(vl, context);
         writeLccConverterStations(vl, context);
+        writeVoltageSourceConverters(vl, context);
+        writeLineCommutatedConverters(vl, context);
         writeGrounds(vl, context);
     }
 
@@ -269,6 +271,28 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeEndNodes();
     }
 
+    private void writeVoltageSourceConverters(VoltageLevel vl, NetworkSerializerContext context) {
+        context.getWriter().writeStartNodes();
+        for (VoltageSourceConverter vsc : IidmSerDeUtil.sorted(vl.getVoltageSourceConverters(), context.getOptions())) {
+            if (!context.getFilter().test(vsc)) {
+                continue;
+            }
+            VoltageSourceConverterSerDe.INSTANCE.write(vsc, vl, context);
+        }
+        context.getWriter().writeEndNodes();
+    }
+
+    private void writeLineCommutatedConverters(VoltageLevel vl, NetworkSerializerContext context) {
+        context.getWriter().writeStartNodes();
+        for (LineCommutatedConverter lcc : IidmSerDeUtil.sorted(vl.getLineCommutatedConverters(), context.getOptions())) {
+            if (!context.getFilter().test(lcc)) {
+                continue;
+            }
+            LineCommutatedConverterSerDe.INSTANCE.write(lcc, vl, context);
+        }
+        context.getWriter().writeEndNodes();
+    }
+
     private void writeGrounds(VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
         for (Ground g : IidmSerDeUtil.sorted(vl.getGrounds(), context.getOptions())) {
@@ -320,6 +344,8 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 case VscConverterStationSerDe.ROOT_ELEMENT_NAME -> VscConverterStationSerDe.INSTANCE.read(vl, context);
                 case LccConverterStationSerDe.ROOT_ELEMENT_NAME -> LccConverterStationSerDe.INSTANCE.read(vl, context);
                 case GroundSerDe.ROOT_ELEMENT_NAME -> GroundSerDe.INSTANCE.read(vl, context);
+                case LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME -> LineCommutatedConverterSerDe.INSTANCE.read(vl, context);
+                case VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME -> VoltageSourceConverterSerDe.INSTANCE.read(vl, context);
                 default -> readSubElement(elementName, vl, context);
             }
         });

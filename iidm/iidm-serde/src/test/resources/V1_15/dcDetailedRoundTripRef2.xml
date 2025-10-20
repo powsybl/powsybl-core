@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" id="VscSymmetricalMonopole+FR+GB" caseDate="2025-01-02T03:04:05.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:network id="VscSymmetricalMonopole" caseDate="2025-01-02T03:04:05.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+        <iidm:dcNode id="dcNodeGbNeg" nominalV="250.0"/>
+        <iidm:dcNode id="dcNodeGbPos" nominalV="250.0"/>
+        <iidm:dcNode id="dcNodeFrNeg" nominalV="250.0"/>
+        <iidm:dcNode id="dcNodeFrPos" nominalV="250.0"/>
+        <iidm:dcLine id="dcLineNeg" dcNode1="dcNodeFrNeg" dcNode2="dcNodeGbNeg" r="5.0" connected1="true" connected2="true"/>
+        <iidm:dcLine id="dcLinePos" dcNode1="dcNodeFrPos" dcNode2="dcNodeGbPos" r="5.0" connected1="true" connected2="true"/>
+        <iidm:substation id="SDC-GB-xNodeDc1gb">
+            <iidm:voltageLevel id="VLDC-GB-xNodeDc1gb-400" nominalV="400.0" lowVoltageLimit="380.0" highVoltageLimit="420.0" topologyKind="BUS_BREAKER">
+                <iidm:busBreakerTopology>
+                    <iidm:bus id="BUSDC-GB-xNodeDc1gb-400"/>
+                </iidm:busBreakerTopology>
+                <iidm:danglingLine id="DLDC-GB-xNodeDc1gb" p0="200.0" q0="0.0" r="0.3" x="3.0" g="0.0" b="0.0" bus="BUSDC-GB-xNodeDc1gb-400" connectableBus="BUSDC-GB-xNodeDc1gb-400" pairingKey="xNodeDc1gb"/>
+            </iidm:voltageLevel>
+            <iidm:voltageLevel id="VLDC-GB-xNodeDc1gb-150" nominalV="150.0" lowVoltageLimit="120.0" highVoltageLimit="180.0" topologyKind="BUS_BREAKER">
+                <iidm:busBreakerTopology>
+                    <iidm:bus id="BUSDC-GB-xNodeDc1gb-150"/>
+                </iidm:busBreakerTopology>
+                <iidm:voltageSourceConverter id="VscGb" dcNode1="dcNodeGbNeg" dcConnected1="true" dcNode2="dcNodeGbPos" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-200.0" targetVdc="500.0" bus1="BUSDC-GB-xNodeDc1gb-150" connectableBus1="BUSDC-GB-xNodeDc1gb-150" voltageRegulatorOn="false" voltageSetpoint="400.0" reactivePowerSetpoint="0.0"/>
+            </iidm:voltageLevel>
+            <iidm:twoWindingsTransformer id="TRDC-GB-xNodeDc1gb" r="0.1" x="5.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="150.0" voltageLevelId1="VLDC-GB-xNodeDc1gb-400" bus1="BUSDC-GB-xNodeDc1gb-400" connectableBus1="BUSDC-GB-xNodeDc1gb-400" voltageLevelId2="VLDC-GB-xNodeDc1gb-150" bus2="BUSDC-GB-xNodeDc1gb-150" connectableBus2="BUSDC-GB-xNodeDc1gb-150"/>
+        </iidm:substation>
+        <iidm:substation id="SDC-FR-xNodeDc1fr">
+            <iidm:voltageLevel id="VLDC-FR-xNodeDc1fr-400" nominalV="400.0" lowVoltageLimit="380.0" highVoltageLimit="420.0" topologyKind="BUS_BREAKER">
+                <iidm:busBreakerTopology>
+                    <iidm:bus id="BUSDC-FR-xNodeDc1fr-400"/>
+                </iidm:busBreakerTopology>
+                <iidm:danglingLine id="DLDC-FR-xNodeDc1fr" p0="-200.0" q0="0.0" r="0.3" x="3.0" g="0.0" b="0.0" bus="BUSDC-FR-xNodeDc1fr-400" connectableBus="BUSDC-FR-xNodeDc1fr-400" pairingKey="xNodeDc1fr"/>
+            </iidm:voltageLevel>
+            <iidm:voltageLevel id="VLDC-FR-xNodeDc1fr-150" nominalV="150.0" lowVoltageLimit="120.0" highVoltageLimit="180.0" topologyKind="BUS_BREAKER">
+                <iidm:busBreakerTopology>
+                    <iidm:bus id="BUSDC-FR-xNodeDc1fr-150"/>
+                </iidm:busBreakerTopology>
+                <iidm:voltageSourceConverter id="VscFr" dcNode1="dcNodeFrNeg" dcConnected1="true" dcNode2="dcNodeFrPos" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="200.0" targetVdc="500.0" bus1="BUSDC-FR-xNodeDc1fr-150" connectableBus1="BUSDC-FR-xNodeDc1fr-150" voltageRegulatorOn="false" voltageSetpoint="400.0" reactivePowerSetpoint="0.0"/>
+            </iidm:voltageLevel>
+            <iidm:twoWindingsTransformer id="TRDC-FR-xNodeDc1fr" r="0.1" x="5.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="150.0" voltageLevelId1="VLDC-FR-xNodeDc1fr-400" bus1="BUSDC-FR-xNodeDc1fr-400" connectableBus1="BUSDC-FR-xNodeDc1fr-400" voltageLevelId2="VLDC-FR-xNodeDc1fr-150" bus2="BUSDC-FR-xNodeDc1fr-150" connectableBus2="BUSDC-FR-xNodeDc1fr-150"/>
+        </iidm:substation>
+    </iidm:network>
+    <iidm:network id="FR" caseDate="2025-01-02T03:04:05.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+        <iidm:substation id="S-FR" country="FR">
+            <iidm:voltageLevel id="VL-FR" nominalV="400.0" lowVoltageLimit="380.0" highVoltageLimit="420.0" topologyKind="BUS_BREAKER">
+                <iidm:busBreakerTopology>
+                    <iidm:bus id="BUS-FR"/>
+                </iidm:busBreakerTopology>
+                <iidm:generator id="GEN-FR" energySource="OTHER" minP="0.0" maxP="4000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="BUS-FR" connectableBus="BUS-FR">
+                    <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                </iidm:generator>
+                <iidm:load id="LOAD-FR" loadType="UNDEFINED" p0="1800.0" q0="0.0" bus="BUS-FR" connectableBus="BUS-FR"/>
+                <iidm:danglingLine id="DLAC-FR-xNodeDc1fr" p0="200.0" q0="0.0" r="0.3" x="3.0" g="0.0" b="0.0" bus="BUS-FR" connectableBus="BUS-FR" pairingKey="xNodeDc1fr"/>
+            </iidm:voltageLevel>
+        </iidm:substation>
+    </iidm:network>
+    <iidm:network id="GB" caseDate="2025-01-02T03:04:05.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+        <iidm:substation id="S-GB" country="GB">
+            <iidm:voltageLevel id="VL-GB" nominalV="400.0" lowVoltageLimit="380.0" highVoltageLimit="420.0" topologyKind="BUS_BREAKER">
+                <iidm:busBreakerTopology>
+                    <iidm:bus id="BUS-GB"/>
+                </iidm:busBreakerTopology>
+                <iidm:generator id="GEN-GB" energySource="OTHER" minP="0.0" maxP="4000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="BUS-GB" connectableBus="BUS-GB">
+                    <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                </iidm:generator>
+                <iidm:load id="LOAD-GB" loadType="UNDEFINED" p0="2200.0" q0="0.0" bus="BUS-GB" connectableBus="BUS-GB"/>
+                <iidm:danglingLine id="DLAC-GB-xNodeDc1gb" p0="-200.0" q0="0.0" r="0.3" x="3.0" g="0.0" b="0.0" bus="BUS-GB" connectableBus="BUS-GB" pairingKey="xNodeDc1gb"/>
+            </iidm:voltageLevel>
+        </iidm:substation>
+    </iidm:network>
+    <iidm:tieLine id="DLAC-FR-xNodeDc1fr + DLDC-FR-xNodeDc1fr" danglingLineId1="DLAC-FR-xNodeDc1fr" danglingLineId2="DLDC-FR-xNodeDc1fr"/>
+    <iidm:tieLine id="DLAC-GB-xNodeDc1gb + DLDC-GB-xNodeDc1gb" danglingLineId1="DLAC-GB-xNodeDc1gb" danglingLineId2="DLDC-GB-xNodeDc1gb"/>
+</iidm:network>
