@@ -52,10 +52,10 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
             String line = reader.readUntilFindingARecordLineNotEmpty();
             context.detectDelimiter(line);
 
+            // Read the 3 lines and concatenate them to form a single line
+            String fullLine = String.join(String.valueOf(context.getDelimiter()), line, reader.readLine(), reader.readLine());
             String[] headers = recordGroup.fieldNames(context.getVersion());
-            PsseCaseIdentification caseIdentification = recordGroup.parseSingleRecord(line, headers, context);
-            caseIdentification.setTitle1(reader.readLine());
-            caseIdentification.setTitle2(reader.readLine());
+            PsseCaseIdentification caseIdentification = recordGroup.parseSingleRecord(fullLine, headers, context);
 
             context.setFieldNames(recordGroup.getIdentification(), headers);
             context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
