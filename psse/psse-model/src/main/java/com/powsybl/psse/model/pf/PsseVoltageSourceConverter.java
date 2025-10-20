@@ -7,9 +7,13 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import java.util.Optional;
 
 /**
  *
@@ -18,59 +22,95 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseVoltageSourceConverter extends PsseVersioned {
 
-    @Parsed
     private int ibus;
-
-    @Parsed
     private int type;
-
-    @Parsed
     private int mode = 1;
-
-    @Parsed
     private double dcset;
-
-    @Parsed
     private double acset = 1.0;
-
-    @Parsed
     private double aloss = 0.0;
-
-    @Parsed
     private double bloss = 0.0;
-
-    @Parsed
     private double minloss = 0.0;
-
-    @Parsed
     private double smax = 0.0;
-
-    @Parsed
     private double imax = 0.0;
-
-    @Parsed
     private double pwf = 1.0;
-
-    @Parsed
     private double maxq = 9999.0;
-
-    @Parsed
     private double minq = -9999.0;
 
-    @Parsed
     @Revision(until = 33)
     private int remot = 0;
 
-    @Parsed
     private double rmpct = 100.0;
 
-    @Parsed
     @Revision(since = 35)
     private int vsreg = 0;
 
-    @Parsed
     @Revision(since = 35)
     private int nreg = 0;
+
+    public static PsseVoltageSourceConverter fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        return fromRecord(rec, version, "");
+    }
+
+    public static PsseVoltageSourceConverter fromRecord(NamedCsvRecord rec, PsseVersion version, String headerSuffix) {
+        PsseVoltageSourceConverter psseVoltageSourceConverter = new PsseVoltageSourceConverter();
+        psseVoltageSourceConverter.setIbus(Integer.parseInt(rec.getField("ibus" + headerSuffix)));
+        psseVoltageSourceConverter.setType(Integer.parseInt(rec.getField("type" + headerSuffix)));
+        psseVoltageSourceConverter.setMode(Integer.parseInt(rec.getField("mode" + headerSuffix)));
+        psseVoltageSourceConverter.setDcset(Double.parseDouble(rec.getField("dcset" + headerSuffix)));
+        psseVoltageSourceConverter.setAcset(Double.parseDouble(rec.getField("acset" + headerSuffix)));
+        psseVoltageSourceConverter.setAloss(Double.parseDouble(rec.getField("aloss" + headerSuffix)));
+        psseVoltageSourceConverter.setBloss(Double.parseDouble(rec.getField("bloss" + headerSuffix)));
+        psseVoltageSourceConverter.setMinloss(Double.parseDouble(rec.getField("minloss" + headerSuffix)));
+        psseVoltageSourceConverter.setSmax(Double.parseDouble(rec.getField("smax" + headerSuffix)));
+        psseVoltageSourceConverter.setImax(Double.parseDouble(rec.getField("imax" + headerSuffix)));
+        psseVoltageSourceConverter.setPwf(Double.parseDouble(rec.getField("pwf" + headerSuffix)));
+        psseVoltageSourceConverter.setMaxq(Double.parseDouble(rec.getField("maxq" + headerSuffix)));
+        psseVoltageSourceConverter.setMinq(Double.parseDouble(rec.getField("minq" + headerSuffix)));
+        if (version.getMajorNumber() <= 33) {
+            psseVoltageSourceConverter.setRemot(Integer.parseInt(rec.getField("remot" + headerSuffix)));
+        }
+        psseVoltageSourceConverter.setRmpct(Double.parseDouble(rec.getField("rmpct" + headerSuffix)));
+        if (version.getMajorNumber() >= 35) {
+            psseVoltageSourceConverter.setVsreg(Integer.parseInt(rec.getField("vsreg" + headerSuffix)));
+            psseVoltageSourceConverter.setNreg(Integer.parseInt(rec.getField("nreg" + headerSuffix)));
+        }
+        return psseVoltageSourceConverter;
+    }
+
+    public static String[] toRecord(PsseVoltageSourceConverter psseVoltageSourceConverter, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            Optional<String> optionalValue = psseVoltageSourceConverter.headerToString(headers[i]);
+            if (optionalValue.isEmpty()) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = optionalValue.get();
+        }
+        return row;
+    }
+
+    public Optional<String> headerToString(String header) {
+        return switch (header) {
+            case "ibus" -> Optional.of(String.valueOf(getIbus()));
+            case "type" -> Optional.of(String.valueOf(getType()));
+            case "mode" -> Optional.of(String.valueOf(getMode()));
+            case "dcset" -> Optional.of(String.valueOf(getDcset()));
+            case "acset" -> Optional.of(String.valueOf(getAcset()));
+            case "aloss" -> Optional.of(String.valueOf(getAloss()));
+            case "bloss" -> Optional.of(String.valueOf(getBloss()));
+            case "minloss" -> Optional.of(String.valueOf(getMinloss()));
+            case "smax" -> Optional.of(String.valueOf(getSmax()));
+            case "imax" -> Optional.of(String.valueOf(getImax()));
+            case "pwf" -> Optional.of(String.valueOf(getPwf()));
+            case "maxq" -> Optional.of(String.valueOf(getMaxq()));
+            case "minq" -> Optional.of(String.valueOf(getMinq()));
+            case "remot" -> Optional.of(String.valueOf(getRemot()));
+            case "rmpct" -> Optional.of(String.valueOf(getRmpct()));
+            case "vsreg" -> Optional.of(String.valueOf(getVsreg()));
+            case "nreg" -> Optional.of(String.valueOf(getNreg()));
+            default -> Optional.empty();
+        };
+    }
 
     public int getIbus() {
         return ibus;

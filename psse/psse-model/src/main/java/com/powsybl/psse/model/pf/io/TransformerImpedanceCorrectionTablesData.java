@@ -8,11 +8,14 @@
 package com.powsybl.psse.model.pf.io;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.io.*;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.io.LegacyTextReader;
+import com.powsybl.psse.model.io.RecordGroupIOJson;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseTransformerImpedanceCorrection;
 import com.powsybl.psse.model.pf.PsseTransformerImpedanceCorrectionPoint;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.Parsed;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
@@ -131,73 +134,28 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         public static class ZCorr33 {
 
-            @Parsed
             private int i;
-
-            @Parsed
             private double t1 = 0.0;
-
-            @Parsed
             private double f1 = 0.0;
-
-            @Parsed
             private double t2 = 0.0;
-
-            @Parsed
             private double f2 = 0.0;
-
-            @Parsed
             private double t3 = 0.0;
-
-            @Parsed
             private double f3 = 0.0;
-
-            @Parsed
             private double t4 = 0.0;
-
-            @Parsed
             private double f4 = 0.0;
-
-            @Parsed
             private double t5 = 0.0;
-
-            @Parsed
             private double f5 = 0.0;
-
-            @Parsed
             private double t6 = 0.0;
-
-            @Parsed
             private double f6 = 0.0;
-
-            @Parsed
             private double t7 = 0.0;
-
-            @Parsed
             private double f7 = 0.0;
-
-            @Parsed
             private double t8 = 0.0;
-
-            @Parsed
             private double f8 = 0.0;
-
-            @Parsed
             private double t9 = 0.0;
-
-            @Parsed
             private double f9 = 0.0;
-
-            @Parsed
             private double t10 = 0.0;
-
-            @Parsed
             private double f10 = 0.0;
-
-            @Parsed
             private double t11 = 0.0;
-
-            @Parsed
             private double f11 = 0.0;
 
             public int getI() {
@@ -507,10 +465,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         public static class ZCorr35First {
 
-            @Parsed
             private int i;
-
-            @Nested
             private ZCorr35Points points;
 
             public int getI() {
@@ -532,58 +487,23 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         public static class ZCorr35Points {
 
-            @Parsed
             private double t1 = 0.0;
-
-            @Parsed
             private double ref1 = 0.0;
-
-            @Parsed
             private double imf1 = 0.0;
-
-            @Parsed
             private double t2 = 0.0;
-
-            @Parsed
             private double ref2 = 0.0;
-
-            @Parsed
             private double imf2 = 0.0;
-
-            @Parsed
             private double t3 = 0.0;
-
-            @Parsed
             private double ref3 = 0.0;
-
-            @Parsed
             private double imf3 = 0.0;
-
-            @Parsed
             private double t4 = 0.0;
-
-            @Parsed
             private double ref4 = 0.0;
-
-            @Parsed
             private double imf4 = 0.0;
-
-            @Parsed
             private double t5 = 0.0;
-
-            @Parsed
             private double ref5 = 0.0;
-
-            @Parsed
             private double imf5 = 0.0;
-
-            @Parsed
             private double t6 = 0.0;
-
-            @Parsed
             private double ref6 = 0.0;
-
-            @Parsed
             private double imf6 = 0.0;
 
             public double getT1() {
@@ -708,16 +628,9 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
                 this.imfact = imfact;
             }
 
-            @Parsed
             private int itable;
-
-            @Parsed
             private double tap;
-
-            @Parsed
             private double refact;
-
-            @Parsed
             private double imfact;
 
             public int getItable() {

@@ -7,12 +7,12 @@
  */
 package com.powsybl.psse.model.pf;
 
-import java.lang.reflect.Field;
-
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
-import com.univocity.parsers.annotations.HeaderTransformer;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import java.util.Optional;
 
 /**
  *
@@ -29,23 +29,50 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         converter2.setModel(model);
     }
 
-    @Parsed
     private String name;
-
-    @Parsed
     private int mdc = 1;
-
-    @Parsed
     private double rdc;
-
-    @Nested
     private PsseOwnership ownership;
-
-    @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "1")
     private PsseVoltageSourceConverter converter1;
-
-    @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "2")
     private PsseVoltageSourceConverter converter2;
+
+    public static PsseVoltageSourceConverterDcTransmissionLine fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverter = new PsseVoltageSourceConverterDcTransmissionLine();
+        psseVoltageSourceConverter.setName(rec.getField("name"));
+        psseVoltageSourceConverter.setMdc(Integer.parseInt(rec.getField("mdc")));
+        psseVoltageSourceConverter.setRdc(Double.parseDouble(rec.getField("rdc")));
+        psseVoltageSourceConverter.setOwnership(PsseOwnership.fromRecord(rec, version));
+        psseVoltageSourceConverter.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, version, "1"));
+        psseVoltageSourceConverter.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, version, "2"));
+        return psseVoltageSourceConverter;
+    }
+
+    public static String[] toRecord(PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverterDcTransmissionLine, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "name" -> psseVoltageSourceConverterDcTransmissionLine.getName();
+                case "mdc" -> String.valueOf(psseVoltageSourceConverterDcTransmissionLine.getMdc());
+                case "rdc" -> String.valueOf(psseVoltageSourceConverterDcTransmissionLine.getRdc());
+                default -> {
+                    Optional<String> optionalValue = psseVoltageSourceConverterDcTransmissionLine.getOwnership().headerToString(headers[i]);
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = psseVoltageSourceConverterDcTransmissionLine.getConverter1().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = psseVoltageSourceConverterDcTransmissionLine.getConverter2().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    throw new PsseException("Unsupported header: " + headers[i]);
+                }
+            };
+        }
+        return row;
+    }
 
     public String getName() {
         return name;
@@ -104,18 +131,5 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         copy.converter1 = this.converter1.copy();
         copy.converter2 = this.converter2.copy();
         return copy;
-    }
-
-    public static class ConverterHeaderTransformer extends HeaderTransformer {
-        private final String converterChar;
-
-        public ConverterHeaderTransformer(String... args) {
-            converterChar = args[0];
-        }
-
-        @Override
-        public String transformName(Field field, String name) {
-            return name + converterChar;
-        }
     }
 }

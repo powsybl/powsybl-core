@@ -7,12 +7,17 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
 
 import java.util.Objects;
+import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
 
 /**
  *
@@ -27,54 +32,92 @@ public class PsseNonTransformerBranch extends PsseVersioned {
         rates.setModel(model);
     }
 
-    @Parsed(field = {"i", "ibus"})
     private int i;
-
-    @Parsed(field = {"j", "jbus"})
     private int j;
-
-    @Parsed(defaultNullRead = "1")
     private String ckt;
-
-    @Parsed(field = {"r", "rpu"})
     private double r = 0.0;
-
-    @Parsed(field = {"x", "xpu"})
     private double x;
-
-    @Parsed(field = {"b", "bpu"})
     private double b = 0;
-
-    @Nested
     private PsseRates rates;
-
-    @Parsed
     private double gi = 0;
-
-    @Parsed
     private double bi = 0;
-
-    @Parsed
     private double gj = 0;
-
-    @Parsed
     private double bj = 0;
-
-    @Parsed(field = {"st", "stat"})
     private int st = 1;
-
-    @Parsed
     private int met = 1;
-
-    @Parsed
     private double len = 0;
-
-    @Nested
     private PsseOwnership ownership;
 
-    @Parsed(defaultNullRead = " ")
     @Revision(since = 35)
     private String name = " ";
+
+    public static PsseNonTransformerBranch fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseNonTransformerBranch psseNonTransformerBranch = new PsseNonTransformerBranch();
+        psseNonTransformerBranch.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
+        psseNonTransformerBranch.setJ(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "j", "jbus")));
+        psseNonTransformerBranch.setCkt(defaultIfEmpty(rec.getField("ckt"), "1"));
+        psseNonTransformerBranch.setR(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "r", "rpu")));
+        psseNonTransformerBranch.setX(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "x", "xpu")));
+        psseNonTransformerBranch.setB(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "b", "bpu")));
+        psseNonTransformerBranch.setRates(PsseRates.fromRecord(rec, version));
+        psseNonTransformerBranch.setGi(Double.parseDouble(rec.getField("gi")));
+        psseNonTransformerBranch.setBi(Double.parseDouble(rec.getField("bi")));
+        psseNonTransformerBranch.setGj(Double.parseDouble(rec.getField("gj")));
+        psseNonTransformerBranch.setBj(Double.parseDouble(rec.getField("bj")));
+        psseNonTransformerBranch.setSt(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "st", "stat")));
+        psseNonTransformerBranch.setMet(Integer.parseInt(rec.getField("met")));
+        psseNonTransformerBranch.setLen(Double.parseDouble(rec.getField("len")));
+        psseNonTransformerBranch.setOwnership(PsseOwnership.fromRecord(rec, version));
+        if (version.getMajorNumber() >= 35) {
+            psseNonTransformerBranch.setName(defaultIfEmpty(rec.getField("name"), " "));
+        }
+        return psseNonTransformerBranch;
+    }
+
+    public static String[] toRecord(PsseNonTransformerBranch psseNonTransformerBranch, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "ibus" -> String.valueOf(psseNonTransformerBranch.getI());
+                case "j", "jbus" -> String.valueOf(psseNonTransformerBranch.getJ());
+                case "ckt" -> psseNonTransformerBranch.getCkt();
+                case "r", "rpu" -> String.valueOf(psseNonTransformerBranch.getR());
+                case "x", "xpu" -> String.valueOf(psseNonTransformerBranch.getX());
+                case "b", "bpu" -> String.valueOf(psseNonTransformerBranch.getB());
+                case "ratea", "rata" -> String.valueOf(psseNonTransformerBranch.getRates().getRatea());
+                case "rateb", "ratb" -> String.valueOf(psseNonTransformerBranch.getRates().getRateb());
+                case "ratec", "ratc" -> String.valueOf(psseNonTransformerBranch.getRates().getRatec());
+                case "rate1", "wdgrate1" -> String.valueOf(psseNonTransformerBranch.getRates().getRate1());
+                case "rate2", "wdgrate2" -> String.valueOf(psseNonTransformerBranch.getRates().getRate2());
+                case "rate3", "wdgrate3" -> String.valueOf(psseNonTransformerBranch.getRates().getRate3());
+                case "rate4", "wdgrate4" -> String.valueOf(psseNonTransformerBranch.getRates().getRate4());
+                case "rate5", "wdgrate5" -> String.valueOf(psseNonTransformerBranch.getRates().getRate5());
+                case "rate6", "wdgrate6" -> String.valueOf(psseNonTransformerBranch.getRates().getRate6());
+                case "rate7", "wdgrate7" -> String.valueOf(psseNonTransformerBranch.getRates().getRate7());
+                case "rate8", "wdgrate8" -> String.valueOf(psseNonTransformerBranch.getRates().getRate8());
+                case "rate9", "wdgrate9" -> String.valueOf(psseNonTransformerBranch.getRates().getRate9());
+                case "rate10", "wdgrate10" -> String.valueOf(psseNonTransformerBranch.getRates().getRate10());
+                case "rate11", "wdgrate11" -> String.valueOf(psseNonTransformerBranch.getRates().getRate11());
+                case "rate12", "wdgrate12" -> String.valueOf(psseNonTransformerBranch.getRates().getRate12());
+                case "gi" -> String.valueOf(psseNonTransformerBranch.getGi());
+                case "bi" -> String.valueOf(psseNonTransformerBranch.getBi());
+                case "gj" -> String.valueOf(psseNonTransformerBranch.getGj());
+                case "bj" -> String.valueOf(psseNonTransformerBranch.getBj());
+                case "st", "stat" -> String.valueOf(psseNonTransformerBranch.getSt());
+                case "met" -> String.valueOf(psseNonTransformerBranch.getMet());
+                case "len" -> String.valueOf(psseNonTransformerBranch.getLen());
+                case "name" -> psseNonTransformerBranch.getName();
+                default -> {
+                    Optional<String> optionalValue = psseNonTransformerBranch.getOwnership().headerToString(headers[i]);
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    throw new PsseException("Unsupported header: " + headers[i]);
+                }
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;

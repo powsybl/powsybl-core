@@ -7,9 +7,13 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
 
 /**
  *
@@ -18,77 +22,123 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseFacts extends PsseVersioned {
 
-    @Parsed(defaultNullRead = "")
+    private static final String STRING_REMOT = "remot";
+    private static final String STRING_FCREG = "fcreg";
+    private static final String STRING_NREG = "nreg";
+
     private String name;
 
-    @Parsed(field = {"i", "ibus"})
     private int i;
 
-    @Parsed(field = {"j", "jbus"})
     private int j = 0;
 
-    @Parsed
     private int mode = 1;
 
-    @Parsed
     private double pdes = 0.0;
 
-    @Parsed
     private double qdes = 0.0;
 
-    @Parsed
     private double vset = 1.0;
 
-    @Parsed
     private double shmx = 9999.0;
 
-    @Parsed
     private double trmx = 9999.0;
 
-    @Parsed
     private double vtmn = 0.9;
 
-    @Parsed
     private double vtmx = 1.1;
 
-    @Parsed
     private double vsmx = 1.0;
 
-    @Parsed
     private double imx = 0.0;
 
-    @Parsed
     private double linx = 0.05;
 
-    @Parsed
     private double rmpct = 100.0;
 
-    @Parsed
     private int owner = 1;
 
-    @Parsed
     private double set1 = 0.0;
 
-    @Parsed
     private double set2 = 0.0;
 
-    @Parsed
     private int vsref = 0;
 
-    @Parsed
     @Revision(until = 33)
     private int remot = 0;
 
-    @Parsed(defaultNullRead = "")
     private String mname;
 
-    @Parsed
     @Revision(since = 35)
     private int fcreg = 0;
 
-    @Parsed
     @Revision(since = 35)
     private int nreg = 0;
+
+    public static PsseFacts fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseFacts psseFacts = new PsseFacts();
+        psseFacts.setName(rec.getField("name"));
+        psseFacts.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
+        psseFacts.setJ(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "j", "jbus")));
+        psseFacts.setMode(Integer.parseInt(rec.getField("mode")));
+        psseFacts.setPdes(Double.parseDouble(rec.getField("pdes")));
+        psseFacts.setQdes(Double.parseDouble(rec.getField("qdes")));
+        psseFacts.setVset(Double.parseDouble(rec.getField("vset")));
+        psseFacts.setShmx(Double.parseDouble(rec.getField("shmx")));
+        psseFacts.setTrmx(Double.parseDouble(rec.getField("trmx")));
+        psseFacts.setVtmn(Double.parseDouble(rec.getField("vtmn")));
+        psseFacts.setVtmx(Double.parseDouble(rec.getField("vtmx")));
+        psseFacts.setVsmx(Double.parseDouble(rec.getField("vsmx")));
+        psseFacts.setImx(Double.parseDouble(rec.getField("imx")));
+        psseFacts.setLinx(Double.parseDouble(rec.getField("linx")));
+        psseFacts.setRmpct(Double.parseDouble(rec.getField("rmpct")));
+        psseFacts.setOwner(Integer.parseInt(rec.getField("owner")));
+        psseFacts.setSet1(Double.parseDouble(rec.getField("set1")));
+        psseFacts.setSet2(Double.parseDouble(rec.getField("set2")));
+        psseFacts.setVsref(Integer.parseInt(rec.getField("vsref")));
+        if (version.getMajorNumber() <= 33) {
+            psseFacts.setRemot(Integer.parseInt(rec.getField(STRING_REMOT)));
+        }
+        psseFacts.setMname(rec.getField("mname"));
+        if (version.getMajorNumber() >= 35) {
+            psseFacts.setFcreg(Integer.parseInt(rec.getField(STRING_FCREG)));
+            psseFacts.setNreg(Integer.parseInt(rec.getField(STRING_NREG)));
+        }
+        return psseFacts;
+    }
+
+    public static String[] toRecord(PsseFacts psseFacts, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "name" -> psseFacts.getName();
+                case "i", "ibus" -> String.valueOf(psseFacts.getI());
+                case "j", "jbus" -> String.valueOf(psseFacts.getJ());
+                case "mode" -> String.valueOf(psseFacts.getMode());
+                case "pdes" -> String.valueOf(psseFacts.getPdes());
+                case "qdes" -> String.valueOf(psseFacts.getQdes());
+                case "vset" -> String.valueOf(psseFacts.getVset());
+                case "shmx" -> String.valueOf(psseFacts.getShmx());
+                case "trmx" -> String.valueOf(psseFacts.getTrmx());
+                case "vtmn" -> String.valueOf(psseFacts.getVtmn());
+                case "vtmx" -> String.valueOf(psseFacts.getVtmx());
+                case "vsmx" -> String.valueOf(psseFacts.getVsmx());
+                case "imx" -> String.valueOf(psseFacts.getImx());
+                case "linx" -> String.valueOf(psseFacts.getLinx());
+                case "rmpct" -> String.valueOf(psseFacts.getRmpct());
+                case "owner" -> String.valueOf(psseFacts.getOwner());
+                case "set1" -> String.valueOf(psseFacts.getSet1());
+                case "set2" -> String.valueOf(psseFacts.getSet2());
+                case "vsref" -> String.valueOf(psseFacts.getVsref());
+                case STRING_REMOT -> String.valueOf(psseFacts.getRemot());
+                case "mname" -> psseFacts.getMname();
+                case STRING_FCREG -> String.valueOf(psseFacts.getFcreg());
+                case STRING_NREG -> String.valueOf(psseFacts.getNreg());
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public String getName() {
         return name;
@@ -243,7 +293,7 @@ public class PsseFacts extends PsseVersioned {
     }
 
     public int getRemot() {
-        checkVersion("remot");
+        checkVersion(STRING_REMOT);
         return remot;
     }
 
@@ -260,7 +310,7 @@ public class PsseFacts extends PsseVersioned {
     }
 
     public int getFcreg() {
-        checkVersion("fcreg");
+        checkVersion(STRING_FCREG);
         return fcreg;
     }
 
@@ -269,7 +319,7 @@ public class PsseFacts extends PsseVersioned {
     }
 
     public int getNreg() {
-        checkVersion("nreg");
+        checkVersion(STRING_NREG);
         return nreg;
     }
 

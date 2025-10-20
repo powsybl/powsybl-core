@@ -26,6 +26,35 @@ public class PsseTransformerImpedanceCorrectionPoint extends PsseVersioned {
     @Revision(since = 35)
     private double imf;
 
+    // TODO: check if needed
+//    public static PsseTransformerImpedanceCorrectionPoint fromRecord(NamedCsvRecord rec, PsseVersion version) {
+//        double t = Double.parseDouble(rec.getField("t"));
+//        if (version.getMajorNumber() <= 33) {
+//            double f = Double.parseDouble(rec.getField("f"));
+//            return new PsseTransformerImpedanceCorrectionPoint(t, f);
+//        }
+//        if (version.getMajorNumber() >= 35) {
+//            double ref = Double.parseDouble(rec.getField("ref"));
+//            double imf = Double.parseDouble(rec.getField("imf"));
+//            return new PsseTransformerImpedanceCorrectionPoint(t, ref, imf);
+//        }
+//        throw new PsseException("Unexpected version " + version.getMajorNumber());
+//    }
+//
+//    public static String[] toRecord(PsseTransformerImpedanceCorrectionPoint psseTransformerImpedanceCorrectionPoint, String[] headers) {
+//        String[] row = new String[headers.length];
+//        for (int i = 0; i < headers.length; i++) {
+//            row[i] = switch (headers[i]) {
+//                case "t" -> String.valueOf(psseTransformerImpedanceCorrectionPoint.getT());
+//                case "f" -> String.valueOf(psseTransformerImpedanceCorrectionPoint.getF());
+//                case "ref" -> String.valueOf(psseTransformerImpedanceCorrectionPoint.getRef());
+//                case "imf" -> String.valueOf(psseTransformerImpedanceCorrectionPoint.getImf());
+//                default -> throw new PsseException("Unsupported header: " + headers[i]);
+//            };
+//        }
+//        return row;
+//    }
+
     public PsseTransformerImpedanceCorrectionPoint(double t, double f) {
         this.t = t;
         this.f = f;

@@ -11,19 +11,28 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import com.univocity.parsers.common.processor.BeanListProcessor;
-import com.univocity.parsers.common.processor.BeanWriterProcessor;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
-import com.univocity.parsers.csv.CsvWriter;
-import com.univocity.parsers.csv.CsvWriterSettings;
+import com.powsybl.psse.model.pf.*;
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.writer.CsvWriter;
+import de.siegmar.fastcsv.writer.QuoteStrategy;
+import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 import static com.powsybl.psse.model.io.FileFormat.JSON;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
@@ -34,6 +43,7 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
  */
 public abstract class AbstractRecordGroup<T> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRecordGroup.class);
     protected final RecordGroupIdentification identification;
     private final String[] fieldNames;
     private final Map<PsseVersion.Major, String[]> fieldNamesByVersionMajor = new EnumMap<>(PsseVersion.Major.class);
@@ -160,37 +170,139 @@ public abstract class AbstractRecordGroup<T> {
         return parseRecords(Collections.singletonList(record), headers, context).get(0);
     }
 
+    private static final Map<Class<?>, MapperFrom<?>> MAPPERS_FROM_RECORD = getMappersFromRecord();
+
+    private static final Map<Class<?>, MapperTo<?>> MAPPERS_TO_RECORD = getMappersToRecord();
+
+    private static Map<Class<?>, MapperFrom<?>> getMappersFromRecord() {
+        Map<Class<?>, MapperFrom<?>> mappers = new HashMap<>();
+        mappers.put(PsseArea.class, (MapperFrom<PsseArea>) PsseArea::fromRecord);
+        mappers.put(PsseBus.class, (MapperFrom<PsseBus>) PsseBus::fromRecord);
+        mappers.put(PsseCaseIdentification.class, (MapperFrom<PsseCaseIdentification>) PsseCaseIdentification::fromRecord);
+        mappers.put(PsseFacts.class, (MapperFrom<PsseFacts>) PsseFacts::fromRecord);
+        mappers.put(PsseFixedShunt.class, (MapperFrom<PsseFixedShunt>) PsseFixedShunt::fromRecord);
+        mappers.put(PsseGenerator.class, (MapperFrom<PsseGenerator>) PsseGenerator::fromRecord);
+        mappers.put(PsseOwnership.class, (MapperFrom<PsseOwnership>) PsseOwnership::fromRecord);
+        mappers.put(PsseGneDevice.class, (MapperFrom<PsseGneDevice>) PsseGneDevice::fromRecord);
+        mappers.put(PsseInductionMachine.class, (MapperFrom<PsseInductionMachine>) PsseInductionMachine::fromRecord);
+        mappers.put(PsseInterareaTransfer.class, (MapperFrom<PsseInterareaTransfer>) PsseInterareaTransfer::fromRecord);
+        mappers.put(PsseLineGrouping.class, (MapperFrom<PsseLineGrouping>) PsseLineGrouping::fromRecord);
+        mappers.put(PsseLoad.class, (MapperFrom<PsseLoad>) PsseLoad::fromRecord);
+        mappers.put(PsseNonTransformerBranch.class, (MapperFrom<PsseNonTransformerBranch>) PsseNonTransformerBranch::fromRecord);
+        mappers.put(PsseOwner.class, (MapperFrom<PsseOwner>) PsseOwner::fromRecord);
+        mappers.put(PsseRates.class, (MapperFrom<PsseRates>) PsseRates::fromRecord);
+        mappers.put(PsseTransformer.class, (MapperFrom<PsseTransformer>) PsseTransformer::fromRecord);
+//        mappers.put(PsseTransformerImpedanceCorrectionPoint.class, (MapperFrom<PsseTransformerImpedanceCorrectionPoint>) PsseTransformerImpedanceCorrectionPoint::fromRecord);
+        mappers.put(PsseTransformerWinding.class, (MapperFrom<PsseTransformerWinding>) PsseTransformerWinding::fromRecord);
+        mappers.put(PsseTwoTerminalDcConverter.class, (MapperFrom<PsseTwoTerminalDcConverter>) PsseTwoTerminalDcConverter::fromRecord);
+        mappers.put(PsseTwoTerminalDcTransmissionLine.class, (MapperFrom<PsseTwoTerminalDcTransmissionLine>) PsseTwoTerminalDcTransmissionLine::fromRecord);
+        mappers.put(PsseVoltageSourceConverter.class, (MapperFrom<PsseVoltageSourceConverter>) PsseVoltageSourceConverter::fromRecord);
+        mappers.put(PsseVoltageSourceConverterDcTransmissionLine.class, (MapperFrom<PsseVoltageSourceConverterDcTransmissionLine>) PsseVoltageSourceConverterDcTransmissionLine::fromRecord);
+        mappers.put(PsseZone.class, (MapperFrom<PsseZone>) PsseZone::fromRecord);
+        return mappers;
+    }
+
+    private static Map<Class<?>, MapperTo<?>> getMappersToRecord() {
+        Map<Class<?>, MapperTo<?>> mappers = new HashMap<>();
+        mappers.put(PsseArea.class, (MapperTo<PsseArea>) PsseArea::toRecord);
+        mappers.put(PsseBus.class, (MapperTo<PsseBus>) PsseBus::toRecord);
+        mappers.put(PsseCaseIdentification.class, (MapperTo<PsseCaseIdentification>) PsseCaseIdentification::toRecord);
+        mappers.put(PsseFacts.class, (MapperTo<PsseFacts>) PsseFacts::toRecord);
+        mappers.put(PsseFixedShunt.class, (MapperTo<PsseFixedShunt>) PsseFixedShunt::toRecord);
+        mappers.put(PsseGenerator.class, (MapperTo<PsseGenerator>) PsseGenerator::toRecord);
+        mappers.put(PsseOwnership.class, (MapperTo<PsseOwnership>) PsseOwnership::toRecord);
+        mappers.put(PsseGneDevice.class, (MapperTo<PsseGneDevice>) PsseGneDevice::toRecord);
+        mappers.put(PsseInductionMachine.class, (MapperTo<PsseInductionMachine>) PsseInductionMachine::toRecord);
+        mappers.put(PsseInterareaTransfer.class, (MapperTo<PsseInterareaTransfer>) PsseInterareaTransfer::toRecord);
+        mappers.put(PsseLineGrouping.class, (MapperTo<PsseLineGrouping>) PsseLineGrouping::toRecord);
+        mappers.put(PsseLoad.class, (MapperTo<PsseLoad>) PsseLoad::toRecord);
+        mappers.put(PsseNonTransformerBranch.class, (MapperTo<PsseNonTransformerBranch>) PsseNonTransformerBranch::toRecord);
+        mappers.put(PsseOwner.class, (MapperTo<PsseOwner>) PsseOwner::toRecord);
+        mappers.put(PsseRates.class, (MapperTo<PsseRates>) PsseRates::toRecord);
+        mappers.put(PsseTransformer.class, (MapperTo<PsseTransformer>) PsseTransformer::toRecord);
+//        mappers.put(PsseTransformerImpedanceCorrectionPoint.class, (MapperTo<PsseTransformerImpedanceCorrectionPoint>) PsseTransformerImpedanceCorrectionPoint::toRecord);
+        mappers.put(PsseTransformerWinding.class, (MapperTo<PsseTransformerWinding>) PsseTransformerWinding::toRecord);
+        mappers.put(PsseTwoTerminalDcConverter.class, (MapperTo<PsseTwoTerminalDcConverter>) PsseTwoTerminalDcConverter::toRecord);
+        mappers.put(PsseTwoTerminalDcTransmissionLine.class, (MapperTo<PsseTwoTerminalDcTransmissionLine>) PsseTwoTerminalDcTransmissionLine::toRecord);
+        mappers.put(PsseVoltageSourceConverter.class, (MapperTo<PsseVoltageSourceConverter>) PsseVoltageSourceConverter::toRecord);
+        mappers.put(PsseVoltageSourceConverterDcTransmissionLine.class, (MapperTo<PsseVoltageSourceConverterDcTransmissionLine>) PsseVoltageSourceConverterDcTransmissionLine::toRecord);
+        mappers.put(PsseZone.class, (MapperTo<PsseZone>) PsseZone::toRecord);
+        return mappers;
+    }
+
+    private interface MapperFrom<T> {
+        T apply(NamedCsvRecord rec, PsseVersion version);
+    }
+
+    private interface MapperTo<T> {
+        String[] apply(T t, String[] headers);
+    }
+
+    // Casting is safe here
+    @SuppressWarnings("unchecked")
     List<T> parseRecords(List<String> records, String[] headers, Context context) {
         int expectedCount = records.size();
-        BeanListProcessor<T> processor = new BeanListProcessor<>(psseTypeClass(), expectedCount);
-        CsvParserSettings settings = context.getCsvParserSettings();
-        settings.setHeaders(headers);
-        settings.setProcessor(processor);
-        CsvParser parser = new CsvParser(settings);
-        context.resetCurrentRecordGroup();
-        for (String record : records) {
-            String[] fields = parser.parseLine(record);
+        if (expectedCount == 0) {
+            return List.of();
+        }
 
-            // CsvParser::parseLine could return null for malformed record
-            if (fields == null) {
-                throw new PsseException("Parsing error");
+        // Reconstruct a string block
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.join(String.valueOf(context.getDelimiter()), headers)).append(System.lineSeparator());
+        for (String record : records) {
+            sb.append(record).append(System.lineSeparator());
+        }
+
+        // Initialize the output
+        List<T> beans = new ArrayList<>(expectedCount);
+        context.resetCurrentRecordGroup();
+
+        // Parse
+        try (CsvReader<NamedCsvRecord> reader = context.createCsvReaderBuilder()
+            .ofNamedCsvRecord(new StringReader(sb.toString()))) {
+            // Get the corresponding mapper
+            MapperFrom<T> mapper = (MapperFrom<T>) MAPPERS_FROM_RECORD.get(psseTypeClass());
+            if (mapper == null) {
+                throw new IllegalArgumentException("Unsupported class: " + psseTypeClass());
             }
 
-            context.setCurrentRecordNumFields(fields.length);
+            // Parse the records
+            reader.stream().forEach(rec -> {
+                try {
+                    beans.add(mapper.apply(rec, context.getVersion()));
+                    context.setCurrentRecordNumFields(rec.getFieldCount());
+                } catch (Exception e) {
+                    throw new PsseException("Parsing error", e);
+                }
+            });
+        } catch (IOException e) {
+            throw new PsseException("Parsing error");
         }
-        List<T> beans = processor.getBeans();
         if (beans.size() != expectedCount) {
             throw new PsseException("Parsing error");
         }
         return beans;
     }
 
+    // Casting is safe here
+    @SuppressWarnings("unchecked")
     public String buildRecord(T object, String[] headers, String[] quoteFields, Context context) {
-        return unquoteNullString(new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordToString(object));
+        try (StringWriter sw = new StringWriter();
+             CsvWriter writer = getCsvWriterBuilder(headers, quoteFields, context).build(sw)) {
+            // Get the corresponding mapper
+            MapperTo<T> mapper = (MapperTo<T>) MAPPERS_TO_RECORD.get(psseTypeClass());
+            if (mapper == null) {
+                throw new IllegalArgumentException("Unsupported class: " + psseTypeClass());
+            }
+            writer.writeRecord(mapper.apply(object, headers));
+            return unquoteNullString(sw.toString());
+        } catch (IOException e) {
+            throw new PsseException("Failed to write PSSE file", e);
+        }
     }
 
     public List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
-        return unquoteNullStrings(new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordsToString(objects));
+        return objects.stream().map(object -> buildRecord(object, headers, quoteFields, context)).toList();
     }
 
     // In rawx it is possible to define null as the value of the field
@@ -204,16 +316,15 @@ public abstract class AbstractRecordGroup<T> {
         return string.replace("\"null\"", "null");
     }
 
-    CsvWriterSettings settingsForCsvWriter(String[] headers, String[] quotedFields, Context context) {
-        BeanWriterProcessor<T> processor = new BeanWriterProcessor<>(psseTypeClass());
-        CsvWriterSettings settings = new CsvWriterSettings();
-        settings.quoteFields(quotedFields);
-        settings.setHeaders(headers);
-        settings.getFormat().setQuote(context.getFileFormat().getQuote());
-        settings.getFormat().setDelimiter(context.getDelimiter());
-        settings.setIgnoreLeadingWhitespaces(false);
-        settings.setIgnoreTrailingWhitespaces(false);
-        settings.setRowWriterProcessor(processor);
-        return settings;
+    CsvWriter.CsvWriterBuilder getCsvWriterBuilder(String[] headers, String[] quotedFields, Context context) {
+        return CsvWriter.builder()
+            .fieldSeparator(context.getDelimiter())
+            .quoteCharacter(context.getQuote())
+            .quoteStrategy(new QuoteStrategy() {
+                @Override
+                public boolean quoteValue(int lineNo, int fieldIdx, String value) {
+                    return quotedFields != null && Arrays.asList(quotedFields).contains(headers[fieldIdx]);
+                }
+            });
     }
 }

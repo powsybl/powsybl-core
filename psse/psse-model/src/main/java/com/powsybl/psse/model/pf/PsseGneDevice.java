@@ -7,7 +7,12 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
 
 /**
  *
@@ -16,128 +21,147 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseGneDevice {
 
-    @Parsed
     private String name;
-
-    @Parsed
     private String model;
-
-    @Parsed
     private int nterm = 1;
-
-    @Parsed
     private int bus1;
-
-    @Parsed
     private int bus2;
-
-    @Parsed
     private int nreal = 0;
-
-    @Parsed
     private int nintg = 0;
-
-    @Parsed
     private int nchar = 0;
-
-    @Parsed(field = { "status", "stat" })
     private int status = 1;
-
-    @Parsed
     private int owner;
-
-    @Parsed
     private int nmet;
-
-    @Parsed
     private double real1 = 0.0;
-
-    @Parsed
     private double real2 = 0.0;
-
-    @Parsed
     private double real3 = 0.0;
-
-    @Parsed
     private double real4 = 0.0;
-
-    @Parsed
     private double real5 = 0.0;
-
-    @Parsed
     private double real6 = 0.0;
-
-    @Parsed
     private double real7 = 0.0;
-
-    @Parsed
     private double real8 = 0.0;
-
-    @Parsed
     private double real9 = 0.0;
-
-    @Parsed
     private double real10 = 0.0;
-
-    @Parsed
     private int intg1;
-
-    @Parsed
     private int intg2;
-
-    @Parsed
     private int intg3;
-
-    @Parsed
     private int intg4;
-
-    @Parsed
     private int intg5;
-
-    @Parsed
     private int intg6;
-
-    @Parsed
     private int intg7;
-
-    @Parsed
     private int intg8;
-
-    @Parsed
     private int intg9;
-
-    @Parsed
     private int intg10;
-
-    @Parsed(defaultNullRead = "1")
     private String char1;
-
-    @Parsed(defaultNullRead = "1")
     private String char2;
-
-    @Parsed(defaultNullRead = "1")
     private String char3;
-
-    @Parsed(defaultNullRead = "1")
     private String char4;
-
-    @Parsed(defaultNullRead = "1")
     private String char5;
-
-    @Parsed(defaultNullRead = "1")
     private String char6;
-
-    @Parsed(defaultNullRead = "1")
     private String char7;
-
-    @Parsed(defaultNullRead = "1")
     private String char8;
-
-    @Parsed(defaultNullRead = "1")
     private String char9;
-
-    @Parsed(defaultNullRead = "1")
     private String char10;
+
+    public static PsseGneDevice fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseGneDevice psseGneDevice = new PsseGneDevice();
+        psseGneDevice.setName(rec.getField("name"));
+        psseGneDevice.setModel(rec.getField("model"));
+        psseGneDevice.setNterm(parseIntOrDefault(rec.getField("nterm"), 1));
+        psseGneDevice.setBus1(Integer.parseInt(rec.getField("bus1")));
+        psseGneDevice.setBus2(Integer.parseInt(rec.getField("bus2")));
+        psseGneDevice.setNreal(Integer.parseInt(rec.getField("nreal")));
+        psseGneDevice.setNintg(Integer.parseInt(rec.getField("nintg")));
+        psseGneDevice.setNchar(Integer.parseInt(rec.getField("nchar")));
+        psseGneDevice.setStatus(parseIntOrDefault(rec.findField("status").isPresent() ?
+            rec.getField("status") :
+            rec.getField("stat"), 1));
+        psseGneDevice.setOwner(Integer.parseInt(rec.getField("owner")));
+        psseGneDevice.setNmet(Integer.parseInt(rec.getField("nmet")));
+        psseGneDevice.setReal1(Double.parseDouble(rec.getField("real1")));
+        psseGneDevice.setReal2(Double.parseDouble(rec.getField("real2")));
+        psseGneDevice.setReal3(Double.parseDouble(rec.getField("real3")));
+        psseGneDevice.setReal4(Double.parseDouble(rec.getField("real4")));
+        psseGneDevice.setReal5(Double.parseDouble(rec.getField("real5")));
+        psseGneDevice.setReal6(Double.parseDouble(rec.getField("real6")));
+        psseGneDevice.setReal7(Double.parseDouble(rec.getField("real7")));
+        psseGneDevice.setReal8(Double.parseDouble(rec.getField("real8")));
+        psseGneDevice.setReal9(Double.parseDouble(rec.getField("real9")));
+        psseGneDevice.setReal10(Double.parseDouble(rec.getField("real10")));
+        psseGneDevice.setIntg1(Integer.parseInt(rec.getField("intg1")));
+        psseGneDevice.setIntg2(Integer.parseInt(rec.getField("intg2")));
+        psseGneDevice.setIntg3(Integer.parseInt(rec.getField("intg3")));
+        psseGneDevice.setIntg4(Integer.parseInt(rec.getField("intg4")));
+        psseGneDevice.setIntg5(Integer.parseInt(rec.getField("intg5")));
+        psseGneDevice.setIntg6(Integer.parseInt(rec.getField("intg6")));
+        psseGneDevice.setIntg7(Integer.parseInt(rec.getField("intg7")));
+        psseGneDevice.setIntg8(Integer.parseInt(rec.getField("intg8")));
+        psseGneDevice.setIntg9(Integer.parseInt(rec.getField("intg9")));
+        psseGneDevice.setIntg10(Integer.parseInt(rec.getField("intg10")));
+        psseGneDevice.setChar1(defaultIfEmpty(rec.getField("char1"), "1"));
+        psseGneDevice.setChar2(defaultIfEmpty(rec.getField("char2"), "1"));
+        psseGneDevice.setChar3(defaultIfEmpty(rec.getField("char3"), "1"));
+        psseGneDevice.setChar4(defaultIfEmpty(rec.getField("char4"), "1"));
+        psseGneDevice.setChar5(defaultIfEmpty(rec.getField("char5"), "1"));
+        psseGneDevice.setChar6(defaultIfEmpty(rec.getField("char6"), "1"));
+        psseGneDevice.setChar7(defaultIfEmpty(rec.getField("char7"), "1"));
+        psseGneDevice.setChar8(defaultIfEmpty(rec.getField("char8"), "1"));
+        psseGneDevice.setChar9(defaultIfEmpty(rec.getField("char9"), "1"));
+        psseGneDevice.setChar10(defaultIfEmpty(rec.getField("char10"), "1"));
+        return psseGneDevice;
+    }
+
+    public static String[] toRecord(PsseGneDevice psseGneDevice, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            String h = headers[i];
+            row[i] = switch (h) {
+                case "name" -> psseGneDevice.getName();
+                case "model" -> psseGneDevice.getModel();
+                case "nterm" -> String.valueOf(psseGneDevice.getNterm());
+                case "bus1" -> String.valueOf(psseGneDevice.getBus1());
+                case "bus2" -> String.valueOf(psseGneDevice.getBus2());
+                case "nreal" -> String.valueOf(psseGneDevice.getNreal());
+                case "nintg" -> String.valueOf(psseGneDevice.getNintg());
+                case "nchar" -> String.valueOf(psseGneDevice.getNchar());
+                case "status", "stat" -> String.valueOf(psseGneDevice.getStatus());
+                case "owner" -> String.valueOf(psseGneDevice.getOwner());
+                case "nmet" -> String.valueOf(psseGneDevice.getNmet());
+                case "real1" -> String.valueOf(psseGneDevice.getReal1());
+                case "real2" -> String.valueOf(psseGneDevice.getReal2());
+                case "real3" -> String.valueOf(psseGneDevice.getReal3());
+                case "real4" -> String.valueOf(psseGneDevice.getReal4());
+                case "real5" -> String.valueOf(psseGneDevice.getReal5());
+                case "real6" -> String.valueOf(psseGneDevice.getReal6());
+                case "real7" -> String.valueOf(psseGneDevice.getReal7());
+                case "real8" -> String.valueOf(psseGneDevice.getReal8());
+                case "real9" -> String.valueOf(psseGneDevice.getReal9());
+                case "real10" -> String.valueOf(psseGneDevice.getReal10());
+                case "intg1" -> String.valueOf(psseGneDevice.getIntg1());
+                case "intg2" -> String.valueOf(psseGneDevice.getIntg2());
+                case "intg3" -> String.valueOf(psseGneDevice.getIntg3());
+                case "intg4" -> String.valueOf(psseGneDevice.getIntg4());
+                case "intg5" -> String.valueOf(psseGneDevice.getIntg5());
+                case "intg6" -> String.valueOf(psseGneDevice.getIntg6());
+                case "intg7" -> String.valueOf(psseGneDevice.getIntg7());
+                case "intg8" -> String.valueOf(psseGneDevice.getIntg8());
+                case "intg9" -> String.valueOf(psseGneDevice.getIntg9());
+                case "intg10" -> String.valueOf(psseGneDevice.getIntg10());
+                case "char1" -> psseGneDevice.getChar1();
+                case "char2" -> psseGneDevice.getChar2();
+                case "char3" -> psseGneDevice.getChar3();
+                case "char4" -> psseGneDevice.getChar4();
+                case "char5" -> psseGneDevice.getChar5();
+                case "char6" -> psseGneDevice.getChar6();
+                case "char7" -> psseGneDevice.getChar7();
+                case "char8" -> psseGneDevice.getChar8();
+                case "char9" -> psseGneDevice.getChar9();
+                case "char10" -> psseGneDevice.getChar10();
+                default -> throw new PsseException("Unsupported header: " + h);
+            };
+        }
+        return row;
+    }
 
     public String getName() {
         return name;

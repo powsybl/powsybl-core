@@ -7,10 +7,16 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
+import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
 
 /**
  *
@@ -18,149 +24,161 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseSwitchedShunt extends PsseVersioned {
 
-    @Parsed(field = {"i", "ibus"})
     private int i;
-
-    @Parsed
     private int modsw = 1;
-
-    @Parsed
     private int adjm = 0;
-
-    @Parsed
     private int stat = 1;
-
-    @Parsed
     private double vswhi = 1.0;
-
-    @Parsed
     private double vswlo = 1.0;
 
-    @Parsed
     @Revision(until = 33)
     private int swrem = 0;
 
-    @Parsed
     private double rmpct = 100.0;
-
-    @Parsed(defaultNullRead = " ")
     private String rmidnt;
-
-    @Parsed
     private double binit = 0.0;
-
-    @Parsed
     private int n1 = 0;
-
-    @Parsed
     private double b1 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n2 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b2 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n3 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b3 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n4 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b4 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n5 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b5 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n6 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b6 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n7 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b7 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n8 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b8 = 0.0;
 
-    @Parsed(field = {"id", "shntid"}, defaultNullRead = "1")
     @Revision(since = 35)
     private String id;
 
-    @Parsed
     @Revision(since = 35)
     private int swreg = 0;
 
-    @Parsed
     @Revision(since = 35)
     private int nreg = 0;
 
-    @Parsed
     @Revision(since = 35)
     private int s1 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s2 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s3 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s4 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s5 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s6 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s7 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s8 = 1;
+
+    public static PsseSwitchedShunt fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseSwitchedShunt psseSwitchedShunt = new PsseSwitchedShunt();
+        psseSwitchedShunt.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
+        psseSwitchedShunt.setModsw(Integer.parseInt(rec.getField("modsw")));
+        psseSwitchedShunt.setAdjm(Integer.parseInt(rec.getField("adjm")));
+        psseSwitchedShunt.setStat(Integer.parseInt(rec.getField("stat")));
+        psseSwitchedShunt.setVswhi(Double.parseDouble(rec.getField("vswhi")));
+        psseSwitchedShunt.setVswlo(Double.parseDouble(rec.getField("vswlo")));
+        if (version.getMajorNumber() <= 33) {
+            psseSwitchedShunt.setSwrem(Integer.parseInt(rec.getField("swrem")));
+        }
+        psseSwitchedShunt.setRmpct(Integer.parseInt(rec.getField("rmpct")));
+        psseSwitchedShunt.setRmidnt(defaultIfEmpty(rec.getField("rmidnt"), " "));
+        psseSwitchedShunt.setBinit(Double.parseDouble(rec.getField("binit")));
+        psseSwitchedShunt.setN1(Integer.parseInt(rec.getField("n1")));
+        psseSwitchedShunt.setB1(Double.parseDouble(rec.getField("b1")));
+        psseSwitchedShunt.setN2(parseIntOrDefault(rec.getField("n2"), 0));
+        psseSwitchedShunt.setB2(parseDoubleOrDefault(rec.getField("b2"), 0.0));
+        psseSwitchedShunt.setN3(parseIntOrDefault(rec.getField("n3"), 0));
+        psseSwitchedShunt.setB3(parseDoubleOrDefault(rec.getField("b3"), 0.0));
+        psseSwitchedShunt.setN4(parseIntOrDefault(rec.getField("n4"), 0));
+        psseSwitchedShunt.setB4(parseDoubleOrDefault(rec.getField("b4"), 0.0));
+        psseSwitchedShunt.setN5(parseIntOrDefault(rec.getField("n5"), 0));
+        psseSwitchedShunt.setB5(parseDoubleOrDefault(rec.getField("b5"), 0.0));
+        psseSwitchedShunt.setN6(parseIntOrDefault(rec.getField("n6"), 0));
+        psseSwitchedShunt.setB6(parseDoubleOrDefault(rec.getField("b6"), 0.0));
+        psseSwitchedShunt.setN7(parseIntOrDefault(rec.getField("n7"), 0));
+        psseSwitchedShunt.setB7(parseDoubleOrDefault(rec.getField("b7"), 0.0));
+        psseSwitchedShunt.setN8(parseIntOrDefault(rec.getField("n8"), 0));
+        psseSwitchedShunt.setB8(parseDoubleOrDefault(rec.getField("b8"), 0.0));
+        if (version.getMajorNumber() >= 35) {
+            psseSwitchedShunt.setId(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "id", "shntid"), "1"));
+            psseSwitchedShunt.setSwreg(Integer.parseInt(rec.getField("swreg")));
+            psseSwitchedShunt.setNreg(Integer.parseInt(rec.getField("nreg")));
+            psseSwitchedShunt.setS1(Integer.parseInt(rec.getField("s1")));
+            psseSwitchedShunt.setS2(parseIntOrDefault(rec.getField("s2"), 1));
+            psseSwitchedShunt.setS3(parseIntOrDefault(rec.getField("s3"), 1));
+            psseSwitchedShunt.setS4(parseIntOrDefault(rec.getField("s4"), 1));
+            psseSwitchedShunt.setS5(parseIntOrDefault(rec.getField("s5"), 1));
+            psseSwitchedShunt.setS6(parseIntOrDefault(rec.getField("s6"), 1));
+            psseSwitchedShunt.setS7(parseIntOrDefault(rec.getField("s7"), 1));
+            psseSwitchedShunt.setS8(parseIntOrDefault(rec.getField("s8"), 1));
+        }
+        return psseSwitchedShunt;
+    }
+
+    public static String[] toRecord(PsseSwitchedShunt psseSwitchedShunt, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "ibus" -> String.valueOf(psseSwitchedShunt.getI());
+                case "modsw" -> String.valueOf(psseSwitchedShunt.getModsw());
+                case "adjm" -> String.valueOf(psseSwitchedShunt.getAdjm());
+                case "stat" -> String.valueOf(psseSwitchedShunt.getStat());
+                case "vswhi" -> String.valueOf(psseSwitchedShunt.getVswhi());
+                case "vswlo" -> String.valueOf(psseSwitchedShunt.getVswlo());
+                case "swrem" -> String.valueOf(psseSwitchedShunt.getSwrem());
+                case "rmpct" -> String.valueOf(psseSwitchedShunt.getRmpct());
+                case "rmidnt" -> String.valueOf(psseSwitchedShunt.getRmidnt());
+                case "binit" -> String.valueOf(psseSwitchedShunt.getBinit());
+                case "n1" -> String.valueOf(psseSwitchedShunt.getN1());
+                case "b1" -> String.valueOf(psseSwitchedShunt.getB1());
+                case "n2" -> String.valueOf(psseSwitchedShunt.getN2());
+                case "b2" -> String.valueOf(psseSwitchedShunt.getB2());
+                case "n3" -> String.valueOf(psseSwitchedShunt.getN3());
+                case "b3" -> String.valueOf(psseSwitchedShunt.getB3());
+                case "n4" -> String.valueOf(psseSwitchedShunt.getN4());
+                case "b4" -> String.valueOf(psseSwitchedShunt.getB4());
+                case "n5" -> String.valueOf(psseSwitchedShunt.getN5());
+                case "b5" -> String.valueOf(psseSwitchedShunt.getB5());
+                case "n6" -> String.valueOf(psseSwitchedShunt.getN6());
+                case "b6" -> String.valueOf(psseSwitchedShunt.getB6());
+                case "n7" -> String.valueOf(psseSwitchedShunt.getN7());
+                case "b7" -> String.valueOf(psseSwitchedShunt.getB7());
+                case "n8" -> String.valueOf(psseSwitchedShunt.getN8());
+                case "b8" -> String.valueOf(psseSwitchedShunt.getB8());
+                case "id", "shntid" -> psseSwitchedShunt.getId();
+                case "swreg" -> String.valueOf(psseSwitchedShunt.getSwreg());
+                case "nreg" -> String.valueOf(psseSwitchedShunt.getNreg());
+                case "s1" -> String.valueOf(psseSwitchedShunt.getS1());
+                case "s2" -> String.valueOf(psseSwitchedShunt.getS2());
+                case "s3" -> String.valueOf(psseSwitchedShunt.getS3());
+                case "s4" -> String.valueOf(psseSwitchedShunt.getS4());
+                case "s5" -> String.valueOf(psseSwitchedShunt.getS5());
+                case "s6" -> String.valueOf(psseSwitchedShunt.getS6());
+                case "s7" -> String.valueOf(psseSwitchedShunt.getS7());
+                case "s8" -> String.valueOf(psseSwitchedShunt.getS8());
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;

@@ -7,8 +7,14 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
+import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
 
 /**
  *
@@ -18,140 +24,124 @@ import com.univocity.parsers.annotations.Parsed;
 public class PsseInductionMachine {
 
     // This dataBlock is valid since version 33
-
-    @Parsed(field = {"i", "ibus"})
     private int i;
-
-    @Parsed(field = {"id", "imid"}, defaultNullRead = "1")
     private String id;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int stat = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int scode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int dcode = 2;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int area = -1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int zone = -1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int owner = -1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int tcode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int bcode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double mbase = -1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double ratekv = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int pcode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Double pset;
-
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"h", "hconst"})
     private double h = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"a", "aconst"})
     private double a = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"b", "bconst"})
     private double b = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"d", "dconst"})
     private double d = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"e", "econst"})
     private double e = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double ra = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double xa = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double xm = 2.5;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double r1 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double x1 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double r2 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double x2 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double x3 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double e1 = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double se1 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double e2 = 1.2;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double se2 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double ia1 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double ia2 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double xamult = 1.0;
+
+    public static PsseInductionMachine fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseInductionMachine psseInductionMachine = new PsseInductionMachine();
+        psseInductionMachine.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
+        psseInductionMachine.setId(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "id", "imid"), "1"));
+        psseInductionMachine.setStat(parseIntOrDefault(rec.getField("stat"), 1));
+        psseInductionMachine.setScode(parseIntOrDefault(rec.getField("scode"), 1));
+        psseInductionMachine.setDcode(parseIntOrDefault(rec.getField("dcode"), 2));
+        psseInductionMachine.setArea(parseIntOrDefault(rec.getField("area"), -1));
+        psseInductionMachine.setZone(parseIntOrDefault(rec.getField("zone"), -1));
+        psseInductionMachine.setOwner(parseIntOrDefault(rec.getField("owner"), -1));
+        psseInductionMachine.setTcode(parseIntOrDefault(rec.getField("tcode"), 1));
+        psseInductionMachine.setBcode(parseIntOrDefault(rec.getField("bcode"), 1));
+        psseInductionMachine.setMbase(parseDoubleOrDefault(rec.getField("mbase"), -1.0));
+        psseInductionMachine.setRatekv(parseDoubleOrDefault(rec.getField("ratekv"), 0.0));
+        psseInductionMachine.setPcode(parseIntOrDefault(rec.getField("pcode"), 1));
+        psseInductionMachine.setPset(parseDoubleOrDefault(rec.getField("pset"), null));
+        psseInductionMachine.setH(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "h", "hconst"), 1.0));
+        psseInductionMachine.setA(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "a", "aconst"), 1.0));
+        psseInductionMachine.setB(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "b", "bconst"), 1.0));
+        psseInductionMachine.setD(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "d", "dconst"), 1.0));
+        psseInductionMachine.setE(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "e", "econst"), 1.0));
+        psseInductionMachine.setRa(parseDoubleOrDefault(rec.getField("ra"), 0.0));
+        psseInductionMachine.setXa(parseDoubleOrDefault(rec.getField("xa"), 0.0));
+        psseInductionMachine.setXm(parseDoubleOrDefault(rec.getField("xm"), 2.5));
+        psseInductionMachine.setR1(parseDoubleOrDefault(rec.getField("r1"), 999.0));
+        psseInductionMachine.setX1(parseDoubleOrDefault(rec.getField("x1"), 999.0));
+        psseInductionMachine.setR2(parseDoubleOrDefault(rec.getField("r2"), 999.0));
+        psseInductionMachine.setX2(parseDoubleOrDefault(rec.getField("x2"), 999.0));
+        psseInductionMachine.setX3(parseDoubleOrDefault(rec.getField("x3"), 0.0));
+        psseInductionMachine.setE1(parseDoubleOrDefault(rec.getField("e1"), 1.0));
+        psseInductionMachine.setSe1(parseDoubleOrDefault(rec.getField("se1"), 0.0));
+        psseInductionMachine.setE2(parseDoubleOrDefault(rec.getField("e2"), 1.2));
+        psseInductionMachine.setSe2(parseDoubleOrDefault(rec.getField("se2"), 0.0));
+        psseInductionMachine.setIa1(parseDoubleOrDefault(rec.getField("ia1"), 0.0));
+        psseInductionMachine.setIa2(parseDoubleOrDefault(rec.getField("ia2"), 0.0));
+        psseInductionMachine.setXamult(parseDoubleOrDefault(rec.getField("xamult"), 1.0));
+        return psseInductionMachine;
+    }
+
+    public static String[] toRecord(PsseInductionMachine psseInductionMachine, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            String h = headers[i];
+            row[i] = switch (h) {
+                case "i", "ibus" -> String.valueOf(psseInductionMachine.getI());
+                case "id", "imid" -> psseInductionMachine.getId();
+                case "status", "stat" -> String.valueOf(psseInductionMachine.getStat());
+                case "scode" -> String.valueOf(psseInductionMachine.getScode());
+                case "dcode" -> String.valueOf(psseInductionMachine.getDcode());
+                case "area" -> String.valueOf(psseInductionMachine.getArea());
+                case "zone" -> String.valueOf(psseInductionMachine.getZone());
+                case "owner" -> String.valueOf(psseInductionMachine.getOwner());
+                case "tcode" -> String.valueOf(psseInductionMachine.getTcode());
+                case "bcode" -> String.valueOf(psseInductionMachine.getBcode());
+                case "mbase" -> String.valueOf(psseInductionMachine.getMbase());
+                case "ratekv" -> String.valueOf(psseInductionMachine.getRatekv());
+                case "pcode" -> String.valueOf(psseInductionMachine.getPcode());
+                case "pset" -> String.valueOf(psseInductionMachine.getPset());
+                case "h", "hconst" -> String.valueOf(psseInductionMachine.getH());
+                case "a", "aconst" -> String.valueOf(psseInductionMachine.getA());
+                case "b", "bconst" -> String.valueOf(psseInductionMachine.getB());
+                case "d", "dconst" -> String.valueOf(psseInductionMachine.getD());
+                case "e", "econst" -> String.valueOf(psseInductionMachine.getE());
+                case "ra" -> String.valueOf(psseInductionMachine.getRa());
+                case "xa" -> String.valueOf(psseInductionMachine.getXa());
+                case "xm" -> String.valueOf(psseInductionMachine.getXm());
+                case "r1" -> String.valueOf(psseInductionMachine.getR1());
+                case "x1" -> String.valueOf(psseInductionMachine.getX1());
+                case "r2" -> String.valueOf(psseInductionMachine.getR2());
+                case "x2" -> String.valueOf(psseInductionMachine.getX2());
+                case "x3" -> String.valueOf(psseInductionMachine.getX3());
+                case "e1" -> String.valueOf(psseInductionMachine.getE1());
+                case "se1" -> String.valueOf(psseInductionMachine.getSe1());
+                case "e2" -> String.valueOf(psseInductionMachine.getE2());
+                case "se2" -> String.valueOf(psseInductionMachine.getSe2());
+                case "ia1" -> String.valueOf(psseInductionMachine.getIa1());
+                case "ia2" -> String.valueOf(psseInductionMachine.getIa2());
+                case "xamult" -> String.valueOf(psseInductionMachine.getXamult());
+                default -> throw new PsseException("Unsupported header: " + h);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;
