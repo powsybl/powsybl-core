@@ -75,7 +75,7 @@ public interface Bus extends Identifiable<Bus> {
     }
 
     /**
-     * Adds a fictioous reactive power injection to the bus using the load sign convention (a positive value has the same effact as a load connected to the bus)
+     * Add a fictitious reactive power injection to the bus using the load sign convention (a positive value has the same effect as a load connected to the bus)
      * @param q0 fictitious load in MVar, using the load sign convention.
      * @return
      */
