@@ -61,7 +61,7 @@ public interface Bus extends Identifiable<Bus> {
     }
 
     /**
-     * Adds a fictioous active power injection to the bus using the load sign convention (a positive value has the same effact as a load connected to the bus)
+     * Add a fictitious active power injection to the bus using the load sign convention (a positive value has the same effect as a load connected to the bus)
      * @param p0 fictitious load in MW, using the load sign convention.
      * @return
      */
