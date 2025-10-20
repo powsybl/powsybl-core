@@ -7,13 +7,16 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.Parsed;
+import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
 
 /**
  *
@@ -96,29 +99,46 @@ public class PsseMultiTerminalDcTransmissionLine {
     }
 
     public static class PsseMultiTerminalDcMain {
-        @Parsed
+
         private String name;
-
-        @Parsed
         private int nconv;
-
-        @Parsed
         private int ndcbs;
-
-        @Parsed
         private int ndcln;
-
-        @Parsed
         private int mdc = 0;
-
-        @Parsed
         private int vconv;
-
-        @Parsed
         private double vcmod = 0.0;
-
-        @Parsed
         private int vconvn = 0;
+
+        public static PsseMultiTerminalDcMain fromRecord(NamedCsvRecord rec, PsseVersion version) {
+            PsseMultiTerminalDcMain psseMultiTerminalDcMain = new PsseMultiTerminalDcMain();
+            psseMultiTerminalDcMain.setName(rec.getField("name"));
+            psseMultiTerminalDcMain.setNconv(Integer.parseInt(rec.getField("nconv")));
+            psseMultiTerminalDcMain.setNdcbs(Integer.parseInt(rec.getField("ndcbs")));
+            psseMultiTerminalDcMain.setNdcln(Integer.parseInt(rec.getField("ndcln")));
+            psseMultiTerminalDcMain.setMdc(Integer.parseInt(rec.getField("mdc")));
+            psseMultiTerminalDcMain.setVconv(Integer.parseInt(rec.getField("vconv")));
+            psseMultiTerminalDcMain.setVcmod(Double.parseDouble(rec.getField("vcmod")));
+            psseMultiTerminalDcMain.setVconvn(Integer.parseInt(rec.getField("vconvn")));
+            return psseMultiTerminalDcMain;
+        }
+
+        public static String[] toRecord(PsseMultiTerminalDcMain psseMultiTerminalDcMain, String[] headers) {
+            String[] row = new String[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                row[i] = switch (headers[i]) {
+                    case "name" -> psseMultiTerminalDcMain.getName();
+                    case "nconv" -> String.valueOf(psseMultiTerminalDcMain.getNconv());
+                    case "ndcbs" -> String.valueOf(psseMultiTerminalDcMain.getNdcbs());
+                    case "ndcln" -> String.valueOf(psseMultiTerminalDcMain.getNdcln());
+                    case "mdc" -> String.valueOf(psseMultiTerminalDcMain.getMdc());
+                    case "vconv" -> String.valueOf(psseMultiTerminalDcMain.getVconv());
+                    case "vcmod" -> String.valueOf(psseMultiTerminalDcMain.getVcmod());
+                    case "vconvn" -> String.valueOf(psseMultiTerminalDcMain.getVconvn());
+                    default -> throw new PsseException("Unsupported header: " + headers[i]);
+                };
+            }
+            return row;
+        }
 
         public String getName() {
             return name;
@@ -135,57 +155,121 @@ public class PsseMultiTerminalDcTransmissionLine {
         public int getNdcln() {
             return ndcln;
         }
+
+        public int getMdc() {
+            return mdc;
+        }
+
+        public int getVconv() {
+            return vconv;
+        }
+
+        public double getVcmod() {
+            return vcmod;
+        }
+
+        public int getVconvn() {
+            return vconvn;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setNconv(int nconv) {
+            this.nconv = nconv;
+        }
+
+        public void setNdcbs(int ndcbs) {
+            this.ndcbs = ndcbs;
+        }
+
+        public void setNdcln(int ndcln) {
+            this.ndcln = ndcln;
+        }
+
+        public void setMdc(int mdc) {
+            this.mdc = mdc;
+        }
+
+        public void setVconv(int vconv) {
+            this.vconv = vconv;
+        }
+
+        public void setVcmod(double vcmod) {
+            this.vcmod = vcmod;
+        }
+
+        public void setVconvn(int vconvn) {
+            this.vconvn = vconvn;
+        }
     }
 
     public static class PsseMultiTerminalDcConverter {
 
-        @Parsed
         private int ib;
-
-        @Parsed
         private int n;
-
-        @Parsed
         private double angmx;
-
-        @Parsed
         private double angmn;
-
-        @Parsed
         private double rc;
-
-        @Parsed
         private double xc;
-
-        @Parsed
         private double ebas;
-
-        @Parsed
         private double tr = 1.0;
-
-        @Parsed
         private double tap = 1.0;
-
-        @Parsed
         private double tpmx = 1.5;
-
-        @Parsed
         private double tpmn = 0.51;
-
-        @Parsed
         private double tstp = 0.00625;
-
-        @Parsed
         private double setvl;
-
-        @Parsed
         private double dcpf = 1.0;
-
-        @Parsed
         private double marg = 0.0;
-
-        @Parsed
         private int cnvcod = 1;
+
+        public static PsseMultiTerminalDcConverter fromRecord(NamedCsvRecord rec, PsseVersion version) {
+            PsseMultiTerminalDcConverter psseMultiTerminalDcConverter = new PsseMultiTerminalDcConverter();
+            psseMultiTerminalDcConverter.setIb(Integer.parseInt(rec.getField("ib")));
+            psseMultiTerminalDcConverter.setN(Integer.parseInt(rec.getField("n")));
+            psseMultiTerminalDcConverter.setAngmx(Double.parseDouble(rec.getField("angmx")));
+            psseMultiTerminalDcConverter.setAngmn(Double.parseDouble(rec.getField("angmn")));
+            psseMultiTerminalDcConverter.setRc(Double.parseDouble(rec.getField("rc")));
+            psseMultiTerminalDcConverter.setXc(Double.parseDouble(rec.getField("xc")));
+            psseMultiTerminalDcConverter.setEbas(Double.parseDouble(rec.getField("ebas")));
+            psseMultiTerminalDcConverter.setTr(Double.parseDouble(rec.getField("tr")));
+            psseMultiTerminalDcConverter.setTap(Double.parseDouble(rec.getField("tap")));
+            psseMultiTerminalDcConverter.setTpmx(Double.parseDouble(rec.getField("tpmx")));
+            psseMultiTerminalDcConverter.setTpmn(Double.parseDouble(rec.getField("tpmn")));
+            psseMultiTerminalDcConverter.setTstp(Double.parseDouble(rec.getField("tstp")));
+            psseMultiTerminalDcConverter.setSetvl(Double.parseDouble(rec.getField("setvl")));
+            psseMultiTerminalDcConverter.setDcpf(Double.parseDouble(rec.getField("dcpf")));
+            psseMultiTerminalDcConverter.setMarg(Double.parseDouble(rec.getField("marg")));
+            psseMultiTerminalDcConverter.setCnvcod(Integer.parseInt(rec.getField("cnvcod")));
+            return psseMultiTerminalDcConverter;
+        }
+
+        public static String[] toRecord(PsseMultiTerminalDcConverter psseMultiTerminalDcConverter, String[] headers) {
+            String[] row = new String[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                row[i] = switch (headers[i]) {
+                    case "ib" -> String.valueOf(psseMultiTerminalDcConverter.getIb());
+                    case "n" -> String.valueOf(psseMultiTerminalDcConverter.getN());
+                    case "angmx" -> String.valueOf(psseMultiTerminalDcConverter.getAngmx());
+                    case "angmn" -> String.valueOf(psseMultiTerminalDcConverter.getAngmn());
+                    case "rc" -> String.valueOf(psseMultiTerminalDcConverter.getRc());
+                    case "xc" -> String.valueOf(psseMultiTerminalDcConverter.getXc());
+                    case "ebas" -> String.valueOf(psseMultiTerminalDcConverter.getEbas());
+                    case "tr" -> String.valueOf(psseMultiTerminalDcConverter.getTr());
+                    case "tap" -> String.valueOf(psseMultiTerminalDcConverter.getTap());
+                    case "tpmx" -> String.valueOf(psseMultiTerminalDcConverter.getTpmx());
+                    case "tpmn" -> String.valueOf(psseMultiTerminalDcConverter.getTpmn());
+                    case "tstp" -> String.valueOf(psseMultiTerminalDcConverter.getTstp());
+                    case "setvl" -> String.valueOf(psseMultiTerminalDcConverter.getSetvl());
+                    case "dcpf" -> String.valueOf(psseMultiTerminalDcConverter.getDcpf());
+                    case "marg" -> String.valueOf(psseMultiTerminalDcConverter.getMarg());
+                    case "cnvcod" -> String.valueOf(psseMultiTerminalDcConverter.getCnvcod());
+                    default -> throw new PsseException("Unsupported header: " + headers[i]);
+                };
+            }
+            return row;
+        }
 
         public int getIb() {
             return ib;
@@ -318,29 +402,45 @@ public class PsseMultiTerminalDcTransmissionLine {
 
     public static class PsseMultiTerminalDcBus {
 
-        @Parsed
         private int idc;
-
-        @Parsed
         private int ib = 0;
-
-        @Parsed
         private int area = 1;
-
-        @Parsed
         private int zone = 1;
-
-        @Parsed(defaultNullRead = "            ")
         private String dcname;
-
-        @Parsed
         private int idc2 = 0;
-
-        @Parsed
         private double rgrnd = 0.0;
-
-        @Parsed
         private int owner = 1;
+
+        public static PsseMultiTerminalDcBus fromRecord(NamedCsvRecord rec, PsseVersion version) {
+            PsseMultiTerminalDcBus psseMultiTerminalDcBus = new PsseMultiTerminalDcBus();
+            psseMultiTerminalDcBus.setIdc(Integer.parseInt(rec.getField("idc")));
+            psseMultiTerminalDcBus.setIb(Integer.parseInt(rec.getField("ib")));
+            psseMultiTerminalDcBus.setArea(Integer.parseInt(rec.getField("area")));
+            psseMultiTerminalDcBus.setZone(Integer.parseInt(rec.getField("zone")));
+            psseMultiTerminalDcBus.setDcname(defaultIfEmpty(rec.getField("dcname"), "            "));
+            psseMultiTerminalDcBus.setIdc2(Integer.parseInt(rec.getField("idc2")));
+            psseMultiTerminalDcBus.setRgrnd(Double.parseDouble(rec.getField("rgrnd")));
+            psseMultiTerminalDcBus.setOwner(Integer.parseInt(rec.getField("owner")));
+            return psseMultiTerminalDcBus;
+        }
+
+        public static String[] toRecord(PsseMultiTerminalDcBus psseMultiTerminalDcBus, String[] headers) {
+            String[] row = new String[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                row[i] = switch (headers[i]) {
+                    case "idc" -> String.valueOf(psseMultiTerminalDcBus.getIdc());
+                    case "ib" -> String.valueOf(psseMultiTerminalDcBus.getIb());
+                    case "area" -> String.valueOf(psseMultiTerminalDcBus.getArea());
+                    case "zone" -> String.valueOf(psseMultiTerminalDcBus.getZone());
+                    case "dcname" -> String.valueOf(psseMultiTerminalDcBus.getDcname());
+                    case "idc2" -> String.valueOf(psseMultiTerminalDcBus.getIdc2());
+                    case "rgrnd" -> String.valueOf(psseMultiTerminalDcBus.getRgrnd());
+                    case "owner" -> String.valueOf(psseMultiTerminalDcBus.getOwner());
+                    default -> throw new PsseException("Unsupported header: " + headers[i]);
+                };
+            }
+            return row;
+        }
 
         public int getIdc() {
             return idc;
@@ -409,23 +509,39 @@ public class PsseMultiTerminalDcTransmissionLine {
 
     public static class PsseMultiTerminalDcLink {
 
-        @Parsed
         private int idc;
-
-        @Parsed
         private int jdc;
-
-        @Parsed(defaultNullRead = "1")
         private String dcckt;
-
-        @Parsed
         private int met = 1;
-
-        @Parsed
         private double rdc;
-
-        @Parsed
         private double ldc = 0.0;
+
+        public static PsseMultiTerminalDcLink fromRecord(NamedCsvRecord rec, PsseVersion version) {
+            PsseMultiTerminalDcLink psseMultiTerminalDcLink = new PsseMultiTerminalDcLink();
+            psseMultiTerminalDcLink.setIdc(Integer.parseInt(rec.getField("idc")));
+            psseMultiTerminalDcLink.setJdc(Integer.parseInt(rec.getField("jdc")));
+            psseMultiTerminalDcLink.setDcckt(defaultIfEmpty(rec.getField("dcckt"), "1"));
+            psseMultiTerminalDcLink.setMet(Integer.parseInt(rec.getField("met")));
+            psseMultiTerminalDcLink.setRdc(Double.parseDouble(rec.getField("rdc")));
+            psseMultiTerminalDcLink.setLdc(Double.parseDouble(rec.getField("ldc")));
+            return psseMultiTerminalDcLink;
+        }
+
+        public static String[] toRecord(PsseMultiTerminalDcLink psseMultiTerminalDcLink, String[] headers) {
+            String[] row = new String[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                row[i] = switch (headers[i]) {
+                    case "idc" -> String.valueOf(psseMultiTerminalDcLink.getIdc());
+                    case "jdc" -> String.valueOf(psseMultiTerminalDcLink.getJdc());
+                    case "dcckt" -> String.valueOf(psseMultiTerminalDcLink.getDcckt());
+                    case "met" -> String.valueOf(psseMultiTerminalDcLink.getMet());
+                    case "rdc" -> String.valueOf(psseMultiTerminalDcLink.getRdc());
+                    case "ldc" -> String.valueOf(psseMultiTerminalDcLink.getLdc());
+                    default -> throw new PsseException("Unsupported header: " + headers[i]);
+                };
+            }
+            return row;
+        }
 
         public int getIdc() {
             return idc;
@@ -486,11 +602,42 @@ public class PsseMultiTerminalDcTransmissionLine {
             this.converter = converter;
         }
 
-        @Parsed
         private String name;
-
-        @Nested
         private PsseMultiTerminalDcConverter converter;
+
+        public static PsseMultiTerminalDcConverterx fromRecord(NamedCsvRecord rec, PsseVersion version) {
+            PsseMultiTerminalDcConverterx psseMultiTerminalDcConverterx = new PsseMultiTerminalDcConverterx();
+            psseMultiTerminalDcConverterx.setName(rec.getField("name"));
+            psseMultiTerminalDcConverterx.setConverter(PsseMultiTerminalDcConverter.fromRecord(rec, version));
+            return psseMultiTerminalDcConverterx;
+        }
+
+        public static String[] toRecord(PsseMultiTerminalDcConverterx psseMultiTerminalDcConverterx, String[] headers) {
+            String[] row = new String[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                row[i] = switch (headers[i]) {
+                    case "name" -> psseMultiTerminalDcConverterx.getName();
+                    case "ib" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getIb());
+                    case "n" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getN());
+                    case "angmx" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getAngmx());
+                    case "angmn" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getAngmn());
+                    case "rc" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getRc());
+                    case "xc" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getXc());
+                    case "ebas" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getEbas());
+                    case "tr" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getTr());
+                    case "tap" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getTap());
+                    case "tpmx" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getTpmx());
+                    case "tpmn" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getTpmn());
+                    case "tstp" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getTstp());
+                    case "setvl" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getSetvl());
+                    case "dcpf" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getDcpf());
+                    case "marg" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getMarg());
+                    case "cnvcod" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getCnvcod());
+                    default -> throw new PsseException("Unsupported header: " + headers[i]);
+                };
+            }
+            return row;
+        }
 
         public String getName() {
             return name;
@@ -502,6 +649,10 @@ public class PsseMultiTerminalDcTransmissionLine {
 
         public PsseMultiTerminalDcConverter getConverter() {
             return converter;
+        }
+
+        public void setConverter(PsseMultiTerminalDcConverter converter) {
+            this.converter = converter;
         }
     }
 
@@ -515,11 +666,34 @@ public class PsseMultiTerminalDcTransmissionLine {
             this.bus = bus;
         }
 
-        @Parsed
         private String name;
-
-        @Nested
         private PsseMultiTerminalDcBus bus;
+
+        public static PsseMultiTerminalDcBusx fromRecord(NamedCsvRecord rec, PsseVersion version) {
+            PsseMultiTerminalDcBusx psseMultiTerminalDcBusx = new PsseMultiTerminalDcBusx();
+            psseMultiTerminalDcBusx.setName(rec.getField("name"));
+            psseMultiTerminalDcBusx.setBus(PsseMultiTerminalDcBus.fromRecord(rec, version));
+            return psseMultiTerminalDcBusx;
+        }
+
+        public static String[] toRecord(PsseMultiTerminalDcBusx psseMultiTerminalDcBusx, String[] headers) {
+            String[] row = new String[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                row[i] = switch (headers[i]) {
+                    case "name" -> psseMultiTerminalDcBusx.getName();
+                    case "idc" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getIdc());
+                    case "ib" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getIb());
+                    case "area" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getArea());
+                    case "zone" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getZone());
+                    case "dcname" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getDcname());
+                    case "idc2" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getIdc2());
+                    case "rgrnd" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getRgrnd());
+                    case "owner" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getOwner());
+                    default -> throw new PsseException("Unsupported header: " + headers[i]);
+                };
+            }
+            return row;
+        }
 
         public String getName() {
             return name;
@@ -531,6 +705,10 @@ public class PsseMultiTerminalDcTransmissionLine {
 
         public PsseMultiTerminalDcBus getBus() {
             return bus;
+        }
+
+        public void setBus(PsseMultiTerminalDcBus bus) {
+            this.bus = bus;
         }
     }
 
@@ -544,11 +722,32 @@ public class PsseMultiTerminalDcTransmissionLine {
             this.link = link;
         }
 
-        @Parsed
         private String name;
-
-        @Nested
         private PsseMultiTerminalDcLink link;
+
+        public static PsseMultiTerminalDcLinkx fromRecord(NamedCsvRecord rec, PsseVersion version) {
+            PsseMultiTerminalDcLinkx psseMultiTerminalDcLinkx = new PsseMultiTerminalDcLinkx();
+            psseMultiTerminalDcLinkx.setName(rec.getField("name"));
+            psseMultiTerminalDcLinkx.setLink(PsseMultiTerminalDcLink.fromRecord(rec, version));
+            return psseMultiTerminalDcLinkx;
+        }
+
+        public static String[] toRecord(PsseMultiTerminalDcLinkx psseMultiTerminalDcLinkx, String[] headers) {
+            String[] row = new String[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                row[i] = switch (headers[i]) {
+                    case "name" -> psseMultiTerminalDcLinkx.getName();
+                    case "idc" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getIdc());
+                    case "jdc" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getJdc());
+                    case "dcckt" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getDcckt());
+                    case "met" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getMet());
+                    case "rdc" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getRdc());
+                    case "ldc" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getLdc());
+                    default -> throw new PsseException("Unsupported header: " + headers[i]);
+                };
+            }
+            return row;
+        }
 
         public String getName() {
             return name;
@@ -560,6 +759,10 @@ public class PsseMultiTerminalDcTransmissionLine {
 
         public PsseMultiTerminalDcLink getLink() {
             return link;
+        }
+
+        public void setLink(PsseMultiTerminalDcLink link) {
+            this.link = link;
         }
     }
 }

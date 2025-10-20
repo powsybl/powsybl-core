@@ -9,16 +9,15 @@ package com.powsybl.psse.model.io;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import com.univocity.parsers.common.DataProcessingException;
-import com.univocity.parsers.common.ParsingContext;
-import com.univocity.parsers.common.RetryableErrorHandler;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.CsvRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
@@ -31,27 +30,29 @@ import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
 public class Context {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
+    public static final String VALID_QUOTES = "\"'";
 
     private final Map<String, String[]> fieldNames = new HashMap<>();
-    private final CsvParserSettings csvParserSettings;
+//    private final CsvParserSettings csvParserSettings;
 
     private FileFormat fileFormat = LEGACY_TEXT;
     private char delimiter = LEGACY_TEXT.getDefaultDelimiter();
+    private char quote = LEGACY_TEXT.getQuote();
     private PsseVersion version;
     private int currentRecordGroupMaxNumFields;
     private JsonGenerator jsonGenerator;
     private JsonNode networkNode;
 
     public Context() {
-        csvParserSettings = new CsvParserSettings();
-        csvParserSettings.setHeaderExtractionEnabled(false);
-        csvParserSettings.setQuoteDetectionEnabled(true);
-        csvParserSettings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
-            @Override
-            public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
-                LOGGER.error("Parsing context {}", context, error);
-            }
-        });
+//        csvParserSettings = new CsvParserSettings();
+//        csvParserSettings.setHeaderExtractionEnabled(false);
+//        csvParserSettings.setQuoteDetectionEnabled(true);
+//        csvParserSettings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
+//            @Override
+//            public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
+//                LOGGER.error("Parsing context {}", context, error);
+//            }
+//        });
     }
 
     public PsseVersion getVersion() {
@@ -81,18 +82,47 @@ public class Context {
         return this;
     }
 
-    public void detectDelimiter(String record) {
-        // The order of delimiters is relevant
-        // We pass the delimiters as an array of chars (it will be modified by the parser)
-        csvParserSettings.setDelimiterDetectionEnabled(true, VALID_DELIMITERS.toCharArray());
-        CsvParser parser = new CsvParser(csvParserSettings);
-        parser.parseLine(record);
-        setDelimiter(parser.getDetectedFormat().getDelimiterString().charAt(0));
+    public char getQuote() {
+        return quote;
+    }
 
-        csvParserSettings.getFormat().setDelimiter(getDelimiter());
-        csvParserSettings.getFormat().setQuote(getFileFormat().getQuote());
-        csvParserSettings.setDelimiterDetectionEnabled(false);
-        csvParserSettings.setQuoteDetectionEnabled(false);
+    private Context setQuote(char quote) {
+        this.quote = quote;
+        return this;
+    }
+
+    /**
+     * Test each possible delimiter and quote to find the one that gives the most consistent field count
+     * @param rec the line of text to use for the detection
+     */
+    public void detectDelimiter(String rec) {
+        char bestDelimiter = '\0';
+        char bestQuote = '\0';
+        int maxFieldCount = 0;
+
+        for (char testDelimiter : VALID_DELIMITERS.toCharArray()) {
+            for (char testQuote : VALID_QUOTES.toCharArray()) {
+                int fieldCount = countFields(rec, testDelimiter, testQuote);
+                if (fieldCount > maxFieldCount) {
+                    maxFieldCount = fieldCount;
+                    bestDelimiter = testDelimiter;
+                    bestQuote = testQuote;
+                }
+            }
+        }
+
+        if (bestDelimiter == '\0' || bestQuote == '\0') {
+            throw new PsseException(String.format("Unable to detect delimiter and/or quote for record, using %s", rec));
+        }
+
+        setDelimiter(bestDelimiter);
+        setQuote(bestQuote);
+    }
+
+    public CsvReader.CsvReaderBuilder createCsvReaderBuilder() {
+        return CsvReader.builder()
+            .fieldSeparator(delimiter)
+            .quoteCharacter(quote);
     }
 
     public Context setFieldNames(RecordGroupIdentification recordGroup, String[] fieldNames) {
@@ -102,10 +132,6 @@ public class Context {
 
     public String[] getFieldNames(RecordGroupIdentification recordGroup) {
         return fieldNames.get(recordGroup.getUniqueName());
-    }
-
-    CsvParserSettings getCsvParserSettings() {
-        return csvParserSettings;
     }
 
     void resetCurrentRecordGroup() {
@@ -137,5 +163,22 @@ public class Context {
     public Context setNetworkNode(JsonNode networkNode) {
         this.networkNode = networkNode;
         return this;
+    }
+
+    private int countFields(String rec, char delimiter, char quote) {
+        try (CsvReader<CsvRecord> csvReader = CsvReader.builder()
+            .fieldSeparator(delimiter)
+            .quoteCharacter(quote)
+            .ofCsvRecord(rec)) {
+
+            Iterator<CsvRecord> rows = csvReader.iterator();
+            CsvRecord row = rows.next();
+            if (row != null) {
+                return row.getFieldCount();
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Error parsing with delimiter '{}' and quote '{}': {}", delimiter, quote, e.getMessage());
+        }
+        return 0;
     }
 }

@@ -7,7 +7,12 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
 
 /**
  *
@@ -15,11 +20,27 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseOwner {
 
-    @Parsed(field = {"i", "iowner"})
     private int i;
-
-    @Parsed(field = {"owname", "owner"}, defaultNullRead = "            ")
     private String owname;
+
+    public static PsseOwner fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseOwner psseOwner = new PsseOwner();
+        psseOwner.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "iowner")));
+        psseOwner.setOwname(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "owname", "owner"), "            "));
+        return psseOwner;
+    }
+
+    public static String[] toRecord(PsseOwner psseOwner, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "ibus" -> String.valueOf(psseOwner.getI());
+                case "owname", "owner" -> psseOwner.getOwname();
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;

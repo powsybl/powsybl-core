@@ -7,6 +7,8 @@
  */
 package com.powsybl.psse.model.io;
 
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
 import java.util.*;
 
 /**
@@ -30,5 +32,34 @@ public final class Util {
             }
         }
         return kept.toArray(new String[0]);
+    }
+
+    public static String defaultIfEmpty(String value, String defaultValue) {
+        return (value == null || value.isEmpty()) ? defaultValue : value;
+    }
+
+    public static Integer parseIntOrDefault(String value, int defaultValue) {
+        if (value == null || value.isEmpty() || value.equalsIgnoreCase("null")) {
+            return defaultValue;
+        }
+        return Integer.parseInt(value);
+    }
+
+    public static Integer parseIntOrNull(String value, String... nullValues) {
+        if (value == null || value.isEmpty() || value.equalsIgnoreCase("null") || Arrays.asList(nullValues).contains(value)) {
+            return null;
+        }
+        return Integer.parseInt(value);
+    }
+
+    public static Double parseDoubleOrDefault(String value, Double defaultValue) {
+        if (value == null || value.isEmpty() || value.equalsIgnoreCase("null")) {
+            return defaultValue;
+        }
+        return Double.parseDouble(value);
+    }
+
+    public static String getFieldFromMultiplePotentialHeaders(NamedCsvRecord rec, String... headers) {
+        return rec.getField(Arrays.stream(headers).filter(header -> rec.findField(header).isPresent()).findFirst().orElseThrow(NoSuchElementException::new));
     }
 }

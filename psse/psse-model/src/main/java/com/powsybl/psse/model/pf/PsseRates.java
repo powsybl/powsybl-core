@@ -7,10 +7,16 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -18,77 +24,111 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseRates extends PsseVersioned {
 
-    @Parsed(field = {"ratea", "rata"})
     @Revision(until = 33)
     private double ratea = 0;
 
-    @Parsed(field = {"rateb", "ratb"})
     @Revision(until = 33)
     private double rateb = 0;
 
-    @Parsed(field = {"ratec", "ratc"})
     @Revision(until = 33)
     private double ratec = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate1", "wdgrate1"})
     @Revision(since = 35)
     private double rate1 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate2", "wdgrate2"})
     @Revision(since = 35)
     private double rate2 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate3", "wdgrate3"})
     @Revision(since = 35)
     private double rate3 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate4", "wdgrate4"})
     @Revision(since = 35)
     private double rate4 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate5", "wdgrate5"})
     @Revision(since = 35)
     private double rate5 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate6", "wdgrate6"})
     @Revision(since = 35)
     private double rate6 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate7", "wdgrate7"})
     @Revision(since = 35)
     private double rate7 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate8", "wdgrate8"})
     @Revision(since = 35)
     private double rate8 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate9", "wdgrate9"})
     @Revision(since = 35)
     private double rate9 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate10", "wdgrate10"})
     @Revision(since = 35)
     private double rate10 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate11", "wdgrate11"})
     @Revision(since = 35)
     private double rate11 = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"rate12", "wdgrate12"})
     @Revision(since = 35)
     private double rate12 = 0;
+
+    public static PsseRates fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        return fromRecord(rec, version, "");
+    }
+
+    public static PsseRates fromRecord(NamedCsvRecord rec, PsseVersion version, String headerSuffix) {
+        PsseRates psseRates = new PsseRates();
+        if (version.getMajorNumber() <= 33) {
+            psseRates.setRatea(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "ratea" + headerSuffix, "rata" + headerSuffix)));
+            psseRates.setRateb(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "rateb" + headerSuffix, "ratb" + headerSuffix)));
+            psseRates.setRatec(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "ratec" + headerSuffix, "ratc" + headerSuffix)));
+        }
+        if (version.getMajorNumber() >= 35) {
+            psseRates.setRate1(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate1" + headerSuffix, "wdgrate1" + headerSuffix), 0.0));
+            psseRates.setRate2(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate2" + headerSuffix, "wdgrate2" + headerSuffix), 0.0));
+            psseRates.setRate3(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate3" + headerSuffix, "wdgrate3" + headerSuffix), 0.0));
+            psseRates.setRate4(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate4" + headerSuffix, "wdgrate4" + headerSuffix), 0.0));
+            psseRates.setRate5(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate5" + headerSuffix, "wdgrate5" + headerSuffix), 0.0));
+            psseRates.setRate6(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate6" + headerSuffix, "wdgrate6" + headerSuffix), 0.0));
+            psseRates.setRate7(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate7" + headerSuffix, "wdgrate7" + headerSuffix), 0.0));
+            psseRates.setRate8(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate8" + headerSuffix, "wdgrate8" + headerSuffix), 0.0));
+            psseRates.setRate9(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate9" + headerSuffix, "wdgrate9" + headerSuffix), 0.0));
+            psseRates.setRate10(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate10" + headerSuffix, "wdgrate10" + headerSuffix), 0.0));
+            psseRates.setRate11(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate11" + headerSuffix, "wdgrate11" + headerSuffix), 0.0));
+            psseRates.setRate12(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate12" + headerSuffix, "wdgrate12" + headerSuffix), 0.0));
+        }
+        return psseRates;
+    }
+
+    public static String[] toRecord(PsseRates psseRates, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            Optional<String> optionalValue = psseRates.headerToString(headers[i]);
+            if (optionalValue.isEmpty()) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = optionalValue.get();
+        }
+        return row;
+    }
+
+    public Optional<String> headerToString(String header) {
+        return switch (header) {
+            case "ratea", "rata" -> Optional.of(String.valueOf(getRatea()));
+            case "rateb", "ratb" -> Optional.of(String.valueOf(getRateb()));
+            case "ratec", "ratc" -> Optional.of(String.valueOf(getRatec()));
+            case "rate1", "wdgrate1" -> Optional.of(String.valueOf(getRate1()));
+            case "rate2", "wdgrate2" -> Optional.of(String.valueOf(getRate2()));
+            case "rate3", "wdgrate3" -> Optional.of(String.valueOf(getRate3()));
+            case "rate4", "wdgrate4" -> Optional.of(String.valueOf(getRate4()));
+            case "rate5", "wdgrate5" -> Optional.of(String.valueOf(getRate5()));
+            case "rate6", "wdgrate6" -> Optional.of(String.valueOf(getRate6()));
+            case "rate7", "wdgrate7" -> Optional.of(String.valueOf(getRate7()));
+            case "rate8", "wdgrate8" -> Optional.of(String.valueOf(getRate8()));
+            case "rate9", "wdgrate9" -> Optional.of(String.valueOf(getRate9()));
+            case "rate10", "wdgrate10" -> Optional.of(String.valueOf(getRate10()));
+            case "rate11", "wdgrate11" -> Optional.of(String.valueOf(getRate11()));
+            case "rate12", "wdgrate12" -> Optional.of(String.valueOf(getRate12()));
+            default -> Optional.empty();
+        };
+    }
 
     public double getRatea() {
         checkVersion("ratea");

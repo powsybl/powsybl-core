@@ -7,12 +7,14 @@
  */
 package com.powsybl.psse.model.pf;
 
-import java.lang.reflect.Field;
-
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
-import com.univocity.parsers.annotations.HeaderTransformer;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
 
 /**
  *
@@ -28,47 +30,71 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
         inverter.setModel(model);
     }
 
-    @Parsed
     private String name;
-
-    @Parsed
     private int mdc = 0;
-
-    @Parsed
     private double rdc;
-
-    @Parsed
     private double setvl;
-
-    @Parsed
     private double vschd;
-
-    @Parsed
     private double vcmod = 0.0;
-
-    @Parsed
     private double rcomp = 0.0;
-
-    @Parsed
     private double delti = 0.0;
-
-    @Parsed(field = {"meter", "met"})
     private String meter = "I";
-
-    @Parsed
     private double dcvmin = 0.0;
-
-    @Parsed
     private int cccitmx = 20;
-
-    @Parsed
     private double cccacc = 1.0;
-
-    @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "r")
     private PsseTwoTerminalDcConverter rectifier;
-
-    @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "i")
     private PsseTwoTerminalDcConverter inverter;
+
+    public static PsseTwoTerminalDcTransmissionLine fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseTwoTerminalDcTransmissionLine psseTwoTerminalDcTransmissionLine = new PsseTwoTerminalDcTransmissionLine();
+        psseTwoTerminalDcTransmissionLine.setName(rec.getField("name"));
+        psseTwoTerminalDcTransmissionLine.setMdc(Integer.parseInt(rec.getField("mdc")));
+        psseTwoTerminalDcTransmissionLine.setRdc(Double.parseDouble(rec.getField("rdc")));
+        psseTwoTerminalDcTransmissionLine.setSetvl(Double.parseDouble(rec.getField("setvl")));
+        psseTwoTerminalDcTransmissionLine.setVschd(Double.parseDouble(rec.getField("vschd")));
+        psseTwoTerminalDcTransmissionLine.setVcmod(Double.parseDouble(rec.getField("vcmod")));
+        psseTwoTerminalDcTransmissionLine.setRcomp(Double.parseDouble(rec.getField("rcomp")));
+        psseTwoTerminalDcTransmissionLine.setDelti(Double.parseDouble(rec.getField("delti")));
+        psseTwoTerminalDcTransmissionLine.setMeter(getFieldFromMultiplePotentialHeaders(rec, "meter", "met"));
+        psseTwoTerminalDcTransmissionLine.setDcvmin(Double.parseDouble(rec.getField("dcvmin")));
+        psseTwoTerminalDcTransmissionLine.setCccitmx(Integer.parseInt(rec.getField("cccitmx")));
+        psseTwoTerminalDcTransmissionLine.setCccacc(Double.parseDouble(rec.getField("cccacc")));
+        psseTwoTerminalDcTransmissionLine.setRectifier(PsseTwoTerminalDcConverter.fromRecord(rec, version, "r"));
+        psseTwoTerminalDcTransmissionLine.setInverter(PsseTwoTerminalDcConverter.fromRecord(rec, version, "i"));
+        return psseTwoTerminalDcTransmissionLine;
+    }
+
+    public static String[] toRecord(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDcTransmissionLine, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "name" -> psseTwoTerminalDcTransmissionLine.getName();
+                case "mdc" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getMdc());
+                case "rdc" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getRdc());
+                case "setvl" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getSetvl());
+                case "vschd" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getVschd());
+                case "vcmod" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getVcmod());
+                case "rcomp" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getRcomp());
+                case "delti" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getDelti());
+                case "meter", "met" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getMeter());
+                case "dcvmin" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getDcvmin());
+                case "cccitmx" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getCccitmx());
+                case "cccacc" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getCccacc());
+                default -> {
+                    Optional<String> optionalValue = psseTwoTerminalDcTransmissionLine.getRectifier().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = psseTwoTerminalDcTransmissionLine.getInverter().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    throw new PsseException("Unsupported header: " + headers[i]);
+                }
+            };
+        }
+        return row;
+    }
 
     public String getName() {
         return name;
@@ -199,21 +225,5 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
         copy.rectifier = this.rectifier.copy();
         copy.inverter = this.inverter.copy();
         return copy;
-    }
-
-    public static class ConverterHeaderTransformer extends HeaderTransformer {
-        private final String converterChar;
-
-        public ConverterHeaderTransformer(String... args) {
-            converterChar = args[0];
-        }
-
-        @Override
-        public String transformName(Field field, String name) {
-            if (name.equals("ifx")) {
-                return "if" + converterChar;
-            }
-            return name + converterChar;
-        }
     }
 }

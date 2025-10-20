@@ -7,8 +7,13 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseIntOrNull;
 
 /**
  *
@@ -27,53 +32,60 @@ public class PsseLineGrouping {
         this.met = met;
     }
 
-    @Parsed(field = {"i", "ibus"})
     private int i;
-
-    @Parsed(field = {"j", "jbus"})
     private int j;
-
-    @Parsed(field = {"id", "mslid"}, defaultNullRead = "&1")
     private String id;
-
-    @Parsed
     private int met = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum2;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum3;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum4;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum5;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum6;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum7;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum8;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum9;
+
+    public static PsseLineGrouping fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseLineGrouping psseLineGrouping = new PsseLineGrouping();
+        psseLineGrouping.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
+        psseLineGrouping.setJ(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "j", "jbus")));
+        psseLineGrouping.setId(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "id", "mslid"), "&1"));
+        psseLineGrouping.setMet(Integer.parseInt(rec.getField("met")));
+        psseLineGrouping.setDum1(parseIntOrNull(rec.getField("dum1"), "null"));
+        psseLineGrouping.setDum2(parseIntOrNull(rec.getField("dum2"), "null"));
+        psseLineGrouping.setDum3(parseIntOrNull(rec.getField("dum3"), "null"));
+        psseLineGrouping.setDum4(parseIntOrNull(rec.getField("dum4"), "null"));
+        psseLineGrouping.setDum5(parseIntOrNull(rec.getField("dum1"), "null"));
+        psseLineGrouping.setDum6(parseIntOrNull(rec.getField("dum6"), "null"));
+        psseLineGrouping.setDum7(parseIntOrNull(rec.getField("dum7"), "null"));
+        psseLineGrouping.setDum8(parseIntOrNull(rec.getField("dum8"), "null"));
+        psseLineGrouping.setDum9(parseIntOrNull(rec.getField("dum9"), "null"));
+        return psseLineGrouping;
+    }
+
+    public static String[] toRecord(PsseLineGrouping psseLineGrouping, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "ibus" -> String.valueOf(psseLineGrouping.getI());
+                case "j", "jbus" -> String.valueOf(psseLineGrouping.getJ());
+                case "id", "mslid" -> psseLineGrouping.getId();
+                case "met" -> String.valueOf(psseLineGrouping.getMet());
+                case "dum1" -> String.valueOf(psseLineGrouping.getDum1());
+                case "dum2" -> String.valueOf(psseLineGrouping.getDum2());
+                case "dum3" -> String.valueOf(psseLineGrouping.getDum3());
+                case "dum4" -> String.valueOf(psseLineGrouping.getDum4());
+                case "dum5" -> String.valueOf(psseLineGrouping.getDum5());
+                case "dum6" -> String.valueOf(psseLineGrouping.getDum6());
+                case "dum7" -> String.valueOf(psseLineGrouping.getDum7());
+                case "dum8" -> String.valueOf(psseLineGrouping.getDum8());
+                case "dum9" -> String.valueOf(psseLineGrouping.getDum9());
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;

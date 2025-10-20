@@ -9,13 +9,18 @@ package com.powsybl.psse.model.pf;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.powsybl.psse.model.pf.io.WindingHeaderTransformer;
-import com.powsybl.psse.model.pf.io.WindingRatesHeaderTransformer;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
+import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
 
 /**
  *
@@ -38,46 +43,20 @@ public class PsseTransformer extends PsseVersioned {
         winding3Rates.setModel(model);
     }
 
-    @Parsed(field = {"i", "ibus"})
     private int i;
-
-    @Parsed(field = {"j", "jbus"})
     private int j;
-
-    @Parsed(field = {"k", "kbus"})
     private int k = 0;
-
-    @Parsed(defaultNullRead = "1")
     private String ckt;
-
-    @Parsed
     private int cw = 1;
-
-    @Parsed
     private int cz = 1;
-
-    @Parsed
     private int cm = 1;
-
-    @Parsed
     private double mag1 = 0;
-
-    @Parsed
     private double mag2 = 0;
-
-    @Parsed(field = {"nmetr", "nmet"})
     private int nmetr = 2;
-
-    @Parsed(defaultNullRead = "            ")
     private String name;
-
-    @Parsed
     private int stat = 1;
-
-    @Nested
     private PsseOwnership ownership;
 
-    @Parsed(defaultNullRead = "            ")
     // If the issue 432 in Univocity is fixed,
     // the previous annotation will be correctly processed
     // and there would be no need to initialize vecgrp with default value
@@ -85,31 +64,121 @@ public class PsseTransformer extends PsseVersioned {
     @Revision(since = 33)
     private String vecgrp = "            ";
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int zcod = 0;
 
-    @Nested
     TransformerImpedances impedances;
-
-    @Nested(headerTransformer = WindingHeaderTransformer.class, args = "1")
     private PsseTransformerWinding winding1;
-
-    @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "1")
     private PsseRates winding1Rates;
-
-    @Nested(headerTransformer = WindingHeaderTransformer.class, args = "2")
     private PsseTransformerWinding winding2;
-
-    @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "2")
     private PsseRates winding2Rates;
-
-    @Nested(headerTransformer = WindingHeaderTransformer.class, args = "3")
     private PsseTransformerWinding winding3;
-
-    @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "3")
     private PsseRates winding3Rates;
+
+    public static PsseTransformer fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseTransformer psseTransformer = new PsseTransformer();
+        psseTransformer.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
+        psseTransformer.setJ(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "j", "jbus")));
+        psseTransformer.setK(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "k", "kbus")));
+        psseTransformer.setCkt(defaultIfEmpty(rec.getField("ckt"), "1"));
+        psseTransformer.setCw(Integer.parseInt(rec.getField("cw")));
+        psseTransformer.setCz(Integer.parseInt(rec.getField("cz")));
+        psseTransformer.setCm(Integer.parseInt(rec.getField("cm")));
+        psseTransformer.setMag1(Integer.parseInt(rec.getField("mag1")));
+        psseTransformer.setMag2(Integer.parseInt(rec.getField("mag2")));
+        psseTransformer.setNmetr(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "nmetr", "nmet")));
+        psseTransformer.setName(defaultIfEmpty(rec.getField("name"), "            "));
+        psseTransformer.setStat(Integer.parseInt(rec.getField("stat")));
+        psseTransformer.setOwnership(PsseOwnership.fromRecord(rec, version));
+        if (version.getMajorNumber() >= 33) {
+            psseTransformer.setVecgrp(defaultIfEmpty(rec.getField("vecgrp"), "            "));
+        }
+        if (version.getMajorNumber() >= 35) {
+            psseTransformer.setZcod(parseIntOrDefault(rec.getField("zcod"), 0));
+        }
+        TransformerImpedances transformerImpedances = new TransformerImpedances();
+        psseTransformer.setImpedances(transformerImpedances);
+        psseTransformer.setR12(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "r12", "r1_2")));
+        psseTransformer.setX12(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "x12", "x1_2")));
+        psseTransformer.setSbase12(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "sbase12", "sbase1_2")));
+        psseTransformer.setR23(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "r23", "r2_3"), 0.0));
+        psseTransformer.setX23(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "x23", "x2_3"), Double.NaN));
+        psseTransformer.setSbase23(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "sbase23", "sbase2_3"), Double.NaN));
+        psseTransformer.setR31(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "r31", "r3_1"), 0.0));
+        psseTransformer.setX31(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "x31", "x3_1"), Double.NaN));
+        psseTransformer.setSbase31(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "sbase31", "sbase3_1"), Double.NaN));
+        psseTransformer.setVmstar(parseDoubleOrDefault(rec.getField("vmstar"), 1.0));
+        psseTransformer.setAnstar(parseDoubleOrDefault(rec.getField("anstar"), 0.0));
+        psseTransformer.setWinding1(PsseTransformerWinding.fromRecord(rec, version, "1"), PsseRates.fromRecord(rec, version, "1"));
+        psseTransformer.setWinding2(PsseTransformerWinding.fromRecord(rec, version, "2"), PsseRates.fromRecord(rec, version, "2"));
+        psseTransformer.setWinding3(PsseTransformerWinding.fromRecord(rec, version, "3"), PsseRates.fromRecord(rec, version, "3"));
+        return psseTransformer;
+    }
+
+    public static String[] toRecord(PsseTransformer psseTransformer, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "ibus" -> String.valueOf(psseTransformer.getI());
+                case "j", "jbus" -> String.valueOf(psseTransformer.getJ());
+                case "k", "kbus" -> String.valueOf(psseTransformer.getK());
+                case "ckt" -> String.valueOf(psseTransformer.getCkt());
+                case "cw" -> String.valueOf(psseTransformer.getCw());
+                case "cz" -> String.valueOf(psseTransformer.getCz());
+                case "cm" -> String.valueOf(psseTransformer.getCm());
+                case "mag1" -> String.valueOf(psseTransformer.getMag1());
+                case "mag2" -> String.valueOf(psseTransformer.getMag2());
+                case "nmetr", "nmet" -> String.valueOf(psseTransformer.getNmetr());
+                case "name" -> psseTransformer.getName();
+                case "stat" -> String.valueOf(psseTransformer.getStat());
+                case "vecgrp" -> String.valueOf(psseTransformer.getVecgrp());
+                case "zcod" -> String.valueOf(psseTransformer.getZcod());
+                case "r12", "r1_2" -> String.valueOf(psseTransformer.getR12());
+                case "x12", "x1_2" -> String.valueOf(psseTransformer.getX12());
+                case "sbase12", "sbase1_2" -> String.valueOf(psseTransformer.getSbase12());
+                case "r23", "r2_3" -> String.valueOf(psseTransformer.getR23());
+                case "x23", "x2_3" -> String.valueOf(psseTransformer.getX23());
+                case "sbase23", "sbase2_3" -> String.valueOf(psseTransformer.getSbase23());
+                case "r31", "r3_1" -> String.valueOf(psseTransformer.getR31());
+                case "x31", "x3_1" -> String.valueOf(psseTransformer.getX31());
+                case "sbase31", "sbase3_1" -> String.valueOf(psseTransformer.getSbase31());
+                case "vmstar" -> String.valueOf(psseTransformer.getVmstar());
+                case "anstar" -> String.valueOf(psseTransformer.getAnstar());
+                default -> {
+                    Optional<String> optionalValue = psseTransformer.getOwnership().headerToString(headers[i]);
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = psseTransformer.getWinding1().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = psseTransformer.getWinding1Rates().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = psseTransformer.getWinding2().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = psseTransformer.getWinding2Rates().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = psseTransformer.getWinding3().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = psseTransformer.getWinding3Rates().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    throw new PsseException("Unsupported header: " + headers[i]);
+                }
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;
@@ -397,45 +466,17 @@ public class PsseTransformer extends PsseVersioned {
     }
 
     public static class TransformerImpedances {
-        @Parsed(field = {"r12", "r1_2"})
+
         private double r12 = 0;
-
-        @Parsed(field = {"x12", "x1_2"})
         private double x12;
-
-        @Parsed(field = {"sbase12", "sbase1_2"})
         private double sbase12 = Double.NaN;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"r23", "r2_3"})
         private double r23 = 0;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"x23", "x2_3"})
         private double x23 = Double.NaN;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"sbase23", "sbase2_3"})
         private double sbase23 = Double.NaN;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"r31", "r3_1"})
         private double r31 = 0;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"x31", "x3_1"})
         private double x31 = Double.NaN;
-
-        @NullString(nulls = {"null"})
-        @Parsed(field = {"sbase31", "sbase3_1"})
         private double sbase31 = Double.NaN;
-
-        @NullString(nulls = {"null"})
-        @Parsed
         private double vmstar = 1;
-
-        @NullString(nulls = {"null"})
-        @Parsed
         private double anstar = 0;
 
         public TransformerImpedances copy() {

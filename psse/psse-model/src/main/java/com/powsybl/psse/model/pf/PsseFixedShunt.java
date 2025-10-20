@@ -7,7 +7,13 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
+
+import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static java.lang.Integer.parseInt;
 
 /**
  *
@@ -15,20 +21,40 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseFixedShunt {
 
-    @Parsed(field = {"i", "ibus"})
+    private static final String STRING_I = "i";
+    private static final String STRING_ID = "id";
+    private static final String STRING_STATUS = "status";
+
     private int i;
-
-    @Parsed(field = {"id", "shntid"}, defaultNullRead = "1")
     private String id;
-
-    @Parsed(field = {"status", "stat"})
     private int status = 1;
-
-    @Parsed
     private double gl = 0;
-
-    @Parsed
     private double bl = 0;
+
+    public static PsseFixedShunt fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseFixedShunt psseFixedShunt = new PsseFixedShunt();
+        psseFixedShunt.setI(parseInt(getFieldFromMultiplePotentialHeaders(rec, STRING_I, "ibus")));
+        psseFixedShunt.setId(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, STRING_ID, "shntid"), "1"));
+        psseFixedShunt.setStatus(parseInt(getFieldFromMultiplePotentialHeaders(rec, STRING_STATUS, "stat")));
+        psseFixedShunt.setGl(Double.parseDouble(rec.getField("gl")));
+        psseFixedShunt.setBl(Double.parseDouble(rec.getField("bl")));
+        return psseFixedShunt;
+    }
+
+    public static String[] toRecord(PsseFixedShunt psseFixedShunt, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case STRING_I, "ibus" -> String.valueOf(psseFixedShunt.getI());
+                case STRING_ID, "shntid" -> psseFixedShunt.getId();
+                case STRING_STATUS, "stat" -> String.valueOf(psseFixedShunt.getStatus());
+                case "gl" -> String.valueOf(psseFixedShunt.getGl());
+                case "bl" -> String.valueOf(psseFixedShunt.getBl());
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;

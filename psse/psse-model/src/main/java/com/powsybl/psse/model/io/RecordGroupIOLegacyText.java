@@ -8,8 +8,7 @@
 package com.powsybl.psse.model.io;
 
 import com.powsybl.psse.model.PsseException;
-import com.univocity.parsers.csv.CsvWriter;
-import com.univocity.parsers.csv.CsvWriterSettings;
+import de.siegmar.fastcsv.writer.CsvWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -65,11 +64,15 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     }
 
     protected void write(List<T> objects, String[] headers, String[] quotedFields, Context context, OutputStream outputStream) {
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
-        CsvWriterSettings settings = recordGroup.settingsForCsvWriter(headers, quotedFields, context);
-        CsvWriter writer = new CsvWriter(outputStreamWriter, settings);
-        writer.processRecords(objects);
-        writer.flush();
+        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+             CsvWriter csvWriter = recordGroup.getCsvWriterBuilder(headers, quotedFields, context)
+                 .build(outputStreamWriter)) {
+            csvWriter.writeRecord(headers);
+            objects.forEach(object -> csvWriter.writeRecord(recordGroup.buildRecord(object, headers, quotedFields, context)));
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void writeEmpty(RecordGroupIdentification recordGroup, OutputStream outputStream) {

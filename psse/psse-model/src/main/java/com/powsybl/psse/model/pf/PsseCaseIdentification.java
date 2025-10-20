@@ -13,8 +13,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import com.univocity.parsers.annotations.Format;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
 
 import java.io.IOException;
 
@@ -24,37 +23,50 @@ import java.io.IOException;
  */
 public class PsseCaseIdentification {
 
-    @Parsed
     private int ic = 0;
-
-    @Parsed
     private double sbase = 100;
 
-    @Parsed
-    // Accept floats and write a maximum of two decimal places
-    // Do not write decimal point if decimal part is 0
-    @Format(formats = {"0.##"})
     // Similar way writing revision for Json,
     // but relying on PsseVersion class
     @JsonSerialize(using = RevisionSerializer.class)
     private float rev = 33;
 
-    @Parsed
-    @Format(formats = {"0"})
     private double xfrrat = Double.NaN;
-
-    @Parsed
-    @Format(formats = {"0"})
     private double nxfrat = Double.NaN;
-
-    @Parsed
     private double basfrq = Double.NaN;
-
-    @Parsed(defaultNullRead = "")
     private String title1;
-
-    @Parsed(defaultNullRead = "")
     private String title2;
+
+    public static PsseCaseIdentification fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        PsseCaseIdentification psseCaseIdentification = new PsseCaseIdentification();
+        psseCaseIdentification.setIc(Integer.parseInt(rec.getField("ic")));
+        psseCaseIdentification.setSbase(Double.parseDouble(rec.getField("sbase")));
+        psseCaseIdentification.setRev(Float.parseFloat(rec.getField("rev")));
+        psseCaseIdentification.setXfrrat(Double.parseDouble(rec.getField("xfrrat")));
+        psseCaseIdentification.setNxfrat(Double.parseDouble(rec.getField("nxfrat")));
+        psseCaseIdentification.setBasfrq(Double.parseDouble(rec.getField("basfrq")));
+        psseCaseIdentification.setTitle1(rec.getField("title1"));
+        psseCaseIdentification.setTitle2(rec.getField("title2"));
+        return psseCaseIdentification;
+    }
+
+    public static String[] toRecord(PsseCaseIdentification psseCaseIdentification, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "ic" -> String.valueOf(psseCaseIdentification.getIc());
+                case "sbase" -> String.valueOf(psseCaseIdentification.getSbase());
+                case "rev" -> PsseVersion.fromRevision(psseCaseIdentification.getRev()).toString();
+                case "xfrrat" -> String.format("%.0f", psseCaseIdentification.getXfrrat());
+                case "nxfrat" -> String.format("%.0f", psseCaseIdentification.getNxfrat());
+                case "basfrq" -> String.valueOf(psseCaseIdentification.getBasfrq());
+                case "title1" -> psseCaseIdentification.getTitle1();
+                case "title2" -> psseCaseIdentification.getTitle2();
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getIc() {
         return ic;
