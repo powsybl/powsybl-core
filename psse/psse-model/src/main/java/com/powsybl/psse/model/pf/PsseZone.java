@@ -26,7 +26,7 @@ public class PsseZone {
     public static PsseZone fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseZone psseZone = new PsseZone();
         psseZone.setI(parseIntFromRecord(rec, headers, "i", "izone"));
-        psseZone.setZoname(parseStringFromRecord(rec, "            ", headers, "zonename"));
+        psseZone.setZoname(parseStringFromRecord(rec, "            ", headers, "zoname"));
         return psseZone;
     }
 
@@ -35,7 +35,7 @@ public class PsseZone {
         for (int i = 0; i < headers.length; i++) {
             row[i] = switch (headers[i]) {
                 case "i", "izone" -> String.valueOf(psseZone.getI());
-                case "zonename" -> psseZone.getZoname();
+                case "zoname" -> psseZone.getZoname();
                 default -> throw new PsseException("Unsupported header: " + headers[i]);
             };
         }

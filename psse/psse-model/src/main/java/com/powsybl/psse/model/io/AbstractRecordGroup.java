@@ -192,6 +192,8 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseOwner.class, (MapperFrom<PsseOwner>) PsseOwner::fromRecord);
         mappers.put(PsseRates.class, (MapperFrom<PsseRates>) PsseRates::fromRecord);
         mappers.put(PsseTransformer.class, (MapperFrom<PsseTransformer>) PsseTransformer::fromRecord);
+        mappers.put(PsseTransformerImpedances.class, (MapperFrom<PsseTransformerImpedances>) PsseTransformerImpedances::fromRecord);
+        mappers.put(PsseTransformerWindingRecord.class, (MapperFrom<PsseTransformerWindingRecord>) PsseTransformerWindingRecord::fromRecord);
 //        mappers.put(PsseTransformerImpedanceCorrectionPoint.class, (MapperFrom<PsseTransformerImpedanceCorrectionPoint>) PsseTransformerImpedanceCorrectionPoint::fromRecord);
         mappers.put(PsseTransformerWinding.class, (MapperFrom<PsseTransformerWinding>) PsseTransformerWinding::fromRecord);
         mappers.put(PsseTwoTerminalDcConverter.class, (MapperFrom<PsseTwoTerminalDcConverter>) PsseTwoTerminalDcConverter::fromRecord);
@@ -220,6 +222,8 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseOwner.class, (MapperTo<PsseOwner>) PsseOwner::toRecord);
         mappers.put(PsseRates.class, (MapperTo<PsseRates>) PsseRates::toRecord);
         mappers.put(PsseTransformer.class, (MapperTo<PsseTransformer>) PsseTransformer::toRecord);
+        mappers.put(PsseTransformerImpedances.class, (MapperTo<PsseTransformerImpedances>) PsseTransformerImpedances::toRecord);
+        mappers.put(PsseTransformerWindingRecord.class, (MapperTo<PsseTransformerWindingRecord>) PsseTransformerWindingRecord::toRecord);
 //        mappers.put(PsseTransformerImpedanceCorrectionPoint.class, (MapperTo<PsseTransformerImpedanceCorrectionPoint>) PsseTransformerImpedanceCorrectionPoint::toRecord);
         mappers.put(PsseTransformerWinding.class, (MapperTo<PsseTransformerWinding>) PsseTransformerWinding::toRecord);
         mappers.put(PsseTwoTerminalDcConverter.class, (MapperTo<PsseTwoTerminalDcConverter>) PsseTwoTerminalDcConverter::toRecord);
@@ -247,10 +251,7 @@ public abstract class AbstractRecordGroup<T> {
         }
 
         // Reconstruct a string block
-        StringBuilder sb = new StringBuilder();
-        for (String record : records) {
-            sb.append(record).append(System.lineSeparator());
-        }
+        String consistentStringBlock = makeRecordsConsistents(records, headers, context);
 
         // Initialize the output
         List<T> beans = new ArrayList<>(expectedCount);
@@ -258,7 +259,7 @@ public abstract class AbstractRecordGroup<T> {
 
         // Parse
         try (CsvReader<CsvRecord> reader = context.createCsvReaderBuilder()
-            .ofCsvRecord(new StringReader(sb.toString()))) {
+            .ofCsvRecord(new StringReader(consistentStringBlock))) {
             // Get the corresponding mapper
             MapperFrom<T> mapper = (MapperFrom<T>) MAPPERS_FROM_RECORD.get(psseTypeClass());
             if (mapper == null) {
@@ -281,6 +282,17 @@ public abstract class AbstractRecordGroup<T> {
             throw new PsseException("Parsing error");
         }
         return beans;
+    }
+
+    private String makeRecordsConsistents(List<String> records, String[] headers, Context context) {
+        StringBuilder sb = new StringBuilder();
+        for (String rec : records) {
+            int numFields = rec.split(String.valueOf(context.getDelimiter())).length;
+            sb.append(rec)
+                .append(String.valueOf(context.getDelimiter()).repeat(Math.max(0, headers.length - numFields)))
+                .append(System.lineSeparator());
+        }
+        return sb.toString();
     }
 
     // Casting is safe here

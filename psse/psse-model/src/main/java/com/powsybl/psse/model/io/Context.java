@@ -30,7 +30,7 @@ import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
 public class Context {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
-    public static final String VALID_QUOTES = "\"'";
+    public static final String VALID_QUOTES = "'\"";
 
     private final Map<String, String[]> fieldNames = new HashMap<>();
 //    private final CsvParserSettings csvParserSettings;
