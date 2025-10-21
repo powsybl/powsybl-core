@@ -62,13 +62,13 @@ public class PsseTransformer extends PsseVersioned {
     @Revision(since = 35)
     private int zcod = 0;
 
-    TransformerImpedances impedances;
-    private PsseTransformerWinding winding1;
-    private PsseRates winding1Rates;
-    private PsseTransformerWinding winding2;
-    private PsseRates winding2Rates;
-    private PsseTransformerWinding winding3;
-    private PsseRates winding3Rates;
+    private PsseTransformerImpedances impedances = new PsseTransformerImpedances();
+    private PsseTransformerWinding winding1 = new PsseTransformerWinding();
+    private PsseRates winding1Rates = new PsseRates();
+    private PsseTransformerWinding winding2 = new PsseTransformerWinding();
+    private PsseRates winding2Rates = new PsseRates();
+    private PsseTransformerWinding winding3 = new PsseTransformerWinding();
+    private PsseRates winding3Rates = new PsseRates();
 
     public static PsseTransformer fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseTransformer psseTransformer = new PsseTransformer();
@@ -91,22 +91,11 @@ public class PsseTransformer extends PsseVersioned {
         if (version.getMajorNumber() >= 35) {
             psseTransformer.setZcod(parseIntFromRecord(rec, 0, headers, "zcod"));
         }
-        TransformerImpedances transformerImpedances = new TransformerImpedances();
-        psseTransformer.setImpedances(transformerImpedances);
-        psseTransformer.setR12(parseDoubleFromRecord(rec, 0d, headers, "r12", "r1_2"));
-        psseTransformer.setX12(parseDoubleFromRecord(rec, headers, "x12", "x1_2"));
-        psseTransformer.setSbase12(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase12", "sbase1_2"));
-        psseTransformer.setR23(parseDoubleFromRecord(rec, 0.0, headers, "r23", "r2_3"));
-        psseTransformer.setX23(parseDoubleFromRecord(rec, Double.NaN, headers, "x23", "x2_3"));
-        psseTransformer.setSbase23(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase23", "sbase2_3"));
-        psseTransformer.setR31(parseDoubleFromRecord(rec, 0.0, headers, "r31", "r3_1"));
-        psseTransformer.setX31(parseDoubleFromRecord(rec, Double.NaN, headers, "x31", "x3_1"));
-        psseTransformer.setSbase31(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase31", "sbase3_1"));
-        psseTransformer.setVmstar(parseDoubleFromRecord(rec, 1.0, headers, "vmstar"));
-        psseTransformer.setAnstar(parseDoubleFromRecord(rec, 0.0, headers, "anstar"));
-        psseTransformer.setWinding1(PsseTransformerWinding.fromRecord(rec, version, headers, "1"), PsseRates.fromRecord(rec, version, headers, "1"));
-        psseTransformer.setWinding2(PsseTransformerWinding.fromRecord(rec, version, headers, "2"), PsseRates.fromRecord(rec, version, headers, "2"));
-        psseTransformer.setWinding3(PsseTransformerWinding.fromRecord(rec, version, headers, "3"), PsseRates.fromRecord(rec, version, headers, "3"));
+//        TransformerImpedances transformerImpedances = new TransformerImpedances();
+//        psseTransformer.setImpedances(transformerImpedances);
+//        psseTransformer.setWinding1(PsseTransformerWinding.fromRecord(rec, version, headers, "1"), PsseRates.fromRecord(rec, version, headers, "1"));
+//        psseTransformer.setWinding2(PsseTransformerWinding.fromRecord(rec, version, headers, "2"), PsseRates.fromRecord(rec, version, headers, "2"));
+//        psseTransformer.setWinding3(PsseTransformerWinding.fromRecord(rec, version, headers, "3"), PsseRates.fromRecord(rec, version, headers, "3"));
         return psseTransformer;
     }
 
@@ -128,19 +117,23 @@ public class PsseTransformer extends PsseVersioned {
                 case "stat" -> String.valueOf(psseTransformer.getStat());
                 case "vecgrp" -> String.valueOf(psseTransformer.getVecgrp());
                 case "zcod" -> String.valueOf(psseTransformer.getZcod());
-                case "r12", "r1_2" -> String.valueOf(psseTransformer.getR12());
-                case "x12", "x1_2" -> String.valueOf(psseTransformer.getX12());
-                case "sbase12", "sbase1_2" -> String.valueOf(psseTransformer.getSbase12());
-                case "r23", "r2_3" -> String.valueOf(psseTransformer.getR23());
-                case "x23", "x2_3" -> String.valueOf(psseTransformer.getX23());
-                case "sbase23", "sbase2_3" -> String.valueOf(psseTransformer.getSbase23());
-                case "r31", "r3_1" -> String.valueOf(psseTransformer.getR31());
-                case "x31", "x3_1" -> String.valueOf(psseTransformer.getX31());
-                case "sbase31", "sbase3_1" -> String.valueOf(psseTransformer.getSbase31());
-                case "vmstar" -> String.valueOf(psseTransformer.getVmstar());
-                case "anstar" -> String.valueOf(psseTransformer.getAnstar());
+//                case "r12", "r1_2" -> String.valueOf(psseTransformer.getR12());
+//                case "x12", "x1_2" -> String.valueOf(psseTransformer.getX12());
+//                case "sbase12", "sbase1_2" -> String.valueOf(psseTransformer.getSbase12());
+//                case "r23", "r2_3" -> String.valueOf(psseTransformer.getR23());
+//                case "x23", "x2_3" -> String.valueOf(psseTransformer.getX23());
+//                case "sbase23", "sbase2_3" -> String.valueOf(psseTransformer.getSbase23());
+//                case "r31", "r3_1" -> String.valueOf(psseTransformer.getR31());
+//                case "x31", "x3_1" -> String.valueOf(psseTransformer.getX31());
+//                case "sbase31", "sbase3_1" -> String.valueOf(psseTransformer.getSbase31());
+//                case "vmstar" -> String.valueOf(psseTransformer.getVmstar());
+//                case "anstar" -> String.valueOf(psseTransformer.getAnstar());
                 default -> {
                     Optional<String> optionalValue = psseTransformer.getOwnership().headerToString(headers[i]);
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = psseTransformer.getImpedances().headerToString(headers[i]);
                     if (optionalValue.isPresent()) {
                         yield optionalValue.get();
                     }
@@ -291,91 +284,91 @@ public class PsseTransformer extends PsseVersioned {
     }
 
     public double getR12() {
-        return impedances.r12;
+        return impedances.getR12();
     }
 
     public void setR12(double r12) {
-        this.impedances.r12 = r12;
+        this.impedances.setR12(r12);
     }
 
     public double getX12() {
-        return impedances.x12;
+        return impedances.getX12();
     }
 
     public void setX12(double x12) {
-        this.impedances.x12 = x12;
+        this.impedances.setX12(x12);
     }
 
     public double getSbase12() {
-        return impedances.sbase12;
+        return impedances.getSbase12();
     }
 
     public void setSbase12(double sbase12) {
-        this.impedances.sbase12 = sbase12;
+        this.impedances.setSbase12(sbase12);
     }
 
     public double getR23() {
-        return impedances.r23;
+        return impedances.getR23();
     }
 
     public void setR23(double r23) {
-        this.impedances.r23 = r23;
+        this.impedances.setR23(r23);
     }
 
     public double getX23() {
-        return impedances.x23;
+        return impedances.getX23();
     }
 
     public void setX23(double x23) {
-        this.impedances.x23 = x23;
+        this.impedances.setX23(x23);
     }
 
     public double getSbase23() {
-        return impedances.sbase23;
+        return impedances.getSbase23();
     }
 
     public void setSbase23(double sbase23) {
-        this.impedances.sbase23 = sbase23;
+        this.impedances.setSbase23(sbase23);
     }
 
     public double getR31() {
-        return impedances.r31;
+        return impedances.getR31();
     }
 
     public void setR31(double r31) {
-        this.impedances.r31 = r31;
+        this.impedances.setR31(r31);
     }
 
     public double getX31() {
-        return impedances.x31;
+        return impedances.getX31();
     }
 
     public void setX31(double x31) {
-        this.impedances.x31 = x31;
+        this.impedances.setX31(x31);
     }
 
     public double getSbase31() {
-        return impedances.sbase31;
+        return impedances.getSbase31();
     }
 
     public void setSbase31(double sbase31) {
-        this.impedances.sbase31 = sbase31;
+        this.impedances.setSbase31(sbase31);
     }
 
     public double getVmstar() {
-        return impedances.vmstar;
+        return impedances.getVmstar();
     }
 
     public void setVmstar(double vmstar) {
-        this.impedances.vmstar = vmstar;
+        this.impedances.setVmstar(vmstar);
     }
 
     public double getAnstar() {
-        return impedances.anstar;
+        return impedances.getAnstar();
     }
 
     public void setAnstar(double anstar) {
-        this.impedances.anstar = anstar;
+        this.impedances.setAnstar(anstar);
     }
 
     public PsseTransformerWinding getWinding1() {
@@ -425,11 +418,11 @@ public class PsseTransformer extends PsseVersioned {
         this.ownership = ownership;
     }
 
-    public TransformerImpedances getImpedances() {
+    public PsseTransformerImpedances getImpedances() {
         return impedances;
     }
 
-    public void setImpedances(TransformerImpedances impedances) {
+    public void setImpedances(PsseTransformerImpedances impedances) {
         this.impedances = impedances;
     }
 
@@ -458,36 +451,5 @@ public class PsseTransformer extends PsseVersioned {
         copy.winding3 = this.winding3.copy();
         copy.winding3Rates = this.winding3Rates.copy();
         return copy;
-    }
-
-    public static class TransformerImpedances {
-
-        private double r12 = 0;
-        private double x12;
-        private double sbase12 = Double.NaN;
-        private double r23 = 0;
-        private double x23 = Double.NaN;
-        private double sbase23 = Double.NaN;
-        private double r31 = 0;
-        private double x31 = Double.NaN;
-        private double sbase31 = Double.NaN;
-        private double vmstar = 1;
-        private double anstar = 0;
-
-        public TransformerImpedances copy() {
-            TransformerImpedances copy = new TransformerImpedances();
-            copy.r12 = this.r12;
-            copy.x12 = this.x12;
-            copy.sbase12 = this.sbase12;
-            copy.r23 = this.r23;
-            copy.x23 = this.x23;
-            copy.sbase23 = this.sbase23;
-            copy.r31 = this.r31;
-            copy.x31 = this.x31;
-            copy.sbase31 = this.sbase31;
-            copy.vmstar = this.vmstar;
-            copy.anstar = this.anstar;
-            return copy;
-        }
     }
 }

@@ -128,7 +128,7 @@ public final class Util {
         String value = parseValueFromRecord(rec, headers, potentialHeaders);
 
         // Manage null values
-        return value == null ? defaultValue : value;
+        return value == null || value.isEmpty() ? defaultValue : value;
     }
 
     public static String parseStringFromRecord(CsvRecord rec, String[] headers, String... potentialHeaders) {

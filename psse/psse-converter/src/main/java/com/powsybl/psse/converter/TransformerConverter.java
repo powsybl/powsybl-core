@@ -1163,7 +1163,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static void createDefaultTransformerImpedances(PsseTransformer psseTransformer) {
-        psseTransformer.setImpedances(new PsseTransformer.TransformerImpedances());
+        psseTransformer.setImpedances(new PsseTransformerImpedances());
         psseTransformer.setR12(0.0);
         psseTransformer.setX12(0.0);
         psseTransformer.setSbase12(0.0);
