@@ -9,10 +9,10 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -23,10 +23,10 @@ public class PsseZone {
     private int i;
     private String zoname;
 
-    public static PsseZone fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseZone fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseZone psseZone = new PsseZone();
-        psseZone.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "izone")));
-        psseZone.setZoname(defaultIfEmpty(rec.getField("zonename"), "            "));
+        psseZone.setI(parseIntFromRecord(rec, headers, "i", "izone"));
+        psseZone.setZoname(parseStringFromRecord(rec, "            ", headers, "zonename"));
         return psseZone;
     }
 

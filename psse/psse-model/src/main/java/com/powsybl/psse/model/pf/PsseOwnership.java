@@ -10,12 +10,12 @@ package com.powsybl.psse.model.pf;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
-import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -32,16 +32,16 @@ public class PsseOwnership extends PsseVersioned {
     private int o4 = 0;
     private double f4 = 1;
 
-    public static PsseOwnership fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseOwnership fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseOwnership psseOwnership = new PsseOwnership();
-        psseOwnership.setO1(Integer.parseInt(rec.getField("o1")));
-        psseOwnership.setF1(Double.parseDouble(rec.getField("f1")));
-        psseOwnership.setO2(parseIntOrDefault(rec.getField("o2"), 0));
-        psseOwnership.setF2(parseDoubleOrDefault(rec.getField("f2"), 1.0));
-        psseOwnership.setO3(parseIntOrDefault(rec.getField("o3"), 0));
-        psseOwnership.setF3(parseDoubleOrDefault(rec.getField("f3"), 1.0));
-        psseOwnership.setO4(parseIntOrDefault(rec.getField("o4"), 0));
-        psseOwnership.setF4(parseDoubleOrDefault(rec.getField("f4"), 1.0));
+        psseOwnership.setO1(parseIntFromRecord(rec, headers, "o1"));
+        psseOwnership.setF1(parseDoubleFromRecord(rec, headers, "f1"));
+        psseOwnership.setO2(parseIntFromRecord(rec, 0, headers, "o2"));
+        psseOwnership.setF2(parseDoubleFromRecord(rec, 1d, headers, "f2"));
+        psseOwnership.setO3(parseIntFromRecord(rec, headers, "o3"));
+        psseOwnership.setF3(parseDoubleFromRecord(rec, 1d, headers, "f3"));
+        psseOwnership.setO4(parseIntFromRecord(rec, headers, "o4"));
+        psseOwnership.setF4(parseDoubleFromRecord(rec, 1d, headers, "f4"));
         return psseOwnership;
     }
 

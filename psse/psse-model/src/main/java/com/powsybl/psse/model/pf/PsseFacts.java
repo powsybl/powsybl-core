@@ -11,9 +11,11 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -27,41 +29,23 @@ public class PsseFacts extends PsseVersioned {
     private static final String STRING_NREG = "nreg";
 
     private String name;
-
     private int i;
-
     private int j = 0;
-
     private int mode = 1;
-
     private double pdes = 0.0;
-
     private double qdes = 0.0;
-
     private double vset = 1.0;
-
     private double shmx = 9999.0;
-
     private double trmx = 9999.0;
-
     private double vtmn = 0.9;
-
     private double vtmx = 1.1;
-
     private double vsmx = 1.0;
-
     private double imx = 0.0;
-
     private double linx = 0.05;
-
     private double rmpct = 100.0;
-
     private int owner = 1;
-
     private double set1 = 0.0;
-
     private double set2 = 0.0;
-
     private int vsref = 0;
 
     @Revision(until = 33)
@@ -75,34 +59,34 @@ public class PsseFacts extends PsseVersioned {
     @Revision(since = 35)
     private int nreg = 0;
 
-    public static PsseFacts fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseFacts fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseFacts psseFacts = new PsseFacts();
-        psseFacts.setName(rec.getField("name"));
-        psseFacts.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
-        psseFacts.setJ(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "j", "jbus")));
-        psseFacts.setMode(Integer.parseInt(rec.getField("mode")));
-        psseFacts.setPdes(Double.parseDouble(rec.getField("pdes")));
-        psseFacts.setQdes(Double.parseDouble(rec.getField("qdes")));
-        psseFacts.setVset(Double.parseDouble(rec.getField("vset")));
-        psseFacts.setShmx(Double.parseDouble(rec.getField("shmx")));
-        psseFacts.setTrmx(Double.parseDouble(rec.getField("trmx")));
-        psseFacts.setVtmn(Double.parseDouble(rec.getField("vtmn")));
-        psseFacts.setVtmx(Double.parseDouble(rec.getField("vtmx")));
-        psseFacts.setVsmx(Double.parseDouble(rec.getField("vsmx")));
-        psseFacts.setImx(Double.parseDouble(rec.getField("imx")));
-        psseFacts.setLinx(Double.parseDouble(rec.getField("linx")));
-        psseFacts.setRmpct(Double.parseDouble(rec.getField("rmpct")));
-        psseFacts.setOwner(Integer.parseInt(rec.getField("owner")));
-        psseFacts.setSet1(Double.parseDouble(rec.getField("set1")));
-        psseFacts.setSet2(Double.parseDouble(rec.getField("set2")));
-        psseFacts.setVsref(Integer.parseInt(rec.getField("vsref")));
+        psseFacts.setName(parseStringFromRecord(rec, headers, "name"));
+        psseFacts.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseFacts.setJ(parseIntFromRecord(rec, 0, headers, "j", "jbus"));
+        psseFacts.setMode(parseIntFromRecord(rec, 1, headers, "mode"));
+        psseFacts.setPdes(parseDoubleFromRecord(rec, 0.0, headers, "pdes"));
+        psseFacts.setQdes(parseDoubleFromRecord(rec, 0.0, headers, "qdes"));
+        psseFacts.setVset(parseDoubleFromRecord(rec, 1.0, headers, "vset"));
+        psseFacts.setShmx(parseDoubleFromRecord(rec, 9999.0, headers, "shmx"));
+        psseFacts.setTrmx(parseDoubleFromRecord(rec, 9999.0, headers, "trmx"));
+        psseFacts.setVtmn(parseDoubleFromRecord(rec, 0.9, headers, "vtmn"));
+        psseFacts.setVtmx(parseDoubleFromRecord(rec, 1.1, headers, "vtmx"));
+        psseFacts.setVsmx(parseDoubleFromRecord(rec, 1.0, headers, "vsmx"));
+        psseFacts.setImx(parseDoubleFromRecord(rec, 0.0, headers, "imx"));
+        psseFacts.setLinx(parseDoubleFromRecord(rec, 0.05, headers, "linx"));
+        psseFacts.setRmpct(parseDoubleFromRecord(rec, 100.0, headers, "rmpct"));
+        psseFacts.setOwner(parseIntFromRecord(rec, 1, headers, "owner"));
+        psseFacts.setSet1(parseDoubleFromRecord(rec, 0.0, headers, "set1"));
+        psseFacts.setSet2(parseDoubleFromRecord(rec, 0.0, headers, "set2"));
+        psseFacts.setVsref(parseIntFromRecord(rec, 0, headers, "vsref"));
         if (version.getMajorNumber() <= 33) {
-            psseFacts.setRemot(Integer.parseInt(rec.getField(STRING_REMOT)));
+            psseFacts.setRemot(parseIntFromRecord(rec, 0, headers, STRING_REMOT));
         }
-        psseFacts.setMname(rec.getField("mname"));
+        psseFacts.setMname(parseStringFromRecord(rec, headers, "mname"));
         if (version.getMajorNumber() >= 35) {
-            psseFacts.setFcreg(Integer.parseInt(rec.getField(STRING_FCREG)));
-            psseFacts.setNreg(Integer.parseInt(rec.getField(STRING_NREG)));
+            psseFacts.setFcreg(parseIntFromRecord(rec, 0, headers, STRING_FCREG));
+            psseFacts.setNreg(parseIntFromRecord(rec, 0, headers, STRING_NREG));
         }
         return psseFacts;
     }

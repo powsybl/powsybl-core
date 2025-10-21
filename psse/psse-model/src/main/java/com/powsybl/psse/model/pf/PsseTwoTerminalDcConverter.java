@@ -11,11 +11,13 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -47,31 +49,31 @@ public class PsseTwoTerminalDcConverter extends PsseVersioned {
     @Revision(since = 35)
     private int nd = 0;
 
-    public static PsseTwoTerminalDcConverter fromRecord(NamedCsvRecord rec, PsseVersion version) {
-        return fromRecord(rec, version, "");
+    public static PsseTwoTerminalDcConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        return fromRecord(rec, version, headers, "");
     }
 
-    public static PsseTwoTerminalDcConverter fromRecord(NamedCsvRecord rec, PsseVersion version, String headerSuffix) {
+    public static PsseTwoTerminalDcConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers, String headerSuffix) {
         PsseTwoTerminalDcConverter psseTwoTerminalDcConverter = new PsseTwoTerminalDcConverter();
-        psseTwoTerminalDcConverter.setIp(Integer.parseInt(rec.getField("ip" + headerSuffix)));
-        psseTwoTerminalDcConverter.setNb(Integer.parseInt(rec.getField("nb" + headerSuffix)));
-        psseTwoTerminalDcConverter.setAnmx(Double.parseDouble(rec.getField("anmx" + headerSuffix)));
-        psseTwoTerminalDcConverter.setAnmn(Double.parseDouble(rec.getField("anmn" + headerSuffix)));
-        psseTwoTerminalDcConverter.setRc(Double.parseDouble(rec.getField("rc" + headerSuffix)));
-        psseTwoTerminalDcConverter.setXc(Double.parseDouble(rec.getField("xc" + headerSuffix)));
-        psseTwoTerminalDcConverter.setEbas(Double.parseDouble(rec.getField("ebas" + headerSuffix)));
-        psseTwoTerminalDcConverter.setTr(Double.parseDouble(rec.getField("tr" + headerSuffix)));
-        psseTwoTerminalDcConverter.setTap(Double.parseDouble(rec.getField("tap" + headerSuffix)));
-        psseTwoTerminalDcConverter.setTmx(Double.parseDouble(rec.getField("tmx" + headerSuffix)));
-        psseTwoTerminalDcConverter.setTmn(Double.parseDouble(rec.getField("tmn" + headerSuffix)));
-        psseTwoTerminalDcConverter.setStp(Double.parseDouble(rec.getField("stp" + headerSuffix)));
-        psseTwoTerminalDcConverter.setIc(Integer.parseInt(rec.getField("ic" + headerSuffix)));
-        psseTwoTerminalDcConverter.setIf(Integer.parseInt(rec.getField("if" + headerSuffix)));
-        psseTwoTerminalDcConverter.setIt(Integer.parseInt(rec.getField("it" + headerSuffix)));
-        psseTwoTerminalDcConverter.setId(defaultIfEmpty(rec.getField("id" + headerSuffix), "1"));
-        psseTwoTerminalDcConverter.setXcap(Double.parseDouble(rec.getField("xcap" + headerSuffix)));
+        psseTwoTerminalDcConverter.setIp(parseIntFromRecord(rec, headers, "ip" + headerSuffix));
+        psseTwoTerminalDcConverter.setNb(parseIntFromRecord(rec, headers, "nb" + headerSuffix));
+        psseTwoTerminalDcConverter.setAnmx(parseDoubleFromRecord(rec, headers, "anmx" + headerSuffix));
+        psseTwoTerminalDcConverter.setAnmn(parseDoubleFromRecord(rec, headers, "anmn" + headerSuffix));
+        psseTwoTerminalDcConverter.setRc(parseDoubleFromRecord(rec, headers, "rc" + headerSuffix));
+        psseTwoTerminalDcConverter.setXc(parseDoubleFromRecord(rec, headers, "xc" + headerSuffix));
+        psseTwoTerminalDcConverter.setEbas(parseDoubleFromRecord(rec, headers, "ebas" + headerSuffix));
+        psseTwoTerminalDcConverter.setTr(parseDoubleFromRecord(rec, 1.0, headers, "tr" + headerSuffix));
+        psseTwoTerminalDcConverter.setTap(parseDoubleFromRecord(rec, 1.0, headers, "tap" + headerSuffix));
+        psseTwoTerminalDcConverter.setTmx(parseDoubleFromRecord(rec, 1.5, headers, "tmx" + headerSuffix));
+        psseTwoTerminalDcConverter.setTmn(parseDoubleFromRecord(rec, 0.51, headers, "tmn" + headerSuffix));
+        psseTwoTerminalDcConverter.setStp(parseDoubleFromRecord(rec, 0.00625, headers, "stp" + headerSuffix));
+        psseTwoTerminalDcConverter.setIc(parseIntFromRecord(rec, 0, headers, "ic" + headerSuffix));
+        psseTwoTerminalDcConverter.setIf(parseIntFromRecord(rec, 0, headers, "if" + headerSuffix));
+        psseTwoTerminalDcConverter.setIt(parseIntFromRecord(rec, 0, headers, "it" + headerSuffix));
+        psseTwoTerminalDcConverter.setId(parseStringFromRecord(rec, "1", headers, "id" + headerSuffix));
+        psseTwoTerminalDcConverter.setXcap(parseDoubleFromRecord(rec, 0.0, headers, "xcap" + headerSuffix));
         if (version.getMajorNumber() >= 35) {
-            psseTwoTerminalDcConverter.setNd(Integer.parseInt(rec.getField("nd" + headerSuffix)));
+            psseTwoTerminalDcConverter.setNd(parseIntFromRecord(rec, 0, headers, "nd" + headerSuffix));
         }
         return psseTwoTerminalDcConverter;
     }

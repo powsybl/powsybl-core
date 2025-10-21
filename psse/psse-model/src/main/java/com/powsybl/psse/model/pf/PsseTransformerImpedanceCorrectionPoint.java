@@ -27,15 +27,15 @@ public class PsseTransformerImpedanceCorrectionPoint extends PsseVersioned {
     private double imf;
 
     // TODO: check if needed
-//    public static PsseTransformerImpedanceCorrectionPoint fromRecord(NamedCsvRecord rec, PsseVersion version) {
-//        double t = Double.parseDouble(rec.getField("t"));
+//    public static PsseTransformerImpedanceCorrectionPoint fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+//        double t = parseDoubleFromRecord(rec, headers, "t");
 //        if (version.getMajorNumber() <= 33) {
-//            double f = Double.parseDouble(rec.getField("f"));
+//            double f = parseDoubleFromRecord(rec, headers, "f");
 //            return new PsseTransformerImpedanceCorrectionPoint(t, f);
 //        }
 //        if (version.getMajorNumber() >= 35) {
-//            double ref = Double.parseDouble(rec.getField("ref"));
-//            double imf = Double.parseDouble(rec.getField("imf"));
+//            double ref = parseDoubleFromRecord(rec, headers, "ref");
+//            double imf = parseDoubleFromRecord(rec, headers, "imf");
 //            return new PsseTransformerImpedanceCorrectionPoint(t, ref, imf);
 //        }
 //        throw new PsseException("Unexpected version " + version.getMajorNumber());

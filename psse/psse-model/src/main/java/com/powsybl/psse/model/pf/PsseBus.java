@@ -11,10 +11,11 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -23,21 +24,13 @@ import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeader
 public class PsseBus extends PsseVersioned {
 
     private int i;
-
     private String name;
-
     private double baskv = 0;
-
     private int ide = 1;
-
     private int area = 1;
-
     private int zone = 1;
-
     private int owner = 1;
-
     private double vm = 1;
-
     private double va = 0;
 
     @Revision(since = 33)
@@ -52,22 +45,22 @@ public class PsseBus extends PsseVersioned {
     @Revision(since = 33)
     private double evlo = 0.9;
 
-    public static PsseBus fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseBus fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseBus psseBus = new PsseBus();
-        psseBus.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
-        psseBus.setName(defaultIfEmpty(rec.getField("name"), "            "));
-        psseBus.setBaskv(Double.parseDouble(rec.getField("baskv")));
-        psseBus.setIde(Integer.parseInt(rec.getField("ide")));
-        psseBus.setArea(Integer.parseInt(rec.getField("area")));
-        psseBus.setZone(Integer.parseInt(rec.getField("zone")));
-        psseBus.setOwner(Integer.parseInt(rec.getField("owner")));
-        psseBus.setVm(Double.parseDouble(rec.getField("vm")));
-        psseBus.setVa(Double.parseDouble(rec.getField("va")));
+        psseBus.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseBus.setName(parseStringFromRecord(rec, "            ", headers, "name"));
+        psseBus.setBaskv(parseDoubleFromRecord(rec, 0d, headers, "baskv"));
+        psseBus.setIde(parseIntFromRecord(rec, 1, headers, "ide"));
+        psseBus.setArea(parseIntFromRecord(rec, 1, headers, "area"));
+        psseBus.setZone(parseIntFromRecord(rec, 1, headers, "zone"));
+        psseBus.setOwner(parseIntFromRecord(rec, 1, headers, "owner"));
+        psseBus.setVm(parseDoubleFromRecord(rec, 1d, headers, "vm"));
+        psseBus.setVa(parseDoubleFromRecord(rec, 0d, headers, "va"));
         if (version.getMajorNumber() >= 33) {
-            psseBus.setNvhi(Double.parseDouble(rec.getField("nvhi")));
-            psseBus.setNvlo(Double.parseDouble(rec.getField("nvlo")));
-            psseBus.setEvhi(Double.parseDouble(rec.getField("evhi")));
-            psseBus.setEvlo(Double.parseDouble(rec.getField("evlo")));
+            psseBus.setNvhi(parseDoubleFromRecord(rec, 1.1, headers, "nvhi"));
+            psseBus.setNvlo(parseDoubleFromRecord(rec, 0.9, headers, "nvlo"));
+            psseBus.setEvhi(parseDoubleFromRecord(rec, 1.1, headers, "evhi"));
+            psseBus.setEvlo(parseDoubleFromRecord(rec, 0.9, headers, "evlo"));
         }
         return psseBus;
     }

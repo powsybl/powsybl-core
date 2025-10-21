@@ -11,15 +11,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
-import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
-import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -105,13 +104,13 @@ public class PsseSubstation {
         private double longi = 0.0;
         private double srg = 0.0;
 
-        public static PsseSubstationRecord fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseSubstationRecord fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseSubstationRecord psseSubstationRecord = new PsseSubstationRecord();
-            psseSubstationRecord.setIs(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "is", "isub")));
-            psseSubstationRecord.setName(defaultIfEmpty(rec.getField("name"), "                                        "));
-            psseSubstationRecord.setLati(Double.parseDouble(rec.getField("lati")));
-            psseSubstationRecord.setLong(Double.parseDouble(rec.getField("long")));
-            psseSubstationRecord.setSrg(Double.parseDouble(rec.getField("srg")));
+            psseSubstationRecord.setIs(parseIntFromRecord(rec, headers, "is", "isub"));
+            psseSubstationRecord.setName(parseStringFromRecord(rec, "                                        ", headers, "name"));
+            psseSubstationRecord.setLati(parseDoubleFromRecord(rec, 0.0, headers, "lati"));
+            psseSubstationRecord.setLong(parseDoubleFromRecord(rec, 0.0, headers, "long"));
+            psseSubstationRecord.setSrg(parseDoubleFromRecord(rec, 0.0, headers, "srg"));
             return psseSubstationRecord;
         }
 
@@ -190,14 +189,14 @@ public class PsseSubstation {
         private double vm = 1.0;
         private double va = 0.0;
 
-        public static PsseSubstationNode fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseSubstationNode fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseSubstationNode psseSubstationNode = new PsseSubstationNode();
-            psseSubstationNode.setNi(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "ni", "inode")));
-            psseSubstationNode.setName(defaultIfEmpty(rec.getField("name"), "                                        "));
-            psseSubstationNode.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
-            psseSubstationNode.setStatus(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "stat", "status")));
-            psseSubstationNode.setVm(parseDoubleOrDefault(rec.getField("vm"), 1.0));
-            psseSubstationNode.setVa(parseDoubleOrDefault(rec.getField("va"), 0.0));
+            psseSubstationNode.setNi(parseIntFromRecord(rec, headers, "ni", "inode"));
+            psseSubstationNode.setName(parseStringFromRecord(rec, "                                        ", headers, "name"));
+            psseSubstationNode.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+            psseSubstationNode.setStatus(parseIntFromRecord(rec, 1, headers, "stat", "status"));
+            psseSubstationNode.setVm(parseDoubleFromRecord(rec, 1.0, headers, "vm"));
+            psseSubstationNode.setVa(parseDoubleFromRecord(rec, 0.0, headers, "va"));
             return psseSubstationNode;
         }
 
@@ -291,19 +290,19 @@ public class PsseSubstation {
         private double rate2 = 0.0;
         private double rate3 = 0.0;
 
-        public static PsseSubstationSwitchingDevice fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseSubstationSwitchingDevice fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseSubstationSwitchingDevice psseSubstationSwitchingDevice = new PsseSubstationSwitchingDevice();
-            psseSubstationSwitchingDevice.setNi(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "ni", "inode")));
-            psseSubstationSwitchingDevice.setNj(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "nj", "jnode")));
-            psseSubstationSwitchingDevice.setCkt(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "ckt", "swdid"), "1 "));
-            psseSubstationSwitchingDevice.setName(defaultIfEmpty(rec.getField("name"), "                                        "));
-            psseSubstationSwitchingDevice.setType(Integer.parseInt(rec.getField("type")));
-            psseSubstationSwitchingDevice.setStatus(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "stat", "status")));
-            psseSubstationSwitchingDevice.setNstat(Integer.parseInt(rec.getField("nstat")));
-            psseSubstationSwitchingDevice.setX(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "x", "xpu")));
-            psseSubstationSwitchingDevice.setRate1(Double.parseDouble(rec.getField("rate1")));
-            psseSubstationSwitchingDevice.setRate2(Double.parseDouble(rec.getField("rate2")));
-            psseSubstationSwitchingDevice.setRate3(Double.parseDouble(rec.getField("rate3")));
+            psseSubstationSwitchingDevice.setNi(parseIntFromRecord(rec, headers, "ni", "inode"));
+            psseSubstationSwitchingDevice.setNj(parseIntFromRecord(rec, 0, headers, "nj", "jnode"));
+            psseSubstationSwitchingDevice.setCkt(parseStringFromRecord(rec, "1 ", headers, "ckt", "swdid"));
+            psseSubstationSwitchingDevice.setName(parseStringFromRecord(rec, "                                        ", headers, "name"));
+            psseSubstationSwitchingDevice.setType(parseIntFromRecord(rec, 1, headers, "type"));
+            psseSubstationSwitchingDevice.setStatus(parseIntFromRecord(rec, 1, headers, "stat", "status"));
+            psseSubstationSwitchingDevice.setNstat(parseIntFromRecord(rec, 1, headers, "nstat"));
+            psseSubstationSwitchingDevice.setX(parseDoubleFromRecord(rec, 0.0001, headers, "x", "xpu"));
+            psseSubstationSwitchingDevice.setRate1(parseDoubleFromRecord(rec, 0.0, headers, "rate1"));
+            psseSubstationSwitchingDevice.setRate2(parseDoubleFromRecord(rec, 0.0, headers, "rate2"));
+            psseSubstationSwitchingDevice.setRate3(parseDoubleFromRecord(rec, 0.0, headers, "rate3"));
             return psseSubstationSwitchingDevice;
         }
 
@@ -442,14 +441,14 @@ public class PsseSubstation {
         private int j = 0;
         private int k = 0;
 
-        public static PsseSubstationEquipmentTerminal fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseSubstationEquipmentTerminal fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseSubstationEquipmentTerminal psseSubstationEquipmentTerminal = new PsseSubstationEquipmentTerminal();
-            psseSubstationEquipmentTerminal.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
-            psseSubstationEquipmentTerminal.setNi(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "ni", "inode")));
-            psseSubstationEquipmentTerminal.setType(rec.getField("type"));
-            psseSubstationEquipmentTerminal.setId(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "id", "eqid"), "1 "));
-            psseSubstationEquipmentTerminal.setJ(parseIntOrDefault(getFieldFromMultiplePotentialHeaders(rec, "j", "jbus"), 0));
-            psseSubstationEquipmentTerminal.setK(parseIntOrDefault(getFieldFromMultiplePotentialHeaders(rec, "k", "kbus"), 0));
+            psseSubstationEquipmentTerminal.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+            psseSubstationEquipmentTerminal.setNi(parseIntFromRecord(rec, headers, "ni", "inode"));
+            psseSubstationEquipmentTerminal.setType(parseStringFromRecord(rec, headers, "type"));
+            psseSubstationEquipmentTerminal.setId(parseStringFromRecord(rec, "1 ", headers, "id", "eqid"));
+            psseSubstationEquipmentTerminal.setJ(parseIntFromRecord(rec, 0, headers, "j", "jbus"));
+            psseSubstationEquipmentTerminal.setK(parseIntFromRecord(rec, 0, headers, "k", "kbus"));
             return psseSubstationEquipmentTerminal;
         }
 
@@ -535,11 +534,11 @@ public class PsseSubstation {
         private int ni;
         private String type;
 
-        public static PsseSubstationEquipmentTerminalCommonStart fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseSubstationEquipmentTerminalCommonStart fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseSubstationEquipmentTerminalCommonStart psseSubstationEquipmentTerminalCommonStart = new PsseSubstationEquipmentTerminalCommonStart();
-            psseSubstationEquipmentTerminalCommonStart.setI(Integer.parseInt(rec.getField("i")));
-            psseSubstationEquipmentTerminalCommonStart.setNi(Integer.parseInt(rec.getField("ni")));
-            psseSubstationEquipmentTerminalCommonStart.setType(rec.getField("type"));
+            psseSubstationEquipmentTerminalCommonStart.setI(parseIntFromRecord(rec, headers, "i"));
+            psseSubstationEquipmentTerminalCommonStart.setNi(parseIntFromRecord(rec, headers, "ni"));
+            psseSubstationEquipmentTerminalCommonStart.setType(parseStringFromRecord(rec, headers, "type"));
             return psseSubstationEquipmentTerminalCommonStart;
         }
 
@@ -594,10 +593,10 @@ public class PsseSubstation {
         private int isub;
         private PsseSubstationNode node;
 
-        public static PsseSubstationNodex fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseSubstationNodex fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseSubstationNodex psseSubstationNodex = new PsseSubstationNodex();
-            psseSubstationNodex.setIsub(Integer.parseInt(rec.getField("isub")));
-            psseSubstationNodex.setNode(PsseSubstationNode.fromRecord(rec, version));
+            psseSubstationNodex.setIsub(parseIntFromRecord(rec, headers, "isub"));
+            psseSubstationNodex.setNode(PsseSubstationNode.fromRecord(rec, version, headers));
             return psseSubstationNodex;
         }
 
@@ -649,10 +648,10 @@ public class PsseSubstation {
         private int isub;
         private PsseSubstationSwitchingDevice switchingDevice;
 
-        public static PsseSubstationSwitchingDevicex fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseSubstationSwitchingDevicex fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseSubstationSwitchingDevicex psseSubstationSwitchingDevicex = new PsseSubstationSwitchingDevicex();
-            psseSubstationSwitchingDevicex.setIsub(Integer.parseInt(rec.getField("isub")));
-            psseSubstationSwitchingDevicex.setSwitchingDevice(PsseSubstationSwitchingDevice.fromRecord(rec, version));
+            psseSubstationSwitchingDevicex.setIsub(parseIntFromRecord(rec, headers, "isub"));
+            psseSubstationSwitchingDevicex.setSwitchingDevice(PsseSubstationSwitchingDevice.fromRecord(rec, version, headers));
             return psseSubstationSwitchingDevicex;
         }
 
@@ -709,10 +708,10 @@ public class PsseSubstation {
         private int isub;
         private PsseSubstationEquipmentTerminal equipmentTerminal;
 
-        public static PsseSubstationEquipmentTerminalx fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseSubstationEquipmentTerminalx fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseSubstationEquipmentTerminalx psseSubstationEquipmentTerminalx = new PsseSubstationEquipmentTerminalx();
-            psseSubstationEquipmentTerminalx.setIsub(Integer.parseInt(rec.getField("isub")));
-            psseSubstationEquipmentTerminalx.setEquipmentTerminal(PsseSubstationEquipmentTerminal.fromRecord(rec, version));
+            psseSubstationEquipmentTerminalx.setIsub(parseIntFromRecord(rec, headers, "isub"));
+            psseSubstationEquipmentTerminalx.setEquipmentTerminal(PsseSubstationEquipmentTerminal.fromRecord(rec, version, headers));
             return psseSubstationEquipmentTerminalx;
         }
 

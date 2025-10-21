@@ -11,10 +11,11 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -51,29 +52,29 @@ public class PsseLoad extends PsseVersioned {
     @Revision(since = 35)
     private String loadtype;
 
-    public static PsseLoad fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseLoad fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseLoad psseLoad = new PsseLoad();
-        psseLoad.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
-        psseLoad.setId(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "id", "loadid"), "1"));
-        psseLoad.setStatus(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "status", "stat")));
-        psseLoad.setArea(Integer.parseInt(rec.getField("area")));
-        psseLoad.setZone(Integer.parseInt(rec.getField("zone")));
-        psseLoad.setPl(Double.parseDouble(rec.getField("pl")));
-        psseLoad.setQl(Double.parseDouble(rec.getField("ql")));
-        psseLoad.setIp(Double.parseDouble(rec.getField("ip")));
-        psseLoad.setIq(Double.parseDouble(rec.getField("iq")));
-        psseLoad.setYp(Double.parseDouble(rec.getField("yp")));
-        psseLoad.setYq(Double.parseDouble(rec.getField("yq")));
-        psseLoad.setOwner(Integer.parseInt(rec.getField("owner")));
-        psseLoad.setScale(Integer.parseInt(rec.getField("scale")));
+        psseLoad.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseLoad.setId(parseStringFromRecord(rec, "1", headers, "id", "loadid"));
+        psseLoad.setStatus(parseIntFromRecord(rec, 1, headers, "status", "stat"));
+        psseLoad.setArea(parseIntFromRecord(rec, -1, headers, "area"));
+        psseLoad.setZone(parseIntFromRecord(rec, -1, headers, "zone"));
+        psseLoad.setPl(parseDoubleFromRecord(rec, 0d, headers, "pl"));
+        psseLoad.setQl(parseDoubleFromRecord(rec, 0d, headers, "ql"));
+        psseLoad.setIp(parseDoubleFromRecord(rec, 0d, headers, "ip"));
+        psseLoad.setIq(parseDoubleFromRecord(rec, 0d, headers, "iq"));
+        psseLoad.setYp(parseDoubleFromRecord(rec, 0d, headers, "yp"));
+        psseLoad.setYq(parseDoubleFromRecord(rec, 0d, headers, "yq"));
+        psseLoad.setOwner(parseIntFromRecord(rec, -1, headers, "owner"));
+        psseLoad.setScale(parseIntFromRecord(rec, 1, headers, "scale"));
         if (version.getMajorNumber() >= 33) {
-            psseLoad.setIntrpt(Integer.parseInt(rec.getField("intrpt")));
+            psseLoad.setIntrpt(parseIntFromRecord(rec, 0, headers, "intrpt"));
         }
         if (version.getMajorNumber() >= 35) {
-            psseLoad.setDgenp(Double.parseDouble(rec.getField("dgenp")));
-            psseLoad.setDgenq(Double.parseDouble(rec.getField("dgenq")));
-            psseLoad.setDgenm(Integer.parseInt(rec.getField("dgenm")));
-            psseLoad.setLoadtype(defaultIfEmpty(rec.getField("loadtype"), "            "));
+            psseLoad.setDgenp(parseDoubleFromRecord(rec, 0d, headers, "dgenp"));
+            psseLoad.setDgenq(parseDoubleFromRecord(rec, 0d, headers, "dgenq"));
+            psseLoad.setDgenm(parseIntFromRecord(rec, 0, headers, "dgenm"));
+            psseLoad.setLoadtype(parseStringFromRecord(rec, "            ", headers, "loadtype"));
         }
         return psseLoad;
     }

@@ -9,10 +9,11 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -63,51 +64,49 @@ public class PsseGneDevice {
     private String char9;
     private String char10;
 
-    public static PsseGneDevice fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseGneDevice fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseGneDevice psseGneDevice = new PsseGneDevice();
-        psseGneDevice.setName(rec.getField("name"));
-        psseGneDevice.setModel(rec.getField("model"));
-        psseGneDevice.setNterm(parseIntOrDefault(rec.getField("nterm"), 1));
-        psseGneDevice.setBus1(Integer.parseInt(rec.getField("bus1")));
-        psseGneDevice.setBus2(Integer.parseInt(rec.getField("bus2")));
-        psseGneDevice.setNreal(Integer.parseInt(rec.getField("nreal")));
-        psseGneDevice.setNintg(Integer.parseInt(rec.getField("nintg")));
-        psseGneDevice.setNchar(Integer.parseInt(rec.getField("nchar")));
-        psseGneDevice.setStatus(parseIntOrDefault(rec.findField("status").isPresent() ?
-            rec.getField("status") :
-            rec.getField("stat"), 1));
-        psseGneDevice.setOwner(Integer.parseInt(rec.getField("owner")));
-        psseGneDevice.setNmet(Integer.parseInt(rec.getField("nmet")));
-        psseGneDevice.setReal1(Double.parseDouble(rec.getField("real1")));
-        psseGneDevice.setReal2(Double.parseDouble(rec.getField("real2")));
-        psseGneDevice.setReal3(Double.parseDouble(rec.getField("real3")));
-        psseGneDevice.setReal4(Double.parseDouble(rec.getField("real4")));
-        psseGneDevice.setReal5(Double.parseDouble(rec.getField("real5")));
-        psseGneDevice.setReal6(Double.parseDouble(rec.getField("real6")));
-        psseGneDevice.setReal7(Double.parseDouble(rec.getField("real7")));
-        psseGneDevice.setReal8(Double.parseDouble(rec.getField("real8")));
-        psseGneDevice.setReal9(Double.parseDouble(rec.getField("real9")));
-        psseGneDevice.setReal10(Double.parseDouble(rec.getField("real10")));
-        psseGneDevice.setIntg1(Integer.parseInt(rec.getField("intg1")));
-        psseGneDevice.setIntg2(Integer.parseInt(rec.getField("intg2")));
-        psseGneDevice.setIntg3(Integer.parseInt(rec.getField("intg3")));
-        psseGneDevice.setIntg4(Integer.parseInt(rec.getField("intg4")));
-        psseGneDevice.setIntg5(Integer.parseInt(rec.getField("intg5")));
-        psseGneDevice.setIntg6(Integer.parseInt(rec.getField("intg6")));
-        psseGneDevice.setIntg7(Integer.parseInt(rec.getField("intg7")));
-        psseGneDevice.setIntg8(Integer.parseInt(rec.getField("intg8")));
-        psseGneDevice.setIntg9(Integer.parseInt(rec.getField("intg9")));
-        psseGneDevice.setIntg10(Integer.parseInt(rec.getField("intg10")));
-        psseGneDevice.setChar1(defaultIfEmpty(rec.getField("char1"), "1"));
-        psseGneDevice.setChar2(defaultIfEmpty(rec.getField("char2"), "1"));
-        psseGneDevice.setChar3(defaultIfEmpty(rec.getField("char3"), "1"));
-        psseGneDevice.setChar4(defaultIfEmpty(rec.getField("char4"), "1"));
-        psseGneDevice.setChar5(defaultIfEmpty(rec.getField("char5"), "1"));
-        psseGneDevice.setChar6(defaultIfEmpty(rec.getField("char6"), "1"));
-        psseGneDevice.setChar7(defaultIfEmpty(rec.getField("char7"), "1"));
-        psseGneDevice.setChar8(defaultIfEmpty(rec.getField("char8"), "1"));
-        psseGneDevice.setChar9(defaultIfEmpty(rec.getField("char9"), "1"));
-        psseGneDevice.setChar10(defaultIfEmpty(rec.getField("char10"), "1"));
+        psseGneDevice.setName(parseStringFromRecord(rec, headers, "name"));
+        psseGneDevice.setModel(parseStringFromRecord(rec, headers, "model"));
+        psseGneDevice.setNterm(parseIntFromRecord(rec, 1, headers, "nterm"));
+        psseGneDevice.setBus1(parseIntFromRecord(rec, headers, "bus1"));
+        psseGneDevice.setBus2(parseIntFromRecord(rec, headers, "bus2"));
+        psseGneDevice.setNreal(parseIntFromRecord(rec, 0, headers, "nreal"));
+        psseGneDevice.setNintg(parseIntFromRecord(rec, 0, headers, "nintg"));
+        psseGneDevice.setNchar(parseIntFromRecord(rec, 0, headers, "nchar"));
+        psseGneDevice.setStatus(parseIntFromRecord(rec, 1, headers, "status", "stat"));
+        psseGneDevice.setOwner(parseIntFromRecord(rec, headers, "owner"));
+        psseGneDevice.setNmet(parseIntFromRecord(rec, headers, "nmet"));
+        psseGneDevice.setReal1(parseDoubleFromRecord(rec, 0d, headers, "real1"));
+        psseGneDevice.setReal2(parseDoubleFromRecord(rec, 0d, headers, "real2"));
+        psseGneDevice.setReal3(parseDoubleFromRecord(rec, 0d, headers, "real3"));
+        psseGneDevice.setReal4(parseDoubleFromRecord(rec, 0d, headers, "real4"));
+        psseGneDevice.setReal5(parseDoubleFromRecord(rec, 0d, headers, "real5"));
+        psseGneDevice.setReal6(parseDoubleFromRecord(rec, 0d, headers, "real6"));
+        psseGneDevice.setReal7(parseDoubleFromRecord(rec, 0d, headers, "real7"));
+        psseGneDevice.setReal8(parseDoubleFromRecord(rec, 0d, headers, "real8"));
+        psseGneDevice.setReal9(parseDoubleFromRecord(rec, 0d, headers, "real9"));
+        psseGneDevice.setReal10(parseDoubleFromRecord(rec, 0d, headers, "real10"));
+        psseGneDevice.setIntg1(parseIntFromRecord(rec, headers, "intg1"));
+        psseGneDevice.setIntg2(parseIntFromRecord(rec, headers, "intg2"));
+        psseGneDevice.setIntg3(parseIntFromRecord(rec, headers, "intg3"));
+        psseGneDevice.setIntg4(parseIntFromRecord(rec, headers, "intg4"));
+        psseGneDevice.setIntg5(parseIntFromRecord(rec, headers, "intg5"));
+        psseGneDevice.setIntg6(parseIntFromRecord(rec, headers, "intg6"));
+        psseGneDevice.setIntg7(parseIntFromRecord(rec, headers, "intg7"));
+        psseGneDevice.setIntg8(parseIntFromRecord(rec, headers, "intg8"));
+        psseGneDevice.setIntg9(parseIntFromRecord(rec, headers, "intg9"));
+        psseGneDevice.setIntg10(parseIntFromRecord(rec, headers, "intg10"));
+        psseGneDevice.setChar1(parseStringFromRecord(rec, "1", headers, "char1"));
+        psseGneDevice.setChar2(parseStringFromRecord(rec, "1", headers, "char2"));
+        psseGneDevice.setChar3(parseStringFromRecord(rec, "1", headers, "char3"));
+        psseGneDevice.setChar4(parseStringFromRecord(rec, "1", headers, "char4"));
+        psseGneDevice.setChar5(parseStringFromRecord(rec, "1", headers, "char5"));
+        psseGneDevice.setChar6(parseStringFromRecord(rec, "1", headers, "char6"));
+        psseGneDevice.setChar7(parseStringFromRecord(rec, "1", headers, "char7"));
+        psseGneDevice.setChar8(parseStringFromRecord(rec, "1", headers, "char8"));
+        psseGneDevice.setChar9(parseStringFromRecord(rec, "1", headers, "char9"));
+        psseGneDevice.setChar10(parseStringFromRecord(rec, "1", headers, "char10"));
         return psseGneDevice;
     }
 

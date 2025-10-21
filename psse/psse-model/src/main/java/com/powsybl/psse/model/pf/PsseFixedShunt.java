@@ -9,11 +9,11 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
-import static java.lang.Integer.parseInt;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -31,13 +31,13 @@ public class PsseFixedShunt {
     private double gl = 0;
     private double bl = 0;
 
-    public static PsseFixedShunt fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseFixedShunt fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseFixedShunt psseFixedShunt = new PsseFixedShunt();
-        psseFixedShunt.setI(parseInt(getFieldFromMultiplePotentialHeaders(rec, STRING_I, "ibus")));
-        psseFixedShunt.setId(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, STRING_ID, "shntid"), "1"));
-        psseFixedShunt.setStatus(parseInt(getFieldFromMultiplePotentialHeaders(rec, STRING_STATUS, "stat")));
-        psseFixedShunt.setGl(Double.parseDouble(rec.getField("gl")));
-        psseFixedShunt.setBl(Double.parseDouble(rec.getField("bl")));
+        psseFixedShunt.setI(parseIntFromRecord(rec, headers, STRING_I, "ibus"));
+        psseFixedShunt.setId(parseStringFromRecord(rec, "1", headers, STRING_ID, "shntid"));
+        psseFixedShunt.setStatus(parseIntFromRecord(rec, 1, headers, STRING_STATUS, "stat"));
+        psseFixedShunt.setGl(parseDoubleFromRecord(rec, 0d, headers, "gl"));
+        psseFixedShunt.setBl(parseDoubleFromRecord(rec, 0d, headers, "bl"));
         return psseFixedShunt;
     }
 

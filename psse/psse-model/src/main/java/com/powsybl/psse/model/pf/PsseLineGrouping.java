@@ -9,11 +9,10 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
-import static com.powsybl.psse.model.io.Util.parseIntOrNull;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -46,21 +45,21 @@ public class PsseLineGrouping {
     private Integer dum8;
     private Integer dum9;
 
-    public static PsseLineGrouping fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseLineGrouping fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseLineGrouping psseLineGrouping = new PsseLineGrouping();
-        psseLineGrouping.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
-        psseLineGrouping.setJ(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "j", "jbus")));
-        psseLineGrouping.setId(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "id", "mslid"), "&1"));
-        psseLineGrouping.setMet(Integer.parseInt(rec.getField("met")));
-        psseLineGrouping.setDum1(parseIntOrNull(rec.getField("dum1"), "null"));
-        psseLineGrouping.setDum2(parseIntOrNull(rec.getField("dum2"), "null"));
-        psseLineGrouping.setDum3(parseIntOrNull(rec.getField("dum3"), "null"));
-        psseLineGrouping.setDum4(parseIntOrNull(rec.getField("dum4"), "null"));
-        psseLineGrouping.setDum5(parseIntOrNull(rec.getField("dum1"), "null"));
-        psseLineGrouping.setDum6(parseIntOrNull(rec.getField("dum6"), "null"));
-        psseLineGrouping.setDum7(parseIntOrNull(rec.getField("dum7"), "null"));
-        psseLineGrouping.setDum8(parseIntOrNull(rec.getField("dum8"), "null"));
-        psseLineGrouping.setDum9(parseIntOrNull(rec.getField("dum9"), "null"));
+        psseLineGrouping.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseLineGrouping.setJ(parseIntFromRecord(rec, headers, "j", "jbus"));
+        psseLineGrouping.setId(parseStringFromRecord(rec, "&1", headers, "id", "mslid"));
+        psseLineGrouping.setMet(parseIntFromRecord(rec, headers, "met"));
+        psseLineGrouping.setDum1(parseIntFromRecord(rec, null, headers, "dum1"));
+        psseLineGrouping.setDum2(parseIntFromRecord(rec, null, headers, "dum2"));
+        psseLineGrouping.setDum3(parseIntFromRecord(rec, null, headers, "dum3"));
+        psseLineGrouping.setDum4(parseIntFromRecord(rec, null, headers, "dum4"));
+        psseLineGrouping.setDum5(parseIntFromRecord(rec, null, headers, "dum1"));
+        psseLineGrouping.setDum6(parseIntFromRecord(rec, null, headers, "dum6"));
+        psseLineGrouping.setDum7(parseIntFromRecord(rec, null, headers, "dum7"));
+        psseLineGrouping.setDum8(parseIntFromRecord(rec, null, headers, "dum8"));
+        psseLineGrouping.setDum9(parseIntFromRecord(rec, null, headers, "dum9"));
         return psseLineGrouping;
     }
 

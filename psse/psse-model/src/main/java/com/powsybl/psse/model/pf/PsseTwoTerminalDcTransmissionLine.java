@@ -10,11 +10,13 @@ package com.powsybl.psse.model.pf;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
 
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -45,22 +47,22 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
     private PsseTwoTerminalDcConverter rectifier;
     private PsseTwoTerminalDcConverter inverter;
 
-    public static PsseTwoTerminalDcTransmissionLine fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseTwoTerminalDcTransmissionLine fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseTwoTerminalDcTransmissionLine psseTwoTerminalDcTransmissionLine = new PsseTwoTerminalDcTransmissionLine();
-        psseTwoTerminalDcTransmissionLine.setName(rec.getField("name"));
-        psseTwoTerminalDcTransmissionLine.setMdc(Integer.parseInt(rec.getField("mdc")));
-        psseTwoTerminalDcTransmissionLine.setRdc(Double.parseDouble(rec.getField("rdc")));
-        psseTwoTerminalDcTransmissionLine.setSetvl(Double.parseDouble(rec.getField("setvl")));
-        psseTwoTerminalDcTransmissionLine.setVschd(Double.parseDouble(rec.getField("vschd")));
-        psseTwoTerminalDcTransmissionLine.setVcmod(Double.parseDouble(rec.getField("vcmod")));
-        psseTwoTerminalDcTransmissionLine.setRcomp(Double.parseDouble(rec.getField("rcomp")));
-        psseTwoTerminalDcTransmissionLine.setDelti(Double.parseDouble(rec.getField("delti")));
-        psseTwoTerminalDcTransmissionLine.setMeter(getFieldFromMultiplePotentialHeaders(rec, "meter", "met"));
-        psseTwoTerminalDcTransmissionLine.setDcvmin(Double.parseDouble(rec.getField("dcvmin")));
-        psseTwoTerminalDcTransmissionLine.setCccitmx(Integer.parseInt(rec.getField("cccitmx")));
-        psseTwoTerminalDcTransmissionLine.setCccacc(Double.parseDouble(rec.getField("cccacc")));
-        psseTwoTerminalDcTransmissionLine.setRectifier(PsseTwoTerminalDcConverter.fromRecord(rec, version, "r"));
-        psseTwoTerminalDcTransmissionLine.setInverter(PsseTwoTerminalDcConverter.fromRecord(rec, version, "i"));
+        psseTwoTerminalDcTransmissionLine.setName(parseStringFromRecord(rec, headers, "name"));
+        psseTwoTerminalDcTransmissionLine.setMdc(parseIntFromRecord(rec, 0, headers, "mdc"));
+        psseTwoTerminalDcTransmissionLine.setRdc(parseDoubleFromRecord(rec, headers, "rdc"));
+        psseTwoTerminalDcTransmissionLine.setSetvl(parseDoubleFromRecord(rec, headers, "setvl"));
+        psseTwoTerminalDcTransmissionLine.setVschd(parseDoubleFromRecord(rec, headers, "vschd"));
+        psseTwoTerminalDcTransmissionLine.setVcmod(parseDoubleFromRecord(rec, 0.0, headers, "vcmod"));
+        psseTwoTerminalDcTransmissionLine.setRcomp(parseDoubleFromRecord(rec, 0.0, headers, "rcomp"));
+        psseTwoTerminalDcTransmissionLine.setDelti(parseDoubleFromRecord(rec, 0.0, headers, "delti"));
+        psseTwoTerminalDcTransmissionLine.setMeter(parseStringFromRecord(rec, "I", headers, "meter", "met"));
+        psseTwoTerminalDcTransmissionLine.setDcvmin(parseDoubleFromRecord(rec, 0.0, headers, "dcvmin"));
+        psseTwoTerminalDcTransmissionLine.setCccitmx(parseIntFromRecord(rec, 20, headers, "cccitmx"));
+        psseTwoTerminalDcTransmissionLine.setCccacc(parseDoubleFromRecord(rec, 1.0, headers, "cccacc"));
+        psseTwoTerminalDcTransmissionLine.setRectifier(PsseTwoTerminalDcConverter.fromRecord(rec, version, headers, "r"));
+        psseTwoTerminalDcTransmissionLine.setInverter(PsseTwoTerminalDcConverter.fromRecord(rec, version, headers, "i"));
         return psseTwoTerminalDcTransmissionLine;
     }
 

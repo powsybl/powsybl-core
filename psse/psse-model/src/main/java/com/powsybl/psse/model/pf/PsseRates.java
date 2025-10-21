@@ -11,12 +11,11 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
 
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
-import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -69,30 +68,30 @@ public class PsseRates extends PsseVersioned {
     @Revision(since = 35)
     private double rate12 = 0;
 
-    public static PsseRates fromRecord(NamedCsvRecord rec, PsseVersion version) {
-        return fromRecord(rec, version, "");
+    public static PsseRates fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        return fromRecord(rec, version, headers, "");
     }
 
-    public static PsseRates fromRecord(NamedCsvRecord rec, PsseVersion version, String headerSuffix) {
+    public static PsseRates fromRecord(CsvRecord rec, PsseVersion version, String[] headers, String headerSuffix) {
         PsseRates psseRates = new PsseRates();
         if (version.getMajorNumber() <= 33) {
-            psseRates.setRatea(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "ratea" + headerSuffix, "rata" + headerSuffix)));
-            psseRates.setRateb(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "rateb" + headerSuffix, "ratb" + headerSuffix)));
-            psseRates.setRatec(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "ratec" + headerSuffix, "ratc" + headerSuffix)));
+            psseRates.setRatea(parseDoubleFromRecord(rec, 0d, headers, "ratea" + headerSuffix, "rata" + headerSuffix));
+            psseRates.setRateb(parseDoubleFromRecord(rec, 0d, headers, "rateb" + headerSuffix, "ratb" + headerSuffix));
+            psseRates.setRatec(parseDoubleFromRecord(rec, 0d, headers, "ratec" + headerSuffix, "ratc" + headerSuffix));
         }
         if (version.getMajorNumber() >= 35) {
-            psseRates.setRate1(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate1" + headerSuffix, "wdgrate1" + headerSuffix), 0.0));
-            psseRates.setRate2(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate2" + headerSuffix, "wdgrate2" + headerSuffix), 0.0));
-            psseRates.setRate3(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate3" + headerSuffix, "wdgrate3" + headerSuffix), 0.0));
-            psseRates.setRate4(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate4" + headerSuffix, "wdgrate4" + headerSuffix), 0.0));
-            psseRates.setRate5(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate5" + headerSuffix, "wdgrate5" + headerSuffix), 0.0));
-            psseRates.setRate6(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate6" + headerSuffix, "wdgrate6" + headerSuffix), 0.0));
-            psseRates.setRate7(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate7" + headerSuffix, "wdgrate7" + headerSuffix), 0.0));
-            psseRates.setRate8(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate8" + headerSuffix, "wdgrate8" + headerSuffix), 0.0));
-            psseRates.setRate9(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate9" + headerSuffix, "wdgrate9" + headerSuffix), 0.0));
-            psseRates.setRate10(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate10" + headerSuffix, "wdgrate10" + headerSuffix), 0.0));
-            psseRates.setRate11(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate11" + headerSuffix, "wdgrate11" + headerSuffix), 0.0));
-            psseRates.setRate12(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "rate12" + headerSuffix, "wdgrate12" + headerSuffix), 0.0));
+            psseRates.setRate1(parseDoubleFromRecord(rec, 0d, headers, "rate1" + headerSuffix, "wdgrate1" + headerSuffix));
+            psseRates.setRate2(parseDoubleFromRecord(rec, 0d, headers, "rate2" + headerSuffix, "wdgrate2" + headerSuffix));
+            psseRates.setRate3(parseDoubleFromRecord(rec, 0d, headers, "rate3" + headerSuffix, "wdgrate3" + headerSuffix));
+            psseRates.setRate4(parseDoubleFromRecord(rec, 0d, headers, "rate4" + headerSuffix, "wdgrate4" + headerSuffix));
+            psseRates.setRate5(parseDoubleFromRecord(rec, 0d, headers, "rate5" + headerSuffix, "wdgrate5" + headerSuffix));
+            psseRates.setRate6(parseDoubleFromRecord(rec, 0d, headers, "rate6" + headerSuffix, "wdgrate6" + headerSuffix));
+            psseRates.setRate7(parseDoubleFromRecord(rec, 0d, headers, "rate7" + headerSuffix, "wdgrate7" + headerSuffix));
+            psseRates.setRate8(parseDoubleFromRecord(rec, 0d, headers, "rate8" + headerSuffix, "wdgrate8" + headerSuffix));
+            psseRates.setRate9(parseDoubleFromRecord(rec, 0d, headers, "rate9" + headerSuffix, "wdgrate9" + headerSuffix));
+            psseRates.setRate10(parseDoubleFromRecord(rec, 0d, headers, "rate10" + headerSuffix, "wdgrate10" + headerSuffix));
+            psseRates.setRate11(parseDoubleFromRecord(rec, 0d, headers, "rate11" + headerSuffix, "wdgrate11" + headerSuffix));
+            psseRates.setRate12(parseDoubleFromRecord(rec, 0d, headers, "rate12" + headerSuffix, "wdgrate12" + headerSuffix));
         }
         return psseRates;
     }
