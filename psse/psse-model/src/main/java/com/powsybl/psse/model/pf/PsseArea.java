@@ -9,10 +9,11 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -26,13 +27,13 @@ public class PsseArea {
     private double ptol = 10;
     private String arname;
 
-    public static PsseArea fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseArea fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseArea psseArea = new PsseArea();
-        psseArea.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "iarea")));
-        psseArea.setIsw(Integer.parseInt(rec.getField("isw")));
-        psseArea.setPdes(Double.parseDouble(rec.getField("pdes")));
-        psseArea.setPtol(Double.parseDouble(rec.getField("ptol")));
-        psseArea.setArname(defaultIfEmpty(rec.getField("arname"), "            "));
+        psseArea.setI(parseIntFromRecord(rec, headers, "i", "iarea"));
+        psseArea.setIsw(parseIntFromRecord(rec, 0, headers, "isw"));
+        psseArea.setPdes(parseDoubleFromRecord(rec, 0d, headers, "pdes"));
+        psseArea.setPtol(parseDoubleFromRecord(rec, 10d, headers, "ptol"));
+        psseArea.setArname(parseStringFromRecord(rec, "            ", headers, "arname"));
         return psseArea;
     }
 

@@ -11,14 +11,15 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
 import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
-import static java.lang.Integer.parseInt;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -59,36 +60,32 @@ public class PsseGenerator extends PsseVersioned {
     @Revision(since = 35)
     private int baslod = 0;
 
-    public static PsseGenerator fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseGenerator fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseGenerator psseGenerator = new PsseGenerator();
-        psseGenerator.setI(parseInt(rec.findField(STRING_I).isPresent() ?
-            rec.getField(STRING_I) :
-            rec.getField("ibus")));
-        psseGenerator.setId(defaultIfEmpty(rec.findField(STRING_ID).isPresent() ?
-            rec.getField(STRING_ID) :
-            rec.getField("machid"), "1"));
-        psseGenerator.setPg(Double.parseDouble(rec.getField("pg")));
-        psseGenerator.setQg(Double.parseDouble(rec.getField("qg")));
-        psseGenerator.setQt(Double.parseDouble(rec.getField("qt")));
-        psseGenerator.setQb(Double.parseDouble(rec.getField("qb")));
-        psseGenerator.setVs(Double.parseDouble(rec.getField("vs")));
-        psseGenerator.setIreg(parseInt(rec.getField("ireg")));
-        psseGenerator.setMbase(Double.parseDouble(rec.getField("mbase")));
-        psseGenerator.setZr(Double.parseDouble(rec.getField("zr")));
-        psseGenerator.setZx(Double.parseDouble(rec.getField("zx")));
-        psseGenerator.setRt(Double.parseDouble(rec.getField("rt")));
-        psseGenerator.setXt(Double.parseDouble(rec.getField("xt")));
-        psseGenerator.setGtap(Double.parseDouble(rec.getField("gtap")));
-        psseGenerator.setStat(parseInt(rec.getField("stat")));
-        psseGenerator.setRmpct(Double.parseDouble(rec.getField("rmpct")));
-        psseGenerator.setPt(Double.parseDouble(rec.getField("pt")));
-        psseGenerator.setPb(Double.parseDouble(rec.getField("pb")));
-        psseGenerator.setOwnership(PsseOwnership.fromRecord(rec, version));
-        psseGenerator.setWmod(parseIntOrDefault(rec.getField("wmod"), 0));
-        psseGenerator.setWpf(parseDoubleOrDefault(rec.getField("wpf"), 1.0));
+        psseGenerator.setI(parseIntFromRecord(rec, headers, STRING_I, "ibus"));
+        psseGenerator.setId(parseStringFromRecord(rec, "1", headers, STRING_ID, "machid"));
+        psseGenerator.setPg(parseDoubleFromRecord(rec, 0d, headers, "pg"));
+        psseGenerator.setQg(parseDoubleFromRecord(rec, 0d, headers, "qg"));
+        psseGenerator.setQt(parseDoubleFromRecord(rec, 9999d, headers, "qt"));
+        psseGenerator.setQb(parseDoubleFromRecord(rec, -9999d, headers, "qb"));
+        psseGenerator.setVs(parseDoubleFromRecord(rec, 1d, headers, "vs"));
+        psseGenerator.setIreg(parseIntFromRecord(rec, 0, headers, "ireg"));
+        psseGenerator.setMbase(parseDoubleFromRecord(rec, Double.NaN, headers, "mbase"));
+        psseGenerator.setZr(parseDoubleFromRecord(rec, 0d, headers, "zr"));
+        psseGenerator.setZx(parseDoubleFromRecord(rec, 1d, headers, "zx"));
+        psseGenerator.setRt(parseDoubleFromRecord(rec, 0d, headers, "rt"));
+        psseGenerator.setXt(parseDoubleFromRecord(rec, 0d, headers, "xt"));
+        psseGenerator.setGtap(parseDoubleFromRecord(rec, 1d, headers, "gtap"));
+        psseGenerator.setStat(parseIntFromRecord(rec, 1, headers, "stat"));
+        psseGenerator.setRmpct(parseDoubleFromRecord(rec, 100d, headers, "rmpct"));
+        psseGenerator.setPt(parseDoubleFromRecord(rec, 9999d, headers, "pt"));
+        psseGenerator.setPb(parseDoubleFromRecord(rec, -9999d, headers, "pb"));
+        psseGenerator.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
+        psseGenerator.setWmod(parseIntFromRecord(rec, 0, headers, "wmod"));
+        psseGenerator.setWpf(parseDoubleFromRecord(rec, 1d, headers, "wpf"));
         if (version.getMajorNumber() >= 35) {
-            psseGenerator.setNreg(parseInt(rec.getField(STRING_NREG)));
-            psseGenerator.setBaslod(parseInt(rec.getField(STRING_BASLOD)));
+            psseGenerator.setNreg(parseIntFromRecord(rec, 0, headers, STRING_NREG));
+            psseGenerator.setBaslod(parseIntFromRecord(rec, 0, headers, STRING_BASLOD));
         }
 
         return psseGenerator;

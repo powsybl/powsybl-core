@@ -11,12 +11,11 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
-import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
-import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -87,48 +86,48 @@ public class PsseSwitchedShunt extends PsseVersioned {
     @Revision(since = 35)
     private int s8 = 1;
 
-    public static PsseSwitchedShunt fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseSwitchedShunt fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseSwitchedShunt psseSwitchedShunt = new PsseSwitchedShunt();
-        psseSwitchedShunt.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
-        psseSwitchedShunt.setModsw(Integer.parseInt(rec.getField("modsw")));
-        psseSwitchedShunt.setAdjm(Integer.parseInt(rec.getField("adjm")));
-        psseSwitchedShunt.setStat(Integer.parseInt(rec.getField("stat")));
-        psseSwitchedShunt.setVswhi(Double.parseDouble(rec.getField("vswhi")));
-        psseSwitchedShunt.setVswlo(Double.parseDouble(rec.getField("vswlo")));
+        psseSwitchedShunt.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseSwitchedShunt.setModsw(parseIntFromRecord(rec, 1, headers, "modsw"));
+        psseSwitchedShunt.setAdjm(parseIntFromRecord(rec, 0, headers, "adjm"));
+        psseSwitchedShunt.setStat(parseIntFromRecord(rec, 1, headers, "stat"));
+        psseSwitchedShunt.setVswhi(parseDoubleFromRecord(rec, 1.0, headers, "vswhi"));
+        psseSwitchedShunt.setVswlo(parseDoubleFromRecord(rec, 1.0, headers, "vswlo"));
         if (version.getMajorNumber() <= 33) {
-            psseSwitchedShunt.setSwrem(Integer.parseInt(rec.getField("swrem")));
+            psseSwitchedShunt.setSwrem(parseIntFromRecord(rec, 0, headers, "swrem"));
         }
-        psseSwitchedShunt.setRmpct(Integer.parseInt(rec.getField("rmpct")));
-        psseSwitchedShunt.setRmidnt(defaultIfEmpty(rec.getField("rmidnt"), " "));
-        psseSwitchedShunt.setBinit(Double.parseDouble(rec.getField("binit")));
-        psseSwitchedShunt.setN1(Integer.parseInt(rec.getField("n1")));
-        psseSwitchedShunt.setB1(Double.parseDouble(rec.getField("b1")));
-        psseSwitchedShunt.setN2(parseIntOrDefault(rec.getField("n2"), 0));
-        psseSwitchedShunt.setB2(parseDoubleOrDefault(rec.getField("b2"), 0.0));
-        psseSwitchedShunt.setN3(parseIntOrDefault(rec.getField("n3"), 0));
-        psseSwitchedShunt.setB3(parseDoubleOrDefault(rec.getField("b3"), 0.0));
-        psseSwitchedShunt.setN4(parseIntOrDefault(rec.getField("n4"), 0));
-        psseSwitchedShunt.setB4(parseDoubleOrDefault(rec.getField("b4"), 0.0));
-        psseSwitchedShunt.setN5(parseIntOrDefault(rec.getField("n5"), 0));
-        psseSwitchedShunt.setB5(parseDoubleOrDefault(rec.getField("b5"), 0.0));
-        psseSwitchedShunt.setN6(parseIntOrDefault(rec.getField("n6"), 0));
-        psseSwitchedShunt.setB6(parseDoubleOrDefault(rec.getField("b6"), 0.0));
-        psseSwitchedShunt.setN7(parseIntOrDefault(rec.getField("n7"), 0));
-        psseSwitchedShunt.setB7(parseDoubleOrDefault(rec.getField("b7"), 0.0));
-        psseSwitchedShunt.setN8(parseIntOrDefault(rec.getField("n8"), 0));
-        psseSwitchedShunt.setB8(parseDoubleOrDefault(rec.getField("b8"), 0.0));
+        psseSwitchedShunt.setRmpct(parseDoubleFromRecord(rec, 100.0, headers, "rmpct"));
+        psseSwitchedShunt.setRmidnt(parseStringFromRecord(rec, " ", headers, "rmidnt"));
+        psseSwitchedShunt.setBinit(parseDoubleFromRecord(rec, headers, "binit"));
+        psseSwitchedShunt.setN1(parseIntFromRecord(rec, 0, headers, "n1"));
+        psseSwitchedShunt.setB1(parseDoubleFromRecord(rec, 0.0, headers, "b1"));
+        psseSwitchedShunt.setN2(parseIntFromRecord(rec, 0, headers, "n2"));
+        psseSwitchedShunt.setB2(parseDoubleFromRecord(rec, 0.0, headers, "b2"));
+        psseSwitchedShunt.setN3(parseIntFromRecord(rec, 0, headers, "n3"));
+        psseSwitchedShunt.setB3(parseDoubleFromRecord(rec, 0.0, headers, "b3"));
+        psseSwitchedShunt.setN4(parseIntFromRecord(rec, 0, headers, "n4"));
+        psseSwitchedShunt.setB4(parseDoubleFromRecord(rec, 0.0, headers, "b4"));
+        psseSwitchedShunt.setN5(parseIntFromRecord(rec, 0, headers, "n5"));
+        psseSwitchedShunt.setB5(parseDoubleFromRecord(rec, 0.0, headers, "b5"));
+        psseSwitchedShunt.setN6(parseIntFromRecord(rec, 0, headers, "n6"));
+        psseSwitchedShunt.setB6(parseDoubleFromRecord(rec, 0.0, headers, "b6"));
+        psseSwitchedShunt.setN7(parseIntFromRecord(rec, 0, headers, "n7"));
+        psseSwitchedShunt.setB7(parseDoubleFromRecord(rec, 0.0, headers, "b7"));
+        psseSwitchedShunt.setN8(parseIntFromRecord(rec, 0, headers, "n8"));
+        psseSwitchedShunt.setB8(parseDoubleFromRecord(rec, 0.0, headers, "b8"));
         if (version.getMajorNumber() >= 35) {
-            psseSwitchedShunt.setId(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "id", "shntid"), "1"));
-            psseSwitchedShunt.setSwreg(Integer.parseInt(rec.getField("swreg")));
-            psseSwitchedShunt.setNreg(Integer.parseInt(rec.getField("nreg")));
-            psseSwitchedShunt.setS1(Integer.parseInt(rec.getField("s1")));
-            psseSwitchedShunt.setS2(parseIntOrDefault(rec.getField("s2"), 1));
-            psseSwitchedShunt.setS3(parseIntOrDefault(rec.getField("s3"), 1));
-            psseSwitchedShunt.setS4(parseIntOrDefault(rec.getField("s4"), 1));
-            psseSwitchedShunt.setS5(parseIntOrDefault(rec.getField("s5"), 1));
-            psseSwitchedShunt.setS6(parseIntOrDefault(rec.getField("s6"), 1));
-            psseSwitchedShunt.setS7(parseIntOrDefault(rec.getField("s7"), 1));
-            psseSwitchedShunt.setS8(parseIntOrDefault(rec.getField("s8"), 1));
+            psseSwitchedShunt.setId(parseStringFromRecord(rec, "1", headers, "id", "shntid"));
+            psseSwitchedShunt.setSwreg(parseIntFromRecord(rec, headers, "swreg"));
+            psseSwitchedShunt.setNreg(parseIntFromRecord(rec, headers, "nreg"));
+            psseSwitchedShunt.setS1(parseIntFromRecord(rec, headers, "s1"));
+            psseSwitchedShunt.setS2(parseIntFromRecord(rec, 1, headers, "s2"));
+            psseSwitchedShunt.setS3(parseIntFromRecord(rec, 1, headers, "s3"));
+            psseSwitchedShunt.setS4(parseIntFromRecord(rec, 1, headers, "s4"));
+            psseSwitchedShunt.setS5(parseIntFromRecord(rec, 1, headers, "s5"));
+            psseSwitchedShunt.setS6(parseIntFromRecord(rec, 1, headers, "s6"));
+            psseSwitchedShunt.setS7(parseIntFromRecord(rec, 1, headers, "s7"));
+            psseSwitchedShunt.setS8(parseIntFromRecord(rec, 1, headers, "s8"));
         }
         return psseSwitchedShunt;
     }

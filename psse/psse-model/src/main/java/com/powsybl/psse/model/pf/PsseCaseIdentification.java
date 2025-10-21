@@ -13,9 +13,16 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.io.IOException;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseFloatFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_1;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_2;
 
 /**
  *
@@ -37,16 +44,16 @@ public class PsseCaseIdentification {
     private String title1;
     private String title2;
 
-    public static PsseCaseIdentification fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseCaseIdentification fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseCaseIdentification psseCaseIdentification = new PsseCaseIdentification();
-        psseCaseIdentification.setIc(Integer.parseInt(rec.getField("ic")));
-        psseCaseIdentification.setSbase(Double.parseDouble(rec.getField("sbase")));
-        psseCaseIdentification.setRev(Float.parseFloat(rec.getField("rev")));
-        psseCaseIdentification.setXfrrat(Double.parseDouble(rec.getField("xfrrat")));
-        psseCaseIdentification.setNxfrat(Double.parseDouble(rec.getField("nxfrat")));
-        psseCaseIdentification.setBasfrq(Double.parseDouble(rec.getField("basfrq")));
-        psseCaseIdentification.setTitle1(rec.getField("title1"));
-        psseCaseIdentification.setTitle2(rec.getField("title2"));
+        psseCaseIdentification.setIc(parseIntFromRecord(rec, 0, headers, "ic"));
+        psseCaseIdentification.setSbase(parseDoubleFromRecord(rec, 100d, headers, "sbase"));
+        psseCaseIdentification.setRev(parseFloatFromRecord(rec, 33f, headers, "rev"));
+        psseCaseIdentification.setXfrrat(parseDoubleFromRecord(rec, Double.NaN, headers, "xfrrat"));
+        psseCaseIdentification.setNxfrat(parseDoubleFromRecord(rec, Double.NaN, headers, "nxfrat"));
+        psseCaseIdentification.setBasfrq(parseDoubleFromRecord(rec, Double.NaN, headers, "basfrq"));
+        psseCaseIdentification.setTitle1(parseStringFromRecord(rec, headers, STR_TITLE_1));
+        psseCaseIdentification.setTitle2(parseStringFromRecord(rec, headers, STR_TITLE_2));
         return psseCaseIdentification;
     }
 
@@ -60,8 +67,8 @@ public class PsseCaseIdentification {
                 case "xfrrat" -> String.format("%.0f", psseCaseIdentification.getXfrrat());
                 case "nxfrat" -> String.format("%.0f", psseCaseIdentification.getNxfrat());
                 case "basfrq" -> String.valueOf(psseCaseIdentification.getBasfrq());
-                case "title1" -> psseCaseIdentification.getTitle1();
-                case "title2" -> psseCaseIdentification.getTitle2();
+                case STR_TITLE_1 -> psseCaseIdentification.getTitle1();
+                case STR_TITLE_2 -> psseCaseIdentification.getTitle2();
                 default -> throw new PsseException("Unsupported header: " + headers[i]);
             };
         }

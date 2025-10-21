@@ -9,12 +9,11 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
-import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
-import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -59,42 +58,42 @@ public class PsseInductionMachine {
     private double ia2 = 0.0;
     private double xamult = 1.0;
 
-    public static PsseInductionMachine fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseInductionMachine fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseInductionMachine psseInductionMachine = new PsseInductionMachine();
-        psseInductionMachine.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
-        psseInductionMachine.setId(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "id", "imid"), "1"));
-        psseInductionMachine.setStat(parseIntOrDefault(rec.getField("stat"), 1));
-        psseInductionMachine.setScode(parseIntOrDefault(rec.getField("scode"), 1));
-        psseInductionMachine.setDcode(parseIntOrDefault(rec.getField("dcode"), 2));
-        psseInductionMachine.setArea(parseIntOrDefault(rec.getField("area"), -1));
-        psseInductionMachine.setZone(parseIntOrDefault(rec.getField("zone"), -1));
-        psseInductionMachine.setOwner(parseIntOrDefault(rec.getField("owner"), -1));
-        psseInductionMachine.setTcode(parseIntOrDefault(rec.getField("tcode"), 1));
-        psseInductionMachine.setBcode(parseIntOrDefault(rec.getField("bcode"), 1));
-        psseInductionMachine.setMbase(parseDoubleOrDefault(rec.getField("mbase"), -1.0));
-        psseInductionMachine.setRatekv(parseDoubleOrDefault(rec.getField("ratekv"), 0.0));
-        psseInductionMachine.setPcode(parseIntOrDefault(rec.getField("pcode"), 1));
-        psseInductionMachine.setPset(parseDoubleOrDefault(rec.getField("pset"), null));
-        psseInductionMachine.setH(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "h", "hconst"), 1.0));
-        psseInductionMachine.setA(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "a", "aconst"), 1.0));
-        psseInductionMachine.setB(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "b", "bconst"), 1.0));
-        psseInductionMachine.setD(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "d", "dconst"), 1.0));
-        psseInductionMachine.setE(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "e", "econst"), 1.0));
-        psseInductionMachine.setRa(parseDoubleOrDefault(rec.getField("ra"), 0.0));
-        psseInductionMachine.setXa(parseDoubleOrDefault(rec.getField("xa"), 0.0));
-        psseInductionMachine.setXm(parseDoubleOrDefault(rec.getField("xm"), 2.5));
-        psseInductionMachine.setR1(parseDoubleOrDefault(rec.getField("r1"), 999.0));
-        psseInductionMachine.setX1(parseDoubleOrDefault(rec.getField("x1"), 999.0));
-        psseInductionMachine.setR2(parseDoubleOrDefault(rec.getField("r2"), 999.0));
-        psseInductionMachine.setX2(parseDoubleOrDefault(rec.getField("x2"), 999.0));
-        psseInductionMachine.setX3(parseDoubleOrDefault(rec.getField("x3"), 0.0));
-        psseInductionMachine.setE1(parseDoubleOrDefault(rec.getField("e1"), 1.0));
-        psseInductionMachine.setSe1(parseDoubleOrDefault(rec.getField("se1"), 0.0));
-        psseInductionMachine.setE2(parseDoubleOrDefault(rec.getField("e2"), 1.2));
-        psseInductionMachine.setSe2(parseDoubleOrDefault(rec.getField("se2"), 0.0));
-        psseInductionMachine.setIa1(parseDoubleOrDefault(rec.getField("ia1"), 0.0));
-        psseInductionMachine.setIa2(parseDoubleOrDefault(rec.getField("ia2"), 0.0));
-        psseInductionMachine.setXamult(parseDoubleOrDefault(rec.getField("xamult"), 1.0));
+        psseInductionMachine.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseInductionMachine.setId(parseStringFromRecord(rec, "1", headers, "id", "imid"));
+        psseInductionMachine.setStat(parseIntFromRecord(rec, 1, headers, "stat"));
+        psseInductionMachine.setScode(parseIntFromRecord(rec, 1, headers, "scode"));
+        psseInductionMachine.setDcode(parseIntFromRecord(rec, 2, headers, "dcode"));
+        psseInductionMachine.setArea(parseIntFromRecord(rec, -1, headers, "area"));
+        psseInductionMachine.setZone(parseIntFromRecord(rec, -1, headers, "zone"));
+        psseInductionMachine.setOwner(parseIntFromRecord(rec, -1, headers, "owner"));
+        psseInductionMachine.setTcode(parseIntFromRecord(rec, 1, headers, "tcode"));
+        psseInductionMachine.setBcode(parseIntFromRecord(rec, 1, headers, "bcode"));
+        psseInductionMachine.setMbase(parseDoubleFromRecord(rec, -1.0, headers, "mbase"));
+        psseInductionMachine.setRatekv(parseDoubleFromRecord(rec, 0.0, headers, "ratekv"));
+        psseInductionMachine.setPcode(parseIntFromRecord(rec, 1, headers, "pcode"));
+        psseInductionMachine.setPset(parseDoubleFromRecord(rec, null, headers, "pset"));
+        psseInductionMachine.setH(parseDoubleFromRecord(rec, 1.0, headers, "h", "hconst"));
+        psseInductionMachine.setA(parseDoubleFromRecord(rec, 1.0, headers, "a", "aconst"));
+        psseInductionMachine.setB(parseDoubleFromRecord(rec, 1.0, headers, "b", "bconst"));
+        psseInductionMachine.setD(parseDoubleFromRecord(rec, 1.0, headers, "d", "dconst"));
+        psseInductionMachine.setE(parseDoubleFromRecord(rec, 1.0, headers, "e", "econst"));
+        psseInductionMachine.setRa(parseDoubleFromRecord(rec, 0.0, headers, "ra"));
+        psseInductionMachine.setXa(parseDoubleFromRecord(rec, 0.0, headers, "xa"));
+        psseInductionMachine.setXm(parseDoubleFromRecord(rec, 2.5, headers, "xm"));
+        psseInductionMachine.setR1(parseDoubleFromRecord(rec, 999.0, headers, "r1"));
+        psseInductionMachine.setX1(parseDoubleFromRecord(rec, 999.0, headers, "x1"));
+        psseInductionMachine.setR2(parseDoubleFromRecord(rec, 999.0, headers, "r2"));
+        psseInductionMachine.setX2(parseDoubleFromRecord(rec, 999.0, headers, "x2"));
+        psseInductionMachine.setX3(parseDoubleFromRecord(rec, 0.0, headers, "x3"));
+        psseInductionMachine.setE1(parseDoubleFromRecord(rec, 1.0, headers, "e1"));
+        psseInductionMachine.setSe1(parseDoubleFromRecord(rec, 0.0, headers, "se1"));
+        psseInductionMachine.setE2(parseDoubleFromRecord(rec, 1.2, headers, "e2"));
+        psseInductionMachine.setSe2(parseDoubleFromRecord(rec, 0.0, headers, "se2"));
+        psseInductionMachine.setIa1(parseDoubleFromRecord(rec, 0.0, headers, "ia1"));
+        psseInductionMachine.setIa2(parseDoubleFromRecord(rec, 0.0, headers, "ia2"));
+        psseInductionMachine.setXamult(parseDoubleFromRecord(rec, 1.0, headers, "xamult"));
         return psseInductionMachine;
     }
 

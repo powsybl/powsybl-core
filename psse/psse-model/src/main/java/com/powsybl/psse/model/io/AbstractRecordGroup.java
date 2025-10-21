@@ -13,7 +13,7 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.*;
 import de.siegmar.fastcsv.reader.CsvReader;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.QuoteStrategy;
 import org.apache.commons.lang3.ArrayUtils;
@@ -231,7 +231,7 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     private interface MapperFrom<T> {
-        T apply(NamedCsvRecord rec, PsseVersion version);
+        T apply(CsvRecord rec, PsseVersion version, String[] headers);
     }
 
     private interface MapperTo<T> {
@@ -248,7 +248,6 @@ public abstract class AbstractRecordGroup<T> {
 
         // Reconstruct a string block
         StringBuilder sb = new StringBuilder();
-        sb.append(String.join(String.valueOf(context.getDelimiter()), headers)).append(System.lineSeparator());
         for (String record : records) {
             sb.append(record).append(System.lineSeparator());
         }
@@ -258,8 +257,8 @@ public abstract class AbstractRecordGroup<T> {
         context.resetCurrentRecordGroup();
 
         // Parse
-        try (CsvReader<NamedCsvRecord> reader = context.createCsvReaderBuilder()
-            .ofNamedCsvRecord(new StringReader(sb.toString()))) {
+        try (CsvReader<CsvRecord> reader = context.createCsvReaderBuilder()
+            .ofCsvRecord(new StringReader(sb.toString()))) {
             // Get the corresponding mapper
             MapperFrom<T> mapper = (MapperFrom<T>) MAPPERS_FROM_RECORD.get(psseTypeClass());
             if (mapper == null) {
@@ -269,7 +268,7 @@ public abstract class AbstractRecordGroup<T> {
             // Parse the records
             reader.stream().forEach(rec -> {
                 try {
-                    beans.add(mapper.apply(rec, context.getVersion()));
+                    beans.add(mapper.apply(rec, context.getVersion(), headers));
                     context.setCurrentRecordNumFields(rec.getFieldCount());
                 } catch (Exception e) {
                     throw new PsseException("Parsing error", e);

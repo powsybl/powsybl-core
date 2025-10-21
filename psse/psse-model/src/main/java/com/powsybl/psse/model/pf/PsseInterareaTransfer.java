@@ -9,9 +9,11 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -25,12 +27,12 @@ public class PsseInterareaTransfer {
     private String trid;
     private double ptran = 0.0;
 
-    public static PsseInterareaTransfer fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseInterareaTransfer fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseInterareaTransfer psseInterareaTransfer = new PsseInterareaTransfer();
-        psseInterareaTransfer.setArfrom(Integer.parseInt(rec.getField("arfrom")));
-        psseInterareaTransfer.setArto(Integer.parseInt(rec.getField("arto")));
-        psseInterareaTransfer.setTrid(defaultIfEmpty(rec.getField("trid"), "1"));
-        psseInterareaTransfer.setPtran(Double.parseDouble(rec.getField("ptran")));
+        psseInterareaTransfer.setArfrom(parseIntFromRecord(rec, headers, "arfrom"));
+        psseInterareaTransfer.setArto(parseIntFromRecord(rec, headers, "arto"));
+        psseInterareaTransfer.setTrid(parseStringFromRecord(rec, "1", headers, "trid"));
+        psseInterareaTransfer.setPtran(parseDoubleFromRecord(rec, headers, "ptran"));
         return psseInterareaTransfer;
     }
 

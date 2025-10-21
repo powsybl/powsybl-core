@@ -11,9 +11,12 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 
 /**
  *
@@ -47,32 +50,32 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
     @Revision(since = 35)
     private int nreg = 0;
 
-    public static PsseVoltageSourceConverter fromRecord(NamedCsvRecord rec, PsseVersion version) {
-        return fromRecord(rec, version, "");
+    public static PsseVoltageSourceConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        return fromRecord(rec, version, headers, "");
     }
 
-    public static PsseVoltageSourceConverter fromRecord(NamedCsvRecord rec, PsseVersion version, String headerSuffix) {
+    public static PsseVoltageSourceConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers, String headerSuffix) {
         PsseVoltageSourceConverter psseVoltageSourceConverter = new PsseVoltageSourceConverter();
-        psseVoltageSourceConverter.setIbus(Integer.parseInt(rec.getField("ibus" + headerSuffix)));
-        psseVoltageSourceConverter.setType(Integer.parseInt(rec.getField("type" + headerSuffix)));
-        psseVoltageSourceConverter.setMode(Integer.parseInt(rec.getField("mode" + headerSuffix)));
-        psseVoltageSourceConverter.setDcset(Double.parseDouble(rec.getField("dcset" + headerSuffix)));
-        psseVoltageSourceConverter.setAcset(Double.parseDouble(rec.getField("acset" + headerSuffix)));
-        psseVoltageSourceConverter.setAloss(Double.parseDouble(rec.getField("aloss" + headerSuffix)));
-        psseVoltageSourceConverter.setBloss(Double.parseDouble(rec.getField("bloss" + headerSuffix)));
-        psseVoltageSourceConverter.setMinloss(Double.parseDouble(rec.getField("minloss" + headerSuffix)));
-        psseVoltageSourceConverter.setSmax(Double.parseDouble(rec.getField("smax" + headerSuffix)));
-        psseVoltageSourceConverter.setImax(Double.parseDouble(rec.getField("imax" + headerSuffix)));
-        psseVoltageSourceConverter.setPwf(Double.parseDouble(rec.getField("pwf" + headerSuffix)));
-        psseVoltageSourceConverter.setMaxq(Double.parseDouble(rec.getField("maxq" + headerSuffix)));
-        psseVoltageSourceConverter.setMinq(Double.parseDouble(rec.getField("minq" + headerSuffix)));
+        psseVoltageSourceConverter.setIbus(parseIntFromRecord(rec, headers, "ibus" + headerSuffix));
+        psseVoltageSourceConverter.setType(parseIntFromRecord(rec, headers, "type" + headerSuffix));
+        psseVoltageSourceConverter.setMode(parseIntFromRecord(rec, 1, headers, "mode" + headerSuffix));
+        psseVoltageSourceConverter.setDcset(parseDoubleFromRecord(rec, headers, "dcset" + headerSuffix));
+        psseVoltageSourceConverter.setAcset(parseDoubleFromRecord(rec, 1.0, headers, "acset" + headerSuffix));
+        psseVoltageSourceConverter.setAloss(parseDoubleFromRecord(rec, 0.0, headers, "aloss" + headerSuffix));
+        psseVoltageSourceConverter.setBloss(parseDoubleFromRecord(rec, 0.0, headers, "bloss" + headerSuffix));
+        psseVoltageSourceConverter.setMinloss(parseDoubleFromRecord(rec, 0.0, headers, "minloss" + headerSuffix));
+        psseVoltageSourceConverter.setSmax(parseDoubleFromRecord(rec, 0.0, headers, "smax" + headerSuffix));
+        psseVoltageSourceConverter.setImax(parseDoubleFromRecord(rec, 0.0, headers, "imax" + headerSuffix));
+        psseVoltageSourceConverter.setPwf(parseDoubleFromRecord(rec, 1.0, headers, "pwf" + headerSuffix));
+        psseVoltageSourceConverter.setMaxq(parseDoubleFromRecord(rec, 9999.0, headers, "maxq" + headerSuffix));
+        psseVoltageSourceConverter.setMinq(parseDoubleFromRecord(rec, -9999.0, headers, "minq" + headerSuffix));
         if (version.getMajorNumber() <= 33) {
-            psseVoltageSourceConverter.setRemot(Integer.parseInt(rec.getField("remot" + headerSuffix)));
+            psseVoltageSourceConverter.setRemot(parseIntFromRecord(rec, 0, headers, "remot" + headerSuffix));
         }
-        psseVoltageSourceConverter.setRmpct(Double.parseDouble(rec.getField("rmpct" + headerSuffix)));
+        psseVoltageSourceConverter.setRmpct(parseDoubleFromRecord(rec, 100.0, headers, "rmpct" + headerSuffix));
         if (version.getMajorNumber() >= 35) {
-            psseVoltageSourceConverter.setVsreg(Integer.parseInt(rec.getField("vsreg" + headerSuffix)));
-            psseVoltageSourceConverter.setNreg(Integer.parseInt(rec.getField("nreg" + headerSuffix)));
+            psseVoltageSourceConverter.setVsreg(parseIntFromRecord(rec, 0, headers, "vsreg" + headerSuffix));
+            psseVoltageSourceConverter.setNreg(parseIntFromRecord(rec, 0, headers, "nreg" + headerSuffix));
         }
         return psseVoltageSourceConverter;
     }

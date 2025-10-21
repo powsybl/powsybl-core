@@ -11,12 +11,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -109,16 +111,16 @@ public class PsseMultiTerminalDcTransmissionLine {
         private double vcmod = 0.0;
         private int vconvn = 0;
 
-        public static PsseMultiTerminalDcMain fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseMultiTerminalDcMain fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseMultiTerminalDcMain psseMultiTerminalDcMain = new PsseMultiTerminalDcMain();
-            psseMultiTerminalDcMain.setName(rec.getField("name"));
-            psseMultiTerminalDcMain.setNconv(Integer.parseInt(rec.getField("nconv")));
-            psseMultiTerminalDcMain.setNdcbs(Integer.parseInt(rec.getField("ndcbs")));
-            psseMultiTerminalDcMain.setNdcln(Integer.parseInt(rec.getField("ndcln")));
-            psseMultiTerminalDcMain.setMdc(Integer.parseInt(rec.getField("mdc")));
-            psseMultiTerminalDcMain.setVconv(Integer.parseInt(rec.getField("vconv")));
-            psseMultiTerminalDcMain.setVcmod(Double.parseDouble(rec.getField("vcmod")));
-            psseMultiTerminalDcMain.setVconvn(Integer.parseInt(rec.getField("vconvn")));
+            psseMultiTerminalDcMain.setName(parseStringFromRecord(rec, headers, "name"));
+            psseMultiTerminalDcMain.setNconv(parseIntFromRecord(rec, headers, "nconv"));
+            psseMultiTerminalDcMain.setNdcbs(parseIntFromRecord(rec, headers, "ndcbs"));
+            psseMultiTerminalDcMain.setNdcln(parseIntFromRecord(rec, headers, "ndcln"));
+            psseMultiTerminalDcMain.setMdc(parseIntFromRecord(rec, 0, headers, "mdc"));
+            psseMultiTerminalDcMain.setVconv(parseIntFromRecord(rec, headers, "vconv"));
+            psseMultiTerminalDcMain.setVcmod(parseDoubleFromRecord(rec, 0d, headers, "vcmod"));
+            psseMultiTerminalDcMain.setVconvn(parseIntFromRecord(rec, 0, headers, "vconvn"));
             return psseMultiTerminalDcMain;
         }
 
@@ -224,24 +226,24 @@ public class PsseMultiTerminalDcTransmissionLine {
         private double marg = 0.0;
         private int cnvcod = 1;
 
-        public static PsseMultiTerminalDcConverter fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseMultiTerminalDcConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseMultiTerminalDcConverter psseMultiTerminalDcConverter = new PsseMultiTerminalDcConverter();
-            psseMultiTerminalDcConverter.setIb(Integer.parseInt(rec.getField("ib")));
-            psseMultiTerminalDcConverter.setN(Integer.parseInt(rec.getField("n")));
-            psseMultiTerminalDcConverter.setAngmx(Double.parseDouble(rec.getField("angmx")));
-            psseMultiTerminalDcConverter.setAngmn(Double.parseDouble(rec.getField("angmn")));
-            psseMultiTerminalDcConverter.setRc(Double.parseDouble(rec.getField("rc")));
-            psseMultiTerminalDcConverter.setXc(Double.parseDouble(rec.getField("xc")));
-            psseMultiTerminalDcConverter.setEbas(Double.parseDouble(rec.getField("ebas")));
-            psseMultiTerminalDcConverter.setTr(Double.parseDouble(rec.getField("tr")));
-            psseMultiTerminalDcConverter.setTap(Double.parseDouble(rec.getField("tap")));
-            psseMultiTerminalDcConverter.setTpmx(Double.parseDouble(rec.getField("tpmx")));
-            psseMultiTerminalDcConverter.setTpmn(Double.parseDouble(rec.getField("tpmn")));
-            psseMultiTerminalDcConverter.setTstp(Double.parseDouble(rec.getField("tstp")));
-            psseMultiTerminalDcConverter.setSetvl(Double.parseDouble(rec.getField("setvl")));
-            psseMultiTerminalDcConverter.setDcpf(Double.parseDouble(rec.getField("dcpf")));
-            psseMultiTerminalDcConverter.setMarg(Double.parseDouble(rec.getField("marg")));
-            psseMultiTerminalDcConverter.setCnvcod(Integer.parseInt(rec.getField("cnvcod")));
+            psseMultiTerminalDcConverter.setIb(parseIntFromRecord(rec, headers, "ib"));
+            psseMultiTerminalDcConverter.setN(parseIntFromRecord(rec, headers, "n"));
+            psseMultiTerminalDcConverter.setAngmx(parseDoubleFromRecord(rec, headers, "angmx"));
+            psseMultiTerminalDcConverter.setAngmn(parseDoubleFromRecord(rec, headers, "angmn"));
+            psseMultiTerminalDcConverter.setRc(parseDoubleFromRecord(rec, headers, "rc"));
+            psseMultiTerminalDcConverter.setXc(parseDoubleFromRecord(rec, headers, "xc"));
+            psseMultiTerminalDcConverter.setEbas(parseDoubleFromRecord(rec, headers, "ebas"));
+            psseMultiTerminalDcConverter.setTr(parseDoubleFromRecord(rec, 1.0, headers, "tr"));
+            psseMultiTerminalDcConverter.setTap(parseDoubleFromRecord(rec, 1.0, headers, "tap"));
+            psseMultiTerminalDcConverter.setTpmx(parseDoubleFromRecord(rec, 1.5, headers, "tpmx"));
+            psseMultiTerminalDcConverter.setTpmn(parseDoubleFromRecord(rec, 0.51, headers, "tpmn"));
+            psseMultiTerminalDcConverter.setTstp(parseDoubleFromRecord(rec, 0.00625, headers, "tstp"));
+            psseMultiTerminalDcConverter.setSetvl(parseDoubleFromRecord(rec, headers, "setvl"));
+            psseMultiTerminalDcConverter.setDcpf(parseDoubleFromRecord(rec, 1.0, headers, "dcpf"));
+            psseMultiTerminalDcConverter.setMarg(parseDoubleFromRecord(rec, 0.0, headers, "marg"));
+            psseMultiTerminalDcConverter.setCnvcod(parseIntFromRecord(rec, 1, headers, "cnvcod"));
             return psseMultiTerminalDcConverter;
         }
 
@@ -411,16 +413,16 @@ public class PsseMultiTerminalDcTransmissionLine {
         private double rgrnd = 0.0;
         private int owner = 1;
 
-        public static PsseMultiTerminalDcBus fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseMultiTerminalDcBus fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseMultiTerminalDcBus psseMultiTerminalDcBus = new PsseMultiTerminalDcBus();
-            psseMultiTerminalDcBus.setIdc(Integer.parseInt(rec.getField("idc")));
-            psseMultiTerminalDcBus.setIb(Integer.parseInt(rec.getField("ib")));
-            psseMultiTerminalDcBus.setArea(Integer.parseInt(rec.getField("area")));
-            psseMultiTerminalDcBus.setZone(Integer.parseInt(rec.getField("zone")));
-            psseMultiTerminalDcBus.setDcname(defaultIfEmpty(rec.getField("dcname"), "            "));
-            psseMultiTerminalDcBus.setIdc2(Integer.parseInt(rec.getField("idc2")));
-            psseMultiTerminalDcBus.setRgrnd(Double.parseDouble(rec.getField("rgrnd")));
-            psseMultiTerminalDcBus.setOwner(Integer.parseInt(rec.getField("owner")));
+            psseMultiTerminalDcBus.setIdc(parseIntFromRecord(rec, headers, "idc"));
+            psseMultiTerminalDcBus.setIb(parseIntFromRecord(rec, headers, "ib"));
+            psseMultiTerminalDcBus.setArea(parseIntFromRecord(rec, headers, "area"));
+            psseMultiTerminalDcBus.setZone(parseIntFromRecord(rec, headers, "zone"));
+            psseMultiTerminalDcBus.setDcname(parseStringFromRecord(rec, "            ", headers, "dcname"));
+            psseMultiTerminalDcBus.setIdc2(parseIntFromRecord(rec, headers, "idc2"));
+            psseMultiTerminalDcBus.setRgrnd(parseDoubleFromRecord(rec, headers, "rgrnd"));
+            psseMultiTerminalDcBus.setOwner(parseIntFromRecord(rec, headers, "owner"));
             return psseMultiTerminalDcBus;
         }
 
@@ -516,14 +518,14 @@ public class PsseMultiTerminalDcTransmissionLine {
         private double rdc;
         private double ldc = 0.0;
 
-        public static PsseMultiTerminalDcLink fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseMultiTerminalDcLink fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseMultiTerminalDcLink psseMultiTerminalDcLink = new PsseMultiTerminalDcLink();
-            psseMultiTerminalDcLink.setIdc(Integer.parseInt(rec.getField("idc")));
-            psseMultiTerminalDcLink.setJdc(Integer.parseInt(rec.getField("jdc")));
-            psseMultiTerminalDcLink.setDcckt(defaultIfEmpty(rec.getField("dcckt"), "1"));
-            psseMultiTerminalDcLink.setMet(Integer.parseInt(rec.getField("met")));
-            psseMultiTerminalDcLink.setRdc(Double.parseDouble(rec.getField("rdc")));
-            psseMultiTerminalDcLink.setLdc(Double.parseDouble(rec.getField("ldc")));
+            psseMultiTerminalDcLink.setIdc(parseIntFromRecord(rec, headers, "idc"));
+            psseMultiTerminalDcLink.setJdc(parseIntFromRecord(rec, headers, "jdc"));
+            psseMultiTerminalDcLink.setDcckt(parseStringFromRecord(rec, "1", headers, "dcckt"));
+            psseMultiTerminalDcLink.setMet(parseIntFromRecord(rec, headers, "met"));
+            psseMultiTerminalDcLink.setRdc(parseDoubleFromRecord(rec, headers, "rdc"));
+            psseMultiTerminalDcLink.setLdc(parseDoubleFromRecord(rec, headers, "ldc"));
             return psseMultiTerminalDcLink;
         }
 
@@ -605,10 +607,10 @@ public class PsseMultiTerminalDcTransmissionLine {
         private String name;
         private PsseMultiTerminalDcConverter converter;
 
-        public static PsseMultiTerminalDcConverterx fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseMultiTerminalDcConverterx fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseMultiTerminalDcConverterx psseMultiTerminalDcConverterx = new PsseMultiTerminalDcConverterx();
-            psseMultiTerminalDcConverterx.setName(rec.getField("name"));
-            psseMultiTerminalDcConverterx.setConverter(PsseMultiTerminalDcConverter.fromRecord(rec, version));
+            psseMultiTerminalDcConverterx.setName(parseStringFromRecord(rec, headers, "name"));
+            psseMultiTerminalDcConverterx.setConverter(PsseMultiTerminalDcConverter.fromRecord(rec, version, headers));
             return psseMultiTerminalDcConverterx;
         }
 
@@ -669,10 +671,10 @@ public class PsseMultiTerminalDcTransmissionLine {
         private String name;
         private PsseMultiTerminalDcBus bus;
 
-        public static PsseMultiTerminalDcBusx fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseMultiTerminalDcBusx fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseMultiTerminalDcBusx psseMultiTerminalDcBusx = new PsseMultiTerminalDcBusx();
-            psseMultiTerminalDcBusx.setName(rec.getField("name"));
-            psseMultiTerminalDcBusx.setBus(PsseMultiTerminalDcBus.fromRecord(rec, version));
+            psseMultiTerminalDcBusx.setName(parseStringFromRecord(rec, headers, "name"));
+            psseMultiTerminalDcBusx.setBus(PsseMultiTerminalDcBus.fromRecord(rec, version, headers));
             return psseMultiTerminalDcBusx;
         }
 
@@ -725,10 +727,10 @@ public class PsseMultiTerminalDcTransmissionLine {
         private String name;
         private PsseMultiTerminalDcLink link;
 
-        public static PsseMultiTerminalDcLinkx fromRecord(NamedCsvRecord rec, PsseVersion version) {
+        public static PsseMultiTerminalDcLinkx fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
             PsseMultiTerminalDcLinkx psseMultiTerminalDcLinkx = new PsseMultiTerminalDcLinkx();
-            psseMultiTerminalDcLinkx.setName(rec.getField("name"));
-            psseMultiTerminalDcLinkx.setLink(PsseMultiTerminalDcLink.fromRecord(rec, version));
+            psseMultiTerminalDcLinkx.setName(parseStringFromRecord(rec, headers, "name"));
+            psseMultiTerminalDcLinkx.setLink(PsseMultiTerminalDcLink.fromRecord(rec, version, headers));
             return psseMultiTerminalDcLinkx;
         }
 

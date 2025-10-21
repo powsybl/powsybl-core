@@ -9,10 +9,10 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -23,10 +23,10 @@ public class PsseOwner {
     private int i;
     private String owname;
 
-    public static PsseOwner fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseOwner fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseOwner psseOwner = new PsseOwner();
-        psseOwner.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "iowner")));
-        psseOwner.setOwname(defaultIfEmpty(getFieldFromMultiplePotentialHeaders(rec, "owname", "owner"), "            "));
+        psseOwner.setI(parseIntFromRecord(rec, headers, "i", "iowner"));
+        psseOwner.setOwname(parseStringFromRecord(rec, "            ", headers, "owname", "owner"));
         return psseOwner;
     }
 

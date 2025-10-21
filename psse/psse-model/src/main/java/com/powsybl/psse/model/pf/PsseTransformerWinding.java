@@ -11,12 +11,12 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
-import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -43,29 +43,29 @@ public class PsseTransformerWinding extends PsseVersioned {
     private double cx = 0;
     private double cnxa = 0;
 
-    public static PsseTransformerWinding fromRecord(NamedCsvRecord rec, PsseVersion version) {
-        return fromRecord(rec, version, "");
+    public static PsseTransformerWinding fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        return fromRecord(rec, version, headers, "");
     }
 
-    public static PsseTransformerWinding fromRecord(NamedCsvRecord rec, PsseVersion version, String headerSuffix) {
+    public static PsseTransformerWinding fromRecord(CsvRecord rec, PsseVersion version, String[] headers, String headerSuffix) {
         PsseTransformerWinding psseTransformerWinding = new PsseTransformerWinding();
-        psseTransformerWinding.setWindv(parseDoubleOrDefault(rec.getField("windv" + headerSuffix), Double.NaN));
-        psseTransformerWinding.setNomv(parseDoubleOrDefault(rec.getField("nomv" + headerSuffix), 0.0));
-        psseTransformerWinding.setAng(parseDoubleOrDefault(rec.getField("ang" + headerSuffix), 0.0));
-        psseTransformerWinding.setCod(parseIntOrDefault(rec.getField("cod" + headerSuffix), 0));
-        psseTransformerWinding.setCont(parseIntOrDefault(rec.getField("cont" + headerSuffix), 0));
+        psseTransformerWinding.setWindv(parseDoubleFromRecord(rec, Double.NaN, headers, "windv" + headerSuffix));
+        psseTransformerWinding.setNomv(parseDoubleFromRecord(rec, 0.0, headers, "nomv" + headerSuffix));
+        psseTransformerWinding.setAng(parseDoubleFromRecord(rec, 0.0, headers, "ang" + headerSuffix));
+        psseTransformerWinding.setCod(parseIntFromRecord(rec, 0, headers, "cod" + headerSuffix));
+        psseTransformerWinding.setCont(parseIntFromRecord(rec, 0, headers, "cont" + headerSuffix));
         if (version.getMajorNumber() >= 35) {
-            psseTransformerWinding.setNode(parseIntOrDefault(rec.getField("node" + headerSuffix), 0));
+            psseTransformerWinding.setNode(parseIntFromRecord(rec, 0, headers, "node" + headerSuffix));
         }
-        psseTransformerWinding.setRma(parseDoubleOrDefault(rec.getField("rma" + headerSuffix), Double.NaN));
-        psseTransformerWinding.setRmi(parseDoubleOrDefault(rec.getField("rmi" + headerSuffix), Double.NaN));
-        psseTransformerWinding.setVma(parseDoubleOrDefault(rec.getField("vma" + headerSuffix), Double.NaN));
-        psseTransformerWinding.setVmi(parseDoubleOrDefault(rec.getField("vmi" + headerSuffix), Double.NaN));
-        psseTransformerWinding.setNtp(parseIntOrDefault(rec.getField("ntp" + headerSuffix), 33));
-        psseTransformerWinding.setTab(parseIntOrDefault(rec.getField("tab" + headerSuffix), 0));
-        psseTransformerWinding.setCr(parseDoubleOrDefault(rec.getField("cr" + headerSuffix), 0.0));
-        psseTransformerWinding.setCx(parseDoubleOrDefault(rec.getField("cx" + headerSuffix), 0.0));
-        psseTransformerWinding.setCnxa(parseDoubleOrDefault(rec.getField("cnxa" + headerSuffix), 0.0));
+        psseTransformerWinding.setRma(parseDoubleFromRecord(rec, Double.NaN, headers, "rma" + headerSuffix));
+        psseTransformerWinding.setRmi(parseDoubleFromRecord(rec, Double.NaN, headers, "rmi" + headerSuffix));
+        psseTransformerWinding.setVma(parseDoubleFromRecord(rec, Double.NaN, headers, "vma" + headerSuffix));
+        psseTransformerWinding.setVmi(parseDoubleFromRecord(rec, Double.NaN, headers, "vmi" + headerSuffix));
+        psseTransformerWinding.setNtp(parseIntFromRecord(rec, 33, headers, "ntp" + headerSuffix));
+        psseTransformerWinding.setTab(parseIntFromRecord(rec, 0, headers, "tab" + headerSuffix));
+        psseTransformerWinding.setCr(parseDoubleFromRecord(rec, 0.0, headers, "cr" + headerSuffix));
+        psseTransformerWinding.setCx(parseDoubleFromRecord(rec, 0.0, headers, "cx" + headerSuffix));
+        psseTransformerWinding.setCnxa(parseDoubleFromRecord(rec, 0.0, headers, "cnxa" + headerSuffix));
         return psseTransformerWinding;
     }
 

@@ -10,9 +10,13 @@ package com.powsybl.psse.model.pf;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -36,14 +40,14 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
     private PsseVoltageSourceConverter converter1;
     private PsseVoltageSourceConverter converter2;
 
-    public static PsseVoltageSourceConverterDcTransmissionLine fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseVoltageSourceConverterDcTransmissionLine fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverter = new PsseVoltageSourceConverterDcTransmissionLine();
-        psseVoltageSourceConverter.setName(rec.getField("name"));
-        psseVoltageSourceConverter.setMdc(Integer.parseInt(rec.getField("mdc")));
-        psseVoltageSourceConverter.setRdc(Double.parseDouble(rec.getField("rdc")));
-        psseVoltageSourceConverter.setOwnership(PsseOwnership.fromRecord(rec, version));
-        psseVoltageSourceConverter.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, version, "1"));
-        psseVoltageSourceConverter.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, version, "2"));
+        psseVoltageSourceConverter.setName(parseStringFromRecord(rec, headers, "name"));
+        psseVoltageSourceConverter.setMdc(parseIntFromRecord(rec, headers, "mdc"));
+        psseVoltageSourceConverter.setRdc(parseDoubleFromRecord(rec, headers, "rdc"));
+        psseVoltageSourceConverter.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
+        psseVoltageSourceConverter.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "1"));
+        psseVoltageSourceConverter.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "2"));
         return psseVoltageSourceConverter;
     }
 

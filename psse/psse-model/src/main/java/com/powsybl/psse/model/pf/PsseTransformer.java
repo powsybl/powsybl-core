@@ -13,14 +13,13 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
-import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
-import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -57,10 +56,6 @@ public class PsseTransformer extends PsseVersioned {
     private int stat = 1;
     private PsseOwnership ownership;
 
-    // If the issue 432 in Univocity is fixed,
-    // the previous annotation will be correctly processed
-    // and there would be no need to initialize vecgrp with default value
-    // (https://github.com/uniVocity/univocity-parsers/issues/432)
     @Revision(since = 33)
     private String vecgrp = "            ";
 
@@ -75,43 +70,43 @@ public class PsseTransformer extends PsseVersioned {
     private PsseTransformerWinding winding3;
     private PsseRates winding3Rates;
 
-    public static PsseTransformer fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseTransformer fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseTransformer psseTransformer = new PsseTransformer();
-        psseTransformer.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
-        psseTransformer.setJ(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "j", "jbus")));
-        psseTransformer.setK(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "k", "kbus")));
-        psseTransformer.setCkt(defaultIfEmpty(rec.getField("ckt"), "1"));
-        psseTransformer.setCw(Integer.parseInt(rec.getField("cw")));
-        psseTransformer.setCz(Integer.parseInt(rec.getField("cz")));
-        psseTransformer.setCm(Integer.parseInt(rec.getField("cm")));
-        psseTransformer.setMag1(Integer.parseInt(rec.getField("mag1")));
-        psseTransformer.setMag2(Integer.parseInt(rec.getField("mag2")));
-        psseTransformer.setNmetr(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "nmetr", "nmet")));
-        psseTransformer.setName(defaultIfEmpty(rec.getField("name"), "            "));
-        psseTransformer.setStat(Integer.parseInt(rec.getField("stat")));
-        psseTransformer.setOwnership(PsseOwnership.fromRecord(rec, version));
+        psseTransformer.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseTransformer.setJ(parseIntFromRecord(rec, headers, "j", "jbus"));
+        psseTransformer.setK(parseIntFromRecord(rec, 0, headers, "k", "kbus"));
+        psseTransformer.setCkt(parseStringFromRecord(rec, "1", headers, "ckt"));
+        psseTransformer.setCw(parseIntFromRecord(rec, 1, headers, "cw"));
+        psseTransformer.setCz(parseIntFromRecord(rec, 1, headers, "cz"));
+        psseTransformer.setCm(parseIntFromRecord(rec, 1, headers, "cm"));
+        psseTransformer.setMag1(parseDoubleFromRecord(rec, 0d, headers, "mag1"));
+        psseTransformer.setMag2(parseDoubleFromRecord(rec, 0d, headers, "mag2"));
+        psseTransformer.setNmetr(parseIntFromRecord(rec, 2, headers, "nmetr", "nmet"));
+        psseTransformer.setName(parseStringFromRecord(rec, "            ", headers, "name"));
+        psseTransformer.setStat(parseIntFromRecord(rec, 1, headers, "stat"));
+        psseTransformer.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
         if (version.getMajorNumber() >= 33) {
-            psseTransformer.setVecgrp(defaultIfEmpty(rec.getField("vecgrp"), "            "));
+            psseTransformer.setVecgrp(parseStringFromRecord(rec, "            ", headers, "vecgrp"));
         }
         if (version.getMajorNumber() >= 35) {
-            psseTransformer.setZcod(parseIntOrDefault(rec.getField("zcod"), 0));
+            psseTransformer.setZcod(parseIntFromRecord(rec, 0, headers, "zcod"));
         }
         TransformerImpedances transformerImpedances = new TransformerImpedances();
         psseTransformer.setImpedances(transformerImpedances);
-        psseTransformer.setR12(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "r12", "r1_2")));
-        psseTransformer.setX12(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "x12", "x1_2")));
-        psseTransformer.setSbase12(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "sbase12", "sbase1_2")));
-        psseTransformer.setR23(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "r23", "r2_3"), 0.0));
-        psseTransformer.setX23(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "x23", "x2_3"), Double.NaN));
-        psseTransformer.setSbase23(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "sbase23", "sbase2_3"), Double.NaN));
-        psseTransformer.setR31(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "r31", "r3_1"), 0.0));
-        psseTransformer.setX31(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "x31", "x3_1"), Double.NaN));
-        psseTransformer.setSbase31(parseDoubleOrDefault(getFieldFromMultiplePotentialHeaders(rec, "sbase31", "sbase3_1"), Double.NaN));
-        psseTransformer.setVmstar(parseDoubleOrDefault(rec.getField("vmstar"), 1.0));
-        psseTransformer.setAnstar(parseDoubleOrDefault(rec.getField("anstar"), 0.0));
-        psseTransformer.setWinding1(PsseTransformerWinding.fromRecord(rec, version, "1"), PsseRates.fromRecord(rec, version, "1"));
-        psseTransformer.setWinding2(PsseTransformerWinding.fromRecord(rec, version, "2"), PsseRates.fromRecord(rec, version, "2"));
-        psseTransformer.setWinding3(PsseTransformerWinding.fromRecord(rec, version, "3"), PsseRates.fromRecord(rec, version, "3"));
+        psseTransformer.setR12(parseDoubleFromRecord(rec, 0d, headers, "r12", "r1_2"));
+        psseTransformer.setX12(parseDoubleFromRecord(rec, headers, "x12", "x1_2"));
+        psseTransformer.setSbase12(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase12", "sbase1_2"));
+        psseTransformer.setR23(parseDoubleFromRecord(rec, 0.0, headers, "r23", "r2_3"));
+        psseTransformer.setX23(parseDoubleFromRecord(rec, Double.NaN, headers, "x23", "x2_3"));
+        psseTransformer.setSbase23(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase23", "sbase2_3"));
+        psseTransformer.setR31(parseDoubleFromRecord(rec, 0.0, headers, "r31", "r3_1"));
+        psseTransformer.setX31(parseDoubleFromRecord(rec, Double.NaN, headers, "x31", "x3_1"));
+        psseTransformer.setSbase31(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase31", "sbase3_1"));
+        psseTransformer.setVmstar(parseDoubleFromRecord(rec, 1.0, headers, "vmstar"));
+        psseTransformer.setAnstar(parseDoubleFromRecord(rec, 0.0, headers, "anstar"));
+        psseTransformer.setWinding1(PsseTransformerWinding.fromRecord(rec, version, headers, "1"), PsseRates.fromRecord(rec, version, headers, "1"));
+        psseTransformer.setWinding2(PsseTransformerWinding.fromRecord(rec, version, headers, "2"), PsseRates.fromRecord(rec, version, headers, "2"));
+        psseTransformer.setWinding3(PsseTransformerWinding.fromRecord(rec, version, headers, "3"), PsseRates.fromRecord(rec, version, headers, "3"));
         return psseTransformer;
     }
 

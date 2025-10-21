@@ -11,13 +11,14 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.psse.model.io.Util.defaultIfEmpty;
-import static com.powsybl.psse.model.io.Util.getFieldFromMultiplePotentialHeaders;
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -51,25 +52,25 @@ public class PsseNonTransformerBranch extends PsseVersioned {
     @Revision(since = 35)
     private String name = " ";
 
-    public static PsseNonTransformerBranch fromRecord(NamedCsvRecord rec, PsseVersion version) {
+    public static PsseNonTransformerBranch fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseNonTransformerBranch psseNonTransformerBranch = new PsseNonTransformerBranch();
-        psseNonTransformerBranch.setI(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "i", "ibus")));
-        psseNonTransformerBranch.setJ(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "j", "jbus")));
-        psseNonTransformerBranch.setCkt(defaultIfEmpty(rec.getField("ckt"), "1"));
-        psseNonTransformerBranch.setR(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "r", "rpu")));
-        psseNonTransformerBranch.setX(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "x", "xpu")));
-        psseNonTransformerBranch.setB(Double.parseDouble(getFieldFromMultiplePotentialHeaders(rec, "b", "bpu")));
-        psseNonTransformerBranch.setRates(PsseRates.fromRecord(rec, version));
-        psseNonTransformerBranch.setGi(Double.parseDouble(rec.getField("gi")));
-        psseNonTransformerBranch.setBi(Double.parseDouble(rec.getField("bi")));
-        psseNonTransformerBranch.setGj(Double.parseDouble(rec.getField("gj")));
-        psseNonTransformerBranch.setBj(Double.parseDouble(rec.getField("bj")));
-        psseNonTransformerBranch.setSt(Integer.parseInt(getFieldFromMultiplePotentialHeaders(rec, "st", "stat")));
-        psseNonTransformerBranch.setMet(Integer.parseInt(rec.getField("met")));
-        psseNonTransformerBranch.setLen(Double.parseDouble(rec.getField("len")));
-        psseNonTransformerBranch.setOwnership(PsseOwnership.fromRecord(rec, version));
+        psseNonTransformerBranch.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseNonTransformerBranch.setJ(parseIntFromRecord(rec, headers, "j", "jbus"));
+        psseNonTransformerBranch.setCkt(parseStringFromRecord(rec, "1", headers, "ckt"));
+        psseNonTransformerBranch.setR(parseDoubleFromRecord(rec, 0.0, headers, "r", "rpu"));
+        psseNonTransformerBranch.setX(parseDoubleFromRecord(rec, headers, "x", "xpu"));
+        psseNonTransformerBranch.setB(parseDoubleFromRecord(rec, 0d, headers, "b", "bpu"));
+        psseNonTransformerBranch.setRates(PsseRates.fromRecord(rec, version, headers));
+        psseNonTransformerBranch.setGi(parseDoubleFromRecord(rec, 0d, headers, "gi"));
+        psseNonTransformerBranch.setBi(parseDoubleFromRecord(rec, 0d, headers, "bi"));
+        psseNonTransformerBranch.setGj(parseDoubleFromRecord(rec, 0d, headers, "gj"));
+        psseNonTransformerBranch.setBj(parseDoubleFromRecord(rec, 0d, headers, "bj"));
+        psseNonTransformerBranch.setSt(parseIntFromRecord(rec, 1, headers, "st", "stat"));
+        psseNonTransformerBranch.setMet(parseIntFromRecord(rec, 1, headers, "met"));
+        psseNonTransformerBranch.setLen(parseDoubleFromRecord(rec, 0d, headers, "len"));
+        psseNonTransformerBranch.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
         if (version.getMajorNumber() >= 35) {
-            psseNonTransformerBranch.setName(defaultIfEmpty(rec.getField("name"), " "));
+            psseNonTransformerBranch.setName(parseStringFromRecord(rec, " ", headers, "name"));
         }
         return psseNonTransformerBranch;
     }
