@@ -34,8 +34,8 @@ public class PsseOwnership extends PsseVersioned {
 
     public static PsseOwnership fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseOwnership psseOwnership = new PsseOwnership();
-        psseOwnership.setO1(parseIntFromRecord(rec, headers, "o1"));
-        psseOwnership.setF1(parseDoubleFromRecord(rec, headers, "f1"));
+        psseOwnership.setO1(parseIntFromRecord(rec, -1, headers, "o1"));
+        psseOwnership.setF1(parseDoubleFromRecord(rec, 1d, headers, "f1"));
         psseOwnership.setO2(parseIntFromRecord(rec, 0, headers, "o2"));
         psseOwnership.setF2(parseDoubleFromRecord(rec, 1d, headers, "f2"));
         psseOwnership.setO3(parseIntFromRecord(rec, 0, headers, "o3"));

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
@@ -156,7 +157,7 @@ public class Context {
         return this;
     }
 
-    JsonNode getNetworkNode() {
+    public JsonNode getNetworkNode() {
         return networkNode;
     }
 

@@ -16,10 +16,13 @@ import com.powsybl.psse.model.io.RecordGroupIOJson;
 import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseTransformerImpedanceCorrection;
 import com.powsybl.psse.model.pf.PsseTransformerImpedanceCorrectionPoint;
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.CsvRecord;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -342,19 +345,16 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
             int i = 0;
             while (i < records.size()) {
+                boolean endPoint;
+                List<String> headers = new ArrayList<>();
+                StringBuilder fullRecord = new StringBuilder();
                 // First line always contains the field "i"
-                List<String> headers = Arrays.asList(FIELD_NAMES[0]);
-                StringBuilder fullRecord = new StringBuilder(records.get(i++));
+                endPoint = addLineToRecord(fullRecord, records.get(i++), headers, FIELD_NAMES[0], context);
 
                 // Then we can have an undefined number of lines
-                while (i < records.size()) {
+                while (i < records.size() && !endPoint) {
                     // Add the line to the full record
-                    fullRecord.append(context.getDelimiter()).append(records.get(i));
-                    headers.addAll(Arrays.asList(FIELD_NAMES[1]));
-
-                    if (records.get(i++).split(String.valueOf(context.getDelimiter())).length < FIELD_NAMES[1].length) {
-                        break;
-                    }
+                    endPoint = addLineToRecord(fullRecord, records.get(i++), headers, FIELD_NAMES[1], context);
                 }
 
                 PsseTransformerImpedanceCorrection impedanceCorrection = super.recordGroup.parseSingleRecord(fullRecord.toString(), headers.toArray(headers.toArray(new String[0])), context);
@@ -378,6 +378,36 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 //            }
 
             return impedanceCorrectionList;
+        }
+
+        private boolean addLineToRecord(StringBuilder sb, String line, List<String> headerList, String[] headers, Context context) {
+            if (!sb.toString().isEmpty()) {
+                sb.append(context.getDelimiter());
+            }
+            sb.append(line);
+            headerList.addAll(Arrays.asList(headers));
+            return checkIfLastPoint(line, context);
+        }
+
+        private static boolean checkIfLastPoint(String line, Context context) {
+            try (var csv = CsvReader.builder()
+                .quoteCharacter(context.getQuote())
+                .fieldSeparator(context.getDelimiter())
+                .ofCsvRecord(new StringReader(line))) {
+                for (CsvRecord rec : csv) {
+                    if (rec.getFieldCount() < 3) {
+                        return true;
+                    }
+                    for (int i = rec.getFieldCount() - 3; i < rec.getFieldCount(); i++) {
+                        if (Double.parseDouble(rec.getField(i)) != 0.0) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            } catch (IOException e) {
+                return true;
+            }
         }
 
         private static boolean addImpedanceCorrectionPoints(PsseTransformerImpedanceCorrection impedanceCorrection,

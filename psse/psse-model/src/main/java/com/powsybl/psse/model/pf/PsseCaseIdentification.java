@@ -52,8 +52,8 @@ public class PsseCaseIdentification {
         psseCaseIdentification.setXfrrat(parseDoubleFromRecord(rec, Double.NaN, headers, "xfrrat"));
         psseCaseIdentification.setNxfrat(parseDoubleFromRecord(rec, Double.NaN, headers, "nxfrat"));
         psseCaseIdentification.setBasfrq(parseDoubleFromRecord(rec, Double.NaN, headers, "basfrq"));
-        psseCaseIdentification.setTitle1(parseStringFromRecord(rec, headers, STR_TITLE_1));
-        psseCaseIdentification.setTitle2(parseStringFromRecord(rec, headers, STR_TITLE_2));
+        psseCaseIdentification.setTitle1(parseStringFromRecord(rec, "", headers, STR_TITLE_1));
+        psseCaseIdentification.setTitle2(parseStringFromRecord(rec, "", headers, STR_TITLE_2));
         return psseCaseIdentification;
     }
 
