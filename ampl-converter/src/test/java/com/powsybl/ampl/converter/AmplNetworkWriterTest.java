@@ -157,7 +157,7 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
         double hl2b1 = 0.014;
         double hl2b2 = 0.0145;
 
-        DanglingLine dl1 = voltageLevelA.newDanglingLine()
+        BoundaryLine dl1 = voltageLevelA.newBoundaryLine()
                 .setBus(bus1)
                 .setId("dl1")
                 .setEnsureIdUnicity(true)
@@ -170,7 +170,7 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
                 .setG(hl1g1 + hl1g2)
                 .setPairingKey(pairingKey)
                 .add();
-        DanglingLine dl2 = voltageLevelB.newDanglingLine()
+        BoundaryLine dl2 = voltageLevelB.newBoundaryLine()
                 .setBus(bus2)
                 .setId("dl2")
                 .setEnsureIdUnicity(true)
@@ -350,8 +350,8 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
     @Test
     void writeTieLine() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        for (DanglingLine danglingLine : network.getDanglingLines()) {
-            danglingLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
+        for (BoundaryLine boundaryLine : network.getDanglingLines()) {
+            boundaryLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
                 .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
@@ -371,7 +371,7 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
 
     @Test
     void writeDanglingLines() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+        Network network = BoundaryLineNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, properties, dataSource);
