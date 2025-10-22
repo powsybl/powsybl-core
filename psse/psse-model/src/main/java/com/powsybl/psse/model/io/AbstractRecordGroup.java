@@ -275,16 +275,17 @@ public abstract class AbstractRecordGroup<T> {
             return List.of();
         }
 
-        // Reconstruct a string block
-        String consistentStringBlock = makeRecordsConsistents(records, headers, context);
-
         // Initialize the output
         List<T> beans = new ArrayList<>(expectedCount);
         context.resetCurrentRecordGroup();
 
+        // Reconstruct a string block
+        StringBuilder sb = new StringBuilder();
+        String[] headersToUse = makeRecordsConsistents(sb, records, headers, context);
+
         // Parse
         try (CsvReader<CsvRecord> reader = context.createCsvReaderBuilder()
-            .ofCsvRecord(new StringReader(consistentStringBlock))) {
+            .ofCsvRecord(new StringReader(sb.toString()))) {
             // Get the corresponding mapper
             MapperFrom<T> mapper = (MapperFrom<T>) MAPPERS_FROM_RECORD.get(psseTypeClass());
             if (mapper == null) {
@@ -294,7 +295,7 @@ public abstract class AbstractRecordGroup<T> {
             // Parse the records
             reader.stream().forEach(rec -> {
                 try {
-                    beans.add(mapper.apply(rec, context.getVersion(), headers));
+                    beans.add(mapper.apply(rec, context.getVersion(), headersToUse));
                     context.setCurrentRecordNumFields(rec.getFieldCount());
                 } catch (Exception e) {
                     throw new PsseException("Parsing error", e);
@@ -309,15 +310,18 @@ public abstract class AbstractRecordGroup<T> {
         return beans;
     }
 
-    private String makeRecordsConsistents(List<String> records, String[] headers, Context context) {
-        StringBuilder sb = new StringBuilder();
+    private String[] makeRecordsConsistents(StringBuilder sb, List<String> records, String[] headers, Context context) {
+        int expectedNumFields = records.stream()
+            .mapToInt(rec -> Math.toIntExact(rec.chars().filter(c -> c == context.getDelimiter())
+                .count()))
+            .max().orElse(0) + 1;
         for (String rec : records) {
-            int numFields = rec.split(String.valueOf(context.getDelimiter())).length;
+            int numFields = Math.toIntExact(rec.chars().filter(c -> c == context.getDelimiter()).count()) + 1;
             sb.append(rec)
-                .append(String.valueOf(context.getDelimiter()).repeat(Math.max(0, headers.length - numFields)))
+                .append(String.valueOf(context.getDelimiter()).repeat(Math.max(0, expectedNumFields - numFields)))
                 .append(System.lineSeparator());
         }
-        return sb.toString();
+        return Arrays.copyOfRange(headers, 0, expectedNumFields);
     }
 
     // Casting is safe here
