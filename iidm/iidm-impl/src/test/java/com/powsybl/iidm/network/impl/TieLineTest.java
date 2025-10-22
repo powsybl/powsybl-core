@@ -309,8 +309,8 @@ class TieLineTest {
         TieLine tieLine = network.newTieLine()
                 .setId(boundarySide1.name() + " + " + boundarySide2.name())
                 .setName(boundarySide1.name() + " + " + boundarySide2.name())
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId())
+                .setBoundaryLine1(dl1.getId())
+                .setBoundaryLine2(dl2.getId())
                 .add();
 
         assertEquals(0.0, tieLine.getBoundaryLine1().getG(), 0.0);
@@ -460,8 +460,8 @@ class TieLineTest {
         TieLine tieLine = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())
             .setName(boundarySide1.name() + " + " + boundarySide2.name())
-            .setDanglingLine1(dl1.getId())
-            .setDanglingLine2(dl2.getId())
+            .setBoundaryLine1(dl1.getId())
+            .setBoundaryLine2(dl2.getId())
             .add();
         tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().setV(caseSv.node1.v);
         tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().setAngle(caseSv.node1.a);
@@ -543,8 +543,8 @@ class TieLineTest {
         TieLine tieLine = network.newTieLine()
                 .setId(boundarySide1.name() + " + " + boundarySide2.name())
                 .setName(boundarySide1.name() + " + " + boundarySide2.name())
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId())
+                .setBoundaryLine1(dl1.getId())
+                .setBoundaryLine2(dl2.getId())
                 .add();
 
         tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().setV(caseSv.node1.v);

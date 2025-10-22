@@ -62,7 +62,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         this.networkRef = network;
     }
 
-    void attachDanglingLines(BoundaryLineImpl dl1, BoundaryLineImpl dl2) {
+    void attachBoundaryLines(BoundaryLineImpl dl1, BoundaryLineImpl dl2) {
         this.danglingLine1 = attach(dl1);
         this.danglingLine2 = attach(dl2);
     }
