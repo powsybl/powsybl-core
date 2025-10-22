@@ -116,11 +116,11 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     /**
      * Execute a round trip test reading the test resource IIDM-XML file with a given file name comparing
      * the output IIDM-XML file to a reference file for all IIDM versions equals or more recent than
-     * a given minimum IIDM version <b>and</b> strictly older than the current IIDM version.
+     * a given minimum IIDM version <b>and</b> strictly older than V_1_13.
      */
-    protected void allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest(String file, String reference, IidmVersion minVersion) throws IOException {
+    protected void allFormatsRoundTripFromVersionedXmlFromMinToVersion1Dot13Test(String file, String reference, IidmVersion minVersion) throws IOException {
         allFormatsRoundTripFromVersionedXmlTest(file, reference, Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_VERSION) < 0)
+                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(IidmVersion.V_1_13) <= 0)
                 .toArray(IidmVersion[]::new));
     }
 
