@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.gl;
 
+import com.powsybl.cgmes.model.CgmesNamespace.Cim;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.triplestore.api.TripleStore;
@@ -24,8 +25,8 @@ public class LinePositionExporter extends AbstractPositionExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinePositionExporter.class);
 
-    public LinePositionExporter(TripleStore tripleStore, ExportContext context) {
-        super(tripleStore, context);
+    public LinePositionExporter(TripleStore tripleStore, ExportContext context, Cim cimModel) {
+        super(tripleStore, context, cimModel);
     }
 
     public void exportPosition(Line line) {
