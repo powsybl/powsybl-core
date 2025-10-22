@@ -68,7 +68,6 @@ public interface ThreeWindingsTransformerToBeEstimated extends Extension<ThreeWi
      */
     boolean shouldEstimatePhaseTapChanger3();
 
-
     /**
      * Return true if the phase tap changer of the leg of the given side of the extended three windings transformer is to be estimated during a state estimation.
      * Else, return false.

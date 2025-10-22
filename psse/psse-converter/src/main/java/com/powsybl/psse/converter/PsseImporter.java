@@ -209,7 +209,7 @@ public class PsseImporter implements Importer {
         }
 
         for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {
-            new LineConverter(psseLine, containersMapping, perUnitContext, network, version, nodeBreakerImport).create();
+            new LineConverter(psseLine, containersMapping, perUnitContext, network, version, busNumToPsseBus, nodeBreakerImport).create();
         }
 
         for (PsseTransformer psseTfo : psseModel.getTransformers()) {

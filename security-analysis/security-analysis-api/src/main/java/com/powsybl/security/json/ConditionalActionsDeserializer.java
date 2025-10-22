@@ -26,7 +26,7 @@ public class ConditionalActionsDeserializer extends StdDeserializer<ConditionalA
         super(ConditionalActions.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         String id;
         Condition condition;
         List<String> actionIds;
