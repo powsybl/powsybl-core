@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.report.ReportNode;
@@ -77,6 +78,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     Iterator<P> iterator();
 
     List<T> split(int newChunkSize);
+
+    List<T> splitMsa(List<Range<Integer>> newChunks);
 
     void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver);
 

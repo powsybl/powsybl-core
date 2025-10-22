@@ -9,6 +9,7 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Range;
 import com.powsybl.commons.json.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,6 +119,22 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     protected abstract T createTimeSeries(C chunk);
 
+    private void splitMsa(C chunkToSplit, List<C> splitChunks, int firstIndex, int lastIndex) {
+        C msa;
+        if (firstIndex == chunkToSplit.getOffset()) {
+            msa = chunkToSplit;
+        } else {
+            DataChunk.Split<P, C> split = chunkToSplit.splitAt(firstIndex);
+            msa = split.getChunk2();
+        }
+        if (lastIndex == chunkToSplit.getLength() - 1) {
+            splitChunks.add(msa);
+        } else {
+            DataChunk.Split<P, C> split = msa.splitAt(lastIndex + 1);
+            splitChunks.add(split.getChunk1());
+        }
+    }
+
     private void split(C chunkToSplit, List<C> splitChunks, int newChunkSize) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Split chunk [{}, {}]", chunkToSplit.getOffset(), chunkToSplit.getOffset() + chunkToSplit.getLength() - 1);
@@ -180,6 +197,16 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         List<C> splitNewChunks = new ArrayList<>();
         for (C chunkToSplit : getCheckedChunks(false)) {
             split(chunkToSplit, splitNewChunks, newChunkSize);
+        }
+        return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
+    }
+
+    public List<T> splitMsa(List<Range<Integer>> newChunks) {
+        List<C> splitNewChunks = new ArrayList<>();
+        for (C chunkToSplit : getCheckedChunks(false)) {
+            for (Range<Integer> range : newChunks) {
+                splitMsa(chunkToSplit, splitNewChunks, range.lowerEndpoint(), range.upperEndpoint());
+            }
         }
         return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
     }
