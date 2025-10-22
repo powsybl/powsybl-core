@@ -9,9 +9,11 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.*;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -251,6 +253,12 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     @Override
     public List<DoubleTimeSeries> split(int newChunkSize) {
         int chunkCount = TimeSeries.computeChunkCount(index, newChunkSize);
+        return Collections.nCopies(chunkCount, this);
+    }
+
+    @Override
+    public List<DoubleTimeSeries> splitByRanges(List<Range<@NonNull Integer>> newChunks) {
+        int chunkCount = newChunks.size();
         return Collections.nCopies(chunkCount, this);
     }
 

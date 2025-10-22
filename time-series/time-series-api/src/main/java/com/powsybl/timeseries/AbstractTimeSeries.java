@@ -9,7 +9,9 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Range;
 import com.powsybl.commons.json.JsonUtil;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,6 +128,29 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     protected abstract T createTimeSeries(C chunk);
 
+    private void splitByFirstAndLastIndex(C chunkToSplit, List<C> splitChunks, int firstIndex, int lastIndex) {
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Split chunk [{}, {}]", firstIndex, lastIndex);
+        }
+        C newChunk;
+        // chunkToSplit = [x0, y0] -> newChunk = [x0=firstIndex, y0]
+        if (firstIndex == chunkToSplit.getOffset()) {
+            newChunk = chunkToSplit;
+        } else {
+            // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, y0]
+            DataChunk.Split<P, C> split = chunkToSplit.splitAt(firstIndex);
+            newChunk = split.getChunk2();
+        }
+        // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, y0=lastIndex]
+        if (lastIndex == chunkToSplit.getLength() - 1) {
+            splitChunks.add(newChunk);
+        } else {
+            // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, lastIndex]
+            DataChunk.Split<P, C> split = newChunk.splitAt(lastIndex + 1);
+            splitChunks.add(split.getChunk1());
+        }
+    }
+
     private void split(C chunkToSplit, List<C> splitChunks, int newChunkSize) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Split chunk [{}, {}]", chunkToSplit.getOffset(), chunkToSplit.getOffset() + chunkToSplit.getLength() - 1);
@@ -190,6 +215,16 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             split(chunkToSplit, splitNewChunks, newChunkSize);
         }
         return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
+    }
+
+    public List<T> splitByRanges(List<Range<@NonNull Integer>> newChunks) {
+        List<C> splitNewChunks = new ArrayList<>();
+        for (C chunkToSplit : getCheckedChunks(false)) {
+            for (Range<@NonNull Integer> range : newChunks) {
+                splitByFirstAndLastIndex(chunkToSplit, splitNewChunks, range.lowerEndpoint(), range.upperEndpoint());
+            }
+        }
+        return splitNewChunks.stream().map(this::createTimeSeries).toList();
     }
 
     public void writeJson(JsonGenerator generator) {
