@@ -241,8 +241,8 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         network.newTieLine()
                 .setId(NHV1_NHV2_1)
-                .setDanglingLine1(nhv1xnode1.getId())
-                .setDanglingLine2(xnode1nhv2.getId())
+                .setBoundaryLine1(nhv1xnode1.getId())
+                .setBoundaryLine2(xnode1nhv2.getId())
                 .add();
         BoundaryLine nhv1xnode2 = network.getVoltageLevel(VLHV1).newBoundaryLine()
                 .setId(DANGLING_LINE_XNODE2_1)
@@ -268,8 +268,8 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         network.newTieLine()
                 .setId(NHV1_NHV2_2)
-                .setDanglingLine1(nhv1xnode2.getId())
-                .setDanglingLine2(xnode2nhv2.getId())
+                .setBoundaryLine1(nhv1xnode2.getId())
+                .setBoundaryLine2(xnode2nhv2.getId())
                 .add();
         network.getTieLine(NHV1_NHV2_1).getBoundaryLine1().getTerminal()
                 .setP(302.4440612792969)
@@ -880,7 +880,7 @@ public final class EurostagTutorialExample1Factory {
                 .addVoltageLevel(network.getVoltageLevel(VLHV2))
                 .addVoltageLevel(network.getVoltageLevel(VLLOAD))
                 .addAreaBoundary(network.getBoundaryLine(DANGLING_LINE_XNODE1_2).getBoundary(), true)
-                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE2_2).getBoundary(), true)
+                .addAreaBoundary(network.getBoundaryLine(DANGLING_LINE_XNODE2_2).getBoundary(), true)
                 .add();
         network.newArea()
                 .setId("Region_AB")
