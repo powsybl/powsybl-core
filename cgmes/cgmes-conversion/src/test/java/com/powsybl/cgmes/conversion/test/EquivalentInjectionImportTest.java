@@ -11,7 +11,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ class EquivalentInjectionImportTest extends AbstractSerDeTest {
                         "ei_regulation_EQ.xml",
                         "ei_regulation_with_target_SSH.xml",
                         "ei_regulation_EQ_BD.xml")));
-        DanglingLine dl = network.getDanglingLine("ACLS1");
+        BoundaryLine dl = network.getDanglingLine("ACLS1");
         assertEquals(401, dl.getGeneration().getTargetV());
         assertTrue(dl.getGeneration().isVoltageRegulationOn());
     }
@@ -44,7 +44,7 @@ class EquivalentInjectionImportTest extends AbstractSerDeTest {
                         "ei_regulation_EQ.xml",
                         "ei_regulation_missing_target_SSH.xml",
                         "ei_regulation_EQ_BD.xml")));
-        DanglingLine dl = network.getDanglingLine("ACLS1");
+        BoundaryLine dl = network.getDanglingLine("ACLS1");
         // Generation data has been created for the dangling line but regulation is off
         assertNotNull(dl.getGeneration());
         assertTrue(Double.isNaN(dl.getGeneration().getTargetV()));
@@ -59,7 +59,7 @@ class EquivalentInjectionImportTest extends AbstractSerDeTest {
                         "ei_regulation_EQ.xml",
                         "ei_regulation_with_target_zero_SSH.xml",
                         "ei_regulation_EQ_BD.xml")));
-        DanglingLine dl = network.getDanglingLine("ACLS1");
+        BoundaryLine dl = network.getDanglingLine("ACLS1");
         // Zero is an invalid value, generation data has been created for the dangling line but regulation is off
         assertNotNull(dl.getGeneration());
         assertEquals(0.0, dl.getGeneration().getTargetV());

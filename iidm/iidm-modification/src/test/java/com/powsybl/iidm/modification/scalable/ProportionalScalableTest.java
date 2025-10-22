@@ -313,7 +313,7 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsWithWrongParametersTargetP() {
-        List<DanglingLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
+        List<BoundaryLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
         List<Load> loadList = Collections.singletonList(network.getLoad("l1"));
         List<Battery> batteryList = Collections.singletonList(network.getBattery("BAT"));
 
@@ -332,7 +332,7 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsWithWrongParametersMaxP() {
-        List<DanglingLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
+        List<BoundaryLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
         List<Load> loadList = Collections.singletonList(network.getLoad("l1"));
         List<Battery> batteryList = Collections.singletonList(network.getBattery("BAT"));
 
@@ -352,7 +352,7 @@ class ProportionalScalableTest {
     @Test
     @Disabled("Error is raised on TargetP before being raised on MinP")
     void testScaleOnGeneratorsWithWrongParametersMinP() {
-        List<DanglingLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
+        List<BoundaryLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
         List<Load> loadList = Collections.singletonList(network.getLoad("l1"));
         List<Battery> batteryList = Collections.singletonList(network.getBattery("BAT"));
 
@@ -557,7 +557,7 @@ class ProportionalScalableTest {
                 return generator.getTargetP();
             } else if (injection instanceof Load load) {
                 return -load.getP0();
-            } else if (injection instanceof DanglingLine danglingLine) {
+            } else if (injection instanceof BoundaryLine danglingLine) {
                 return -danglingLine.getP0();
             } else {
                 throw new PowsyblException("Unexpected injection type");
@@ -597,7 +597,7 @@ class ProportionalScalableTest {
                 return generator.getTargetP();
             } else if (injection instanceof Load load) {
                 return -load.getP0();
-            } else if (injection instanceof DanglingLine danglingLine) {
+            } else if (injection instanceof BoundaryLine danglingLine) {
                 return -danglingLine.getP0();
             } else {
                 throw new PowsyblException("Unexpected injection type");
@@ -637,7 +637,7 @@ class ProportionalScalableTest {
                 return generator.getTargetP();
             } else if (injection instanceof Load load) {
                 return -load.getP0();
-            } else if (injection instanceof DanglingLine danglingLine) {
+            } else if (injection instanceof BoundaryLine danglingLine) {
                 return -danglingLine.getP0();
             } else {
                 throw new PowsyblException("Unexpected injection type");
@@ -677,7 +677,7 @@ class ProportionalScalableTest {
                 return generator.getTargetP();
             } else if (injection instanceof Load load) {
                 return -load.getP0();
-            } else if (injection instanceof DanglingLine danglingLine) {
+            } else if (injection instanceof BoundaryLine danglingLine) {
                 return -danglingLine.getP0();
             } else {
                 throw new PowsyblException("Unexpected injection type");

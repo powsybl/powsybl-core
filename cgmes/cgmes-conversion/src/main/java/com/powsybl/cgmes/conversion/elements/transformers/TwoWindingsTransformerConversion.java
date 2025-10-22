@@ -61,7 +61,7 @@ import java.util.stream.Stream;
  */
 public class TwoWindingsTransformerConversion extends AbstractTransformerConversion implements EquipmentAtBoundaryConversion {
 
-    private DanglingLine danglingLine;
+    private BoundaryLine boundaryLine;
 
     public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
@@ -111,8 +111,8 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     }
 
     @Override
-    public Optional <DanglingLine> getDanglingLine() {
-        return Optional.ofNullable(danglingLine);
+    public Optional <BoundaryLine> getDanglingLine() {
+        return Optional.ofNullable(boundaryLine);
     }
 
     private void convertTwoWindingsTransformerAtBoundary(String eqInstance, int boundarySide) {
@@ -128,7 +128,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
         // we will have differences in the LF computation.
         // TODO support in the danglingLine the complete twoWindingsTransformer model (transformer + tapChangers)
-        danglingLine = convertToDanglingLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel), CgmesNames.POWER_TRANSFORMER);
+        boundaryLine = convertToDanglingLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel), CgmesNames.POWER_TRANSFORMER);
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
@@ -259,7 +259,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
                 .forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }
 
-    public static void update(DanglingLine danglingLine, Context context) {
-        updateDanglingLine(danglingLine, isBoundaryTerminalConnected(danglingLine, context), context);
+    public static void update(BoundaryLine boundaryLine, Context context) {
+        updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 }

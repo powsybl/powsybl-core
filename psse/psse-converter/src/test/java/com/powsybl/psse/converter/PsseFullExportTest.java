@@ -84,7 +84,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
         createSwitch(vl1S2, "Sw-Vsc-Vl1-Sub2-Sub4", 1, 4, false);
         createSwitch(vl1S2, "Sw-Lcc-Vl1-Sub2-Sub5", 1, 5, false);
         createSwitch(vl1S2, "Sw-DanglingLine-Vl1-Sub2", 1, 6, false);
-        DanglingLine dlVl1S2 = createDanglingLine(vl1S2, "DanglingLine-Vl1-Sub2", 6, 5.0, 2.0, "TieLine");
+        BoundaryLine dlVl1S2 = createBoundaryLine(vl1S2, "DanglingLine-Vl1-Sub2", 6, 5.0, 2.0, "TieLine");
 
         Substation sub3 = createSubstation(network, "Sub3");
         VoltageLevel vl1S3 = createVoltageLevel(sub3, "Vl1-Sub3", 400.0, TopologyKind.NODE_BREAKER);
@@ -93,7 +93,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
         createSwitch(vl1S3, "Sw-T2w-Vl1-Sub3", 1, 4, false);
         createSwitch(vl1S3, "Sw-DanglingLine-Vl1-Sub3", 1, 5, false);
         createLoad(vl1S3, "Load-Vl1-Sub3", 3, 25.0, 5.0);
-        DanglingLine dlVl1S3 = vl1S3.newDanglingLine()
+        BoundaryLine dlVl1S3 = vl1S3.newBoundaryLine()
                 .setId("DanglingLine-Vl1-S3")
                 .setName("DanglingLine-Vl1-S3")
                 .setNode(5)
@@ -280,7 +280,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
         createSwitch(vl1S5, "Sw-Load-Vl1-Sub5", 1, 5, false);
         createSwitch(vl1S5, "Sw-Battery-Vl1-Sub5", 1, 6, false);
         createSwitch(vl1S5, "Sw-Line-Vl1-Sub5-Sub1", 1, 7, false);
-        createDanglingLine(vl1S5, "DanglingLine-Vl1-Sub5", 3, 7.0, 1.25, "");
+        createBoundaryLine(vl1S5, "DanglingLine-Vl1-Sub5", 3, 7.0, 1.25, "");
         createGenerator(vl1S5, "Gen-Vl1-Sub5", 4, 2.0, 2.0, vl1S5.getNominalV(), false);
         createLoad(vl1S5, "Load-Vl1-Sub5", 5, 2.0, 0.25);
         vl1S5.newBattery()
@@ -297,7 +297,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
         VoltageLevel vl1S6 = createVoltageLevel(sub6, "Vl1-Sub6", 400.0, TopologyKind.NODE_BREAKER);
         createSwitch(vl1S6, "Sw-DanglingLine-Vl1-Sub6", 1, 2, false);
         createSwitch(vl1S6, "Sw-Load-Vl1-Sub6", 1, 3, false);
-        DanglingLine dlVl1S6 = createDanglingLine(vl1S6, "DanglingLine-Vl1-Sub6", 2, -5.0, -2.0, "TieLine");
+        BoundaryLine dlVl1S6 = createBoundaryLine(vl1S6, "DanglingLine-Vl1-Sub6", 2, -5.0, -2.0, "TieLine");
         createLoad(vl1S6, "Load-Vl1-Sub6", 3, 5.0, 2.0);
 
         Substation sub7 = createSubstation(network, "Sub7");
@@ -464,8 +464,8 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .add();
     }
 
-    private static DanglingLine createDanglingLine(VoltageLevel voltageLevel, String danglingLineId, int node, double p0, double q0, String pairingKey) {
-        return voltageLevel.newDanglingLine()
+    private static BoundaryLine createBoundaryLine(VoltageLevel voltageLevel, String danglingLineId, int node, double p0, double q0, String pairingKey) {
+        return voltageLevel.newBoundaryLine()
                 .setId(danglingLineId)
                 .setName(danglingLineId)
                 .setNode(node)
