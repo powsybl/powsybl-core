@@ -44,8 +44,8 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
     private double dcvmin = 0.0;
     private int cccitmx = 20;
     private double cccacc = 1.0;
-    private PsseTwoTerminalDcConverter rectifier;
-    private PsseTwoTerminalDcConverter inverter;
+    private PsseTwoTerminalDcConverter rectifier = new PsseTwoTerminalDcConverter();
+    private PsseTwoTerminalDcConverter inverter = new PsseTwoTerminalDcConverter();
 
     public static PsseTwoTerminalDcTransmissionLine fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseTwoTerminalDcTransmissionLine psseTwoTerminalDcTransmissionLine = new PsseTwoTerminalDcTransmissionLine();
@@ -61,8 +61,8 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
         psseTwoTerminalDcTransmissionLine.setDcvmin(parseDoubleFromRecord(rec, 0.0, headers, "dcvmin"));
         psseTwoTerminalDcTransmissionLine.setCccitmx(parseIntFromRecord(rec, 20, headers, "cccitmx"));
         psseTwoTerminalDcTransmissionLine.setCccacc(parseDoubleFromRecord(rec, 1.0, headers, "cccacc"));
-        psseTwoTerminalDcTransmissionLine.setRectifier(PsseTwoTerminalDcConverter.fromRecord(rec, version, headers, "r"));
-        psseTwoTerminalDcTransmissionLine.setInverter(PsseTwoTerminalDcConverter.fromRecord(rec, version, headers, "i"));
+//        psseTwoTerminalDcTransmissionLine.setRectifier(PsseTwoTerminalDcConverter.fromRecord(rec, version, headers, "r"));
+//        psseTwoTerminalDcTransmissionLine.setInverter(PsseTwoTerminalDcConverter.fromRecord(rec, version, headers, "i"));
         return psseTwoTerminalDcTransmissionLine;
     }
 

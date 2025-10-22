@@ -5,10 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.psse.model.pf;
+package com.powsybl.psse.model.pf.internal;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.pf.PsseRates;
+import com.powsybl.psse.model.pf.PsseTransformerWinding;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
@@ -16,24 +18,24 @@ import java.util.Optional;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class PsseTransformerWindingRecord {
+public class TransformerWindingRecord {
 
     private PsseTransformerWinding winding;
     private PsseRates windingRates;
 
-    public static PsseTransformerWindingRecord fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
-        PsseTransformerWindingRecord transformerWindingRecord = new PsseTransformerWindingRecord();
+    public static TransformerWindingRecord fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        TransformerWindingRecord transformerWindingRecord = new TransformerWindingRecord();
         transformerWindingRecord.winding = PsseTransformerWinding.fromRecord(rec, version, headers);
         transformerWindingRecord.windingRates = PsseRates.fromRecord(rec, version, headers);
         return transformerWindingRecord;
     }
 
-    public static String[] toRecord(PsseTransformerWindingRecord psseTransformerWindingRecord, String[] headers) {
+    public static String[] toRecord(TransformerWindingRecord transformerWindingRecord, String[] headers) {
         String[] row = new String[headers.length];
         for (int i = 0; i < headers.length; i++) {
-            Optional<String> optionalValue = psseTransformerWindingRecord.getWinding().headerToString(headers[i]);
+            Optional<String> optionalValue = transformerWindingRecord.getWinding().headerToString(headers[i]);
             if (optionalValue.isEmpty()) {
-                optionalValue = psseTransformerWindingRecord.getWindingRates().headerToString(headers[i]);
+                optionalValue = transformerWindingRecord.getWindingRates().headerToString(headers[i]);
                 if (optionalValue.isEmpty()) {
                     throw new PsseException("Unsupported header: " + headers[i]);
                 }

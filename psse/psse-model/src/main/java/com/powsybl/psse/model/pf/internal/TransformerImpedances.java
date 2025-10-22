@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.psse.model.pf;
+package com.powsybl.psse.model.pf.internal;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
@@ -18,7 +18,7 @@ import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class PsseTransformerImpedances {
+public class TransformerImpedances {
 
     private double r12 = 0;
     private double x12 = Double.NaN;
@@ -32,8 +32,8 @@ public class PsseTransformerImpedances {
     private double vmstar = 1;
     private double anstar = 0;
 
-    public static PsseTransformerImpedances fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
-        PsseTransformerImpedances transformerImpedances = new PsseTransformerImpedances();
+    public static TransformerImpedances fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        TransformerImpedances transformerImpedances = new TransformerImpedances();
         transformerImpedances.setR12(parseDoubleFromRecord(rec, 0d, headers, "r12", "r1_2"));
         transformerImpedances.setX12(parseDoubleFromRecord(rec, headers, "x12", "x1_2"));
         transformerImpedances.setSbase12(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase12", "sbase1_2"));
@@ -48,7 +48,7 @@ public class PsseTransformerImpedances {
         return transformerImpedances;
     }
 
-    public static String[] toRecord(PsseTransformerImpedances transformerImpedances, String[] headers) {
+    public static String[] toRecord(TransformerImpedances transformerImpedances, String[] headers) {
         String[] row = new String[headers.length];
         for (int i = 0; i < headers.length; i++) {
             Optional<String> optionalValue = transformerImpedances.headerToString(headers[i]);
@@ -77,8 +77,8 @@ public class PsseTransformerImpedances {
         };
     }
 
-    public PsseTransformerImpedances copy() {
-        PsseTransformerImpedances copy = new PsseTransformerImpedances();
+    public TransformerImpedances copy() {
+        TransformerImpedances copy = new TransformerImpedances();
         copy.r12 = this.r12;
         copy.x12 = this.x12;
         copy.sbase12 = this.sbase12;

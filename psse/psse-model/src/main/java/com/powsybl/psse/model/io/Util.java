@@ -71,7 +71,11 @@ public final class Util {
         String value = manageNumericalNullValues(parseValueFromRecord(rec, headers, potentialHeaders));
 
         // Manage null values
-        return value == null ? defaultValue : Double.parseDouble(value);
+        if (value != null) {
+            return Double.parseDouble(value);
+        } else {
+            return defaultValue;
+        }
     }
 
     public static Double parseDoubleFromRecord(CsvRecord rec, String[] headers, String... potentialHeaders) {
@@ -90,7 +94,11 @@ public final class Util {
         String value = manageNumericalNullValues(parseValueFromRecord(rec, headers, potentialHeaders));
 
         // Manage null values
-        return value == null ? defaultValue : Float.parseFloat(value);
+        if (value != null) {
+            return Float.parseFloat(value);
+        } else {
+            return defaultValue;
+        }
     }
 
     public static Float parseFloatFromRecord(CsvRecord rec, String[] headers, String... potentialHeaders) {
@@ -109,7 +117,11 @@ public final class Util {
         String value = manageNumericalNullValues(parseValueFromRecord(rec, headers, potentialHeaders));
 
         // Manage null values
-        return value == null ? defaultValue : Integer.parseInt(value);
+        if (value != null) {
+            return Integer.parseInt(value);
+        } else {
+            return defaultValue;
+        }
     }
 
     public static Integer parseIntFromRecord(CsvRecord rec, String[] headers, String... potentialHeaders) {
@@ -128,7 +140,11 @@ public final class Util {
         String value = parseValueFromRecord(rec, headers, potentialHeaders);
 
         // Manage null values
-        return value == null || value.isEmpty() ? defaultValue : value;
+        if (value != null && !value.isEmpty()) {
+            return value;
+        } else {
+            return defaultValue;
+        }
     }
 
     public static String parseStringFromRecord(CsvRecord rec, String[] headers, String... potentialHeaders) {

@@ -37,8 +37,8 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
     private int mdc = 1;
     private double rdc;
     private PsseOwnership ownership;
-    private PsseVoltageSourceConverter converter1;
-    private PsseVoltageSourceConverter converter2;
+    private PsseVoltageSourceConverter converter1 = new PsseVoltageSourceConverter();
+    private PsseVoltageSourceConverter converter2 = new PsseVoltageSourceConverter();
 
     public static PsseVoltageSourceConverterDcTransmissionLine fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverter = new PsseVoltageSourceConverterDcTransmissionLine();
@@ -46,8 +46,8 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         psseVoltageSourceConverter.setMdc(parseIntFromRecord(rec, headers, "mdc"));
         psseVoltageSourceConverter.setRdc(parseDoubleFromRecord(rec, headers, "rdc"));
         psseVoltageSourceConverter.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
-        psseVoltageSourceConverter.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "1"));
-        psseVoltageSourceConverter.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "2"));
+//        psseVoltageSourceConverter.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "1"));
+//        psseVoltageSourceConverter.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "2"));
         return psseVoltageSourceConverter;
     }
 

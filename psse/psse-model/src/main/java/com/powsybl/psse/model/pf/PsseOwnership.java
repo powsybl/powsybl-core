@@ -38,9 +38,9 @@ public class PsseOwnership extends PsseVersioned {
         psseOwnership.setF1(parseDoubleFromRecord(rec, headers, "f1"));
         psseOwnership.setO2(parseIntFromRecord(rec, 0, headers, "o2"));
         psseOwnership.setF2(parseDoubleFromRecord(rec, 1d, headers, "f2"));
-        psseOwnership.setO3(parseIntFromRecord(rec, headers, "o3"));
+        psseOwnership.setO3(parseIntFromRecord(rec, 0, headers, "o3"));
         psseOwnership.setF3(parseDoubleFromRecord(rec, 1d, headers, "f3"));
-        psseOwnership.setO4(parseIntFromRecord(rec, headers, "o4"));
+        psseOwnership.setO4(parseIntFromRecord(rec, 0, headers, "o4"));
         psseOwnership.setF4(parseDoubleFromRecord(rec, 1d, headers, "f4"));
         return psseOwnership;
     }

@@ -14,9 +14,9 @@ import com.powsybl.psse.model.io.LegacyTextReader;
 import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseRates;
 import com.powsybl.psse.model.pf.PsseTransformer;
-import com.powsybl.psse.model.pf.PsseTransformerImpedances;
+import com.powsybl.psse.model.pf.internal.TransformerImpedances;
 import com.powsybl.psse.model.pf.PsseTransformerWinding;
-import com.powsybl.psse.model.pf.PsseTransformerWindingRecord;
+import com.powsybl.psse.model.pf.internal.TransformerWindingRecord;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -90,8 +90,8 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             }
 
             List<PsseTransformer> transformerList = super.recordGroup.readFromStrings(mainRecords, context);
-            List<PsseTransformerImpedances> impedanceList = new PsseTransformerImpedancesRecordData().readFromStrings(impedanceRecords, context);
-            List<PsseTransformerWindingRecord> windingList = new PsseTransformerWindingRecordData().readFromStrings(windingRecords, context);
+            List<TransformerImpedances> impedanceList = new PsseTransformerImpedancesRecordData().readFromStrings(impedanceRecords, context);
+            List<TransformerWindingRecord> windingList = new PsseTransformerWindingRecordData().readFromStrings(windingRecords, context);
 
             int indexImpedance = 0;
             int indexWinding = 0;
@@ -114,10 +114,10 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         @Override
         public void write(List<PsseTransformer> transformerList, Context context, OutputStream outputStream) {
 
-            List<PsseTransformerImpedances> impedanceList = new ArrayList<>();
-            List<PsseTransformerImpedances> impedanceT2wList = new ArrayList<>();
-            List<PsseTransformerWindingRecord> windingList = new ArrayList<>();
-            List<PsseTransformerWindingRecord> windingT2wList = new ArrayList<>();
+            List<TransformerImpedances> impedanceList = new ArrayList<>();
+            List<TransformerImpedances> impedanceT2wList = new ArrayList<>();
+            List<TransformerWindingRecord> windingList = new ArrayList<>();
+            List<TransformerWindingRecord> windingT2wList = new ArrayList<>();
 
             transformerList.forEach(transformer -> {
                 if (transformer.getK() == 0) {
@@ -179,18 +179,18 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             writeEnd(outputStream);
         }
 
-        private static class PsseTransformerImpedancesRecordData extends AbstractRecordGroup<PsseTransformerImpedances> {
+        private static class PsseTransformerImpedancesRecordData extends AbstractRecordGroup<TransformerImpedances> {
             PsseTransformerImpedancesRecordData() {
                 super(INTERNAL_TRANSFORMER_IMPEDANCES, FIELD_NAMES_IMPEDANCES_35);
             }
 
             @Override
-            public Class<PsseTransformerImpedances> psseTypeClass() {
-                return PsseTransformerImpedances.class;
+            public Class<TransformerImpedances> psseTypeClass() {
+                return TransformerImpedances.class;
             }
         }
 
-        private static class PsseTransformerWindingRecordData extends AbstractRecordGroup<PsseTransformerWindingRecord> {
+        private static class PsseTransformerWindingRecordData extends AbstractRecordGroup<TransformerWindingRecord> {
             PsseTransformerWindingRecordData() {
                 super(INTERNAL_TRANSFORMER_WINDING);
                 withFieldNames(V32, FIELD_NAMES_WINDING_32_33);
@@ -199,13 +199,13 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             }
 
             @Override
-            public Class<PsseTransformerWindingRecord> psseTypeClass() {
-                return PsseTransformerWindingRecord.class;
+            public Class<TransformerWindingRecord> psseTypeClass() {
+                return TransformerWindingRecord.class;
             }
         }
 
-        private PsseTransformerWindingRecord getWindingRecord(PsseTransformerWinding winding, PsseRates windingRates) {
-            PsseTransformerWindingRecord windingRecord = new PsseTransformerWindingRecord();
+        private TransformerWindingRecord getWindingRecord(PsseTransformerWinding winding, PsseRates windingRates) {
+            TransformerWindingRecord windingRecord = new TransformerWindingRecord();
             windingRecord.setWinding(winding);
             windingRecord.setWindingRates(windingRates);
             return windingRecord;
