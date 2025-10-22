@@ -64,24 +64,22 @@ class GroundConversionTest extends AbstractSerDeTest {
         // Some edges have been removed, ensure it is exported properly
         String actual = graphVizClean(graphViz(network, "S"));
         String expected = graphVizClean("""
-                digraph G {
-                \tnode [shape=box];
-                \tcompound=true;
-                \tn0 [label="0",shape="ellipse",style="filled",fillcolor="#8F7AF3"];
-                \tn2 [label="5\\lBUSBAR_SECTION\\lAX\\lEF",shape="ellipse",style="filled",fillcolor="#8F7AF3"];
-                \tn3 [label="8\\lGENERATOR\\lZX\\lZY",shape="ellipse",style="filled",fillcolor="#8F7AF3"];
-                \tn2 -> n0 [];
-                \tn3 -> n0 [];
-                \tsubgraph cluster_c1 {
-                \t\t// scope=1392570698
-                \t\tcluster_c1 [label="",shape=point,style=invis];
-                \t\tpencolor="transparent";
-                \t\tn0;
-                \t\tn2;
-                \t\tn3;
-                \t}
-                }
-                """);
+            strict digraph G {
+              compound=true;
+              0 [ label="0" shape="ellipse" style="filled" fillcolor="---" ];
+              5 [ label="5\\lBUSBAR_SECTION\\lAX\\lEF" shape="ellipse" style="filled" fillcolor="---" ];
+              8 [ label="8\\lGENERATOR\\lZX\\lZY" shape="ellipse" style="filled" fillcolor="---" ];
+              5 -> 0 [ ];
+              8 -> 0 [ ];
+              subgraph S_0 {
+                S_0 [ shape="point" style="invis" label="" ];
+                pencolor=transparent;
+                0;
+                5;
+                8;
+              }
+            }
+            """.replaceAll("\n", System.lineSeparator()));
         assertEquals(expected, actual);
     }
 
