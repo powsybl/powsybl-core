@@ -8,10 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.MinMaxReactiveLimits;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -20,15 +17,38 @@ public class ReactiveLimitsSerDe {
 
     static final ReactiveLimitsSerDe INSTANCE = new ReactiveLimitsSerDe();
 
+    static final String ELEM_REACTIVE_CAPABILITY_SHAPE = "reactiveCapabilityShape";
     static final String ELEM_REACTIVE_CAPABILITY_CURVE = "reactiveCapabilityCurve";
     static final String ELEM_MIN_MAX_REACTIVE_LIMITS = "minMaxReactiveLimits";
     private static final String ATTR_MIN_Q = "minQ";
     private static final String ATTR_MAX_Q = "maxQ";
+    public static final String PLANE_ROOT_ELEMENT_NAME = "plane";
+    // WHAT IS THIS?
+    public static final String PLANE_ARRAY_ELEMENT_NAME = "planes";
     public static final String POINT_ARRAY_ELEMENT_NAME = "points";
     public static final String POINT_ROOT_ELEMENT_NAME = "point";
+    public static final String ATTR_ALPHA = "alpha";
+    public static final String ATTR_BETA = "beta";
+    public static final String ATTR_GAMMA = "gamma";
+    public static final String ATTR_IS_GREATER_OR_EQUAL = "isGreaterOrEqual";
 
     public void write(ReactiveLimitsHolder holder, NetworkSerializerContext context) {
         switch (holder.getReactiveLimits().getKind()) {
+            case SHAPE:
+                ReactiveCapabilityShape shape = holder.getReactiveLimits(ReactiveCapabilityShape.class);
+                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_SHAPE);
+                context.getWriter().writeStartNodes();
+                for (ReactiveCapabilityShapePlane plane : shape.getPolyhedron().getPlanes()) {
+                    context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), PLANE_ROOT_ELEMENT_NAME);
+                    context.getWriter().writeDoubleAttribute(ATTR_ALPHA, plane.getAlpha());
+                    context.getWriter().writeDoubleAttribute(ATTR_BETA, plane.getBeta());
+                    context.getWriter().writeDoubleAttribute(ATTR_GAMMA, plane.getGamma());
+                    context.getWriter().writeBooleanAttribute(ATTR_IS_GREATER_OR_EQUAL, plane.isGreaterOrEqual());
+                    context.getWriter().writeEndNode();
+                }
+                context.getWriter().writeEndNodes();
+                context.getWriter().writeEndNode();
+                break;
             case CURVE:
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_CURVE);
@@ -55,6 +75,23 @@ public class ReactiveLimitsSerDe {
             default:
                 throw new IllegalStateException();
         }
+    }
+
+    public void readReactiveCapabilityShape(ReactiveLimitsHolder holder, NetworkDeserializerContext context) {
+        ReactiveCapabilityShapeAdder shapeAdder = holder.newReactiveCapabilityShape();
+        context.getReader().readChildNodes(elementName -> {
+            if (elementName.equals(PLANE_ROOT_ELEMENT_NAME)) {
+                double alpha = context.getReader().readDoubleAttribute(ATTR_ALPHA);
+                double beta = context.getReader().readDoubleAttribute(ATTR_BETA);
+                double gamma = context.getReader().readDoubleAttribute(ATTR_GAMMA);
+                boolean isGreaterOrEqual = context.getReader().readBooleanAttribute(ATTR_IS_GREATER_OR_EQUAL);
+                context.getReader().readEndNode();
+                shapeAdder.addPlane(alpha, beta, gamma, isGreaterOrEqual);
+            } else {
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'reactiveCapabilityShape'");
+            }
+        });
+        shapeAdder.add();
     }
 
     public void readReactiveCapabilityCurve(ReactiveLimitsHolder holder, NetworkDeserializerContext context) {

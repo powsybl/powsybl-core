@@ -24,6 +24,48 @@ public final class ReactiveLimitsTestNetworkFactory {
         return create(NetworkFactory.findDefault());
     }
 
+    public static Network createWithShape() {
+        Network network = create(NetworkFactory.findDefault());
+        addReactiveLimitCapabilityShapes(network);
+        return network;
+    }
+
+    private static void addReactiveLimitCapabilityShapes(Network network) {
+
+        VoltageLevel vl = network.getVoltageLevels().iterator().next();
+        Generator g3 = vl.newGenerator()
+                .setId("G3")
+                .setEnergySource(EnergySource.OTHER)
+                .setMaxP(20)
+                .setMinP(0)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(380)
+                .setTargetP(10)
+                .setBus("B")
+                .setConnectableBus("B")
+                .add();
+        g3.newReactiveCapabilityShape()
+                .addPlane(5.0, 1.0, 10.0, true)
+                .addPlane(10.0, -10.0, 20.0, false)
+                .add();
+
+        Battery b1 = vl.newBattery().setId("B1")
+                .setTargetP(100.0)
+                .setTargetQ(50.0)
+                .setMinP(-9999.0)
+                .setMaxP(9999.0)
+                .setBus("B")
+                .setConnectableBus("B")
+                .add();
+
+        b1.newReactiveCapabilityShape()
+                .addPlane(5.0, 1.0, 10.0, true)
+                .addPlane(10.0, -10.0, 20.0, false)
+                .addPlane(20.0, -20.0, -20.0, true)
+                .add();
+
+    }
+
     public static Network create(NetworkFactory networkFactory) {
         Objects.requireNonNull(networkFactory);
 

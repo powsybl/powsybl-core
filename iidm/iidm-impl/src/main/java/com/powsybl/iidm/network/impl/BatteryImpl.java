@@ -161,6 +161,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public void setReactiveLimits(ReactiveLimits reactiveLimits) {
         this.reactiveLimits.setReactiveLimits(reactiveLimits);
+        reactiveLimits.applyOwnerBounds(this);
     }
 
     /**
@@ -177,6 +178,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
         return new ReactiveCapabilityCurveAdderImpl(this);
+    }
+
+    @Override
+    public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+        return new ReactiveCapabilityShapeAdderImpl(this);
     }
 
     /**

@@ -95,6 +95,11 @@ public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShap
         return polyhedron.getMaxQ(p);
     }
 
+    @Override
+    public void applyOwnerBounds(ReactiveLimitsHolder holder) {
+        polyhedron.withActivePowerBounds(holder.getMinP(), holder.getMaxP());
+    }
+
     /**
      * Constructor
      * @param polyhedron the reactive capacility shape polyhedron
@@ -109,6 +114,10 @@ public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShap
      */
     public static ReactiveCapabilityShapeImpl build(final ReactiveCapabilityShapePolyhedron polyhedron) {
         return new ReactiveCapabilityShapeImpl(polyhedron);
+    }
+
+    public ReactiveCapabilityShapePolyhedron getPolyhedron() {
+        return this.polyhedron;
     }
 
 }

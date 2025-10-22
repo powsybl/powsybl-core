@@ -54,4 +54,8 @@ public interface ReactiveCapabilityShape extends ReactiveLimits {
      */
     double getMaxQ(double p, double v);
 
+    /**
+     * @return the reactive capability shape polyhedron
+     */
+    ReactiveCapabilityShapePolyhedron getPolyhedron();
 }

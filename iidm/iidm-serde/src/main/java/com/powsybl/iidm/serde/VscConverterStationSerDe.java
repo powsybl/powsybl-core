@@ -78,6 +78,7 @@ class VscConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<VscConver
     protected void readSubElements(VscConverterStation cs, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
+                case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityShape(cs, context);
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(cs, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(cs, context);
                 case REGULATING_TERMINAL -> {

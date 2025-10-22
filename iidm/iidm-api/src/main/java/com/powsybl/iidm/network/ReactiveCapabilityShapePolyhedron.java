@@ -312,4 +312,27 @@ public final class ReactiveCapabilityShapePolyhedron {
         sb.append(separator).append("\n");
         return sb.toString();
     }
+
+    /**
+     * @return the list of Reactive capability shape planes composing this polyhedron
+     */
+    public Collection<ReactiveCapabilityShapePlane> getPlanes() {
+        return this.listOfPlanes;
+    }
+
+    /**
+     * Add a reactive capability shape plane to this polyhedron
+     * @param plane the reactive capability shape plane to add to this polyhedron
+     */
+    public void addReactiveCapabilityShapePlane(ReactiveCapabilityShapePlane plane) {
+        listOfPlanes.add(plane);
+    }
+
+    /**
+     * Return true iff the polyhedron contains no plane
+     * @return
+     */
+    public boolean isEmpty() {
+        return listOfPlanes.isEmpty();
+    }
 }
