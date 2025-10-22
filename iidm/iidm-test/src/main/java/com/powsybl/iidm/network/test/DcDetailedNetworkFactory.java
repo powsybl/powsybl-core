@@ -123,7 +123,7 @@ public final class DcDetailedNetworkFactory {
                 .add();
         new TreeMap<>(xNodes).forEach((xNode, v) -> {
             load.setP0(load.getP0() - v);
-            vl.newDanglingLine()
+            vl.newBoundaryLine()
                     .setId("DLAC-" + country.name() + "-" + xNode)
                     .setBus(b.getId())
                     .setR(0.3)
@@ -162,7 +162,7 @@ public final class DcDetailedNetworkFactory {
         Bus bDc400 = vldc400.getBusBreakerView().newBus()
                 .setId(getBusId(country, xNode, SUFFIX_400))
                 .add();
-        vldc400.newDanglingLine()
+        vldc400.newBoundaryLine()
                 .setId("DLDC-" + country.name() + "-" + xNode)
                 .setBus(bDc400.getId())
                 .setR(0.3)

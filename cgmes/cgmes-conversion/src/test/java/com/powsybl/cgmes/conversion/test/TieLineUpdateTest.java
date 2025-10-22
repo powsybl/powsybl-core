@@ -32,7 +32,7 @@ class TieLineUpdateTest {
     private static void assertEqCount(Network network, int tieLines, int pairedDanglingLines) {
         assertEquals(tieLines, network.getTieLineCount());
         assertEquals(5, network.getDanglingLineCount());
-        assertEquals(pairedDanglingLines, network.getDanglingLineStream().filter(DanglingLine::isPaired).count());
+        assertEquals(pairedDanglingLines, network.getDanglingLineStream().filter(BoundaryLine::isPaired).count());
     }
 
     @Test
@@ -128,10 +128,10 @@ class TieLineUpdateTest {
     }
 
     private static void assertSv(TieLine tieLine) {
-        assertBusVoltage(tieLine.getDanglingLine1().getTerminal().getBusView().getBus(), 400.5, -3.0);
-        assertBusVoltage(tieLine.getDanglingLine2().getTerminal().getBusView().getBus(), 402.5, -5.0);
-        assertBoundaryBusVoltage(tieLine.getDanglingLine1(), 401.5130326083143, -4.023034681728034);
-        assertBoundaryBusVoltage(tieLine.getDanglingLine2(), 401.5130326083143, -4.023034681728034);
+        assertBusVoltage(tieLine.getBoundaryLine1().getTerminal().getBusView().getBus(), 400.5, -3.0);
+        assertBusVoltage(tieLine.getBoundaryLine2().getTerminal().getBusView().getBus(), 402.5, -5.0);
+        assertBoundaryBusVoltage(tieLine.getBoundaryLine1(), 401.5130326083143, -4.023034681728034);
+        assertBoundaryBusVoltage(tieLine.getBoundaryLine2(), 401.5130326083143, -4.023034681728034);
     }
 
     private static void assertEmptySv(TieLine tieLine) {
@@ -152,53 +152,53 @@ class TieLineUpdateTest {
     }
 
     private static void assertEq(Network network) {
-        assertEq(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getDanglingLine1(), new ActivePowerLimit(90.0, 108.0));
-        assertEq(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getDanglingLine2(), new ActivePowerLimit(91.0, 109.0));
+        assertEq(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getBoundaryLine1(), new ActivePowerLimit(90.0, 108.0));
+        assertEq(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getBoundaryLine2(), new ActivePowerLimit(91.0, 109.0));
     }
 
     private static void assertFirstSsh(Network network) {
-        assertSsh(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getDanglingLine1());
-        assertSsh(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getDanglingLine2());
-        assertDefinedActivePowerLimits(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getDanglingLine1(), new ActivePowerLimit(89.0, 107.0));
-        assertDefinedActivePowerLimits(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getDanglingLine2(), new ActivePowerLimit(92.0, 110.0));
+        assertSsh(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getBoundaryLine1());
+        assertSsh(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getBoundaryLine2());
+        assertDefinedActivePowerLimits(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getBoundaryLine1(), new ActivePowerLimit(89.0, 107.0));
+        assertDefinedActivePowerLimits(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getBoundaryLine2(), new ActivePowerLimit(92.0, 110.0));
     }
 
     private static void assertSecondSsh(Network network) {
-        assertSsh(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getDanglingLine1());
-        assertSsh(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getDanglingLine2());
-        assertDefinedActivePowerLimits(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getDanglingLine1(), new ActivePowerLimit(88.0, 106.0));
-        assertDefinedActivePowerLimits(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getDanglingLine2(), new ActivePowerLimit(93.0, 111.0));
+        assertSsh(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getBoundaryLine1());
+        assertSsh(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getBoundaryLine2());
+        assertDefinedActivePowerLimits(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getBoundaryLine1(), new ActivePowerLimit(88.0, 106.0));
+        assertDefinedActivePowerLimits(network.getTieLine("ACLineSegment-1 + ACLineSegment-2").getBoundaryLine2(), new ActivePowerLimit(93.0, 111.0));
     }
 
-    private static void assertEq(DanglingLine danglingLine, ActivePowerLimit activePowerLimit) {
-        assertNotNull(danglingLine);
-        assertTrue(Double.isNaN(danglingLine.getP0()));
-        assertTrue(Double.isNaN(danglingLine.getQ0()));
-        assertNull(danglingLine.getGeneration());
-        assertDefinedActivePowerLimits(danglingLine, activePowerLimit);
-        assertTrue(Double.isNaN(danglingLine.getTerminal().getP()));
-        assertTrue(Double.isNaN(danglingLine.getTerminal().getQ()));
+    private static void assertEq(BoundaryLine boundaryLine, ActivePowerLimit activePowerLimit) {
+        assertNotNull(boundaryLine);
+        assertTrue(Double.isNaN(boundaryLine.getP0()));
+        assertTrue(Double.isNaN(boundaryLine.getQ0()));
+        assertNull(boundaryLine.getGeneration());
+        assertDefinedActivePowerLimits(boundaryLine, activePowerLimit);
+        assertTrue(Double.isNaN(boundaryLine.getTerminal().getP()));
+        assertTrue(Double.isNaN(boundaryLine.getTerminal().getQ()));
     }
 
-    private static void assertSsh(DanglingLine danglingLine) {
-        assertNotNull(danglingLine);
+    private static void assertSsh(BoundaryLine boundaryLine) {
+        assertNotNull(boundaryLine);
         double tol = 0.0000001;
-        assertEquals(0.0, danglingLine.getP0(), tol);
-        assertEquals(0.0, danglingLine.getQ0(), tol);
-        assertNull(danglingLine.getGeneration());
+        assertEquals(0.0, boundaryLine.getP0(), tol);
+        assertEquals(0.0, boundaryLine.getQ0(), tol);
+        assertNull(boundaryLine.getGeneration());
     }
 
-    private static void assertDefinedActivePowerLimits(DanglingLine danglingLine, ActivePowerLimit activePowerLimit) {
-        assertNull(danglingLine.getCurrentLimits().orElse(null));
-        assertNull(danglingLine.getApparentPowerLimits().orElse(null));
+    private static void assertDefinedActivePowerLimits(BoundaryLine boundaryLine, ActivePowerLimit activePowerLimit) {
+        assertNull(boundaryLine.getCurrentLimits().orElse(null));
+        assertNull(boundaryLine.getApparentPowerLimits().orElse(null));
 
-        assertEquals(1, danglingLine.getOperationalLimitsGroups().size());
-        assertNotNull(danglingLine.getActivePowerLimits().orElse(null));
-        if (danglingLine.getActivePowerLimits().isPresent()) {
-            assertEquals(activePowerLimit.ptalValue, danglingLine.getActivePowerLimits().get().getPermanentLimit());
-            assertEquals(1, danglingLine.getActivePowerLimits().get().getTemporaryLimits().size());
-            assertEquals(900, danglingLine.getActivePowerLimits().get().getTemporaryLimits().iterator().next().getAcceptableDuration());
-            assertEquals(activePowerLimit.tatlValue, danglingLine.getActivePowerLimits().get().getTemporaryLimits().iterator().next().getValue());
+        assertEquals(1, boundaryLine.getOperationalLimitsGroups().size());
+        assertNotNull(boundaryLine.getActivePowerLimits().orElse(null));
+        if (boundaryLine.getActivePowerLimits().isPresent()) {
+            assertEquals(activePowerLimit.ptalValue, boundaryLine.getActivePowerLimits().get().getPermanentLimit());
+            assertEquals(1, boundaryLine.getActivePowerLimits().get().getTemporaryLimits().size());
+            assertEquals(900, boundaryLine.getActivePowerLimits().get().getTemporaryLimits().iterator().next().getAcceptableDuration());
+            assertEquals(activePowerLimit.tatlValue, boundaryLine.getActivePowerLimits().get().getTemporaryLimits().iterator().next().getValue());
         }
     }
 
@@ -211,16 +211,16 @@ class TieLineUpdateTest {
         assertEquals(angle, bus.getAngle(), tol);
     }
 
-    private static void assertFlow(DanglingLine danglingLine, double p, double q) {
+    private static void assertFlow(BoundaryLine boundaryLine, double p, double q) {
         double tol = 0.0000001;
-        assertEquals(p, danglingLine.getTerminal().getP(), tol);
-        assertEquals(q, danglingLine.getTerminal().getQ(), tol);
+        assertEquals(p, boundaryLine.getTerminal().getP(), tol);
+        assertEquals(q, boundaryLine.getTerminal().getQ(), tol);
     }
 
-    private static void assertBoundaryBusVoltage(DanglingLine danglingLine, double v, double angle) {
+    private static void assertBoundaryBusVoltage(BoundaryLine boundaryLine, double v, double angle) {
         double tol = 0.0000001;
-        double vActual = danglingLine.getProperty(CgmesNames.VOLTAGE) != null ? Double.parseDouble(danglingLine.getProperty(CgmesNames.VOLTAGE)) : Double.NaN;
-        double angleActual = danglingLine.getProperty(CgmesNames.ANGLE) != null ? Double.parseDouble(danglingLine.getProperty(CgmesNames.ANGLE)) : Double.NaN;
+        double vActual = boundaryLine.getProperty(CgmesNames.VOLTAGE) != null ? Double.parseDouble(boundaryLine.getProperty(CgmesNames.VOLTAGE)) : Double.NaN;
+        double angleActual = boundaryLine.getProperty(CgmesNames.ANGLE) != null ? Double.parseDouble(boundaryLine.getProperty(CgmesNames.ANGLE)) : Double.NaN;
         assertEquals(v, vActual, tol);
         assertEquals(angle, angleActual, tol);
     }

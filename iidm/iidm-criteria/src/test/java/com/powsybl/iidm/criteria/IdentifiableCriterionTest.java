@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.powsybl.iidm.criteria.DanglingLineCriterionTest.createDanglingLine;
+import static com.powsybl.iidm.criteria.BoundaryLineCriterionTest.createBoundaryLine;
 import static com.powsybl.iidm.criteria.LineCriterionTest.createLine;
 import static com.powsybl.iidm.criteria.ThreeWindingsTransformerCriterionTest.createThreeWindingsTransformer;
 import static com.powsybl.iidm.criteria.TieLineCriterionTest.createTieLine;
@@ -39,8 +39,8 @@ public class IdentifiableCriterionTest {
 
     @BeforeAll
     public static void init() {
-        danglingLine1 = createDanglingLine("danglingLine4", Country.BE, 90);
-        danglingLine2 = createDanglingLine("danglingLine2", Country.FR, 400);
+        danglingLine1 = createBoundaryLine("danglingLine4", Country.BE, 90);
+        danglingLine2 = createBoundaryLine("danglingLine2", Country.FR, 400);
         line1 = createLine("line1", Country.BE, Country.BE, 90);
         line2 = createLine("line2", Country.FR, Country.FR, 400);
         tieLine1 = createTieLine("tieLine1", Country.BE, Country.DE, 90);

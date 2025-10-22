@@ -65,7 +65,7 @@ public abstract class AbstractMergeNetworkTest {
         addCommonSubstationsAndVoltageLevels();
         Network n0 = Network.create("n0", "rid");
         addSubstationAndVoltageLevel(n0, "s0", Country.FR, "vl0", "b0");
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
         Network merge = Network.merge(n0, n1, n2);
         assertEquals(3, merge.getSubnetworks().size());
         assertEquals(1, merge.getSubnetwork(n0.getId()).getVoltageLevelCount());
@@ -79,42 +79,42 @@ public abstract class AbstractMergeNetworkTest {
 
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network subnetwork2 = merge.getSubnetwork(N2);
-        checkDanglingLineStatusCount(merge, 0, 2);
-        checkDanglingLineStatusCount(subnetwork1, 0, 1);
-        checkDanglingLineStatusCount(subnetwork2, 0, 1);
+        checkBoundaryLineStatusCount(merge, 0, 2);
+        checkBoundaryLineStatusCount(subnetwork1, 0, 1);
+        checkBoundaryLineStatusCount(subnetwork2, 0, 1);
 
         assertEquals(merge, tieLine.getParentNetwork());
-        assertEquals(subnetwork1, merge.getDanglingLine("dl1").getParentNetwork());
-        assertEquals(subnetwork2, merge.getDanglingLine("dl2").getParentNetwork());
+        assertEquals(subnetwork1, merge.getBoundaryLine("dl1").getParentNetwork());
+        assertEquals(subnetwork2, merge.getBoundaryLine("dl2").getParentNetwork());
     }
 
     @Test
     public void testMergeAndDetach() {
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
         // merge(n1, n2)
         Network merge = Network.merge(MERGE, n1, n2);
         TieLine tieLine = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine);
         assertEquals("dl1_name + dl2_name", tieLine.getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", tieLine.getNameOrId());
-        assertEquals("dl1", tieLine.getDanglingLine1().getId());
-        assertEquals("dl2", tieLine.getDanglingLine2().getId());
-        assertEquals(0.0, tieLine.getDanglingLine1().getP0());
-        assertEquals(0.0, tieLine.getDanglingLine1().getQ0());
-        assertEquals(0.0, tieLine.getDanglingLine2().getP0());
-        assertEquals(0.0, tieLine.getDanglingLine2().getQ0());
+        assertEquals("dl1", tieLine.getBoundaryLine1().getId());
+        assertEquals("dl2", tieLine.getBoundaryLine2().getId());
+        assertEquals(0.0, tieLine.getBoundaryLine1().getP0());
+        assertEquals(0.0, tieLine.getBoundaryLine1().getQ0());
+        assertEquals(0.0, tieLine.getBoundaryLine2().getP0());
+        assertEquals(0.0, tieLine.getBoundaryLine2().getQ0());
 
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network subnetwork2 = merge.getSubnetwork(N2);
-        checkDanglingLineStatusCount(merge, 0, 2);
+        checkBoundaryLineStatusCount(merge, 0, 2);
         checkDanglingLineStatusCount(subnetwork1, 0, 1);
         checkDanglingLineStatusCount(subnetwork2, 0, 1);
         checkSubstationAndVoltageLevelCounts(merge, 2, 2);
 
         assertEquals(merge, tieLine.getParentNetwork());
-        assertEquals(subnetwork1, merge.getDanglingLine("dl1").getParentNetwork());
-        assertEquals(subnetwork2, merge.getDanglingLine("dl2").getParentNetwork());
+        assertEquals(subnetwork1, merge.getBoundaryLine("dl1").getParentNetwork());
+        assertEquals(subnetwork2, merge.getBoundaryLine("dl2").getParentNetwork());
 
         // detach(n1)
         assertTrue(subnetwork1.isDetachable());
@@ -124,8 +124,8 @@ public abstract class AbstractMergeNetworkTest {
         checkDanglingLineStatusCount(subnetwork2, 1, 0);
         checkSubstationAndVoltageLevelCounts(merge, 1, 1);
         checkSubstationAndVoltageLevelCounts(detachedN1, 1, 1);
-        DanglingLine dl1 = detachedN1.getDanglingLine("dl1");
-        DanglingLine dl2 = merge.getDanglingLine("dl2");
+        BoundaryLine dl1 = detachedN1.getBoundaryLine("dl1");
+        BoundaryLine dl2 = merge.getBoundaryLine("dl2");
         // - P0 and Q0 of the removed tie line's underlying dangling lines were updated:
         assertEquals(-731.312, dl1.getP0(), 0.001);
         assertEquals(-1254.625, dl1.getQ0(), 0.001);
@@ -418,15 +418,15 @@ public abstract class AbstractMergeNetworkTest {
 
         assertEquals(merge, tieLine1.getParentNetwork());
         assertEquals(merge, tieLine2.getParentNetwork());
-        assertEquals(subnetwork1, merge.getDanglingLine("dl1").getParentNetwork());
-        assertEquals(subnetwork1, merge.getDanglingLine("dl3").getParentNetwork());
-        assertEquals(subnetwork2, merge.getDanglingLine("dl2").getParentNetwork());
-        assertEquals(subnetwork3, merge.getDanglingLine("dl4").getParentNetwork());
+        assertEquals(subnetwork1, merge.getBoundaryLine("dl1").getParentNetwork());
+        assertEquals(subnetwork1, merge.getBoundaryLine("dl3").getParentNetwork());
+        assertEquals(subnetwork2, merge.getBoundaryLine("dl2").getParentNetwork());
+        assertEquals(subnetwork3, merge.getBoundaryLine("dl4").getParentNetwork());
     }
 
     private void checkDanglingLineStatusCount(Network network, long unpairedNb, long pairedNb) {
-        assertEquals(pairedNb, network.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
-        assertEquals(unpairedNb, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).count());
+        assertEquals(pairedNb, network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).count());
+        assertEquals(unpairedNb, network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).count());
     }
 
     @Test
@@ -715,7 +715,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     private static void addDanglingLine(Network n, String voltageLevelId, String id, String code, String connectableBus, String bus) {
-        DanglingLine dl = n.getVoltageLevel(voltageLevelId).newDanglingLine()
+        BoundaryLine dl = n.getVoltageLevel(voltageLevelId).newBoundaryLine()
                 .setId(id)
                 .setName(id + "_name")
                 .setConnectableBus(connectableBus)
@@ -861,8 +861,8 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals(1, merge.getTieLineCount());
         TieLine tieLine = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine);
-        assertEquals("dl1", tieLine.getDanglingLine1().getId());
-        assertEquals("dl2", tieLine.getDanglingLine2().getId());
+        assertEquals("dl1", tieLine.getBoundaryLine1().getId());
+        assertEquals("dl2", tieLine.getBoundaryLine2().getId());
     }
 
     @Test

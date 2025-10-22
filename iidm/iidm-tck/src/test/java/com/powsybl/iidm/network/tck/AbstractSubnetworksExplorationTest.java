@@ -207,22 +207,22 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode2(14)
                 .setR(1).setX(1).setG1(0).setG2(0).setB1(0).setB2(0)
                 .add();
-        voltageLevel1.newDanglingLine()
+        voltageLevel1.newBoundaryLine()
                 .setId(id("danglingLine1", networkId))
                 .setNode(15)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .add();
-        voltageLevel2.newDanglingLine()
+        voltageLevel2.newBoundaryLine()
                 .setId(id("danglingLine2", networkId))
                 .setNode(16)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .add();
         n.newTieLine()
                 .setId(id("tieLine1", networkId))
-                .setDanglingLine1(id("danglingLine1", networkId))
-                .setDanglingLine2(id("danglingLine2", networkId))
+                .setBoundaryLine1(id("danglingLine1", networkId))
+                .setBoundaryLine2(id("danglingLine2", networkId))
                 .add();
-        voltageLevel3.newDanglingLine()
+        voltageLevel3.newBoundaryLine()
                 .setId(id("danglingLine3", networkId))
                 .setNode(17)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
@@ -606,10 +606,10 @@ public abstract class AbstractSubnetworksExplorationTest {
                 id("danglingLine3", ID_2));
 
         testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
-                Network::getDanglingLines,
-                Network::getDanglingLineStream,
-                Network::getDanglingLineCount,
-                Network::getDanglingLine);
+                Network::getBoundaryLines,
+                Network::getBoundaryLineStream,
+                Network::getBoundaryLineCount,
+                Network::getBoundaryLine);
     }
 
     @Test

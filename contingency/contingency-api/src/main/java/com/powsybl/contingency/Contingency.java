@@ -102,7 +102,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
                 case BRANCH -> checkBranchContingency(this, (BranchContingency) element, network);
                 case HVDC_LINE -> checkHvdcLineContingency(this, (HvdcLineContingency) element, network);
                 case BUSBAR_SECTION -> checkBusbarSectionContingency(this, (BusbarSectionContingency) element, network);
-                case DANGLING_LINE -> checkDanglingLineContingency(this, (DanglingLineContingency) element, network);
+                case DANGLING_LINE -> checkDanglingLineContingency(this, (BoundaryLineContingency) element, network);
                 case LINE -> checkLineContingency(this, (LineContingency) element, network);
                 case TWO_WINDINGS_TRANSFORMER ->
                     checkTwoWindingsTransformerContingency(this, (TwoWindingsTransformerContingency) element, network);
@@ -213,7 +213,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
-    private static boolean checkDanglingLineContingency(Contingency contingency, DanglingLineContingency element, Network network) {
+    private static boolean checkDanglingLineContingency(Contingency contingency, BoundaryLineContingency element, Network network) {
         if (network.getDanglingLine(element.getId()) == null) {
             LOGGER.warn("Dangling line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
@@ -249,8 +249,8 @@ public class Contingency extends AbstractExtendable<Contingency> {
         TieLine tieLine = network.getTieLine(element.getId());
         if (tieLine == null
                 || element.getVoltageLevelId() != null
-                    && !(element.getVoltageLevelId().equals(tieLine.getDanglingLine1().getTerminal().getVoltageLevel().getId())
-                        || element.getVoltageLevelId().equals(tieLine.getDanglingLine2().getTerminal().getVoltageLevel().getId()))) {
+                    && !(element.getVoltageLevelId().equals(tieLine.getBoundaryLine1().getTerminal().getVoltageLevel().getId())
+                        || element.getVoltageLevelId().equals(tieLine.getBoundaryLine2().getTerminal().getVoltageLevel().getId()))) {
             LOGGER.warn("Tie line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }

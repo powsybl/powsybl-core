@@ -618,7 +618,7 @@ class VoltageLevelConverter extends AbstractConverter {
         List<Integer> buses = new ArrayList<>();
         if (identifiable.getType() == IdentifiableType.DANGLING_LINE) {
             // busJ associated with boundary side of the dangling lines
-            buses.add(contextExport.getFullExport().getBusI((DanglingLine) identifiable).orElseThrow());
+            buses.add(contextExport.getFullExport().getBusI((BoundaryLine) identifiable).orElseThrow());
         } else {
             terminals.forEach(terminal -> {
                 if (contextExport.getFullExport().isExportedAsNodeBreaker(terminal.getVoltageLevel())) {

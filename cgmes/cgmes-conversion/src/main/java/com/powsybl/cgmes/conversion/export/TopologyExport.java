@@ -104,7 +104,7 @@ public final class TopologyExport {
 
     private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
+        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.ALL)) {
             writeBoundaryTerminal(dl, exported, cimNamespace, writer, context);
         }
     }
@@ -277,7 +277,7 @@ public final class TopologyExport {
         writer.writeEndElement();
     }
 
-    private static void writeBoundaryTerminal(DanglingLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeBoundaryTerminal(BoundaryLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
@@ -307,7 +307,7 @@ public final class TopologyExport {
     }
 
     private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
+        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.ALL)) {
             String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNodeId == null) {
                 // If no information about original boundary has been preserved in the IIDM model,

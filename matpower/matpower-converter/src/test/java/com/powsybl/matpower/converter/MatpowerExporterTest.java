@@ -21,7 +21,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.matpower.model.MatpowerModel;
@@ -241,7 +241,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
 
     @Test
     void testDanglingLineWithGeneration() throws IOException {
-        var network = DanglingLineNetworkFactory.createWithGeneration();
+        var network = BoundaryLineNetworkFactory.createWithGeneration();
         exportToMatAndCompareTo(network, "/dangling-line-generation.json");
     }
 
