@@ -8,7 +8,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 
 import java.util.Optional;
 
@@ -18,5 +18,5 @@ import java.util.Optional;
 public interface EquipmentAtBoundaryConversion {
     void convertAtBoundary();
 
-    Optional<DanglingLine> getDanglingLine();
+    Optional<BoundaryLine> getDanglingLine();
 }

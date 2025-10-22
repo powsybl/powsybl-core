@@ -80,7 +80,7 @@ class MergeTest {
     private static Network createNetworkWithDanglingLine(String nid) {
         Network n = NetworkTest1Factory.create(nid);
         VoltageLevel vl = n.getVoltageLevel(id("voltageLevel1", nid));
-        DanglingLine dl = vl.newDanglingLine()
+        BoundaryLine dl = vl.newBoundaryLine()
                 .setId(id("danglingLineb", nid))
                 .setNode(6)
                 .setR(1.0)
@@ -157,13 +157,13 @@ class MergeTest {
         network1.newVoltageAngleLimit()
                 .setId("LimitCollision")
                 .from(network1.getLine(id("Line-2-2", "1")).getTerminal1())
-                .to(network1.getDanglingLine(id("Dl-3", "1")).getTerminal())
+                .to(network1.getBoundaryLine(id("Dl-3", "1")).getTerminal())
                 .setHighLimit(0.25)
                 .add();
         network2.newVoltageAngleLimit()
                 .setId("LimitCollision")
                 .from(network2.getLine(id("Line-2-2", "2")).getTerminal1())
-                .to(network2.getDanglingLine(id("Dl-3", "2")).getTerminal())
+                .to(network2.getBoundaryLine(id("Dl-3", "2")).getTerminal())
                 .setHighLimit(0.25)
                 .add();
 
@@ -312,7 +312,7 @@ class MergeTest {
         createInternalConnection(s2vl1, 0, 3);
         createLoad(s2vl1, id("S2VL1-Load", nid), 45.0, 9.0, 1);
 
-        createDanglingLine(network, id("S2VL1", nid), id("Dl-3", nid), 70.0, 10.0, "pairingKey", 3);
+        createBoundaryLine(network, id("S2VL1", nid), id("Dl-3", nid), 70.0, 10.0, "pairingKey", 3);
 
         // Line between both substations
         createLine(network, id("S1VL1", nid), id("S2VL1", nid), id("Line-2-2", nid), 2, 2);
@@ -320,7 +320,7 @@ class MergeTest {
         network.newVoltageAngleLimit()
             .setId(valId)
             .from(network.getLine(id("Line-2-2", nid)).getTerminal1())
-            .to(network.getDanglingLine(id("Dl-3", nid)).getTerminal())
+            .to(network.getBoundaryLine(id("Dl-3", nid)).getTerminal())
             .setHighLimit(0.25)
             .add();
 
@@ -388,8 +388,8 @@ class MergeTest {
             .add();
     }
 
-    private static void createDanglingLine(Network network, String vlId, String id, double p0, double q0, String pairingKey, int node) {
-        network.getVoltageLevel(vlId).newDanglingLine()
+    private static void createBoundaryLine(Network network, String vlId, String id, double p0, double q0, String pairingKey, int node) {
+        network.getVoltageLevel(vlId).newBoundaryLine()
             .setId(id)
             .setR(0.01)
             .setX(2.0)

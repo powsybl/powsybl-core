@@ -49,9 +49,9 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return "Tie Line";
     }
 
-    private DanglingLineImpl danglingLine1;
+    private BoundaryLineImpl danglingLine1;
 
-    private DanglingLineImpl danglingLine2;
+    private BoundaryLineImpl danglingLine2;
 
     private final Ref<NetworkImpl> networkRef;
 
@@ -62,12 +62,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         this.networkRef = network;
     }
 
-    void attachDanglingLines(DanglingLineImpl dl1, DanglingLineImpl dl2) {
+    void attachDanglingLines(BoundaryLineImpl dl1, BoundaryLineImpl dl2) {
         this.danglingLine1 = attach(dl1);
         this.danglingLine2 = attach(dl2);
     }
 
-    private DanglingLineImpl attach(DanglingLineImpl danglingLine) {
+    private BoundaryLineImpl attach(BoundaryLineImpl danglingLine) {
         danglingLine.setTieLine(this);
         return danglingLine;
     }
@@ -78,22 +78,22 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine1() {
+    public BoundaryLineImpl getBoundaryLine1() {
         return danglingLine1;
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine2() {
+    public BoundaryLineImpl getBoundaryLine2() {
         return danglingLine2;
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine(TwoSides side) {
-        return BranchUtil.getFromSide(side, this::getDanglingLine1, this::getDanglingLine2);
+    public BoundaryLineImpl getBoundaryLine(TwoSides side) {
+        return BranchUtil.getFromSide(side, this::getBoundaryLine1, this::getBoundaryLine2);
     }
 
     @Override
-    public DanglingLine getDanglingLine(String voltageLevelId) {
+    public BoundaryLine getBoundaryLine(String voltageLevelId) {
         if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
             return danglingLine1;
         }
@@ -166,17 +166,17 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean connectDanglingLines() {
-        return connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
+    public boolean connectBoundaryLines() {
+        return connectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
     }
 
     @Override
-    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectDanglingLines(isTypeSwitchToOperate, null);
+    public boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectBoundaryLines(isTypeSwitchToOperate, null);
     }
 
     @Override
-    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+    public boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminalsOfDanglingLines(side),
@@ -185,17 +185,17 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean disconnectDanglingLines() {
-        return disconnectDanglingLines(SwitchPredicates.IS_CLOSED_BREAKER, null);
+    public boolean disconnectBoundaryLines() {
+        return disconnectBoundaryLines(SwitchPredicates.IS_CLOSED_BREAKER, null);
     }
 
     @Override
-    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable) {
-        return disconnectDanglingLines(isSwitchOpenable, null);
+    public boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable) {
+        return disconnectBoundaryLines(isSwitchOpenable, null);
     }
 
     @Override
-    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+    public boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminalsOfDanglingLines(side),
@@ -476,20 +476,20 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return BranchUtil.getValueForLimit(t, type);
     }
 
-    private static void updateDanglingLine(DanglingLine danglingLine) {
+    private static void updateDanglingLine(BoundaryLine boundaryLine) {
         // Only update if we have values
-        if (!Double.isNaN(danglingLine.getBoundary().getP())) {
-            danglingLine.setP0(-danglingLine.getBoundary().getP());
-            if (danglingLine.getGeneration() != null) {
+        if (!Double.isNaN(boundaryLine.getBoundary().getP())) {
+            boundaryLine.setP0(-boundaryLine.getBoundary().getP());
+            if (boundaryLine.getGeneration() != null) {
                 // We do not reset regulation if we only have computed a dc load flow
-                danglingLine.getGeneration().setTargetP(0.0);
+                boundaryLine.getGeneration().setTargetP(0.0);
             }
         }
-        if (!Double.isNaN(danglingLine.getBoundary().getQ())) {
-            danglingLine.setQ0(-danglingLine.getBoundary().getQ());
-            if (danglingLine.getGeneration() != null) {
+        if (!Double.isNaN(boundaryLine.getBoundary().getQ())) {
+            boundaryLine.setQ0(-boundaryLine.getBoundary().getQ());
+            if (boundaryLine.getGeneration() != null) {
                 // If q values are available a complete ac load flow has been computed, we reset regulation
-                danglingLine.getGeneration().setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
+                boundaryLine.getGeneration().setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
             }
         }
     }

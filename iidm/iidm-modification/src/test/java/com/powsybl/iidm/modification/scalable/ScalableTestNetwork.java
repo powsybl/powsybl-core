@@ -161,7 +161,7 @@ final class ScalableTestNetwork {
         vl2.getBusBreakerView().newBus()
                 .setId("bus2")
                 .add();
-        vl2.newDanglingLine()
+        vl2.newBoundaryLine()
                 .setId("dl2")
                 .setBus("bus2")
                 .setConnectableBus("bus2")
@@ -275,7 +275,7 @@ final class ScalableTestNetwork {
         vl2.getBusBreakerView().newBus()
             .setId("bus2")
             .add();
-        vl2.newDanglingLine()
+        vl2.newBoundaryLine()
             .setId("dl1")
             .setBus("bus2")
             .setConnectableBus("bus2")
