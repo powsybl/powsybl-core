@@ -7,12 +7,15 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -301,5 +304,59 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     public double getValueForLimit(Terminal t, LimitType type) {
         return BranchUtil.getValueForLimit(t, type);
+    }
+
+    public boolean connect(boolean propagateConnectionIfNeeded) {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null, propagateConnectionIfNeeded);
+    }
+
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side, boolean propagateConnectionIfNeeded) {
+        return connect(isTypeSwitchToOperate, side, propagateConnectionIfNeeded, true,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()));
+    }
+
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side,
+                           boolean propagateConnectionIfNeeded, boolean connectFromHere,
+                           ConnectionElementsContainer connectionElementsContainer) {
+        connectionElementsContainer.connectables().add(this);
+        return switch (ConnectDisconnectUtil.connectAllTerminals(
+            this,
+            getTerminals(side != null ? side.toThreeSides() : null),
+            isTypeSwitchToOperate,
+            connectionElementsContainer,
+            connectFromHere,
+            propagateConnectionIfNeeded,
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case SUCCESS -> true;
+            case FAILURE -> false;
+            case NO_CHANGE_NEEDED -> !connectFromHere;
+        };
+    }
+
+    public boolean disconnect(boolean propagateDisconnectionIfNeeded) {
+        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER, null, propagateDisconnectionIfNeeded);
+    }
+
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side, boolean propagateDisconnectionIfNeeded) {
+        return disconnect(isSwitchOpenable, side, propagateDisconnectionIfNeeded, true,
+            new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>()));
+    }
+
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side,
+                              boolean propagateDisconnectionIfNeeded, boolean disconnectFromHere,
+                              ConnectionElementsContainer connectionElementsContainer) {
+        connectionElementsContainer.connectables().add(this);
+        return switch (ConnectDisconnectUtil.disconnectAllTerminals(
+            this,
+            getTerminals(side != null ? side.toThreeSides() : null),
+            isSwitchOpenable,
+            connectionElementsContainer,
+            disconnectFromHere,
+            propagateDisconnectionIfNeeded,
+            getNetwork().getReportNodeContext().getReportNode())) {
+            case SUCCESS -> true;
+            case FAILURE -> false;
+            case NO_CHANGE_NEEDED -> !disconnectFromHere;
+        };
     }
 }
