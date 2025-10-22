@@ -7,42 +7,40 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Load> implements LoadDetail {
 
-    private final TDoubleArrayList fixedActivePower;
+    private final ExtendedDoubleArrayList fixedActivePower;
 
-    private final TDoubleArrayList fixedReactivePower;
+    private final ExtendedDoubleArrayList fixedReactivePower;
 
-    private final TDoubleArrayList variableActivePower;
+    private final ExtendedDoubleArrayList variableActivePower;
 
-    private final TDoubleArrayList variableReactivePower;
+    private final ExtendedDoubleArrayList variableReactivePower;
 
     public LoadDetailImpl(Load load, double fixedActivePower, double fixedReactivePower,
                 double variableActivePower, double variableReactivePower) {
         super(load);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.fixedActivePower = new TDoubleArrayList(variantArraySize);
-        this.fixedReactivePower = new TDoubleArrayList(variantArraySize);
-        this.variableActivePower = new TDoubleArrayList(variantArraySize);
-        this.variableReactivePower = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.fixedActivePower.add(checkPower(fixedActivePower, "Invalid fixedActivePower", load));
-            this.fixedReactivePower.add(checkPower(fixedReactivePower, "Invalid fixedReactivePower", load));
-            this.variableActivePower.add(checkPower(variableActivePower, "Invalid variableActivePower", load));
-            this.variableReactivePower.add(checkPower(variableReactivePower, "Invalid variableReactivePower", load));
-        }
+        checkPower(fixedActivePower, "Invalid fixedActivePower", load);
+        checkPower(fixedReactivePower, "Invalid fixedReactivePower", load);
+        checkPower(variableActivePower, "Invalid variableActivePower", load);
+        checkPower(variableReactivePower, "Invalid variableReactivePower", load);
+        this.fixedActivePower = new ExtendedDoubleArrayList(variantArraySize, fixedActivePower);
+        this.fixedReactivePower = new ExtendedDoubleArrayList(variantArraySize, fixedReactivePower);
+        this.variableActivePower = new ExtendedDoubleArrayList(variantArraySize, variableActivePower);
+        this.variableReactivePower = new ExtendedDoubleArrayList(variantArraySize, variableReactivePower);
     }
 
     public double getFixedActivePower() {
-        return fixedActivePower.get(getVariantIndex());
+        return fixedActivePower.getDouble(getVariantIndex());
     }
 
     @Override
@@ -54,7 +52,7 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public double getFixedReactivePower() {
-        return fixedReactivePower.get(getVariantIndex());
+        return fixedReactivePower.getDouble(getVariantIndex());
     }
 
     @Override
@@ -66,7 +64,7 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public double getVariableActivePower() {
-        return variableActivePower.get(getVariantIndex());
+        return variableActivePower.getDouble(getVariantIndex());
     }
 
     @Override
@@ -78,7 +76,7 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public double getVariableReactivePower() {
-        return variableReactivePower.get(getVariantIndex());
+        return variableReactivePower.getDouble(getVariantIndex());
     }
 
     @Override
@@ -88,36 +86,29 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
         return this;
     }
 
-    private static double checkPower(double power, String errorMessage, Load load) {
+    private static void checkPower(double power, String errorMessage, Load load) {
         if (Double.isNaN(power)) {
             throw new IllegalArgumentException(String.format("%s (%s) for load %s",
                 errorMessage,
                 power,
                 load.getId()));
         }
-        return power;
     }
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        fixedActivePower.ensureCapacity(fixedActivePower.size() + number);
-        fixedReactivePower.ensureCapacity(fixedReactivePower.size() + number);
-        variableActivePower.ensureCapacity(variableActivePower.size() + number);
-        variableReactivePower.ensureCapacity(variableReactivePower.size() + number);
-        for (int i = 0; i < number; ++i) {
-            fixedActivePower.add(fixedActivePower.get(sourceIndex));
-            fixedReactivePower.add(fixedReactivePower.get(sourceIndex));
-            variableActivePower.add(variableActivePower.get(sourceIndex));
-            variableReactivePower.add(variableReactivePower.get(sourceIndex));
-        }
+        fixedActivePower.growAndFill(number, fixedActivePower.getDouble(sourceIndex));
+        fixedReactivePower.growAndFill(number, fixedReactivePower.getDouble(sourceIndex));
+        variableActivePower.growAndFill(number, variableActivePower.getDouble(sourceIndex));
+        variableReactivePower.growAndFill(number, variableReactivePower.getDouble(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        fixedActivePower.remove(fixedActivePower.size() - number, number);
-        fixedReactivePower.remove(fixedReactivePower.size() - number, number);
-        variableActivePower.remove(variableActivePower.size() - number, number);
-        variableReactivePower.remove(variableReactivePower.size() - number, number);
+        fixedActivePower.removeElements(number);
+        fixedReactivePower.removeElements(number);
+        variableActivePower.removeElements(number);
+        variableReactivePower.removeElements(number);
     }
 
     @Override
@@ -129,10 +120,10 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            fixedActivePower.set(index, fixedActivePower.get(sourceIndex));
-            fixedReactivePower.set(index, fixedReactivePower.get(sourceIndex));
-            variableActivePower.set(index, variableActivePower.get(sourceIndex));
-            variableReactivePower.set(index, variableReactivePower.get(sourceIndex));
+            fixedActivePower.set(index, fixedActivePower.getDouble(sourceIndex));
+            fixedReactivePower.set(index, fixedReactivePower.getDouble(sourceIndex));
+            variableActivePower.set(index, variableActivePower.getDouble(sourceIndex));
+            variableReactivePower.set(index, variableReactivePower.getDouble(sourceIndex));
         }
     }
 }

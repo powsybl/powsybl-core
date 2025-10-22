@@ -8,10 +8,10 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.extensions.PilotPoint;
 import com.powsybl.iidm.network.impl.NetworkImpl;
 import com.powsybl.iidm.network.impl.VariantManagerHolder;
-import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,17 +24,14 @@ class PilotPointImpl implements PilotPoint {
 
     private final List<String> busbarSectionsOrBusesIds;
 
-    private final TDoubleArrayList targetV;
+    private final ExtendedDoubleArrayList targetV;
 
     private ControlZoneImpl controlZone;
 
     PilotPointImpl(List<String> busbarSectionsOrBusesIds, double targetV, VariantManagerHolder variantManagerHolder) {
         this.busbarSectionsOrBusesIds = Objects.requireNonNull(busbarSectionsOrBusesIds);
         int variantArraySize = variantManagerHolder.getVariantManager().getVariantArraySize();
-        this.targetV = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.targetV.add(targetV);
-        }
+        this.targetV = new ExtendedDoubleArrayList(variantArraySize, targetV);
     }
 
     public void setControlZone(ControlZoneImpl controlZone) {
@@ -55,7 +52,7 @@ class PilotPointImpl implements PilotPoint {
 
     @Override
     public double getTargetV() {
-        return targetV.get(getVariantIndex());
+        return targetV.getDouble(getVariantIndex());
     }
 
     @Override
@@ -64,7 +61,7 @@ class PilotPointImpl implements PilotPoint {
             throw new PowsyblException("Invalid pilot point target voltage for zone '" + controlZone.getName() + "'");
         }
         int variantIndex = getVariantIndex();
-        double oldTargetV = this.targetV.get(variantIndex);
+        double oldTargetV = this.targetV.getDouble(variantIndex);
         if (targetV != oldTargetV) {
             this.targetV.set(variantIndex, targetV);
             SecondaryVoltageControlImpl secondaryVoltageControl = controlZone.getSecondaryVoltageControl();
@@ -76,19 +73,16 @@ class PilotPointImpl implements PilotPoint {
     }
 
     void extendVariantArraySize(int number, int sourceIndex) {
-        targetV.ensureCapacity(targetV.size() + number);
-        for (int i = 0; i < number; ++i) {
-            targetV.add(targetV.get(sourceIndex));
-        }
+        targetV.growAndFill(number, targetV.getDouble(sourceIndex));
     }
 
     void reduceVariantArraySize(int number) {
-        targetV.remove(targetV.size() - number, number);
+        targetV.removeElements(number);
     }
 
     void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            targetV.set(index, targetV.get(sourceIndex));
+            targetV.set(index, targetV.getDouble(sourceIndex));
         }
     }
 }

@@ -7,7 +7,7 @@
  */
 package com.powsybl.math.graph;
 
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,9 +19,9 @@ class GraphUtilTest {
 
     @Test
     void testComputeConnectedComponents() {
-        TIntArrayList[] adjacencyList = new TIntArrayList[100000];
+        IntArrayList[] adjacencyList = new IntArrayList[100000];
         for (int i = 0; i < adjacencyList.length; i++) {
-            adjacencyList[i] = new TIntArrayList();
+            adjacencyList[i] = new IntArrayList();
         }
         for (int i = 2; i < adjacencyList.length - 1; i++) {
             adjacencyList[i].add(i + 1);
