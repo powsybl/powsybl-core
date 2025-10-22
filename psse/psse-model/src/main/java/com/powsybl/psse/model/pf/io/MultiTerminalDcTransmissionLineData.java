@@ -11,6 +11,13 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.io.*;
 import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine;
 import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.*;
+import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcBus;
+import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcBusx;
+import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcConverter;
+import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcConverterx;
+import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcLink;
+import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcLinkx;
+import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcMain;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -244,8 +251,9 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
         }
 
         private static List<PsseMultiTerminalDcTransmissionLine> convertToMultiTerminalList(List<PsseMultiTerminalDcMain> mainList,
-            List<PsseMultiTerminalDcConverterx> converterxList, List<PsseMultiTerminalDcBusx> busxList,
-            List<PsseMultiTerminalDcLinkx> linkxList) {
+                                                                                            List<PsseMultiTerminalDcConverterx> converterxList,
+                                                                                            List<PsseMultiTerminalDcBusx> busxList,
+                                                                                            List<PsseMultiTerminalDcLinkx> linkxList) {
 
             List<PsseMultiTerminalDcTransmissionLine> multiTerminalDcTransmissionLineList = new ArrayList<>();
             for (PsseMultiTerminalDcMain main : mainList) {

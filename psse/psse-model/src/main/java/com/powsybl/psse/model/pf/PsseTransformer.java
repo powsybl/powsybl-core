@@ -13,6 +13,7 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.powsybl.psse.model.pf.internal.TransformerImpedances;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
@@ -62,7 +63,7 @@ public class PsseTransformer extends PsseVersioned {
     @Revision(since = 35)
     private int zcod = 0;
 
-    private PsseTransformerImpedances impedances = new PsseTransformerImpedances();
+    private TransformerImpedances impedances = new TransformerImpedances();
     private PsseTransformerWinding winding1 = new PsseTransformerWinding();
     private PsseRates winding1Rates = new PsseRates();
     private PsseTransformerWinding winding2 = new PsseTransformerWinding();
@@ -418,11 +419,11 @@ public class PsseTransformer extends PsseVersioned {
         this.ownership = ownership;
     }
 
-    public PsseTransformerImpedances getImpedances() {
+    public TransformerImpedances getImpedances() {
         return impedances;
     }
 
-    public void setImpedances(PsseTransformerImpedances impedances) {
+    public void setImpedances(TransformerImpedances impedances) {
         this.impedances = impedances;
     }
 

@@ -16,9 +16,7 @@ import de.siegmar.fastcsv.reader.CsvRecord;
 import java.util.Optional;
 
 import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseDoubleOrDefault;
 import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntOrDefault;
 import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**

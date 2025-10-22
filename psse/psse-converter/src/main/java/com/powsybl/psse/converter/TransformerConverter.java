@@ -15,6 +15,7 @@ import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.*;
+import com.powsybl.psse.model.pf.internal.TransformerImpedances;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1163,7 +1164,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static void createDefaultTransformerImpedances(PsseTransformer psseTransformer) {
-        psseTransformer.setImpedances(new PsseTransformerImpedances());
+        psseTransformer.setImpedances(new TransformerImpedances());
         psseTransformer.setR12(0.0);
         psseTransformer.setX12(0.0);
         psseTransformer.setSbase12(0.0);

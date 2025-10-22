@@ -36,11 +36,15 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TRANSFORMER_IMPE
  */
 class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseTransformerImpedanceCorrection> {
 
+    private static final String[] FIELD_NAMES_32_33 = {"i", "t1", "f1", "t2", "f2", "t3", "f3", "t4", "f4", "t5", "f5", "t6", "f6", "t7", "f7", "t8", "f8", "t9", "f9", "t10", "f10", "t11", "f11"};
+
     TransformerImpedanceCorrectionTablesData() {
         super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES);
         withIO(FileFormat.LEGACY_TEXT, V32, new IOLegacyText33(this));
         withIO(FileFormat.LEGACY_TEXT, V33, new IOLegacyText33(this));
         withIO(FileFormat.LEGACY_TEXT, V35, new IOLegacyText35(this));
+        withFieldNames(V32, FIELD_NAMES_32_33);
+        withFieldNames(V33, FIELD_NAMES_32_33);
         withIO(FileFormat.JSON, new IOJson(this));
     }
 
@@ -61,8 +65,8 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         @Override
         public List<PsseTransformerImpedanceCorrection> read(LegacyTextReader reader, Context context) throws IOException {
-            List<ZCorr33> list33 = new ZCorr33Data().read(reader, context);
-            return convertToImpedanceCorrectionList(list33);
+            List<String> records = reader.readRecords();
+            return super.recordGroup.readFromStrings(records, context);
         }
 
         @Override
@@ -331,26 +335,47 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
         public List<PsseTransformerImpedanceCorrection> read(LegacyTextReader reader, Context context) throws IOException {
             List<String> records = reader.readRecords();
 
-            ZCorr35FirstData record1Data = new ZCorr35FirstData();
-            ZCorr35PointsData record2Data = new ZCorr35PointsData();
+//            ZCorr35FirstData record1Data = new ZCorr35FirstData();
+//            ZCorr35PointsData record2Data = new ZCorr35PointsData();
 
             List<PsseTransformerImpedanceCorrection> impedanceCorrectionList = new ArrayList<>();
 
             int i = 0;
             while (i < records.size()) {
-                ZCorr35First r1 = record1Data.parseSingleRecord(records.get(i++), FIELD_NAMES[0], context);
+                // First line always contains the field "i"
+                List<String> headers = Arrays.asList(FIELD_NAMES[0]);
+                StringBuilder fullRecord = new StringBuilder(records.get(i++));
 
-                PsseTransformerImpedanceCorrection impedanceCorrection = new PsseTransformerImpedanceCorrection(r1.getI());
-                boolean endPoints = addImpedanceCorrectionPoints(impedanceCorrection, r1.getPoints());
+                // Then we can have an undefined number of lines
+                while (i < records.size()) {
+                    // Add the line to the full record
+                    fullRecord.append(context.getDelimiter()).append(records.get(i));
+                    headers.addAll(Arrays.asList(FIELD_NAMES[1]));
 
-                while (i < records.size() && !endPoints) {
-                    ZCorr35Points r2 = record2Data.parseSingleRecord(records.get(i++), FIELD_NAMES[1], context);
-                    endPoints = addImpedanceCorrectionPoints(impedanceCorrection, r2);
+                    if (records.get(i++).split(String.valueOf(context.getDelimiter())).length < FIELD_NAMES[1].length) {
+                        break;
+                    }
                 }
-                if (!impedanceCorrection.getPoints().isEmpty()) {
-                    impedanceCorrectionList.add(impedanceCorrection);
-                }
+
+                PsseTransformerImpedanceCorrection impedanceCorrection = super.recordGroup.parseSingleRecord(fullRecord.toString(), headers.toArray(headers.toArray(new String[0])), context);
+                impedanceCorrectionList.add(impedanceCorrection);
             }
+
+//            int i = 0;
+//            while (i < records.size()) {
+//                ZCorr35First r1 = record1Data.parseSingleRecord(records.get(i++), FIELD_NAMES[0], context);
+//
+//                PsseTransformerImpedanceCorrection impedanceCorrection = new PsseTransformerImpedanceCorrection(r1.getI());
+//                boolean endPoints = addImpedanceCorrectionPoints(impedanceCorrection, r1.getPoints());
+//
+//                while (i < records.size() && !endPoints) {
+//                    ZCorr35Points r2 = record2Data.parseSingleRecord(records.get(i++), FIELD_NAMES[1], context);
+//                    endPoints = addImpedanceCorrectionPoints(impedanceCorrection, r2);
+//                }
+//                if (!impedanceCorrection.getPoints().isEmpty()) {
+//                    impedanceCorrectionList.add(impedanceCorrection);
+//                }
+//            }
 
             return impedanceCorrectionList;
         }
