@@ -262,7 +262,7 @@ public abstract class AbstractTieLineTest {
     public void danglingLineIdNull() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithBoundaryline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
                 6.5, 8.5, "code"));
-        assertTrue(e.getMessage().contains("Boundary line id is not set"));
+        assertTrue(e.getMessage().contains("Dangling line id is not set"));
     }
 
     @Test

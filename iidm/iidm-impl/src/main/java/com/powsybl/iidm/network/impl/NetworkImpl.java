@@ -1266,8 +1266,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                 dl1byPairingKey.computeIfAbsent(dl1.getPairingKey(), k -> new ArrayList<>()).add(dl1);
             }
         }
-        for (BoundaryLine dl2 : findCandidateDanglingLines(other, dl1byPairingKey::containsKey)) {
-            findAndAssociateDanglingLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byPairingKey));
+        for (BoundaryLine dl2 : findCandidateBoundaryLines(other, dl1byPairingKey::containsKey)) {
+            findAndAssociateBoundaryLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairBoundaryLines(lines, dll1, dll2, dl1byPairingKey));
         }
 
         // create a subnetwork for the other network
@@ -1279,7 +1279,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         // merge the indexes
         index.merge(otherNetwork.index);
 
-        replaceDanglingLineByTieLine(lines);
+        replaceBoundaryLineByTieLine(lines);
 
         other.getVoltageAngleLimits().forEach(l -> getVoltageAngleLimitsIndex().put(l.getId(), l));
 
@@ -1334,7 +1334,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         parent.index.checkAndAdd(sn);
     }
 
-    private void pairDanglingLines(List<BoundaryLinePair> boundaryLinePairs, BoundaryLine dl1, BoundaryLine dl2, Map<String, List<BoundaryLine>> dl1byPairingKey) {
+    private void pairBoundaryLines(List<BoundaryLinePair> boundaryLinePairs, BoundaryLine dl1, BoundaryLine dl2, Map<String, List<BoundaryLine>> dl1byPairingKey) {
         if (dl1 != null) {
             if (dl1.getPairingKey() != null) {
                 dl1byPairingKey.get(dl1.getPairingKey()).remove(dl1);
@@ -1362,7 +1362,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    private void replaceDanglingLineByTieLine(List<BoundaryLinePair> lines) {
+    private void replaceBoundaryLineByTieLine(List<BoundaryLinePair> lines) {
         for (BoundaryLinePair boundaryLinePair : lines) {
             LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
                     boundaryLinePair.id, boundaryLinePair.dl1Id, boundaryLinePair.dl2Id);
@@ -1370,8 +1370,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                     .setId(boundaryLinePair.id)
                     .setEnsureIdUnicity(true)
                     .setName(boundaryLinePair.name)
-                    .setDanglingLine1(boundaryLinePair.dl1Id)
-                    .setDanglingLine2(boundaryLinePair.dl2Id)
+                    .setBoundaryLine1(boundaryLinePair.dl1Id)
+                    .setBoundaryLine2(boundaryLinePair.dl2Id)
                     .add();
             boundaryLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
             boundaryLinePair.aliases.forEach((alias, type) -> {

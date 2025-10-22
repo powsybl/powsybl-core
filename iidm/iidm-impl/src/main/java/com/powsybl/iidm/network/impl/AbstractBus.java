@@ -290,7 +290,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     visitor.visitThreeWindingsTransformer(thwt, side);
                 }
                 case LOAD -> visitor.visitLoad((LoadImpl) connectable);
-                case DANGLING_LINE -> visitor.visitDanglingLine((BoundaryLineImpl) connectable);
+                case DANGLING_LINE -> visitor.visitBoundaryLine((BoundaryLineImpl) connectable);
                 case STATIC_VAR_COMPENSATOR -> visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
                 case HVDC_CONVERTER_STATION -> visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
                 case GROUND -> visitor.visitGround((GroundImpl) connectable);
