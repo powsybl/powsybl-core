@@ -55,7 +55,7 @@ public class PsseLineGrouping {
         psseLineGrouping.setDum2(parseIntFromRecord(rec, null, headers, "dum2"));
         psseLineGrouping.setDum3(parseIntFromRecord(rec, null, headers, "dum3"));
         psseLineGrouping.setDum4(parseIntFromRecord(rec, null, headers, "dum4"));
-        psseLineGrouping.setDum5(parseIntFromRecord(rec, null, headers, "dum1"));
+        psseLineGrouping.setDum5(parseIntFromRecord(rec, null, headers, "dum5"));
         psseLineGrouping.setDum6(parseIntFromRecord(rec, null, headers, "dum6"));
         psseLineGrouping.setDum7(parseIntFromRecord(rec, null, headers, "dum7"));
         psseLineGrouping.setDum8(parseIntFromRecord(rec, null, headers, "dum8"));

@@ -12,15 +12,7 @@ import com.google.common.collect.Table;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.*;
-import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcBus;
-import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcBusx;
-import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcConverter;
-import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcConverterx;
-import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcLink;
-import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcLinkx;
-import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcMain;
-import com.powsybl.psse.model.pf.internal.TransformerImpedances;
-import com.powsybl.psse.model.pf.internal.TransformerWindingRecord;
+import com.powsybl.psse.model.pf.internal.*;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRecord;
 import de.siegmar.fastcsv.writer.CsvWriter;
@@ -208,6 +200,14 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseOwner.class, (MapperFrom<PsseOwner>) PsseOwner::fromRecord);
         mappers.put(PsseOwnership.class, (MapperFrom<PsseOwnership>) PsseOwnership::fromRecord);
         mappers.put(PsseRates.class, (MapperFrom<PsseRates>) PsseRates::fromRecord);
+        mappers.put(PsseSubstationEquipmentTerminal.class, (MapperFrom<PsseSubstationEquipmentTerminal>) PsseSubstationEquipmentTerminal::fromRecord);
+        mappers.put(PsseSubstationEquipmentTerminalCommonStart.class, (MapperFrom<PsseSubstationEquipmentTerminalCommonStart>) PsseSubstationEquipmentTerminalCommonStart::fromRecord);
+        mappers.put(PsseSubstationEquipmentTerminalx.class, (MapperFrom<PsseSubstationEquipmentTerminalx>) PsseSubstationEquipmentTerminalx::fromRecord);
+        mappers.put(PsseSubstationNode.class, (MapperFrom<PsseSubstationNode>) PsseSubstationNode::fromRecord);
+        mappers.put(PsseSubstationNodex.class, (MapperFrom<PsseSubstationNodex>) PsseSubstationNodex::fromRecord);
+        mappers.put(PsseSubstationRecord.class, (MapperFrom<PsseSubstationRecord>) PsseSubstationRecord::fromRecord);
+        mappers.put(PsseSubstationSwitchingDevice.class, (MapperFrom<PsseSubstationSwitchingDevice>) PsseSubstationSwitchingDevice::fromRecord);
+        mappers.put(PsseSubstationSwitchingDevicex.class, (MapperFrom<PsseSubstationSwitchingDevicex>) PsseSubstationSwitchingDevicex::fromRecord);
         mappers.put(PsseSwitchedShunt.class, (MapperFrom<PsseSwitchedShunt>) PsseSwitchedShunt::fromRecord);
         mappers.put(PsseTransformer.class, (MapperFrom<PsseTransformer>) PsseTransformer::fromRecord);
         mappers.put(PsseTransformerImpedanceCorrection.class, (MapperFrom<PsseTransformerImpedanceCorrection>) PsseTransformerImpedanceCorrection::fromRecord);
@@ -219,6 +219,10 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseZone.class, (MapperFrom<PsseZone>) PsseZone::fromRecord);
         mappers.put(TransformerImpedances.class, (MapperFrom<TransformerImpedances>) TransformerImpedances::fromRecord);
         mappers.put(TransformerWindingRecord.class, (MapperFrom<TransformerWindingRecord>) TransformerWindingRecord::fromRecord);
+        mappers.put(ZCorr33.class, (MapperFrom<ZCorr33>) ZCorr33::fromRecord);
+        mappers.put(ZCorr35First.class, (MapperFrom<ZCorr35First>) ZCorr35First::fromRecord);
+        mappers.put(ZCorr35Points.class, (MapperFrom<ZCorr35Points>) ZCorr35Points::fromRecord);
+        mappers.put(ZCorr35X.class, (MapperFrom<ZCorr35X>) ZCorr35X::fromRecord);
         return mappers;
     }
 
@@ -246,6 +250,14 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseOwner.class, (MapperTo<PsseOwner>) PsseOwner::toRecord);
         mappers.put(PsseOwnership.class, (MapperTo<PsseOwnership>) PsseOwnership::toRecord);
         mappers.put(PsseRates.class, (MapperTo<PsseRates>) PsseRates::toRecord);
+        mappers.put(PsseSubstationEquipmentTerminal.class, (MapperTo<PsseSubstationEquipmentTerminal>) PsseSubstationEquipmentTerminal::toRecord);
+        mappers.put(PsseSubstationEquipmentTerminalCommonStart.class, (MapperTo<PsseSubstationEquipmentTerminalCommonStart>) PsseSubstationEquipmentTerminalCommonStart::toRecord);
+        mappers.put(PsseSubstationEquipmentTerminalx.class, (MapperTo<PsseSubstationEquipmentTerminalx>) PsseSubstationEquipmentTerminalx::toRecord);
+        mappers.put(PsseSubstationNode.class, (MapperTo<PsseSubstationNode>) PsseSubstationNode::toRecord);
+        mappers.put(PsseSubstationNodex.class, (MapperTo<PsseSubstationNodex>) PsseSubstationNodex::toRecord);
+        mappers.put(PsseSubstationRecord.class, (MapperTo<PsseSubstationRecord>) PsseSubstationRecord::toRecord);
+        mappers.put(PsseSubstationSwitchingDevice.class, (MapperTo<PsseSubstationSwitchingDevice>) PsseSubstationSwitchingDevice::toRecord);
+        mappers.put(PsseSubstationSwitchingDevicex.class, (MapperTo<PsseSubstationSwitchingDevicex>) PsseSubstationSwitchingDevicex::toRecord);
         mappers.put(PsseSwitchedShunt.class, (MapperTo<PsseSwitchedShunt>) PsseSwitchedShunt::toRecord);
         mappers.put(PsseTransformer.class, (MapperTo<PsseTransformer>) PsseTransformer::toRecord);
         mappers.put(PsseTransformerImpedanceCorrection.class, (MapperTo<PsseTransformerImpedanceCorrection>) PsseTransformerImpedanceCorrection::toRecord);
@@ -257,6 +269,10 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseZone.class, (MapperTo<PsseZone>) PsseZone::toRecord);
         mappers.put(TransformerImpedances.class, (MapperTo<TransformerImpedances>) TransformerImpedances::toRecord);
         mappers.put(TransformerWindingRecord.class, (MapperTo<TransformerWindingRecord>) TransformerWindingRecord::toRecord);
+        mappers.put(ZCorr33.class, (MapperTo<ZCorr33>) ZCorr33::toRecord);
+        mappers.put(ZCorr35First.class, (MapperTo<ZCorr35First>) ZCorr35First::toRecord);
+        mappers.put(ZCorr35Points.class, (MapperTo<ZCorr35Points>) ZCorr35Points::toRecord);
+        mappers.put(ZCorr35X.class, (MapperTo<ZCorr35X>) ZCorr35X::toRecord);
         return mappers;
     }
 
@@ -344,7 +360,7 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     public List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
-        return objects.stream().map(object -> buildRecord(object, headers, quoteFields, context)).toList();
+        return objects.stream().map(object -> buildRecord(object, headers, quoteFields, context)).collect(Collectors.toList());
     }
 
     // In rawx it is possible to define null as the value of the field
