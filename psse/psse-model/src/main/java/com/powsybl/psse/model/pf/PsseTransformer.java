@@ -117,17 +117,6 @@ public class PsseTransformer extends PsseVersioned {
                 case "stat" -> String.valueOf(psseTransformer.getStat());
                 case "vecgrp" -> String.valueOf(psseTransformer.getVecgrp());
                 case "zcod" -> String.valueOf(psseTransformer.getZcod());
-//                case "r12", "r1_2" -> String.valueOf(psseTransformer.getR12());
-//                case "x12", "x1_2" -> String.valueOf(psseTransformer.getX12());
-//                case "sbase12", "sbase1_2" -> String.valueOf(psseTransformer.getSbase12());
-//                case "r23", "r2_3" -> String.valueOf(psseTransformer.getR23());
-//                case "x23", "x2_3" -> String.valueOf(psseTransformer.getX23());
-//                case "sbase23", "sbase2_3" -> String.valueOf(psseTransformer.getSbase23());
-//                case "r31", "r3_1" -> String.valueOf(psseTransformer.getR31());
-//                case "x31", "x3_1" -> String.valueOf(psseTransformer.getX31());
-//                case "sbase31", "sbase3_1" -> String.valueOf(psseTransformer.getSbase31());
-//                case "vmstar" -> String.valueOf(psseTransformer.getVmstar());
-//                case "anstar" -> String.valueOf(psseTransformer.getAnstar());
                 default -> {
                     Optional<String> optionalValue = psseTransformer.getOwnership().headerToString(headers[i]);
                     if (optionalValue.isPresent()) {
@@ -137,27 +126,11 @@ public class PsseTransformer extends PsseVersioned {
                     if (optionalValue.isPresent()) {
                         yield optionalValue.get();
                     }
-                    optionalValue = psseTransformer.getWinding1().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    optionalValue = windingHeaderToString(psseTransformer, headers[i]);
                     if (optionalValue.isPresent()) {
                         yield optionalValue.get();
                     }
-                    optionalValue = psseTransformer.getWinding1Rates().headerToString(headers[i].substring(0, headers[i].length() - 1));
-                    if (optionalValue.isPresent()) {
-                        yield optionalValue.get();
-                    }
-                    optionalValue = psseTransformer.getWinding2().headerToString(headers[i].substring(0, headers[i].length() - 1));
-                    if (optionalValue.isPresent()) {
-                        yield optionalValue.get();
-                    }
-                    optionalValue = psseTransformer.getWinding2Rates().headerToString(headers[i].substring(0, headers[i].length() - 1));
-                    if (optionalValue.isPresent()) {
-                        yield optionalValue.get();
-                    }
-                    optionalValue = psseTransformer.getWinding3().headerToString(headers[i].substring(0, headers[i].length() - 1));
-                    if (optionalValue.isPresent()) {
-                        yield optionalValue.get();
-                    }
-                    optionalValue = psseTransformer.getWinding3Rates().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    optionalValue = windingRatesHeaderToString(psseTransformer, headers[i]);
                     if (optionalValue.isPresent()) {
                         yield optionalValue.get();
                     }
@@ -166,6 +139,26 @@ public class PsseTransformer extends PsseVersioned {
             };
         }
         return row;
+    }
+
+    private static Optional<String> windingHeaderToString(PsseTransformer psseTransformer, String header) {
+        String shortHeader = header.substring(0, header.length() - 1);
+        return switch (header.substring(header.length() - 1)) {
+            case "1" -> psseTransformer.getWinding1().headerToString(shortHeader);
+            case "2" -> psseTransformer.getWinding2().headerToString(shortHeader);
+            case "3" -> psseTransformer.getWinding3().headerToString(shortHeader);
+            default -> Optional.empty();
+        };
+    }
+
+    private static Optional<String> windingRatesHeaderToString(PsseTransformer psseTransformer, String header) {
+        String shortHeader = header.substring(0, 3) + header.substring(4);
+        return switch (header.substring(3, 4)) {
+            case "1" -> psseTransformer.getWinding1Rates().headerToString(shortHeader);
+            case "2" -> psseTransformer.getWinding2Rates().headerToString(shortHeader);
+            case "3" -> psseTransformer.getWinding3Rates().headerToString(shortHeader);
+            default -> Optional.empty();
+        };
     }
 
     public int getI() {
