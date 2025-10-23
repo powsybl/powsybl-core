@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.IntStream;
 
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
@@ -34,7 +34,6 @@ public class Context {
     public static final String VALID_QUOTES = "'\"";
 
     private final Map<String, String[]> fieldNames = new HashMap<>();
-//    private final CsvParserSettings csvParserSettings;
 
     private FileFormat fileFormat = LEGACY_TEXT;
     private char delimiter = LEGACY_TEXT.getDefaultDelimiter();
@@ -45,15 +44,6 @@ public class Context {
     private JsonNode networkNode;
 
     public Context() {
-//        csvParserSettings = new CsvParserSettings();
-//        csvParserSettings.setHeaderExtractionEnabled(false);
-//        csvParserSettings.setQuoteDetectionEnabled(true);
-//        csvParserSettings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
-//            @Override
-//            public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
-//                LOGGER.error("Parsing context {}", context, error);
-//            }
-//        });
     }
 
     public PsseVersion getVersion() {
@@ -100,12 +90,23 @@ public class Context {
         char bestDelimiter = '\0';
         char bestQuote = '\0';
         int maxFieldCount = 0;
+        long maxQuoteCount = 0;
 
         for (char testDelimiter : VALID_DELIMITERS.toCharArray()) {
             for (char testQuote : VALID_QUOTES.toCharArray()) {
+                long quoteCount = IntStream.range(0, rec.length())
+                    .filter(i -> rec.charAt(i) == testQuote
+                        && (i == 0 || i == rec.length() - 1 || rec.charAt(i - 1) == testDelimiter || rec.charAt(i + 1) == testDelimiter))
+                    .count();
                 int fieldCount = countFields(rec, testDelimiter, testQuote);
-                if (fieldCount > maxFieldCount) {
+
+                // Save as the best delimiter and quote if both conditions are met:
+                // - there is an even and higher number of quotes
+                // - either the number of quotes is higher or the number of quotes is the same and the field count is higher
+                if (quoteCount % 2 == 0
+                    && (quoteCount > maxQuoteCount || quoteCount == maxQuoteCount && fieldCount > maxFieldCount)) {
                     maxFieldCount = fieldCount;
+                    maxQuoteCount = quoteCount;
                     bestDelimiter = testDelimiter;
                     bestQuote = testQuote;
                 }
