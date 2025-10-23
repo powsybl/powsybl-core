@@ -61,8 +61,16 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
         psseTwoTerminalDcTransmissionLine.setDcvmin(parseDoubleFromRecord(rec, 0.0, headers, "dcvmin"));
         psseTwoTerminalDcTransmissionLine.setCccitmx(parseIntFromRecord(rec, 20, headers, "cccitmx"));
         psseTwoTerminalDcTransmissionLine.setCccacc(parseDoubleFromRecord(rec, 1.0, headers, "cccacc"));
-//        psseTwoTerminalDcTransmissionLine.setRectifier(PsseTwoTerminalDcConverter.fromRecord(rec, version, headers, "r"));
-//        psseTwoTerminalDcTransmissionLine.setInverter(PsseTwoTerminalDcConverter.fromRecord(rec, version, headers, "i"));
+        try {
+            psseTwoTerminalDcTransmissionLine.setRectifier(PsseTwoTerminalDcConverter.fromRecord(rec, version, headers, "r"));
+        } catch (PsseException e) {
+            // Rectifier is optional
+        }
+        try {
+            psseTwoTerminalDcTransmissionLine.setInverter(PsseTwoTerminalDcConverter.fromRecord(rec, version, headers, "i"));
+        } catch (PsseException e) {
+            // Inverter is optional
+        }
         return psseTwoTerminalDcTransmissionLine;
     }
 
@@ -83,11 +91,7 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
                 case "cccitmx" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getCccitmx());
                 case "cccacc" -> String.valueOf(psseTwoTerminalDcTransmissionLine.getCccacc());
                 default -> {
-                    Optional<String> optionalValue = psseTwoTerminalDcTransmissionLine.getRectifier().headerToString(headers[i].substring(0, headers[i].length() - 1));
-                    if (optionalValue.isPresent()) {
-                        yield optionalValue.get();
-                    }
-                    optionalValue = psseTwoTerminalDcTransmissionLine.getInverter().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    Optional<String> optionalValue = converterHeaderToString(psseTwoTerminalDcTransmissionLine, headers[i]);
                     if (optionalValue.isPresent()) {
                         yield optionalValue.get();
                     }
@@ -96,6 +100,15 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
             };
         }
         return row;
+    }
+
+    private static Optional<String> converterHeaderToString(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDcTransmissionLine, String header) {
+        String shortHeader = header.substring(0, header.length() - 1);
+        return switch (header.substring(header.length() - 1)) {
+            case "r" -> psseTwoTerminalDcTransmissionLine.getRectifier().headerToString(shortHeader);
+            case "i" -> psseTwoTerminalDcTransmissionLine.getInverter().headerToString(shortHeader);
+            default -> Optional.empty();
+        };
     }
 
     public String getName() {

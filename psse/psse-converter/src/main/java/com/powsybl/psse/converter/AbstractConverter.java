@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.*;
+import com.powsybl.psse.model.pf.internal.PsseSubstationSwitchingDevice;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.util.ContainersMapping;
@@ -191,7 +192,7 @@ public abstract class AbstractConverter {
         return Identifiables.getUniqueId("VscConverter-" + converter.getIbus() + "-" + psseVscDcTransmissionLine.getName(), id -> network.getVscConverterStation(id) != null);
     }
 
-    static String getSwitchId(String voltageLevelId, PsseSubstation.PsseSubstationSwitchingDevice switchingDevice) {
+    static String getSwitchId(String voltageLevelId, PsseSubstationSwitchingDevice switchingDevice) {
         return voltageLevelId + "-Sw-" + switchingDevice.getNi() + "-" + switchingDevice.getNj() + "-" + switchingDevice.getCkt();
     }
 

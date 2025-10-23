@@ -54,7 +54,7 @@ class MultiSectionLineGroupingData extends AbstractRecordGroup<PsseLineGrouping>
                 // write only the non-null read points
                 String[] writeHeaders = ArrayUtils.subarray(headers, 0, validRecordFields(lineGrouping));
                 String record = this.recordGroup.buildRecord(lineGrouping, writeHeaders, quotedFields, context);
-                write(String.format("%s%n", record), outputStream);
+                write(record, outputStream);
             });
             writeEnd(outputStream);
         }

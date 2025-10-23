@@ -46,8 +46,16 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         psseVoltageSourceConverter.setMdc(parseIntFromRecord(rec, headers, "mdc"));
         psseVoltageSourceConverter.setRdc(parseDoubleFromRecord(rec, headers, "rdc"));
         psseVoltageSourceConverter.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
-//        psseVoltageSourceConverter.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "1"));
-//        psseVoltageSourceConverter.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "2"));
+        try {
+            psseVoltageSourceConverter.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "1"));
+        } catch (PsseException e) {
+            // Converter is optional
+        }
+        try {
+            psseVoltageSourceConverter.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "2"));
+        } catch (PsseException e) {
+            // Converter is optional
+        }
         return psseVoltageSourceConverter;
     }
 
@@ -63,11 +71,7 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
                     if (optionalValue.isPresent()) {
                         yield optionalValue.get();
                     }
-                    optionalValue = psseVoltageSourceConverterDcTransmissionLine.getConverter1().headerToString(headers[i].substring(0, headers[i].length() - 1));
-                    if (optionalValue.isPresent()) {
-                        yield optionalValue.get();
-                    }
-                    optionalValue = psseVoltageSourceConverterDcTransmissionLine.getConverter2().headerToString(headers[i].substring(0, headers[i].length() - 1));
+                    optionalValue = converterHeaderToString(psseVoltageSourceConverterDcTransmissionLine, headers[i]);
                     if (optionalValue.isPresent()) {
                         yield optionalValue.get();
                     }
@@ -76,6 +80,15 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
             };
         }
         return row;
+    }
+
+    private static Optional<String> converterHeaderToString(PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverterDcTransmissionLine, String header) {
+        String shortHeader = header.substring(0, header.length() - 1);
+        return switch (header.substring(header.length() - 1)) {
+            case "1" -> psseVoltageSourceConverterDcTransmissionLine.getConverter1().headerToString(shortHeader);
+            case "2" -> psseVoltageSourceConverterDcTransmissionLine.getConverter2().headerToString(shortHeader);
+            default -> Optional.empty();
+        };
     }
 
     public String getName() {
