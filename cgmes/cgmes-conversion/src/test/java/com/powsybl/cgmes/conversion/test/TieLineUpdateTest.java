@@ -106,7 +106,7 @@ class TieLineUpdateTest {
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertEqCount(network, 2, 4);
         assertFirstSsh(network);
-        assertSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
+        assertEmptySv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
         assertFlowsEmptySv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
     }
 
@@ -115,6 +115,13 @@ class TieLineUpdateTest {
         assertBusVoltage(tieLine.getDanglingLine2().getTerminal().getBusView().getBus(), 402.5, -5.0);
         assertBoundaryBusVoltage(tieLine.getDanglingLine1(), 401.5130326083143, -4.023034681728034);
         assertBoundaryBusVoltage(tieLine.getDanglingLine2(), 401.5130326083143, -4.023034681728034);
+    }
+
+    private static void assertEmptySv(TieLine tieLine) {
+        assertBusVoltage(tieLine.getDanglingLine1().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
+        assertBusVoltage(tieLine.getDanglingLine2().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
+        assertBoundaryBusVoltage(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
+        assertBoundaryBusVoltage(tieLine.getDanglingLine2(), Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsSv(TieLine tieLine) {

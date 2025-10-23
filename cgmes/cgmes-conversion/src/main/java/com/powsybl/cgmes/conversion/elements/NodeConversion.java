@@ -184,7 +184,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 .map(terminal -> getBusBreakerSvVoltage(terminal, context))
                 .flatMap(Optional::stream)
                 .findFirst()
-                .ifPresent(svVoltage -> updateVoltageMagnitudeAndAngle(svVoltage, bus, context));
+                .ifPresentOrElse(svVoltage -> updateVoltageMagnitudeAndAngle(svVoltage, bus, context),
+                        () -> bus.setV(Double.NaN).setAngle(Double.NaN));
     }
 
     private static Optional<PropertyBag> getBusBreakerSvVoltage(Terminal terminal, Context context) {
@@ -197,7 +198,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 .map(terminal -> getNodeBreakerSvVoltage(terminal, context))
                 .flatMap(Optional::stream)
                 .findFirst()
-                .ifPresent(svVoltage -> updateVoltageMagnitudeAndAngle(svVoltage, bus, context));
+                .ifPresentOrElse(svVoltage -> updateVoltageMagnitudeAndAngle(svVoltage, bus, context),
+                        () -> bus.setV(Double.NaN).setAngle(Double.NaN));
     }
 
     private static void updateVoltageMagnitudeAndAngle(PropertyBag svVoltage, Bus bus, Context context) {
