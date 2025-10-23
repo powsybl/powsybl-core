@@ -64,14 +64,18 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     }
 
     protected void write(List<T> objects, String[] headers, String[] quotedFields, Context context, OutputStream outputStream) {
-        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
-             CsvWriter csvWriter = recordGroup.getCsvWriterBuilder(headers, quotedFields, context)
-                 .build(outputStreamWriter)) {
-            csvWriter.writeRecord(headers);
-            objects.forEach(object -> csvWriter.writeRecord(recordGroup.buildRecord(object, headers, quotedFields, context)));
-
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+            objects.forEach(object -> {
+                try {
+                    outputStreamWriter.write(recordGroup.buildRecord(object, headers, quotedFields, context));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            outputStreamWriter.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -111,7 +115,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     }
 
     public static void write(List<String> ss, OutputStream outputStream) {
-        ss.forEach(s -> write(String.format("%s%n", s), outputStream));
+        ss.forEach(s -> write(s, outputStream));
     }
 
     public static void write(String s, OutputStream outputStream) {

@@ -24,6 +24,7 @@ import com.powsybl.psse.model.pf.internal.TransformerWindingRecord;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRecord;
 import de.siegmar.fastcsv.writer.CsvWriter;
+import de.siegmar.fastcsv.writer.LineDelimiter;
 import de.siegmar.fastcsv.writer.QuoteStrategy;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
@@ -335,6 +336,7 @@ public abstract class AbstractRecordGroup<T> {
                 throw new IllegalArgumentException("Unsupported class: " + psseTypeClass());
             }
             writer.writeRecord(mapper.apply(object, headers));
+            writer.flush();
             return unquoteNullString(sw.toString());
         } catch (IOException e) {
             throw new PsseException("Failed to write PSSE file", e);
@@ -360,6 +362,7 @@ public abstract class AbstractRecordGroup<T> {
         return CsvWriter.builder()
             .fieldSeparator(context.getDelimiter())
             .quoteCharacter(context.getQuote())
+            .lineDelimiter(LineDelimiter.PLATFORM)
             .quoteStrategy(new QuoteStrategy() {
                 @Override
                 public boolean quoteValue(int lineNo, int fieldIdx, String value) {
