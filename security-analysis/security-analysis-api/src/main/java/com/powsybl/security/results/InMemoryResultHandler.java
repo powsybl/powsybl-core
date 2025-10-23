@@ -58,9 +58,9 @@ public class InMemoryResultHandler implements SecurityAnalysisResultHandler {
         }
     }
 
-    StateResult baseCaseResult;
-    Map<String, StateResult> postContingencyResults;
-    Map<String, StateResult> operatorStrategyResults;
+    private final StateResult baseCaseResult;
+    private final Map<String, StateResult> postContingencyResults;
+    private final Map<String, StateResult> operatorStrategyResults;
 
     public InMemoryResultHandler() {
         baseCaseResult = new StateResult();
