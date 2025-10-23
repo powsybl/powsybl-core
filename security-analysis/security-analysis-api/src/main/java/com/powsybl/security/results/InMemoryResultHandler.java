@@ -49,7 +49,7 @@ public class InMemoryResultHandler implements SecurityAnalysisResultHandler {
             branchResultList.add(branchResult);
         }
 
-        void addThreeWindingsTransformerResult(ThreeWindingsTransformerResult  threeWindingsTransformerResult) {
+        void addThreeWindingsTransformerResult(ThreeWindingsTransformerResult threeWindingsTransformerResult) {
             threeWindingsTransformerResultList.add(threeWindingsTransformerResult);
         }
 
