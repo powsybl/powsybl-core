@@ -76,6 +76,18 @@ public class InMemoryResultHandler implements SecurityAnalysisResultHandler {
         registerResult(contingency, operatorStrategy, busResult, StateResult::addBusResult);
     }
 
+    StateResult getBaseCaseResult() {
+        return baseCaseResult;
+    }
+
+    Map<String, StateResult> getPostContingencyResults() {
+        return postContingencyResults;
+    }
+
+    Map<String, StateResult> getOperatorStrategyResults() {
+        return operatorStrategyResults;
+    }
+
     <T> void registerResult(Contingency contingency, OperatorStrategy operatorStrategy, T result, BiConsumer<StateResult, T> resultAdder) {
         if (contingency == null) {
             resultAdder.accept(baseCaseResult, result);
