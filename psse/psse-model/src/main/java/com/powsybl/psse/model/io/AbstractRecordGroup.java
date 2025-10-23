@@ -328,6 +328,9 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     private String[] makeRecordsConsistents(StringBuilder sb, List<String> records, String[] headers, Context context) {
+        if (records.stream().anyMatch(Objects::isNull)) {
+            throw new PsseException("Parsing error");
+        }
         int expectedNumFields = records.stream()
             .mapToInt(rec -> Math.toIntExact(rec.chars().filter(c -> c == context.getDelimiter())
                 .count()))
