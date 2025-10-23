@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.io;
 
 import com.powsybl.psse.model.PsseException;
-import de.siegmar.fastcsv.writer.CsvWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -49,7 +49,7 @@ public class ZCorr35X {
             row[i] = switch (headers[i]) {
                 case "itable" -> String.valueOf(zCorr35X.getItable());
                 case "tap" -> String.valueOf(zCorr35X.getTap());
-                case "refact" ->  String.valueOf(zCorr35X.getRefact());
+                case "refact" -> String.valueOf(zCorr35X.getRefact());
                 case "imfact" -> String.valueOf(zCorr35X.getImfact());
                 default -> throw new PsseException("Unsupported header: " + headers[i]);
             };
