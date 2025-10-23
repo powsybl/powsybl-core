@@ -7,8 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -51,6 +55,32 @@ class ReactiveCapabilityCurveImplTest {
         assertEquals(300.0, curve.getMaxQ(0.0), 0.0);
         assertEquals(300.0, curve.getMinQ(1000.0), 0.0);
         assertEquals(400.0, curve.getMaxQ(1000.0), 0.0);
+    }
+
+    @Test
+    void testReactiveCapabilityCurveWithInvertedMinQMaxQ() {
+
+        Network network = FictitiousSwitchFactory.create();
+        Generator generator = network.getGenerator("CB");
+
+        ReactiveCapabilityCurve reactiveCapabilityCurve = generator.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(1.0)
+                .setMaxQ(5.0)
+                .setMinQ(1.0)
+                .endPoint()
+                .beginPoint()
+                .setP(100.0)
+                .setMaxQ(2.0) // here minQ > maxQ : this is incorrect
+                .setMinQ(10.0)
+                .endPoint()
+                .add();
+
+        assertEquals(1.0, reactiveCapabilityCurve.getMinQ(1.0), 0.0);
+        assertEquals(5.0, reactiveCapabilityCurve.getMaxQ(1.0), 0.0);
+        //inverted minQ and maxQ have been put in the right order :
+        assertEquals(2.0, reactiveCapabilityCurve.getMinQ(100.0), 0.0);
+        assertEquals(10.0, reactiveCapabilityCurve.getMaxQ(100.0), 0.0);
     }
 
     @ParameterizedTest
