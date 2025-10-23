@@ -322,6 +322,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (isVoltageDefined(v, angle)) {
             setVoltageProperties(dl1, v, angle);
             setVoltageProperties(dl2, v, angle);
+        } else {
+            removeVoltageProperties(dl1);
+            removeVoltageProperties(dl2);
         }
     }
 
@@ -332,6 +335,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     private static void setVoltageProperties(DanglingLine dl, double v, double angle) {
         dl.setProperty("v", Double.toString(v));
         dl.setProperty("angle", Double.toString(angle));
+    }
+
+    private static void removeVoltageProperties(DanglingLine dl) {
+        dl.removeProperty("v");
+        dl.removeProperty("angle");
     }
 
     private void setBoundaryNodeInfo(String boundaryNode, DanglingLine dl) {
@@ -518,8 +526,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (setPQAllowed(terminal)) {
             PowerFlow f = new PowerFlow(cgmesTerminal, "p", "q");
             if (f.defined()) {
-                terminal.setP(f.p());
-                terminal.setQ(f.q());
+                terminal.setP(f.p()).setQ(f.q());
+            } else {
+                terminal.setP(Double.NaN).setQ(Double.NaN);
             }
         }
     }
