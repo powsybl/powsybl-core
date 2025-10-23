@@ -194,7 +194,8 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
                     g.writeStartArray();
                 }
                 g.writeRaw(" ");
-                g.writeRaw(s);
+                // Since it's written in a JSON table, line separators need to be removed
+                g.writeRaw(s.replace(System.lineSeparator(), ""));
                 if (recordGroup.identification.getJsonObjectType() == DATA_TABLE) {
                     g.writeEndArray();
                 }

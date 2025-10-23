@@ -34,7 +34,7 @@ public class PsseOwner {
         String[] row = new String[headers.length];
         for (int i = 0; i < headers.length; i++) {
             row[i] = switch (headers[i]) {
-                case "i", "ibus" -> String.valueOf(psseOwner.getI());
+                case "i", "iowner" -> String.valueOf(psseOwner.getI());
                 case "owname", "owner" -> psseOwner.getOwname();
                 default -> throw new PsseException("Unsupported header: " + headers[i]);
             };
