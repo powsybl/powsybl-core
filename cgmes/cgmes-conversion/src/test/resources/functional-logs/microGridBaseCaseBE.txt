@@ -58,5 +58,10 @@
       Updating VOLTAGE_LEVEL.
       Updating GROUND.
       Updating AREA.
+      Updating DC_SWITCH.
+      Updating DC_GROUND.
+      Updating DC_LINE.
+      Updating LINE_COMMUTATED_CONVERTER.
+      Updating VOLTAGE_SOURCE_CONVERTER.
       Setting voltages and angles.
       Running validation checks on IIDM network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73
