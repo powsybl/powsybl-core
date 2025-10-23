@@ -80,18 +80,18 @@ public class PsseRates extends PsseVersioned {
             psseRates.setRatec(parseDoubleFromRecord(rec, 0d, headers, "ratec" + headerSuffix, "ratc" + headerSuffix));
         }
         if (version.getMajorNumber() >= 35) {
-            psseRates.setRate1(parseDoubleFromRecord(rec, 0d, headers, "rate1" + headerSuffix, "wdgrate1" + headerSuffix));
-            psseRates.setRate2(parseDoubleFromRecord(rec, 0d, headers, "rate2" + headerSuffix, "wdgrate2" + headerSuffix));
-            psseRates.setRate3(parseDoubleFromRecord(rec, 0d, headers, "rate3" + headerSuffix, "wdgrate3" + headerSuffix));
-            psseRates.setRate4(parseDoubleFromRecord(rec, 0d, headers, "rate4" + headerSuffix, "wdgrate4" + headerSuffix));
-            psseRates.setRate5(parseDoubleFromRecord(rec, 0d, headers, "rate5" + headerSuffix, "wdgrate5" + headerSuffix));
-            psseRates.setRate6(parseDoubleFromRecord(rec, 0d, headers, "rate6" + headerSuffix, "wdgrate6" + headerSuffix));
-            psseRates.setRate7(parseDoubleFromRecord(rec, 0d, headers, "rate7" + headerSuffix, "wdgrate7" + headerSuffix));
-            psseRates.setRate8(parseDoubleFromRecord(rec, 0d, headers, "rate8" + headerSuffix, "wdgrate8" + headerSuffix));
-            psseRates.setRate9(parseDoubleFromRecord(rec, 0d, headers, "rate9" + headerSuffix, "wdgrate9" + headerSuffix));
-            psseRates.setRate10(parseDoubleFromRecord(rec, 0d, headers, "rate10" + headerSuffix, "wdgrate10" + headerSuffix));
-            psseRates.setRate11(parseDoubleFromRecord(rec, 0d, headers, "rate11" + headerSuffix, "wdgrate11" + headerSuffix));
-            psseRates.setRate12(parseDoubleFromRecord(rec, 0d, headers, "rate12" + headerSuffix, "wdgrate12" + headerSuffix));
+            psseRates.setRate1(parseDoubleFromRecord(rec, 0d, headers, "rate1" + headerSuffix, "wdg" + headerSuffix + "rate1"));
+            psseRates.setRate2(parseDoubleFromRecord(rec, 0d, headers, "rate2" + headerSuffix, "wdg" + headerSuffix + "rate2"));
+            psseRates.setRate3(parseDoubleFromRecord(rec, 0d, headers, "rate3" + headerSuffix, "wdg" + headerSuffix + "rate3"));
+            psseRates.setRate4(parseDoubleFromRecord(rec, 0d, headers, "rate4" + headerSuffix, "wdg" + headerSuffix + "rate4"));
+            psseRates.setRate5(parseDoubleFromRecord(rec, 0d, headers, "rate5" + headerSuffix, "wdg" + headerSuffix + "rate5"));
+            psseRates.setRate6(parseDoubleFromRecord(rec, 0d, headers, "rate6" + headerSuffix, "wdg" + headerSuffix + "rate6"));
+            psseRates.setRate7(parseDoubleFromRecord(rec, 0d, headers, "rate7" + headerSuffix, "wdg" + headerSuffix + "rate7"));
+            psseRates.setRate8(parseDoubleFromRecord(rec, 0d, headers, "rate8" + headerSuffix, "wdg" + headerSuffix + "rate8"));
+            psseRates.setRate9(parseDoubleFromRecord(rec, 0d, headers, "rate9" + headerSuffix, "wdg" + headerSuffix + "rate9"));
+            psseRates.setRate10(parseDoubleFromRecord(rec, 0d, headers, "rate10" + headerSuffix, "wdg" + headerSuffix + "rate10"));
+            psseRates.setRate11(parseDoubleFromRecord(rec, 0d, headers, "rate11" + headerSuffix, "wdg" + headerSuffix + "rate11"));
+            psseRates.setRate12(parseDoubleFromRecord(rec, 0d, headers, "rate12" + headerSuffix, "wdg" + headerSuffix + "rate12"));
         }
         return psseRates;
     }

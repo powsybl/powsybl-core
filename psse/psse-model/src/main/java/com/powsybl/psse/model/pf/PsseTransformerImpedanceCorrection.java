@@ -32,7 +32,10 @@ public class PsseTransformerImpedanceCorrection extends PsseVersioned {
         PsseTransformerImpedanceCorrection psseTransformerImpedanceCorrection = new PsseTransformerImpedanceCorrection(i);
         int expextedPoints = version.getMajorNumber() <= 33 ? (headers.length - 1) / 2 : (headers.length - 1) / 3;
         for (int j = 0; j < expextedPoints; j++) {
-            psseTransformerImpedanceCorrection.getPoints().add(PsseTransformerImpedanceCorrectionPoint.fromRecord(rec, version, headers, String.valueOf(j + 1)));
+            PsseTransformerImpedanceCorrectionPoint point = PsseTransformerImpedanceCorrectionPoint.fromRecord(rec, version, headers, String.valueOf(j + 1));
+            if (point.isNotDefault()) {
+                psseTransformerImpedanceCorrection.getPoints().add(point);
+            }
         }
         return psseTransformerImpedanceCorrection;
     }
