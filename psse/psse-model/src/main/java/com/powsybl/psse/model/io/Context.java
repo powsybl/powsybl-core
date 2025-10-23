@@ -61,6 +61,8 @@ public class Context {
 
     public Context setFileFormat(FileFormat fileFormat) {
         this.fileFormat = fileFormat;
+        this.delimiter = fileFormat.getDefaultDelimiter();
+        this.quote = fileFormat.getQuote();
         return this;
     }
 

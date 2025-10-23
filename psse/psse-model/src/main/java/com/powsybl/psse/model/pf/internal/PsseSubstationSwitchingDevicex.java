@@ -11,6 +11,8 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
+import java.util.Optional;
+
 import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 
 /**
@@ -42,18 +44,14 @@ public class PsseSubstationSwitchingDevicex {
         for (int i = 0; i < headers.length; i++) {
             row[i] = switch (headers[i]) {
                 case "isub" -> String.valueOf(psseSubstationSwitchingDevicex.getIsub());
-                case "ni", "inode" -> String.valueOf(psseSubstationSwitchingDevicex.getSwitchingDevice().getNi());
-                case "nj", "jnode" -> String.valueOf(psseSubstationSwitchingDevicex.getSwitchingDevice().getNj());
-                case "ckt", "swdid" -> String.valueOf(psseSubstationSwitchingDevicex.getSwitchingDevice().getCkt());
-                case "name" -> psseSubstationSwitchingDevicex.getSwitchingDevice().getName();
-                case "type" -> String.valueOf(psseSubstationSwitchingDevicex.getSwitchingDevice().getType());
-                case "stat", "status" -> String.valueOf(psseSubstationSwitchingDevicex.getSwitchingDevice().getStatus());
-                case "nstat" -> String.valueOf(psseSubstationSwitchingDevicex.getSwitchingDevice().getNstat());
-                case "x", "xpu" -> String.valueOf(psseSubstationSwitchingDevicex.getSwitchingDevice().getX());
-                case "rate1" -> String.valueOf(psseSubstationSwitchingDevicex.getSwitchingDevice().getRate1());
-                case "rate2" -> String.valueOf(psseSubstationSwitchingDevicex.getSwitchingDevice().getRate2());
-                case "rate3" -> String.valueOf(psseSubstationSwitchingDevicex.getSwitchingDevice().getRate3());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
+                case "rsetnam" -> null; // This header seems to be expected, but no variable seems consistent with it
+                default -> {
+                    Optional<String> optionalValue = psseSubstationSwitchingDevicex.getSwitchingDevice().headerToString(headers[i]);
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    throw new PsseException("Unsupported header: " + headers[i]);
+                }
             };
         }
         return row;
