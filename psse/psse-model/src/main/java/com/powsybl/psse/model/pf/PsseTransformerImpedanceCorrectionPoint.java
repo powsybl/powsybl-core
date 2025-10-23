@@ -7,6 +7,7 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
@@ -102,5 +103,10 @@ public class PsseTransformerImpedanceCorrectionPoint extends PsseVersioned {
     public double getImf() {
         checkVersion("imf");
         return imf;
+    }
+
+    @JsonIgnore
+    public boolean isNotDefault() {
+        return t != 0.0 || f != 0.0 || ref != 0.0 || imf != 0.0;
     }
 }

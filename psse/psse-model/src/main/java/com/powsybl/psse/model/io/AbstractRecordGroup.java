@@ -368,6 +368,11 @@ public abstract class AbstractRecordGroup<T> {
                 public boolean quoteValue(int lineNo, int fieldIdx, String value) {
                     return quotedFields != null && Arrays.asList(quotedFields).contains(headers[fieldIdx]);
                 }
+
+                @Override
+                public boolean quoteEmpty(final int lineNo, final int fieldIdx) {
+                    return true;
+                }
             });
     }
 }
