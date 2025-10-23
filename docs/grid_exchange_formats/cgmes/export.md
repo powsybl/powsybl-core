@@ -229,6 +229,60 @@ Each dangling line will be exported as one `EquivalentInjection` and one `ACLine
 
 <span style="color: red">TODO details</span>
 
+### Detailed DC model
+
+#### DC node
+
+PowSyBl [`DC Node`](../../grid_model/network_subnetwork.md#dc-node) is exported as CGMES `DCNode`, with attribute:
+- EQ `DCEquipmentContainer` is a CGMES `DCConverterUnit`, which corresponds to the aggregation of PowSyBl `DC Node`
+with the same `NominalV` on the same side of PowSyBl `DC Line`.
+
+#### DC Line
+
+PowSyBl [`DC Line`](../../grid_model/network_subnetwork.md#dc-line) is exported as CGMES `DCLineSegment`, with attribute:
+- EQ `resistance` is copied from `R`.
+
+#### DC Switch
+
+PowSyBl [`DC Switch`](../../grid_model/network_subnetwork.md#dc-switch) is exported as:
+- CGMES `DCBreaker` if attribute `Kind` is `BREAKER`.
+- CGMES `DCDisconnector` if attribute `Kind` is `DISCONNECTOR`.
+
+#### DC Ground
+
+PowSyBl [`DC Ground`](../../grid_model/network_subnetwork.md#dc-ground) is exported as CGMES `DCGround`, with attribute:
+- EQ `r` is copied from `R`.
+
+#### AC/DC Converter (Line Commutated Converter, Voltage Source Converter)
+PowSyBl [`Line Commutated Converter`](../../grid_model/network_subnetwork.md#line-commutated-converter) is exported as CGMES `CsConverter`,
+and PowSyBl [`Voltage Source Converter`](../../grid_model/network_subnetwork.md#voltage-source-converter) as CGMES `VsConverter`.
+They share the following attributes:
+- EQ `idleLoss` is copied from `IdleLoss`.
+- EQ `switchingLiss` is copied from `SwitchingLoss`.
+- EQ `resistiveLoss` is copied from `ResistiveLoss`.
+- EQ `ratedUdc` is copied from the `NominalV` of the associated `DC Node`.
+- EQ `PccTerminal` is copied from `PccTerminal`.
+- SSH `targetPpcc` is copied from `TargetP`.
+- SSH `targetUdc` is copied from `TargetVdc`.
+- SSH `p` is the PCC terminal's `P` value.
+- SSH `q` is the PCC terminal's `Q` value.
+
+Specific `Line Commutated Converter` attribute:
+- SSH `pPccControl` is `CsPpccControlKind.activePower` if `ControlMode` is `P_PCC`, else it is `CsPpccControlKind.dcVoltage`.
+- SSH `operatingMode` is `CsOperatingModeKind.rectifier` if the `TargetP` is greater than 0, else it is `CsOperatingModeKind.inverter`.
+- SSH `targetAlpha` is defaulted to 0.
+- SSH `targetGamma` is defaulted to 0.
+- SSH `targetIdc` is defaulted to 0.
+
+Specific `Voltage Source Converter` attributes:
+- SSH `pPccControl` is `VsPpccControlKind.pPcc` if `ControlMode` is `P_PCC`, else it is `VsPpccControlKind.udc`.
+- SSH `qPccControl` is `VsQpccControlKind.voltagePcc` if `VoltageRegulatorOn` is set to `true`, else it is `VsQpccControlKind.reactivePcc`.
+- SSH `targetUpcc` is copied from `VoltageSetpoint`.
+- SSH `targetQpcc` is copied from `ReactivePowerSetpoint`.
+- SSH `droop` is defaulted to 0.
+- SSH `droopCompensation` is defaulted to 0.
+- SSH `qShare` is defaulted to 0.
+
 (cgmes-generator-export)=
 ### Generator
 

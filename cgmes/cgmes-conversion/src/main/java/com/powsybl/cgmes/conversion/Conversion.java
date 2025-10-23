@@ -223,7 +223,7 @@ public class Conversion {
 
         // Convert DC equipments, limits, SV injections, control areas, regulating controls
         context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, "DC network"));
-        new DCConversion(cgmes, context);
+        new DCConversion(context);
         clearUnattachedHvdcConverterStations(network, context);
         context.popReportNode();
 
@@ -328,6 +328,11 @@ public class Conversion {
         updateVoltageLevels(network, updateContext);
         updateGrounds(network, updateContext);
         updateAreas(network, cgmes, updateContext);
+
+        updateDcSwitches(network, updateContext);
+        updateDcGrounds(network, updateContext);
+        updateDcLines(network, updateContext);
+        updateAcDcConverters(network, cgmes, updateContext);
 
         // Set voltages and angles, then complete
         updateAndCompleteVoltageAndAngles(network, updateContext);
@@ -1040,6 +1045,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean getUseDetailedDcModel() {
+            return useDetailedDcModel;
+        }
+
+        public Config setUseDetailedDcModel(boolean useDetailedDcModel) {
+            this.useDetailedDcModel = useDetailedDcModel;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
@@ -1070,6 +1084,7 @@ public class Conversion {
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
         private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
         private boolean usePreviousValuesDuringUpdate = false;
+        private boolean useDetailedDcModel = false;
     }
 
     private final CgmesModel cgmes;
