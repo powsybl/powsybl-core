@@ -35,7 +35,7 @@ public class TransformerImpedances {
     public static TransformerImpedances fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         TransformerImpedances transformerImpedances = new TransformerImpedances();
         transformerImpedances.setR12(parseDoubleFromRecord(rec, 0d, headers, "r12", "r1_2"));
-        transformerImpedances.setX12(parseDoubleFromRecord(rec, headers, "x12", "x1_2"));
+        transformerImpedances.setX12(parseDoubleFromRecord(rec, Double.NaN, headers, "x12", "x1_2"));
         transformerImpedances.setSbase12(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase12", "sbase1_2"));
         transformerImpedances.setR23(parseDoubleFromRecord(rec, 0.0, headers, "r23", "r2_3"));
         transformerImpedances.setX23(parseDoubleFromRecord(rec, Double.NaN, headers, "x23", "x2_3"));

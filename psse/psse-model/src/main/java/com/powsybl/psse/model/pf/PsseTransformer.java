@@ -92,11 +92,10 @@ public class PsseTransformer extends PsseVersioned {
         if (version.getMajorNumber() >= 35) {
             psseTransformer.setZcod(parseIntFromRecord(rec, 0, headers, "zcod"));
         }
-//        TransformerImpedances transformerImpedances = new TransformerImpedances();
-//        psseTransformer.setImpedances(transformerImpedances);
-//        psseTransformer.setWinding1(PsseTransformerWinding.fromRecord(rec, version, headers, "1"), PsseRates.fromRecord(rec, version, headers, "1"));
-//        psseTransformer.setWinding2(PsseTransformerWinding.fromRecord(rec, version, headers, "2"), PsseRates.fromRecord(rec, version, headers, "2"));
-//        psseTransformer.setWinding3(PsseTransformerWinding.fromRecord(rec, version, headers, "3"), PsseRates.fromRecord(rec, version, headers, "3"));
+        psseTransformer.setImpedances(TransformerImpedances.fromRecord(rec, version, headers));
+        psseTransformer.setWinding1(PsseTransformerWinding.fromRecord(rec, version, headers, "1"), PsseRates.fromRecord(rec, version, headers, "1"));
+        psseTransformer.setWinding2(PsseTransformerWinding.fromRecord(rec, version, headers, "2"), PsseRates.fromRecord(rec, version, headers, "2"));
+        psseTransformer.setWinding3(PsseTransformerWinding.fromRecord(rec, version, headers, "3"), PsseRates.fromRecord(rec, version, headers, "3"));
         return psseTransformer;
     }
 
