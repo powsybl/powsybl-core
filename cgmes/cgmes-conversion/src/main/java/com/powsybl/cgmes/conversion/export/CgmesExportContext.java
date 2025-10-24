@@ -462,7 +462,7 @@ public class CgmesExportContext {
     }
 
     private static boolean isCondenser(Generator generator) {
-        return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), CgmesExportUtil.obtainCurve(generator)).contains("condenser");
+        return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), CgmesExportUtil.obtainCurve(generator), generator.isCondenser()).contains("condenser");
     }
 
     private void addIidmMappingsGenerators(Network network) {

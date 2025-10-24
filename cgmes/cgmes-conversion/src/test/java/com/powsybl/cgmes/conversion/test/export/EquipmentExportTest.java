@@ -1445,6 +1445,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setTargetP(25.0)
                 .setTargetQ(10.0)
                 .setVoltageRegulatorOn(false)
+                .setCondenser(true)
                 .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();
