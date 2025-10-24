@@ -14,18 +14,29 @@ import java.util.ResourceBundle;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-@FunctionalInterface
 public interface MessageTemplateProvider {
 
-    MessageTemplateProvider EMPTY = new EmptyMessageTemplateProvider();
+    MessageTemplateProvider EMPTY_STRICT = new EmptyMessageTemplateProvider(true);
+    MessageTemplateProvider EMPTY_LOOSE = new EmptyMessageTemplateProvider(false);
 
     ResourceBundle.Control NO_FALLBACK_CONTROL = ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_DEFAULT);
+
+    void setStrictMode(boolean strictMode);
+
+    boolean isStrictMode();
 
     String getTemplate(String key, Locale locale);
 
     static String getMissingKeyMessage(String key, Locale locale) {
-        String pattern = ResourceBundle.getBundle(PowsyblCoreReportResourceBundle.BASE_NAME, locale, NO_FALLBACK_CONTROL)
-                .getString("core.commons.missingKey");
-        return new MessageFormat(pattern, locale).format(new Object[]{key});
+        return getMissingKeyMessage(key, locale, true);
+    }
+
+    static String getMissingKeyMessage(String key, Locale locale, boolean strictMode) {
+        if (strictMode) {
+            String pattern = ResourceBundle.getBundle(PowsyblCoreReportResourceBundle.BASE_NAME, locale, NO_FALLBACK_CONTROL)
+                    .getString("core.commons.missingKey");
+            return new MessageFormat(pattern, locale).format(new Object[]{key});
+        }
+        return null;
     }
 }
