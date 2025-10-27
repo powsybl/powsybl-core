@@ -40,6 +40,8 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
      */
     GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal);
 
+//    GeneratorAdder setVoltageRegulation(VoltageRegulation voltageRegulation);
+
     GeneratorAdder setTargetP(double targetP);
 
     GeneratorAdder setTargetQ(double targetQ);
