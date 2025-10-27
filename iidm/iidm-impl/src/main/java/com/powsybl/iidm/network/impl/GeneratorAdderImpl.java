@@ -134,11 +134,12 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
+        ValidationUtil.checkVoltageRegulation(this);
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
-                                    voltageRegulatorOn, regulatingTerminal,
+                                    voltageRegulatorOn, terminal,
                                     targetP, targetQ, targetV, equivalentLocalTargetV,
                                     ratedS, isCondenser);
         generator.addTerminal(terminal);

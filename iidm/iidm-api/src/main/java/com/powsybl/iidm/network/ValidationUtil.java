@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -903,6 +904,13 @@ public final class ValidationUtil {
             validationLevel = checkOperationalLimitsGroup(validable, group, validationLevel, actionOnError, reportNode);
         }
         return validationLevel;
+    }
+
+    public static ValidationLevel checkVoltageRegulation(Validable validable) {
+        if (validable instanceof VoltageRegulation) {
+
+        }
+        return ValidationLevel.MINIMUM_VALUE;
     }
 
     private static ValidationLevel checkOperationalLimitsGroup(Validable validable, OperationalLimitsGroup operationalLimitsGroup, ValidationLevel previous, ActionOnError actionOnError, ReportNode reportNode) {
