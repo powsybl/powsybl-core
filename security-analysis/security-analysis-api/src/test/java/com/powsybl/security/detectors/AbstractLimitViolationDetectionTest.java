@@ -15,10 +15,14 @@ import com.powsybl.security.LimitViolationType;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.util.LimitViolationUtils.PERMANENT_LIMIT_NAME;
 import static org.junit.jupiter.api.Assertions.*;
@@ -332,7 +336,8 @@ public abstract class AbstractLimitViolationDetectionTest {
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(100, l.getLimit(), 0d);
+                    assertEquals(0, l.getAcceptableDuration());
+                    assertEquals(140, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
                     assertSame(ThreeSides.TWO, l.getSide());
                 });
@@ -362,7 +367,8 @@ public abstract class AbstractLimitViolationDetectionTest {
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(10, l.getLimit(), 0d);
+                    assertEquals(0, l.getAcceptableDuration());
+                    assertEquals(14, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
                     assertSame(ThreeSides.THREE, l.getSide());
                 });
@@ -413,23 +419,23 @@ public abstract class AbstractLimitViolationDetectionTest {
     }
 
     @Test
-    void detectPermanentCurrentLimitOverloadOn3WT() {
+    void detectOverLastTemporaryCurrentLimitOverloadOn3WT() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
         checkCurrent(transformer, ThreeSides.THREE, 1101, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(10, l.getLimit(), 0d);
+                    assertEquals(14, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(ThreeSides.THREE, l.getSide());
-                    assertEquals(2147483647, l.getAcceptableDuration());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(0, l.getAcceptableDuration());
+                    assertEquals("10'", l.getLimitName());
                 });
     }
 
     @Test
-    void detectPermanentCurrentLimitOverloadOn3WT2() {
+    void detectTemporaryCurrentLimitOverloadOn3WT2() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
         checkCurrent(transformer, ThreeSides.THREE, 13, violationsCollector::add);
 
@@ -443,4 +449,96 @@ public abstract class AbstractLimitViolationDetectionTest {
                     assertEquals("20'", l.getLimitName());
                 });
     }
+
+    @ParameterizedTest
+    @MethodSource("provideDetectCurrentLimitArguments")
+    void detectCurrentLimit(Network network, String limitsSetId, double currentValue, ExpectedResults expected) {
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.setSelectedOperationalLimitsGroup1(limitsSetId);
+        checkCurrent(line, TwoSides.ONE, currentValue, violationsCollector::add);
+
+        if (expected != null) {
+            Assertions.assertThat(violationsCollector)
+                    .hasSize(1)
+                    .allSatisfy(l -> {
+                        assertEquals(expected.limit(), l.getLimit(), 0d);
+                        assertEquals(currentValue, l.getValue(), 0d);
+                        assertSame(ThreeSides.ONE, l.getSide());
+                        assertEquals(expected.acceptableDuration(), l.getAcceptableDuration());
+                        assertEquals(expected.limitName(), l.getLimitName());
+                    });
+        } else {
+            assertEquals(0, violationsCollector.size());
+        }
+    }
+
+    public record ExpectedResults(String limitName, double limit, int acceptableDuration) { }
+
+    private static Stream<Arguments> provideDetectCurrentLimitArguments() {
+        String case1 = "CASE1";
+        String case2 = "CASE2";
+        String case3 = "OneTempCase";
+
+        Network network = EurostagTutorialExample1Factory.create();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+                .newOperationalLimitsGroup1(case1).newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("TL1")
+                    .setValue(120.0)
+                    .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL2")
+                    .setValue(140.0)
+                    .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+                .newOperationalLimitsGroup1(case2).newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("IT20")
+                    .setValue(120.0)
+                    .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT10")
+                    .setValue(140.0)
+                    .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT1")
+                    .setValue(Double.POSITIVE_INFINITY)
+                    .setAcceptableDuration(60)
+                .endTemporaryLimit()
+                .add();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+                .newOperationalLimitsGroup1(case3).newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("TL")
+                    .setValue(120.0)
+                    .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        return Stream.of(
+                // Case 1: no upper infinite limit
+                Arguments.of(network, case1, 90., null), // below the permanent limit
+                Arguments.of(network, case1, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL1
+                Arguments.of(network, case1, 130., new ExpectedResults("TL1", 120., 600)), // between TL1 and TL2
+                Arguments.of(network, case1, 150., new ExpectedResults("TL2", 140., 0)), // over the highest temp limit (TL2)
+                // Case 2: with an upper infinite limit
+                Arguments.of(network, case2, 90., null), // below the permanent limit
+                Arguments.of(network, case2, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and IT20
+                Arguments.of(network, case2, 130., new ExpectedResults("IT20", 120., 600)), // between IT20 and IT10
+                Arguments.of(network, case2, 150., new ExpectedResults("IT10", 140., 60)), // between IT10 and IT1 (over IT1 is not possible)
+                // Case 3: same as 1 but with a single temp limit
+                Arguments.of(network, case3, 90., null), // below the permanent limit
+                Arguments.of(network, case3, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL
+                Arguments.of(network, case3, 130., new ExpectedResults("TL", 120., 0)) // over the highest temp limit (TL)
+        );
+    }
+
 }

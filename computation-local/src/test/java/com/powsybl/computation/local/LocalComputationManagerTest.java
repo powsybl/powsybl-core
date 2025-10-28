@@ -118,7 +118,6 @@ class LocalComputationManagerTest {
                                     .id("prog1_cmd")
                                     .program("prog1")
                                     .args("file1", "file2", "file3")
-                                    .timeout(60)
                                     .inputFiles(new InputFile("file1"),
                                                 new InputFile("file2.gz", FilePreProcessor.FILE_GUNZIP),
                                                 new InputFile("file3.zip", FilePreProcessor.ARCHIVE_UNZIP))
@@ -334,7 +333,12 @@ class LocalComputationManagerTest {
             }
         };
 
-        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool()) {
+            @Override
+            protected long getTimeout() {
+                return 2L;
+            }
+        }) {
 
             CompletableFuture<Object> result = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Object>() {
                 @Override

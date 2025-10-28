@@ -262,7 +262,7 @@ class AmplModelExecutionHandlerTest {
         }
     }
 
-    private static class MockAmplModel extends AbstractAmplModel {
+    private static final class MockAmplModel extends AbstractAmplModel {
         @Override
         public List<Pair<String, InputStream>> getModelAsStream() {
             throw new IllegalStateException("Should not be called to create ampl command");

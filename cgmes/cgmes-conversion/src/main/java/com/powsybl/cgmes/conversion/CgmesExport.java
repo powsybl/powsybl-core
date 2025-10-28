@@ -647,8 +647,7 @@ public class CgmesExport implements Exporter {
             NAMING_STRATEGY,
             ParameterType.STRING,
             "Configure what type of naming strategy you want",
-            NamingStrategyFactory.IDENTITY,
-            new ArrayList<>(NamingStrategyFactory.LIST));
+            NamingStrategyFactory.IDENTITY);
     private static final Parameter PROFILES_PARAMETER = new Parameter(
             PROFILES,
             ParameterType.STRING_LIST,

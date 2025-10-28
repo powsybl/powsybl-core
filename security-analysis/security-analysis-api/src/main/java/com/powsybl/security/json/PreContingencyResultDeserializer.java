@@ -25,7 +25,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
 
     private static final String CONTEXT_NAME = "PreContingencyResult";
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         LoadFlowResult.ComponentResult.Status status = null;
     }
 

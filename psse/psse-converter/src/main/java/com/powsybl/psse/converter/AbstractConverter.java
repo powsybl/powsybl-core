@@ -163,7 +163,7 @@ public abstract class AbstractConverter {
         return "T-" + busI + "-" + busJ + "-" + busK + "-" + ckt;
     }
 
-    // we can not use rectifierIp and inverterIp as it is managed with only one end in substationData
+    // we cannot use rectifierIp and inverterIp as it is managed with only one end in substationData
     // In Psse each two-terminal dc line must have a unique name (up to 12 characters)
     static String getTwoTerminalDcId(String name) {
         return TWO_TERMINAL_DC_TAG + name;
@@ -258,7 +258,7 @@ public abstract class AbstractConverter {
     private static boolean isEquipmentToBeExported(IdentifiableType type) {
         return switch (type) {
             case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, DANGLING_LINE, BATTERY ->
-                    true;
+                true;
             case BUSBAR_SECTION, HVDC_LINE, SWITCH, TIE_LINE -> false;
             default -> throw new PsseException("Unexpected equipment type: " + type.name());
         };

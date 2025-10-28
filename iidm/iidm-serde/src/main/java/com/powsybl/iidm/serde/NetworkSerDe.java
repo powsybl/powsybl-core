@@ -17,7 +17,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.io.TreeDataHeader;
 import com.powsybl.commons.io.TreeDataReader;
@@ -211,7 +212,9 @@ public final class NetworkSerDe {
                 continue;
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e -> canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
+                    .filter(e ->
+                            isExtensionIncluded(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
+                            canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
                     .toList();
 
             if (!extensions.isEmpty()) {
@@ -231,12 +234,19 @@ public final class NetworkSerDe {
                 || identifiable instanceof OverloadManagementSystem && !context.getOptions().isWithAutomationSystems();
     }
 
+    private static boolean isExtensionIncluded(ExtensionSerDe extensionSerDe, ExportOptions options) {
+        if (extensionSerDe == null) {
+            return false;
+        }
+        return options.withExtension(extensionSerDe.getExtensionName());
+    }
+
     private static boolean canTheExtensionBeWritten(ExtensionSerDe extensionSerDe, IidmVersion version, ExportOptions options) {
         if (extensionSerDe == null) {
             return false;
         }
         boolean versionExist = true;
-        if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?> networkExtensionSerializer) {
+        if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> networkExtensionSerializer) {
             versionExist = networkExtensionSerializer.versionExists(version);
         }
         if (!versionExist) {
@@ -328,10 +338,10 @@ public final class NetworkSerDe {
 
     private static String getExtensionVersion(ExtensionSerDe<?, ?> extensionSerDe, ExportOptions options) {
         Optional<String> specifiedVersion = options.getExtensionVersion(extensionSerDe.getExtensionName());
-        if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?> versionable) {
+        if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> versionable) {
             return specifiedVersion
                     .filter(v -> versionable.checkWritingCompatibility(v, options.getVersion()))
-                    .orElseGet(() -> versionable.getVersion(options.getVersion()));
+                    .orElseGet(() -> versionable.getVersion(options.getVersion()).getVersionString());
         } else {
             return specifiedVersion.orElseGet(extensionSerDe::getVersion);
         }
@@ -860,9 +870,10 @@ public final class NetworkSerDe {
             // missing extension serializer, we must not check for an extension in sub elements.
             ExtensionSerDe extensionSerde = extensionsSupplier.get().findProvider(extensionSerializationName);
             String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
-            if (!context.isIgnoredEquipment(id)
-                    && (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
+            if (!context.isIgnoredEquipment(id) &&
+                    (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
                 if (extensionSerde != null) {
+                    extensionSerde.checkReadingCompatibility(context);
                     Identifiable identifiable = getIdentifiable(network, id);
                     extensionSerde.read(identifiable, context);
                     extensionNamesImported.add(extensionName);
