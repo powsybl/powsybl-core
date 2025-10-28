@@ -28,6 +28,6 @@ public enum ContingencyElementType {
     BATTERY,
     BUS,
     TIE_LINE,
-    CONVERTER,
+    VOLTAGE_SOURCE_CONVERTER,
     DC_LINE
 }
