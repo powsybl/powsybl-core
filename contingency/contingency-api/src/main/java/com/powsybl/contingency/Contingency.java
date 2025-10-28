@@ -113,7 +113,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
                 case TIE_LINE -> checkTieLineContingency(this, (TieLineContingency) element, network);
                 case SWITCH -> checkSwitchContingency(this, (SwitchContingency) element, network);
                 case BATTERY -> checkBatteryContingency(this, (BatteryContingency) element, network);
-                case CONVERTER -> checkConverterContingency(this, (ConverterContingency) element, network);
+                case VOLTAGE_SOURCE_CONVERTER -> checkVoltageSourceConverterContingency(this, (VoltageSourceConverterContingency) element, network);
                 case DC_LINE -> checkDcLineContingency(this, (DcLineContingency) element, network);
             };
         }
@@ -264,7 +264,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
-    private static boolean checkConverterContingency(Contingency contingency, ConverterContingency element, Network network) {
+    private static boolean checkVoltageSourceConverterContingency(Contingency contingency, VoltageSourceConverterContingency element, Network network) {
         if (network.getVoltageSourceConverter(element.getId()) == null) {
             LOGGER.warn("Converter '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
@@ -424,8 +424,8 @@ public class Contingency extends AbstractExtendable<Contingency> {
     /**
      * Creates a new contingency on the converter whose id is given
      */
-    public static Contingency converter(String id) {
-        return builder(id).addConverter(id).build();
+    public static Contingency voltageSourceConverter(String id) {
+        return builder(id).addVoltageSourceConverter(id).build();
     }
 
     /**

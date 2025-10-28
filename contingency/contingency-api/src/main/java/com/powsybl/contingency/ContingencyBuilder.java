@@ -154,8 +154,8 @@ public class ContingencyBuilder {
         return this;
     }
 
-    public ContingencyBuilder addConverter(String id) {
-        elements.add(new ConverterContingency(id));
+    public ContingencyBuilder addVoltageSourceConverter(String id) {
+        elements.add(new VoltageSourceConverterContingency(id));
         return this;
     }
 
