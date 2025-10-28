@@ -34,20 +34,6 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>test-jar</id>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/ConversionTester.class</include>
-                                <include>**/ConversionUtil.class</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -66,11 +52,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cgmes-model</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-cgmes-gl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

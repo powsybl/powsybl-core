@@ -24,6 +24,7 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -31,6 +32,25 @@ import java.util.Properties;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class CgmesImporterTest {
+
+    @Test
+    void testImportCgmesGeneratorShortCircuitData() {
+        Properties p = new Properties();
+        p.put(CgmesImport.POST_PROCESSORS, List.of("shortcircuit"));
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.miniBusBranch().dataSource(),
+                NetworkFactory.findDefault(), p);
+
+        Generator generator = network.getGenerator("392ea173-4f8e-48fa-b2a3-5c3721e93196");
+        assertNotNull(generator);
+
+        GeneratorShortCircuit generatorShortCircuit = generator.getExtension(GeneratorShortCircuit.class);
+        assertNotNull(generatorShortCircuit);
+
+        double tol = 0.000001;
+        assertEquals(0.1, generatorShortCircuit.getDirectSubtransX(), tol);
+        assertEquals(1.8, generatorShortCircuit.getDirectTransX(), tol);
+        assertTrue(Double.isNaN(generatorShortCircuit.getStepUpTransformerX()));
+    }
 
     @Test
     void testImportCgmes3GeneratorShortCircuitData() {

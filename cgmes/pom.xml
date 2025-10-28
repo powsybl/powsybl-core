@@ -26,13 +26,11 @@
         <module>cgmes-conformity</module>
         <module>cgmes-conversion</module>
         <module>cgmes-extensions</module>
-        <module>cgmes-gl</module>
         <module>cgmes-measurements</module>
         <module>cgmes-model</module>
         <module>cgmes-model-alternatives</module>
         <module>cgmes-shortcircuit</module>
         <module>cgmes-model-test</module>
-        <module>cgmes-import-postprocessor</module>
     </modules>
 
 </project>

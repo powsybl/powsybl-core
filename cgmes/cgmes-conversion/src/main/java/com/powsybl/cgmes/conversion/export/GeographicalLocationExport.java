@@ -1,8 +1,8 @@
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.gl.CgmesGLExporter;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.cgmes.gl.CgmesGLExporter;
 
 public final class GeographicalLocationExport {
 
