@@ -347,7 +347,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     }
 
     @Override
-    public AcDcConverterDoopAdder newDroop() {
+    public AcDcConverterDroopAdder newDroop() {
         return new AcDcConverterDroopAdderImpl(this);
     }
 

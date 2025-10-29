@@ -101,6 +101,14 @@ import java.util.Optional;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">DC voltage target</td>
  *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">DroopList</td>
+ *             <td style="border: 1px solid black">DroopList</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">List of droop segments</td>
+ *         </tr>
  *     </tbody>
  * </table>
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -245,5 +253,5 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
      */
     void addDroop(AcDcConverterDroop droop);
 
-    AcDcConverterDoopAdder newDroop();
+    AcDcConverterDroopAdder newDroop();
 }

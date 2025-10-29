@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Denis Bonnand {@literal <denis.bonnand at supergrid-institute.com>}
  */
-public class AcDcConverterDroopAdderImpl implements AcDcConverterDoopAdder {
+public class AcDcConverterDroopAdderImpl implements AcDcConverterDroopAdder {
 
     double uMin;
 
@@ -27,19 +27,19 @@ public class AcDcConverterDroopAdderImpl implements AcDcConverterDoopAdder {
     }
 
     @Override
-    public AcDcConverterDoopAdder setDroopCoefficient(double k) {
+    public AcDcConverterDroopAdder setDroopCoefficient(double k) {
         this.k = k;
         return this;
     }
 
     @Override
-    public AcDcConverterDoopAdder setUMax(double uMax) {
+    public AcDcConverterDroopAdder setUMax(double uMax) {
         this.uMax = uMax;
         return this;
     }
 
     @Override
-    public AcDcConverterDoopAdder setUMin(double uMin) {
+    public AcDcConverterDroopAdder setUMin(double uMin) {
         this.uMin = uMin;
         return this;
     }

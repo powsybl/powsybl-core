@@ -10,13 +10,13 @@ package com.powsybl.iidm.network;
 /**
  * @author Denis Bonnand {@literal <denis.bonnand at supergrid-institute.com>}
  */
-public interface AcDcConverterDoopAdder {
+public interface AcDcConverterDroopAdder {
 
-    AcDcConverterDoopAdder setUMax(double uMax);
+    AcDcConverterDroopAdder setUMax(double uMax);
 
-    AcDcConverterDoopAdder setUMin(double uMin);
+    AcDcConverterDroopAdder setUMin(double uMin);
 
-    AcDcConverterDoopAdder setDroopCoefficient(double k);
+    AcDcConverterDroopAdder setDroopCoefficient(double k);
 
     AcDcConverterDroop add();
 }
