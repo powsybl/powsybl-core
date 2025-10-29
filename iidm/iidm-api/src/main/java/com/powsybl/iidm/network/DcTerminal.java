@@ -11,12 +11,12 @@ import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
 import java.util.Set;
+
 /**
  * A DC equipment connection point in a DC system.
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-
 public interface DcTerminal {
 
     /**

@@ -52,7 +52,6 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
             switchesToOpen.forEach(s -> s.setOpen(true));
             terminalsToDisconnect.forEach(Terminal::disconnect);
             dcTerminalsToDisconnect.forEach(DcTerminal::disconnect);
-
         } catch (PowsyblException powsyblException) {
             logOrThrow(throwException, powsyblException.getMessage());
         }
@@ -70,7 +69,6 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
 
             traverse(network, switchesToOpen, terminalsToDisconnect);
             traverseDc(network, dcTerminalsToDisconnect);
-
             if (switchesToOpen.isEmpty() && terminalsToDisconnect.isEmpty() && dcTerminalsToDisconnect.isEmpty()) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
