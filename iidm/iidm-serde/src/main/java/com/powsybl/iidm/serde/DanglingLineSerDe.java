@@ -24,6 +24,8 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
+
+//TODO : rename DanglingLine to BoundaryLine
 class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, DanglingLineAdder, VoltageLevel> {
     private static final String GENERATION = "generation";
     private static final String GENERATION_MAX_P = "generationMaxP";
