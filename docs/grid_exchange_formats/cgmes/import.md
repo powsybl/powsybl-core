@@ -677,3 +677,12 @@ Optional property that defines whether the CGMES importer should use previous va
 When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
 If set to `false`, missing SSH attributes will be filled using default values.
 `false` by default.
+
+**iidm.import.cgmes.remove-properties-and-aliases-after-import**  
+Properties and aliases are generated during the EQ import process and are used both in the initial and subsequent network updates.
+When this option is set to `true`, all generated properties and aliases are removed after the first import.
+During this initial import, both EQ and SSH files must be provided to obtain a valid network at the steady state hypothesis level.
+Removing properties and aliases invalidates all subsequent updates but reduces the size of the IIDM network during serialization, 
+thereby improving performance. This option is suitable when the user does not need to preserve CGMES data for persistency purposes 
+or does not intend to perform further network updates.
+`false` by default.

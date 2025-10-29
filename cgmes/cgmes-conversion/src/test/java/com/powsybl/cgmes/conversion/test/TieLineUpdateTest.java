@@ -106,6 +106,29 @@ class TieLineUpdateTest {
         assertSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml", "tieLine_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml", "tieLine_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertTrue(network.getTieLineStream().allMatch(tieLine -> tieLine.getPropertyNames().isEmpty()));
+        assertTrue(network.getTieLineStream().allMatch(tieLine -> tieLine.getAliases().isEmpty()));
+        assertEquals(expected, network.getTieLineStream().allMatch(tieLine -> tieLine.getOperationalLimitsGroups1().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getTieLineStream().allMatch(tieLine -> tieLine.getOperationalLimitsGroups2().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+    }
+
     private static void assertSv(TieLine tieLine) {
         assertFlow(tieLine.getDanglingLine1(), 275.1, 50.5);
         assertFlow(tieLine.getDanglingLine2(), -275.0, -50.0);
