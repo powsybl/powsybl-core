@@ -16,12 +16,12 @@ import com.powsybl.iidm.network.Ground;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
