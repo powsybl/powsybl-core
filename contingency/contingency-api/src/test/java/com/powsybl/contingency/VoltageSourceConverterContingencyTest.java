@@ -29,7 +29,7 @@ class VoltageSourceConverterContingencyTest {
         Contingency contingency = Contingency.voltageSourceConverter("id");
         assertEquals("id", contingency.getId());
         assertEquals(1, contingency.getElements().size());
-        assertEquals(ContingencyElementType.VOLTAGE_SOURCE_CONVERTER, contingency.getElements().get(0).getType());
+        assertEquals(ContingencyElementType.VOLTAGE_SOURCE_CONVERTER, contingency.getElements().getFirst().getType());
 
         VoltageSourceConverterContingency convContingency = new VoltageSourceConverterContingency("id");
         assertEquals("id", convContingency.getId());
@@ -51,7 +51,7 @@ class VoltageSourceConverterContingencyTest {
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
 
-        VoltageSourceConverterContingency convCtg = (VoltageSourceConverterContingency) contingencies.get(0).getElements().get(0);
+        VoltageSourceConverterContingency convCtg = (VoltageSourceConverterContingency) contingencies.getFirst().getElements().getFirst();
         assertEquals("VscFr", convCtg.getId());
     }
 }

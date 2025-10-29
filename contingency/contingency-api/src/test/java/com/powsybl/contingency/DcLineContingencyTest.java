@@ -56,11 +56,11 @@ class DcLineContingencyTest {
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(2, contingencies.size());
 
-        DcLineContingency dcLineCtg = (DcLineContingency) contingencies.get(0).getElements().get(0);
+        DcLineContingency dcLineCtg = (DcLineContingency) contingencies.getFirst().getElements().getFirst();
         assertEquals("dcLinePos", dcLineCtg.getId());
         assertNull(dcLineCtg.getVoltageLevelId());
 
-        dcLineCtg = (DcLineContingency) contingencies.get(1).getElements().get(0);
+        dcLineCtg = (DcLineContingency) contingencies.get(1).getElements().getFirst();
         assertEquals("dcLineNeg", dcLineCtg.getId());
         assertEquals("dcNodeFrNeg", dcLineCtg.getVoltageLevelId());
     }

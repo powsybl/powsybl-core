@@ -30,7 +30,6 @@ public class VoltageSourceConverterTripping extends AbstractTripping {
     @Override
     public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
-
         AcDcConverter<VoltageSourceConverter> converter = network.getVoltageSourceConverter(id);
         if (converter == null) {
             throw new PowsyblException("Converter '" + id + "' not found");

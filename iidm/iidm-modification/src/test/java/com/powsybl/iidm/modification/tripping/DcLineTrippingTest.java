@@ -30,8 +30,10 @@ class DcLineTrippingTest extends AbstractTrippingTest {
         assertTrue(dcLine.getDcTerminal1().isConnected());
         assertTrue(dcLine.getDcTerminal2().isConnected());
 
-        new DcLineTripping("dcLinePos", "dcNodeFrPos").apply(network);
+        DcLineTripping dcLineTripping = new DcLineTripping("dcLinePos", "dcNodeFrPos");
+        dcLineTripping.apply(network);
 
+        assertEquals("dcNodeFrPos", dcLineTripping.getDcNodeId());
         assertFalse(dcLine.getDcTerminal1().isConnected());
         assertTrue(dcLine.getDcTerminal2().isConnected());
 

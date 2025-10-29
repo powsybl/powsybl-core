@@ -47,10 +47,6 @@ public class DcLineTripping extends AbstractTripping {
     }
 
     @Override
-    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
-    }
-
-    @Override
     public void traverseDc(Network network, Set<DcTerminal> terminalsToDisconnect, Set<DcTerminal> traversedTerminals) {
         Objects.requireNonNull(network);
         DcLine dcLine = supplier.apply(network, id);
