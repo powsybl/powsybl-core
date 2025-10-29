@@ -58,7 +58,11 @@ public class LinePositionImporter {
                     .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x")));
                     // y <=> lat, x <=> lon
         } else {
-            LOG.warn("Cannot find line/dangling {}, name {} in network {}: skipping line position", lineId, linePositionData.get("name"), network.getId());
+            if (LOG.isWarnEnabled()) {
+                String name = linePositionData.get("name");
+                String netId = network.getId();
+                LOG.warn("Cannot find line/dangling {}, name {} in network {}: skipping line position", lineId, name, netId);
+            }
         }
     }
 

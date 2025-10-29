@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.google.common.collect.ImmutableList;
 import com.powsybl.cgmes.conversion.gl.CgmesGLExporter;
 import com.powsybl.cgmes.conversion.gl.CgmesGLUtils;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -102,7 +101,7 @@ class CgmesGLExporterTest {
         SubstationPosition substationPosition2 = new SubstationPositionImpl(substation2, SUBSTATION_2);
         substation2.addExtension(SubstationPosition.class, substationPosition2);
         Line line = network.getLine("Line");
-        line.addExtension(LinePosition.class, new LinePositionImpl<>(line, ImmutableList.of(SUBSTATION_1, LINE_1, LINE_2, SUBSTATION_2)));
+        line.addExtension(LinePosition.class, new LinePositionImpl<>(line, List.of(SUBSTATION_1, LINE_1, LINE_2, SUBSTATION_2)));
 
         TripleStore tripleStore = Mockito.mock(TripleStore.class);
         Mockito.when(tripleStore.add(ArgumentMatchers.anyString(), ArgumentMatchers.eq(CgmesNamespace.CIM_16_NAMESPACE),

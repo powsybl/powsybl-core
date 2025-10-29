@@ -742,9 +742,9 @@ class CgmesConformity1ModifiedConversionTest {
 
     @Test
     void microGridBaseCaseAssembledEntsoeCategory() {
-        Properties importParams = new Properties();
-        importParams.put(CgmesImport.POST_PROCESSORS, "EntsoeCategory");
-        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEntsoeCategory().dataSource(), importParams);
+        Properties testImportParams = new Properties();
+        testImportParams.put(CgmesImport.POST_PROCESSORS, "EntsoeCategory");
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEntsoeCategory().dataSource(), testImportParams);
         assertEquals(31, network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa").getExtension(GeneratorEntsoeCategory.class).getCode());
         assertEquals(42, network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e").getExtension(GeneratorEntsoeCategory.class).getCode());
         assertNull(network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0").getExtension(GeneratorEntsoeCategory.class));
