@@ -13,6 +13,6 @@ public interface GeneratorConnectionLevelAdder extends ExtensionAdder<Generator,
         return GeneratorConnectionLevel.class;
     }
 
-    GeneratorConnectionLevelAdder withLevel(String level);
+    GeneratorConnectionLevelAdder withLevel(GeneratorConnectionLevelType level);
 
 }

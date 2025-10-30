@@ -12,5 +12,7 @@ public interface VoltageLevelLoadCharacteristics extends Extension<VoltageLevel>
         return NAME;
     }
 
-    String getCharacteristic();
+    VoltageLevelLoadCharacteristicsType getCharacteristic();
+
+    void setCharacteristic(VoltageLevelLoadCharacteristicsType characteristic);
 }

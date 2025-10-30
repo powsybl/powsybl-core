@@ -10,11 +10,18 @@
 -->
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.powsybl.org/schema/iidm/ext/synchronized_generator_properties/1_0"
+           xmlns:gcl="http://www.powsybl.org/schema/iidm/ext/generator_connection_level/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/generator_connection_level/1_0"
            elementFormDefault="qualified">
+    <xs:simpleType name="GeneratorConnectionLevelType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="TSO"/>
+            <xs:enumeration value="DSO"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:element name="generatorConnectionLevel">
         <xs:complexType>
-            <xs:attribute name="level" use="required" type="xs:string"/>
+            <xs:attribute name="level" use="required" type="gcl:GeneratorConnectionLevelType"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

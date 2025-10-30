@@ -8,6 +8,7 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorConnectionLevel;
 import com.powsybl.iidm.network.extensions.GeneratorConnectionLevelAdder;
+import com.powsybl.iidm.network.extensions.GeneratorConnectionLevelType;
 
 /**
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
@@ -22,12 +23,12 @@ public class GeneratorConnectionLevelSerDe extends AbstractExtensionSerDe<Genera
 
     @Override
     public void write(GeneratorConnectionLevel generatorConnectionLevel, SerializerContext context) {
-        context.getWriter().writeStringAttribute("level", generatorConnectionLevel.getLevel());
+        context.getWriter().writeEnumAttribute("level", generatorConnectionLevel.getLevel());
     }
 
     @Override
     public GeneratorConnectionLevel read(Generator generator, DeserializerContext context) {
-        String level = context.getReader().readStringAttribute("level");
+        GeneratorConnectionLevelType level = context.getReader().readEnumAttribute("level", GeneratorConnectionLevelType.class);
         context.getReader().readEndNode();
         return generator.newExtension(GeneratorConnectionLevelAdder.class)
                 .withLevel(level)
