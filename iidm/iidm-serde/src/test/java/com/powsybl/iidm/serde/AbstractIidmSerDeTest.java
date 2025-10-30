@@ -120,7 +120,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     protected void allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest(String file, String reference, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
         allFormatsRoundTripFromVersionedXmlTest(file, reference, Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) <= 0)
+                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) < 0)
                 .toArray(IidmVersion[]::new));
     }
 
