@@ -30,6 +30,7 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
     @Override
     public T withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider) {
         this.messageTemplateProvider = Objects.requireNonNull(messageTemplateProvider);
+        this.messageTemplateProvider.setStrictMode(strictMode);
         return self();
     }
 
