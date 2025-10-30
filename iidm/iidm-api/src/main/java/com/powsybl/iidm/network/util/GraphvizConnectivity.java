@@ -145,8 +145,8 @@ public class GraphvizConnectivity {
             Bus b1 = branch.getTerminal1().getBusView().getBus();
             Bus b2 = branch.getTerminal2().getBusView().getBus();
             if (b1 != null && b2 != null) {
-                String bus1Id = busIdToVertexIdMap.get(b1.getId());
-                String bus2Id = busIdToVertexIdMap.get(b2.getId());
+                String bus1Id = busIdToVertexIdMap.get(getBusId(b1));
+                String bus2Id = busIdToVertexIdMap.get(getBusId(b2));
                 DefaultEdge edge = jGraph.getEdge(bus1Id, bus2Id);
                 if (edge == null) {
                     // Create the edge
