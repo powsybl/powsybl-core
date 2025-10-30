@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TrippingTopologyTraverserTest {
 
     @Test
-    void test() {
+    void testAc() {
         Network network = Network.create("test", "");
         Substation s1 = network.newSubstation()
                 .setId("s1")
@@ -81,5 +81,73 @@ class TrippingTopologyTraverserTest {
         assertTrue(switchesToOpen.isEmpty());
         assertEquals(1, terminalsToDisconnect.size());
         assertEquals("BusTerminal[b2]", terminalsToDisconnect.iterator().next().toString());
+    }
+
+    @Test
+    void testDc() {
+        Network network = Network.create("test", "");
+        DcNode dn1 = network.newDcNode().
+                setId("dn1").
+                setNominalV(400.).
+                add();
+        DcNode dn2 = network.newDcNode().
+                setId("dn2").
+                setNominalV(400.).
+                add();
+        DcLine dcLine = network.newDcLine()
+                .setId("dcLine")
+                .setDcNode1("dn1")
+                .setDcNode2("dn2")
+                .setR(0.1)
+                .add();
+        Substation s1 = network.newSubstation()
+                .setId("s1")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("vl1")
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setNominalV(400)
+                .add();
+        vl1.getBusBreakerView().newBus()
+                .setId("b1")
+                .add();
+        VoltageSourceConverter converter = vl1.newVoltageSourceConverter()
+                .setIdleLoss(0.5)
+                .setSwitchingLoss(1.0)
+                .setResistiveLoss(0.2)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(-50.)
+                .setId("conv")
+                .setBus1("b1")
+                .setDcNode1("dn1")
+                .setDcNode2("dn2")
+                .setDcConnected1(true)
+                .setDcConnected2(true)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
+                .add();
+
+        Set<DcTerminal> dcTerminalsToDisconnect = new HashSet<>();
+        TrippingTopologyTraverser.traverse(dcLine.getDcTerminal1(), dcTerminalsToDisconnect, null);
+        assertEquals(1, dcTerminalsToDisconnect.size());
+
+        dcTerminalsToDisconnect.clear();
+        TrippingTopologyTraverser.traverse(dcLine.getDcTerminal2(), dcTerminalsToDisconnect, null);
+        assertEquals(1, dcTerminalsToDisconnect.size());
+
+        dcTerminalsToDisconnect.clear();
+        TrippingTopologyTraverser.traverse(converter.getDcTerminal1(), dcTerminalsToDisconnect, null);
+        assertEquals(1, dcTerminalsToDisconnect.size());
+
+        dcTerminalsToDisconnect.clear();
+        TrippingTopologyTraverser.traverse(converter.getDcTerminal2(), dcTerminalsToDisconnect, null);
+        assertEquals(1, dcTerminalsToDisconnect.size());
+
+        Set<Terminal> terminalsToDisconnect = new HashSet<>();
+        Set<Switch> switchesToOpen = new HashSet<>();
+        TrippingTopologyTraverser.traverse(converter.getTerminal1(), switchesToOpen, terminalsToDisconnect, null);
+        assertTrue(switchesToOpen.isEmpty());
+        assertEquals(1, terminalsToDisconnect.size());
     }
 }

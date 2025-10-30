@@ -216,13 +216,6 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         return this.getNetwork().getDcTopologyModel();
     }
 
-    /**
-     * Disconnect the terminal.<br/>
-     * Depends on the working variant.
-     *
-     * @return true if terminal has been disconnected, false otherwise
-     * @see VariantManager
-     */
     @Override
     public boolean disconnect() {
         if (removed) {
