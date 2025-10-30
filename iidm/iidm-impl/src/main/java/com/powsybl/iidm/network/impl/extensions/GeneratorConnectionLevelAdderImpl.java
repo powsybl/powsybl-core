@@ -4,13 +4,14 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorConnectionLevel;
 import com.powsybl.iidm.network.extensions.GeneratorConnectionLevelAdder;
+import com.powsybl.iidm.network.extensions.GeneratorConnectionLevelType;
 
 /**
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 public class GeneratorConnectionLevelAdderImpl extends AbstractExtensionAdder<Generator, GeneratorConnectionLevel> implements GeneratorConnectionLevelAdder {
 
-    private String level;
+    private GeneratorConnectionLevelType level;
 
     public GeneratorConnectionLevelAdderImpl(Generator generator) {
         super(generator);
@@ -22,7 +23,7 @@ public class GeneratorConnectionLevelAdderImpl extends AbstractExtensionAdder<Ge
     }
 
     @Override
-    public GeneratorConnectionLevelAdderImpl withLevel(String level) {
+    public GeneratorConnectionLevelAdderImpl withLevel(GeneratorConnectionLevelType level) {
         this.level = level;
         return this;
     }

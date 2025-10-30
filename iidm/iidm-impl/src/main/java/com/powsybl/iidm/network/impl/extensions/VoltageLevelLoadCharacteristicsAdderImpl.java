@@ -4,15 +4,16 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.VoltageLevelLoadCharacteristics;
 import com.powsybl.iidm.network.extensions.VoltageLevelLoadCharacteristicsAdder;
+import com.powsybl.iidm.network.extensions.VoltageLevelLoadCharacteristicsType;
 
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 public class VoltageLevelLoadCharacteristicsAdderImpl extends AbstractExtensionAdder<VoltageLevel, VoltageLevelLoadCharacteristics> implements VoltageLevelLoadCharacteristicsAdder {
 
-    private String characteristic;
+    private VoltageLevelLoadCharacteristicsType characteristic;
 
     protected VoltageLevelLoadCharacteristicsAdderImpl(VoltageLevel voltageLevel) {
         super(voltageLevel);
@@ -24,7 +25,7 @@ public class VoltageLevelLoadCharacteristicsAdderImpl extends AbstractExtensionA
     }
 
     @Override
-    public VoltageLevelLoadCharacteristicsAdder withCharacteristic(String characteristic) {
+    public VoltageLevelLoadCharacteristicsAdder withCharacteristic(VoltageLevelLoadCharacteristicsType characteristic) {
         this.characteristic = Objects.requireNonNull(characteristic);
         return this;
     }

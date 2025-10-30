@@ -6,7 +6,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.VoltageLevelLoadCharacteristics;
 
 /**
- * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class VoltageLevelLoadCharacteristicsAdderImplProvider implements

@@ -63,8 +63,18 @@ public class SynchronousGeneratorPropertiesImpl extends AbstractExtension<Genera
     }
 
     @Override
+    public void setNumberOfWindings(int numberOfWindings) {
+        this.numberOfWindings = numberOfWindings;
+    }
+
+    @Override
     public String getGovernor() {
         return governor;
+    }
+
+    @Override
+    public void setGovernor(String governor) {
+        this.governor = governor;
     }
 
     @Override
@@ -73,8 +83,18 @@ public class SynchronousGeneratorPropertiesImpl extends AbstractExtension<Genera
     }
 
     @Override
+    public void setVoltageRegulator(String voltageRegulator) {
+        this.voltageRegulator = voltageRegulator;
+    }
+
+    @Override
     public String getPss() {
         return pss;
+    }
+
+    @Override
+    public void setPss(String pss) {
+        this.pss = pss;
     }
 
     @Override
@@ -83,8 +103,18 @@ public class SynchronousGeneratorPropertiesImpl extends AbstractExtension<Genera
     }
 
     @Override
+    public void setAuxiliaries(boolean auxiliaries) {
+        this.auxiliaries = auxiliaries;
+    }
+
+    @Override
     public boolean getInternalTransformer() {
         return internalTransformer;
+    }
+
+    @Override
+    public void setInternalTransformer(boolean internalTransformer) {
+        this.internalTransformer = internalTransformer;
     }
 
     @Override
@@ -93,8 +123,18 @@ public class SynchronousGeneratorPropertiesImpl extends AbstractExtension<Genera
     }
 
     @Override
+    public void setRpcl(boolean rpcl) {
+        this.rpcl = rpcl;
+    }
+
+    @Override
     public boolean getRpcl2() {
         return rpcl2;
+    }
+
+    @Override
+    public void setRpcl2(boolean rpcl2) {
+        this.rpcl2 = rpcl2;
     }
 
     @Override
@@ -103,13 +143,28 @@ public class SynchronousGeneratorPropertiesImpl extends AbstractExtension<Genera
     }
 
     @Override
+    public void setUva(String uva) {
+        this.uva = uva;
+    }
+
+    @Override
     public boolean getFictitious() {
         return fictitious;
     }
 
     @Override
+    public void setFictitious(boolean fictitious) {
+        this.fictitious = fictitious;
+    }
+
+    @Override
     public boolean getQlim() {
         return qlim;
+    }
+
+    @Override
+    public void setQlim(boolean qlim) {
+        this.qlim = qlim;
     }
 
 }

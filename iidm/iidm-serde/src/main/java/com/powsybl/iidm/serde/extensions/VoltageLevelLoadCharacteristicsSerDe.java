@@ -8,6 +8,7 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.VoltageLevelLoadCharacteristics;
 import com.powsybl.iidm.network.extensions.VoltageLevelLoadCharacteristicsAdder;
+import com.powsybl.iidm.network.extensions.VoltageLevelLoadCharacteristicsType;
 
 /**
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
@@ -22,12 +23,12 @@ public class VoltageLevelLoadCharacteristicsSerDe extends AbstractExtensionSerDe
 
     @Override
     public void write(VoltageLevelLoadCharacteristics voltageLevelLoadCharacteristics, SerializerContext context) {
-        context.getWriter().writeStringAttribute("characteristic", voltageLevelLoadCharacteristics.getCharacteristic());
+        context.getWriter().writeEnumAttribute("characteristic", voltageLevelLoadCharacteristics.getCharacteristic());
     }
 
     @Override
     public VoltageLevelLoadCharacteristics read(VoltageLevel voltageLevel, DeserializerContext context) {
-        String characteristic = context.getReader().readStringAttribute("characteristic");
+        VoltageLevelLoadCharacteristicsType characteristic = context.getReader().readEnumAttribute("characteristic", VoltageLevelLoadCharacteristicsType.class);
         context.getReader().readEndNode();
         return voltageLevel.newExtension(VoltageLevelLoadCharacteristicsAdder.class)
                 .withCharacteristic(characteristic)

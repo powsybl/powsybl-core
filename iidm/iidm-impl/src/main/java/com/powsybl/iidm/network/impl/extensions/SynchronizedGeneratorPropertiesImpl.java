@@ -26,8 +26,18 @@ public class SynchronizedGeneratorPropertiesImpl extends AbstractExtension<Gener
     }
 
     @Override
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @Override
     public boolean getRpcl2() {
         return rpcl2;
+    }
+
+    @Override
+    public void setRpcl2(boolean rpcl2) {
+        this.rpcl2 = rpcl2;
     }
 
 }

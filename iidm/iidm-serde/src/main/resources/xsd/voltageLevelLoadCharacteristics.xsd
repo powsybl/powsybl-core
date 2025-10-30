@@ -9,11 +9,18 @@
 -->
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/voltageLevel_load_characteristics/1_0"
+           xmlns:vllc="http://www.powsybl.org/schema/iidm/ext/voltageLevel_load_characteristics/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/voltageLevel_load_characteristics/1_0"
            elementFormDefault="qualified">
+    <xs:simpleType name="VoltageLevelLoadCharacteristicsType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="INDUSTRIAL"/>
+            <xs:enumeration value="CONSTANT"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:element name="voltageLevelLoadCharacteristics">
         <xs:complexType>
-            <xs:attribute name="charateristic" use="required" type="xs:string"/>
+            <xs:attribute name="charateristic" use="required" type="vllc:VoltageLevelLoadCharacteristicsType"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>
