@@ -14,5 +14,5 @@ public interface VoltageLevelLoadCharacteristicsAdder
         return VoltageLevelLoadCharacteristics.class;
     }
 
-    VoltageLevelLoadCharacteristicsAdder withCharacteristic(String characteristic);
+    VoltageLevelLoadCharacteristicsAdder withCharacteristic(VoltageLevelLoadCharacteristicsType characteristic);
 }

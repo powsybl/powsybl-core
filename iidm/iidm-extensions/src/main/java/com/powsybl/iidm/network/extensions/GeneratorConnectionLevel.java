@@ -15,6 +15,8 @@ public interface GeneratorConnectionLevel extends Extension<Generator> {
         return NAME;
     }
 
-    String getLevel();
+    GeneratorConnectionLevelType getLevel();
+
+    void setLevel(GeneratorConnectionLevelType level);
 
 }

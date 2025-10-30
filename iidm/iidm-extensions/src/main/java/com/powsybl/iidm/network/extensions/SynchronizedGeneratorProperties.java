@@ -17,6 +17,10 @@ public interface SynchronizedGeneratorProperties extends Extension<Generator> {
 
     String getType();
 
+    void setType(String type);
+
     boolean getRpcl2();
+
+    void setRpcl2(boolean rpcl2);
 
 }
