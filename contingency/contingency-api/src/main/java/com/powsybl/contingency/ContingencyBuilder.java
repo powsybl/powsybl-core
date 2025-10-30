@@ -153,4 +153,19 @@ public class ContingencyBuilder {
         this.name = name;
         return this;
     }
+
+    public ContingencyBuilder addVoltageSourceConverter(String id) {
+        elements.add(new VoltageSourceConverterContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcLine(String id, String dcNodeId) {
+        elements.add(new DcLineContingency(id, dcNodeId));
+        return this;
+    }
+
+    public ContingencyBuilder addDcLine(String id) {
+        elements.add(new DcLineContingency(id));
+        return this;
+    }
 }

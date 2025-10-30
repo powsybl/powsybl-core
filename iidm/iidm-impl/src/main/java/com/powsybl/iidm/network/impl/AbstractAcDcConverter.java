@@ -42,6 +42,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     private final TDoubleArrayList targetVdc;
 
+    private final List<AcDcConverterDroop> droopList = new ArrayList<>();
+
     AbstractAcDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
                           double idleLoss, double switchingLoss, double resistiveLoss,
                           TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc) {
@@ -332,6 +334,21 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         });
         pccRegulatingPoint.remove();
         super.remove();
+    }
+
+    @Override
+    public void addDroop(AcDcConverterDroop droop) {
+        this.droopList.add(droop);
+    }
+
+    @Override
+    public List<AcDcConverterDroop> getDroopList() {
+        return droopList;
+    }
+
+    @Override
+    public AcDcConverterDroopAdder newDroop() {
+        return new AcDcConverterDroopAdderImpl(this);
     }
 
     protected abstract I self();
