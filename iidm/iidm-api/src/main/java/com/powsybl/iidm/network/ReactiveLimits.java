@@ -30,4 +30,11 @@ public interface ReactiveLimits {
      */
     double getMaxQ(double p);
 
+    /**
+     *  This method permits to add active power bounds to the reactive limit implementation
+     * @param holder the reactive limit holder
+     */
+    default void applyOwnerBounds(ReactiveLimitsHolder holder) {
+        // nothing to do
+    }
 }

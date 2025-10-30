@@ -182,6 +182,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
+        public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+            return new ReactiveCapabilityShapeAdderImpl(this);
+        }
+
+        @Override
         public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
             return new MinMaxReactiveLimitsAdderImpl<>(this);
         }
@@ -189,6 +194,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public void setReactiveLimits(ReactiveLimits reactiveLimits) {
             this.reactiveLimits.setReactiveLimits(reactiveLimits);
+            reactiveLimits.applyOwnerBounds(this);
         }
 
         @Override
