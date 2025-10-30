@@ -6,18 +6,22 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.cgmes.shorcircuit;
+package com.powsybl.cgmes.shortcircuit;
 
 /**
- * Generic parameters for short-circuit computations.
- * May contain extensions for implementation-specific parameters.
- *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public final class PerUnit {
-    public static final double SB = 100d;
+final class CgmesShortCircuitImporterUtils {
 
-    private PerUnit() {
+    private CgmesShortCircuitImporterUtils() {
+
+    }
+
+    static double impedanceToEngineeringUnit(double impedance, double vNominal, double sb) {
+        if (Double.isNaN(impedance)) {
+            return impedance;
+        }
+        return impedance * (vNominal * vNominal) / sb;
     }
 }
