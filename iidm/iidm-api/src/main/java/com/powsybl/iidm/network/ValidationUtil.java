@@ -223,6 +223,12 @@ public final class ValidationUtil {
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
+    public static void checkLocalTargetV(Validable validable, double localTargetV) {
+        if (!Double.isNaN(localTargetV) && localTargetV < 0) {
+            throw createInvalidValueException(validable, localTargetV, "localTargetV", "must be positive");
+        }
+    }
+
     public static void checkRatedS(Validable validable, double ratedS) {
         if (!Double.isNaN(ratedS) && ratedS <= 0) {
             throw new ValidationException(validable, "Invalid value of rated S " + ratedS);
