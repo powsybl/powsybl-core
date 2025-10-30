@@ -11,7 +11,7 @@
             <iidm:generator id="generator1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="10.0" targetV="400.0" isCondenser="true" node="0">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
-            <iidm:generator id="generator2" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="10.0" targetV="400.0" localBackupTargetV="20.0" node="1">
+            <iidm:generator id="generator2" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="10.0" targetV="400.0" localTargetV="20.0" node="1">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
             <iidm:load id="load" loadType="UNDEFINED" p0="10.0" q0="1.0" node="2"/>
