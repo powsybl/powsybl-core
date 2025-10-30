@@ -61,7 +61,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @param reportNode           the reportNode used for functional logs
      * @return a {@link CompletableFuture} on {@link LoadFlowResult]
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     default CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
         return run(network, workingVariantId, new LoadFlowRunParameters()
             .setComputationManager(computationManager)

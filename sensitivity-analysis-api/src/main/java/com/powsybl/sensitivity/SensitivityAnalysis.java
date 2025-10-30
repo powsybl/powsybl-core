@@ -15,7 +15,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManagerConstants;
 
 import java.util.List;
 import java.util.Objects;
@@ -48,7 +47,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #runAsync(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public CompletableFuture<Void> runAsync(Network network,
                                                 String workingVariantId,
                                                 SensitivityFactorReader factorReader,
@@ -70,7 +69,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #runAsync(Network, String, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
                                                                      String workingVariantId,
                                                                      List<SensitivityFactor> factors,
@@ -121,7 +120,7 @@ public final class SensitivityAnalysis {
                                                                      List<SensitivityFactor> factors) {
 
             return runAsync(network,
-                VariantManagerConstants.INITIAL_VARIANT_ID,
+                network.getVariantManager().getWorkingVariantId(),
                 factors,
                 SensitivityAnalysisRunParameters.getDefault());
         }
@@ -129,7 +128,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public void run(Network network,
                         String workingVariantId,
                         SensitivityFactorReader factorReader,
@@ -151,7 +150,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              String workingVariantId,
                                              List<SensitivityFactor> factors,
@@ -172,7 +171,7 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              String workingVariantId,
                                              List<SensitivityFactor> factors,
@@ -189,13 +188,13 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies,
                                              List<SensitivityVariableSet> variableSets,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors,
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
                 new SensitivityAnalysisRunParameters()
                     .setContingencies(contingencies)
                     .setVariableSets(variableSets)
@@ -205,12 +204,12 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors,
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
                 new SensitivityAnalysisRunParameters()
                     .setContingencies(contingencies)
                     .setParameters(parameters));
@@ -219,11 +218,11 @@ public final class SensitivityAnalysis {
         /**
          * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
          */
-        @Deprecated(since = "6.9.0", forRemoval = true)
+        @Deprecated(since = "7.0.0", forRemoval = true)
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              List<Contingency> contingencies) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors,
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
                 new SensitivityAnalysisRunParameters().setContingencies(contingencies));
         }
 
@@ -245,14 +244,14 @@ public final class SensitivityAnalysis {
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors,
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors,
                 new SensitivityAnalysisRunParameters().setParameters(parameters));
         }
 
         public SensitivityAnalysisResult run(Network network,
                                              List<SensitivityFactor> factors,
                                              SensitivityAnalysisRunParameters runParameters) {
-            return run(network, VariantManagerConstants.INITIAL_VARIANT_ID, factors, runParameters);
+            return run(network, network.getVariantManager().getWorkingVariantId(), factors, runParameters);
         }
 
         public SensitivityAnalysisResult run(Network network,
@@ -297,7 +296,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #runAsync(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static CompletableFuture<Void> runAsync(Network network,
                                                    String workingVariantId,
                                                    SensitivityFactorReader factorReader,
@@ -313,7 +312,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #runAsync(Network, String, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
                                                                         String workingVariantId,
                                                                         List<SensitivityFactor> factors,
@@ -348,7 +347,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, String, SensitivityFactorReader, SensitivityResultWriter, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static void run(Network network,
                            String workingVariantId,
                            SensitivityFactorReader factorReader,
@@ -364,7 +363,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 String workingVariantId,
                                                 List<SensitivityFactor> factors,
@@ -400,7 +399,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, String, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 String workingVariantId,
                                                 List<SensitivityFactor> factors,
@@ -413,7 +412,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 List<SensitivityFactor> factors,
                                                 List<Contingency> contingencies,
@@ -425,7 +424,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 List<SensitivityFactor> factors,
                                                 List<Contingency> contingencies,
@@ -436,7 +435,7 @@ public final class SensitivityAnalysis {
     /**
      * @deprecated use {@link #run(Network, List, SensitivityAnalysisRunParameters)} instead
      */
-    @Deprecated(since = "6.9.0", forRemoval = true)
+    @Deprecated(since = "7.0.0", forRemoval = true)
     public static SensitivityAnalysisResult run(Network network,
                                                 List<SensitivityFactor> factors,
                                                 List<Contingency> contingencies) {
