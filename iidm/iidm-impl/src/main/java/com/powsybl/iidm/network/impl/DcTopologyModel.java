@@ -11,8 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefChain;
-import com.powsybl.iidm.network.DcBus;
-import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
@@ -379,14 +378,6 @@ public class DcTopologyModel implements MultiVariantObject {
     void traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, TraversalType traversalType) {
         traverse(terminal, traverser, new HashSet<>(), traversalType);
     }
-
-    /**
-     * Traverse from given node terminal using the given topology traverser, using the fact that the terminals in the
-     * given set have already been traversed.
-     *
-     * @return false if the traverser has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
-     * has been returned from the traverser, true otherwise
-     */
 
     boolean traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
         Objects.requireNonNull(terminal);

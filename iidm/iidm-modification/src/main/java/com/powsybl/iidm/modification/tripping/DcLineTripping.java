@@ -53,8 +53,4 @@ public class DcLineTripping extends AbstractTripping {
     protected PowsyblException createNotFoundException() {
         return new PowsyblException("DcLine '" + id + "' not found");
     }
-
-    protected PowsyblException createNotConnectedException() {
-        return new PowsyblException("DcNode '" + dcNodeId + "' not connected to dcLine '" + id + "'");
-    }
 }

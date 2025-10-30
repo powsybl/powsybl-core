@@ -52,13 +52,6 @@ public interface SidedContingencyElement extends ContingencyElement {
         };
     }
 
-    private static Function<TwoSides, DcTerminal> getDcTerminalSupplier(Network network, SidedContingencyElement element) {
-        return switch (element.getType()) {
-            case DC_LINE -> getDcLineTerminalSupplier(network, element.getId());
-            default -> null;
-        };
-    }
-
     private static Function<TwoSides, Terminal> getBranchTerminalSupplier(Network network, String id) {
         Branch<?> eq = network.getBranch(id);
         return eq != null ? eq::getTerminal : null;
