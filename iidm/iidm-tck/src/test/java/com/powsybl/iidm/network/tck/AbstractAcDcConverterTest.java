@@ -801,16 +801,16 @@ public abstract class AbstractAcDcConverterTest {
                 .setReactivePowerSetpoint(0.0)
                 .add();
         assertTrue(acDcConverterA.getTerminal2().isPresent());
-        assertSame(acDcConverterA.getPccTerminal(), acDcConverterA.getTerminal1()); // defaults to AC Terminal 1
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal()); // defaults to AC Terminal 1
         assertTrue(acDcConverterA.getTerminal(TerminalNumber.TWO).isPresent());
 
         // change PCC Terminal to line terminal
         acDcConverterA.setPccTerminal(lineax.getTerminal1());
-        assertSame(acDcConverterA.getPccTerminal(), lineax.getTerminal1());
+        assertSame(lineax.getTerminal1(), acDcConverterA.getPccTerminal());
 
         // remove the line, check PCC Terminal automatically fixed to be the converter terminal 1
         lineax.remove();
-        assertSame(acDcConverterA.getPccTerminal(), acDcConverterA.getTerminal1());
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal());
     }
 
     @Test
