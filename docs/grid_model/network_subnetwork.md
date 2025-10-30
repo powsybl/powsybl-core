@@ -929,9 +929,10 @@ LCC and VSC share the following characteristics.
 | $SwitchingLoss$ | MW / A   | Switching losses                                                      |
 | $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
 | $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
-| $ControlMode$   |          | The converter's control mode: P_PCC or V_DC                           |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or V_DC_DROOP               |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
+| $DroopList$     |          | Droop segments for droop control mode                                 |
 
 Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
 With `i` being the DC current through the converter, the Converter losses are computed as follows:
@@ -974,6 +975,17 @@ between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
 - If no DC Ground is present, the configuration is symmetrical, in this case the converter provides internally an implicit DC Ground and imposes:
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
+
+When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter controls DC voltage as in the `P_PCC` control mode
+for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
+$P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
+Where $k$ is the droop coefficient of the actual droop segment.
+
+Each droop segment in the `DroopList` is defined with minimal and maximal voltage, and a droop coefficient. The actual 
+droop segment should be the one which verifies:
+$V_{DC} \in [V_{min}, V_{max}]$
+
+
 
 ##### Line Commutated Converter
 
