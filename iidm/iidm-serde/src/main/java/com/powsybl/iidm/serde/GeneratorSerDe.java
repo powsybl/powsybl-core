@@ -40,7 +40,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
                 context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () ->
-            context.getWriter().writeDoubleAttribute("localBackupTargetV", g.getLocalBackupTargetV(), Double.NaN));
+            context.getWriter().writeDoubleAttribute("localTargetV", g.getLocalTargetV(), Double.NaN));
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
     }
@@ -79,7 +79,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
                 .setTargetQ(targetQ)
                 .setVoltageRegulatorOn(voltageRegulatorOn);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () ->
-            adder.setTargetV(targetV, context.getReader().readDoubleAttribute("localBackupTargetV", Double.NaN)));
+            adder.setTargetV(targetV, context.getReader().readDoubleAttribute("localTargetV", Double.NaN)));
 
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         Generator g = adder.add();

@@ -31,7 +31,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double targetV = Double.NaN;
 
-    private double localBackupTargetV = Double.NaN;
+    private double localTargetV = Double.NaN;
 
     private double ratedS = Double.NaN;
 
@@ -91,14 +91,14 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     public GeneratorAdderImpl setTargetV(double targetV) {
         this.targetV = targetV;
-        this.localBackupTargetV = Double.NaN;
+        this.localTargetV = Double.NaN;
         return this;
     }
 
     @Override
-    public GeneratorAdderImpl setTargetV(double targetV, double localBackupTargetV) {
+    public GeneratorAdderImpl setTargetV(double targetV, double localTargetV) {
         this.targetV = targetV;
-        this.localBackupTargetV = localBackupTargetV;
+        this.localTargetV = localTargetV;
         return this;
     }
 
@@ -133,13 +133,13 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
-        ValidationUtil.checkLocalBackupTargetV(this, localBackupTargetV);
+        ValidationUtil.checkLocalTargetV(this, localTargetV);
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
                                     voltageRegulatorOn, regulatingTerminal,
-                                    targetP, targetQ, targetV, localBackupTargetV,
+                                    targetP, targetQ, targetV, localTargetV,
                                     ratedS, isCondenser);
         generator.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
