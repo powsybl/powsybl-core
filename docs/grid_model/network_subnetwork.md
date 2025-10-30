@@ -959,6 +959,11 @@ It cannot be a Busbar Section Terminal since no active power can be measured on 
 ![Detailed DC Model PCC Terminal](img/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-light"}
 ![Detailed DC Model PCC Terminal](img/dark_mode/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-dark"}
 
+For AC/DC converters modeled with two AC terminals, it is acceptable for the converter’s PCC terminal to be designated
+as one of the converter terminals. In this case, when the converter’s `ControlMode` is set to `P_PCC`, simulators
+shall interpret `TargetP` as the total active power flow to be achieved across both AC terminals, not just through the
+PCC Terminal.
+
 When the `ControlMode` of the converter is set to `V_DC`, the converter controls DC voltage at its DC Terminals.
 `TargetVdc` is the desired target DC voltage, and is the voltage difference between DC Node 1 and DC Node 2.
 `TargetVdc` may be either positive or negative. Negative value may be used to model reverse polarity operation in case of LCCs.
