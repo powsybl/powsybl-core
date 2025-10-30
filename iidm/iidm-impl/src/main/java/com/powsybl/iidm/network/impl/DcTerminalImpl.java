@@ -218,9 +218,6 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
 
     @Override
     public boolean disconnect() {
-        if (removed) {
-            throw new PowsyblException("Cannot modify removed equipment " + dcConnectable.getId());
-        }
         return getTopologyModel().disconnect(this);
     }
 }

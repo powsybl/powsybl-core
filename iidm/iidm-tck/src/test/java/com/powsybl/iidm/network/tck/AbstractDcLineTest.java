@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Collection;
 import java.util.List;
@@ -176,6 +177,19 @@ public abstract class AbstractDcLineTest {
 
         PowsyblException e4 = assertThrows(PowsyblException.class, () -> t2.setConnected(false));
         assertEquals("Cannot modify removed equipment dcLine1", e4.getMessage());
+
+        try {
+            t1.traverse(Mockito.mock(DcTerminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment dcLine1 is removed", e.getMessage());
+    }
+        try {
+            t2.traverse(Mockito.mock(DcTerminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment dcLine1 is removed", e.getMessage());
+        }
     }
 
     @Test
