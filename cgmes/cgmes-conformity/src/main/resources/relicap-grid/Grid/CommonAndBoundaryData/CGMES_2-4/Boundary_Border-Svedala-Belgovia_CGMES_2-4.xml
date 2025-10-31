@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<!-- Exported from CIMSpy/CIMdesk on 2025-05-19T14:58:39Z. -->
+	<md:FullModel rdf:about="urn:uuid:d11b06e3-b709-4d45-9b49-188b2089be16">
+		<md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+		<md:Model.DependentOn rdf:resource="urn:uuid:1b65ada7-39ca-42b8-a278-39c457ed82c3"/>
+		<md:Model.created>2025-02-06T14:18:22Z</md:Model.created>
+		<md:Model.description>BD test data.</md:Model.description>
+		<md:Model.modelingAuthoritySet>http://ninerealms.nr/boundary</md:Model.modelingAuthoritySet>
+		<md:Model.scenarioTime>2022-06-16T23:30:00Z</md:Model.scenarioTime>
+		<md:Model.version>1</md:Model.version>
+	</md:FullModel>
+	<cim:ConnectivityNode rdf:ID="_f738d362-c11c-4ca2-82da-a4fa115b3392">
+		<entsoe:ConnectivityNode.fromEndIsoCode>SD</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Bouchala</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Svedala</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>BO</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Mastania</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Belgovia</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_77ca5612-67a1-4a52-a180-86560777ab4a"/>
+		<cim:IdentifiedObject.description>BP_SD-BO1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>f738d362-c11c-4ca2-82da-a4fa115b3392</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-BO1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-BO1</entsoe:IdentifiedObject.shortName>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-EH-PT-10004U</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<cim:ConnectivityNode.TopologicalNode>_1f55367e-8fd1-3d44-86f3-b4c56082221e</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_b6978550-cb6e-11e1-bcee-406c8f32ef58">
+		<entsoe:ConnectivityNode.fromEndIsoCode>SD</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Bouchala2</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Svedala</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>BO</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Mastania2</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Belgovia</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_54a2e470-ef70-443f-ae81-bcf2d117caa3"/>
+		<cim:IdentifiedObject.description>BP_SD-BO2</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>b6978550-cb6e-11e1-bcee-406c8f32ef58</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-BO2</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-BO2</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_6fd4d0ea-7740-6049-b00e-f5881582d5d9</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_b66f15c0-cb6e-11e1-bcee-406c8f32ef58">
+		<entsoe:ConnectivityNode.fromEndIsoCode>SD</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Bouchala3</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Svedala</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>BO</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Mastania3</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Belgovia</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_2e08aa26-2719-4b3e-a0eb-a9bd0ddbcae1"/>
+		<cim:IdentifiedObject.description>BP_SD-BO3</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>b66f15c0-cb6e-11e1-bcee-406c8f32ef58</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-BO3</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-BO3</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_aea964e6-3d3b-8845-bed7-d6dc776fb875</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:Line rdf:ID="_77ca5612-67a1-4a52-a180-86560777ab4a">
+		<cim:IdentifiedObject.description>Line BP_SD-BO1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>77ca5612-67a1-4a52-a180-86560777ab4a</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-BO1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-BO1</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-BO-GA-10314U</entsoe:IdentifiedObject.energyIdentCodeEic>
+	</cim:Line>
+	<cim:Line rdf:ID="_54a2e470-ef70-443f-ae81-bcf2d117caa3">
+		<cim:IdentifiedObject.description>Line BP_SD-BO2</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>54a2e470-ef70-443f-ae81-bcf2d117caa3</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-BO2</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-BO2</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_2e08aa26-2719-4b3e-a0eb-a9bd0ddbcae1">
+		<cim:IdentifiedObject.description>Line BP_SD-BO3</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>2e08aa26-2719-4b3e-a0eb-a9bd0ddbcae1</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-BO3</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-BO3</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:TopologicalNode rdf:ID="_1f55367e-8fd1-3d44-86f3-b4c56082221e">
+		<cim:IdentifiedObject.name>BP_SD-BO1</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_SD-BO1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_SD-BO1</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>SD</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>BO</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Bouchala</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Mastania</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Svedala</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Belgovia</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_77ca5612-67a1-4a52-a180-86560777ab4a</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_6fd4d0ea-7740-6049-b00e-f5881582d5d9">
+		<cim:IdentifiedObject.name>BP_SD-BO2</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_SD-BO2</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_SD-BO2</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>SD</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>BO</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Bouchala2</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Mastania2</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Svedala</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Belgovia</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_54a2e470-ef70-443f-ae81-bcf2d117caa3</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_aea964e6-3d3b-8845-bed7-d6dc776fb875">
+		<cim:IdentifiedObject.name>BP_SD-BO3</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_SD-BO3</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_SD-BO3</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>SD</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>BO</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Bouchala3</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Mastania3</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Svedala</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Belgovia</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_2e08aa26-2719-4b3e-a0eb-a9bd0ddbcae1</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+</rdf:RDF>
