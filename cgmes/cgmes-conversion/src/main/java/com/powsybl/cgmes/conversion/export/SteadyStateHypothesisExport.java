@@ -17,7 +17,31 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Area;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.DanglingLineFilter;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.TapChanger;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
@@ -26,9 +50,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainCalculatedSynchronousMachineKind;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainCurve;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_TERMINAL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -360,18 +391,47 @@ public final class SteadyStateHypothesisExport {
     private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
         String kind = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
         String operatingMode = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
-        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, CgmesExportUtil.obtainCurve(i), kind);
-        String calculatedOperatingMode = obtainOperatingMode(targetP);
+        String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Generator gen && gen.isCondenser());
+        String calculatedOperatingMode = obtainOperatingMode(targetP, i, calculatedKind);
         return operatingMode != null && calculatedKind.contains(operatingMode) ? operatingMode : calculatedOperatingMode;
     }
 
-    private static String obtainOperatingMode(double targetP) {
+    private static String obtainOperatingMode(double targetP, Injection<?> injection, String calculatedKind) {
         if (targetP < 0) {
             return "motor";
         } else if (targetP > 0) {
             return "generator";
         } else {
-            return "condenser";
+            if (isOperatingAsACondenser(injection)) {
+                return "condenser";
+            } else {
+                if (calculatedKind.contains("generator")) {
+                    return "generator";
+                } else if (calculatedKind.contains("motor")) {
+                    return "motor";
+                } else {
+                    return "condenser";
+                }
+            }
+        }
+    }
+
+    private static boolean isOperatingAsACondenser(Injection<?> injection) {
+        switch (injection) {
+            case Generator generator -> {
+                if (generator.isVoltageRegulatorOn()) {
+                    double targetV = generator.getTargetV();
+                    return !Double.isNaN(targetV) && targetV != 0;
+                } else {
+                    double targetQ = generator.getTargetQ();
+                    return !Double.isNaN(targetQ) && targetQ != 0;
+                }
+            }
+            case Battery battery -> {
+                double targetQ = battery.getTargetQ();
+                return !Double.isNaN(targetQ) && targetQ != 0;
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + injection);
         }
     }
 
