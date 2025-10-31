@@ -43,7 +43,7 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         Network network = Network.read(ds);
 
         List<String> sshIds = List.of("ssh-dep1", "ssh-dep2", "ssh-dep3");
-        buildSvDependenciesManaginMetadataModels(network, sshIds);
+        buildSvDependenciesManagingMetadataModels(network, sshIds);
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.CGM_EXPORT, "True");
@@ -94,7 +94,7 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         // by directly building the metadata model extension.
         // We pass only the updated SSH dependencies
         List<String> updatedSshIds = List.of("ssh-updated-dep1", "ssh-updated-dep2", "ssh-updated-dep3");
-        buildSvDependenciesManaginMetadataModels(network, updatedSshIds);
+        buildSvDependenciesManagingMetadataModels(network, updatedSshIds);
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, "SV");
@@ -117,7 +117,7 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         assertEquals("MAS1", findFirst(MODELING_AUTHORITY, sv));
     }
 
-    private void buildSvDependenciesManaginMetadataModels(Network network, List<String> updateSshIds) {
+    private void buildSvDependenciesManagingMetadataModels(Network network, List<String> updateSshIds) {
         CgmesMetadataModelsAdder networkModelsAdder = network.newExtension(CgmesMetadataModelsAdder.class);
         CgmesMetadataModelsAdder.ModelAdder svModelExport = networkModelsAdder.newModel();
         svModelExport.setSubset(CgmesSubset.STATE_VARIABLES);
