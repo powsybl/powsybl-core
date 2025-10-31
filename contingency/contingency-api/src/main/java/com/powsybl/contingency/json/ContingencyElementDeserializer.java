@@ -62,6 +62,8 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case TIE_LINE -> new TieLineContingency(id, voltageLevelId);
                 case VOLTAGE_SOURCE_CONVERTER -> new VoltageSourceConverterContingency(id);
                 case DC_LINE -> new DcLineContingency(id);
+                case DC_GROUND -> new DcGroundContingency(id);
+                case DC_NODE -> new DcNodeContingency(id);
             };
         }
 

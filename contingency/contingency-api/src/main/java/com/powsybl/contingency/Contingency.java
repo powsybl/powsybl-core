@@ -115,6 +115,8 @@ public class Contingency extends AbstractExtendable<Contingency> {
                 case BATTERY -> checkBatteryContingency(this, (BatteryContingency) element, network);
                 case VOLTAGE_SOURCE_CONVERTER -> checkVoltageSourceConverterContingency(this, (VoltageSourceConverterContingency) element, network);
                 case DC_LINE -> checkDcLineContingency(this, (DcLineContingency) element, network);
+                case DC_GROUND -> checkDcGroundContingency(this, (DcGroundContingency) element, network);
+                case DC_NODE -> checkDcNodeContingency(this, (DcNodeContingency) element, network);
             };
         }
         if (!valid) {
@@ -284,6 +286,22 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
+    private static boolean checkDcGroundContingency(Contingency contingency, DcGroundContingency element, Network network) {
+        if (network.getDcGround(element.getId()) == null) {
+            LOGGER.warn("DC Ground '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkDcNodeContingency(Contingency contingency, DcNodeContingency element, Network network) {
+        if (network.getDcNode(element.getId()) == null) {
+            LOGGER.warn("DC Node '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
     public static ContingencyBuilder builder(String id) {
         return new ContingencyBuilder(id);
     }
@@ -440,5 +458,19 @@ public class Contingency extends AbstractExtendable<Contingency> {
      */
     public static Contingency dcLine(String id, String dcNodeId) {
         return builder(id).addDcLine(id, dcNodeId).build();
+    }
+
+    /**
+     * Creates a new contingency on the dcGround whose id is given
+     */
+    public static Contingency dcGround(String id) {
+        return builder(id).addDcGround(id).build();
+    }
+
+    /**
+     * Creates a new contingency on the dcNode whose id is given
+     */
+    public static Contingency dcNode(String id) {
+        return builder(id).addDcNode(id).build();
     }
 }

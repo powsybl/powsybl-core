@@ -29,5 +29,7 @@ public enum ContingencyElementType {
     BUS,
     TIE_LINE,
     VOLTAGE_SOURCE_CONVERTER,
-    DC_LINE
+    DC_LINE,
+    DC_GROUND,
+    DC_NODE
 }

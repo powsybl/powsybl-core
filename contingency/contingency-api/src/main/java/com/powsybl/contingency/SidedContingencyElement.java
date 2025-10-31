@@ -76,9 +76,4 @@ public interface SidedContingencyElement extends ContingencyElement {
         HvdcLine eq = network.getHvdcLine(id);
         return eq != null ? s -> eq.getConverterStation(s).getTerminal() : null;
     }
-
-    private static Function<TwoSides, DcTerminal> getDcLineTerminalSupplier(Network network, String id) {
-        DcLine eq = network.getDcLine(id);
-        return eq != null ? eq::getDcTerminal : null;
-    }
 }

@@ -168,4 +168,14 @@ public class ContingencyBuilder {
         elements.add(new DcLineContingency(id));
         return this;
     }
+
+    public ContingencyBuilder addDcGround(String id) {
+        elements.add(new DcGroundContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcNode(String id) {
+        elements.add(new DcNodeContingency(id));
+        return this;
+    }
 }
