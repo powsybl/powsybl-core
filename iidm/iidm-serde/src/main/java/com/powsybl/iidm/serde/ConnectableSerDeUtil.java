@@ -16,6 +16,7 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -73,6 +74,32 @@ public final class ConnectableSerDeUtil {
         }
     }
 
+    public static void writeNodeOrBus(AcDcConverter<?> converter, NetworkSerializerContext context) {
+        Terminal t1 = converter.getTerminal1();
+        Optional<Terminal> t2 = converter.getTerminal2();
+        TopologyLevel topologyLevel = TopologyLevel.min(t1.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
+        switch (topologyLevel) {
+            case NODE_BREAKER -> {
+                context.getWriter().writeIntAttribute(NODE + "1", t1.getNodeBreakerView().getNode());
+                Integer n2 = t2.map(t -> t.getNodeBreakerView().getNode()).orElse(null);
+                context.getWriter().writeOptionalIntAttribute(NODE + "2", n2);
+            }
+            case BUS_BREAKER -> {
+                writeBus(1, t1.getBusBreakerView().getBus(), t1.getBusBreakerView().getConnectableBus(), context);
+                Bus b2 = t2.map(t -> t.getBusBreakerView().getBus()).orElse(null);
+                Bus cb2 = t2.map(t -> t.getBusBreakerView().getConnectableBus()).orElse(null);
+                writeBus(2, b2, cb2, context);
+            }
+            case BUS_BRANCH -> {
+                writeBus(1, t1.getBusView().getBus(), t1.getBusView().getConnectableBus(), context);
+                Bus b2 = t2.map(t -> t.getBusView().getBus()).orElse(null);
+                Bus cb2 = t2.map(t -> t.getBusView().getConnectableBus()).orElse(null);
+                writeBus(2, b2, cb2, context);
+            }
+            default -> throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
+        }
+    }
+
     private static void writeNode(Integer index, Terminal t, NetworkSerializerContext context) {
         context.getWriter().writeIntAttribute(NODE + indexToString(index), t.getNodeBreakerView().getNode());
     }
@@ -107,6 +134,24 @@ public final class ConnectableSerDeUtil {
     public static void readVoltageLevelAndNodeOrBus(BranchAdder<?, ?> adder, Network network, NetworkDeserializerContext context) {
         readVoltageLevelAndNodeOrBus("1", adder::setVoltageLevel1, adder::setNode1, adder::setBus1, adder::setConnectableBus1, network, context);
         readVoltageLevelAndNodeOrBus("2", adder::setVoltageLevel2, adder::setNode2, adder::setBus2, adder::setConnectableBus2, network, context);
+    }
+
+    public static void readNodeOrBus(AcDcConverterAdder<?, ?> adder, TopologyKind topologyKind, NetworkDeserializerContext context) {
+        switch (topologyKind) {
+            case NODE_BREAKER -> {
+                int node1 = context.getReader().readIntAttribute(NODE + "1");
+                adder.setNode1(node1);
+                OptionalInt node2 = context.getReader().readOptionalIntAttribute(NODE + "2");
+                node2.ifPresent(adder::setNode2);
+            }
+            case BUS_BREAKER -> {
+                readBus(adder::setBus1, "1", context);
+                readConnectableBus(adder::setConnectableBus1, "1", context);
+                readBus(adder::setBus2, "2", context);
+                readConnectableBus(adder::setConnectableBus2, "2", context);
+            }
+            default -> throw new IllegalStateException();
+        }
     }
 
     private static void readVoltageLevelAndNodeOrBus(String suffix, Consumer<String> voltageLevelSetter, IntConsumer nodeSetter, Consumer<String> busSetter, Consumer<String> connectableBusSetter, Network network, NetworkDeserializerContext context) {
