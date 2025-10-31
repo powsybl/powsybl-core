@@ -11,10 +11,7 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
-import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -46,7 +43,7 @@ public final class ReactiveCapabilityCurveEq {
     private static String holderClassName(ReactiveLimitsHolder holder) {
         if (holder instanceof Generator || holder instanceof Battery) {
             return "ReactiveCapabilityCurve";
-        } else if (holder instanceof VscConverterStation) {
+        } else if (holder instanceof VscConverterStation || holder instanceof VoltageSourceConverter) {
             return "VsCapabilityCurve";
         }
         throw new PowsyblException("Unexpected holder type " + holder.getClass().toString());
