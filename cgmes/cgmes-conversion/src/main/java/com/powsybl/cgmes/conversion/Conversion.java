@@ -263,6 +263,11 @@ public class Conversion {
 
         updateWithAllInputs(network, reportNode);
 
+        // Remove all properties and aliases, this will invalidate all subsequent updates
+        if (context.config().getRemovePropertiesAndAliasesAfterImport()) {
+            removeAllAliasesAndProperties(network);
+        }
+
         return network;
     }
 
@@ -279,6 +284,34 @@ public class Conversion {
         createFictitiousLoadsForSvInjectionsDuringUpdate(network, cgmes, updateContext);
 
         update(network, updateContext, reportNode);
+    }
+
+    private static void removeAllAliasesAndProperties(Network network) {
+        network.getIdentifiables().forEach(identifiable -> {
+            identifiable.getAliases().stream().toList().forEach(identifiable::removeAlias);
+            identifiable.getPropertyNames().stream().toList().forEach(identifiable::removeProperty);
+        });
+
+        network.getBranchStream()
+                .map(branch -> (Branch<?>) branch)
+                .forEach(branch -> {
+                    removeProperties(branch.getOperationalLimitsGroups1());
+                    removeProperties(branch.getOperationalLimitsGroups2());
+                });
+
+        network.getThreeWindingsTransformers().forEach(t3w -> {
+            removeProperties(t3w.getLeg1().getOperationalLimitsGroups());
+            removeProperties(t3w.getLeg2().getOperationalLimitsGroups());
+            removeProperties(t3w.getLeg3().getOperationalLimitsGroups());
+        });
+
+        network.getDanglingLines().forEach(danglingLine ->
+                removeProperties(danglingLine.getOperationalLimitsGroups()));
+    }
+
+    private static void removeProperties(Collection<OperationalLimitsGroup> operationalLimitsGroupCollection) {
+        operationalLimitsGroupCollection.forEach(operationalLimitsGroup ->
+                operationalLimitsGroup.getPropertyNames().stream().toList().forEach(operationalLimitsGroup::removeProperty));
     }
 
     private static boolean sshOrSvIsIncludedInCgmesModel(CgmesModel cgmes) {
@@ -1040,6 +1073,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean getRemovePropertiesAndAliasesAfterImport() {
+            return removePropertiesAndAliasesAfterImport;
+        }
+
+        public Config setRemovePropertiesAndAliasesAfterImport(boolean remove) {
+            removePropertiesAndAliasesAfterImport = remove;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
@@ -1070,6 +1112,7 @@ public class Conversion {
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
         private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
         private boolean usePreviousValuesDuringUpdate = false;
+        private boolean removePropertiesAndAliasesAfterImport = false;
     }
 
     private final CgmesModel cgmes;

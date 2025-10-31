@@ -72,6 +72,29 @@ class LineUpdateTest {
         assertFlowsAfterSv(network);
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "line_EQ.xml", "line_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "line_EQ.xml", "line_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getLineStream().allMatch(line -> line.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getLineStream().allMatch(line -> line.getAliases().isEmpty()));
+        assertEquals(expected, network.getLineStream().allMatch(line -> line.getOperationalLimitsGroups1().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getLineStream().allMatch(line -> line.getOperationalLimitsGroups2().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+    }
+
     private static void assertEq(Network network) {
         assertEq(network.getLine("ACLineSegment"));
         assertDefinedCurrentLimits(network.getLine("ACLineSegment"),
