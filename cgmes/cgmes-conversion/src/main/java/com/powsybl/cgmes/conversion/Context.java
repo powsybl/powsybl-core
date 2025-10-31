@@ -55,7 +55,7 @@ public class Context {
         terminalMapping = new TerminalMapping();
         loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
-        nodeMapping = new NodeMapping();
+        nodeMapping = new NodeMapping(this);
 
         cachedGroupedTransformerEnds = new HashMap<>();
         cachedGroupedRatioTapChangers = new HashMap<>();
