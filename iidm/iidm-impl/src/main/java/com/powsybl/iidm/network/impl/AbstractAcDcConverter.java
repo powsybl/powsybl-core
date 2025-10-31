@@ -56,7 +56,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.targetP = new ExtendedDoubleArrayList(variantArraySize, targetP);
         this.targetVdc = new ExtendedDoubleArrayList(variantArraySize, targetVdc);
-        pccRegulatingPoint = new RegulatingPoint(id, () -> null, variantArraySize, controlMode.ordinal(), ControlMode.V_DC.ordinal(), false);
+        pccRegulatingPoint = new RegulatingPoint(id, () -> (TerminalExt) getTerminal1(), variantArraySize, controlMode.ordinal(), ControlMode.V_DC.ordinal(), false);
         pccRegulatingPoint.setRegulatingTerminal(pccTerminal);
     }
 
