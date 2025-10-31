@@ -575,6 +575,12 @@
     <xs:complexType name="VoltageSourceConverter">
         <xs:complexContent>
             <xs:extension base="iidm:AcDcConverter">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+                        <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+                    </xs:choice>
+                </xs:sequence>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
                 <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>

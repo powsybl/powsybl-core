@@ -18,7 +18,9 @@
                 <iidm:busBreakerTopology>
                     <iidm:bus id="BUSDC-GB-xNodeDc1gb-150"/>
                 </iidm:busBreakerTopology>
-                <iidm:voltageSourceConverter id="VscGb" dcNode1="dcNodeGbNeg" dcConnected1="true" dcNode2="dcNodeGbPos" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-200.0" targetVdc="500.0" bus1="BUSDC-GB-xNodeDc1gb-150" connectableBus1="BUSDC-GB-xNodeDc1gb-150" voltageRegulatorOn="false" voltageSetpoint="400.0" reactivePowerSetpoint="0.0"/>
+                <iidm:voltageSourceConverter id="VscGb" dcNode1="dcNodeGbNeg" dcConnected1="true" dcNode2="dcNodeGbPos" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-200.0" targetVdc="500.0" bus1="BUSDC-GB-xNodeDc1gb-150" connectableBus1="BUSDC-GB-xNodeDc1gb-150" voltageRegulatorOn="false" voltageSetpoint="400.0" reactivePowerSetpoint="0.0">
+                    <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                </iidm:voltageSourceConverter>
             </iidm:voltageLevel>
             <iidm:twoWindingsTransformer id="TRDC-GB-xNodeDc1gb" r="0.1" x="5.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="150.0" voltageLevelId1="VLDC-GB-xNodeDc1gb-400" bus1="BUSDC-GB-xNodeDc1gb-400" connectableBus1="BUSDC-GB-xNodeDc1gb-400" voltageLevelId2="VLDC-GB-xNodeDc1gb-150" bus2="BUSDC-GB-xNodeDc1gb-150" connectableBus2="BUSDC-GB-xNodeDc1gb-150"/>
         </iidm:substation>
@@ -33,7 +35,9 @@
                 <iidm:busBreakerTopology>
                     <iidm:bus id="BUSDC-FR-xNodeDc1fr-150"/>
                 </iidm:busBreakerTopology>
-                <iidm:voltageSourceConverter id="VscFr" dcNode1="dcNodeFrNeg" dcConnected1="true" dcNode2="dcNodeFrPos" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="200.0" targetVdc="500.0" bus1="BUSDC-FR-xNodeDc1fr-150" connectableBus1="BUSDC-FR-xNodeDc1fr-150" voltageRegulatorOn="false" voltageSetpoint="400.0" reactivePowerSetpoint="0.0"/>
+                <iidm:voltageSourceConverter id="VscFr" dcNode1="dcNodeFrNeg" dcConnected1="true" dcNode2="dcNodeFrPos" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="200.0" targetVdc="500.0" bus1="BUSDC-FR-xNodeDc1fr-150" connectableBus1="BUSDC-FR-xNodeDc1fr-150" voltageRegulatorOn="false" voltageSetpoint="400.0" reactivePowerSetpoint="0.0">
+                    <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                </iidm:voltageSourceConverter>
             </iidm:voltageLevel>
             <iidm:twoWindingsTransformer id="TRDC-FR-xNodeDc1fr" r="0.1" x="5.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="150.0" voltageLevelId1="VLDC-FR-xNodeDc1fr-400" bus1="BUSDC-FR-xNodeDc1fr-400" connectableBus1="BUSDC-FR-xNodeDc1fr-400" voltageLevelId2="VLDC-FR-xNodeDc1fr-150" bus2="BUSDC-FR-xNodeDc1fr-150" connectableBus2="BUSDC-FR-xNodeDc1fr-150"/>
         </iidm:substation>
