@@ -70,8 +70,8 @@ public class DefaultNetworkElementAdapterTest {
 
     @Test
     void testDanglingLine() {
-        DanglingLine danglingLine = mockDanglingLine("testDanglingLine", Country.FR, 225.);
-        DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(danglingLine);
+        BoundaryLine boundaryLine = mockDanglingLine("testDanglingLine", Country.FR, 225.);
+        DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(boundaryLine);
         assertEquals("testDanglingLine", networkElement.getId());
         assertEquals(Country.FR, networkElement.getCountry().orElseThrow());
         assertEquals(Country.FR, networkElement.getCountry1().orElseThrow());
@@ -88,7 +88,7 @@ public class DefaultNetworkElementAdapterTest {
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIER));
-        assertEquals(danglingLine, networkElement.getIdentifiable());
+        assertEquals(boundaryLine, networkElement.getIdentifiable());
     }
 
     @Test
@@ -188,7 +188,7 @@ public class DefaultNetworkElementAdapterTest {
         return tieLine;
     }
 
-    public static DanglingLine mockDanglingLine(String id, Country country, double nominalVoltage) {
+    public static BoundaryLine mockDanglingLine(String id, Country country, double nominalVoltage) {
         Substation substation1 = Mockito.mock(Substation.class);
         Mockito.when(substation1.getNullableCountry()).thenReturn(country);
 
@@ -199,11 +199,11 @@ public class DefaultNetworkElementAdapterTest {
         Terminal terminal = Mockito.mock(Terminal.class);
         Mockito.when(terminal.getVoltageLevel()).thenReturn(voltageLevel);
 
-        DanglingLine danglingLine = Mockito.mock(DanglingLine.class);
-        Mockito.when(danglingLine.getType()).thenReturn(IdentifiableType.DANGLING_LINE);
-        Mockito.when(danglingLine.getId()).thenReturn(id);
-        Mockito.when(danglingLine.getTerminal()).thenReturn(terminal);
-        return danglingLine;
+        BoundaryLine boundaryLine = Mockito.mock(BoundaryLine.class);
+        Mockito.when(boundaryLine.getType()).thenReturn(IdentifiableType.DANGLING_LINE);
+        Mockito.when(boundaryLine.getId()).thenReturn(id);
+        Mockito.when(boundaryLine.getTerminal()).thenReturn(terminal);
+        return boundaryLine;
     }
 
     public static TwoWindingsTransformer mockTwoWindingsTransformer(String id, Country country,

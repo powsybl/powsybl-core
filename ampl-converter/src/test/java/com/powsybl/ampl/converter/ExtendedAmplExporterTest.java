@@ -102,7 +102,7 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
 
     @Test
     void testDanglingLineExport() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+        Network network = BoundaryLineNetworkFactory.create();
 
         exporter.export(network, properties, dataSource);
 
@@ -125,8 +125,8 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     @Test
     void testTieLineExport() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        for (DanglingLine danglingLine : network.getDanglingLines()) {
-            danglingLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
+        for (BoundaryLine boundaryLine : network.getDanglingLines()) {
+            boundaryLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                     .setPermanentLimit(100.0)
                     .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
                     .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
@@ -146,12 +146,12 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
                 "inputs/extended_exporter/eurostag-tutorial-example1-buses-tl.txt");
 
         // Check that sc num stays the same if dangling line 1 is disconnected, as middle bus stays connected to main sc
-        network.getTieLine("NHV1_NHV2_1").getDanglingLine1().getTerminal().disconnect();
+        network.getTieLine("NHV1_NHV2_1").getBoundaryLine1().getTerminal().disconnect();
         exporter.export(network, properties, dataSource);
         assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/eurostag-tutorial-example1-buses-tl.txt");
 
         // Check that sc num of middle bus is different if dangling lines 1 and 2 are disconnected
-        network.getTieLine("NHV1_NHV2_1").getDanglingLine2().getTerminal().disconnect();
+        network.getTieLine("NHV1_NHV2_1").getBoundaryLine2().getTerminal().disconnect();
         exporter.export(network, properties, dataSource);
         assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/eurostag-tutorial-example1-buses-tl-disconnected.txt");
 

@@ -17,6 +17,8 @@ import java.util.function.Consumer;
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
+
+//TODO : rename DanglingLine to BoundaryLine
 public final class BoundaryRefSerDe {
 
     private static final String ID = "id";

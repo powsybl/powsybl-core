@@ -59,8 +59,8 @@ class CgmesConformity3ConversionTest {
         for (TieLine tl : merge.getTieLines()) {
             // The danglingLine1 and danglingLine1.boundary.dl must be the same object
             // Both should correspond to objects at my level of merging
-            assertEquals(tl.getDanglingLine1(), tl.getDanglingLine1().getBoundary().getDanglingLine());
-            assertEquals(tl.getDanglingLine2(), tl.getDanglingLine2().getBoundary().getDanglingLine());
+            assertEquals(tl.getBoundaryLine1(), tl.getBoundaryLine1().getBoundary().getDanglingLine());
+            assertEquals(tl.getBoundaryLine2(), tl.getBoundaryLine2().getBoundary().getDanglingLine());
         }
         assertEquals(10, merge.getDanglingLineCount());
 
@@ -113,15 +113,15 @@ class CgmesConformity3ConversionTest {
 
         // For all tie lines we have exported the power flows with the right terminal identifiers
         for (TieLine tieLine : network.getTieLines()) {
-            String terminal1 = tieLine.getDanglingLine1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
-            String terminal2 = tieLine.getDanglingLine2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
+            String terminal1 = tieLine.getBoundaryLine1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
+            String terminal2 = tieLine.getBoundaryLine2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
             String terminal1Resource = "#_" + terminal1;
             String terminal2Resource = "#_" + terminal2;
             assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
             assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
 
-            String eiTerminal1 = tieLine.getDanglingLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
-            String eiTerminal2 = tieLine.getDanglingLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            String eiTerminal1 = tieLine.getBoundaryLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            String eiTerminal2 = tieLine.getBoundaryLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
             String eiTerminal1Resource = "#_" + eiTerminal1;
             String eiTerminal2Resource = "#_" + eiTerminal2;
             assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", eiTerminal1Resource));

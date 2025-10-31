@@ -18,7 +18,10 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ *
  */
+
+//TODO : rename DanglingLine to BoundaryLine
 class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder, Network> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TieLineSerDe.class);
