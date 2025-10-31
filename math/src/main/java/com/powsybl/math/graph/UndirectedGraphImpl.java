@@ -10,12 +10,19 @@ package com.powsybl.math.graph;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.list.linked.TIntLinkedList;
-import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -98,13 +105,13 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     private final List<Edge<E>> edges = new ArrayList<>(EDGES_CAPACITY);
 
     /* cached adjacency list */
-    private TIntArrayList[] adjacencyListCache;
+    private IntArrayList[] adjacencyListCache;
 
     private final Lock adjacencyListCacheLock = new ReentrantLock();
 
-    private final TIntHashSet availableVertices = new TIntHashSet();
+    private final IntOpenHashSet availableVertices = new IntOpenHashSet();
 
-    private final TIntLinkedList removedEdges = new TIntLinkedList();
+    private final IntArrayList removedEdges = new IntArrayList();
 
     private final List<UndirectedGraphListener<V, E>> listeners = new CopyOnWriteArrayList<>();
 
@@ -140,7 +147,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             v = vertices.size();
             vertices.add(new Vertex<>());
         } else {
-            v = availableVertices.iterator().next();
+            v = availableVertices.iterator().nextInt();
             availableVertices.remove(v);
             vertices.set(v, new Vertex<>());
         }
@@ -275,7 +282,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             e = edges.size();
             edges.add(edge);
         } else {
-            e = removedEdges.removeAt(0);
+            e = removedEdges.removeInt(0);
             edges.set(e, edge);
         }
         invalidateAdjacencyList();
@@ -341,24 +348,24 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public int[] getVertices() {
-        TIntArrayList t = new TIntArrayList(vertices.size());
+        IntArrayList t = new IntArrayList(vertices.size());
         for (int i = 0; i < vertices.size(); i++) {
             if (vertices.get(i) != null) {
                 t.add(i);
             }
         }
-        return t.toArray();
+        return t.toIntArray();
     }
 
     @Override
     public int[] getEdges() {
-        TIntArrayList t = new TIntArrayList(getEdgeCount());
+        IntArrayList t = new IntArrayList(getEdgeCount());
         for (int e = 0; e < edges.size(); e++) {
             if (edges.get(e) != null) {
                 t.add(e);
             }
         }
-        return t.toArray();
+        return t.toIntArray();
     }
 
     @Override
@@ -422,9 +429,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public IntStream getEdgeConnectedToVertexStream(int v) {
         checkVertex(v);
-        TIntArrayList[] adjacencyList = getAdjacencyList();
-        TIntArrayList adjacentEdges = adjacencyList[v];
-        return IntStream.range(0, adjacentEdges.size()).map(adjacentEdges::getQuick);
+        IntArrayList[] adjacencyList = getAdjacencyList();
+        IntArrayList adjacentEdges = adjacencyList[v];
+        return IntStream.range(0, adjacentEdges.size()).map(adjacentEdges::getInt);
     }
 
     @Override
@@ -456,10 +463,10 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         checkVertex(v1);
         checkVertex(v2);
         List<E> edgeObjects = new ArrayList<>(1);
-        TIntArrayList[] adjacencyList = getAdjacencyList();
-        TIntArrayList adjacentEdges = adjacencyList[v1];
+        IntArrayList[] adjacencyList = getAdjacencyList();
+        IntArrayList adjacentEdges = adjacencyList[v1];
         for (int i = 0; i < adjacentEdges.size(); i++) {
-            int e = adjacentEdges.getQuick(i);
+            int e = adjacentEdges.getInt(i);
             Edge<E> edge = edges.get(e);
             if (edge.getV1() == v1 && edge.getV2() == v2
                     || edge.getV1() == v2 && edge.getV2() == v1) {
@@ -471,17 +478,17 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     /**
      * Create the adjacency list of this graph.
-     * @return the adjacency list as a {@link TIntArrayList} of {@link TIntArrayList}.
+     * @return the adjacency list as a {@link IntArrayList} of {@link IntArrayList}.
      */
-    private TIntArrayList[] getAdjacencyList() {
+    private IntArrayList[] getAdjacencyList() {
         adjacencyListCacheLock.lock();
         try {
             if (adjacencyListCache == null) {
-                adjacencyListCache = new TIntArrayList[vertices.size()];
+                adjacencyListCache = new IntArrayList[vertices.size()];
                 for (int v = 0; v < vertices.size(); v++) {
                     Vertex<V> vertex = vertices.get(v);
                     if (vertex != null) {
-                        adjacencyListCache[v] = new TIntArrayList(NEIGHBORS_CAPACITY);
+                        adjacencyListCache[v] = new IntArrayList(NEIGHBORS_CAPACITY);
                     }
                 }
                 for (int e = 0; e < edges.size(); e++) {
@@ -508,12 +515,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     private void traverseVertex(int vToTraverse, boolean[] vEncountered, Deque<DirectedEdge> edgesToTraverse,
-                                TIntArrayList[] adjacencyList, TraversalType traversalType) {
+                                IntArrayList[] adjacencyList, TraversalType traversalType) {
         if (vEncountered[vToTraverse]) {
             return;
         }
         vEncountered[vToTraverse] = true;
-        TIntArrayList adjacentEdges = adjacencyList[vToTraverse];
+        IntArrayList adjacentEdges = adjacencyList[vToTraverse];
         for (int i = 0; i < adjacentEdges.size(); i++) {
             // For depth-first traversal, we're going to poll the last element added in the deque. Hence, edges have to
             // be added in reverse order, otherwise the depth-first traversal will be "on the right side" instead of
@@ -523,7 +530,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 case BREADTH_FIRST -> i;
             };
 
-            int adjacentEdgeIndex = adjacentEdges.getQuick(iEdge);
+            int adjacentEdgeIndex = adjacentEdges.getInt(iEdge);
             boolean flippedEdge = edges.get(adjacentEdgeIndex).v1 != vToTraverse;
             edgesToTraverse.add(new DirectedEdge(adjacentEdgeIndex, flippedEdge));
         }
@@ -548,7 +555,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
 
         boolean[] encounteredEdges = new boolean[edges.size()];
-        TIntArrayList[] adjacencyList = getAdjacencyList();
+        IntArrayList[] adjacencyList = getAdjacencyList();
         boolean keepGoing = true;
 
         Deque<DirectedEdge> edgesToTraverse = new ArrayDeque<>();
@@ -601,29 +608,29 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     /**
      * {@inheritDoc}
      * <p>
-     * This method allocates a {@link List} of {@link TIntArrayList} to store the paths, a {@link BitSet} to store the encountered vertices
-     * and calls {@link #findAllPaths(int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
+     * This method allocates a {@link List} of {@link IntArrayList} to store the paths, a {@link BitSet} to store the encountered vertices
+     * and calls {@link #findAllPaths(int, Predicate, Predicate, IntArrayList, BitSet, List)}.
      * </p>
      * In the output, the paths are sorted by size considering the number of switches in each path.
      */
     @Override
-    public List<TIntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<? super E> pathCancelled) {
-        return findAllPaths(from, pathComplete, pathCancelled, Comparator.comparing(TIntArrayList::size));
+    public List<IntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<? super E> pathCancelled) {
+        return findAllPaths(from, pathComplete, pathCancelled, Comparator.comparing(IntArrayList::size));
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * This method allocates a {@link List} of {@link TIntArrayList} to store the paths, a {@link BitSet} to store the encountered vertices
-     * and calls {@link #findAllPaths(int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
+     * This method allocates a {@link List} of {@link IntArrayList} to store the paths, a {@link BitSet} to store the encountered vertices
+     * and calls {@link #findAllPaths(int, Predicate, Predicate, IntArrayList, BitSet, List)}.
      * In the output, the paths are sorted by using the given comparator.
      * </p>
      */
-    public List<TIntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<? super E> pathCancelled, Comparator<TIntArrayList> comparator) {
+    public List<IntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<? super E> pathCancelled, Comparator<IntArrayList> comparator) {
         Objects.requireNonNull(pathComplete);
-        List<TIntArrayList> paths = new ArrayList<>();
+        List<IntArrayList> paths = new ArrayList<>();
         BitSet encountered = new BitSet(vertices.size());
-        TIntArrayList path = new TIntArrayList(1);
+        IntArrayList path = new IntArrayList(1);
         findAllPaths(from, pathComplete, pathCancelled, path, encountered, paths);
 
         // sort paths by size according to the given comparator
@@ -632,8 +639,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     /**
-     * This method is called by {@link #findAllPaths(int, Predicate, Predicate, TIntArrayList, BitSet, List)} each time a vertex is traversed.
-     * The path is added to the paths list if it's complete, otherwise this method calls the {@link #findAllPaths(int, Predicate, Predicate, TIntArrayList, BitSet, List)}
+     * This method is called by {@link #findAllPaths(int, Predicate, Predicate, IntArrayList, BitSet, List)} each time a vertex is traversed.
+     * The path is added to the paths list if it's complete, otherwise this method calls the {@link #findAllPaths(int, Predicate, Predicate, IntArrayList, BitSet, List)}
      * to continue the recursion.
      *
      * @param e the index of the current edge.
@@ -646,7 +653,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
      * @return true if the path is complete, false otherwise.
      */
     private boolean findAllPaths(int e, int v1or2, Predicate<V> pathComplete, Predicate<? super E> pathCancelled,
-                                 TIntArrayList path, BitSet encountered, List<TIntArrayList> paths) {
+                                 IntArrayList path, BitSet encountered, List<IntArrayList> paths) {
         if (encountered.get(v1or2)) {
             return false;
         }
@@ -662,8 +669,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     /**
-     * This method is called by {@link #findAllPaths(int, Predicate, Predicate)} or {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
-     * For each adjacent edges for which the pathCanceled returns {@literal false}, traverse the other vertex calling {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
+     * This method is called by {@link #findAllPaths(int, Predicate, Predicate)} or {@link #findAllPaths(int, int, Predicate, Predicate, IntArrayList, BitSet, List)}.
+     * For each adjacent edges for which the pathCanceled returns {@literal false}, traverse the other vertex calling {@link #findAllPaths(int, int, Predicate, Predicate, IntArrayList, BitSet, List)}.
      *
      * @param v the current vertex
      * @param pathComplete a function that returns true when the target vertex is found.
@@ -673,23 +680,23 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
      * @param paths a list that contains the complete paths.
      */
     private void findAllPaths(int v, Predicate<V> pathComplete, Predicate<? super E> pathCancelled,
-                              TIntArrayList path, BitSet encountered, List<TIntArrayList> paths) {
+                              IntArrayList path, BitSet encountered, List<IntArrayList> paths) {
         checkVertex(v);
         encountered.set(v, true);
-        TIntArrayList[] adjacencyList = getAdjacencyList();
-        TIntArrayList adjacentEdges = adjacencyList[v];
+        IntArrayList[] adjacencyList = getAdjacencyList();
+        IntArrayList adjacentEdges = adjacencyList[v];
         for (int i = 0; i < adjacentEdges.size(); i++) {
-            int e = adjacentEdges.getQuick(i);
+            int e = adjacentEdges.getInt(i);
             Edge<E> edge = edges.get(e);
             if (pathCancelled != null && pathCancelled.test(edge.getObject())) {
                 continue;
             }
             int v1 = edge.getV1();
             int v2 = edge.getV2();
-            TIntArrayList path2;
+            IntArrayList path2;
             BitSet encountered2;
             if (i < adjacentEdges.size() - 1) {
-                path2 = new TIntArrayList(path);
+                path2 = new IntArrayList(path);
                 encountered2 = new BitSet(vertices.size());
                 encountered2.or(encountered);
             } else {
@@ -795,10 +802,10 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
-    private void removeIsolatedVertices(int v, TIntArrayList[] adjacencyList, boolean notify) {
+    private void removeIsolatedVertices(int v, IntArrayList[] adjacencyList, boolean notify) {
         Vertex<V> vertex = vertices.get(v);
         if (vertex != null && vertex.getObject() == null) {
-            TIntArrayList adjacentEdges = adjacencyList[v];
+            IntArrayList adjacentEdges = adjacencyList[v];
             if (adjacentEdges.isEmpty()) {
                 removeVertexInternal(v, notify);
                 adjacencyList[v] = null;
@@ -813,7 +820,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public void removeIsolatedVertices(boolean notify) {
-        TIntArrayList[] adjacencyList = getAdjacencyList();
+        IntArrayList[] adjacencyList = getAdjacencyList();
         for (int v = 0; v < vertices.size(); v++) {
             removeIsolatedVertices(v, adjacencyList, notify);
         }

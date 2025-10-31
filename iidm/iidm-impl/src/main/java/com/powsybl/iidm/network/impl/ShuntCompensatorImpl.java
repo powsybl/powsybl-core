@@ -8,8 +8,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.*;
-import gnu.trove.list.array.TDoubleArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorModel;
+import com.powsybl.iidm.network.ShuntCompensatorModelType;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +44,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final ArrayList<Integer> solvedSectionCount;
 
     /* the target voltage value */
-    private final TDoubleArrayList targetV;
+    private final ExtendedDoubleArrayList targetV;
 
     /* the target deadband */
-    private final TDoubleArrayList targetDeadband;
+    private final ExtendedDoubleArrayList targetDeadband;
 
     ShuntCompensatorImpl(Ref<NetworkImpl> network,
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
@@ -55,13 +60,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         this.sectionCount = new ArrayList<>(variantArraySize);
         this.solvedSectionCount = new ArrayList<>(variantArraySize);
-        this.targetV = new TDoubleArrayList(variantArraySize);
-        this.targetDeadband = new TDoubleArrayList(variantArraySize);
+        this.targetV = new ExtendedDoubleArrayList(variantArraySize, targetV);
+        this.targetDeadband = new ExtendedDoubleArrayList(variantArraySize, targetDeadband);
         for (int i = 0; i < variantArraySize; i++) {
             this.sectionCount.add(sectionCount);
             this.solvedSectionCount.add(checkSolvedSectionCount(solvedSectionCount, model.getMaximumSectionCount()));
-            this.targetV.add(targetV);
-            this.targetDeadband.add(targetDeadband);
         }
         this.model = Objects.requireNonNull(model).attach(this);
     }
@@ -209,9 +212,9 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public ShuntCompensatorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex),
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.getDouble(variantIndex),
                 n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, voltageRegulatorOn, targetDeadband.get(variantIndex),
+        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, voltageRegulatorOn, targetDeadband.getDouble(variantIndex),
                 n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         boolean oldValue = regulatingPoint.setRegulating(variantIndex, voltageRegulatorOn);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -222,7 +225,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public double getTargetV() {
-        return targetV.get(network.get().getVariantIndex());
+        return targetV.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -240,7 +243,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public double getTargetDeadband() {
-        return targetDeadband.get(network.get().getVariantIndex());
+        return targetDeadband.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -267,13 +270,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         sectionCount.ensureCapacity(sectionCount.size() + number);
         solvedSectionCount.ensureCapacity(solvedSectionCount.size() + number);
-        targetV.ensureCapacity(targetV.size() + number);
-        targetDeadband.ensureCapacity(targetDeadband.size() + number);
+        targetV.growAndFill(number, targetV.getDouble(sourceIndex));
+        targetDeadband.growAndFill(number, targetDeadband.getDouble(sourceIndex));
         for (int i = 0; i < number; i++) {
             sectionCount.add(sectionCount.get(sourceIndex));
             solvedSectionCount.add(solvedSectionCount.get(sourceIndex));
-            targetV.add(targetV.get(sourceIndex));
-            targetDeadband.add(targetDeadband.get(sourceIndex));
         }
         regulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
@@ -287,8 +288,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         List<Integer> solvedSectionCountTmp = new ArrayList<>(solvedSectionCount.subList(0, solvedSectionCount.size() - number));
         solvedSectionCount.clear();
         solvedSectionCount.addAll(solvedSectionCountTmp);
-        targetV.remove(targetV.size() - number, number);
-        targetDeadband.remove(targetDeadband.size() - number, number);
+        targetV.removeElements(number);
+        targetDeadband.removeElements(number);
         regulatingPoint.reduceVariantArraySize(number);
     }
 
@@ -304,8 +305,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         for (int index : indexes) {
             sectionCount.set(index, sectionCount.get(sourceIndex));
             solvedSectionCount.set(index, solvedSectionCount.get(sourceIndex));
-            targetV.set(index, targetV.get(sourceIndex));
-            targetDeadband.set(index, targetDeadband.get(sourceIndex));
+            targetV.set(index, targetV.getDouble(sourceIndex));
+            targetDeadband.set(index, targetDeadband.getDouble(sourceIndex));
         }
         regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
