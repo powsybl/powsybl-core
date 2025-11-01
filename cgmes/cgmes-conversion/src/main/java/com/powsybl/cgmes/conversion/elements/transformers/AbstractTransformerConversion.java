@@ -45,8 +45,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        Integer solvedPosition = rtc.getSolvedTapPosition();
-        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
+        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
 
         rtc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -72,8 +71,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         boolean isLtcFlag = ptc.isLtcFlag();
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
-        Integer solvedPosition = ptc.getSolvedTapPosition();
-        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
+        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
 
         ptc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -194,7 +192,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
 
         int defaultTapPosition = getDefaultTapPosition(tw, rtc, ratioTapChangerId, getClosestNeutralStep(rtc), context);
         rtc.setTapPosition(findValidTapPosition(rtc, ratioTapChangerId, defaultTapPosition, context));
-        findValidSolvedTapPosition(rtc, ratioTapChangerId, context).ifPresent(rtc::setSolvedTapPosition);
+        findValidSolvedTapPosition(rtc, ratioTapChangerId, context).ifPresentOrElse(rtc::setSolvedTapPosition, rtc::unsetSolvedTapPosition);
 
         if (rtc.getRegulationTerminal() != null) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, ratioTapChangerId, context);
@@ -260,7 +258,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
 
         int defaultTapPosition = getDefaultTapPosition(tw, ptc, phaseTapChangerId, getClosestNeutralStep(ptc), context);
         ptc.setTapPosition(findValidTapPosition(ptc, phaseTapChangerId, defaultTapPosition, context));
-        findValidSolvedTapPosition(ptc, phaseTapChangerId, context).ifPresent(ptc::setSolvedTapPosition);
+        findValidSolvedTapPosition(ptc, phaseTapChangerId, context).ifPresentOrElse(ptc::setSolvedTapPosition, ptc::unsetSolvedTapPosition);
 
         if (ptc.getRegulationTerminal() != null) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, phaseTapChangerId, context);

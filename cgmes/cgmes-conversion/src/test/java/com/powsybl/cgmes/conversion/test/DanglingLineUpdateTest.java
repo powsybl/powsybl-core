@@ -60,7 +60,7 @@ class DanglingLineUpdateTest {
         Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml", "danglingLine_TP.xml", "danglingLine_SV.xml");
 
         assertEquals(4, network.getDanglingLineCount());
-        assertSvTogether(network);
+        assertSvTogether(network, 285.2495134203, -68.1683990331, 275.1, 50.5, 400.5, -3);
     }
 
     @Test
@@ -98,8 +98,8 @@ class DanglingLineUpdateTest {
 
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getP()));
         assertTrue(Double.isNaN(powerTransformer.getTerminal().getQ()));
-        assertEquals(10.0, breaker.getTerminal().getP(), tol);
-        assertEquals(5.0, breaker.getTerminal().getQ(), tol);
+        assertEquals(0.0, breaker.getTerminal().getP(), tol);
+        assertEquals(0.0, breaker.getTerminal().getQ(), tol);
     }
 
     @Test
@@ -108,15 +108,16 @@ class DanglingLineUpdateTest {
         assertEquals(4, network.getDanglingLineCount());
         assertFirstSsh(network);
 
+        // As the TP file is not read, voltage values cannot be assigned
         readCgmesResources(network, DIR, "danglingLine_SSH.xml", "danglingLine_SV.xml");
         assertFirstSsh(network);
-        assertSvTogether(network);
+        assertSvTogether(network, Double.NaN, Double.NaN, 275.1, 50.5, Double.NaN, Double.NaN);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertSvTogether(network);
+        assertSvTogether(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertEq(Network network) {
@@ -161,16 +162,16 @@ class DanglingLineUpdateTest {
         assertDefinedActivePowerLimits(network.getDanglingLine("Breaker"), new ActivePowerLimit(91.0, 900, 109.0));
     }
 
-    private static void assertSvTogether(Network network) {
+    private static void assertSvTogether(Network network, double acLineSegmentP, double acLineSegmentQ, double equivalentBranchP, double equivalentBranchQ, double v, double angle) {
         double tol = 0.0000001;
         DanglingLine acLineSegment = network.getDanglingLine("ACLineSegment");
-        assertEquals(285.2495134203, acLineSegment.getTerminal().getP(), tol);
-        assertEquals(-68.1683990331, acLineSegment.getTerminal().getQ(), tol);
+        assertEquals(acLineSegmentP, acLineSegment.getTerminal().getP(), tol);
+        assertEquals(acLineSegmentQ, acLineSegment.getTerminal().getQ(), tol);
 
         DanglingLine equivalentBranch = network.getDanglingLine("EquivalentBranch");
-        assertEquals(275.1, equivalentBranch.getTerminal().getP(), tol);
-        assertEquals(50.5, equivalentBranch.getTerminal().getQ(), tol);
-        assertBusVoltage(equivalentBranch.getTerminal().getBusView().getBus());
+        assertEquals(equivalentBranchP, equivalentBranch.getTerminal().getP(), tol);
+        assertEquals(equivalentBranchQ, equivalentBranch.getTerminal().getQ(), tol);
+        assertBusVoltage(equivalentBranch.getTerminal().getBusView().getBus(), v, angle);
         assertTrue(checkBoundaryBusVoltage(equivalentBranch));
 
         DanglingLine powerTransformer = network.getDanglingLine("PowerTransformer");
@@ -238,6 +239,12 @@ class DanglingLineUpdateTest {
         double tol = 0.0000001;
         assertEquals(400.5, bus.getV(), tol);
         assertEquals(-3.0, bus.getAngle(), tol);
+    }
+
+    private static void assertBusVoltage(Bus bus, double v, double angle) {
+        double tol = 0.0000001;
+        assertEquals(v, bus.getV(), tol);
+        assertEquals(angle, bus.getAngle(), tol);
     }
 
     private static boolean checkBoundaryBusVoltage(DanglingLine danglingLine) {
