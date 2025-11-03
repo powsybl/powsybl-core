@@ -433,6 +433,8 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * If supported by the implementation, adds a fictitious reactive power injection to the node using the load sign convention (a positive value has the same effect as a load connected to the node)
          * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder or a state estimator.
          * The method has no effect if the NodeBreakerView implementation does not support fictitious injections.
+         * @param node the node to which the fictitious load is connected.
+         * @param q0 fictitious load in MVar, using the load sign convention.
          */
         default NodeBreakerView setFictitiousQ0(int node, double q0) {
             // do nothing
