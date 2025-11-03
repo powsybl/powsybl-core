@@ -87,6 +87,7 @@ public interface Bus extends Identifiable<Bus> {
      * If supported by the implementation, adds a fictitious reactive power injection to the bus using the load sign convention (a positive value has the same effect as a load connected to the bus)
      * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder or a state estimator.
      * The method has no effect if the Bus implementation does not support fictitious injections.
+     * @param q0 fictitious load in MVar, using the load sign convention.
      */
     default Bus setFictitiousQ0(double q0) {
         // do nothing
