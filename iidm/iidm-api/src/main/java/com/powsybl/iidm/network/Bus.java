@@ -76,7 +76,7 @@ public interface Bus extends Identifiable<Bus> {
     }
 
     /**
-     * Returns the fictitious reactive power injection to the bus if set, or 0. The value is in MW and uses the load sign convention (a positive value has the same effect as a load connected to the bus)
+     * Returns the fictitious reactive power injection to the bus if set, or 0. The value is in MVar and uses the load sign convention (a positive value has the same effect as a load connected to the bus)
      * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder or a state estimator.
      */
     default double getFictitiousQ0() {
