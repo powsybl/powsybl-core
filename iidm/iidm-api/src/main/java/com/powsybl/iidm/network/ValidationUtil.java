@@ -676,9 +676,6 @@ public final class ValidationUtil {
     }
 
     public static void checkAcDcConverterPccTerminal(Validable validable, boolean twoAcTerminals, Terminal pccTerminal, VoltageLevel voltageLevel) {
-        if (twoAcTerminals && pccTerminal == null) {
-            throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not set");
-        }
         if (pccTerminal != null) {
             var c = pccTerminal.getConnectable();
             if (twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer)) {
