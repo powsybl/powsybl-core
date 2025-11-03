@@ -426,6 +426,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         /**
          * Returns the fictitious reactive power injection to the node if set, or 0. The value is in MVar and uses the load sign convention (a positive value has the same effect as a load connected to the node)
          * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder or a state estimator.
+         * @param node the node to which the fictitious load is connected.
          */
         default double getFictitiousQ0(int node) {
             return 0.0;
