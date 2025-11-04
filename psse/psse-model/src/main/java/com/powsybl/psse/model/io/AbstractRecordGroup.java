@@ -331,17 +331,38 @@ public abstract class AbstractRecordGroup<T> {
         if (records.stream().anyMatch(Objects::isNull)) {
             throw new PsseException("Parsing error");
         }
+        char delimiter = context.getDelimiter();
+        char quoteChar = context.getQuote(); // Add a getter in Context if needed, or hardcode '\''
+
         int expectedNumFields = records.stream()
-            .mapToInt(rec -> Math.toIntExact(rec.chars().filter(c -> c == context.getDelimiter())
-                .count()))
-            .max().orElse(0) + 1;
+            .mapToInt(rec -> countFields(rec, delimiter, quoteChar))
+            .max().orElse(0);
         for (String rec : records) {
-            int numFields = Math.toIntExact(rec.chars().filter(c -> c == context.getDelimiter()).count()) + 1;
-            sb.append(rec)
-                .append(String.valueOf(context.getDelimiter()).repeat(Math.max(0, expectedNumFields - numFields)))
-                .append(System.lineSeparator());
+            int numFields = countFields(rec, delimiter, quoteChar);
+            sb.append(rec);
+            if (numFields < expectedNumFields) {
+                sb.append(String.valueOf(context.getDelimiter()).repeat(Math.max(0, expectedNumFields - numFields)));
+                LOGGER.info("Added {} empty fields to record {}", expectedNumFields - numFields, rec);
+            }
+            sb.append(System.lineSeparator());
         }
         return Arrays.copyOfRange(headers, 0, expectedNumFields);
+    }
+
+    /**
+     * Count the number of fields, ignoring delimiters inside quoted text.
+     */
+    private int countFields(String line, char delimiter, char quoteChar) {
+        boolean inQuotes = false;
+        int count = 1; // At least one field
+        for (char c : line.toCharArray()) {
+            if (c == quoteChar) {
+                inQuotes = !inQuotes;
+            } else if (c == delimiter && !inQuotes) {
+                count++;
+            }
+        }
+        return count;
     }
 
     // Casting is safe here
