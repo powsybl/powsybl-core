@@ -425,14 +425,14 @@ public final class StateVariablesExport {
     private static void writeFictitiousInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
-                writeNodeBreakerFictitiousTerminals(vl, cimNamespace, writer, context);
+                writeNodeBreakerFictitiousInjections(vl, cimNamespace, writer, context);
             } else {
                 writeBusBranchFictitiousInjections(vl, cimNamespace, writer, context);
             }
         }
     }
 
-    private static void writeNodeBreakerFictitiousTerminals(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+    private static void writeNodeBreakerFictitiousInjections(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         VoltageLevel.NodeBreakerView nb = vl.getNodeBreakerView();
         for (int node : nb.getNodes()) {
             double p = nb.getFictitiousP0(node);
