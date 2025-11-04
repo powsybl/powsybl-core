@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TOPOLOGICAL_ISLAND;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -272,8 +273,8 @@ public final class StateVariablesExport {
 
             boolean isInAccordance;
             if (BusTools.hasAnyFinite(busViewBus, Terminal::getP) && BusTools.hasAnyFinite(busViewBus, Terminal::getQ)) {
-                double sumP = BusTools.sum(busViewBus, Terminal::getP);
-                double sumQ = BusTools.sum(busViewBus, Terminal::getQ);
+                double sumP = BusTools.sum(busViewBus, Terminal::getP) + bus.getFictitiousP0(); //TODO: check sign
+                double sumQ = BusTools.sum(busViewBus, Terminal::getQ) + bus.getFictitiousQ0(); //TODO: check sign
                 isInAccordance = Math.abs(sumP) <= maxPMismatchConverged && Math.abs(sumQ) <= maxQMismatchConverged;
                 if (!isInAccordance && LOG.isInfoEnabled()) {
                     LOG.info("Bus {} is not in accordance with Kirchhoff's first law. Mismatch = {}", bus, String.format("(%.4f, %.4f)", sumP, sumQ));
@@ -390,6 +391,9 @@ public final class StateVariablesExport {
             }
         }
 
+        // Write SvPowerFlow for synthetic fictitious injections exported as NonConformLoad
+        writeFictitiousInjectionsPowerFlows(network, cimNamespace, writer, context);
+
         Map<String, Double> equivalentInjectionTerminalP = new HashMap<>();
         Map<String, Double> equivalentInjectionTerminalQ = new HashMap<>();
         network.getDanglingLines(DanglingLineFilter.ALL).forEach(dl -> {
@@ -415,6 +419,39 @@ public final class StateVariablesExport {
 
         if (context.exportFlowsForSwitches()) {
             network.getVoltageLevelStream().forEach(vl -> writePowerFlowForSwitchesInVoltageLevel(vl, cimNamespace, writer, context));
+        }
+    }
+
+    private static void writeFictitiousInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        for (VoltageLevel vl : network.getVoltageLevels()) {
+            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
+                writeNodeBreakerFictitiousTerminals(vl, cimNamespace, writer, context);
+            } else {
+                writeBusBranchFictitiousInjections(vl, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeNodeBreakerFictitiousTerminals(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        VoltageLevel.NodeBreakerView nb = vl.getNodeBreakerView();
+        for (int node : nb.getNodes()) {
+            double p = nb.getFictitiousP0(node);
+            double q = nb.getFictitiousQ0(node);
+            if (Math.abs(p) != 0.0 || Math.abs(q) != 0.0) {
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL, ref(node));
+                writePowerFlow(terminalId, p, q, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeBusBranchFictitiousInjections(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        for (Bus b : vl.getBusBreakerView().getBuses()) {
+            double p = b.getFictitiousP0();
+            double q = b.getFictitiousQ0();
+            if (Math.abs(p) != 0.0 || Math.abs(q) != 0.0) {
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL);
+                writePowerFlow(terminalId, p, q, cimNamespace, writer, context);
+            }
         }
     }
 

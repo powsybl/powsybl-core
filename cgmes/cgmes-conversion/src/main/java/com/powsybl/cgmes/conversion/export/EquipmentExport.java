@@ -9,19 +9,55 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.export.elements.AcLineSegmentEq;
+import com.powsybl.cgmes.conversion.export.elements.BaseVoltageEq;
+import com.powsybl.cgmes.conversion.export.elements.BusbarSectionEq;
+import com.powsybl.cgmes.conversion.export.elements.ConnectivityNodeEq;
+import com.powsybl.cgmes.conversion.export.elements.ControlAreaEq;
+import com.powsybl.cgmes.conversion.export.elements.CurveDataEq;
+import com.powsybl.cgmes.conversion.export.elements.DCConverterUnitEq;
+import com.powsybl.cgmes.conversion.export.elements.DCGroundEq;
+import com.powsybl.cgmes.conversion.export.elements.DCLineSegmentEq;
+import com.powsybl.cgmes.conversion.export.elements.DCNodeEq;
+import com.powsybl.cgmes.conversion.export.elements.DCTerminalEq;
+import com.powsybl.cgmes.conversion.export.elements.EnergyConsumerEq;
+import com.powsybl.cgmes.conversion.export.elements.EquivalentInjectionEq;
+import com.powsybl.cgmes.conversion.export.elements.EquivalentShuntEq;
+import com.powsybl.cgmes.conversion.export.elements.ExternalNetworkInjectionEq;
+import com.powsybl.cgmes.conversion.export.elements.GeneratingUnitEq;
+import com.powsybl.cgmes.conversion.export.elements.GeographicalRegionEq;
+import com.powsybl.cgmes.conversion.export.elements.HvdcConverterStationEq;
+import com.powsybl.cgmes.conversion.export.elements.LoadAreaEq;
+import com.powsybl.cgmes.conversion.export.elements.LoadResponseCharacteristicEq;
+import com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq;
+import com.powsybl.cgmes.conversion.export.elements.OperationalLimitSetEq;
+import com.powsybl.cgmes.conversion.export.elements.OperationalLimitTypeEq;
+import com.powsybl.cgmes.conversion.export.elements.PowerTransformerEq;
+import com.powsybl.cgmes.conversion.export.elements.ReactiveCapabilityCurveEq;
+import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
+import com.powsybl.cgmes.conversion.export.elements.ShuntCompensatorEq;
+import com.powsybl.cgmes.conversion.export.elements.StaticVarCompensatorEq;
+import com.powsybl.cgmes.conversion.export.elements.SubGeographicalRegionEq;
+import com.powsybl.cgmes.conversion.export.elements.SubstationEq;
+import com.powsybl.cgmes.conversion.export.elements.SwitchEq;
+import com.powsybl.cgmes.conversion.export.elements.SynchronousMachineEq;
+import com.powsybl.cgmes.conversion.export.elements.TapChangerEq;
+import com.powsybl.cgmes.conversion.export.elements.TerminalEq;
+import com.powsybl.cgmes.conversion.export.elements.TieFlowEq;
+import com.powsybl.cgmes.conversion.export.elements.VoltageLevelEq;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
-import com.powsybl.cgmes.conversion.export.elements.*;
-import com.powsybl.cgmes.extensions.*;
+import com.powsybl.cgmes.extensions.BaseVoltageMapping;
+import com.powsybl.cgmes.extensions.CgmesTapChanger;
+import com.powsybl.cgmes.extensions.CgmesTapChangers;
+import com.powsybl.cgmes.extensions.Source;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
-
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -29,19 +65,60 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
-import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
-import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL2;
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.CONNECTIVITY_NODE;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.CONVERTER_STATION;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DCNODE;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_CONVERTER_UNIT;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_GROUND;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_TERMINAL;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FOSSIL_FUEL;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.GEOGRAPHICAL_REGION;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.HYDRO_POWER_PLANT;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.LOAD_AREA;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.LOAD_RESPONSE_CHARACTERISTICS;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.OPERATIONAL_LIMIT_SET;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.OPERATIONAL_LIMIT_TYPE;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.OPERATIONAL_LIMIT_VALUE;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.PATL;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.PHASE_TAP_CHANGER_STEP;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.PHASE_TAP_CHANGER_TABLE;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.Part;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.RATIO_TAP_CHANGER_STEP;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.RATIO_TAP_CHANGER_TABLE;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.REACTIVE_CAPABIILITY_CURVE_POINT;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.REACTIVE_CAPABILITY_CURVE;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.SHUNT_COMPENSATOR;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.SUBSTATION;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.SUB_GEOGRAPHICAL_REGION;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.SUB_LOAD_AREA;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TATL;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.THERMAL_GENERATING_UNIT;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TIE_FLOW;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.VOLTAGE_LEVEL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
+import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
+import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL2;
+import static com.powsybl.cgmes.model.CgmesNames.NONCONFORM_LOAD;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -88,6 +165,7 @@ public final class EquipmentExport {
             writeVoltageLevels(network, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
             writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, loadGroups, cimNamespace, writer, context);
+            writeFictitiousInjections(network, loadGroups, mapNodeKey2NodeId, cimNamespace, writer, context);
             String loadAreaId = writeLoadGroups(network, loadGroups.found(), cimNamespace, writer, context);
             writeGenerators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writer, context);
             writeBatteries(network, cimNamespace, writer, context);
@@ -265,6 +343,64 @@ public final class EquipmentExport {
             writer.writeEndElement();
         }
         return loadAreaId;
+    }
+
+    private static void writeFictitiousInjections(Network network, LoadGroups loadGroups, Map<String, String> mapNodeKey2NodeId,
+                                                  String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (VoltageLevel vl : network.getVoltageLevels()) {
+            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
+                writeNodeBreakerFictitiousInjections(vl, loadGroups, mapNodeKey2NodeId, cimNamespace, writer, context);
+            } else {
+                writeBusBranchFictitiousInjections(vl, loadGroups, mapNodeKey2NodeId, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeNodeBreakerFictitiousInjections(VoltageLevel vl, LoadGroups loadGroups, Map<String, String> mapNodeKey2NodeId,
+                                                   String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        VoltageLevel.NodeBreakerView nb = vl.getNodeBreakerView();
+        for (int node : nb.getNodes()) {
+            double p = nb.getFictitiousP0(node);
+            double q = nb.getFictitiousQ0(node);
+            if (Math.abs(p) != 0.0 || Math.abs(q) != 0.0) {
+                String loadId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, ref("NCL"), ref(node));
+                String loadName = vl.getNameOrId() + "_FICT_NCL_" + node;
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, TERMINAL, ref(node));
+                String cnId = mapNodeKey2NodeId.get(buildNodeKey(vl, node));
+
+                writeFictitiousInjection(p, loadId, loadName, terminalId, cnId, vl, loadGroups, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeBusBranchFictitiousInjections(VoltageLevel vl, LoadGroups loadGroups, Map<String, String> mapNodeKey2NodeId,
+                                                  String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (Bus b : vl.getBusBreakerView().getBuses()) {
+            double p = b.getFictitiousP0();
+            double q = b.getFictitiousQ0();
+            if (Math.abs(p) != 0.0 || Math.abs(q) != 0.0) {
+                String loadId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, ref("NCL"));
+                String loadName = b.getNameOrId() + "_FICT_NCL";
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, TERMINAL);
+                String cnId = mapNodeKey2NodeId.get(buildNodeKey(b));
+
+                writeFictitiousInjection(p, loadId, loadName, terminalId, cnId, vl, loadGroups, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeFictitiousInjection(double p, String loadId, String loadName, String terminalId, String cnId,
+                                                 VoltageLevel vl, LoadGroups loadGroups, String cimNamespace,
+                                                 XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String equipmentContainerId = context.getNamingStrategy().getCgmesId(vl);
+        if (p <= 0) {
+            writeEnergySource(loadId, loadName, equipmentContainerId, cimNamespace, writer, context);
+        } else {
+            String loadGroup = loadGroups.groupFor(NONCONFORM_LOAD, context);
+            EnergyConsumerEq.write(NONCONFORM_LOAD, loadId, loadName, loadGroup, equipmentContainerId, null, cimNamespace, writer, context);
+        }
+
+        TerminalEq.write(terminalId, loadId, cnId, 1, cimNamespace, writer, context);
     }
 
     private static void writeLoads(Network network, LoadGroups loadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
