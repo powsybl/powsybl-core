@@ -209,6 +209,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         n.invalidateValidationLevel();
         notifyUpdate("targetV", variantId, oldValueTargetV, targetV);
         //
+        ValidationUtil.checkLocalTargetV(this, localTargetV);
         double oldValueLocalTargetV = this.localTargetV.set(variantIndex, localTargetV);
         notifyUpdate("localTargetV", variantId, oldValueLocalTargetV, localTargetV);
         return this;
