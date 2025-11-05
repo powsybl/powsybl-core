@@ -253,5 +253,8 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
      */
     void addDroop(AcDcConverterDroop droop);
 
+    /**
+     * Create a Droop Segment;
+     */
     AcDcConverterDroopAdder newDroop();
 }

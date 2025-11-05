@@ -976,14 +976,14 @@ between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
 
-When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter controls DC voltage as in the `P_PCC` control mode
+When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter controls active power as in the `P_PCC` control mode
 for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
 $P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
 Where $k$ is the droop coefficient of the actual droop segment.
 
 Each droop segment in the `DroopList` is defined with minimal and maximal voltage, and a droop coefficient. The actual 
 droop segment should be the one which verifies:
-$V_{DC} \in [V_{min}, V_{max}]$
+$V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
 
 
 
