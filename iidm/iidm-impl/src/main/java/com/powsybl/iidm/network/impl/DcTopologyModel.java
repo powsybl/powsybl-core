@@ -372,6 +372,14 @@ public class DcTopologyModel implements MultiVariantObject {
             } else {
                 throw new IllegalStateException();
             }
+        } else if (otherDcConnectable instanceof VoltageSourceConverter converter) {
+            if (converter.getDcTerminal1() == otherDcTerminal) {
+                nextDcTerminals.add(converter.getDcTerminal2());
+            } else if (converter.getDcTerminal2() == otherDcTerminal) {
+                nextDcTerminals.add(converter.getDcTerminal1());
+            } else {
+                throw new IllegalStateException();
+            }
         }
     }
 
@@ -392,9 +400,9 @@ public class DcTopologyModel implements MultiVariantObject {
             List<DcTerminal> nextDcTerminals = new ArrayList<>();
             addNextDcTerminals(terminal, nextDcTerminals);
 
-            // then check we can traverse terminals connected to same bus
-            DcConnectable<? extends DcTerminal> dcConn = terminal.getDcConnectable();
-            for (DcTerminal t : dcConn.getDcTerminals()) {
+            // then check we can traverse terminals connected to same dc node
+            DcNode dcNode = terminal.getDcNode();
+            for (DcTerminal t : dcNode.getDcTerminals()) {
                 TraverseResult tTraverseResult = getTraverserResult(visitedDcTerminals, t, traverser);
                 if (tTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
                     return false;
