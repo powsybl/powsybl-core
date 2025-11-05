@@ -251,6 +251,8 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
   - If it is a `SolarGeneratingUnit`, `EnergySource` is `SOLAR`
   - Else, `EnergySource` is `OTHER`
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, `TargetP` is set from CGMES `GeneratingUnit.initialP` from the `GeneratingUnit` associated to the `SynchronousMachine` and `TargetQ` is set to `0`.
+- `isCondenser` is defined from the `SynchronousMachine.SynchronousMachineKind`. If it contains `condenser` (`condenser`,
+`generatorOrCondenser`, `motorOrCondenser`, `generatorOrMotorOrCondenser`), then the flag is set to `true`. Otherwise, it is set to `false`.
 
 <span style="color: red">TODO reactive limits</span>
 
