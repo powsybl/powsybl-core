@@ -59,6 +59,9 @@ public final class IeeeCdfBusWriter extends AbstractIeeeCdfWriter {
         line.addCell(new FloatCell("shuntConductance", bus.getShuntConductance()));
         line.addCell(new FloatCell("shuntSusceptance", bus.getShuntSusceptance()));
         line.addCell(new IntegerCell("remoteControlledBusNumber", bus.getRemoteControlledBusNumber()));
+        if (bus.getUnused() != null) {
+            line.addCell(new IntegerCell("unused", bus.getUnused()));
+        }
         return line;
     }
 }

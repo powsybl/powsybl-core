@@ -66,9 +66,9 @@ public final class IeeeCdfBusSchema extends AbstractCdfSchema {
             .withAlignment(FixedWidthSchemaCell.Alignment.LEFT).build()); // 115–122
         line.addSchemaCell(filler(1, fillerNumber)); // 123
         line.addSchemaCell(FixedWidthSchemaCell.builder("remoteControlledBusNumber", 4)
-            .withAlignment(FixedWidthSchemaCell.Alignment.LEFT).build()); // 124–127
-        line.addSchemaCell(FixedWidthSchemaCell.builder("unused", 6)
-            .build()); // 128–133
+            .withAlignment(FixedWidthSchemaCell.Alignment.RIGHT).build()); // 124–127
+        line.addSchemaCell(FixedWidthSchemaCell.builder("unused", 5)
+            .withAlignment(FixedWidthSchemaCell.Alignment.RIGHT).build()); // 128–132
 
         return FixedWidthSchema.builder().withLine(line).build();
     }

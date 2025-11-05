@@ -144,7 +144,10 @@ public class IeeeCdfBus {
      */
     private int remoteControlledBusNumber;
 
-    private int unused;
+    /**
+     * Additional columns
+     */
+    private Integer unused = null;
 
     public int getNumber() {
         return number;
@@ -288,5 +291,13 @@ public class IeeeCdfBus {
 
     public void setRemoteControlledBusNumber(int remoteControlledBusNumber) {
         this.remoteControlledBusNumber = remoteControlledBusNumber;
+    }
+
+    public Integer getUnused() {
+        return unused;
+    }
+
+    public void setUnused(int unused) {
+        this.unused = unused;
     }
 }
