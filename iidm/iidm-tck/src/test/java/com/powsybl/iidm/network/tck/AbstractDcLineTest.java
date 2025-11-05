@@ -183,7 +183,7 @@ public abstract class AbstractDcLineTest {
             fail();
         } catch (PowsyblException e) {
             assertEquals("Associated equipment dcLine1 is removed", e.getMessage());
-    }
+        }
         try {
             t2.traverse(Mockito.mock(DcTerminal.TopologyTraverser.class));
             fail();
