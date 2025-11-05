@@ -360,7 +360,7 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    void invalidLocalTargetV() {
+    void invalidLocalTargetVAdder() {
         // GIVEN
         double targetV = 220.0;
         double localTargetV = -10.0;
@@ -376,6 +376,26 @@ public abstract class AbstractGeneratorTest {
         ValidationException e = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
         assertEquals("Generator 'GEN1': invalid value (-10.0) for localTargetV (must be positive)", e.getMessage());
+    }
+
+    @Test
+    void invalidLocalTargetV() {
+        // GIVEN
+        double targetV = 220.0;
+        double localTargetV = -17.6;
+        Generator generator = voltageLevel.newGenerator()
+            .setId("GEN1")
+            .setNode(1)
+            .setTargetP(15)
+            .setMinP(10)
+            .setMaxP(25)
+            .setVoltageRegulatorOn(true)
+            .setTargetV(targetV)
+            .add();
+        // WHEN
+        ValidationException e = assertThrows(ValidationException.class, () -> generator.setTargetV(targetV, localTargetV));
+        // THEN
+        assertEquals("Generator 'GEN1': invalid value (-17.6) for localTargetV (must be positive)", e.getMessage());
     }
 
     private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,

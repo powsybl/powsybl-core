@@ -195,7 +195,9 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     double getTargetV();
 
     /**
-     * Set the voltage target in kV.
+     * Set the voltage target in kV AND set the local voltage target to {@link Double#NaN}
+     * <p>
+     * To avoid setting the local voltage target to {@link Double#NaN}, please use {@link Generator#setTargetV(double, double)}
      * <p>
      * Depends on the working variant.
      * @see VariantManager
@@ -203,7 +205,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     Generator setTargetV(double targetV);
 
     /**
-     * Get the local TargetV target in kV use in regulation mode : LOCAL.
+     * Get the local TargetV target in kV.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
@@ -211,7 +213,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     double getLocalTargetV();
 
     /**
-     * Set the voltage target in kV and Set the local TargetV target in kV use in regulation mode : LOCAL.
+     * Set the voltage target in kV and Set the local target in kV.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
