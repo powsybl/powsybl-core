@@ -78,6 +78,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         Generator generator1 = network.getGenerator("GEN");
         Generator generator2 = network.getGenerator("GEN2");
         Generator generator3 = network.getGenerator("GEN3");
+        Battery battery = network.getBattery("BAT");
 
         String eqXml = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir, new Properties());
         String sshXml = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir, new Properties());
@@ -103,6 +104,12 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         assertNotNull(generator3Ssh);
         assertTrue(generator3Ssh.contains("SynchronousMachineOperatingMode.motor"));
 
+        String batteryEq = getElement(eqXml, "SynchronousMachine", battery.getId());
+        assertNotNull(batteryEq);
+        assertTrue(batteryEq.contains("SynchronousMachineKind.generatorOrMotor"));
+        String batterySsh = getElement(sshXml, "SynchronousMachine", battery.getId());
+        assertNotNull(batterySsh);
+        assertTrue(batterySsh.contains("SynchronousMachineOperatingMode.generator"));
     }
 
     private Network createNetwork() {
@@ -172,6 +179,18 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .endPoint();
         rcca.add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(3).add();
+
+        // Will be exported as generatorOrMotor (isCondenser is false by default on batteries) and operating as a generator
+        Battery battery = voltageLevel1.newBattery()
+            .setId("BAT")
+            .setNode(4)
+            .setMinP(-10.0)
+            .setMaxP(10.0)
+            .setTargetP(0.0)
+            .setTargetQ(0.0)
+            .add();
+        battery.getTerminal().disconnect();
+        voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(4).add();
 
         return network;
     }
