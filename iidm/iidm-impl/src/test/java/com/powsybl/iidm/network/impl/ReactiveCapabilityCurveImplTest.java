@@ -7,6 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
@@ -17,9 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -32,6 +39,13 @@ class ReactiveCapabilityCurveImplTest {
             map.put(pt.getP(), pt);
         }
         return new ReactiveCapabilityCurveImpl(map, "ReactiveCapabilityCurve owner");
+    }
+
+    private static boolean checkReportNode(String expected, ReportNode reportNode) throws IOException {
+        StringWriter sw = new StringWriter();
+        reportNode.print(sw);
+        assertEquals(expected, sw.toString());
+        return true;
     }
 
     @Test
@@ -58,9 +72,16 @@ class ReactiveCapabilityCurveImplTest {
     }
 
     @Test
-    void testReactiveCapabilityCurveWithInvertedMinQMaxQ() {
+    void testReactiveCapabilityCurveWithInvertedMinQMaxQ() throws IOException {
 
         Network network = FictitiousSwitchFactory.create();
+
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("key1")
+                .build();
+        network.getReportNodeContext().pushReportNode(reportNode);
+
         Generator generator = network.getGenerator("CB");
 
         ReactiveCapabilityCurve reactiveCapabilityCurve = generator.newReactiveCapabilityCurve()
@@ -78,9 +99,11 @@ class ReactiveCapabilityCurveImplTest {
 
         assertEquals(1.0, reactiveCapabilityCurve.getMinQ(1.0), 0.0);
         assertEquals(5.0, reactiveCapabilityCurve.getMaxQ(1.0), 0.0);
-        //inverted minQ and maxQ have been put in the right order :
+        // reversed minQ and maxQ values have been put in the right order :
         assertEquals(2.0, reactiveCapabilityCurve.getMinQ(100.0), 0.0);
         assertEquals(10.0, reactiveCapabilityCurve.getMaxQ(100.0), 0.0);
+        assertTrue(checkReportNode("+ name1" + System.lineSeparator() +
+                "   Reactive capability curve for CB : reversed minQ > maxQ values have been put in the right order" + System.lineSeparator(), network.getReportNodeContext().getReportNode()));
     }
 
     @ParameterizedTest

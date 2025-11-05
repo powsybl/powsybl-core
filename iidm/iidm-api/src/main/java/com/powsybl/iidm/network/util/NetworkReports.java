@@ -57,6 +57,14 @@ public final class NetworkReports {
                 .add();
     }
 
+    public static void reactiveCapabilityCurveReversedMinQMaxQ(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.validationWarningReactiveCapabilityCurveReversedMinQMaxQ")
+                .withTypedValue("id", id, TypedValue.ID)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static ReportNode runIidmNetworkValidationCHecks(ReportNode reportNode, String networkId) {
         return Objects.requireNonNull(reportNode).newReportNode()
                 .withMessageTemplate("core.iidm.network.IIDMValidation")

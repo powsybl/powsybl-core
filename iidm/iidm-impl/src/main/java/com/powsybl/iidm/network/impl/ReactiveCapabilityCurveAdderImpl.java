@@ -81,10 +81,12 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
                 }
             }
             if (maxQ < minQ) {
-                LOGGER.warn("minQ > maxQ : values were inverted and have been put in the right order");
                 double temp = minQ;
                 minQ = maxQ;
                 maxQ = temp;
+                LOGGER.warn("minQ > maxQ : values were reversed and have been put in the right order");
+                NetworkReports.reactiveCapabilityCurveReversedMinQMaxQ(owner.getNetwork().getReportNodeContext().getReportNode(),
+                        owner.getMessageHeader().id());
             }
 
             points.put(p, new PointImpl(p, minQ, maxQ));
