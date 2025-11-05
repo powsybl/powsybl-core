@@ -24,7 +24,7 @@ class DcTopologyTraverseTest {
 
     private final Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
 
-    private static class ConverterTraverser implements DcTerminal.TopologyTraverser {
+    private static final class ConverterTraverser implements DcTerminal.TopologyTraverser {
         private String firstTraversedConverterId;
 
         @Override
