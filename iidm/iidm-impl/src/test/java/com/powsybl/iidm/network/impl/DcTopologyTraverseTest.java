@@ -27,9 +27,6 @@ class DcTopologyTraverseTest {
     private static class ConverterTraverser implements DcTerminal.TopologyTraverser {
         private String firstTraversedConverterId;
 
-        public ConverterTraverser() {
-        }
-
         @Override
         public TraverseResult traverse(DcTerminal terminal, boolean connected) {
             if (terminal.getDcConnectable().getType() == IdentifiableType.VOLTAGE_SOURCE_CONVERTER) {

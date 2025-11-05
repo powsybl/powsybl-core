@@ -86,11 +86,11 @@ class TrippingTopologyTraverserTest {
     @Test
     void testDc() {
         Network network = Network.create("test", "");
-        DcNode dn1 = network.newDcNode().
+        network.newDcNode().
                 setId("dn1").
                 setNominalV(400.).
                 add();
-        DcNode dn2 = network.newDcNode().
+        network.newDcNode().
                 setId("dn2").
                 setNominalV(400.).
                 add();
