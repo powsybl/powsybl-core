@@ -79,6 +79,9 @@ public final class SteadyStateHypothesisExport {
     private static final String ROTATING_MACHINE_Q = "RotatingMachine.q";
     private static final String REGULATING_COND_EQ_CONTROL_ENABLED = "RegulatingCondEq.controlEnabled";
     private static final String ACDC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
+    private static final String OPERATING_MODE_GENERATOR = "generator";
+    private static final String OPERATING_MODE_MOTOR = "motor";
+    private static final String OPERATING_MODE_CONDENSER = "condenser";
 
     private SteadyStateHypothesisExport() {
     }
@@ -389,7 +392,6 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
-        String kind = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
         String operatingMode = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
         String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Generator gen && gen.isCondenser());
         String calculatedOperatingMode = obtainOperatingMode(targetP, i, calculatedKind);
@@ -398,19 +400,19 @@ public final class SteadyStateHypothesisExport {
 
     private static String obtainOperatingMode(double targetP, Injection<?> injection, String calculatedKind) {
         if (targetP < 0) {
-            return "motor";
+            return OPERATING_MODE_MOTOR;
         } else if (targetP > 0) {
-            return "generator";
+            return OPERATING_MODE_GENERATOR;
         } else {
             if (isOperatingAsACondenser(injection)) {
-                return "condenser";
+                return OPERATING_MODE_CONDENSER;
             } else {
-                if (calculatedKind.contains("generator")) {
-                    return "generator";
-                } else if (calculatedKind.contains("motor")) {
-                    return "motor";
+                if (calculatedKind.contains(OPERATING_MODE_GENERATOR)) {
+                    return OPERATING_MODE_GENERATOR;
+                } else if (calculatedKind.contains(OPERATING_MODE_MOTOR)) {
+                    return OPERATING_MODE_MOTOR;
                 } else {
-                    return "condenser";
+                    return OPERATING_MODE_CONDENSER;
                 }
             }
         }
