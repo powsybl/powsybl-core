@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<!-- Exported from CIMSpy/CIMdesk on 2025-05-19T14:53:35Z. -->
+	<md:FullModel rdf:about="urn:uuid:18883bbd-c850-48eb-8eb9-b6018decdb63">
+		<md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+		<md:Model.DependentOn rdf:resource="urn:uuid:1b65ada7-39ca-42b8-a278-39c457ed82c3"/>
+		<md:Model.created>2025-02-06T14:18:22Z</md:Model.created>
+		<md:Model.description>BD test data.</md:Model.description>
+		<md:Model.modelingAuthoritySet>http://ninerealms.nr/boundary</md:Model.modelingAuthoritySet>
+		<md:Model.scenarioTime>2022-06-16T23:30:00Z</md:Model.scenarioTime>
+		<md:Model.version>1</md:Model.version>
+	</md:FullModel>
+	<cim:ConnectivityNode rdf:ID="_8a5a6e86-55e4-476b-a3bd-7832e6168569">
+		<entsoe:ConnectivityNode.fromEndIsoCode>EH</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Madgar1</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Espheim</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>PH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Lysaborg1</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Portheim</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_0b5bf2ef-a008-4b9a-9fe9-3c528c8bec50"/>
+		<cim:IdentifiedObject.description>BP_EH-PH1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-HU-00002U</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<cim:IdentifiedObject.mRID>8a5a6e86-55e4-476b-a3bd-7832e6168569</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_EH-PH1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_EH-PH1</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_78e49ef9-f3a6-5f4b-b863-ba03e0cfdf23</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_bf0b3138-b656-482b-8874-f0a4fa314579">
+		<entsoe:ConnectivityNode.fromEndIsoCode>EH</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Madgar2</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Espheim</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>PH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Lysaborg2</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Portheim</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_eb3018f0-767e-4829-9a50-1a12f9505849"/>
+		<cim:IdentifiedObject.description>BP_EH-PH2</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-DE-00016Z</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<cim:IdentifiedObject.mRID>bf0b3138-b656-482b-8874-f0a4fa314579</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_EH-PH2</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_EH-PH2</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_fe190c01-e163-3142-b914-7ef24dc116ae</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_9e6fb634-977c-4640-938c-b1178aa2aa21">
+		<entsoe:ConnectivityNode.fromEndIsoCode>EH</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Madgar3</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Espheim</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>PH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Lysaborg3</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Portheim</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_dc31ca8a-6261-4eaa-b8b4-11ec57e9cc28"/>
+		<cim:IdentifiedObject.description>BP_EH-PH3</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>9e6fb634-977c-4640-938c-b1178aa2aa21</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_EH-PH3</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_EH-PH3</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_e78f2778-6e07-6a41-a9eb-b76c59b8794c</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:Line rdf:ID="_eb3018f0-767e-4829-9a50-1a12f9505849">
+		<cim:IdentifiedObject.description>Line BP_EH-PH2</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-BO-GA-10234U</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<cim:IdentifiedObject.mRID>eb3018f0-767e-4829-9a50-1a12f9505849</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_EH-PH2</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_EH-PH2</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_dc31ca8a-6261-4eaa-b8b4-11ec57e9cc28">
+		<cim:IdentifiedObject.description>Line BP_EH-PH3</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>dc31ca8a-6261-4eaa-b8b4-11ec57e9cc28</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_EH-PH3</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_EH-PH3</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_0b5bf2ef-a008-4b9a-9fe9-3c528c8bec50">
+		<cim:IdentifiedObject.description>line BP_EH-PH1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-BO-GA-10014U</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<cim:IdentifiedObject.mRID>0b5bf2ef-a008-4b9a-9fe9-3c528c8bec50</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>Line BP_EH-PH1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_EH-PH1</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:TopologicalNode rdf:ID="_78e49ef9-f3a6-5f4b-b863-ba03e0cfdf23">
+		<cim:IdentifiedObject.name>BP_EH-PH1</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_EH-PH1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_EH-PH1</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>EH</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>PH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Madgar1</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Lysaborg1</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Espheim</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Portheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_0b5bf2ef-a008-4b9a-9fe9-3c528c8bec50</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_fe190c01-e163-3142-b914-7ef24dc116ae">
+		<cim:IdentifiedObject.name>BP_EH-PH2</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_EH-PH2</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_EH-PH2</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>EH</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>PH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Madgar2</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Lysaborg2</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Espheim</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Portheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_eb3018f0-767e-4829-9a50-1a12f9505849</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_e78f2778-6e07-6a41-a9eb-b76c59b8794c">
+		<cim:IdentifiedObject.name>BP_EH-PH3</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_EH-PH3</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_EH-PH3</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>EH</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>PH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Madgar3</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Lysaborg3</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Espheim</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Portheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_dc31ca8a-6261-4eaa-b8b4-11ec57e9cc28</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+</rdf:RDF>
