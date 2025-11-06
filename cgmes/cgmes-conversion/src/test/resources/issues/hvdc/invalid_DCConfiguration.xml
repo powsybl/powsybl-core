@@ -204,7 +204,6 @@
     <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
     <cim:ACDCConverterDCTerminal.polarity rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#DCPolarityKind.middle"/>
 <!--<cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_2_2"/>-->
-    <cim:DCBaseTerminal.DCNode rdf:resource="#_INVALID_REF_1"/>
     <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_VSC_2N"/>
 </cim:ACDCConverterDCTerminal>
 <cim:ACDCConverterDCTerminal rdf:ID="_T_VSC_2N_3">
@@ -268,7 +267,6 @@
     <cim:IdentifiedObject.name>Terminal DC line 12N 1</cim:IdentifiedObject.name>
     <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
 <!--<cim:DCBaseTerminal.DCNode rdf:resource="#_DCN_1_3"/>-->
-    <cim:DCBaseTerminal.DCNode rdf:resource="#_INVALID_REF_2"/>
     <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCL_12N"/>
 </cim:DCTerminal>
 <cim:DCTerminal rdf:ID="_T_DCL_12N_2">
@@ -280,18 +278,18 @@
 <!--isolated switch-->
 <cim:DCSwitch rdf:ID="_DCSW">
     <cim:IdentifiedObject.name>DC switch</cim:IdentifiedObject.name>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_INVALID_REF_3"/>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_INVALID_REF_1"/>
 </cim:DCSwitch>
 <cim:DCTerminal rdf:ID="_T_DCSW_1">
     <cim:IdentifiedObject.name>Terminal DC switch 1</cim:IdentifiedObject.name>
     <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-    <cim:DCBaseTerminal.DCNode rdf:resource="#_INVALID_REF_4"/>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_INVALID_REF_2"/>
     <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW"/>
 </cim:DCTerminal>
 <cim:DCTerminal rdf:ID="_T_DCSW_2">
     <cim:IdentifiedObject.name>Terminal DC switch 2</cim:IdentifiedObject.name>
     <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-    <cim:DCBaseTerminal.DCNode rdf:resource="#_INVALID_REF_5"/>
+    <cim:DCBaseTerminal.DCNode rdf:resource="#_INVALID_REF_3"/>
     <cim:DCTerminal.DCConductingEquipment rdf:resource="#_DCSW"/>
 </cim:DCTerminal>
 <cim:BaseVoltage rdf:ID="_BV">
