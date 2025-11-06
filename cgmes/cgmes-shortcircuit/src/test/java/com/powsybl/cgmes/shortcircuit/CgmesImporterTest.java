@@ -13,8 +13,6 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.shorcircuit.CgmesShortCircuitImporter;
-import com.powsybl.cgmes.shorcircuit.CgmesShortCircuitModel;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Generator;
