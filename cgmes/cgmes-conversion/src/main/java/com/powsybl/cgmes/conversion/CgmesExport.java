@@ -141,13 +141,13 @@ public class CgmesExport implements Exporter {
         }
         double currentInterchange = 0;
         Set<String> boundaryDcNodes = getBoundaryDcNodes(referenceDataProvider);
-        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+        for (BoundaryLine boundaryLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             // Our exchange should be referred the boundary
             area.newAreaBoundary()
-                    .setAc(isAcBoundary(danglingLine, boundaryDcNodes))
-                    .setBoundary(danglingLine.getBoundary())
+                    .setAc(isAcBoundary(boundaryLine, boundaryDcNodes))
+                    .setBoundary(boundaryLine.getBoundary())
                     .add();
-            currentInterchange += danglingLine.getBoundary().getP();
+            currentInterchange += boundaryLine.getBoundary().getP();
         }
         area.setInterchangeTarget(currentInterchange);
     }
@@ -189,8 +189,8 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private boolean isAcBoundary(DanglingLine danglingLine, Set<String> boundaryDcNodes) {
-        String dlBoundaryNode = Conversion.getDanglingLineBoundaryNode(danglingLine);
+    private boolean isAcBoundary(BoundaryLine boundaryLine, Set<String> boundaryDcNodes) {
+        String dlBoundaryNode = Conversion.getDanglingLineBoundaryNode(boundaryLine);
         if (dlBoundaryNode != null) {
             return !boundaryDcNodes.contains(dlBoundaryNode);
         }

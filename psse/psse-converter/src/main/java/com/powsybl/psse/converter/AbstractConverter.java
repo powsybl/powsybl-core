@@ -240,9 +240,9 @@ public abstract class AbstractConverter {
                     HvdcConverterStation<?> converterStation = (HvdcConverterStation<?>) connectable;
                     equipmentListToBeExported.add(converterStation.getHvdcLine().getId());
                 } else if (connectable.getType() == IdentifiableType.DANGLING_LINE) {
-                    DanglingLine danglingLine = (DanglingLine) connectable;
-                    if (danglingLine.isPaired()) {
-                        TieLine tieLine = danglingLine.getTieLine().orElseThrow();
+                    BoundaryLine boundaryLine = (BoundaryLine) connectable;
+                    if (boundaryLine.isPaired()) {
+                        TieLine tieLine = boundaryLine.getTieLine().orElseThrow();
                         equipmentListToBeExported.add(tieLine.getId());
                     } else {
                         equipmentListToBeExported.add(connectable.getId());
@@ -277,8 +277,8 @@ public abstract class AbstractConverter {
                 terminals.add(hvdcLine.getConverterStation2().getTerminal());
             } else if (identifiable != null && identifiable.getType() == IdentifiableType.TIE_LINE) {
                 TieLine tieLine = (TieLine) identifiable;
-                terminals.add(tieLine.getDanglingLine1().getTerminal());
-                terminals.add(tieLine.getDanglingLine2().getTerminal());
+                terminals.add(tieLine.getBoundaryLine1().getTerminal());
+                terminals.add(tieLine.getBoundaryLine2().getTerminal());
             } else {
                 throw new PsseException("Unexpected identifiable: " + equipmentId);
             }

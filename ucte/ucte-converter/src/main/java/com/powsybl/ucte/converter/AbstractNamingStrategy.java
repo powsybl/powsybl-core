@@ -44,11 +44,11 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public UcteNodeCode getUcteNodeCode(DanglingLine danglingLine) {
-        if (danglingLine.getPairingKey() == null) {
-            return getUcteNodeCode(danglingLine.getId());
+    public UcteNodeCode getUcteNodeCode(BoundaryLine boundaryLine) {
+        if (boundaryLine.getPairingKey() == null) {
+            return getUcteNodeCode(boundaryLine.getId());
         }
-        return getUcteNodeCode(danglingLine.getPairingKey());
+        return getUcteNodeCode(boundaryLine.getPairingKey());
     }
 
     @Override
@@ -74,11 +74,11 @@ public abstract class AbstractNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public UcteElementId getUcteElementId(DanglingLine danglingLine) {
-        if (danglingLine == null) {
+    public UcteElementId getUcteElementId(BoundaryLine boundaryLine) {
+        if (boundaryLine == null) {
             throw new PowsyblException("the danglingLine is null");
         }
-        return getUcteElementId(danglingLine.getId());
+        return getUcteElementId(boundaryLine.getId());
     }
 }
 

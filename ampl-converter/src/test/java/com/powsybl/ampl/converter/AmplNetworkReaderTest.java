@@ -145,7 +145,7 @@ class AmplNetworkReaderTest {
 
     @Test
     void readDanglingLines() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+        Network network = BoundaryLineNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("dl",
@@ -416,13 +416,13 @@ class AmplNetworkReaderTest {
     }
 
     private void testDLBranches(Network network, AmplNetworkReader reader) throws IOException {
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getDanglingLine("DL");
         assertTrue(Double.isNaN(dl.getTerminal().getP()));
         assertTrue(Double.isNaN(dl.getTerminal().getQ()));
 
         reader.readBranches();
 
-        DanglingLine dl2 = network.getDanglingLine("DL");
+        BoundaryLine dl2 = network.getDanglingLine("DL");
         assertEquals(-100, dl2.getTerminal().getP(), 0.0);
         assertEquals(-110, dl2.getTerminal().getQ(), 0.0);
     }
