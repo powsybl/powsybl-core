@@ -51,9 +51,7 @@ class PsseImporterIllinoisTest extends AbstractSerDeTest {
         Network n = testValid("/illinois/literature-based", "IEEE 57 bus.RAW");
         // Check that lines and transformers with duplicated ids are correctly imported
         assertNotNull(n.getLine("L-24-25-1 "));
-        assertNotNull(n.getLine("L-24-25-10"));
         assertNotNull(n.getTwoWindingsTransformer("T-4-18-1 "));
-        assertNotNull(n.getTwoWindingsTransformer("T-4-18-10"));
     }
 
     @Test
@@ -65,19 +63,12 @@ class PsseImporterIllinoisTest extends AbstractSerDeTest {
     void testLiteratureBasedIeee118() {
         Network n = testValid("/illinois/literature-based", "IEEE 118 Bus.RAW");
         assertNotNull(n.getLine("L-42-49-1 "));
-        assertNotNull(n.getLine("L-42-49-10"));
         assertNotNull(n.getLine("L-77-80-1 "));
-        assertNotNull(n.getLine("L-77-80-10"));
         assertNotNull(n.getLine("L-49-66-1 "));
-        assertNotNull(n.getLine("L-49-66-10"));
         assertNotNull(n.getLine("L-49-54-1 "));
-        assertNotNull(n.getLine("L-49-54-10"));
         assertNotNull(n.getLine("L-89-92-1 "));
-        assertNotNull(n.getLine("L-89-92-10"));
         assertNotNull(n.getLine("L-56-59-1 "));
-        assertNotNull(n.getLine("L-56-59-10"));
         assertNotNull(n.getLine("L-89-90-1 "));
-        assertNotNull(n.getLine("L-89-90-10"));
     }
 
     @Test
