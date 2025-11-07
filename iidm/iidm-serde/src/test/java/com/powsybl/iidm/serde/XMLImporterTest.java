@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
@@ -90,6 +91,21 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         }
     }
 
+    private void writeNetworkUnsupportedIidmVersion(String fileName) throws IOException {
+        writeNetwork(fileName, generateNamespaceURIUnsupportedIidmVersion(), false);
+    }
+
+    private String generateNamespaceURIUnsupportedIidmVersion() {
+        String maxSupportedIidmVersion = CURRENT_IIDM_VERSION.toString();
+        String[] parts = maxSupportedIidmVersion.split("_");
+        int minor = Integer.parseInt(parts[2]) + 1;
+        String unsupportedIidmVersion = parts[1] + "_" + minor;
+        String currentIidmNamespaceURI = CURRENT_IIDM_VERSION.getNamespaceURI();
+        int lastSlashIndex = currentIidmNamespaceURI.lastIndexOf("/");
+        String result = currentIidmNamespaceURI.substring(0, lastSlashIndex + 1) + unsupportedIidmVersion;
+        return result;
+    }
+
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -116,6 +132,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         }
         writeNetworkWithComment("/test7.xiidm");
         writeNetworkWithExtension("/test8.xiidm", CURRENT_IIDM_VERSION.getNamespaceURI());
+        writeNetworkUnsupportedIidmVersion("/test9.xiidm");
 
         importer = new XMLImporter();
     }
@@ -152,6 +169,12 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test3"))); // wrong extension
         assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test4"))); // does not exist
         assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "testDummy"))); // namespace URI is not defined
+    }
+
+    @Test
+    void testUnsupportedIidmVersion() {
+        String expectedError = "Unsupported IIDM Version (maximum supported version: " + CURRENT_IIDM_VERSION.toString(".") + ")";
+        assertThrows(PowsyblException.class, () -> importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test9")), expectedError);
     }
 
     @Test

@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -69,6 +70,16 @@ public class XMLImporter extends AbstractTreeDataImporter {
                             if (eventType == XMLStreamConstants.START_ELEMENT) {
                                 String name = xmlsr.getLocalName();
                                 String ns = xmlsr.getNamespaceURI();
+                                String xmlIidmVersion;
+
+                                if (!ns.isEmpty()) {
+                                    xmlIidmVersion = ns.substring(ns.lastIndexOf('/') + 1);
+                                    if (!xmlIidmVersion.isEmpty()) {
+                                        if (IidmVersion.compareVersions(xmlIidmVersion, CURRENT_IIDM_VERSION.toString()) > 0) {
+                                            throw new PowsyblException("Unsupported IIDM Version (maximum supported version: " + CURRENT_IIDM_VERSION.toString(".") + ")");
+                                        }
+                                    }
+                                }
                                 return NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name)
                                         && (Stream.of(IidmVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
                                         || Stream.of(IidmVersion.values()).filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0).anyMatch(v -> v.getNamespaceURI(false).equals(ns)));

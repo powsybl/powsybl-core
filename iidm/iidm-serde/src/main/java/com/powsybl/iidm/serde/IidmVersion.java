@@ -14,8 +14,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.ITESLA_DOMAIN;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.POWSYBL_DOMAIN;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -82,20 +81,6 @@ public enum IidmVersion {
         return "iidm_equipment_V" + toString("_") + ".xsd";
     }
 
-    public static IidmVersion fromNamespaceURI(String namespaceURI) {
-        String version = namespaceURI.substring(namespaceURI.lastIndexOf('/') + 1);
-        IidmVersion v = of(version, "_");
-        String namespaceUriV = v.getNamespaceURI();
-        if (!namespaceURI.equals(namespaceUriV)) {
-            if (v.compareTo(V_1_7) >= 0 && namespaceURI.equals(v.getNamespaceURI(false))) {
-                return v;
-            }
-            throw new PowsyblException("Namespace " + namespaceURI + " is not supported. " +
-                    "The namespace for IIDM XML version " + v.toString(".") + " is: " + namespaceUriV + ".");
-        }
-        return v;
-    }
-
     public static IidmVersion of(String version, String separator) {
         Objects.requireNonNull(version);
         return Stream.of(IidmVersion.values())
@@ -103,4 +88,24 @@ public enum IidmVersion {
                 .findFirst() // there can only be 0 or exactly 1 match
                 .orElseThrow(() -> new PowsyblException("Version " + version + " is not supported."));
     }
+
+    public static int compareVersions(String v1, String v2) {
+        int[] version1 = parseVersion(v1);
+        int[] version2 = parseVersion(v2);
+
+        if (version1[0] != version2[0]) {
+            return Integer.compare(version1[0], version2[0]);
+        }
+        int result = Integer.compare(version1[1], version2[1]);
+        return result;
+    }
+
+    private static int[] parseVersion(String v) {
+        String version = v.startsWith("V_") ? v.substring(2) : v;
+        String[] parts = version.split("_");
+        int major = Integer.parseInt(parts[0]);
+        int minor = Integer.parseInt(parts[1]);
+        return new int[]{major, minor};
+    }
+
 }
