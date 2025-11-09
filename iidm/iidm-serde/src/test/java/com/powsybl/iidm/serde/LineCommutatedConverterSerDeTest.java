@@ -11,9 +11,7 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.ZonedDateTime;
-import java.util.Properties;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
@@ -25,7 +23,6 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testNetworkLineCommutatedConverter() throws IOException {
         Network network = createBaseNetwork();
-        network.write("XIIDM", new Properties(), Paths.get("D:\\powsybl-dev\\powsybl-core\\iidm\\iidm-serde\\src\\test\\resources\\V1_15\\lineCommutatedConverterRoundTripRef.xml"));
 
         // Test for the current version
         allFormatsRoundTripTest(network, "/lineCommutatedConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
