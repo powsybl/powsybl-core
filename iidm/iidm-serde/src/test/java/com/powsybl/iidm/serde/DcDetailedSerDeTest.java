@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.iidm.network.LineCommutatedConverter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,8 @@ class DcDetailedSerDeTest extends AbstractIidmSerDeTest {
                 .getDcTerminal1().setP(2.2).setI(750.);
         network.getLineCommutatedConverter("LccFrNeg")
                 .getDcTerminal2().setP(3.3).setI(550.);
+        LineCommutatedConverter lccGbPos = network.getLineCommutatedConverter("LccGbPos");
+        lccGbPos.setPccTerminal(lccGbPos.getTerminal1());
         network.setCaseDate(caseDate);
         network.getSubnetworks().forEach(subnetwork -> subnetwork.setCaseDate(caseDate));
         return network;

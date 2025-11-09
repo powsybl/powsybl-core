@@ -738,19 +738,15 @@ public abstract class AbstractAcDcConverterTest {
         adder.setTargetP(200.);
         adder.setPccTerminal(lax.getTerminal());
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': converter has two AC terminals and pccTerminal is not a line or transformer terminal", e4.getMessage());
-
-        adder.setBus2(null);
-        PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not a line or transformer or the converter terminal", e5.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not a line or transformer or the converter terminal", e4.getMessage());
 
         adder.setPccTerminal(lineax.getTerminal1());
-        PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode1 is not set", e6.getMessage());
+        PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode1 is not set", e5.getMessage());
 
         adder.setDcNode1(dcNode1a.getId());
-        PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode2 is not set", e7.getMessage());
+        PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode2 is not set", e6.getMessage());
 
         adder.setDcNode2(dcNode2a.getId());
         Network subnet = network.createSubnetwork("subNet", "subNetName", "code");

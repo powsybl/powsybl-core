@@ -632,9 +632,16 @@
             <xs:enumeration value="THREE"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="TerminalNumber">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ONE"/>
+            <xs:enumeration value="TWO"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="TerminalRef">
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="side" use="optional" type="iidm:Side"/>
+        <xs:attribute name="number" use="optional" type="iidm:TerminalNumber"/>
     </xs:complexType>
     <xs:complexType name="RatioTapChangerStep">
         <xs:attribute name="rho" use="required" type="xs:double"/>
