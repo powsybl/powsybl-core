@@ -535,6 +535,11 @@
     <xs:complexType name="AcDcConverter">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="pccTerminal" type="iidm:TerminalRef"/>
+                    </xs:choice>
+                </xs:sequence>
                 <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="dcConnected1" use="required" type="xs:boolean"/>
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>

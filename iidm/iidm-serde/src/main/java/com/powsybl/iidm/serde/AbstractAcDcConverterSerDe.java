@@ -34,6 +34,12 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         writeNodeOrBus(converter, context);
     }
 
+    @Override
+    protected void writeSubElements(T converter, VoltageLevel vl, NetworkSerializerContext context) {
+        TerminalRefSerDe.writeTerminalRef(converter.getPccTerminal(), context, "pccTerminal");
+        super.writeSubElements(converter, vl, context);
+    }
+
     protected void readRootElementCommonAttributes(final A adder, final VoltageLevel voltageLevel, final NetworkDeserializerContext context) {
         String dcNode1Id = context.getReader().readStringAttribute("dcNode1");
         boolean dcConnected1 = context.getReader().readBooleanAttribute("dcConnected1");
@@ -57,6 +63,14 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             .setSwitchingLoss(switchingLoss)
             .setResistiveLoss(resistiveLoss);
         readNodeOrBus(adder, voltageLevel.getTopologyKind(), context);
+    }
+
+    @Override
+    protected void readSubElement(String elementName, T converter, NetworkDeserializerContext context) {
+        switch (elementName) {
+            case "pccTerminal" -> TerminalRefSerDe.readTerminalRef(context, converter.getNetwork(), converter::setPccTerminal);
+            default -> super.readSubElement(elementName, converter, context);
+        }
     }
 
     @Override

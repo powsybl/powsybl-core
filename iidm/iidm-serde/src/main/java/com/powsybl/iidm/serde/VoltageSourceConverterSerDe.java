@@ -35,6 +35,7 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
 
     @Override
     protected void writeSubElements(VoltageSourceConverter vsc, VoltageLevel parent, NetworkSerializerContext context) {
+        super.writeSubElements(vsc, parent, context);
         ReactiveLimitsSerDe.INSTANCE.write(vsc, context);
     }
 
@@ -57,13 +58,11 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
     }
 
     @Override
-    protected void readSubElements(VoltageSourceConverter vsc, NetworkDeserializerContext context) {
-        context.getReader().readChildNodes(elementName -> {
-            switch (elementName) {
-                case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(vsc, context);
-                case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(vsc, context);
-                default -> readSubElement(elementName, vsc, context);
-            }
-        });
+    protected void readSubElement(String elementName, VoltageSourceConverter vsc, NetworkDeserializerContext context) {
+        switch (elementName) {
+            case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(vsc, context);
+            case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(vsc, context);
+            default -> super.readSubElement(elementName, vsc, context);
+        }
     }
 }

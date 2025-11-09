@@ -19,6 +19,7 @@
                     <iidm:bus id="BUSDC-GB-xNodeDc1gb-150"/>
                 </iidm:busBreakerTopology>
                 <iidm:voltageSourceConverter id="VscGb" dcNode1="dcNodeGbNeg" dcConnected1="true" dcNode2="dcNodeGbPos" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-200.0" targetVdc="500.0" bus1="BUSDC-GB-xNodeDc1gb-150" connectableBus1="BUSDC-GB-xNodeDc1gb-150" voltageRegulatorOn="false" voltageSetpoint="400.0" reactivePowerSetpoint="0.0">
+                    <iidm:pccTerminal id="TRDC-GB-xNodeDc1gb" side="ONE"/>
                     <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
                 </iidm:voltageSourceConverter>
             </iidm:voltageLevel>
@@ -36,6 +37,7 @@
                     <iidm:bus id="BUSDC-FR-xNodeDc1fr-150"/>
                 </iidm:busBreakerTopology>
                 <iidm:voltageSourceConverter id="VscFr" dcNode1="dcNodeFrNeg" dcConnected1="true" dcNode2="dcNodeFrPos" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="200.0" targetVdc="500.0" bus1="BUSDC-FR-xNodeDc1fr-150" connectableBus1="BUSDC-FR-xNodeDc1fr-150" voltageRegulatorOn="false" voltageSetpoint="400.0" reactivePowerSetpoint="0.0">
+                    <iidm:pccTerminal id="TRDC-FR-xNodeDc1fr" side="ONE"/>
                     <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
                 </iidm:voltageSourceConverter>
             </iidm:voltageLevel>
