@@ -42,11 +42,6 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
     }
 
     @Override
-    protected void writeSubElements(final DcLine dcLine, final Network parent, final NetworkSerializerContext context) {
-
-    }
-
-    @Override
     protected DcLineAdder createAdder(final Network network) {
         return network.newDcLine();
     }

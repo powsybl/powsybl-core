@@ -25,16 +25,10 @@ public class DcSwitchSerDe extends AbstractSimpleIdentifiableSerDe<DcSwitch, DcS
 
     @Override
     protected void writeRootElementAttributes(final DcSwitch dcSwitch, final Network parent, final NetworkSerializerContext context) {
-
         context.getWriter().writeStringAttribute("dcNode1", dcSwitch.getDcNode1().getId());
         context.getWriter().writeStringAttribute("dcNode2", dcSwitch.getDcNode2().getId());
         context.getWriter().writeEnumAttribute("kind", dcSwitch.getKind());
         context.getWriter().writeBooleanAttribute("open", dcSwitch.isOpen());
-    }
-
-    @Override
-    protected void writeSubElements(final DcSwitch dcSwitch, final Network parent, final NetworkSerializerContext context) {
-
     }
 
     @Override

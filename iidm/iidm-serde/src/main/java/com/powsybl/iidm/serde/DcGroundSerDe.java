@@ -34,11 +34,6 @@ public class DcGroundSerDe extends AbstractSimpleIdentifiableSerDe<DcGround, DcG
     }
 
     @Override
-    protected void writeSubElements(final DcGround dcGround, final Network parent, final NetworkSerializerContext context) {
-
-    }
-
-    @Override
     protected DcGroundAdder createAdder(final Network network) {
         return network.newDcGround();
     }
@@ -55,7 +50,9 @@ public class DcGroundSerDe extends AbstractSimpleIdentifiableSerDe<DcGround, DcG
                 .setR(r)
                 .add();
         dcGround.getDcTerminal()
-                .setI(i).setP(p).setConnected(connected);
+                .setI(i)
+                .setP(p)
+                .setConnected(connected);
         return dcGround;
     }
 

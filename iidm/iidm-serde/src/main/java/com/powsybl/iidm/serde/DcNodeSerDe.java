@@ -30,11 +30,6 @@ public class DcNodeSerDe extends AbstractSimpleIdentifiableSerDe<DcNode, DcNodeA
     }
 
     @Override
-    protected void writeSubElements(final DcNode dcNode, final Network parent, final NetworkSerializerContext context) {
-
-    }
-
-    @Override
     protected DcNodeAdder createAdder(final Network network) {
         return network.newDcNode();
     }
