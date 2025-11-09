@@ -90,14 +90,17 @@ public enum IidmVersion {
     }
 
     public static int compareVersions(String v1, String v2) {
+        if (v1.isEmpty() || v2.isEmpty()) {
+            return 0;
+        }
+
         int[] version1 = parseVersion(v1);
         int[] version2 = parseVersion(v2);
 
         if (version1[0] != version2[0]) {
             return Integer.compare(version1[0], version2[0]);
         }
-        int result = Integer.compare(version1[1], version2[1]);
-        return result;
+        return Integer.compare(version1[1], version2[1]);
     }
 
     private static int[] parseVersion(String v) {

@@ -74,10 +74,8 @@ public class XMLImporter extends AbstractTreeDataImporter {
 
                                 if (!ns.isEmpty()) {
                                     xmlIidmVersion = ns.substring(ns.lastIndexOf('/') + 1);
-                                    if (!xmlIidmVersion.isEmpty()) {
-                                        if (IidmVersion.compareVersions(xmlIidmVersion, CURRENT_IIDM_VERSION.toString()) > 0) {
-                                            throw new PowsyblException("Unsupported IIDM Version (maximum supported version: " + CURRENT_IIDM_VERSION.toString(".") + ")");
-                                        }
+                                    if (IidmVersion.compareVersions(xmlIidmVersion, CURRENT_IIDM_VERSION.toString()) > 0) {
+                                        throw new PowsyblException("Unsupported IIDM Version (maximum supported version: " + CURRENT_IIDM_VERSION.toString(".") + ")");
                                     }
                                 }
                                 return NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name)

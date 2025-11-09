@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -92,18 +93,16 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     }
 
     private void writeNetworkUnsupportedIidmVersion(String fileName) throws IOException {
-        writeNetwork(fileName, generateNamespaceURIUnsupportedIidmVersion(), false);
+        writeNetwork(fileName, unsupportedIidmVersionNamespaceURI(), false);
     }
 
-    private String generateNamespaceURIUnsupportedIidmVersion() {
-        String maxSupportedIidmVersion = CURRENT_IIDM_VERSION.toString();
-        String[] parts = maxSupportedIidmVersion.split("_");
-        int minor = Integer.parseInt(parts[2]) + 1;
-        String unsupportedIidmVersion = parts[1] + "_" + minor;
+    private String unsupportedIidmVersionNamespaceURI() {
+        String currentIidmVersion = CURRENT_IIDM_VERSION.toString();
         String currentIidmNamespaceURI = CURRENT_IIDM_VERSION.getNamespaceURI();
-        int lastSlashIndex = currentIidmNamespaceURI.lastIndexOf("/");
-        String result = currentIidmNamespaceURI.substring(0, lastSlashIndex + 1) + unsupportedIidmVersion;
-        return result;
+        int currentVersionMajor = Integer.parseInt(currentIidmVersion.split("_")[1]);
+        int currentVersionMinor = Integer.parseInt(currentIidmVersion.split("_")[2]);
+        String unsupportedIidmVersion = String.format("%d_%d", currentVersionMajor, ++currentVersionMinor);
+        return currentIidmNamespaceURI.substring(0, currentIidmNamespaceURI.lastIndexOf("/") + 1) + unsupportedIidmVersion;
     }
 
     @BeforeEach
@@ -173,8 +172,10 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void testUnsupportedIidmVersion() {
+        Path dir = fileSystem.getPath("/");
+        ReadOnlyDataSource dataSource = new DirectoryDataSource(dir, "test9");
         String expectedError = "Unsupported IIDM Version (maximum supported version: " + CURRENT_IIDM_VERSION.toString(".") + ")";
-        assertThrows(PowsyblException.class, () -> importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test9")), expectedError);
+        assertThrows(PowsyblException.class, () -> importer.exists(dataSource), expectedError);
     }
 
     @Test
