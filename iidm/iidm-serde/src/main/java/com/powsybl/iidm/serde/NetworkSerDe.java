@@ -392,7 +392,7 @@ public final class NetworkSerDe {
         context.getWriter().writeStartNodes();
         for (DcNode dcNode : IidmSerDeUtil.sorted(n.getDcNodes(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcNode, n, context)) {
-                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
+                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcNodeSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
                 DcNodeSerDe.INSTANCE.write(dcNode, n, context);
             }
@@ -404,7 +404,7 @@ public final class NetworkSerDe {
         context.getWriter().writeStartNodes();
         for (DcGround dcGround : IidmSerDeUtil.sorted(n.getDcGrounds(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcGround, n, context)) {
-                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
+                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
                 DcGroundSerDe.INSTANCE.write(dcGround, n, context);
             }
@@ -416,7 +416,7 @@ public final class NetworkSerDe {
         context.getWriter().writeStartNodes();
         for (DcLine dcLine : IidmSerDeUtil.sorted(n.getDcLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcLine, n, context)) {
-                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
+                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcLineSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
                 DcLineSerDe.INSTANCE.write(dcLine, n, context);
             }
@@ -428,7 +428,7 @@ public final class NetworkSerDe {
         context.getWriter().writeStartNodes();
         for (DcSwitch dcSwitch : IidmSerDeUtil.sorted(n.getDcSwitches(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcSwitch, n, context)) {
-                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
+                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcSwitchSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
                 DcSwitchSerDe.INSTANCE.write(dcSwitch, n, context);
             }
