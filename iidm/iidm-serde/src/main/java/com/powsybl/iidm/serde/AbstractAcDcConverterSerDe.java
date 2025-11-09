@@ -16,14 +16,21 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
  */
 abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends AcDcConverterAdder<T, A>> extends AbstractSimpleIdentifiableSerDe<T, A, VoltageLevel> {
 
+    protected record DcPI(double dcP1, double dcI1, double dcP2, double dcI2) {
+    }
+
     @Override
     protected void writeRootElementAttributes(final T converter, final VoltageLevel parent, final NetworkSerializerContext context) {
         DcTerminal dcTerminal1 = converter.getDcTerminal1();
         DcTerminal dcTerminal2 = converter.getDcTerminal2();
         context.getWriter().writeStringAttribute("dcNode1", dcTerminal1.getDcNode().getId());
         context.getWriter().writeBooleanAttribute("dcConnected1", dcTerminal1.isConnected());
+        context.getWriter().writeDoubleAttribute("dcP1", dcTerminal1.getP());
+        context.getWriter().writeDoubleAttribute("dcI1", dcTerminal1.getI());
         context.getWriter().writeStringAttribute("dcNode2", dcTerminal2.getDcNode().getId());
         context.getWriter().writeBooleanAttribute("dcConnected2", dcTerminal2.isConnected());
+        context.getWriter().writeDoubleAttribute("dcP2", dcTerminal2.getP());
+        context.getWriter().writeDoubleAttribute("dcI2", dcTerminal2.getI());
         context.getWriter().writeDoubleAttribute("idleLoss", converter.getIdleLoss());
         context.getWriter().writeDoubleAttribute("switchingLoss", converter.getSwitchingLoss());
         context.getWriter().writeDoubleAttribute("resistiveLoss", converter.getResistiveLoss());
@@ -40,11 +47,15 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         super.writeSubElements(converter, vl, context);
     }
 
-    protected void readRootElementCommonAttributes(final A adder, final VoltageLevel voltageLevel, final NetworkDeserializerContext context) {
+    protected DcPI readRootElementCommonAttributes(final A adder, final VoltageLevel voltageLevel, final NetworkDeserializerContext context) {
         String dcNode1Id = context.getReader().readStringAttribute("dcNode1");
         boolean dcConnected1 = context.getReader().readBooleanAttribute("dcConnected1");
+        double dcP1 = context.getReader().readDoubleAttribute("dcP1");
+        double dcI1 = context.getReader().readDoubleAttribute("dcI1");
         String dcNode2Id = context.getReader().readStringAttribute("dcNode2");
         boolean dcConnected2 = context.getReader().readBooleanAttribute("dcConnected2");
+        double dcP2 = context.getReader().readDoubleAttribute("dcP2");
+        double dcI2 = context.getReader().readDoubleAttribute("dcI2");
         double idleLoss = context.getReader().readDoubleAttribute("idleLoss");
         double switchingLoss = context.getReader().readDoubleAttribute("switchingLoss");
         double resistiveLoss = context.getReader().readDoubleAttribute("resistiveLoss");
@@ -63,6 +74,12 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
             .setSwitchingLoss(switchingLoss)
             .setResistiveLoss(resistiveLoss);
         readNodeOrBus(adder, voltageLevel.getTopologyKind(), context);
+        return new DcPI(dcP1, dcI1, dcP2, dcI2);
+    }
+
+    protected void setDcPI(T converter, DcPI dcPI) {
+        converter.getDcTerminal1().setP(dcPI.dcP1()).setI(dcPI.dcI1());
+        converter.getDcTerminal2().setP(dcPI.dcP2()).setI(dcPI.dcI2());
     }
 
     @Override

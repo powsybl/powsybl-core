@@ -46,15 +46,17 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
 
     @Override
     protected VoltageSourceConverter readRootElementAttributes(final VoltageSourceConverterAdder adder, final VoltageLevel parent, final NetworkDeserializerContext context) {
-        super.readRootElementCommonAttributes(adder, parent, context);
+        DcPI dcPI = super.readRootElementCommonAttributes(adder, parent, context);
         boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
         double voltageSetpoint = context.getReader().readDoubleAttribute("voltageSetpoint");
         double reactivePowerSetpoint = context.getReader().readDoubleAttribute("reactivePowerSetpoint");
-        return adder
+        VoltageSourceConverter vsc = adder
                 .setReactivePowerSetpoint(reactivePowerSetpoint)
                 .setVoltageSetpoint(voltageSetpoint)
                 .setVoltageRegulatorOn(voltageRegulatorOn)
                 .add();
+        setDcPI(vsc, dcPI);
+        return vsc;
     }
 
     @Override

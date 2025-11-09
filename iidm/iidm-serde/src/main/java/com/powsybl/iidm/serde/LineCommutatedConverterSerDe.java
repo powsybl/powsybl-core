@@ -37,12 +37,14 @@ public class LineCommutatedConverterSerDe extends AbstractAcDcConverterSerDe<Lin
 
     @Override
     protected LineCommutatedConverter readRootElementAttributes(final LineCommutatedConverterAdder adder, final VoltageLevel parent, final NetworkDeserializerContext context) {
-        super.readRootElementCommonAttributes(adder, parent, context);
+        DcPI dcPI = super.readRootElementCommonAttributes(adder, parent, context);
         LineCommutatedConverter.ReactiveModel reactiveModel = context.getReader().readEnumAttribute("reactiveModel", LineCommutatedConverter.ReactiveModel.class);
         double powerFactor = context.getReader().readDoubleAttribute("powerFactor");
-        return adder
-            .setReactiveModel(reactiveModel)
-            .setPowerFactor(powerFactor)
-            .add();
+        LineCommutatedConverter lcc = adder
+                .setReactiveModel(reactiveModel)
+                .setPowerFactor(powerFactor)
+                .add();
+        setDcPI(lcc, dcPI);
+        return lcc;
     }
 }

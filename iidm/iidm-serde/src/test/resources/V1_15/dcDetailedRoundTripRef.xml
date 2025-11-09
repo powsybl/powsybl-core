@@ -80,7 +80,7 @@
                     <iidm:bus id="BUSDC-FR-xNodeDc2fr-150-1"/>
                     <iidm:bus id="BUSDC-FR-xNodeDc2fr-150-2"/>
                 </iidm:busBreakerTopology>
-                <iidm:lineCommutatedConverter id="LccFrNeg" dcNode1="dcNodeFrNeg" dcConnected1="true" dcNode2="dcNodeFrMid" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="200.0" targetVdc="500.0" bus1="BUSDC-FR-xNodeDc2fr-150-1" connectableBus1="BUSDC-FR-xNodeDc2fr-150-1" bus2="BUSDC-FR-xNodeDc2fr-150-2" connectableBus2="BUSDC-FR-xNodeDc2fr-150-2" reactiveModel="FIXED_POWER_FACTOR" powerFactor="0.8944271909999159">
+                <iidm:lineCommutatedConverter id="LccFrNeg" dcNode1="dcNodeFrNeg" dcConnected1="true" dcNode2="dcNodeFrMid" dcConnected2="true" dcP2="3.3" dcI2="550.0" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="200.0" targetVdc="500.0" bus1="BUSDC-FR-xNodeDc2fr-150-1" connectableBus1="BUSDC-FR-xNodeDc2fr-150-1" bus2="BUSDC-FR-xNodeDc2fr-150-2" connectableBus2="BUSDC-FR-xNodeDc2fr-150-2" reactiveModel="FIXED_POWER_FACTOR" powerFactor="0.8944271909999159">
                     <iidm:pccTerminal id="LINEDC-FR-xNodeDc2fr-400-I" side="ONE"/>
                 </iidm:lineCommutatedConverter>
             </iidm:voltageLevel>
@@ -118,7 +118,7 @@
                     <iidm:bus id="BUSDC-FR-xNodeDc1fr-150-1"/>
                     <iidm:bus id="BUSDC-FR-xNodeDc1fr-150-2"/>
                 </iidm:busBreakerTopology>
-                <iidm:lineCommutatedConverter id="LccFrPos" dcNode1="dcNodeFrMid" dcConnected1="true" dcNode2="dcNodeFrPos" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="200.0" targetVdc="500.0" bus1="BUSDC-FR-xNodeDc1fr-150-1" connectableBus1="BUSDC-FR-xNodeDc1fr-150-1" bus2="BUSDC-FR-xNodeDc1fr-150-2" connectableBus2="BUSDC-FR-xNodeDc1fr-150-2" reactiveModel="FIXED_POWER_FACTOR" powerFactor="0.8944271909999159">
+                <iidm:lineCommutatedConverter id="LccFrPos" dcNode1="dcNodeFrMid" dcConnected1="true" dcP1="2.2" dcI1="750.0" dcNode2="dcNodeFrPos" dcConnected2="true" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="200.0" targetVdc="500.0" bus1="BUSDC-FR-xNodeDc1fr-150-1" connectableBus1="BUSDC-FR-xNodeDc1fr-150-1" bus2="BUSDC-FR-xNodeDc1fr-150-2" connectableBus2="BUSDC-FR-xNodeDc1fr-150-2" reactiveModel="FIXED_POWER_FACTOR" powerFactor="0.8944271909999159">
                     <iidm:pccTerminal id="LINEDC-FR-xNodeDc1fr-400-I" side="ONE"/>
                 </iidm:lineCommutatedConverter>
             </iidm:voltageLevel>
