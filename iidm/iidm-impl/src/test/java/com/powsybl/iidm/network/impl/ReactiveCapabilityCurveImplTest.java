@@ -72,7 +72,7 @@ class ReactiveCapabilityCurveImplTest {
     }
 
     @Test
-    void testReactiveCapabilityCurveWithInvertedMinQMaxQ() throws IOException {
+    void testReactiveCapabilityCurveRevertedMinQMaxQ() throws IOException {
 
         Network network = FictitiousSwitchFactory.create();
 
