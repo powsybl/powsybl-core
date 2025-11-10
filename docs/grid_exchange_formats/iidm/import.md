@@ -13,10 +13,13 @@ The `iidm.import.xml.throw-exception-if-extension-not-found` property is an opti
 The `iidm.import.xml.included.extensions` property is an optional property that defines the list of extensions that will be imported by the XIIDM importer. By default, all extensions will be imported.
 When set to an empty string, all extensions will be ignored during the import.
 
-**iidm.import.xml.excluded.extensions**
+**iidm.import.xml.excluded.extensions**  
 The `iidm.import.xml.excluded.extensions` property is an optional property that defines the list of extensions that will not be imported by the XIIDM importer.
 When both `iidm.import.xml.included.extensions` and `iidm.import.xml.excluded.extensions` are defined, a configuration exception is thrown. 
-By default, no extension is excluded from the import.
+By default, no extension is excluded from the import.  
+
+**iidm.import.xml.check-reverted-minqmaxq**  
+The `iidm.import.xml.check-reverted-minqmaxq` property is an optional property that enables a check in the XIIDM importer to detect reversed Qmin > QMax values in ReactiveCapabilityCurves and put them in the right order.  
 
 ### Deprecated properties
 

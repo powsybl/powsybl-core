@@ -84,7 +84,7 @@ class ReactiveCapabilityCurveImplTest {
 
         Generator generator = network.getGenerator("CB");
 
-        ReactiveCapabilityCurve reactiveCapabilityCurve = generator.newReactiveCapabilityCurve()
+        ReactiveCapabilityCurve reactiveCapabilityCurve1 = generator.newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(1.0)
                 .setMaxQ(5.0)
@@ -97,11 +97,32 @@ class ReactiveCapabilityCurveImplTest {
                 .endPoint()
                 .add();
 
-        assertEquals(1.0, reactiveCapabilityCurve.getMinQ(1.0), 0.0);
-        assertEquals(5.0, reactiveCapabilityCurve.getMaxQ(1.0), 0.0);
-        // reversed minQ and maxQ values have been put in the right order :
-        assertEquals(2.0, reactiveCapabilityCurve.getMinQ(100.0), 0.0);
-        assertEquals(10.0, reactiveCapabilityCurve.getMaxQ(100.0), 0.0);
+        assertEquals(1.0, reactiveCapabilityCurve1.getMinQ(1.0), 0.0);
+        assertEquals(5.0, reactiveCapabilityCurve1.getMaxQ(1.0), 0.0);
+        // reversed minQ and maxQ remain unchanged :
+        assertEquals(10.0, reactiveCapabilityCurve1.getMinQ(100.0), 0.0);
+        assertEquals(2.0, reactiveCapabilityCurve1.getMaxQ(100.0), 0.0);
+
+        network.setProperty("iidm.import.xml.check-minqmaxq-inversion", "true");
+
+        ReactiveCapabilityCurve reactiveCapabilityCurve2 = generator.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(1.0)
+                .setMaxQ(5.0)
+                .setMinQ(1.0)
+                .endPoint()
+                .beginPoint()
+                .setP(100.0)
+                .setMaxQ(2.0) // here minQ > maxQ : this is incorrect
+                .setMinQ(10.0)
+                .endPoint()
+                .add();
+
+        assertEquals(1.0, reactiveCapabilityCurve2.getMinQ(1.0), 0.0);
+        assertEquals(5.0, reactiveCapabilityCurve2.getMaxQ(1.0), 0.0);
+        // reversed minQ and maxQ values have been put in the right order and this information is mentioned in the report node :
+        assertEquals(2.0, reactiveCapabilityCurve2.getMinQ(100.0), 0.0);
+        assertEquals(10.0, reactiveCapabilityCurve2.getMaxQ(100.0), 0.0);
         assertTrue(checkReportNode("+ name1" + System.lineSeparator() +
                 "   Reactive capability curve for CB : reversed minQ > maxQ values have been put in the right order" + System.lineSeparator(), network.getReportNodeContext().getReportNode()));
     }

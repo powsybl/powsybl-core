@@ -80,7 +80,7 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
                             owner.getMessageHeader().id(), p);
                 }
             }
-            if (maxQ < minQ) {
+            if (Boolean.parseBoolean(owner.getNetwork().getProperty("iidm.import.xml.check-minqmaxq-inversion")) && maxQ < minQ) {
                 double temp = minQ;
                 minQ = maxQ;
                 maxQ = temp;
