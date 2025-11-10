@@ -18,10 +18,6 @@ public class PointDto extends AbstractGeometryDto {
 
     private final Coordinate coordinates;
 
-    public PointDto() {
-        this.coordinates = new Coordinate(0, 0);
-    }
-
     public PointDto(double longitude, double latitude) {
         this.coordinates = new Coordinate(longitude, latitude);
     }

@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.powsybl.iidm.geodata.utils.NetworkGeoDataExtensionsAdder.fillLineGeoData;
@@ -66,7 +65,6 @@ class NetworkGeoDataExtensionsAdderTest {
         AtomicInteger unknownLines = new AtomicInteger();
         Coordinate coord1 = new Coordinate(1, 2);
         Coordinate coord2 = new Coordinate(3, 4);
-        Map<String, List<Coordinate>> position = Map.of("NHV1_NHV2_2", List.of(coord1, coord2));
         fillLineGeoData(network, "NHV1_NHV2_2", List.of(coord1, coord2), false, linesWithNewData, linesWithOldData, unknownLines);
 
         assertEquals(1, linesWithNewData.get());
