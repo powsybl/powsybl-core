@@ -195,27 +195,40 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     double getTargetV();
 
     /**
-     * Set the voltage target in kV AND set the local voltage target to {@link Double#NaN}
      * <p>
-     * To avoid setting the local voltage target to {@link Double#NaN}, please use {@link Generator#setTargetV(double, double)}
+     *     Set the voltage target in kV AND set the local voltage target to {@link Double#NaN}
+     * </p>
      * <p>
-     * Depends on the working variant.
+     *     To avoid setting the local voltage target to {@link Double#NaN}, please use {@link Generator#setTargetV(double, double)}
+     * <p/>
+     * <p>Depends on the working variant.</p>
      * @see VariantManager
      */
     Generator setTargetV(double targetV);
 
     /**
-     * Get the local TargetV target in kV.
      * <p>
+     *     Get the local terminal voltage target in kV.
+     * </p>
+     * <p>
+     *     This value corresponds to the backup target voltage value to be used by the simulators should they deem
+     *     the voltage regulation at the regulating terminal invalid and want to switch back to a voltage regulation local to this Generator's Terminal.
+     * </p>
+     * <p>
+     *     To set the local voltage target use {@link Generator#setTargetV(double, double)}
+     * </p>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getLocalTargetV();
 
     /**
-     * Set the voltage target in kV and Set the local target in kV.
      * <p>
-     * Depends on the working variant.
+     *     Set the voltage target in kV and set the local target in kV.
+     * </p>
+     * <p>Depends on the working variant.</p>
+     * @param targetV the voltage target in kV (see {@link Generator#getTargetV()}).
+     * @param localTargetV the local target in kV (see {@link Generator#getLocalTargetV()}).
      * @see VariantManager
      */
     Generator setTargetV(double targetV, double localTargetV);
