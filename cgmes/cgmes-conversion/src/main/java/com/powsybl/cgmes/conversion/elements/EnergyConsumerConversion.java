@@ -141,7 +141,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         double pFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.P_FIXED, "0.0"));
         double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.Q_FIXED, "0.0"));
 
-        PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData);
+        PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
         load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : getDefaultP0(load, pFixed, context));
         load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : getDefaultQ0(load, qFixed, context));
 
