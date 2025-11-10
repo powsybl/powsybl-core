@@ -288,8 +288,8 @@ public class Conversion {
 
     private static void removeAllAliasesAndProperties(Network network) {
         network.getIdentifiables().forEach(identifiable -> {
-            identifiable.getAliases().stream().toList().forEach(identifiable::removeAlias);
-            identifiable.getPropertyNames().stream().toList().forEach(identifiable::removeProperty);
+            identifiable.getAliases().forEach(identifiable::removeAlias);
+            identifiable.getPropertyNames().forEach(identifiable::removeProperty);
         });
 
         network.getBranchStream()
@@ -311,7 +311,7 @@ public class Conversion {
 
     private static void removeProperties(Collection<OperationalLimitsGroup> operationalLimitsGroupCollection) {
         operationalLimitsGroupCollection.forEach(operationalLimitsGroup ->
-                operationalLimitsGroup.getPropertyNames().stream().toList().forEach(operationalLimitsGroup::removeProperty));
+                operationalLimitsGroup.getPropertyNames().forEach(operationalLimitsGroup::removeProperty));
     }
 
     private static boolean sshOrSvIsIncludedInCgmesModel(CgmesModel cgmes) {
@@ -322,6 +322,11 @@ public class Conversion {
 
     public void update(Network network, ReportNode reportNode) {
         Objects.requireNonNull(network);
+
+        if (network.getPropertyNames().isEmpty()) {
+            throw new ConversionException("The network has no properties and aliases, they have been removed. Update is not allowed.");
+        }
+
         Objects.requireNonNull(reportNode);
         Context updateContext = createUpdateContext(network, reportNode);
 
