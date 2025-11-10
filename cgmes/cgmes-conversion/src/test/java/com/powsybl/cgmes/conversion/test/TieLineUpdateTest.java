@@ -81,12 +81,8 @@ class TieLineUpdateTest {
         assertEqCount(network, 2, 4);
 
         TieLine tieLine = network.getTieLine("ACLineSegment-1 + ACLineSegment-2");
-        assertFlow(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
-        assertFlow(tieLine.getDanglingLine2(), Double.NaN, Double.NaN);
-        assertBusVoltage(tieLine.getDanglingLine1().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
-        assertBusVoltage(tieLine.getDanglingLine2().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
-        assertBoundaryBusVoltage(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
-        assertBoundaryBusVoltage(tieLine.getDanglingLine2(), Double.NaN, Double.NaN);
+        assertFlowsEmptySv(tieLine);
+        assertEmptySv(tieLine);
 
         readCgmesResources(network, DIR, "tieLine_TP.xml", "tieLine_SV.xml");
         assertSv(tieLine);

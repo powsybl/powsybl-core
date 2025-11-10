@@ -56,7 +56,7 @@ class ShuntCompensatorUpdateTest {
         readCgmesResources(network, DIR, "shuntCompensator_SSH_1.xml");
         assertSecondSsh(network);
 
-        assertFlowsBeforeSv(network);
+        assertUnassignedFlows(network);
         assertSectionsBeforeSv(network);
         readCgmesResources(network, DIR, "shuntCompensator_SV.xml");
         assertFlowsAfterSv(network);
@@ -76,7 +76,7 @@ class ShuntCompensatorUpdateTest {
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
         assertSectionsAfterSv(network, null, null);
-        assertFlowsAfterEmptySv(network);
+        assertUnassignedFlows(network);
     }
 
     private static void assertEq(Network network) {
@@ -97,16 +97,12 @@ class ShuntCompensatorUpdateTest {
         assertSsh(network.getShuntCompensator("EquivalentShunt"), 0, Double.NaN, Double.NaN, false);
     }
 
-    private static void assertFlowsBeforeSv(Network network) {
+    private static void assertUnassignedFlows(Network network) {
         assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
         assertFlows(network, 0.0, 50.0, 1.0, 25.0, 2.0, -5.0);
-    }
-
-    private static void assertFlowsAfterEmptySv(Network network) {
-        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlows(Network network, double linearShuntCompensatorP, double linearShuntCompensatorQ, double nonLinearShuntCompensatorP, double nonLinearShuntCompensatorQ, double equivalentShuntP, double equivalentShuntQ) {

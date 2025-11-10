@@ -304,6 +304,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
         if (isVoltageDefined(v, angle)) {
             setVoltageProperties(dl, v, angle);
+        } else {
+            removeVoltageProperties(dl);
         }
     }
 
@@ -366,11 +368,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     private static void setDanglingLineModelSideFlow(DanglingLine dl, Context context) {
         Optional<PropertyBag> svVoltage = getCgmesSvVoltageOnBoundarySide(dl, context);
         if (svVoltage.isEmpty()) {
+            dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
             return;
         }
         double v = svVoltage.get().asDouble(CgmesNames.VOLTAGE, Double.NaN);
         double angle = svVoltage.get().asDouble(CgmesNames.ANGLE, Double.NaN);
         if (!isVoltageDefined(v, angle)) {
+            dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
             return;
         }
         // The net sum of power flow "entering" at boundary is "exiting"
@@ -700,11 +704,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         PowerFlow steadyStateHypothesisPowerFlow = new PowerFlow(cgmesData, "p", "q");
         if (steadyStateHypothesisPowerFlow.defined()) {
             return steadyStateHypothesisPowerFlow;
-        }
-        PropertyBag cgmesTerminal = getCgmesTerminal(connectable, context);
-        PowerFlow stateVariablesPowerFlow = new PowerFlow(cgmesTerminal, "p", "q");
-        if (stateVariablesPowerFlow.defined()) {
-            return stateVariablesPowerFlow;
         }
         return PowerFlow.UNDEFINED;
     }

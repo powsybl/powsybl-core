@@ -111,9 +111,9 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private static double getPreviousPoleLossesRectifier(HvdcLine hvdcLine) {
-        double lossFactor = hvdcLine.getConvertersMode() == SIDE_1_RECTIFIER_SIDE_2_INVERTER
+        double lossFactorRectifier = hvdcLine.getConvertersMode() == SIDE_1_RECTIFIER_SIDE_2_INVERTER
                 ? hvdcLine.getConverterStation1().getLossFactor() : hvdcLine.getConverterStation2().getLossFactor();
-        return lossFactor / 100.0 * hvdcLine.getActivePowerSetpoint();
+        return lossFactorRectifier / 100.0 * hvdcLine.getActivePowerSetpoint();
     }
 
     private static double getPreviousPoleLosses1(HvdcLine hvdcLine) {
@@ -122,7 +122,7 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private static double getPreviousPoleLosses2(HvdcLine hvdcLine) {
-        double p = hvdcLine.getConvertersMode() == SIDE_1_RECTIFIER_SIDE_2_INVERTER ? hvdcLine.getActivePowerSetpoint() : getPreviousPdcInverter(hvdcLine);
+        double p = hvdcLine.getConvertersMode() == SIDE_1_RECTIFIER_SIDE_2_INVERTER ? getPreviousPdcInverter(hvdcLine) : hvdcLine.getActivePowerSetpoint();
         return hvdcLine.getConverterStation2().getLossFactor() / 100.0 * p;
     }
 

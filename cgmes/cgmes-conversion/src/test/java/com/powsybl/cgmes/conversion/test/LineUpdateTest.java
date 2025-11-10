@@ -53,7 +53,7 @@ class LineUpdateTest {
         readCgmesResources(network, DIR, "line_SSH_1.xml");
         assertSecondSsh(network);
 
-        assertFlowsBeforeSv(network);
+        assertUnassignedFlows(network);
         readCgmesResources(network, DIR, "line_SV.xml");
         assertFlowsAfterSv(network);
     }
@@ -69,7 +69,7 @@ class LineUpdateTest {
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertFlowsAfterEmptySv(network);
+        assertUnassignedFlows(network);
     }
 
     private static void assertEq(Network network) {
@@ -111,7 +111,7 @@ class LineUpdateTest {
         assertNotDefinedLimits(network.getLine("SeriesCompensator"));
     }
 
-    private static void assertFlowsBeforeSv(Network network) {
+    private static void assertUnassignedFlows(Network network) {
         assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
@@ -120,10 +120,6 @@ class LineUpdateTest {
                 175.0, 40.0, -175.1, -40.1,
                 75.0, 30.0, -75.1, -30.1);
 
-    }
-
-    private static void assertFlowsAfterEmptySv(Network network) {
-        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlows(Network network, double aCLineSegmentP1, double aCLineSegmentQ1, double aCLineSegmentP2, double aCLineSegmentQ2,

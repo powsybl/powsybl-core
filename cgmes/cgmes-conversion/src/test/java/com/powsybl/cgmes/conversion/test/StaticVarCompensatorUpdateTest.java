@@ -56,7 +56,7 @@ class StaticVarCompensatorUpdateTest {
         readCgmesResources(network, DIR, "staticVarCompensator_SSH_1.xml");
         assertSecondSsh(network);
 
-        assertFlowsBeforeSv(network);
+        assertUnassignedFlows(network);
         readCgmesResources(network, DIR, "staticVarCompensator_SV.xml");
         assertFlowsAfterSv(network);
     }
@@ -72,7 +72,7 @@ class StaticVarCompensatorUpdateTest {
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertFlowsAfterEmptySv(network);
+        assertUnassignedFlows(network);
     }
 
     private static void assertEq(Network network) {
@@ -90,16 +90,12 @@ class StaticVarCompensatorUpdateTest {
         assertSsh(network.getStaticVarCompensator("StaticVarCompensator-Q"), 215.0, Double.NaN, false);
     }
 
-    private static void assertFlowsBeforeSv(Network network) {
+    private static void assertUnassignedFlows(Network network) {
         assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
         assertFlows(network, 0.0, -50.0, 0.0, -200.0);
-    }
-
-    private static void assertFlowsAfterEmptySv(Network network) {
-        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlows(Network network, double staticVarCompensatorVP, double staticVarCompensatorVQ, double staticVarCompensatorQP, double staticVarCompensatorQQ) {

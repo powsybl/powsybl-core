@@ -356,7 +356,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     private static OptionalInt findTapPosition(PropertyBag p) {
-        double tapPosition = p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP));
+        double tapPosition = p.asDouble(CgmesNames.STEP);
         return Double.isFinite(tapPosition) ? OptionalInt.of(AbstractObjectConversion.fromContinuous(tapPosition)) : OptionalInt.empty();
     }
 

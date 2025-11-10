@@ -57,7 +57,7 @@ class HvdcUpdateTest {
         readCgmesResources(network, DIR, "hvdc_SSH_1.xml");
         assertSecondSsh(network);
 
-        assertFlowsBeforeSv(network);
+        assertUnassignedFlows(network);
         assertLossFactorBeforeSv(network);
         readCgmesResources(network, DIR, "hvdc_SV.xml");
         assertFlowsAfterSv(network);
@@ -82,7 +82,7 @@ class HvdcUpdateTest {
 
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertSecondSsh(network);
-        assertFlowsAfterEmptySv(network);
+        assertUnassignedFlows(network);
         assertLossFactorAfterSshSv(network);
     }
 
@@ -105,16 +105,12 @@ class HvdcUpdateTest {
                 396.54, 0.0, 30.0, false);
     }
 
-    private static void assertFlowsBeforeSv(Network network) {
+    private static void assertUnassignedFlows(Network network) {
         assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
         assertFlows(network, 200.0, 50.0, -200.1, -50.1, 100.0, 25.0, -100.1, -25.1);
-    }
-
-    private static void assertFlowsAfterEmptySv(Network network) {
-        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlows(Network network, double dCLineSegmentLccP1, double dCLineSegmentLccQ1, double dCLineSegmentLccP2, double dCLineSegmentLccQ2,

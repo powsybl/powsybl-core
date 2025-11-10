@@ -54,7 +54,7 @@ class LoadUpdateTest {
 
         readCgmesResources(network, DIR, "load_SSH_1.xml");
         assertSecondSsh(network);
-        assertFlowsBeforeSv(network);
+        assertUnassignedFlows(network);
 
         readCgmesResources(network, DIR, "load_SV.xml");
         assertFlowsAfterSv(network);
@@ -71,7 +71,7 @@ class LoadUpdateTest {
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertFlowsAfterEmptySv(network);
+        assertUnassignedFlows(network);
     }
 
     private static void assertEq(Network network) {
@@ -101,16 +101,12 @@ class LoadUpdateTest {
         assertSsh(network.getLoad("AsynchronousMachineOnlyEQ"), 0.0, 0.0);
     }
 
-    void assertFlowsBeforeSv(Network network) {
+    void assertUnassignedFlows(Network network) {
         assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     void assertFlowsAfterSv(Network network) {
         assertFlows(network, 100.0, 50.0, 20.0, 10.0, 10.0, 5.0);
-    }
-
-    void assertFlowsAfterEmptySv(Network network) {
-        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     void assertFlows(Network network, double energyConsumerP, double energyConsumerQ, double energySourceP, double energySourceQ,
