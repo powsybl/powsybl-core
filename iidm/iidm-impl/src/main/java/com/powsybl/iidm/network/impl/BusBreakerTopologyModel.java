@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.dot.Subgraph;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
@@ -33,6 +32,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
+import org.jgrapht.nio.dot.DOTSubgraph;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -1110,7 +1110,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
                                   Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
                                   Random random,
                                   Graph<String, DefaultEdge> jGraph,
-                                  Map<String, Subgraph<String>> subgraphs) {
+                                  Map<String, DOTSubgraph<String, DefaultEdge>> subgraphs) {
         // create bus color scale
         Map<String, String> busColor = createBusColorScale(random,
             graph.getVertexObjectStream().map(BusExt::getId).toList());

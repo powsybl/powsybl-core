@@ -25,7 +25,6 @@ import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
-import com.powsybl.iidm.network.dot.Subgraph;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -43,9 +42,11 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 import org.jgrapht.Graph;
+import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
+import org.jgrapht.nio.dot.DOTSubgraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1488,7 +1489,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                                   Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
                                   Random random,
                                   Graph<String, DefaultEdge> jGraph,
-                                  Map<String, Subgraph<String>> subgraphs) {
+                                  Map<String, DOTSubgraph<String, DefaultEdge>> subgraphs) {
         // create bus color scale
         Map<String, String> busColor = createBusColorScale(random,
             getCalculatedBusBreakerTopology().getBuses().stream().map(BusExt::getId).toList());
@@ -1517,9 +1518,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 va.put(STYLE, DefaultAttribute.createAttribute("filled"));
                 va.put(FILL_COLOR, DefaultAttribute.createAttribute(busColor.get(bus.getId())));
                 if (!subgraphs.containsKey(bus.getId())) {
-                    subgraphs.put(bus.getId(), new Subgraph<>(DEFAULT_SUBGRAPH_ATTRIBUTES, DEFAULT_CLUSTER_ATTRIBUTES));
+                    subgraphs.put(bus.getId(), new DOTSubgraph<>(new AsSubgraph<>(jGraph, Set.of(), Set.of()),
+                        DEFAULT_SUBGRAPH_ATTRIBUTES, DEFAULT_CLUSTER_ATTRIBUTES,
+                        true, false));
                 }
-                subgraphs.get(bus.getId()).addVertex(vertexId);
+                subgraphs.get(bus.getId()).getSubgraph().addVertex(vertexId);
             }
             vertexAttributes.put(vertexId, va);
         }

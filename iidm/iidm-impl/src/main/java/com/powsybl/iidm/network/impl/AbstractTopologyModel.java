@@ -16,11 +16,11 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.dot.Subgraph;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
+import org.jgrapht.nio.dot.DOTSubgraph;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -170,7 +170,7 @@ abstract class AbstractTopologyModel implements TopologyModel {
                                            Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
                                            Random random,
                                            Graph<String, DefaultEdge> jGraph,
-                                           Map<String, Subgraph<String>> subgraphs);
+                                           Map<String, DOTSubgraph<String, DefaultEdge>> subgraphs);
 
     protected abstract void exportEdges(Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
                                         Graph<String, DefaultEdge> jGraph);

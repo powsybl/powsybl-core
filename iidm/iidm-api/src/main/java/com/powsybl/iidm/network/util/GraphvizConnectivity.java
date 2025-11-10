@@ -14,11 +14,12 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.dot.Subgraph;
 import org.jgrapht.Graph;
+import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
+import org.jgrapht.nio.dot.DOTSubgraph;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -31,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 
 import static com.powsybl.iidm.network.dot.IidmDOTUtils.FILL_COLOR;
 import static com.powsybl.iidm.network.dot.IidmDOTUtils.FONT_SIZE;
@@ -95,7 +97,7 @@ public class GraphvizConnectivity {
                                   Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
                                   Random random,
                                   Graph<String, DefaultEdge> jGraph,
-                                  Map<String, Subgraph<String>> subgraphs) {
+                                  Map<String, DOTSubgraph<String, DefaultEdge>> subgraphs) {
         // create bus color scale
         int maxCC = network.getBusView().getBusStream().mapToInt(b -> b.getConnectedComponent().getNum()).max().orElseThrow();
         String[] colors = Colors.generateColorScale(maxCC + 1, random);
@@ -126,13 +128,12 @@ public class GraphvizConnectivity {
                         String subgraphId = "cluster_" + country.name();
                         if (!subgraphs.containsKey(subgraphId)) {
                             subgraphs.put(subgraphId,
-                                new Subgraph<>(Map.of(
+                                new DOTSubgraph<>(new AsSubgraph<>(jGraph, Set.of(), Set.of()), Map.of(
                                     LABEL, DefaultAttribute.createAttribute(country.name()),
                                     STYLE, DefaultAttribute.createAttribute("rounded")
-                                ),
-                                    DEFAULT_CLUSTER_ATTRIBUTES));
+                                ), DEFAULT_CLUSTER_ATTRIBUTES, true, false));
                         }
-                        subgraphs.get(subgraphId).addVertex(busVertexId);
+                        subgraphs.get(subgraphId).getSubgraph().addVertex(busVertexId);
                     });
             }
             verticesAttributes.put(busVertexId, vertexAttributes);

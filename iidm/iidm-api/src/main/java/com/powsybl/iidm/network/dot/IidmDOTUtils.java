@@ -7,13 +7,14 @@
  */
 package com.powsybl.iidm.network.dot;
 
-import com.google.re2j.Pattern;
 import com.powsybl.commons.util.Colors;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
+import org.jgrapht.nio.dot.DOTExporter;
+import org.jgrapht.nio.dot.DOTSubgraph;
 
 import java.io.Writer;
 import java.util.HashMap;
@@ -38,25 +39,6 @@ public final class IidmDOTUtils {
     public static final String SHAPE = "shape";
     public static final String STYLE = "style";
     public static final String TOOL_TIP = "tooltip";
-    /** Keyword for representing strict graphs. */
-    static final String DONT_ALLOW_MULTIPLE_EDGES_KEYWORD = "strict";
-    /** Keyword for directed graphs. */
-    static final String DIRECTED_GRAPH_KEYWORD = "digraph";
-    /** Keyword for undirected graphs. */
-    static final String UNDIRECTED_GRAPH_KEYWORD = "graph";
-    /** Edge operation for directed graphs. */
-    static final String DIRECTED_GRAPH_EDGEOP = "->";
-    /** Edge operation for undirected graphs. */
-    static final String UNDIRECTED_GRAPH_EDGEOP = "--";
-    /** Indentation. */
-    static final String INDENT = "  ";
-    static final String DOUBLE_INDENT = INDENT + INDENT;
-
-    // patterns for IDs
-    private static final Pattern ALPHA_DIG = Pattern.compile("[a-zA-Z_][\\w]*");
-    private static final Pattern DOUBLE_QUOTE = Pattern.compile("\".*\"");
-    private static final Pattern DOT_NUMBER = Pattern.compile("[-]?([.][0-9]+|[0-9]+([.][0-9]*)?)");
-    private static final Pattern HTML = Pattern.compile("<.*>");
 
     public static Map<String, String> createBusColorScale(Random random, List<String> busIds) {
         Map<String, String> busColor = new HashMap<>();
@@ -67,19 +49,6 @@ public final class IidmDOTUtils {
         return busColor;
     }
 
-    /**
-     * Test if the ID candidate is a valid ID.
-     *
-     * @param idCandidate the ID candidate.
-     *
-     * @return <code>true</code> if it is valid; <code>false</code> otherwise.
-     */
-    static boolean isNotValidID(String idCandidate) {
-        return !ALPHA_DIG.matcher(idCandidate).matches()
-            && !DOUBLE_QUOTE.matcher(idCandidate).matches()
-            && !DOT_NUMBER.matcher(idCandidate).matches() && !HTML.matcher(idCandidate).matches();
-    }
-
     public static void exportGraph(Writer writer, Random random,
                                    VertexExporter vertexExporter,
                                    EdgeExporter edgeExporter,
@@ -88,7 +57,7 @@ public final class IidmDOTUtils {
         Graph<String, DefaultEdge> jGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
         Map<String, Map<String, Attribute>> vertexAttributes = new HashMap<>();
         Map<DefaultEdge, Map<String, Attribute>> edgeAttributes = new HashMap<>();
-        Map<String, Subgraph<String>> subgraphs = new HashMap<>();
+        Map<String, DOTSubgraph<String, DefaultEdge>> subgraphs = new HashMap<>();
 
         // Compute the attributes, nodes and edges
         graphAttributes.put("compound", DefaultAttribute.createAttribute("true"));
@@ -96,7 +65,7 @@ public final class IidmDOTUtils {
         edgeExporter.exportEdges(edgeAttributes, jGraph);
 
         // Set the exporter
-        IidmDOTExporter<String, DefaultEdge> exporter = new IidmDOTExporter<>(v -> v);
+        DOTExporter<String, DefaultEdge> exporter = new DOTExporter<>(v -> v);
         exporter.setGraphAttributeProvider(() -> graphAttributes);
         exporter.setVertexAttributeProvider(vertexAttributes::get);
         exporter.setEdgeAttributeProvider(edgeAttributes::get);
@@ -114,7 +83,7 @@ public final class IidmDOTUtils {
             Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
             Random random,
             Graph<String, DefaultEdge> jGraph,
-            Map<String, Subgraph<String>> subgraphs
+            Map<String, DOTSubgraph<String, DefaultEdge>> subgraphs
         );
     }
 
