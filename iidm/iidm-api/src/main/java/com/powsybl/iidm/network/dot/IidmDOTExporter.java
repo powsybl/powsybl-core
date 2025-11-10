@@ -1,9 +1,19 @@
 /*
- * Copyright (c) 2025, RTE (http://www.rte-france.com)
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * SPDX-License-Identifier: MPL-2.0
+ * (C) Copyright 2006-2023, by Trevor Harmon and Contributors.
+ *
+ * JGraphT : a free Java graph-theory library
+ *
+ * See the CONTRIBUTORS.md file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0, or the
+ * GNU Lesser General Public License v2.1 or later
+ * which is available at
+ * http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR LGPL-2.1-or-later
  */
 package com.powsybl.iidm.network.dot;
 
@@ -32,6 +42,10 @@ import java.util.function.Supplier;
 import static org.jgrapht.nio.dot.DOTExporter.DEFAULT_GRAPH_ID;
 
 /**
+ * This class is based on {@link org.jgrapht.nio.dot.DOTExporter}
+ *
+ * @author Trevor Harmon (in JGraphT)
+ * @author Dimitrios Michail (in JGraphT)
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphExporter<V, E> {
