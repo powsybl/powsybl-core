@@ -253,8 +253,6 @@ class DanglingLineUpdateTest {
         String angleProperty = danglingLine.getProperty(CgmesNames.ANGLE);
         assertEquals(v, voltageProperty != null ? Double.parseDouble(voltageProperty) : Double.NaN, tol);
         assertEquals(angle, angleProperty != null ? Double.parseDouble(angleProperty) : Double.NaN, tol);
-        //assertEquals(388.0868627936761, voltageProperty != null ? Double.parseDouble(voltageProperty) : Double.NaN, tol);
-        //assertEquals(-5.9167013802728095, angleProperty != null ? Double.parseDouble(angleProperty) : Double.NaN, tol);
         return true;
     }
 }

@@ -549,10 +549,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
     }
 
-    private static PropertyBag getCgmesTerminal(Connectable<?> connectable, Context context) {
-        return getCgmesTerminals(connectable, context, 1).get(0);
-    }
-
     private static PropertyBags getCgmesTerminals(Connectable<?> connectable, Context context, int numTerminals) {
         PropertyBags propertyBags = new PropertyBags();
         getTerminalTags(numTerminals).forEach(terminalTag -> propertyBags.add(
@@ -700,7 +696,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected static PowerFlow updatedPowerFlow(Connectable<?> connectable, PropertyBag cgmesData, Context context) {
+    protected static PowerFlow updatedPowerFlow(Connectable<?> connectable, PropertyBag cgmesData) {
         PowerFlow steadyStateHypothesisPowerFlow = new PowerFlow(cgmesData, "p", "q");
         if (steadyStateHypothesisPowerFlow.defined()) {
             return steadyStateHypothesisPowerFlow;
