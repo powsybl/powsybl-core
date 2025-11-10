@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
-import static com.powsybl.iidm.network.dot.IidmDOTExporter.exportGraph;
 import static com.powsybl.iidm.network.dot.IidmDOTUtils.FILL_COLOR;
 import static com.powsybl.iidm.network.dot.IidmDOTUtils.FONT_SIZE;
 import static com.powsybl.iidm.network.dot.IidmDOTUtils.LABEL;
@@ -40,6 +39,7 @@ import static com.powsybl.iidm.network.dot.IidmDOTUtils.LINE_SEPARATOR;
 import static com.powsybl.iidm.network.dot.IidmDOTUtils.SHAPE;
 import static com.powsybl.iidm.network.dot.IidmDOTUtils.STYLE;
 import static com.powsybl.iidm.network.dot.IidmDOTUtils.TOOL_TIP;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.exportGraph;
 import static com.powsybl.iidm.network.dot.Subgraph.DEFAULT_CLUSTER_ATTRIBUTES;
 
 /**

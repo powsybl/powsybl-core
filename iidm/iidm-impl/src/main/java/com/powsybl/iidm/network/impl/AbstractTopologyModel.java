@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.network.dot.IidmDOTExporter.exportGraph;
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.exportGraph;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

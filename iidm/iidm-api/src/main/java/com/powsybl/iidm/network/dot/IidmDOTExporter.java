@@ -19,12 +19,9 @@ package com.powsybl.iidm.network.dot;
 
 import com.google.re2j.Matcher;
 import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.AttributeType;
 import org.jgrapht.nio.BaseExporter;
-import org.jgrapht.nio.DefaultAttribute;
 import org.jgrapht.nio.ExportException;
 import org.jgrapht.nio.GraphExporter;
 import org.jgrapht.nio.IntegerIdProvider;
@@ -35,7 +32,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -70,37 +66,6 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
         super(vertexIdProvider);
         this.subgraphProvider = null;
         this.validatedIds = new HashMap<>();
-    }
-
-    public static void exportGraph(Writer writer, Random random,
-                                   VertexExporter vertexExporter,
-                                   EdgeExporter edgeExporter,
-                                   Map<String, Attribute> graphAttributes) {
-        // Initialize the JgraphT graph and the attributes, nodes and edges map
-        Graph<String, DefaultEdge> jGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
-        Map<String, Map<String, Attribute>> vertexAttributes = new HashMap<>();
-        Map<DefaultEdge, Map<String, Attribute>> edgeAttributes = new HashMap<>();
-        Map<String, Subgraph<String>> subgraphs = new HashMap<>();
-
-        // Compute the attributes, nodes and edges
-        graphAttributes.put("compound", DefaultAttribute.createAttribute("true"));
-        vertexExporter.exportVertices(vertexAttributes, edgeAttributes, random, jGraph, subgraphs);
-        edgeExporter.exportEdges(edgeAttributes, jGraph);
-
-        // Set the exporter
-        IidmDOTExporter<String, DefaultEdge> exporter = new IidmDOTExporter<>(v -> v);
-        exporter.setGraphAttributeProvider(() -> graphAttributes);
-        exporter.setVertexAttributeProvider(vertexAttributes::get);
-        exporter.setEdgeAttributeProvider(edgeAttributes::get);
-        if (!subgraphs.isEmpty()) {
-            exporter.setSubgraphProvider(() -> subgraphs);
-        }
-
-        exporter.exportGraph(jGraph, writer);
-    }
-
-    private static String escapeDoubleQuotes(String labelName) {
-        return labelName.replace("\"", Matcher.quoteReplacement("\\\""));
     }
 
     /**
@@ -179,45 +144,6 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
         out.println("}");
 
         out.flush();
-    }
-
-    /**
-     * Return a valid vertex ID (with respect to the .dot language definition as described in
-     * <a href="http://www.graphviz.org/doc/info/lang.html">...</a>
-     *
-     * <p>
-     * Quoted from above mentioned source: An ID is valid if it meets one of the following criteria:
-     *
-     * <ul>
-     * <li>any string of alphabetic characters, underscores or digits, not beginning with a digit;
-     * <li>a number [-]?(.[0-9]+ | [0-9]+(.[0-9]*)? );
-     * <li>any double-quoted string ("...") possibly containing escaped quotes (\");
-     * <li>an HTML string (<...>).
-     * </ul>
-     *
-     * @throws ExportException if the given <code>vertexIDProvider</code> didn't generate a valid
-     *                         vertex ID.
-     */
-    protected String getValidatedVertexId(V v) {
-        String vertexId = validatedIds.get(v);
-        if (vertexId == null) {
-            /*
-             * use the associated id provider for an ID of the given vertex
-             */
-            vertexId = getVertexId(v);
-
-            /*
-             * test if it is a valid ID
-             */
-            if (IidmDOTUtils.isNotValidID(vertexId)) {
-                throw new ExportException(
-                    "Generated id '" + vertexId + "'for vertex '" + v
-                        + "' is not valid with respect to the .dot language");
-            }
-
-            validatedIds.put(v, vertexId);
-        }
-        return vertexId;
     }
 
     private void writeSubgraph(PrintWriter out, String subgraphName, Subgraph<V> subgraph) {
@@ -330,22 +256,46 @@ public class IidmDOTExporter<V, E> extends BaseExporter<V, E> implements GraphEx
         out.print(" ");
     }
 
-    @FunctionalInterface
-    public interface VertexExporter {
-        void exportVertices(
-            Map<String, Map<String, Attribute>> vertexAttributes,
-            Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
-            Random random,
-            Graph<String, DefaultEdge> jGraph,
-            Map<String, Subgraph<String>> subgraphs
-        );
+    private static String escapeDoubleQuotes(String labelName) {
+        return labelName.replace("\"", Matcher.quoteReplacement("\\\""));
     }
 
-    @FunctionalInterface
-    public interface EdgeExporter {
-        void exportEdges(
-            Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
-            Graph<String, DefaultEdge> jGraph
-        );
+    /**
+     * Return a valid vertex ID (with respect to the .dot language definition as described in
+     * <a href="http://www.graphviz.org/doc/info/lang.html">...</a>
+     *
+     * <p>
+     * Quoted from above mentioned source: An ID is valid if it meets one of the following criteria:
+     *
+     * <ul>
+     * <li>any string of alphabetic characters, underscores or digits, not beginning with a digit;
+     * <li>a number [-]?(.[0-9]+ | [0-9]+(.[0-9]*)? );
+     * <li>any double-quoted string ("...") possibly containing escaped quotes (\");
+     * <li>an HTML string (<...>).
+     * </ul>
+     *
+     * @throws ExportException if the given <code>vertexIDProvider</code> didn't generate a valid
+     *                         vertex ID.
+     */
+    protected String getValidatedVertexId(V v) {
+        String vertexId = validatedIds.get(v);
+        if (vertexId == null) {
+            /*
+             * use the associated id provider for an ID of the given vertex
+             */
+            vertexId = getVertexId(v);
+
+            /*
+             * test if it is a valid ID
+             */
+            if (IidmDOTUtils.isNotValidID(vertexId)) {
+                throw new ExportException(
+                    "Generated id '" + vertexId + "'for vertex '" + v
+                        + "' is not valid with respect to the .dot language");
+            }
+
+            validatedIds.put(v, vertexId);
+        }
+        return vertexId;
     }
 }

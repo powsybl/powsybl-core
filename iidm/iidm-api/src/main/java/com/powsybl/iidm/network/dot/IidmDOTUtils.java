@@ -9,7 +9,13 @@ package com.powsybl.iidm.network.dot;
 
 import com.google.re2j.Pattern;
 import com.powsybl.commons.util.Colors;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.nio.Attribute;
+import org.jgrapht.nio.DefaultAttribute;
 
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,5 +78,51 @@ public final class IidmDOTUtils {
         return !ALPHA_DIG.matcher(idCandidate).matches()
             && !DOUBLE_QUOTE.matcher(idCandidate).matches()
             && !DOT_NUMBER.matcher(idCandidate).matches() && !HTML.matcher(idCandidate).matches();
+    }
+
+    public static void exportGraph(Writer writer, Random random,
+                                   VertexExporter vertexExporter,
+                                   EdgeExporter edgeExporter,
+                                   Map<String, Attribute> graphAttributes) {
+        // Initialize the JgraphT graph and the attributes, nodes and edges map
+        Graph<String, DefaultEdge> jGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        Map<String, Map<String, Attribute>> vertexAttributes = new HashMap<>();
+        Map<DefaultEdge, Map<String, Attribute>> edgeAttributes = new HashMap<>();
+        Map<String, Subgraph<String>> subgraphs = new HashMap<>();
+
+        // Compute the attributes, nodes and edges
+        graphAttributes.put("compound", DefaultAttribute.createAttribute("true"));
+        vertexExporter.exportVertices(vertexAttributes, edgeAttributes, random, jGraph, subgraphs);
+        edgeExporter.exportEdges(edgeAttributes, jGraph);
+
+        // Set the exporter
+        IidmDOTExporter<String, DefaultEdge> exporter = new IidmDOTExporter<>(v -> v);
+        exporter.setGraphAttributeProvider(() -> graphAttributes);
+        exporter.setVertexAttributeProvider(vertexAttributes::get);
+        exporter.setEdgeAttributeProvider(edgeAttributes::get);
+        if (!subgraphs.isEmpty()) {
+            exporter.setSubgraphProvider(() -> subgraphs);
+        }
+
+        exporter.exportGraph(jGraph, writer);
+    }
+
+    @FunctionalInterface
+    public interface VertexExporter {
+        void exportVertices(
+            Map<String, Map<String, Attribute>> vertexAttributes,
+            Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
+            Random random,
+            Graph<String, DefaultEdge> jGraph,
+            Map<String, Subgraph<String>> subgraphs
+        );
+    }
+
+    @FunctionalInterface
+    public interface EdgeExporter {
+        void exportEdges(
+            Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
+            Graph<String, DefaultEdge> jGraph
+        );
     }
 }
