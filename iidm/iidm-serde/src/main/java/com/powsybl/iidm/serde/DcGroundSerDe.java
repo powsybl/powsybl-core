@@ -43,16 +43,16 @@ public class DcGroundSerDe extends AbstractSimpleIdentifiableSerDe<DcGround, DcG
         String dcNodeId = context.getReader().readStringAttribute("dcNode");
         double r = context.getReader().readDoubleAttribute("r");
         boolean connected = context.getReader().readBooleanAttribute("connected");
-        double p = context.getReader().readDoubleAttribute("p");
-        double i = context.getReader().readDoubleAttribute("i");
         DcGround dcGround = adder
                 .setDcNode(dcNodeId)
+                .setConnected(connected)
                 .setR(r)
                 .add();
+        double p = context.getReader().readDoubleAttribute("p");
+        double i = context.getReader().readDoubleAttribute("i");
         dcGround.getDcTerminal()
                 .setI(i)
-                .setP(p)
-                .setConnected(connected);
+                .setP(p);
         return dcGround;
     }
 

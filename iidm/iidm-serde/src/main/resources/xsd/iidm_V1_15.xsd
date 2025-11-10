@@ -542,12 +542,8 @@
                 </xs:sequence>
                 <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="dcConnected1" use="required" type="xs:boolean"/>
-                <xs:attribute name="dcP1" use="optional" type="xs:double"/>
-                <xs:attribute name="dcI1" use="optional" type="xs:double"/>
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="dcConnected2" use="required" type="xs:boolean"/>
-                <xs:attribute name="dcP2" use="optional" type="xs:double"/>
-                <xs:attribute name="dcI2" use="optional" type="xs:double"/>
                 <xs:attribute name="idleLoss" use="required" type="xs:double"/>
                 <xs:attribute name="switchingLoss" use="required" type="xs:double"/>
                 <xs:attribute name="resistiveLoss" use="required" type="xs:double"/>
@@ -564,6 +560,10 @@
                 <xs:attribute name="q1" use="optional" type="xs:double"/>
                 <xs:attribute name="p2" use="optional" type="xs:double"/>
                 <xs:attribute name="q2" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP2" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI2" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -838,9 +838,9 @@
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="connected1" use="required" type="xs:boolean"/>
+                <xs:attribute name="connected2" use="required" type="xs:boolean"/>
                 <xs:attribute name="p1" use="optional" type="xs:double"/>
                 <xs:attribute name="i1" use="optional" type="xs:double"/>
-                <xs:attribute name="connected2" use="required" type="xs:boolean"/>
                 <xs:attribute name="p2" use="optional" type="xs:double"/>
                 <xs:attribute name="i2" use="optional" type="xs:double"/>
             </xs:extension>

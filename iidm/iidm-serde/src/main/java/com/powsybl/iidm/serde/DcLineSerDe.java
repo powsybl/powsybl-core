@@ -34,9 +34,9 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
         context.getWriter().writeStringAttribute("dcNode2", dcTerminal2.getDcNode().getId());
         context.getWriter().writeDoubleAttribute("r", dcLine.getR());
         context.getWriter().writeBooleanAttribute("connected1", dcTerminal1.isConnected());
+        context.getWriter().writeBooleanAttribute("connected2", dcTerminal2.isConnected());
         context.getWriter().writeDoubleAttribute("p1", dcTerminal1.getP());
         context.getWriter().writeDoubleAttribute("i1", dcTerminal1.getI());
-        context.getWriter().writeBooleanAttribute("connected2", dcTerminal2.isConnected());
         context.getWriter().writeDoubleAttribute("p2", dcTerminal2.getP());
         context.getWriter().writeDoubleAttribute("i2", dcTerminal2.getI());
     }
@@ -52,18 +52,20 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
         String dcNode2Id = context.getReader().readStringAttribute("dcNode2");
         double r = context.getReader().readDoubleAttribute("r");
         boolean connected1 = context.getReader().readBooleanAttribute("connected1");
-        double p1 = context.getReader().readDoubleAttribute("p1");
-        double i1 = context.getReader().readDoubleAttribute("i1");
         boolean connected2 = context.getReader().readBooleanAttribute("connected2");
-        double p2 = context.getReader().readDoubleAttribute("p2");
-        double i2 = context.getReader().readDoubleAttribute("i2");
         DcLine dcLine = adder
                 .setDcNode1(dcNode1Id)
+                .setConnected1(connected1)
                 .setDcNode2(dcNode2Id)
+                .setConnected2(connected2)
                 .setR(r)
                 .add();
-        dcLine.getDcTerminal1().setI(i1).setP(p1).setConnected(connected1);
-        dcLine.getDcTerminal2().setI(i2).setP(p2).setConnected(connected2);
+        double p1 = context.getReader().readDoubleAttribute("p1");
+        double i1 = context.getReader().readDoubleAttribute("i1");
+        double p2 = context.getReader().readDoubleAttribute("p2");
+        double i2 = context.getReader().readDoubleAttribute("i2");
+        dcLine.getDcTerminal1().setI(i1).setP(p1);
+        dcLine.getDcTerminal2().setI(i2).setP(p2);
         return dcLine;
     }
 

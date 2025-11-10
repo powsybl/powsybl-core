@@ -6,5 +6,5 @@
         <iidm:alias>someAlias</iidm:alias>
         <iidm:property name="prop name" value="prop value"/>
     </iidm:dcLine>
-    <iidm:dcLine id="dcLineWithSolvedV" name="A DC Line with solved values" dcNode1="dcNode1" dcNode2="dcNode2" r="4.0" connected1="true" p1="100.0" i1="200.0" connected2="true" p2="-98.0" i2="-195.0"/>
+    <iidm:dcLine id="dcLineWithSolvedV" name="A DC Line with solved values" dcNode1="dcNode1" dcNode2="dcNode2" r="4.0" connected1="true" connected2="true" p1="100.0" i1="200.0" p2="-98.0" i2="-195.0"/>
 </iidm:network>
