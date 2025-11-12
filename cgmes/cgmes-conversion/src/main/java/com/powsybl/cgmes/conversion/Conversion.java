@@ -263,11 +263,6 @@ public class Conversion {
 
         updateWithAllInputs(network, reportNode);
 
-        // Remove all properties and aliases, this will invalidate all subsequent updates
-        if (context.config().getRemovePropertiesAndAliasesAfterImport()) {
-            removeAllAliasesAndProperties(network);
-        }
-
         return network;
     }
 
@@ -372,6 +367,11 @@ public class Conversion {
 
         network.runValidationChecks(false, reportNode);
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+
+        // Remove all properties and aliases, this will invalidate all subsequent updates
+        if (updateContext.config().getRemovePropertiesAndAliasesAfterImport()) {
+            removeAllAliasesAndProperties(network);
+        }
     }
 
     /**
