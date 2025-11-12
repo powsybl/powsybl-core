@@ -46,6 +46,19 @@ class TransformerUpdateTest {
     }
 
     @Test
+    void importErroneousTapTest() {
+        Network network = readCgmesResources(DIR, "transformer_EQ_erroneous_tap.xml");
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformerStream().findAny().orElseThrow();
+        assertEquals(1, twt.getPhaseTapChanger().getLowTapPosition());
+        assertEquals(3, twt.getPhaseTapChanger().getHighTapPosition());
+        assertEquals(2, twt.getPhaseTapChanger().getNeutralPosition().orElseThrow());
+        assertEquals(2, twt.getPhaseTapChanger().getTapPosition()); // The EQ tap position is outside the bounds, it is set to the neutral position
+
+        network = readCgmesResources(DIR, "transformer_EQ_erroneous_tap.xml", "transformer_SSH.xml");
+        assertEquals(2, network.getTwoWindingsTransformerStream().findAny().orElseThrow().getPhaseTapChanger().getTapPosition());
+    }
+
+    @Test
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "transformer_EQ.xml");
         assertEquals(1, network.getTwoWindingsTransformerCount());

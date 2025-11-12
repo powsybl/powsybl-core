@@ -65,7 +65,8 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
                     .setG(g1)
                     .endStep();
         });
-        rtca.add();
+        RatioTapChanger tapChanger = rtca.add();
+        fixTapPosition(tapChanger);
     }
 
     protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca, Context context) {
@@ -98,7 +99,8 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
                     .setG(g1)
                     .endStep();
         });
-        ptca.add();
+        PhaseTapChanger tapChanger = ptca.add();
+        fixTapPosition(tapChanger);
     }
 
     protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChanger tc) {
@@ -344,9 +346,16 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     private static <C extends Connectable<C>> int getDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, int closestNeutralTapPosition, Context context) {
-        OptionalInt normalStep = getNormalStep(tw, tapChangerId);
+        Integer normalStep = null;
+        OptionalInt step = getNormalStep(tw, tapChangerId);
+        if (step.isPresent()) {
+            normalStep = step.getAsInt();
+            if (!isValidTapPosition(tapChanger, normalStep)) {
+                normalStep = null;
+            }
+        }
         OptionalInt neutralPosition = tapChanger.getNeutralPosition();
-        return getDefaultValue(normalStep.isPresent() ? normalStep.getAsInt() : null,
+        return getDefaultValue(normalStep,
                 tapChanger.getTapPosition(),
                 neutralPosition.isPresent() ? neutralPosition.getAsInt() : null,
                 closestNeutralTapPosition,
@@ -457,5 +466,25 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
                 .min(Comparator.comparingDouble(entry -> Math.abs(entry.getValue().getAlpha())))
                 .map(Map.Entry::getKey)
                 .orElse(ptc.getLowTapPosition());
+    }
+
+    static int computeClosestNeutralStep(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger) {
+        if (tapChanger instanceof PhaseTapChanger ptc) {
+            return getClosestNeutralStep(ptc);
+        } else if (tapChanger instanceof RatioTapChanger rtc) {
+            return getClosestNeutralStep(rtc);
+        } else {
+            throw new IllegalArgumentException("Unsupported type");
+        }
+    }
+
+    public static void fixTapPosition(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger) {
+        if (!isValidTapPosition(tapChanger, tapChanger.getTapPosition())) {
+            int fixedTapPosition = computeClosestNeutralStep(tapChanger);
+            if (!isValidTapPosition(tapChanger, fixedTapPosition)) {
+                fixedTapPosition = tapChanger.getLowTapPosition();
+            }
+            tapChanger.setTapPosition(fixedTapPosition);
+        }
     }
 }
