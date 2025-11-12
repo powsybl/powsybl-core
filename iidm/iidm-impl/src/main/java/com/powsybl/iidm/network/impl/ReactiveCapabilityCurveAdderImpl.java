@@ -84,7 +84,7 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
                 double temp = minQ;
                 minQ = maxQ;
                 maxQ = temp;
-                LOGGER.warn("minQ > maxQ : values were reversed and have been put in the right order");
+                LOGGER.warn("Maximum reactive power is expected to be greater than or equal to minimum reactive power. minQ and maxQ values have been swapped");
                 NetworkReports.reactiveCapabilityCurveReversedMinQMaxQ(owner.getNetwork().getReportNodeContext().getReportNode(),
                         owner.getMessageHeader().id());
             }
