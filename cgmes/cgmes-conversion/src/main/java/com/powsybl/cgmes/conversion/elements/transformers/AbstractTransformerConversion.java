@@ -480,11 +480,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
 
     public static void fixTapPosition(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger) {
         if (!isValidTapPosition(tapChanger, tapChanger.getTapPosition())) {
-            int fixedTapPosition = computeClosestNeutralStep(tapChanger);
-            if (!isValidTapPosition(tapChanger, fixedTapPosition)) {
-                fixedTapPosition = tapChanger.getLowTapPosition();
-            }
-            tapChanger.setTapPosition(fixedTapPosition);
+            tapChanger.setTapPosition(computeClosestNeutralStep(tapChanger));
         }
     }
 }
