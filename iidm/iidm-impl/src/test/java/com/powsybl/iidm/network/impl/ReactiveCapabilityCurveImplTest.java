@@ -124,7 +124,7 @@ class ReactiveCapabilityCurveImplTest {
         assertEquals(2.0, reactiveCapabilityCurve2.getMinQ(100.0), 0.0);
         assertEquals(10.0, reactiveCapabilityCurve2.getMaxQ(100.0), 0.0);
         assertTrue(checkReportNode("+ name1" + System.lineSeparator() +
-                "   Reactive capability curve for CB : reversed minQ > maxQ values have been put in the right order" + System.lineSeparator(), network.getReportNodeContext().getReportNode()));
+                "   Reactive capability curve for CB : minQ > maxQ values have been swapped." + System.lineSeparator(), network.getReportNodeContext().getReportNode()));
     }
 
     @ParameterizedTest
