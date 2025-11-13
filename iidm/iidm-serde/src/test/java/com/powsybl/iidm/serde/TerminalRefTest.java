@@ -36,21 +36,21 @@ class TerminalRefTest extends AbstractIidmSerDeTest {
     @Test
     void badSwitchTerminalResolveTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefSerDe.resolve("S1VL1_LD1_BREAKER", ThreeSides.ONE, network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefSerDe.resolve("S1VL1_LD1_BREAKER", ThreeSides.ONE, null, network));
         assertEquals("Unexpected terminal reference identifiable instance: class com.powsybl.iidm.network.impl.SwitchImpl", e.getMessage());
     }
 
     @Test
     void badBranchSideResolveTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefSerDe.resolve("LINE_S2S3", ThreeSides.THREE, network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefSerDe.resolve("LINE_S2S3", ThreeSides.THREE, null, network));
         assertEquals("Cannot convert ThreeSides value THREE as a TwoSides (ONE, TWO)", e.getMessage());
     }
 
     @Test
     void badIdentifiableSideResolveTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefSerDe.resolve("LIN_S2S3", ThreeSides.ONE, network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefSerDe.resolve("LIN_S2S3", ThreeSides.ONE, null, network));
         assertEquals("Terminal reference identifiable not found: 'LIN_S2S3'", e.getMessage());
     }
 }
