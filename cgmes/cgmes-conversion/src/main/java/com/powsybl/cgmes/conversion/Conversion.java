@@ -318,7 +318,7 @@ public class Conversion {
     public void update(Network network, ReportNode reportNode) {
         Objects.requireNonNull(network);
 
-        if (network.getPropertyNames().isEmpty()) {
+        if (network.getIdentifiables().stream().allMatch(i -> i.getPropertyNames().isEmpty())) {
             throw new ConversionException("The network has no properties and aliases, they have been removed. Update is not allowed.");
         }
 
