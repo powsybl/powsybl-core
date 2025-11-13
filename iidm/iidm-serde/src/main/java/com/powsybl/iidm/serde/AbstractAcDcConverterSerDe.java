@@ -19,14 +19,8 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
     protected void readRootElementPqiAttributes(T converter, NetworkDeserializerContext context) {
         readPQ(1, converter.getTerminal1(), context.getReader());
         converter.getTerminal2().ifPresent(terminal2 -> readPQ(2, terminal2, context.getReader()));
-        DcTerminal dcTerminal1 = converter.getDcTerminal1();
-        DcTerminal dcTerminal2 = converter.getDcTerminal2();
-        double dcP1 = context.getReader().readDoubleAttribute("dcP1");
-        double dcI1 = context.getReader().readDoubleAttribute("dcI1");
-        double dcP2 = context.getReader().readDoubleAttribute("dcP2");
-        double dcI2 = context.getReader().readDoubleAttribute("dcI2");
-        dcTerminal1.setP(dcP1).setI(dcI1);
-        dcTerminal2.setP(dcP2).setI(dcI2);
+        readPI(converter.getDcTerminal1(), context.getReader());
+        readPI(converter.getDcTerminal2(), context.getReader());
     }
 
     @Override
@@ -50,12 +44,8 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
     protected void writeRootElementPqiAttributes(final T converter, final NetworkSerializerContext context) {
         writePQ(1, converter.getTerminal1(), context.getWriter());
         converter.getTerminal2().ifPresent(terminal2 -> writePQ(2, terminal2, context.getWriter()));
-        DcTerminal dcTerminal1 = converter.getDcTerminal1();
-        DcTerminal dcTerminal2 = converter.getDcTerminal2();
-        context.getWriter().writeDoubleAttribute("dcP1", dcTerminal1.getP());
-        context.getWriter().writeDoubleAttribute("dcI1", dcTerminal1.getI());
-        context.getWriter().writeDoubleAttribute("dcP2", dcTerminal2.getP());
-        context.getWriter().writeDoubleAttribute("dcI2", dcTerminal2.getI());
+        writePI(converter.getDcTerminal1(), context.getWriter());
+        writePI(converter.getDcTerminal2(), context.getWriter());
     }
 
     @Override

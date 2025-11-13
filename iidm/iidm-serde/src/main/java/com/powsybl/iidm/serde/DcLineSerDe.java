@@ -12,6 +12,9 @@ import com.powsybl.iidm.network.DcLineAdder;
 import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.Network;
 
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readPI;
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writePI;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -35,10 +38,8 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
         context.getWriter().writeDoubleAttribute("r", dcLine.getR());
         context.getWriter().writeBooleanAttribute("connected1", dcTerminal1.isConnected());
         context.getWriter().writeBooleanAttribute("connected2", dcTerminal2.isConnected());
-        context.getWriter().writeDoubleAttribute("p1", dcTerminal1.getP());
-        context.getWriter().writeDoubleAttribute("i1", dcTerminal1.getI());
-        context.getWriter().writeDoubleAttribute("p2", dcTerminal2.getP());
-        context.getWriter().writeDoubleAttribute("i2", dcTerminal2.getI());
+        writePI(dcTerminal1, context.getWriter());
+        writePI(dcTerminal2, context.getWriter());
     }
 
     @Override
@@ -60,12 +61,8 @@ public class DcLineSerDe extends AbstractSimpleIdentifiableSerDe<DcLine, DcLineA
                 .setConnected2(connected2)
                 .setR(r)
                 .add();
-        double p1 = context.getReader().readDoubleAttribute("p1");
-        double i1 = context.getReader().readDoubleAttribute("i1");
-        double p2 = context.getReader().readDoubleAttribute("p2");
-        double i2 = context.getReader().readDoubleAttribute("i2");
-        dcLine.getDcTerminal1().setI(i1).setP(p1);
-        dcLine.getDcTerminal2().setI(i2).setP(p2);
+        readPI(dcLine.getDcTerminal1(), context.getReader());
+        readPI(dcLine.getDcTerminal2(), context.getReader());
         return dcLine;
     }
 

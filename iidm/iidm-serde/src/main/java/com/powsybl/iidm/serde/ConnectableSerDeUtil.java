@@ -209,6 +209,27 @@ public final class ConnectableSerDeUtil {
                 .ifPresent(t::setQ);
     }
 
+    private static String indexToString(DcTerminal dcTerminal) {
+        if (dcTerminal.getSide() != null) {
+            return "" + dcTerminal.getSide().getNum();
+        } else if (dcTerminal.getTerminalNumber() != null) {
+            // is an AC/DC converter DC Terminal, the "_dc" portion is to be able to distinguish AC from DC part
+            return "_dc" + dcTerminal.getTerminalNumber().getNum();
+        }
+        return "";
+    }
+
+    public static void writePI(DcTerminal t, TreeDataWriter writer) {
+        writer.writeDoubleAttribute("p" + indexToString(t), t.getP());
+        writer.writeDoubleAttribute("i" + indexToString(t), t.getI());
+    }
+
+    public static void readPI(DcTerminal t, TreeDataReader reader) {
+        double p = reader.readDoubleAttribute("p" + indexToString(t));
+        double i = reader.readDoubleAttribute("i" + indexToString(t));
+        t.setP(p).setI(i);
+    }
+
     public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, NetworkDeserializerContext context) {
         readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, context);
     }

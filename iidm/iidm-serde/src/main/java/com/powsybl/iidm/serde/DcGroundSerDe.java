@@ -9,6 +9,9 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
 
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.readPI;
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writePI;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -29,8 +32,7 @@ public class DcGroundSerDe extends AbstractSimpleIdentifiableSerDe<DcGround, DcG
         context.getWriter().writeStringAttribute("dcNode", dcTerminal.getDcNode().getId());
         context.getWriter().writeDoubleAttribute("r", dcGround.getR());
         context.getWriter().writeBooleanAttribute("connected", dcTerminal.isConnected());
-        context.getWriter().writeDoubleAttribute("p", dcTerminal.getP());
-        context.getWriter().writeDoubleAttribute("i", dcTerminal.getI());
+        writePI(dcTerminal, context.getWriter());
     }
 
     @Override
@@ -48,11 +50,7 @@ public class DcGroundSerDe extends AbstractSimpleIdentifiableSerDe<DcGround, DcG
                 .setConnected(connected)
                 .setR(r)
                 .add();
-        double p = context.getReader().readDoubleAttribute("p");
-        double i = context.getReader().readDoubleAttribute("i");
-        dcGround.getDcTerminal()
-                .setI(i)
-                .setP(p);
+        readPI(dcGround.getDcTerminal(), context.getReader());
         return dcGround;
     }
 
