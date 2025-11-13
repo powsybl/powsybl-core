@@ -21,6 +21,9 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
+ */
 public class UpdateWithPostProcessorTest {
 
     public static final String DUMMY = "dummy";
