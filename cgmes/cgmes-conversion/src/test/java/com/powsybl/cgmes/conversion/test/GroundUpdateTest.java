@@ -69,6 +69,27 @@ class GroundUpdateTest {
         assertSsh(network.getGround("Ground"));
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "ground_EQ.xml", "ground_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "ground_EQ.xml", "ground_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertTrue(network.getGroundStream().allMatch(ground -> ground.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getGroundStream().allMatch(ground -> ground.getAliases().isEmpty()));
+    }
+
     private static void assertEq(Ground ground) {
         assertNotNull(ground);
         assertNotNull(ground.getTerminal());
