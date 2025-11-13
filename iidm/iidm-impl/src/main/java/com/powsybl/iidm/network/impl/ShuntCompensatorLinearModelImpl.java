@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -17,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, ShuntCompensatorLinearModel {
+class ShuntCompensatorLinearModelImpl extends AbstractPropertiesHolder implements ShuntCompensatorModelExt, ShuntCompensatorLinearModel {
 
     private ShuntCompensatorImpl shuntCompensator;
 
@@ -104,5 +105,10 @@ class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, Shunt
     @Override
     public ShuntCompensatorModelType getType() {
         return ShuntCompensatorModelType.LINEAR;
+    }
+
+    @Override
+    public Network getNetwork() {
+        return shuntCompensator.getNetwork();
     }
 }

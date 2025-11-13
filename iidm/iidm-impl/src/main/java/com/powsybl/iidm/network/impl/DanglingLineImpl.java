@@ -64,7 +64,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             }
 
             this.danglingLine = Objects.requireNonNull(danglingLine);
-            this.reactiveLimits = new ReactiveLimitsHolderImpl(this.danglingLine, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+            this.reactiveLimits = new ReactiveLimitsHolderImpl(this.danglingLine, new MinMaxReactiveLimitsImpl(getNetwork(), -Double.MAX_VALUE, Double.MAX_VALUE));
 
             return this;
         }
@@ -178,12 +178,12 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         @Override
         public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
-            return new ReactiveCapabilityCurveAdderImpl<>(this);
+            return new ReactiveCapabilityCurveAdderImpl<>(this, getNetwork());
         }
 
         @Override
         public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
-            return new MinMaxReactiveLimitsAdderImpl<>(this);
+            return new MinMaxReactiveLimitsAdderImpl<>(this, getNetwork());
         }
 
         @Override

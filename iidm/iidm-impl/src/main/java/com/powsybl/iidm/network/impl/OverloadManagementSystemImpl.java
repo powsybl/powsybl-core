@@ -19,7 +19,7 @@ import java.util.*;
  */
 class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadManagementSystem> implements OverloadManagementSystem {
 
-    abstract static class AbstractTrippingImpl implements Tripping, Validable {
+    abstract static class AbstractTrippingImpl extends AbstractPropertiesHolder implements Tripping, Validable {
         private final String overloadManagementSystemId;
         private final String key;
         private String name;
@@ -90,12 +90,19 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
 
     static class SwitchTrippingImpl extends AbstractTrippingImpl implements SwitchTripping {
         private String switchToOperateId;
+        private Network network;
 
-        public SwitchTrippingImpl(String overloadManagementSystemId, String key, String name,
+        public SwitchTrippingImpl(Network network, String overloadManagementSystemId, String key, String name,
                                   double currentLimit, boolean openAction,
                                   String switchToOperateId) {
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
             setSwitchToOperateId(switchToOperateId);
+            this.network = Objects.requireNonNull(network);
+        }
+
+        @Override
+        public Type getType() {
+            return SwitchTripping.super.getType();
         }
 
         @Override
@@ -108,18 +115,30 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
             this.switchToOperateId = Objects.requireNonNull(switchToOperateId);
             return this;
         }
+
+        @Override
+        public Network getNetwork() {
+            return network;
+        }
     }
 
     static class BranchTrippingImpl extends AbstractTrippingImpl implements OverloadManagementSystem.BranchTripping {
         private String branchToOperateId;
         private TwoSides side;
+        private Network network;
 
-        protected BranchTrippingImpl(String overloadManagementSystemId, String key, String name,
+        protected BranchTrippingImpl(Network network, String overloadManagementSystemId, String key, String name,
                                      double currentLimit, boolean openAction,
                                      String branchToOperateId, TwoSides side) {
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
             setBranchToOperateId(branchToOperateId);
             setSideToOperate(side);
+            this.network = network;
+        }
+
+        @Override
+        public Type getType() {
+            return BranchTripping.super.getType();
         }
 
         @Override
@@ -143,6 +162,11 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
             this.side = Objects.requireNonNull(side);
             return this;
         }
+
+        @Override
+        public Network getNetwork() {
+            return network;
+        }
     }
 
     static class ThreeWindingsTransformerTrippingImpl extends AbstractTrippingImpl
@@ -150,13 +174,20 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
 
         private String threeWindingsTransformerId;
         private ThreeSides side;
+        private Network network;
 
-        protected ThreeWindingsTransformerTrippingImpl(String overloadManagementSystemId, String key, String name,
+        protected ThreeWindingsTransformerTrippingImpl(Network network, String overloadManagementSystemId, String key, String name,
                                                        double currentLimit, boolean openAction,
                                                        String threeWindingsTransformerId, ThreeSides side) {
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
             setThreeWindingsTransformerToOperateId(threeWindingsTransformerId);
             setSideToOperate(side);
+            this.network = network;
+        }
+
+        @Override
+        public Type getType() {
+            return ThreeWindingsTransformerTripping.super.getType();
         }
 
         @Override
@@ -179,6 +210,11 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         public ThreeWindingsTransformerTripping setSideToOperate(ThreeSides side) {
             this.side = Objects.requireNonNull(side);
             return this;
+        }
+
+        @Override
+        public Network getNetwork() {
+            return network;
         }
     }
 

@@ -18,17 +18,14 @@ import java.util.function.Supplier;
 public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ActivePowerLimits, ActivePowerLimitsAdder> implements ActivePowerLimitsAdder {
     Supplier<OperationalLimitsGroupImpl> groupSupplier;
 
-    private final NetworkImpl network;
-
     public ActivePowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, NetworkImpl network) {
-        super(validable, ownerId);
+        super(network, validable, ownerId);
         this.groupSupplier = groupSupplier;
-        this.network = network;
     }
 
     @Override
     public ActivePowerLimits add() {
-        checkAndUpdateValidationLevel(network);
+        checkAndUpdateValidationLevel((NetworkImpl) network);
         OperationalLimitsGroupImpl group = groupSupplier.get();
         if (group == null) {
             throw new PowsyblException(String.format("Error adding ActivePowerLimits on %s: error getting or creating the group", getOwnerId()));

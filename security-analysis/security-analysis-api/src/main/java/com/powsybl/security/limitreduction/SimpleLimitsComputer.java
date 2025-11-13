@@ -7,10 +7,7 @@
  */
 package com.powsybl.security.limitreduction;
 
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.AbstractLimitsComputerWithCache;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
@@ -27,14 +24,17 @@ import java.util.Optional;
 public class SimpleLimitsComputer extends AbstractLimitsComputerWithCache<Identifiable<?>, LoadingLimits> {
 
     private final double limitReduction;
+    private final Network network;
 
-    public SimpleLimitsComputer(double limitReduction) {
+    public SimpleLimitsComputer(Network network, double limitReduction) {
+
         this.limitReduction = limitReduction;
+        this.network = network;
     }
 
     @Override
     protected Optional<LimitsContainer<LoadingLimits>> computeUncachedLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
         Optional<LoadingLimits> limits = LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
-        return limits.map(limits1 -> new SimpleLimitsReducer(limits1, limitReduction).getLimits());
+        return limits.map(limits1 -> new SimpleLimitsReducer(network, limits1, limitReduction).getLimits());
     }
 }

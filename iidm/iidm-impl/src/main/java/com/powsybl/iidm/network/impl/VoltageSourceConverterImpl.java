@@ -42,7 +42,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
         this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
         this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
-        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(getNetwork(), -Double.MAX_VALUE, Double.MAX_VALUE));
         regulatingPoint = new RegulatingPoint(id, () -> null, variantArraySize, voltageRegulatorOn, true);
         regulatingPoint.setRegulatingTerminal(pccTerminal);
     }
@@ -122,12 +122,12 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this);
+        return new ReactiveCapabilityCurveAdderImpl(this, getNetwork());
     }
 
     @Override
     public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this);
+        return new MinMaxReactiveLimitsAdderImpl(this, getNetwork());
     }
 
     @Override

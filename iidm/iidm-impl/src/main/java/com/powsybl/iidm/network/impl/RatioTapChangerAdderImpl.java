@@ -66,7 +66,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
 
         @Override
         public RatioTapChangerAdder endStep() {
-            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
+            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(getNetwork(), steps.size(), rho, r, x, g, b);
             step.validate(parent);
             steps.add(step);
             return RatioTapChangerAdderImpl.this;

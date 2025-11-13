@@ -69,7 +69,7 @@ public final class Security {
         if (limitReductionValue <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
-        return checkLimits(network, currentLimitTypes, new SimpleLimitsComputer(limitReductionValue));
+        return checkLimits(network, currentLimitTypes, new SimpleLimitsComputer(network, limitReductionValue));
     }
 
     public static List<LimitViolation> checkLimits(Network network, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer) {
@@ -89,7 +89,7 @@ public final class Security {
         if (limitReductionValue <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
-        return checkLimitsDc(network, new SimpleLimitsComputer(limitReductionValue), dcPowerFactor);
+        return checkLimitsDc(network, new SimpleLimitsComputer(network, limitReductionValue), dcPowerFactor);
     }
 
     public static List<LimitViolation> checkLimitsDc(Network network, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double dcPowerFactor) {

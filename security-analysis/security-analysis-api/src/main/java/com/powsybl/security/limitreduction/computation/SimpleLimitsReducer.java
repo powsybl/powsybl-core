@@ -8,6 +8,7 @@
 package com.powsybl.security.limitreduction.computation;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.Network;
 
 /**
  * Limits reducer applying the same reduction value for the permanent and every temporary limits.
@@ -18,8 +19,8 @@ public class SimpleLimitsReducer extends DefaultLimitsReducer {
 
     private final double limitReduction;
 
-    public SimpleLimitsReducer(LoadingLimits originalLimits, double limitReduction) {
-        super(originalLimits);
+    public SimpleLimitsReducer(Network network, LoadingLimits originalLimits, double limitReduction) {
+        super(network, originalLimits);
         this.limitReduction = limitReduction;
     }
 

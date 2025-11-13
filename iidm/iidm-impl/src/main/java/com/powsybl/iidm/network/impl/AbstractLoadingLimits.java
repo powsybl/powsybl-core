@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import org.slf4j.Logger;
@@ -18,14 +19,14 @@ import java.util.*;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> implements LoadingLimits {
+abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends AbstractPropertiesHolder implements LoadingLimits {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
     protected final OperationalLimitsGroupImpl group;
     private double permanentLimit;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
-    static class TemporaryLimitImpl implements TemporaryLimit {
+    static class TemporaryLimitImpl extends AbstractPropertiesHolder implements TemporaryLimit {
 
         private final String name;
 
@@ -35,11 +36,14 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
 
         private final boolean fictitious;
 
-        TemporaryLimitImpl(String name, double value, int acceptableDuration, boolean hasOverloadingProtection) {
+        private final Network network;
+
+        TemporaryLimitImpl(Network network, String name, double value, int acceptableDuration, boolean hasOverloadingProtection) {
             this.name = Objects.requireNonNull(name);
             this.value = value;
             this.acceptableDuration = acceptableDuration;
             this.fictitious = hasOverloadingProtection;
+            this.network = network;
         }
 
         @Override
@@ -60,6 +64,11 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         @Override
         public boolean isFictitious() {
             return fictitious;
+        }
+
+        @Override
+        public Network getNetwork() {
+            return network;
         }
     }
 
@@ -112,7 +121,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
             LOGGER.warn("{}Temporary limit value changed from {} to {}, but it is not valid", group.getValidable().getMessageHeader(), oldValue, temporaryLimitValue);
         }
 
-        this.temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(identifiedLimit.getName(), temporaryLimitValue,
+        this.temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(getNetwork(), identifiedLimit.getName(), temporaryLimitValue,
                 identifiedLimit.getAcceptableDuration(), identifiedLimit.isFictitious()));
 
         group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue, acceptableDuration);

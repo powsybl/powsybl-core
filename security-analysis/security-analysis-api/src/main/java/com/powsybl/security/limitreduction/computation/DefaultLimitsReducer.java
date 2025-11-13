@@ -9,6 +9,7 @@ package com.powsybl.security.limitreduction.computation;
 
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.limitmodification.result.*;
 import com.powsybl.security.limitreduction.result.*;
 
@@ -23,8 +24,11 @@ import java.util.stream.IntStream;
  */
 public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
 
-    public DefaultLimitsReducer(LoadingLimits originalLimits) {
+    private final Network network;
+
+    public DefaultLimitsReducer(Network network, LoadingLimits originalLimits) {
         super(originalLimits);
+        this.network = network;
     }
 
     @Override
@@ -61,9 +65,9 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
                                               double originalPermanentLimit,
                                               double permanentLimitReduction) {
         return switch (type) {
-            case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
-            case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
-            case CURRENT -> new ReducedCurrentLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+            case ACTIVE_POWER -> new ReducedActivePowerLimits(network, permanentLimit, originalPermanentLimit, permanentLimitReduction);
+            case APPARENT_POWER -> new ReducedApparentPowerLimits(network, permanentLimit, originalPermanentLimit, permanentLimitReduction);
+            case CURRENT -> new ReducedCurrentLimits(network, permanentLimit, originalPermanentLimit, permanentLimitReduction);
             default -> throw new IllegalArgumentException(
                     String.format("Unsupported limits type for reductions (%s)", type));
         };

@@ -30,6 +30,8 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
     protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
+    protected final Network network;
+
     public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> implements TemporaryLimitAdder<B> {
 
         private String name;
@@ -41,6 +43,12 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         private boolean fictitious = false;
 
         private boolean ensureNameUnicity = false;
+
+        private Network network;
+
+        public TemporaryLimitAdderImpl(Network network) {
+            this.network = network;
+        }
 
         @Override
         public TemporaryLimitAdder<B> setName(String name) {
@@ -90,7 +98,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
                 throw new ValidationException(validable, "acceptable duration must be >= 0");
             }
             checkAndGetUniqueName();
-            temporaryLimits.put(acceptableDuration, new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
+            temporaryLimits.put(acceptableDuration, new AbstractLoadingLimits.TemporaryLimitImpl(network, name, value, acceptableDuration, fictitious));
             return (B) AbstractLoadingLimitsAdder.this;
         }
 
@@ -114,9 +122,10 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
     }
 
-    AbstractLoadingLimitsAdder(Validable validable, String ownerId) {
+    AbstractLoadingLimitsAdder(Network network, Validable validable, String ownerId) {
         this.validable = Objects.requireNonNull(validable);
         this.ownerId = ownerId;
+        this.network = network;
     }
 
     @Override
@@ -127,7 +136,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
     @Override
     public TemporaryLimitAdder<A> beginTemporaryLimit() {
-        return new TemporaryLimitAdderImpl<>();
+        return new TemporaryLimitAdderImpl<>(network);
     }
 
     @Override

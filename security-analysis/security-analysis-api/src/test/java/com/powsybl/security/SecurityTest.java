@@ -140,7 +140,7 @@ class SecurityTest {
         violations = Security.checkLimits(network, 0.5);
         assertViolation05(violations);
 
-        violations = Security.checkLimits(network, new SimpleLimitsComputer(0.5));
+        violations = Security.checkLimits(network, new SimpleLimitsComputer(network, 0.5));
         assertViolation05(violations);
     }
 

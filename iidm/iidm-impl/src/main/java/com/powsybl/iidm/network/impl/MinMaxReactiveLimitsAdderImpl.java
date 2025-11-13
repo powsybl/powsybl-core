@@ -7,10 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.MinMaxReactiveLimits;
-import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -24,8 +21,11 @@ class MinMaxReactiveLimitsAdderImpl<O extends ReactiveLimitsOwner & Validable> i
 
     private double maxQ = Double.NaN;
 
-    MinMaxReactiveLimitsAdderImpl(O owner) {
+    private Network network;
+
+    MinMaxReactiveLimitsAdderImpl(O owner, Network network) {
         this.owner = owner;
+        this.network = network;
     }
 
     @Override
@@ -51,7 +51,7 @@ class MinMaxReactiveLimitsAdderImpl<O extends ReactiveLimitsOwner & Validable> i
         if (maxQ < minQ) {
             throw new ValidationException(owner, "maximum reactive power is expected to be greater than or equal to minimum reactive power");
         }
-        MinMaxReactiveLimitsImpl limits = new MinMaxReactiveLimitsImpl(minQ, maxQ);
+        MinMaxReactiveLimitsImpl limits = new MinMaxReactiveLimitsImpl(network, minQ, maxQ);
         owner.setReactiveLimits(limits);
         return limits;
     }

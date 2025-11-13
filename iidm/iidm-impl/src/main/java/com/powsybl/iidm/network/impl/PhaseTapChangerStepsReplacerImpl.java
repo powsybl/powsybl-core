@@ -8,6 +8,7 @@
 
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChangerStepsReplacer;
 
 /**
@@ -15,7 +16,11 @@ import com.powsybl.iidm.network.PhaseTapChangerStepsReplacer;
  */
 public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsReplacer<PhaseTapChangerStepsReplacerImpl, PhaseTapChangerStepImpl> implements PhaseTapChangerStepsReplacer {
 
+    Network network;
+
     class StepAdderImpl implements PhaseTapChangerStepsReplacer.StepAdder {
+
+        Network network;
 
         private double alpha = Double.NaN;
 
@@ -28,6 +33,10 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         private double g = 0.0;
 
         private double b = 0.0;
+
+        public StepAdderImpl(Network network) {
+            this.network = network;
+        }
 
         @Override
         public PhaseTapChangerStepsReplacer.StepAdder setAlpha(double alpha) {
@@ -67,19 +76,20 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
 
         @Override
         public PhaseTapChangerStepsReplacer endStep() {
-            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
+            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(network, steps.size(), alpha, rho, r, x, g, b);
             steps.add(step);
             return PhaseTapChangerStepsReplacerImpl.this;
         }
 
     }
 
-    PhaseTapChangerStepsReplacerImpl(PhaseTapChangerImpl phaseTapChanger) {
+    PhaseTapChangerStepsReplacerImpl(PhaseTapChangerImpl phaseTapChanger, NetworkImpl network) {
         super(phaseTapChanger);
+        this.network = network;
     }
 
     @Override
     public PhaseTapChangerStepsReplacer.StepAdder beginStep() {
-        return new StepAdderImpl();
+        return new StepAdderImpl(this.network);
     }
 }

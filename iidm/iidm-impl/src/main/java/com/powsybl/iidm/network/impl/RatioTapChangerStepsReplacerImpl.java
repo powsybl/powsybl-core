@@ -8,6 +8,7 @@
 
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChangerStepsReplacer;
 
 /**
@@ -15,7 +16,11 @@ import com.powsybl.iidm.network.RatioTapChangerStepsReplacer;
  */
 public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsReplacer<RatioTapChangerStepsReplacerImpl, RatioTapChangerStepImpl> implements RatioTapChangerStepsReplacer {
 
+    private Network network;
+
     class StepAdderImpl implements RatioTapChangerStepsReplacer.StepAdder {
+
+        private final Network network;
 
         private double rho = Double.NaN;
 
@@ -26,6 +31,10 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         private double g = 0.0;
 
         private double b = 0.0;
+
+        public StepAdderImpl(Network network) {
+            this.network = network;
+        }
 
         @Override
         public RatioTapChangerStepsReplacer.StepAdder setRho(double rho) {
@@ -59,19 +68,20 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
 
         @Override
         public RatioTapChangerStepsReplacer endStep() {
-            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
+            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(network, steps.size(), rho, r, x, g, b);
             steps.add(step);
             return RatioTapChangerStepsReplacerImpl.this;
         }
 
     }
 
-    RatioTapChangerStepsReplacerImpl(RatioTapChangerImpl ratioTapChanger) {
+    RatioTapChangerStepsReplacerImpl(RatioTapChangerImpl ratioTapChanger, Network network) {
         super(ratioTapChanger);
+        this.network = network;
     }
 
     @Override
     public RatioTapChangerStepsReplacer.StepAdder beginStep() {
-        return new StepAdderImpl();
+        return new StepAdderImpl(network);
     }
 }

@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChangerStep;
 
 /**
@@ -15,8 +16,15 @@ import com.powsybl.iidm.network.RatioTapChangerStep;
  */
 class RatioTapChangerStepImpl extends TapChangerStepImpl<RatioTapChangerStepImpl> implements RatioTapChangerStep {
 
-    RatioTapChangerStepImpl(int position, double rho, double r, double x, double g, double b) {
-        super(position, rho, r, x, g, b);
+    private final Network network;
+
+    RatioTapChangerStepImpl(Network network, int position, double rho, double r, double x, double g, double b) {
+        super(network, position, rho, r, x, g, b);
+        this.network = network;
     }
 
+    @Override
+    public Network getNetwork() {
+        return network;
+    }
 }

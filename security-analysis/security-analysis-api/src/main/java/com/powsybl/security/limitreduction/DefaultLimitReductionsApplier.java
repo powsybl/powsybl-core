@@ -9,10 +9,7 @@ package com.powsybl.security.limitreduction;
 
 import com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapter;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.limitreduction.computation.AbstractLimitsReducer;
@@ -38,6 +35,7 @@ import java.util.Map;
 public class DefaultLimitReductionsApplier extends AbstractLimitReductionsApplier<Identifiable<?>, LoadingLimits> {
 
     private final Map<Identifiable<?>, DefaultNetworkElementAdapter> networkElementAdapterCache = new HashMap<>();
+    private final Network network;
 
     /**
      * Create a new {@link AbstractLimitReductionsApplier} for {@link com.powsybl.iidm.network.Identifiable}
@@ -45,8 +43,9 @@ public class DefaultLimitReductionsApplier extends AbstractLimitReductionsApplie
      *
      * @param limitReductionList the list of the reductions to use when computing reduced limits.
      */
-    public DefaultLimitReductionsApplier(List<LimitReduction> limitReductionList) {
+    public DefaultLimitReductionsApplier(Network network, List<LimitReduction> limitReductionList) {
         super(limitReductionList);
+        this.network = network;
     }
 
     @Override
@@ -56,7 +55,7 @@ public class DefaultLimitReductionsApplier extends AbstractLimitReductionsApplie
 
     @Override
     protected AbstractLimitsReducerCreator<LoadingLimits, AbstractLimitsReducer<LoadingLimits>> getLimitsReducerCreator() {
-        return (id, originalLimits) -> new DefaultLimitsReducer(originalLimits);
+        return (id, originalLimits) -> new DefaultLimitsReducer(network, originalLimits);
     }
 
     @Override

@@ -8,6 +8,7 @@
 package com.powsybl.security.limitreduction.result;
 
 import com.powsybl.iidm.network.ActivePowerLimits;
+import com.powsybl.iidm.network.Network;
 
 /**
  * <p>Simple implementation of {@link ActivePowerLimits} not linked to a network element, used to provide
@@ -15,8 +16,8 @@ import com.powsybl.iidm.network.ActivePowerLimits;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class ReducedActivePowerLimits extends AbstractReducedLoadingLimits implements ActivePowerLimits {
-    public ReducedActivePowerLimits(double permanentLimit, double originalPermanentLimit,
+    public ReducedActivePowerLimits(Network network, double permanentLimit, double originalPermanentLimit,
                                     double permanentLimitReduction) {
-        super(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+        super(network, permanentLimit, originalPermanentLimit, permanentLimitReduction);
     }
 }
