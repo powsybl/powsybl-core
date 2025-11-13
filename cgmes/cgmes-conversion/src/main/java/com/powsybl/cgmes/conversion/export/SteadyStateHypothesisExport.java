@@ -395,7 +395,7 @@ public final class SteadyStateHypothesisExport {
         String operatingMode = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
         String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Generator gen && gen.isCondenser());
         String calculatedOperatingMode = obtainOperatingMode(targetP, i, calculatedKind);
-        return operatingMode != null && calculatedKind.contains(operatingMode) ? operatingMode : calculatedOperatingMode;
+        return operatingMode != null && calculatedKind.toLowerCase().contains(operatingMode) ? operatingMode : calculatedOperatingMode;
     }
 
     private static String obtainOperatingMode(double targetP, Injection<?> injection, String calculatedKind) {
