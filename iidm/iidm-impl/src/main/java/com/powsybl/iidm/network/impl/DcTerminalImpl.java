@@ -8,9 +8,15 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.*;
-import gnu.trove.list.array.TDoubleArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.iidm.network.DcBus;
+import com.powsybl.iidm.network.DcConnectable;
+import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.TerminalNumber;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Objects;
 
@@ -24,9 +30,9 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     private final TwoSides side;
     private final TerminalNumber terminalNumber;
     private final DcNode dcNode;
-    protected final TDoubleArrayList p;
-    protected final TDoubleArrayList i;
-    private final TBooleanArrayList connected;
+    protected final ExtendedDoubleArrayList p;
+    protected final ExtendedDoubleArrayList i;
+    private final ExtendedBooleanArrayList connected;
     private boolean removed = false;
 
     DcTerminalImpl(Ref<? extends VariantManagerHolder> network, TwoSides side, TerminalNumber terminalNumber, DcNode dcNode, boolean connected) {
@@ -38,14 +44,9 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         this.terminalNumber = terminalNumber;
         this.dcNode = Objects.requireNonNull(dcNode);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.connected = new TBooleanArrayList(variantArraySize);
-        p = new TDoubleArrayList(variantArraySize);
-        i = new TDoubleArrayList(variantArraySize);
-        for (int iVar = 0; iVar < variantArraySize; iVar++) {
-            this.connected.add(connected);
-            this.p.add(Double.NaN);
-            this.i.add(Double.NaN);
-        }
+        this.connected = new ExtendedBooleanArrayList(variantArraySize, connected);
+        p = new ExtendedDoubleArrayList(variantArraySize, Double.NaN);
+        i = new ExtendedDoubleArrayList(variantArraySize, Double.NaN);
     }
 
     protected VariantManagerHolder getVariantManagerHolder() {
@@ -79,7 +80,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     @Override
     public double getP() {
         ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
-        return this.p.get(getVariantManagerHolder().getVariantIndex());
+        return this.p.getDouble(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override
@@ -95,7 +96,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     @Override
     public double getI() {
         ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
-        return this.i.get(getVariantManagerHolder().getVariantIndex());
+        return this.i.getDouble(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override
@@ -111,7 +112,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     @Override
     public boolean isConnected() {
         ValidationUtil.checkAccessOfRemovedEquipment(dcConnectable.getId(), this.removed);
-        return this.connected.get(getVariantManagerHolder().getVariantIndex());
+        return this.connected.getBoolean(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override
@@ -138,23 +139,16 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        connected.ensureCapacity(connected.size() + number);
-        p.ensureCapacity(p.size() + number);
-        i.ensureCapacity(i.size() + number);
-        for (int iVar = 0; iVar < number; iVar++) {
-            connected.add(connected.get(sourceIndex));
-            p.add(p.get(sourceIndex));
-            i.add(i.get(sourceIndex));
-        }
+        connected.growAndFill(number, connected.getBoolean(sourceIndex));
+        p.growAndFill(number, p.getDouble(sourceIndex));
+        i.growAndFill(number, i.getDouble(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        for (int iVar = 0; iVar < number; iVar++) {
-            connected.removeAt(connected.size() - 1);
-            p.removeAt(i.size() - 1);
-            i.removeAt(i.size() - 1);
-        }
+        connected.removeElements(number);
+        p.removeElements(number);
+        i.removeElements(number);
     }
 
     @Override
@@ -165,9 +159,9 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            connected.set(index, connected.get(sourceIndex));
-            p.set(index, p.get(sourceIndex));
-            i.set(index, i.get(sourceIndex));
+            connected.set(index, connected.getBoolean(sourceIndex));
+            p.set(index, p.getDouble(sourceIndex));
+            i.set(index, i.getDouble(sourceIndex));
         }
     }
 

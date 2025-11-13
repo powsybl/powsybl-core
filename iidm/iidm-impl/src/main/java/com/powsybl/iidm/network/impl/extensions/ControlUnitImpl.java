@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
-import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
 import com.powsybl.iidm.network.extensions.ControlUnit;
 import com.powsybl.iidm.network.impl.NetworkImpl;
 import com.powsybl.iidm.network.impl.VariantManagerHolder;
@@ -21,17 +21,14 @@ class ControlUnitImpl implements ControlUnit {
 
     private final String id;
 
-    private final TBooleanArrayList participate;
+    private final ExtendedBooleanArrayList participate;
 
     private ControlZoneImpl controlZone;
 
     public ControlUnitImpl(String id, boolean participate, VariantManagerHolder variantManagerHolder) {
         this.id = Objects.requireNonNull(id);
         int variantArraySize = variantManagerHolder.getVariantManager().getVariantArraySize();
-        this.participate = new TBooleanArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.participate.add(participate);
-        }
+        this.participate = new ExtendedBooleanArrayList(variantArraySize, participate);
     }
 
     public void setControlZone(ControlZoneImpl controlZone) {
@@ -49,13 +46,13 @@ class ControlUnitImpl implements ControlUnit {
 
     @Override
     public boolean isParticipate() {
-        return participate.get(getVariantIndex());
+        return participate.getBoolean(getVariantIndex());
     }
 
     @Override
     public void setParticipate(boolean participate) {
         int variantIndex = getVariantIndex();
-        boolean oldParticipate = this.participate.get(variantIndex);
+        boolean oldParticipate = this.participate.getBoolean(variantIndex);
         if (participate != oldParticipate) {
             this.participate.set(variantIndex, participate);
             SecondaryVoltageControlImpl secondaryVoltageControl = controlZone.getSecondaryVoltageControl();
@@ -67,19 +64,16 @@ class ControlUnitImpl implements ControlUnit {
     }
 
     void extendVariantArraySize(int number, int sourceIndex) {
-        participate.ensureCapacity(participate.size() + number);
-        for (int i = 0; i < number; ++i) {
-            participate.add(participate.get(sourceIndex));
-        }
+        participate.growAndFill(number, participate.getBoolean(sourceIndex));
     }
 
     void reduceVariantArraySize(int number) {
-        participate.remove(participate.size() - number, number);
+        participate.removeElements(number);
     }
 
     void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            participate.set(index, participate.get(sourceIndex));
+            participate.set(index, participate.getBoolean(sourceIndex));
         }
     }
 }
