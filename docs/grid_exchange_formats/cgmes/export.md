@@ -256,7 +256,7 @@ generator or battery and its capacity to behave like a condenser (a battery cann
   - otherwise, the generator or battery will be exported as `generatorOrCondenserOrMotor`.
 - if the flag `isCondenser` is `false`:
   - if the minimum active power limit is positive, then the generator or battery will be exported as `generator`,
-  - if the minimum active power limit is negative, then the generator or battery will be exported as `motor`,
+  - if the maximum active power limit is negative, then the generator or battery will be exported as `motor`,
   - otherwise, the generator will be exported as `generatorOrMotor`.
 
 The `SynchronousMachine.SynchronousMachineOperatingMode` is exported in the SSH profile depending on the target active 
