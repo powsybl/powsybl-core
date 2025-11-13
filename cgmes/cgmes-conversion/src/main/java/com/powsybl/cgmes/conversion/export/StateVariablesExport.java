@@ -273,8 +273,8 @@ public final class StateVariablesExport {
 
             boolean isInAccordance;
             if (BusTools.hasAnyFinite(busViewBus, Terminal::getP) && BusTools.hasAnyFinite(busViewBus, Terminal::getQ)) {
-                double sumP = BusTools.sum(busViewBus, Terminal::getP) + bus.getFictitiousP0(); //TODO: check sign
-                double sumQ = BusTools.sum(busViewBus, Terminal::getQ) + bus.getFictitiousQ0(); //TODO: check sign
+                double sumP = BusTools.sum(busViewBus, Terminal::getP) + bus.getFictitiousP0();
+                double sumQ = BusTools.sum(busViewBus, Terminal::getQ) + bus.getFictitiousQ0();
                 isInAccordance = Math.abs(sumP) <= maxPMismatchConverged && Math.abs(sumQ) <= maxQMismatchConverged;
                 if (!isInAccordance && LOG.isInfoEnabled()) {
                     LOG.info("Bus {} is not in accordance with Kirchhoff's first law. Mismatch = {}", bus, String.format("(%.4f, %.4f)", sumP, sumQ));
