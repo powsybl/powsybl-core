@@ -32,7 +32,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
         super(CgmesNames.SYNCHRONOUS_MACHINE, sm, context);
         String type = p.getLocal("type");
-        isCondenser = "SynchronousMachineKind.condenser".equals(type);
+        isCondenser = type.toLowerCase().contains("condenser");
     }
 
     @Override
@@ -56,10 +56,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         addAliasesAndProperties(g);
         convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
-
-        if (!isCondenser) {
-            convertGenerator(g);
-        }
+        convertGenerator(g);
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
         addSpecificProperties(g, p);
