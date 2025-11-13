@@ -29,6 +29,16 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <copyToPackageRoot>
+                        <files>
+                            <file>${project.basedir}/LICENSE.txt</file>
+                            <file>${project.basedir}/THIRD-PARTY.txt</file>
+                            <file>${project.basedir}/path/to/some/file.txt</file>
+                            <file>${project.basedir}/does/not_exists.txt</file>
+                        </files>
+                    </copyToPackageRoot>
+                </configuration>
             </plugin>
         </plugins>
     </build>
