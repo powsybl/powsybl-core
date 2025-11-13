@@ -28,6 +28,18 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(network, "/voltageSourceConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
+    @Test
+    void testNotSupported() throws IOException {
+        Network network = createBaseNetwork();
+
+        // Note: we do not test here failing for all versions < 1.15: VoltageSourceConverter cannot exist without DcNode,
+        // hence the DcNode SerDe test is sufficient.
+
+        // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
+        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
+        testWriteVersionedXml(network, options, "voltageSourceConverterNotSupported.xml", IidmVersion.V_1_14);
+    }
+
     private static Network createBaseNetwork() {
         Network network = Network.create("voltageSourceConverterTest", "code");
         network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));

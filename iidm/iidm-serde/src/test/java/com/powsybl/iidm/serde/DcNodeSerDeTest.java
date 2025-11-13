@@ -7,13 +7,16 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -26,6 +29,23 @@ class DcNodeSerDeTest extends AbstractIidmSerDeTest {
 
         // Test for the current version
         allFormatsRoundTripTest(network, "/dcNodeRoundTripRef.xml", CURRENT_IIDM_VERSION);
+    }
+
+    @Test
+    void testNotSupported() throws IOException {
+        Network network = createBaseNetwork();
+
+        // check it fails for all versions < 1.15
+        testForAllPreviousVersions(IidmVersion.V_1_15, version -> {
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            Path path = tmpDir.resolve("fail");
+            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, options, path));
+            assertEquals("network.dcNode is not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.15", e.getMessage());
+        });
+
+        // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
+        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
+        testWriteVersionedXml(network, options, "dcNodeNotSupported.xml", IidmVersion.V_1_14);
     }
 
     private static Network createBaseNetwork() {

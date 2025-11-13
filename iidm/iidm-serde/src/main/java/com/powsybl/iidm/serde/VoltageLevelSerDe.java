@@ -277,6 +277,8 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
             if (!context.getFilter().test(vsc)) {
                 continue;
             }
+            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME,
+                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
             VoltageSourceConverterSerDe.INSTANCE.write(vsc, vl, context);
         }
         context.getWriter().writeEndNodes();
@@ -288,6 +290,8 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
             if (!context.getFilter().test(lcc)) {
                 continue;
             }
+            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME,
+                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
             LineCommutatedConverterSerDe.INSTANCE.write(lcc, vl, context);
         }
         context.getWriter().writeEndNodes();

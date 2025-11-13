@@ -370,8 +370,8 @@ public final class NetworkSerDe {
         PropertiesSerDe.write(n, context);
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> writeSubnetworks(n, context, extensionsSupplier));
-        writeDcDetailed(n, context);
 
+        writeDcDetailed(n, context);
         writeVoltageLevels(n, context);
         writeSubstations(n, context);
         writeLines(n, context);
@@ -382,6 +382,11 @@ public final class NetworkSerDe {
     }
 
     private static void writeDcDetailed(Network n, NetworkSerializerContext context) {
+        // Notes:
+        // - DC detailed model SerDe is introduced starting IIDM v1.15.
+        // - "DC-only" equipments, and in particular DcNode-s, are written first in the network,
+        //   so that AC/DC converters (within VoltageLevel-s) can be then created referring to the DC nodes.
+        // - There is no support in writing DC detailed model to earlier versions of IIDM (< v1.15).
         writeDcNodes(n, context);
         writeDcSwitches(n, context);
         writeDcGrounds(n, context);
