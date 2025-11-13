@@ -266,7 +266,7 @@ power of the generator or battery and on fact that it is regulating or not:
 - if the target active power is zero and the generator or battery is regulating, then the operating mode will be `condenser`.
 - otherwise, the generator or battery will be exported as `generator` if is allowed by its `SynchronousMachine.SynchronousMachineKind`,
 otherwise `motor` and otherwise `condenser`. 
-To know if the generator is behaving as a condenser, its `targetV`, `targetQ` and `voltageRegulatorOn` attributes are used.
+To know if the generator or battery is behaving as a condenser, its `targetV`, `targetQ` and `voltageRegulatorOn` attributes are used.
 
 (cgmes-hvdc-export)=
 ### HVDC line and HVDC converter stations
