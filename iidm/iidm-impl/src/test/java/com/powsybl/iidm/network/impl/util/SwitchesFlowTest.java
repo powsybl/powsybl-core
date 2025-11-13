@@ -41,16 +41,16 @@ class SwitchesFlowTest {
         VoltageLevel voltageLevel11 = network.getVoltageLevel("S1VL1");
         SwitchesFlow switchesFlow11 = new SwitchesFlow(voltageLevel11);
 
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0B-1B", -180.0, -19.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0A-1A", 10.0, -1.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1B-2B", 70.0, 10.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0B-1B", -107.5, -12.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0A-1A", -62.5, -8.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1B-2B", 35.0, 5.0));
         assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0B-10", 100.0, 10.0));
         assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-8", -80.0, -10.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0A-0B", -80.0, -9.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-2A-2B", 0.0, 0.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-1B", 0.0, 0.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0A-0B", -7.5, -2.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-2A-2B", 35.0, 5.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-1B", -107.5, -12.0));
         assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-2B-12", 70.0, 10.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-2A", 90.0, 9.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-2A", 125.0, 14.0));
 
         VoltageLevel voltageLevel12 = network.getVoltageLevel("S1VL2");
         SwitchesFlow switchesFlow12 = new SwitchesFlow(voltageLevel12);
@@ -313,9 +313,9 @@ class SwitchesFlowTest {
         VoltageLevel voltageLevel11 = network.getVoltageLevel("S1VL1");
         SwitchesFlow switchesFlow11 = new SwitchesFlow(voltageLevel11);
 
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS0-BUS1", -25.0, -10.5));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS1-BUS2", -25.0, -10.5));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS0-BUS2", 0.0, 0.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS0-BUS1", -12.5, -5.25));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS1-BUS2", -12.5, -5.25));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS0-BUS2", -12.5, -5.25));
 
         VoltageLevel voltageLevel12 = network.getVoltageLevel("S1VL2");
         SwitchesFlow switchesFlow12 = new SwitchesFlow(voltageLevel12);

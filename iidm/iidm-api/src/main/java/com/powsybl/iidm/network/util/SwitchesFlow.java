@@ -7,15 +7,27 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
-import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm.SpanningTree;
-import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
 import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import java.util.*;
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Utility class to compute the flow of the switches associated to a voltageLevel
@@ -221,68 +233,60 @@ public class SwitchesFlow {
         }
 
         AsSubgraph<SwNode, SwEdge> subGraph = new AsSubgraph<>(graph, connectedSet);
-        SpanningTree<SwEdge> tree = new KruskalMinimumSpanningTree<>(subGraph).getSpanningTree();
-
-        List<List<SwNode>> levels = new ArrayList<>();
-        Map<SwNode, SwEdge> parent = new HashMap<>();
-        buildLevels(tree, swRoot.get(), parent, levels);
-
-        completeFlowsForEdgesInsideTree(swNodeInjection, parent, levels);
+        LinkedList<SwNode> filoList = new LinkedList<>();
+        Map<SwNode, List<SwNodeAscendance>> ascendanceMap = new HashMap<>();
+        buildAscendance(subGraph, swRoot.get(), filoList, ascendanceMap);
+        computeFlowFollowingAscendance(filoList, ascendanceMap, swNodeInjection, switchesFlows);
     }
 
-    private static void buildLevels(SpanningTree<SwEdge> tree, SwNode swRoot, Map<SwNode, SwEdge> parent,
-        List<List<SwNode>> levels) {
-        Set<SwEdge> processed = new HashSet<>();
-        Map<SwNode, List<SwEdge>> swEdgesInNode = new HashMap<>();
-
-        // Map to iterate once over the edges of the bus
-        tree.getEdges().forEach(e -> {
-            swEdgesInNode.computeIfAbsent(e.swNode1, b -> new ArrayList<>()).add(e);
-            swEdgesInNode.computeIfAbsent(e.swNode2, b -> new ArrayList<>()).add(e);
-        });
-
-        // Add root level
-        levels.add(new ArrayList<>(Collections.singleton(swRoot)));
-
-        // Build levels of the tree
-        int level = 0;
-        while (level < levels.size()) {
-            List<SwNode> nextLevel = new ArrayList<>();
-            levels.get(level).forEach(swNode -> swEdgesInNode.get(swNode).forEach(e -> {
-                SwNode other = otherSwNode(e, swNode);
-                if (other == null) {
-                    return;
+    private static void buildAscendance(AsSubgraph<SwNode, SwEdge> subGraph, SwNode root,
+                                        LinkedList<SwNode> filoList,
+                                        Map<SwNode, List<SwNodeAscendance>> ascendance) {
+        LinkedList<SwNode> queue = new LinkedList<>();
+        Set<SwNode> visited = new HashSet<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            SwNode current = queue.poll();
+            visited.add(current);
+            for (SwEdge edge : subGraph.outgoingEdgesOf(current)) {
+                SwNode other = otherSwNode(edge, current);
+                if (visited.contains(other)) {
+                    continue;
                 }
-                if (processed.contains(e)) {
-                    return;
+                ascendance.computeIfAbsent(other, k -> new ArrayList<>()).add(new SwNodeAscendance(current, edge));
+                if (!queue.contains(other)) {
+                    queue.add(other);
+                    filoList.add(other);
                 }
-                nextLevel.add(other);
-                parent.put(other, e);
-                processed.add(e);
-            }));
-            if (!nextLevel.isEmpty()) {
-                levels.add(nextLevel);
             }
-            level++;
         }
     }
 
-    private void completeFlowsForEdgesInsideTree(Map<String, SwNode> swNodeInjection, Map<SwNode, SwEdge> parent,
-        List<List<SwNode>> levels) {
-        // Traverse the tree from leaves to root
-        // (The root itself does not need to be processed)
-        int level = levels.size() - 1;
-        while (level >= 1) {
-            levels.get(level).forEach(swNode -> {
-                double p = swNode.pflow + swNode.p;
-                double q = swNode.qflow + swNode.q;
-                SwEdge swEdge = parent.get(swNode);
-                addFlowToParentSwNode(swNodeInjection, otherSwNode(swEdge, swNode), p, q);
+    private record SwNodeAscendance(SwNode parent, SwEdge edge) {
+    }
+
+    private static void computeFlowFollowingAscendance(LinkedList<SwNode> filoList,
+                                                       Map<SwNode, List<SwNodeAscendance>> ascendanceMap,
+                                                       Map<String, SwNode> swNodeInjection,
+                                                       Map<String, SwFlow> switchesFlows) {
+        while (!filoList.isEmpty()) {
+            // Remove the last element of the list
+            SwNode swNode = filoList.removeLast();
+
+            // Loop on the ascendance list of the node
+            List<SwNodeAscendance> ascendanceList = ascendanceMap.get(swNode);
+
+            // Local power to redistribute to the ascendants
+            double p = (swNode.pflow + swNode.p) / ascendanceList.size();
+            double q = (swNode.qflow + swNode.q) / ascendanceList.size();
+
+            ascendanceList.forEach(ascendance -> {
+                addFlowToParentSwNode(swNodeInjection, ascendance.parent(), p, q);
+                SwEdge swEdge = ascendance.edge();
                 if (swEdge.isSwitch()) {
                     switchesFlows.computeIfAbsent(swEdge.getSwitchId(), k -> calculateSwFlow(swEdge, swNode, p, q));
                 }
             });
-            level--;
         }
     }
 
@@ -386,6 +390,8 @@ public class SwitchesFlow {
     }
 
     private static final class SwEdge extends DefaultWeightedEdge {
+        @Serial
+        private static final long serialVersionUID = 1L;
         private final transient Switch sw;
         private final transient SwNode swNode1;
         private final transient SwNode swNode2;
@@ -420,17 +426,6 @@ public class SwitchesFlow {
         }
     }
 
-    private static final class SwFlow {
-        private final double p1;
-        private final double q1;
-        private final double p2;
-        private final double q2;
-
-        private SwFlow(double p1, double q1, double p2, double q2) {
-            this.p1 = p1;
-            this.q1 = q1;
-            this.p2 = p2;
-            this.q2 = q2;
-        }
+    private record SwFlow(double p1, double q1, double p2, double q2) {
     }
 }
