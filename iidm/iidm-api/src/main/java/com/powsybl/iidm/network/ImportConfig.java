@@ -24,7 +24,7 @@ public class ImportConfig {
 
     public static final Supplier<ImportConfig> CACHE = Suppliers.memoize(ImportConfig::load);
 
-    private static final List<String> DEFAULT_POST_PROCESSORS = new ArrayList<>();
+    private static final List<String> DEFAULT_POST_PROCESSORS = Collections.emptyList();
 
     private final List<String> postProcessors;
 
@@ -37,7 +37,7 @@ public class ImportConfig {
         List<String> postProcessors = platformConfig.getOptionalModuleConfig("import")
                 .flatMap(config -> config.getOptionalStringListProperty("postProcessors"))
                 .orElse(DEFAULT_POST_PROCESSORS);
-        return new ImportConfig(postProcessors);
+        return new ImportConfig(new ArrayList<>(postProcessors));
     }
 
     public ImportConfig() {
