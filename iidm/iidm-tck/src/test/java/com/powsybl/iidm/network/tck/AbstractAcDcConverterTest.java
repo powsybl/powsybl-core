@@ -812,7 +812,7 @@ public abstract class AbstractAcDcConverterTest {
 
         // check we can set again to converter's AC terminal
         acDcConverterA.setPccTerminal(acDcConverterA.getTerminal1());
-        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal()); // defaults to AC Terminal 1
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal());
 
         // change again PCC Terminal to line terminal
         acDcConverterA.setPccTerminal(lineax.getTerminal1());
