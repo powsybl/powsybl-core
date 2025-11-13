@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -58,32 +59,43 @@ public class XMLImporter extends AbstractTreeDataImporter {
     }
 
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        try {
-            if (ext != null) {
-                try (InputStream is = dataSource.newInputStream(null, ext)) {
-                    // check the first root element is network and namespace is IIDM
-                    XMLStreamReader xmlsr = getXMLInputFactory().createXMLStreamReader(is);
-                    try {
-                        while (xmlsr.hasNext()) {
-                            int eventType = xmlsr.next();
-                            if (eventType == XMLStreamConstants.START_ELEMENT) {
-                                String name = xmlsr.getLocalName();
-                                String ns = xmlsr.getNamespaceURI();
-                                return NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name)
-                                        && (Stream.of(IidmVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
-                                        || Stream.of(IidmVersion.values()).filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0).anyMatch(v -> v.getNamespaceURI(false).equals(ns)));
-                            }
-                        }
-                    } finally {
-                        cleanClose(xmlsr);
-                    }
-                }
-            }
-            return false;
-        } catch (XMLStreamException e) {
-            // not a valid xml file
+        if (ext == null) {
             return false;
         }
+
+        try (InputStream is = dataSource.newInputStream(null, ext)) {
+            XMLStreamReader xmlsr = getXMLInputFactory().createXMLStreamReader(is);
+            try {
+                return isValidNetworkRoot(xmlsr);
+            } finally {
+                cleanClose(xmlsr);
+            }
+        } catch (XMLStreamException e) {
+            return false; // not a valid XML file
+        }
+    }
+
+    private boolean isValidNetworkRoot(XMLStreamReader xmlsr) throws XMLStreamException {
+        while (xmlsr.hasNext()) {
+            if (xmlsr.next() == XMLStreamConstants.START_ELEMENT) {
+                String name = xmlsr.getLocalName();
+                String ns = xmlsr.getNamespaceURI();
+
+                if (!ns.isEmpty()) {
+                    String xmlIidmVersion = ns.substring(ns.lastIndexOf('/') + 1);
+                    if (IidmVersion.compareVersions(xmlIidmVersion, CURRENT_IIDM_VERSION.toString()) > 0) {
+                        throw new PowsyblException("Unsupported IIDM Version (maximum supported version: "
+                                + CURRENT_IIDM_VERSION.toString(".") + ")");
+                    }
+                }
+
+                return NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name)
+                        && (Stream.of(IidmVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
+                        || Stream.of(IidmVersion.values()).filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0)
+                        .anyMatch(v -> v.getNamespaceURI(false).equals(ns)));
+            }
+        }
+        return false;
     }
 
     private void cleanClose(XMLStreamReader xmlStreamReader) {
