@@ -30,7 +30,6 @@ import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -79,6 +78,9 @@ public class ItoolsPackagerMojo extends AbstractMojo {
 
     @Parameter
     private CopyTo copyToEtc;
+
+    @Parameter
+    private CopyTo copyToPackageRoot;
 
     private void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
         getLog().info("Zip package");
@@ -169,32 +171,6 @@ public class ItoolsPackagerMojo extends AbstractMojo {
         writer.newLine();
     }
 
-    private void addLicenseFiles(Path packageDir) {
-        // List of the license files to copy
-        List<String> licenseFiles = Arrays.asList("LICENSE.txt", "THIRD-PARTY.txt");
-
-        // Get the root directory of the project
-        File projectRoot = project.getBasedir();
-        if (project.getParent() != null) {
-            projectRoot = projectRoot.getParentFile();
-        }
-
-        // Copy each license file to the package directory
-        for (String licenseFile : licenseFiles) {
-            Path sourcePath = Paths.get(projectRoot.getPath(), licenseFile);
-            if (Files.exists(sourcePath)) {
-                try {
-                    getLog().info("Copy license file " + sourcePath + " to " + packageDir);
-                    Files.copy(sourcePath, packageDir.resolve(licenseFile), StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    getLog().warn("Failed to copy license file " + sourcePath + ": " + e.getMessage());
-                }
-            } else {
-                getLog().warn("License file " + sourcePath + " not found");
-            }
-        }
-    }
-
     @Override
     public void execute() {
         try {
@@ -245,8 +221,8 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             Files.createDirectories(libDir);
             copyFiles(copyToLib, libDir);
 
-            // Add licenses
-            addLicenseFiles(packageDir);
+            // Add misc files to package root (e.g. license, third party ...)
+            copyFiles(copyToPackageRoot, packageDir);
 
             String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
             if (packageType.equalsIgnoreCase("zip")) {
