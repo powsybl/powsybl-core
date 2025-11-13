@@ -63,4 +63,22 @@ final class TrippingTopologyTraverser {
             }
         });
     }
+
+    static void traverse(DcTerminal terminal, Set<DcTerminal> terminalsToDisconnect, Set<DcTerminal> traversedDcTerminals) {
+        Objects.requireNonNull(terminal);
+        Objects.requireNonNull(terminalsToDisconnect);
+
+        terminal.traverse(new DcTerminal.TopologyTraverser() {
+            @Override
+            public TraverseResult traverse(DcTerminal terminal, boolean connected) {
+                if (connected) {
+                    terminalsToDisconnect.add(terminal);
+                    if (traversedDcTerminals != null) {
+                        traversedDcTerminals.add(terminal);
+                    }
+                }
+                return TraverseResult.TERMINATE_PATH;
+            }
+        });
+    }
 }
