@@ -78,7 +78,6 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
 
     boolean setRegulating(int index, boolean regulating) {
         if (this.regulating == null) {
-            // TODO: throw exception?
             throw new IllegalStateException("Regulating point is not initialized");
         }
         return this.regulating.set(index, regulating);
@@ -86,7 +85,6 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
 
     boolean isRegulating(int index) {
         if (regulating == null) {
-            // TODO: throw exception?
             throw new IllegalStateException("Regulating point is not initialized");
         }
         return regulating.getBoolean(index);
@@ -94,7 +92,6 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
 
     int setRegulationMode(int index, int regulationMode) {
         if (this.regulationMode == null) {
-            // TODO: throw exception?
             throw new IllegalStateException("Regulation mode is not initialized");
         }
         return this.regulationMode.set(index, regulationMode);
@@ -102,7 +99,6 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
 
     int getRegulationMode(int index) {
         if (this.regulationMode == null) {
-            // TODO: throw exception?
             throw new IllegalStateException("Regulation mode is not initialized");
         }
         return regulationMode.getInt(index);
