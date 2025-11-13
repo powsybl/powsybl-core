@@ -95,6 +95,7 @@ public final class GeoJsonDataParser {
                 }
             }
         }
+        POINT_BUFFER.remove();
 
         long durationMs = (System.nanoTime() - start) / 1_000_000;
         LOGGER.info("{} features processed in {} ms", count.get(), durationMs);
