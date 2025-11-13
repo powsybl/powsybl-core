@@ -37,7 +37,7 @@ public class ImportConfig {
         List<String> postProcessors = platformConfig.getOptionalModuleConfig("import")
                 .flatMap(config -> config.getOptionalStringListProperty("postProcessors"))
                 .orElse(DEFAULT_POST_PROCESSORS);
-        return new ImportConfig(new ArrayList<>(postProcessors));
+        return new ImportConfig(postProcessors);
     }
 
     public ImportConfig() {
@@ -49,7 +49,7 @@ public class ImportConfig {
     }
 
     public ImportConfig(List<String> postProcessors) {
-        this.postProcessors = Objects.requireNonNull(postProcessors);
+        this.postProcessors = new ArrayList<>(Objects.requireNonNull(postProcessors));
     }
 
     /**
