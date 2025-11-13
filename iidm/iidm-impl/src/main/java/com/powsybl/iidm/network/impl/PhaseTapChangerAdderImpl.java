@@ -74,7 +74,7 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
 
         @Override
         public PhaseTapChangerAdder endStep() {
-            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
+            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(getNetwork(), steps.size(), alpha, rho, r, x, g, b);
             step.validate(parent);
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;

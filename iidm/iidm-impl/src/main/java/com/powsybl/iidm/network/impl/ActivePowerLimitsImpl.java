@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ActivePowerLimits;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.Network;
 
 import java.util.TreeMap;
 
@@ -23,5 +25,15 @@ class ActivePowerLimitsImpl extends AbstractLoadingLimits<ActivePowerLimitsImpl>
     @Override
     public void remove() {
         group.removeActivePowerLimits();
+    }
+
+    @Override
+    public Network getNetwork() {
+        return this.group.getNetwork();
+    }
+
+    @Override
+    public LimitType getLimitType() {
+        return ActivePowerLimits.super.getLimitType();
     }
 }

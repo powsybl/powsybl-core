@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.ValidationException;
 
@@ -18,10 +19,12 @@ class PhaseTapChangerStepImpl extends TapChangerStepImpl<PhaseTapChangerStepImpl
                               implements PhaseTapChangerStep {
 
     private double alpha;
+    private Network network;
 
-    PhaseTapChangerStepImpl(int position, double alpha, double rho, double r, double x, double g, double b) {
-        super(position, rho, r, x, g, b);
+    PhaseTapChangerStepImpl(Network network, int position, double alpha, double rho, double r, double x, double g, double b) {
+        super(network, position, rho, r, x, g, b);
         this.alpha = alpha;
+        this.network = network;
     }
 
     @Override
@@ -43,5 +46,10 @@ class PhaseTapChangerStepImpl extends TapChangerStepImpl<PhaseTapChangerStepImpl
         if (Double.isNaN(this.getAlpha())) {
             throw new ValidationException(parent, "step alpha is not set");
         }
+    }
+
+    @Override
+    public Network getNetwork() {
+        return network;
     }
 }

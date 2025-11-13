@@ -63,7 +63,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public RatioTapChangerStepsReplacerImpl stepsReplacer() {
-        return new RatioTapChangerStepsReplacerImpl(this);
+        return new RatioTapChangerStepsReplacerImpl(this, getNetwork());
     }
 
     @Override

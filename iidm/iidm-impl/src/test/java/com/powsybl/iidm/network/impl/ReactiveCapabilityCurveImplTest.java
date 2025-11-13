@@ -27,13 +27,13 @@ class ReactiveCapabilityCurveImplTest {
         for (Point pt : points) {
             map.put(pt.getP(), pt);
         }
-        return new ReactiveCapabilityCurveImpl(map, "ReactiveCapabilityCurve owner");
+        return new ReactiveCapabilityCurveImpl(null, map, "ReactiveCapabilityCurve owner");
     }
 
     @Test
     void testReactiveCapabilityCurve() {
-        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(100.0, 200.0, 300.0),
-                                                        new PointImpl(200.0, 300.0, 400.0));
+        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(null, 100.0, 200.0, 300.0),
+                                                        new PointImpl(null, 200.0, 300.0, 400.0));
         // bounds test
         assertEquals(200.0, curve.getMinQ(100.0), 0.0);
         assertEquals(300.0, curve.getMaxQ(100.0), 0.0);
@@ -56,10 +56,10 @@ class ReactiveCapabilityCurveImplTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void testReactiveCapabilityCurveWithReactiveLimitsExtrapolation(boolean extrapolate) {
-        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(100.0, 200.0, 300.0),
-                new PointImpl(200.0, 300.0, 400.0),
-                new PointImpl(300.0, 300.0, 400.0),
-                new PointImpl(400.0, 310.0, 390.0));
+        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(null, 100.0, 200.0, 300.0),
+                new PointImpl(null, 200.0, 300.0, 400.0),
+                new PointImpl(null, 300.0, 300.0, 400.0),
+                new PointImpl(null, 400.0, 310.0, 390.0));
         // bounds test
         assertEquals(200.0, curve.getMinQ(100.0, extrapolate), 0.0);
         assertEquals(300.0, curve.getMaxQ(100.0, extrapolate), 0.0);
@@ -85,8 +85,8 @@ class ReactiveCapabilityCurveImplTest {
 
     @Test
     void testWithNegativeZeroValue() {
-        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(0.0, 200.0, 300.0),
-                new PointImpl(200.0, 300.0, 400.0));
+        ReactiveCapabilityCurveImpl curve = createCurve(new PointImpl(null, 0.0, 200.0, 300.0),
+                new PointImpl(null, 200.0, 300.0, 400.0));
         // "-0.0 == 0.0" (JLS), but "Double.compareTo(-0.0, 0.0) = -1"
         // This test asserts that -0.0 is considered as equal to 0.0 by the reactive capability curve.
         assertEquals(200.0, curve.getMinQ(-0.0), 0.0);

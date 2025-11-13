@@ -22,9 +22,13 @@ public interface ReactiveCapabilityCurveAdder {
         PointAdder setMaxQ(double maxQ);
 
         ReactiveCapabilityCurveAdder endPoint();
+
+        Network getNetwork();
     }
 
     PointAdder beginPoint();
 
     ReactiveCapabilityCurve add();
+
+    Network getNetwork();
 }

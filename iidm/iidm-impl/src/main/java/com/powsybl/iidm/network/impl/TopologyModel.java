@@ -7,12 +7,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.PropertiesHolder;
+
 import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-interface TopologyModel {
+interface TopologyModel extends PropertiesHolder {
 
     void invalidateCache(boolean exceptBusBreakerView);
 

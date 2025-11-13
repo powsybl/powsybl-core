@@ -45,7 +45,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Override
     protected void checkLimitViolation(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer,
                                        LimitType limitType, double limitReduction) {
-        LimitViolationDetection.checkLimitViolation(branch, side, currentValue, limitType, EnumSet.allOf(LoadingLimitType.class), new SimpleLimitsComputer(limitReduction), consumer
+        LimitViolationDetection.checkLimitViolation(branch, side, currentValue, limitType, EnumSet.allOf(LoadingLimitType.class), new SimpleLimitsComputer(branch.getNetwork(), limitReduction), consumer
         );
     }
 
@@ -216,7 +216,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
             .withLimitDurationCriteria(new PermanentDurationCriterion())
             .build();
         limitReductionList.add(reduction1);
-        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(network, limitReductionList);
         checkCurrent(network.getLine("NHV1_NHV2_1"), TwoSides.ONE, 315, violationsCollector::add, computer);
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
@@ -240,7 +240,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
             .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
             .build();
         limitReductionList.add(reduction1);
-        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(network, limitReductionList);
         checkCurrent(network.getLine("NHV1_NHV2_1"), TwoSides.TWO, 751, violationsCollector::add, computer);
         assertEquals(1, violationsCollector.size());
         assertEquals(0.5, violationsCollector.get(0).getLimitReduction());

@@ -7,20 +7,18 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.ToDoubleFunction;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
+class ReactiveCapabilityCurveImpl extends AbstractPropertiesHolder implements ReactiveCapabilityCurve {
 
     /**
      * <p>Comparator to handle the -0.0 == 0.0 case:</p>
@@ -37,7 +35,16 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     private final String ownerDescription;
 
-    static class PointImpl implements Point {
+    private Network network;
+
+    @Override
+    public Network getNetwork() {
+        return network;
+    }
+
+    static class PointImpl extends AbstractPropertiesHolder implements Point {
+
+        private Network network;
 
         private double p;
 
@@ -45,10 +52,11 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
         private double maxQ;
 
-        PointImpl(double p, double minQ, double maxQ) {
+        PointImpl(Network network, double p, double minQ, double maxQ) {
             this.p = p;
             this.minQ = minQ;
             this.maxQ = maxQ;
+            this.network = network;
         }
 
         @Override
@@ -66,6 +74,10 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
             return maxQ;
         }
 
+        @Override
+        public Network getNetwork() {
+            return network;
+        }
     }
 
     private final TreeMap<Double, Point> points;
@@ -76,11 +88,12 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         }
     }
 
-    ReactiveCapabilityCurveImpl(TreeMap<Double, Point> points, String ownerDescription) {
+    ReactiveCapabilityCurveImpl(Network network, TreeMap<Double, Point> points, String ownerDescription) {
         checkPointsSize(points);
         this.points = new TreeMap<>(COMPARATOR);
         this.points.putAll(points);
         this.ownerDescription = ownerDescription;
+        this.network = network;
     }
 
     @Override
@@ -146,7 +159,7 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
         // Third case : searched point is outside minP and maxP
         if (extrapolateReactiveLimitSlope) {
-            Point extrapolatedPoint = ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(p, points, PointImpl::new, ownerDescription);
+            Point extrapolatedPoint = ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(network, p, points, PointImpl::new, ownerDescription);
             return getMinOrMaxQ.applyAsDouble(extrapolatedPoint);
         } else {
             if (p < this.getMinP()) { // p < minP

@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractTopologyModel implements TopologyModel {
+abstract class AbstractTopologyModel extends AbstractPropertiesHolder implements TopologyModel {
 
     public static final int DEFAULT_NODE_INDEX_LIMIT = 1000;
 
@@ -44,7 +44,7 @@ abstract class AbstractTopologyModel implements TopologyModel {
                 .orElse(DEFAULT_NODE_INDEX_LIMIT);
     }
 
-    protected NetworkImpl getNetwork() {
+    public NetworkImpl getNetwork() {
         return voltageLevel.getNetwork();
     }
 
