@@ -407,7 +407,7 @@ public final class SteadyStateHypothesisExport {
             if (isOperatingAsACondenser(injection)) {
                 return OPERATING_MODE_CONDENSER;
             } else {
-                if (calculatedKind.contains(OPERATING_MODE_GENERATOR)) {
+                if (calculatedKind.toLowerCase().contains(OPERATING_MODE_GENERATOR)) {
                     return OPERATING_MODE_GENERATOR;
                 } else if (calculatedKind.contains(OPERATING_MODE_MOTOR)) {
                     return OPERATING_MODE_MOTOR;
