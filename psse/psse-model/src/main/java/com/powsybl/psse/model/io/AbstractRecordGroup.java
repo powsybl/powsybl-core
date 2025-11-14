@@ -187,7 +187,7 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseGneDevice.class, (MapperFrom<PsseGneDevice>) (rec1, version1, headers1) -> PsseGneDevice.fromRecord(rec1, headers1));
         mappers.put(PsseInductionMachine.class, (MapperFrom<PsseInductionMachine>) (rec, version, headers) -> PsseInductionMachine.fromRecord(rec, headers));
         mappers.put(PsseInterareaTransfer.class, (MapperFrom<PsseInterareaTransfer>) (rec, version, headers) -> PsseInterareaTransfer.fromRecord(rec, headers));
-        mappers.put(PsseLineGrouping.class, (MapperFrom<PsseLineGrouping>) PsseLineGrouping::fromRecord);
+        mappers.put(PsseLineGrouping.class, (MapperFrom<PsseLineGrouping>) (rec3, version2, headers4) -> PsseLineGrouping.fromRecord(rec3, headers4));
         mappers.put(PsseLoad.class, (MapperFrom<PsseLoad>) PsseLoad::fromRecord);
         mappers.put(PsseMultiTerminalDcBus.class, (MapperFrom<PsseMultiTerminalDcBus>) (rec1, version1, headers1) -> PsseMultiTerminalDcBus.fromRecord(rec1, headers1));
         mappers.put(PsseMultiTerminalDcBusx.class, (MapperFrom<PsseMultiTerminalDcBusx>) (rec1, headers1, headers2) -> PsseMultiTerminalDcBusx.fromRecord(rec1, headers2));
@@ -385,13 +385,6 @@ public abstract class AbstractRecordGroup<T> {
 
     public List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
         return objects.stream().map(object -> buildRecord(object, headers, quoteFields, context)).collect(Collectors.toList());
-    }
-
-    // In rawx it is possible to define null as the value of the field
-    // If the field is String when it is exported the result is quoted ("null") as the field is included in the
-    // quoted fields. The final strings are processed to eliminate quotes in the null string fields.
-    private static List<String> unquoteNullStrings(List<String> stringList) {
-        return stringList.stream().map(AbstractRecordGroup::unquoteNullString).collect(Collectors.toList());
     }
 
     private static String unquoteNullString(String string) {

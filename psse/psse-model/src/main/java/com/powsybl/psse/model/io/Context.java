@@ -44,6 +44,7 @@ public class Context {
     private JsonNode networkNode;
 
     public Context() {
+        // Empty constructor
     }
 
     public PsseVersion getVersion() {

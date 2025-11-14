@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
@@ -45,7 +44,7 @@ public class PsseLineGrouping {
     private Integer dum8;
     private Integer dum9;
 
-    public static PsseLineGrouping fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseLineGrouping fromRecord(CsvRecord rec, String[] headers) {
         PsseLineGrouping psseLineGrouping = new PsseLineGrouping();
         psseLineGrouping.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
         psseLineGrouping.setJ(parseIntFromRecord(rec, headers, "j", "jbus"));

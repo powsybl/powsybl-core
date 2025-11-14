@@ -30,7 +30,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
@@ -92,31 +91,6 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
                 write(record, outputStream);
             });
             writeEnd(outputStream);
-        }
-
-        private static List<PsseTransformerImpedanceCorrection> convertToImpedanceCorrectionList(List<ZCorr33> recordList) {
-            List<PsseTransformerImpedanceCorrection> impedanceCorrectionList = new ArrayList<>();
-            recordList.forEach(record -> impedanceCorrectionList.add(convertToList(record)));
-            return impedanceCorrectionList;
-        }
-
-        private static PsseTransformerImpedanceCorrection convertToList(ZCorr33 record) {
-
-            PsseTransformerImpedanceCorrection impedanceCorrection = new PsseTransformerImpedanceCorrection(record.getI());
-            List<Double> list = Arrays.asList(record.getT1(), record.getF1(), record.getT2(), record.getF2(), record.getT3(), record.getF3(),
-                record.getT4(), record.getF4(), record.getT5(), record.getF5(), record.getT6(), record.getF6(), record.getT7(), record.getF7(),
-                record.getT8(), record.getF8(), record.getT9(), record.getF9(), record.getT10(), record.getF10(), record.getT11(), record.getF11());
-
-            for (int i = 0; i < list.size(); i = i + 2) {
-                if (validPoint(list.get(i), list.get(i + 1))) {
-                    impedanceCorrection.getPoints().add(new PsseTransformerImpedanceCorrectionPoint(list.get(i), list.get(i + 1)));
-                }
-            }
-            return impedanceCorrection;
-        }
-
-        private static boolean validPoint(double t, double f) {
-            return t != 0.0 && f != 0.0;
         }
 
         private static ZCorr33 convertToTable(PsseTransformerImpedanceCorrection impedanceCorrectionTable) {
@@ -219,29 +193,6 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
             } catch (IOException e) {
                 return true;
             }
-        }
-
-        private static boolean addImpedanceCorrectionPoints(PsseTransformerImpedanceCorrection impedanceCorrection,
-            ZCorr35Points record2) {
-            Objects.requireNonNull(record2);
-
-            List<Double> list = Arrays.asList(record2.getT1(), record2.getRef1(), record2.getImf1(), record2.getT2(), record2.getRef2(), record2.getImf2(),
-                record2.getT3(), record2.getRef3(), record2.getImf3(), record2.getT4(), record2.getRef4(), record2.getImf4(),
-                record2.getT5(), record2.getRef5(), record2.getImf5(), record2.getT6(), record2.getRef6(), record2.getImf6());
-
-            for (int i = 0; i < list.size(); i = i + 3) {
-                if (endPoint(list.get(i), list.get(i + 1), list.get(i + 2))) {
-                    return true;
-                } else {
-                    impedanceCorrection.getPoints().add(new PsseTransformerImpedanceCorrectionPoint(list.get(i), list.get(i + 1), list.get(i + 2)));
-                }
-            }
-
-            return false;
-        }
-
-        private static boolean endPoint(double t, double ref, double imf) {
-            return t == 0.0 && ref == 0.0 && imf == 0.0;
         }
 
         @Override
