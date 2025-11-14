@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf.internal;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
@@ -37,7 +36,7 @@ public class ZCorr35Points {
     private double ref6 = 0.0;
     private double imf6 = 0.0;
 
-    public static ZCorr35Points fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static ZCorr35Points fromRecord(CsvRecord rec, String[] headers) {
         ZCorr35Points zCorr35Points = new ZCorr35Points();
         for (int j = 1; j < 6; j++) {
             double t = parseDoubleFromRecord(rec, headers, "t" + j);

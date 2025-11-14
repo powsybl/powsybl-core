@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Map;
@@ -112,7 +111,7 @@ public class PsseGneDevice {
     private String char9;
     private String char10;
 
-    public static PsseGneDevice fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseGneDevice fromRecord(CsvRecord rec, String[] headers) {
         PsseGneDevice psseGneDevice = new PsseGneDevice();
         psseGneDevice.setName(parseStringFromRecord(rec, headers, "name"));
         psseGneDevice.setModel(parseStringFromRecord(rec, headers, "model"));

@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf.internal;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
@@ -29,10 +28,10 @@ public class PsseMultiTerminalDcConverterx {
     private String name;
     private PsseMultiTerminalDcConverter converter;
 
-    public static PsseMultiTerminalDcConverterx fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseMultiTerminalDcConverterx fromRecord(CsvRecord rec, String[] headers) {
         PsseMultiTerminalDcConverterx psseMultiTerminalDcConverterx = new PsseMultiTerminalDcConverterx();
         psseMultiTerminalDcConverterx.setName(parseStringFromRecord(rec, headers, "name"));
-        psseMultiTerminalDcConverterx.setConverter(PsseMultiTerminalDcConverter.fromRecord(rec, version, headers));
+        psseMultiTerminalDcConverterx.setConverter(PsseMultiTerminalDcConverter.fromRecord(rec, headers));
         return psseMultiTerminalDcConverterx;
     }
 

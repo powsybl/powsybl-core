@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf.internal;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
@@ -29,10 +28,10 @@ public class PsseSubstationNodex {
     private int isub;
     private PsseSubstationNode node;
 
-    public static PsseSubstationNodex fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseSubstationNodex fromRecord(CsvRecord rec, String[] headers) {
         PsseSubstationNodex psseSubstationNodex = new PsseSubstationNodex();
         psseSubstationNodex.setIsub(parseIntFromRecord(rec, headers, "isub"));
-        psseSubstationNodex.setNode(PsseSubstationNode.fromRecord(rec, version, headers));
+        psseSubstationNodex.setNode(PsseSubstationNode.fromRecord(rec, headers));
         return psseSubstationNodex;
     }
 

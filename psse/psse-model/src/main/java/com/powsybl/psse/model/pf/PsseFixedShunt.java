@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
@@ -31,7 +30,7 @@ public class PsseFixedShunt {
     private double gl = 0;
     private double bl = 0;
 
-    public static PsseFixedShunt fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseFixedShunt fromRecord(CsvRecord rec, String[] headers) {
         PsseFixedShunt psseFixedShunt = new PsseFixedShunt();
         psseFixedShunt.setI(parseIntFromRecord(rec, headers, STRING_I, "ibus"));
         psseFixedShunt.setId(parseStringFromRecord(rec, "1", headers, STRING_ID, "shntid"));

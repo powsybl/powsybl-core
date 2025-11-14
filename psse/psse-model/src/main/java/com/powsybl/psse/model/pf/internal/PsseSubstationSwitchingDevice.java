@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf.internal;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
@@ -34,7 +33,7 @@ public class PsseSubstationSwitchingDevice {
     private double rate2 = 0.0;
     private double rate3 = 0.0;
 
-    public static PsseSubstationSwitchingDevice fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseSubstationSwitchingDevice fromRecord(CsvRecord rec, String[] headers) {
         PsseSubstationSwitchingDevice psseSubstationSwitchingDevice = new PsseSubstationSwitchingDevice();
         psseSubstationSwitchingDevice.setNi(parseIntFromRecord(rec, headers, "ni", "inode"));
         psseSubstationSwitchingDevice.setNj(parseIntFromRecord(rec, 0, headers, "nj", "jnode"));

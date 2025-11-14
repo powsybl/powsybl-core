@@ -68,7 +68,7 @@ public class PsseNonTransformerBranch extends PsseVersioned {
         psseNonTransformerBranch.setSt(parseIntFromRecord(rec, 1, headers, "st", "stat"));
         psseNonTransformerBranch.setMet(parseIntFromRecord(rec, 1, headers, "met"));
         psseNonTransformerBranch.setLen(parseDoubleFromRecord(rec, 0d, headers, "len"));
-        psseNonTransformerBranch.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
+        psseNonTransformerBranch.setOwnership(PsseOwnership.fromRecord(rec, headers));
         if (version.getMajorNumber() >= 35) {
             psseNonTransformerBranch.setName(parseStringFromRecord(rec, " ", headers, "name"));
         }

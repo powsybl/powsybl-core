@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Map;
@@ -106,7 +105,7 @@ public class PsseInductionMachine {
     private double ia2 = 0.0;
     private double xamult = 1.0;
 
-    public static PsseInductionMachine fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseInductionMachine fromRecord(CsvRecord rec, String[] headers) {
         PsseInductionMachine psseInductionMachine = new PsseInductionMachine();
         psseInductionMachine.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
         psseInductionMachine.setId(parseStringFromRecord(rec, "1", headers, "id", "imid"));

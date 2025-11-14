@@ -88,14 +88,14 @@ public class PsseTransformer extends PsseVersioned {
         psseTransformer.setNmetr(parseIntFromRecord(rec, 2, headers, "nmetr", "nmet"));
         psseTransformer.setName(parseStringFromRecord(rec, STRING_MULTIPLE_SPACES, headers, "name"));
         psseTransformer.setStat(parseIntFromRecord(rec, 1, headers, "stat"));
-        psseTransformer.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
+        psseTransformer.setOwnership(PsseOwnership.fromRecord(rec, headers));
         if (version.getMajorNumber() >= 33) {
             psseTransformer.setVecgrp(parseStringFromRecord(rec, STRING_MULTIPLE_SPACES, headers, STRING_VECGRP));
         }
         if (version.getMajorNumber() >= 35) {
             psseTransformer.setZcod(parseIntFromRecord(rec, 0, headers, "zcod"));
         }
-        psseTransformer.setImpedances(TransformerImpedances.fromRecord(rec, version, headers));
+        psseTransformer.setImpedances(TransformerImpedances.fromRecord(rec, headers));
         psseTransformer.setWinding1(PsseTransformerWinding.fromRecord(rec, version, headers, "1"), PsseRates.fromRecord(rec, version, headers, "1"));
         psseTransformer.setWinding2(PsseTransformerWinding.fromRecord(rec, version, headers, "2"), PsseRates.fromRecord(rec, version, headers, "2"));
         psseTransformer.setWinding3(PsseTransformerWinding.fromRecord(rec, version, headers, "3"), PsseRates.fromRecord(rec, version, headers, "3"));

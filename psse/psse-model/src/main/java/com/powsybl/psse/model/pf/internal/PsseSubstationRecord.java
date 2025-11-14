@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf.internal;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
@@ -26,7 +25,7 @@ public class PsseSubstationRecord {
     private double longi = 0.0;
     private double srg = 0.0;
 
-    public static PsseSubstationRecord fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseSubstationRecord fromRecord(CsvRecord rec, String[] headers) {
         PsseSubstationRecord psseSubstationRecord = new PsseSubstationRecord();
         psseSubstationRecord.setIs(parseIntFromRecord(rec, headers, "is", "isub"));
         psseSubstationRecord.setName(parseStringFromRecord(rec, "                                        ", headers, "name"));

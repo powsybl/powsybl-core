@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
@@ -32,7 +31,7 @@ public class PsseOwnership extends PsseVersioned {
     private int o4 = 0;
     private double f4 = 1;
 
-    public static PsseOwnership fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseOwnership fromRecord(CsvRecord rec, String[] headers) {
         PsseOwnership psseOwnership = new PsseOwnership();
         psseOwnership.setO1(parseIntFromRecord(rec, -1, headers, "o1"));
         psseOwnership.setF1(parseDoubleFromRecord(rec, 1d, headers, "f1"));

@@ -78,7 +78,7 @@ public class PsseGenerator extends PsseVersioned {
         psseGenerator.setRmpct(parseDoubleFromRecord(rec, 100d, headers, "rmpct"));
         psseGenerator.setPt(parseDoubleFromRecord(rec, 9999d, headers, "pt"));
         psseGenerator.setPb(parseDoubleFromRecord(rec, -9999d, headers, "pb"));
-        psseGenerator.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
+        psseGenerator.setOwnership(PsseOwnership.fromRecord(rec, headers));
         psseGenerator.setWmod(parseIntFromRecord(rec, 0, headers, "wmod"));
         psseGenerator.setWpf(parseDoubleFromRecord(rec, 1d, headers, "wpf"));
         if (version.getMajorNumber() >= 35) {

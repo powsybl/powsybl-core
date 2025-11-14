@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
@@ -27,7 +26,7 @@ public class PsseInterareaTransfer {
     private String trid;
     private double ptran = 0.0;
 
-    public static PsseInterareaTransfer fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseInterareaTransfer fromRecord(CsvRecord rec, String[] headers) {
         PsseInterareaTransfer psseInterareaTransfer = new PsseInterareaTransfer();
         psseInterareaTransfer.setArfrom(parseIntFromRecord(rec, headers, "arfrom"));
         psseInterareaTransfer.setArto(parseIntFromRecord(rec, headers, "arto"));

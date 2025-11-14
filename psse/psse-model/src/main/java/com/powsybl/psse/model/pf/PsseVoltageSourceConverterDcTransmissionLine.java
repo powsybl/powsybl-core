@@ -45,7 +45,7 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         psseVoltageSourceConverter.setName(parseStringFromRecord(rec, headers, "name"));
         psseVoltageSourceConverter.setMdc(parseIntFromRecord(rec, headers, "mdc"));
         psseVoltageSourceConverter.setRdc(parseDoubleFromRecord(rec, headers, "rdc"));
-        psseVoltageSourceConverter.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
+        psseVoltageSourceConverter.setOwnership(PsseOwnership.fromRecord(rec, headers));
         try {
             psseVoltageSourceConverter.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "1"));
         } catch (PsseException e) {

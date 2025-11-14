@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
@@ -23,7 +22,7 @@ public class PsseZone {
     private int i;
     private String zoname;
 
-    public static PsseZone fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseZone fromRecord(CsvRecord rec, String[] headers) {
         PsseZone psseZone = new PsseZone();
         psseZone.setI(parseIntFromRecord(rec, headers, "i", "izone"));
         psseZone.setZoname(parseStringFromRecord(rec, "            ", headers, "zoname"));

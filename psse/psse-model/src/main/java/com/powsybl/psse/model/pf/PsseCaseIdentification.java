@@ -44,7 +44,7 @@ public class PsseCaseIdentification {
     private String title1;
     private String title2;
 
-    public static PsseCaseIdentification fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseCaseIdentification fromRecord(CsvRecord rec, String[] headers) {
         PsseCaseIdentification psseCaseIdentification = new PsseCaseIdentification();
         psseCaseIdentification.setIc(parseIntFromRecord(rec, 0, headers, "ic"));
         psseCaseIdentification.setSbase(parseDoubleFromRecord(rec, 100d, headers, "sbase"));

@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
@@ -27,7 +26,7 @@ public class PsseArea {
     private double ptol = 10;
     private String arname;
 
-    public static PsseArea fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static PsseArea fromRecord(CsvRecord rec, String[] headers) {
         PsseArea psseArea = new PsseArea();
         psseArea.setI(parseIntFromRecord(rec, headers, "i", "iarea"));
         psseArea.setIsw(parseIntFromRecord(rec, 0, headers, "isw"));

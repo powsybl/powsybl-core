@@ -8,7 +8,6 @@
 package com.powsybl.psse.model.pf.internal;
 
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.util.Optional;
@@ -32,7 +31,7 @@ public class TransformerImpedances {
     private double vmstar = 1;
     private double anstar = 0;
 
-    public static TransformerImpedances fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+    public static TransformerImpedances fromRecord(CsvRecord rec, String[] headers) {
         TransformerImpedances transformerImpedances = new TransformerImpedances();
         transformerImpedances.setR12(parseDoubleFromRecord(rec, 0d, headers, "r12", "r1_2"));
         transformerImpedances.setX12(parseDoubleFromRecord(rec, Double.NaN, headers, "x12", "x1_2"));
