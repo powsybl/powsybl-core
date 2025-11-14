@@ -47,7 +47,7 @@ class TransformerUpdateTest {
 
     @Test
     void importErroneousTapTest() {
-        Network network = readCgmesResources(DIR, "transformer_EQ_erroneous_tap.xml");
+        Network network = readCgmesResources(DIR, "transformer_erroneous_tap_EQ.xml");
         TwoWindingsTransformer twt = network.getTwoWindingsTransformerStream().findAny().orElseThrow();
         assertEquals(1, twt.getPhaseTapChanger().getLowTapPosition());
         assertEquals(3, twt.getPhaseTapChanger().getHighTapPosition());
@@ -60,7 +60,7 @@ class TransformerUpdateTest {
         assertTrue(t3wt.getLeg2().getRatioTapChanger().getNeutralPosition().isEmpty()); // The EQ neutralStep is invalid => empty
         assertEquals(1, t3wt.getLeg2().getRatioTapChanger().getTapPosition()); // The EQ normalStep and neutralStep are outside the bounds => set to the lowStep
 
-        network = readCgmesResources(DIR, "transformer_EQ_erroneous_tap.xml", "transformer_SSH_erroneous_tap.xml");
+        network = readCgmesResources(DIR, "transformer_erroneous_tap_EQ.xml", "transformer_erroneous_tap_SSH.xml");
         assertEquals(1, network.getThreeWindingsTransformerStream().findAny().orElseThrow().getLeg2().getRatioTapChanger().getTapPosition());
     }
 
