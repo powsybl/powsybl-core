@@ -31,7 +31,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double targetV = Double.NaN;
 
-    private double localTargetV = Double.NaN;
+    private double equivalentLocalTargetV = Double.NaN;
 
     private double ratedS = Double.NaN;
 
@@ -91,14 +91,14 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     public GeneratorAdderImpl setTargetV(double targetV) {
         this.targetV = targetV;
-        this.localTargetV = Double.NaN;
+        this.equivalentLocalTargetV = Double.NaN;
         return this;
     }
 
     @Override
-    public GeneratorAdderImpl setTargetV(double targetV, double localTargetV) {
+    public GeneratorAdderImpl setTargetV(double targetV, double equivalentLocalTargetV) {
         this.targetV = targetV;
-        this.localTargetV = localTargetV;
+        this.equivalentLocalTargetV = equivalentLocalTargetV;
         return this;
     }
 
@@ -133,13 +133,13 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
-        ValidationUtil.checkLocalTargetV(this, localTargetV);
+        ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
                                     voltageRegulatorOn, regulatingTerminal,
-                                    targetP, targetQ, targetV, localTargetV,
+                                    targetP, targetQ, targetV, equivalentLocalTargetV,
                                     ratedS, isCondenser);
         generator.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);

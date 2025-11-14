@@ -220,7 +220,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working variant.
      * @see VariantManager
      */
-    double getLocalTargetV();
+    double getEquivalentLocalTargetV();
 
     /**
      * <p>
@@ -228,10 +228,10 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * </p>
      * <p>Depends on the working variant.</p>
      * @param targetV the voltage target in kV (see {@link Generator#getTargetV()}).
-     * @param localTargetV the local target in kV (see {@link Generator#getLocalTargetV()}).
+     * @param equivalentLocalTargetV the local target in kV (see {@link Generator#getEquivalentLocalTargetV()}).
      * @see VariantManager
      */
-    Generator setTargetV(double targetV, double localTargetV);
+    Generator setTargetV(double targetV, double equivalentLocalTargetV);
 
     /**
      * Get the active power target in MW.
