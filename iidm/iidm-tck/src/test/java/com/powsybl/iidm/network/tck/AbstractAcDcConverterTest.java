@@ -726,9 +726,9 @@ public abstract class AbstractAcDcConverterTest {
                 .beginSegment().setK(-5.).setMinV(-100.).setMaxV(100.).endSegment()
                 .beginSegment().setK(-1.).setMinV(100.).setMaxV(500.).endSegment()
                 .add();
-        assertEquals(-10., vsc.getDroopCurve().getK(-250));
-        assertEquals(-5., vsc.getDroopCurve().getK(-100));
-        assertEquals(-10., vsc.getDroopCurve().getK(-250));
+        assertEquals(-10., vsc.getDroopCurve().getK(-250.));
+        assertEquals(-5., vsc.getDroopCurve().getK(-100.));
+        assertEquals(-1., vsc.getDroopCurve().getK(400.));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> vsc.getDroopCurve().getK(1000.0));
         assertEquals("Droop coefficient is not defined for Vdc = 1000.0", e1.getMessage());
     }
