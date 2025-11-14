@@ -29,8 +29,8 @@ class BusBranchExportTest extends AbstractSerDeTest {
     @Test
     void roundTripTestFail() {
         // Read a NodeBreaker XIIDM with all switch open="true"
-        String filename = "busBranchExportError.xiidm";
-        Network networkNodeBreaker = Network.read(filename, getClass().getResourceAsStream(File.separator + filename));
+        String filename = "/busBranchExportError.xiidm";
+        Network networkNodeBreaker = Network.read(filename, getClass().getResourceAsStream(filename));
         assertNotNull(networkNodeBreaker);
         // WRITE this network with BUS_BRANCH Topology level
         Properties propertiesExport = new Properties();
@@ -43,8 +43,8 @@ class BusBranchExportTest extends AbstractSerDeTest {
     @Test
     void roundTripTestOK() {
         // Read a NodeBreaker XIIDM with all switch open="true"
-        String filename = "busBranchExportError.xiidm";
-        Network networkNodeBreaker = Network.read(filename, getClass().getResourceAsStream(File.separator + filename));
+        String filename = "/busBranchExportError.xiidm";
+        Network networkNodeBreaker = Network.read(filename, getClass().getResourceAsStream(filename));
         assertNotNull(networkNodeBreaker);
         // WRITE this network with BUS_BRANCH Topology level
         Properties propertiesExport = new Properties();
