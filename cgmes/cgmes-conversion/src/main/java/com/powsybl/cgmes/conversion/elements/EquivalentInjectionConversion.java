@@ -121,7 +121,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
         boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
 
-        PowerFlow updatedPowerFlow = updatedPowerFlow(generator, cgmesData, context);
+        PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
 
         double defaultTargetV = getDefaultTargetV(generator, context);
         double targetV = findTargetV(cgmesData, CgmesNames.REGULATION_TARGET, defaultTargetV, DefaultValueUse.NOT_DEFINED);
@@ -182,7 +182,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
     private static void update(DanglingLine danglingLine, Context context) {
         Optional<PropertyBag> cgmesEquivalentInjection = getCgmesEquivalentInjection(danglingLine, context);
-        PowerFlow updatedPowerFlow = cgmesEquivalentInjection.map(propertyBag -> updatedPowerFlow(danglingLine, propertyBag, context)).orElse(PowerFlow.UNDEFINED);
+        PowerFlow updatedPowerFlow = cgmesEquivalentInjection.map(AbstractConductingEquipmentConversion::updatedPowerFlow).orElse(PowerFlow.UNDEFINED);
 
         if (danglingLine.getGeneration() != null) {
             double defaultTargetV = getDefaultTargetV(danglingLine.getGeneration(), context);

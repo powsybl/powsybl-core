@@ -304,6 +304,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
         if (isVoltageDefined(v, angle)) {
             setVoltageProperties(dl, v, angle);
+        } else {
+            removeVoltageProperties(dl);
         }
     }
 
@@ -322,6 +324,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (isVoltageDefined(v, angle)) {
             setVoltageProperties(dl1, v, angle);
             setVoltageProperties(dl2, v, angle);
+        } else {
+            removeVoltageProperties(dl1);
+            removeVoltageProperties(dl2);
         }
     }
 
@@ -332,6 +337,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     private static void setVoltageProperties(DanglingLine dl, double v, double angle) {
         dl.setProperty("v", Double.toString(v));
         dl.setProperty("angle", Double.toString(angle));
+    }
+
+    private static void removeVoltageProperties(DanglingLine dl) {
+        dl.removeProperty("v");
+        dl.removeProperty("angle");
     }
 
     private void setBoundaryNodeInfo(String boundaryNode, DanglingLine dl) {
@@ -358,11 +368,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     private static void setDanglingLineModelSideFlow(DanglingLine dl, Context context) {
         Optional<PropertyBag> svVoltage = getCgmesSvVoltageOnBoundarySide(dl, context);
         if (svVoltage.isEmpty()) {
+            dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
             return;
         }
         double v = svVoltage.get().asDouble(CgmesNames.VOLTAGE, Double.NaN);
         double angle = svVoltage.get().asDouble(CgmesNames.ANGLE, Double.NaN);
         if (!isVoltageDefined(v, angle)) {
+            dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
             return;
         }
         // The net sum of power flow "entering" at boundary is "exiting"
@@ -518,8 +530,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (setPQAllowed(terminal)) {
             PowerFlow f = new PowerFlow(cgmesTerminal, "p", "q");
             if (f.defined()) {
-                terminal.setP(f.p());
-                terminal.setQ(f.q());
+                terminal.setP(f.p()).setQ(f.q());
+            } else {
+                terminal.setP(Double.NaN).setQ(Double.NaN);
             }
         }
     }
@@ -534,10 +547,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private static boolean setPQAllowed(Terminal t) {
         return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
-    }
-
-    private static PropertyBag getCgmesTerminal(Connectable<?> connectable, Context context) {
-        return getCgmesTerminals(connectable, context, 1).get(0);
     }
 
     private static PropertyBags getCgmesTerminals(Connectable<?> connectable, Context context, int numTerminals) {
@@ -687,15 +696,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected static PowerFlow updatedPowerFlow(Connectable<?> connectable, PropertyBag cgmesData, Context context) {
+    protected static PowerFlow updatedPowerFlow(PropertyBag cgmesData) {
         PowerFlow steadyStateHypothesisPowerFlow = new PowerFlow(cgmesData, "p", "q");
         if (steadyStateHypothesisPowerFlow.defined()) {
             return steadyStateHypothesisPowerFlow;
-        }
-        PropertyBag cgmesTerminal = getCgmesTerminal(connectable, context);
-        PowerFlow stateVariablesPowerFlow = new PowerFlow(cgmesTerminal, "p", "q");
-        if (stateVariablesPowerFlow.defined()) {
-            return stateVariablesPowerFlow;
         }
         return PowerFlow.UNDEFINED;
     }

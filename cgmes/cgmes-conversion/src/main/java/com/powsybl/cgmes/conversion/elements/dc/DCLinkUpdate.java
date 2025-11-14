@@ -23,7 +23,6 @@ public class DCLinkUpdate {
 
     private ConvertersMode mode;
     private double targetP;
-    private double pDcInverter;
     private double lossFactor1;
     private double lossFactor2;
     private final DefaultData defaultData;
@@ -84,31 +83,14 @@ public class DCLinkUpdate {
         return Double.isNaN(targetPpcc) ? 0.0 : targetPpcc;
     }
 
-    private double pole1Losses() {
+    private PoleLosses pole1Losses() {
         double poleLosses = converter1.asDouble(POLE_LOSS_P);
-        return Double.isNaN(poleLosses) ? 0.0 : poleLosses;
+        return Double.isNaN(poleLosses) ? new PoleLosses(true, defaultData.poleLosses1()) : new PoleLosses(false, poleLosses);
     }
 
-    private double pole2Losses() {
+    private PoleLosses pole2Losses() {
         double poleLosses = converter2.asDouble(POLE_LOSS_P);
-        return Double.isNaN(poleLosses) ? 0.0 : poleLosses;
-    }
-
-    private void computeActivePowers() {
-        // targetP is AC active power on rectifier side.
-        double pDcRectifier;
-        if (getTargetPpccRectifier() != 0.0) {
-            targetP = getTargetPpccRectifier();
-            pDcRectifier = targetP - getPoleLossesRectifier();
-            pDcInverter = -1 * (pDcRectifier - resistiveLossesFromPdcRectifier(pDcRectifier));
-        } else if (getTargetPpccInverter() != 0.0) {
-            pDcInverter = -1 * (Math.abs(getTargetPpccInverter()) + getPoleLossesInverter());
-            pDcRectifier = Math.abs(pDcInverter) + resistiveLossesFromPdcInverter(pDcInverter);
-            targetP = pDcRectifier + getPoleLossesRectifier();
-        } else {
-            targetP = defaultData.targetP();
-            // No need to calculate DC powers when using default data.
-        }
+        return Double.isNaN(poleLosses) ? new PoleLosses(true, defaultData.poleLosses2()) : new PoleLosses(false, poleLosses);
     }
 
     private double getTargetPpccRectifier() {
@@ -125,23 +107,19 @@ public class DCLinkUpdate {
         return targetPpcc1();
     }
 
-    private double getPoleLossesRectifier() {
-        if (mode == SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
-            return pole1Losses();
-        }
-        return pole2Losses();
+    private PoleLosses getPoleLossesRectifier() {
+        return mode == SIDE_1_RECTIFIER_SIDE_2_INVERTER ? pole1Losses() : pole2Losses();
     }
 
-    private double getPoleLossesInverter() {
-        if (mode == SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
-            return pole2Losses();
-        }
-        return pole1Losses();
+    private PoleLosses getPoleLossesInverter() {
+        return mode == SIDE_1_RECTIFIER_SIDE_2_INVERTER ? pole2Losses() : pole1Losses();
     }
 
     private double resistiveLossesFromPdcRectifier(double pDcRectifier) {
-        double r = hvdcLine.getR();
-        double ratedUdc = hvdcLine.getNominalV();
+        return resistiveLossesFromPdcRectifier(pDcRectifier, hvdcLine.getR(), hvdcLine.getNominalV());
+    }
+
+    protected static double resistiveLossesFromPdcRectifier(double pDcRectifier, double r, double ratedUdc) {
         double idc = ratedUdc != 0.0 ? pDcRectifier / ratedUdc : 0.0;
         return r * idc * idc;
     }
@@ -153,21 +131,42 @@ public class DCLinkUpdate {
         return r * idc * idc;
     }
 
-    private void computeLossFactors() {
-        // Loss factor is pole losses divided by incoming power.
-        if (targetP == 0.0 || targetP == defaultData.targetP()) {
-            lossFactor1 = defaultData.lossFactor1();
-            lossFactor2 = defaultData.lossFactor2();
-        } else if (mode == SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
-            lossFactor1 = getPoleLossesRectifier() / targetP * 100;
-            lossFactor2 = getPoleLossesInverter() / Math.abs(pDcInverter) * 100;
+    private void computeActivePowers() {
+        // targetP is AC active power on rectifier side.
+        if (getTargetPpccRectifier() != 0.0) {
+            targetP = getTargetPpccRectifier();
+        } else if (getTargetPpccInverter() != 0.0) {
+            double pDcInverter = -1 * (Math.abs(getTargetPpccInverter()) + getPoleLossesInverter().value());
+            double pDcRectifier = Math.abs(pDcInverter) + resistiveLossesFromPdcInverter(pDcInverter);
+            targetP = pDcRectifier + getPoleLossesRectifier().value();
         } else {
-            lossFactor1 = getPoleLossesInverter() / Math.abs(pDcInverter) * 100;
-            lossFactor2 = getPoleLossesRectifier() / targetP * 100;
+            targetP = defaultData.targetP();
         }
     }
 
-    public record DefaultData(HvdcLine.ConvertersMode mode, double targetP, double lossFactor1, double lossFactor2) {
+    private void computeLossFactors() {
+        // Loss factor is pole losses divided by incoming power.
+        if (targetP == 0.0) {
+            lossFactor1 = defaultData.lossFactor1();
+            lossFactor2 = defaultData.lossFactor2();
+        } else if (mode == SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
+            lossFactor1 = pole1Losses().isDefault() ? defaultData.lossFactor1() : pole1Losses().value() / targetP * 100;
+            lossFactor2 = pole2Losses().isDefault() ? defaultData.lossFactor2() : pole2Losses().value() / Math.abs(getPdcInverter()) * 100;
+        } else {
+            lossFactor1 = pole1Losses().isDefault() ? defaultData.lossFactor1() : pole1Losses().value() / Math.abs(getPdcInverter()) * 100;
+            lossFactor2 = pole2Losses().isDefault() ? defaultData.lossFactor2() : pole2Losses().value() / targetP * 100;
+        }
+    }
+
+    private double getPdcInverter() {
+        double pDcRectifier = targetP - getPoleLossesRectifier().value();
+        return -1 * (pDcRectifier - resistiveLossesFromPdcRectifier(pDcRectifier));
+    }
+
+    private record PoleLosses(boolean isDefault, double value) {
+    }
+
+    public record DefaultData(HvdcLine.ConvertersMode mode, double targetP, double lossFactor1, double lossFactor2, double poleLosses1, double poleLosses2) {
     }
 
     public ConvertersMode getMode() {

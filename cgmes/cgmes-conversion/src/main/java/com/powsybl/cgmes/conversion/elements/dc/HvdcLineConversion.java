@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.updateTerminals;
+import static com.powsybl.cgmes.conversion.elements.dc.DCLinkUpdate.resistiveLossesFromPdcRectifier;
 import static com.powsybl.cgmes.model.CgmesNames.*;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
@@ -98,7 +99,31 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
         double lossFactor1 = getDefaultValue(null, (double) hvdcLine.getConverterStation1().getLossFactor(), 0.0, 0.0, context);
         double lossFactor2 = getDefaultValue(null, (double) hvdcLine.getConverterStation2().getLossFactor(), 0.0, 0.0, context);
 
-        return new DCLinkUpdate.DefaultData(defaultMode, defaultTargetP, lossFactor1, lossFactor2);
+        double poleLosses1 = getDefaultValue(null, getPreviousPoleLosses1(hvdcLine), 0.0, 0.0, context);
+        double poleLosses2 = getDefaultValue(null, getPreviousPoleLosses2(hvdcLine), 0.0, 0.0, context);
+
+        return new DCLinkUpdate.DefaultData(defaultMode, defaultTargetP, lossFactor1, lossFactor2, poleLosses1, poleLosses2);
+    }
+
+    private static double getPreviousPdcInverter(HvdcLine hvdcLine) {
+        double pDcRectifier = hvdcLine.getActivePowerSetpoint() - getPreviousPoleLossesRectifier(hvdcLine);
+        return -1 * (pDcRectifier - resistiveLossesFromPdcRectifier(pDcRectifier, hvdcLine.getR(), hvdcLine.getNominalV()));
+    }
+
+    private static double getPreviousPoleLossesRectifier(HvdcLine hvdcLine) {
+        double lossFactorRectifier = hvdcLine.getConvertersMode() == SIDE_1_RECTIFIER_SIDE_2_INVERTER
+                ? hvdcLine.getConverterStation1().getLossFactor() : hvdcLine.getConverterStation2().getLossFactor();
+        return lossFactorRectifier / 100.0 * hvdcLine.getActivePowerSetpoint();
+    }
+
+    private static double getPreviousPoleLosses1(HvdcLine hvdcLine) {
+        double p = hvdcLine.getConvertersMode() == SIDE_1_RECTIFIER_SIDE_2_INVERTER ? hvdcLine.getActivePowerSetpoint() : getPreviousPdcInverter(hvdcLine);
+        return hvdcLine.getConverterStation1().getLossFactor() / 100.0 * p;
+    }
+
+    private static double getPreviousPoleLosses2(HvdcLine hvdcLine) {
+        double p = hvdcLine.getConvertersMode() == SIDE_1_RECTIFIER_SIDE_2_INVERTER ? getPreviousPdcInverter(hvdcLine) : hvdcLine.getActivePowerSetpoint();
+        return hvdcLine.getConverterStation2().getLossFactor() / 100.0 * p;
     }
 
     private static boolean isRectifierOnSide1(HvdcLine.ConvertersMode mode) {
