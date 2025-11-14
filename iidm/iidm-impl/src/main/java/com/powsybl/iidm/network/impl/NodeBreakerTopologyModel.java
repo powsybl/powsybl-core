@@ -536,7 +536,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 } else {
                     network.getListeners().notifyPropertyAdded(voltageLevel, INTERNAL_CONNECTION, null);
                 }
-                invalidateCache();
+//                invalidateCache();
             }
 
             @Override
@@ -1141,7 +1141,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         // create the link terminal <-> graph vertex
         graph.setVertexObject(node, (NodeTerminal) terminal);
 
-        getNetwork().getVariantManager().forEachVariant(NodeBreakerTopologyModel.this::invalidateCache);
+//        getNetwork().getVariantManager().forEachVariant(NodeBreakerTopologyModel.this::invalidateCache);
     }
 
     @Override
