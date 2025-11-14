@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -102,12 +101,12 @@ import java.util.Optional;
  *             <td style="border: 1px solid black">DC voltage target</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">DroopList</td>
- *             <td style="border: 1px solid black">DroopList</td>
+ *             <td style="border: 1px solid black">DroopCurve</td>
+ *             <td style="border: 1px solid black">DroopCurve</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">no</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">List of droop segments</td>
+ *             <td style="border: 1px solid black">Curve which contains multiple droop segments</td>
  *         </tr>
  *     </tbody>
  * </table>
@@ -244,17 +243,17 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
     double getTargetVdc();
 
     /**
-     * Get the Converter Droop Segments;
+     * Create a Droop curve;
      */
-    List<AcDcConverterDroop> getDroopList();
+    DroopCurveAdder newDroopCurve();
 
     /**
-     * Add a Droop Segment;
+     * Set the Droop curve;
      */
-    void addDroop(AcDcConverterDroop droop);
+    void setDroopCurve(DroopCurve droopCurve);
 
     /**
-     * Create a Droop Segment;
+     * Get the Converter droop curve;
      */
-    AcDcConverterDroopAdder newDroop();
+    DroopCurve getDroopCurve();
 }

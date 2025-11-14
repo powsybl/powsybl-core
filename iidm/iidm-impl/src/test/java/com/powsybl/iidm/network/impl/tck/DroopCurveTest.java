@@ -5,16 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network;
+package com.powsybl.iidm.network.impl.tck;
+
+import com.powsybl.iidm.network.tck.AbstractDroopCurveTest;
 
 /**
  * @author Denis Bonnand {@literal <denis.bonnand at supergrid-institute.com>}
  */
-public interface AcDcConverterDroop {
-
-    double getUMin();
-
-    double getUMax();
-
-    double getDroopCoefficient();
+class DroopCurveTest extends AbstractDroopCurveTest {
 }

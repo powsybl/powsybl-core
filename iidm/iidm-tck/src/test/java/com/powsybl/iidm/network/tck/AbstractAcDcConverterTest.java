@@ -718,6 +718,22 @@ public abstract class AbstractAcDcConverterTest {
     }
 
     @Test
+    public void testDroopCurve() {
+        AcDcConverter<?> vsc = createVscA(vla).setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP);
+
+        vsc.newDroopCurve()
+                .beginSegment().setK(-10.).setMinV(-500.).setMaxV(-100.).endSegment()
+                .beginSegment().setK(-5.).setMinV(-100.).setMaxV(100.).endSegment()
+                .beginSegment().setK(-1.).setMinV(100.).setMaxV(500.).endSegment()
+                .add();
+        assertEquals(-10., vsc.getDroopCurve().getK(-250));
+        assertEquals(-5., vsc.getDroopCurve().getK(-100));
+        assertEquals(-10., vsc.getDroopCurve().getK(-250));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> vsc.getDroopCurve().getK(1000.0));
+        assertEquals("Droop coefficient is not defined for Vdc = 1000.0", e1.getMessage());
+    }
+
+    @Test
     public void testCreationError() {
         LineCommutatedConverterAdder adder = vla.newLineCommutatedConverter()
                 .setId("converterA")
@@ -885,31 +901,5 @@ public abstract class AbstractAcDcConverterTest {
         assertThrows(PowsyblException.class, vscA::getReactivePowerSetpoint, "Variant index not set");
         assertThrows(PowsyblException.class, vscA::getVoltageSetpoint, "Variant index not set");
         assertThrows(PowsyblException.class, vscA::isVoltageRegulatorOn, "Variant index not set");
-    }
-
-    @Test
-    public void droopControlTest() {
-        vla.newVoltageSourceConverter()
-                .setId("converterA")
-                .setBus1(b1a.getId())
-                .setDcNode1(dcNode1a.getId())
-                .setDcNode2(dcNode2a.getId())
-                .setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP)
-                .setTargetP(100.)
-                .setTargetVdc(500.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(10.0)
-                .setVoltageSetpoint(400.0)
-                .add();
-        network.getVoltageSourceConverter("converterA")
-                .newDroop()
-                .setUMin(1.0)
-                .setUMax(2.0)
-                .setDroopCoefficient(3.0)
-                .add();
-        assertEquals(1.0, network.getVoltageSourceConverter("converterA").getDroopList().size());
-        assertEquals(1.0, network.getVoltageSourceConverter("converterA").getDroopList().get(0).getUMin());
-        assertEquals(2.0, network.getVoltageSourceConverter("converterA").getDroopList().get(0).getUMax());
-        assertEquals(3.0, network.getVoltageSourceConverter("converterA").getDroopList().get(0).getDroopCoefficient());
     }
 }

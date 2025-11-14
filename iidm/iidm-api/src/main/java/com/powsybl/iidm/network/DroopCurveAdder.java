@@ -10,13 +10,20 @@ package com.powsybl.iidm.network;
 /**
  * @author Denis Bonnand {@literal <denis.bonnand at supergrid-institute.com>}
  */
-public interface AcDcConverterDroopAdder {
+public interface DroopCurveAdder {
 
-    AcDcConverterDroopAdder setUMax(double uMax);
+    interface SegmentAdder {
 
-    AcDcConverterDroopAdder setUMin(double uMin);
+        SegmentAdder setK(double k);
 
-    AcDcConverterDroopAdder setDroopCoefficient(double k);
+        SegmentAdder setMinV(double minV);
 
-    AcDcConverterDroop add();
+        SegmentAdder setMaxV(double maxV);
+
+        DroopCurveAdder endSegment();
+    }
+
+    SegmentAdder beginSegment();
+
+    DroopCurve add();
 }

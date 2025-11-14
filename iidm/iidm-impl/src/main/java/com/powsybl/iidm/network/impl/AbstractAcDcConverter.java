@@ -34,6 +34,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     private double switchingLoss;
     private double resistiveLoss;
 
+    private DroopCurve droopCurve;
+
     private final RegulatingPoint pccRegulatingPoint;
 
     // attributes depending on the variant
@@ -41,8 +43,6 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     private final TDoubleArrayList targetP;
 
     private final TDoubleArrayList targetVdc;
-
-    private final List<AcDcConverterDroop> droopList = new ArrayList<>();
 
     AbstractAcDcConverter(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
                           double idleLoss, double switchingLoss, double resistiveLoss,
@@ -337,18 +337,18 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     }
 
     @Override
-    public void addDroop(AcDcConverterDroop droop) {
-        this.droopList.add(droop);
+    public DroopCurveAdderImpl newDroopCurve() {
+        return new DroopCurveAdderImpl(this);
     }
 
     @Override
-    public List<AcDcConverterDroop> getDroopList() {
-        return droopList;
+    public void setDroopCurve(DroopCurve droopCurve) {
+        this.droopCurve = droopCurve;
     }
 
     @Override
-    public AcDcConverterDroopAdder newDroop() {
-        return new AcDcConverterDroopAdderImpl(this);
+    public DroopCurve getDroopCurve() {
+        return droopCurve;
     }
 
     protected abstract I self();
