@@ -13,6 +13,9 @@ import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
+import java.util.Map;
+import java.util.function.Function;
+
 import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
 import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
@@ -22,6 +25,51 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  * @author Jean-Baptiste Heyberger {@literal <Jean-Baptiste.Heyberger at rte-france.com>}
  */
 public class PsseSwitchedShunt extends PsseVersioned {
+
+    private static final String STRING_SWREM = "swrem";
+    private static final String STRING_SWREG = "swreg";
+
+    private static final Map<String, Function<PsseSwitchedShunt, String>> GETTERS = Map.ofEntries(
+        Map.entry("i", switchShunt -> String.valueOf(switchShunt.getI())),
+        Map.entry("ibus", switchShunt -> String.valueOf(switchShunt.getI())),
+        Map.entry("modsw", switchShunt -> String.valueOf(switchShunt.getModsw())),
+        Map.entry("adjm", switchShunt -> String.valueOf(switchShunt.getAdjm())),
+        Map.entry("stat", switchShunt -> String.valueOf(switchShunt.getStat())),
+        Map.entry("vswhi", switchShunt -> String.valueOf(switchShunt.getVswhi())),
+        Map.entry("vswlo", switchShunt -> String.valueOf(switchShunt.getVswlo())),
+        Map.entry(STRING_SWREM, switchShunt -> String.valueOf(switchShunt.getSwrem())),
+        Map.entry("rmpct", switchShunt -> String.valueOf(switchShunt.getRmpct())),
+        Map.entry("rmidnt", PsseSwitchedShunt::getRmidnt),
+        Map.entry("binit", switchShunt -> String.valueOf(switchShunt.getBinit())),
+        Map.entry("n1", switchShunt -> String.valueOf(switchShunt.getN1())),
+        Map.entry("b1", switchShunt -> String.valueOf(switchShunt.getB1())),
+        Map.entry("n2", switchShunt -> String.valueOf(switchShunt.getN2())),
+        Map.entry("b2", switchShunt -> String.valueOf(switchShunt.getB2())),
+        Map.entry("n3", switchShunt -> String.valueOf(switchShunt.getN3())),
+        Map.entry("b3", switchShunt -> String.valueOf(switchShunt.getB3())),
+        Map.entry("n4", switchShunt -> String.valueOf(switchShunt.getN4())),
+        Map.entry("b4", switchShunt -> String.valueOf(switchShunt.getB4())),
+        Map.entry("n5", switchShunt -> String.valueOf(switchShunt.getN5())),
+        Map.entry("b5", switchShunt -> String.valueOf(switchShunt.getB5())),
+        Map.entry("n6", switchShunt -> String.valueOf(switchShunt.getN6())),
+        Map.entry("b6", switchShunt -> String.valueOf(switchShunt.getB6())),
+        Map.entry("n7", switchShunt -> String.valueOf(switchShunt.getN7())),
+        Map.entry("b7", switchShunt -> String.valueOf(switchShunt.getB7())),
+        Map.entry("n8", switchShunt -> String.valueOf(switchShunt.getN8())),
+        Map.entry("b8", switchShunt -> String.valueOf(switchShunt.getB8())),
+        Map.entry("id", PsseSwitchedShunt::getId),
+        Map.entry("shntid", PsseSwitchedShunt::getId),
+        Map.entry(STRING_SWREG, switchShunt -> String.valueOf(switchShunt.getSwreg())),
+        Map.entry("nreg", switchShunt -> String.valueOf(switchShunt.getNreg())),
+        Map.entry("s1", switchShunt -> String.valueOf(switchShunt.getS1())),
+        Map.entry("s2", switchShunt -> String.valueOf(switchShunt.getS2())),
+        Map.entry("s3", switchShunt -> String.valueOf(switchShunt.getS3())),
+        Map.entry("s4", switchShunt -> String.valueOf(switchShunt.getS4())),
+        Map.entry("s5", switchShunt -> String.valueOf(switchShunt.getS5())),
+        Map.entry("s6", switchShunt -> String.valueOf(switchShunt.getS6())),
+        Map.entry("s7", switchShunt -> String.valueOf(switchShunt.getS7())),
+        Map.entry("s8", switchShunt -> String.valueOf(switchShunt.getS8()))
+    );
 
     private int i;
     private int modsw = 1;
@@ -95,7 +143,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         psseSwitchedShunt.setVswhi(parseDoubleFromRecord(rec, 1.0, headers, "vswhi"));
         psseSwitchedShunt.setVswlo(parseDoubleFromRecord(rec, 1.0, headers, "vswlo"));
         if (version.getMajorNumber() <= 33) {
-            psseSwitchedShunt.setSwrem(parseIntFromRecord(rec, 0, headers, "swrem"));
+            psseSwitchedShunt.setSwrem(parseIntFromRecord(rec, 0, headers, STRING_SWREM));
         }
         psseSwitchedShunt.setRmpct(parseDoubleFromRecord(rec, 100.0, headers, "rmpct"));
         psseSwitchedShunt.setRmidnt(parseStringFromRecord(rec, " ", headers, "rmidnt"));
@@ -118,7 +166,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         psseSwitchedShunt.setB8(parseDoubleFromRecord(rec, 0.0, headers, "b8"));
         if (version.getMajorNumber() >= 35) {
             psseSwitchedShunt.setId(parseStringFromRecord(rec, "1", headers, "id", "shntid"));
-            psseSwitchedShunt.setSwreg(parseIntFromRecord(rec, headers, "swreg"));
+            psseSwitchedShunt.setSwreg(parseIntFromRecord(rec, headers, STRING_SWREG));
             psseSwitchedShunt.setNreg(parseIntFromRecord(rec, headers, "nreg"));
             psseSwitchedShunt.setS1(parseIntFromRecord(rec, headers, "s1"));
             psseSwitchedShunt.setS2(parseIntFromRecord(rec, 1, headers, "s2"));
@@ -135,46 +183,11 @@ public class PsseSwitchedShunt extends PsseVersioned {
     public static String[] toRecord(PsseSwitchedShunt psseSwitchedShunt, String[] headers) {
         String[] row = new String[headers.length];
         for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "i", "ibus" -> String.valueOf(psseSwitchedShunt.getI());
-                case "modsw" -> String.valueOf(psseSwitchedShunt.getModsw());
-                case "adjm" -> String.valueOf(psseSwitchedShunt.getAdjm());
-                case "stat" -> String.valueOf(psseSwitchedShunt.getStat());
-                case "vswhi" -> String.valueOf(psseSwitchedShunt.getVswhi());
-                case "vswlo" -> String.valueOf(psseSwitchedShunt.getVswlo());
-                case "swrem" -> String.valueOf(psseSwitchedShunt.getSwrem());
-                case "rmpct" -> String.valueOf(psseSwitchedShunt.getRmpct());
-                case "rmidnt" -> String.valueOf(psseSwitchedShunt.getRmidnt());
-                case "binit" -> String.valueOf(psseSwitchedShunt.getBinit());
-                case "n1" -> String.valueOf(psseSwitchedShunt.getN1());
-                case "b1" -> String.valueOf(psseSwitchedShunt.getB1());
-                case "n2" -> String.valueOf(psseSwitchedShunt.getN2());
-                case "b2" -> String.valueOf(psseSwitchedShunt.getB2());
-                case "n3" -> String.valueOf(psseSwitchedShunt.getN3());
-                case "b3" -> String.valueOf(psseSwitchedShunt.getB3());
-                case "n4" -> String.valueOf(psseSwitchedShunt.getN4());
-                case "b4" -> String.valueOf(psseSwitchedShunt.getB4());
-                case "n5" -> String.valueOf(psseSwitchedShunt.getN5());
-                case "b5" -> String.valueOf(psseSwitchedShunt.getB5());
-                case "n6" -> String.valueOf(psseSwitchedShunt.getN6());
-                case "b6" -> String.valueOf(psseSwitchedShunt.getB6());
-                case "n7" -> String.valueOf(psseSwitchedShunt.getN7());
-                case "b7" -> String.valueOf(psseSwitchedShunt.getB7());
-                case "n8" -> String.valueOf(psseSwitchedShunt.getN8());
-                case "b8" -> String.valueOf(psseSwitchedShunt.getB8());
-                case "id", "shntid" -> psseSwitchedShunt.getId();
-                case "swreg" -> String.valueOf(psseSwitchedShunt.getSwreg());
-                case "nreg" -> String.valueOf(psseSwitchedShunt.getNreg());
-                case "s1" -> String.valueOf(psseSwitchedShunt.getS1());
-                case "s2" -> String.valueOf(psseSwitchedShunt.getS2());
-                case "s3" -> String.valueOf(psseSwitchedShunt.getS3());
-                case "s4" -> String.valueOf(psseSwitchedShunt.getS4());
-                case "s5" -> String.valueOf(psseSwitchedShunt.getS5());
-                case "s6" -> String.valueOf(psseSwitchedShunt.getS6());
-                case "s7" -> String.valueOf(psseSwitchedShunt.getS7());
-                case "s8" -> String.valueOf(psseSwitchedShunt.getS8());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
+            Function<PsseSwitchedShunt, String> getter = GETTERS.get(headers[i]);
+            if (getter == null) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = getter.apply(psseSwitchedShunt);
         }
         return row;
     }
@@ -228,7 +241,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getSwrem() {
-        checkVersion("swrem");
+        checkVersion(STRING_SWREM);
         return swrem;
     }
 
@@ -398,7 +411,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getSwreg() {
-        checkVersion("swreg");
+        checkVersion(STRING_SWREG);
         return swreg;
     }
 

@@ -31,6 +31,9 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 @JsonIgnoreProperties(value = { "impedances" })
 public class PsseTransformer extends PsseVersioned {
 
+    private static final String STRING_MULTIPLE_SPACES = "            ";
+    private static final String STRING_VECGRP = "vecgrp";
+
     @Override
     public void setModel(PssePowerFlowModel model) {
         super.setModel(model);
@@ -58,7 +61,7 @@ public class PsseTransformer extends PsseVersioned {
     private PsseOwnership ownership;
 
     @Revision(since = 33)
-    private String vecgrp = "            ";
+    private String vecgrp = STRING_MULTIPLE_SPACES;
 
     @Revision(since = 35)
     private int zcod = 0;
@@ -83,11 +86,11 @@ public class PsseTransformer extends PsseVersioned {
         psseTransformer.setMag1(parseDoubleFromRecord(rec, 0d, headers, "mag1"));
         psseTransformer.setMag2(parseDoubleFromRecord(rec, 0d, headers, "mag2"));
         psseTransformer.setNmetr(parseIntFromRecord(rec, 2, headers, "nmetr", "nmet"));
-        psseTransformer.setName(parseStringFromRecord(rec, "            ", headers, "name"));
+        psseTransformer.setName(parseStringFromRecord(rec, STRING_MULTIPLE_SPACES, headers, "name"));
         psseTransformer.setStat(parseIntFromRecord(rec, 1, headers, "stat"));
         psseTransformer.setOwnership(PsseOwnership.fromRecord(rec, version, headers));
         if (version.getMajorNumber() >= 33) {
-            psseTransformer.setVecgrp(parseStringFromRecord(rec, "            ", headers, "vecgrp"));
+            psseTransformer.setVecgrp(parseStringFromRecord(rec, STRING_MULTIPLE_SPACES, headers, STRING_VECGRP));
         }
         if (version.getMajorNumber() >= 35) {
             psseTransformer.setZcod(parseIntFromRecord(rec, 0, headers, "zcod"));
@@ -115,7 +118,7 @@ public class PsseTransformer extends PsseVersioned {
                 case "nmetr", "nmet" -> String.valueOf(psseTransformer.getNmetr());
                 case "name" -> psseTransformer.getName();
                 case "stat" -> String.valueOf(psseTransformer.getStat());
-                case "vecgrp" -> String.valueOf(psseTransformer.getVecgrp());
+                case STRING_VECGRP -> String.valueOf(psseTransformer.getVecgrp());
                 case "zcod" -> String.valueOf(psseTransformer.getZcod());
                 default -> {
                     Optional<String> optionalValue = psseTransformer.getOwnership().headerToString(headers[i]);
@@ -258,12 +261,12 @@ public class PsseTransformer extends PsseVersioned {
     }
 
     public String getVecgrp() {
-        checkVersion("vecgrp");
+        checkVersion(STRING_VECGRP);
         return vecgrp;
     }
 
     public void setVecgrp(String vecgrp) {
-        checkVersion("vecgrp");
+        checkVersion(STRING_VECGRP);
         this.vecgrp = vecgrp;
     }
 

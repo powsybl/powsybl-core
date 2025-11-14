@@ -34,7 +34,6 @@ public class PsseTransformerImpedanceCorrectionPoint extends PsseVersioned {
     @Revision(since = 35)
     private double imf;
 
-    // TODO: check if needed
     public static PsseTransformerImpedanceCorrectionPoint fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
         return fromRecord(rec, version, headers, "");
     }

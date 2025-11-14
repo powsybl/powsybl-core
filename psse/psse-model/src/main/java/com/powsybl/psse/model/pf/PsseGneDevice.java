@@ -11,6 +11,9 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
+import java.util.Map;
+import java.util.function.Function;
+
 import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
 import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
@@ -21,6 +24,51 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PsseGneDevice {
+
+    private static final Map<String, Function<PsseGneDevice, String>> GETTERS = Map.ofEntries(
+        Map.entry("name", PsseGneDevice::getName),
+        Map.entry("model", PsseGneDevice::getModel),
+        Map.entry("nterm", device -> String.valueOf(device.getNterm())),
+        Map.entry("bus1", device -> String.valueOf(device.getBus1())),
+        Map.entry("bus2", device -> String.valueOf(device.getBus2())),
+        Map.entry("nreal", device -> String.valueOf(device.getNreal())),
+        Map.entry("nintg", device -> String.valueOf(device.getNintg())),
+        Map.entry("nchar", device -> String.valueOf(device.getNchar())),
+        Map.entry("status", device -> String.valueOf(device.getStatus())),
+        Map.entry("stat", device -> String.valueOf(device.getStatus())),
+        Map.entry("owner", device -> String.valueOf(device.getOwner())),
+        Map.entry("nmet", device -> String.valueOf(device.getNmet())),
+        Map.entry("real1", device -> String.valueOf(device.getReal1())),
+        Map.entry("real2", device -> String.valueOf(device.getReal2())),
+        Map.entry("real3", device -> String.valueOf(device.getReal3())),
+        Map.entry("real4", device -> String.valueOf(device.getReal4())),
+        Map.entry("real5", device -> String.valueOf(device.getReal5())),
+        Map.entry("real6", device -> String.valueOf(device.getReal6())),
+        Map.entry("real7", device -> String.valueOf(device.getReal7())),
+        Map.entry("real8", device -> String.valueOf(device.getReal8())),
+        Map.entry("real9", device -> String.valueOf(device.getReal9())),
+        Map.entry("real10", device -> String.valueOf(device.getReal10())),
+        Map.entry("intg1", device -> String.valueOf(device.getIntg1())),
+        Map.entry("intg2", device -> String.valueOf(device.getIntg2())),
+        Map.entry("intg3", device -> String.valueOf(device.getIntg3())),
+        Map.entry("intg4", device -> String.valueOf(device.getIntg4())),
+        Map.entry("intg5", device -> String.valueOf(device.getIntg5())),
+        Map.entry("intg6", device -> String.valueOf(device.getIntg6())),
+        Map.entry("intg7", device -> String.valueOf(device.getIntg7())),
+        Map.entry("intg8", device -> String.valueOf(device.getIntg8())),
+        Map.entry("intg9", device -> String.valueOf(device.getIntg9())),
+        Map.entry("intg10", device -> String.valueOf(device.getIntg10())),
+        Map.entry("char1", device -> String.valueOf(device.getChar1())),
+        Map.entry("char2", device -> String.valueOf(device.getChar2())),
+        Map.entry("char3", device -> String.valueOf(device.getChar3())),
+        Map.entry("char4", device -> String.valueOf(device.getChar4())),
+        Map.entry("char5", device -> String.valueOf(device.getChar5())),
+        Map.entry("char6", device -> String.valueOf(device.getChar6())),
+        Map.entry("char7", device -> String.valueOf(device.getChar7())),
+        Map.entry("char8", device -> String.valueOf(device.getChar8())),
+        Map.entry("char9", device -> String.valueOf(device.getChar9())),
+        Map.entry("char10", device -> String.valueOf(device.getChar10()))
+    );
 
     private String name;
     private String model;
@@ -113,82 +161,13 @@ public class PsseGneDevice {
     public static String[] toRecord(PsseGneDevice psseGneDevice, String[] headers) {
         String[] row = new String[headers.length];
         for (int i = 0; i < headers.length; i++) {
-            String h = headers[i];
-            row[i] = switch (h) {
-                case "name" -> psseGneDevice.getName();
-                case "model" -> psseGneDevice.getModel();
-                case "nterm" -> String.valueOf(psseGneDevice.getNterm());
-                case "bus1" -> String.valueOf(psseGneDevice.getBus1());
-                case "bus2" -> String.valueOf(psseGneDevice.getBus2());
-                case "nreal" -> String.valueOf(psseGneDevice.getNreal());
-                case "nintg" -> String.valueOf(psseGneDevice.getNintg());
-                case "nchar" -> String.valueOf(psseGneDevice.getNchar());
-                case "status", "stat" -> String.valueOf(psseGneDevice.getStatus());
-                case "owner" -> String.valueOf(psseGneDevice.getOwner());
-                case "nmet" -> String.valueOf(psseGneDevice.getNmet());
-                default -> psseGneDevice.getParameterAsString(h);
-            };
+            Function<PsseGneDevice, String> getter = GETTERS.get(headers[i]);
+            if (getter == null) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = getter.apply(psseGneDevice);
         }
         return row;
-    }
-
-    private String getParameterAsString(String header) {
-        if (header.startsWith("real")) {
-            return getRealValue(header);
-        } else if (header.startsWith("intg")) {
-            return getIntgValue(header);
-        } else if (header.startsWith("char")) {
-            return getCharValue(header);
-        }
-        throw new PsseException("Unsupported header: " + header);
-    }
-
-    private String getRealValue(String h) {
-        return switch (h) {
-            case "real1" -> String.valueOf(getReal1());
-            case "real2" -> String.valueOf(getReal2());
-            case "real3" -> String.valueOf(getReal3());
-            case "real4" -> String.valueOf(getReal4());
-            case "real5" -> String.valueOf(getReal5());
-            case "real6" -> String.valueOf(getReal6());
-            case "real7" -> String.valueOf(getReal7());
-            case "real8" -> String.valueOf(getReal8());
-            case "real9" -> String.valueOf(getReal9());
-            case "real10" -> String.valueOf(getReal10());
-            default -> throw new PsseException("Unsupported header: " + h);
-        };
-    }
-
-    private String getIntgValue(String h) {
-        return switch (h) {
-            case "intg1" -> String.valueOf(getIntg1());
-            case "intg2" -> String.valueOf(getIntg2());
-            case "intg3" -> String.valueOf(getIntg3());
-            case "intg4" -> String.valueOf(getIntg4());
-            case "intg5" -> String.valueOf(getIntg5());
-            case "intg6" -> String.valueOf(getIntg6());
-            case "intg7" -> String.valueOf(getIntg7());
-            case "intg8" -> String.valueOf(getIntg8());
-            case "intg9" -> String.valueOf(getIntg9());
-            case "intg10" -> String.valueOf(getIntg10());
-            default -> throw new PsseException("Unsupported header: " + h);
-        };
-    }
-
-    private String getCharValue(String h) {
-        return switch (h) {
-            case "char1" -> getChar1();
-            case "char2" -> getChar2();
-            case "char3" -> getChar3();
-            case "char4" -> getChar4();
-            case "char5" -> getChar5();
-            case "char6" -> getChar6();
-            case "char7" -> getChar7();
-            case "char8" -> getChar8();
-            case "char9" -> getChar9();
-            case "char10" -> getChar10();
-            default -> throw new PsseException("Unsupported header: " + h);
-        };
     }
 
     public String getName() {

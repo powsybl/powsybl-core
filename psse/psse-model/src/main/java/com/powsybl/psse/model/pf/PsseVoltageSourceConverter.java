@@ -25,6 +25,9 @@ import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
  */
 public class PsseVoltageSourceConverter extends PsseVersioned {
 
+    private static final String STRING_REMOT = "remot";
+    private static final String STRING_VSREG = "vsreg";
+
     private int ibus;
     private int type;
     private int mode = 1;
@@ -70,11 +73,11 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
         psseVoltageSourceConverter.setMaxq(parseDoubleFromRecord(rec, 9999.0, headers, "maxq" + headerSuffix));
         psseVoltageSourceConverter.setMinq(parseDoubleFromRecord(rec, -9999.0, headers, "minq" + headerSuffix));
         if (version.getMajorNumber() <= 33) {
-            psseVoltageSourceConverter.setRemot(parseIntFromRecord(rec, 0, headers, "remot" + headerSuffix));
+            psseVoltageSourceConverter.setRemot(parseIntFromRecord(rec, 0, headers, STRING_REMOT + headerSuffix));
         }
         psseVoltageSourceConverter.setRmpct(parseDoubleFromRecord(rec, 100.0, headers, "rmpct" + headerSuffix));
         if (version.getMajorNumber() >= 35) {
-            psseVoltageSourceConverter.setVsreg(parseIntFromRecord(rec, 0, headers, "vsreg" + headerSuffix));
+            psseVoltageSourceConverter.setVsreg(parseIntFromRecord(rec, 0, headers, STRING_VSREG + headerSuffix));
             psseVoltageSourceConverter.setNreg(parseIntFromRecord(rec, 0, headers, "nreg" + headerSuffix));
         }
         return psseVoltageSourceConverter;
@@ -107,9 +110,9 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
             case "pwf" -> Optional.of(String.valueOf(getPwf()));
             case "maxq" -> Optional.of(String.valueOf(getMaxq()));
             case "minq" -> Optional.of(String.valueOf(getMinq()));
-            case "remot" -> Optional.of(String.valueOf(getRemot()));
+            case STRING_REMOT -> Optional.of(String.valueOf(getRemot()));
             case "rmpct" -> Optional.of(String.valueOf(getRmpct()));
-            case "vsreg" -> Optional.of(String.valueOf(getVsreg()));
+            case STRING_VSREG -> Optional.of(String.valueOf(getVsreg()));
             case "nreg" -> Optional.of(String.valueOf(getNreg()));
             default -> Optional.empty();
         };
@@ -220,7 +223,7 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
     }
 
     public int getRemot() {
-        checkVersion("remot");
+        checkVersion(STRING_REMOT);
         return remot;
     }
 
@@ -237,7 +240,7 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
     }
 
     public int getVsreg() {
-        checkVersion("vsreg");
+        checkVersion(STRING_VSREG);
         return vsreg;
     }
 
