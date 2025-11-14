@@ -65,8 +65,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
                     .setG(g1)
                     .endStep();
         });
-        RatioTapChanger tapChanger = rtca.add();
-        fixTapPosition(tapChanger);
+        rtca.add();
     }
 
     protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca, Context context) {
@@ -99,8 +98,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
                     .setG(g1)
                     .endStep();
         });
-        PhaseTapChanger tapChanger = ptca.add();
-        fixTapPosition(tapChanger);
+        ptca.add();
     }
 
     protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChanger tc) {
@@ -475,9 +473,4 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         }
     }
 
-    public static void fixTapPosition(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger) {
-        if (!isValidTapPosition(tapChanger, tapChanger.getTapPosition())) {
-            tapChanger.setTapPosition(computeClosestNeutralStep(tapChanger));
-        }
-    }
 }
