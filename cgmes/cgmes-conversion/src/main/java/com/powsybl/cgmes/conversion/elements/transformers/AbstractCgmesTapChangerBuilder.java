@@ -49,9 +49,13 @@ abstract class AbstractCgmesTapChangerBuilder {
         lowStep = p.asInt(CgmesNames.LOW_STEP);
         highStep = p.asInt(CgmesNames.HIGH_STEP);
         addSteps();
+        tapChanger.setLowTapPosition(lowStep);
+
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
-        int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
-        tapChanger.setLowTapPosition(lowStep).setTapPosition(normalStep);
+        int validNeutralStep = isValidTapPosition(neutralStep) ? neutralStep : lowStep;
+        int normalStep = p.asInt(CgmesNames.NORMAL_STEP, validNeutralStep);
+        int validNormalStep = isValidTapPosition(normalStep) ? normalStep : validNeutralStep;
+        tapChanger.setTapPosition(validNormalStep);
 
         boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
@@ -87,5 +91,9 @@ abstract class AbstractCgmesTapChangerBuilder {
             return defaultValue;
         }
         return value;
+    }
+
+    private boolean isValidTapPosition(int tapPosition) {
+        return lowStep <= tapPosition && tapPosition <= highStep;
     }
 }
