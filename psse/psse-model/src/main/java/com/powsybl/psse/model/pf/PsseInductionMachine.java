@@ -7,8 +7,15 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.Map;
+import java.util.function.Function;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -17,141 +24,137 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseInductionMachine {
 
+    private static final Map<String, Function<PsseInductionMachine, String>> GETTERS = Map.ofEntries(
+        Map.entry("i", m -> String.valueOf(m.getI())),
+        Map.entry("ibus", m -> String.valueOf(m.getI())),
+        Map.entry("id", PsseInductionMachine::getId),
+        Map.entry("imid", PsseInductionMachine::getId),
+        Map.entry("status", m -> String.valueOf(m.getStat())),
+        Map.entry("stat", m -> String.valueOf(m.getStat())),
+        Map.entry("scode", m -> String.valueOf(m.getScode())),
+        Map.entry("dcode", m -> String.valueOf(m.getDcode())),
+        Map.entry("area", m -> String.valueOf(m.getArea())),
+        Map.entry("zone", m -> String.valueOf(m.getZone())),
+        Map.entry("owner", m -> String.valueOf(m.getOwner())),
+        Map.entry("tcode", m -> String.valueOf(m.getTcode())),
+        Map.entry("bcode", m -> String.valueOf(m.getBcode())),
+        Map.entry("mbase", m -> String.valueOf(m.getMbase())),
+        Map.entry("ratekv", m -> String.valueOf(m.getRatekv())),
+        Map.entry("pcode", m -> String.valueOf(m.getPcode())),
+        Map.entry("pset", m -> String.valueOf(m.getPset())),
+        Map.entry("h", m -> String.valueOf(m.getH())),
+        Map.entry("hconst", m -> String.valueOf(m.getH())),
+        Map.entry("a", m -> String.valueOf(m.getA())),
+        Map.entry("aconst", m -> String.valueOf(m.getA())),
+        Map.entry("b", m -> String.valueOf(m.getB())),
+        Map.entry("bconst", m -> String.valueOf(m.getB())),
+        Map.entry("d", m -> String.valueOf(m.getD())),
+        Map.entry("dconst", m -> String.valueOf(m.getD())),
+        Map.entry("e", m -> String.valueOf(m.getE())),
+        Map.entry("econst", m -> String.valueOf(m.getE())),
+        Map.entry("ra", m -> String.valueOf(m.getRa())),
+        Map.entry("xa", m -> String.valueOf(m.getXa())),
+        Map.entry("xm", m -> String.valueOf(m.getXm())),
+        Map.entry("r1", m -> String.valueOf(m.getR1())),
+        Map.entry("x1", m -> String.valueOf(m.getX1())),
+        Map.entry("r2", m -> String.valueOf(m.getR2())),
+        Map.entry("x2", m -> String.valueOf(m.getX2())),
+        Map.entry("x3", m -> String.valueOf(m.getX3())),
+        Map.entry("e1", m -> String.valueOf(m.getE1())),
+        Map.entry("se1", m -> String.valueOf(m.getSe1())),
+        Map.entry("e2", m -> String.valueOf(m.getE2())),
+        Map.entry("se2", m -> String.valueOf(m.getSe2())),
+        Map.entry("ia1", m -> String.valueOf(m.getIa1())),
+        Map.entry("ia2", m -> String.valueOf(m.getIa2())),
+        Map.entry("xamult", m -> String.valueOf(m.getXamult()))
+    );
+
     // This dataBlock is valid since version 33
-
-    @Parsed(field = {"i", "ibus"})
     private int i;
-
-    @Parsed(field = {"id", "imid"}, defaultNullRead = "1")
     private String id;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int stat = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int scode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int dcode = 2;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int area = -1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int zone = -1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int owner = -1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int tcode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int bcode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double mbase = -1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double ratekv = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int pcode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Double pset;
-
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"h", "hconst"})
     private double h = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"a", "aconst"})
     private double a = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"b", "bconst"})
     private double b = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"d", "dconst"})
     private double d = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"e", "econst"})
     private double e = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double ra = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double xa = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double xm = 2.5;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double r1 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double x1 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double r2 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double x2 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double x3 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double e1 = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double se1 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double e2 = 1.2;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double se2 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double ia1 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double ia2 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double xamult = 1.0;
+
+    public static PsseInductionMachine fromRecord(CsvRecord rec, String[] headers) {
+        PsseInductionMachine psseInductionMachine = new PsseInductionMachine();
+        psseInductionMachine.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseInductionMachine.setId(parseStringFromRecord(rec, "1", headers, "id", "imid"));
+        psseInductionMachine.setStat(parseIntFromRecord(rec, 1, headers, "stat"));
+        psseInductionMachine.setScode(parseIntFromRecord(rec, 1, headers, "scode"));
+        psseInductionMachine.setDcode(parseIntFromRecord(rec, 2, headers, "dcode"));
+        psseInductionMachine.setArea(parseIntFromRecord(rec, -1, headers, "area"));
+        psseInductionMachine.setZone(parseIntFromRecord(rec, -1, headers, "zone"));
+        psseInductionMachine.setOwner(parseIntFromRecord(rec, -1, headers, "owner"));
+        psseInductionMachine.setTcode(parseIntFromRecord(rec, 1, headers, "tcode"));
+        psseInductionMachine.setBcode(parseIntFromRecord(rec, 1, headers, "bcode"));
+        psseInductionMachine.setMbase(parseDoubleFromRecord(rec, -1.0, headers, "mbase"));
+        psseInductionMachine.setRatekv(parseDoubleFromRecord(rec, 0.0, headers, "ratekv"));
+        psseInductionMachine.setPcode(parseIntFromRecord(rec, 1, headers, "pcode"));
+        psseInductionMachine.setPset(parseDoubleFromRecord(rec, null, headers, "pset"));
+        psseInductionMachine.setH(parseDoubleFromRecord(rec, 1.0, headers, "h", "hconst"));
+        psseInductionMachine.setA(parseDoubleFromRecord(rec, 1.0, headers, "a", "aconst"));
+        psseInductionMachine.setB(parseDoubleFromRecord(rec, 1.0, headers, "b", "bconst"));
+        psseInductionMachine.setD(parseDoubleFromRecord(rec, 1.0, headers, "d", "dconst"));
+        psseInductionMachine.setE(parseDoubleFromRecord(rec, 1.0, headers, "e", "econst"));
+        psseInductionMachine.setRa(parseDoubleFromRecord(rec, 0.0, headers, "ra"));
+        psseInductionMachine.setXa(parseDoubleFromRecord(rec, 0.0, headers, "xa"));
+        psseInductionMachine.setXm(parseDoubleFromRecord(rec, 2.5, headers, "xm"));
+        psseInductionMachine.setR1(parseDoubleFromRecord(rec, 999.0, headers, "r1"));
+        psseInductionMachine.setX1(parseDoubleFromRecord(rec, 999.0, headers, "x1"));
+        psseInductionMachine.setR2(parseDoubleFromRecord(rec, 999.0, headers, "r2"));
+        psseInductionMachine.setX2(parseDoubleFromRecord(rec, 999.0, headers, "x2"));
+        psseInductionMachine.setX3(parseDoubleFromRecord(rec, 0.0, headers, "x3"));
+        psseInductionMachine.setE1(parseDoubleFromRecord(rec, 1.0, headers, "e1"));
+        psseInductionMachine.setSe1(parseDoubleFromRecord(rec, 0.0, headers, "se1"));
+        psseInductionMachine.setE2(parseDoubleFromRecord(rec, 1.2, headers, "e2"));
+        psseInductionMachine.setSe2(parseDoubleFromRecord(rec, 0.0, headers, "se2"));
+        psseInductionMachine.setIa1(parseDoubleFromRecord(rec, 0.0, headers, "ia1"));
+        psseInductionMachine.setIa2(parseDoubleFromRecord(rec, 0.0, headers, "ia2"));
+        psseInductionMachine.setXamult(parseDoubleFromRecord(rec, 1.0, headers, "xamult"));
+        return psseInductionMachine;
+    }
+
+    public static String[] toRecord(PsseInductionMachine psseInductionMachine, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            Function<PsseInductionMachine, String> getter = GETTERS.get(headers[i]);
+            if (getter == null) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = getter.apply(psseInductionMachine);
+        }
+        return row;
+    }
 
     public int getI() {
         return i;
