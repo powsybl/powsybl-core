@@ -21,7 +21,7 @@ import java.util.*;
  */
 class NetworkIndex {
 
-    private final Map<String, Identifiable<?>> objectsById = new HashMap<>();
+    private final Map<String, Identifiable<?>> objectsById = new HashMap<>(140000);
     private final Map<String, String> idByAlias = new HashMap<>();
 
     private final Map<Class<? extends Identifiable>, Set<Identifiable<?>>> objectsByClass = new HashMap<>();
@@ -45,7 +45,7 @@ class NetworkIndex {
         objectsById.put(obj.getId(), obj);
         obj.getAliases().forEach(alias -> addAlias(obj, alias));
 
-        Set<Identifiable<?>> all = objectsByClass.computeIfAbsent(obj.getClass(), k -> new LinkedHashSet<>());
+        Set<Identifiable<?>> all = objectsByClass.computeIfAbsent(obj.getClass(), k -> new LinkedHashSet<>(8000));
         all.add(obj);
     }
 
