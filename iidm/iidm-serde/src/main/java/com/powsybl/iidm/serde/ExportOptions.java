@@ -30,6 +30,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         LOG_ERROR
     }
 
+    public enum BusBranchVoltageLevelIncompatibilityBehavior {
+        THROW_EXCEPTION,
+        KEEP_ORIGINAL_TOPOLOGY
+    }
+
     private boolean withBranchSV = true;
 
     private boolean indent = true;
@@ -42,9 +47,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
+    private BusBranchVoltageLevelIncompatibilityBehavior busBranchVoltageLevelIncompatibilityBehavior = BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION;
+
     private String version;
 
-    private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = THROW_EXCEPTION;
+    private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
 
     private final Map<String, String> extensionsVersions = new HashMap<>();
 
@@ -177,6 +184,16 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         Objects.requireNonNull(charset);
         this.charset = charset;
         return this;
+    }
+
+    public ExportOptions setBusBranchVoltageLevelIncompatibilityBehavior(
+            BusBranchVoltageLevelIncompatibilityBehavior busBranchVoltageLevelIncompatibilityBehavior) {
+        this.busBranchVoltageLevelIncompatibilityBehavior = busBranchVoltageLevelIncompatibilityBehavior;
+        return this;
+    }
+
+    public BusBranchVoltageLevelIncompatibilityBehavior getBusBranchVoltageLevelIncompatibilityBehavior() {
+        return busBranchVoltageLevelIncompatibilityBehavior;
     }
 
     /**

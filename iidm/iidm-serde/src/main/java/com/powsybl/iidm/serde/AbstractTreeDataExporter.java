@@ -110,6 +110,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String ONLY_MAIN_CC = "iidm.export.xml.only-main-cc";
     public static final String ANONYMISED = "iidm.export.xml.anonymised";
     public static final String IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR = "iidm.export.xml.iidm-version-incompatibility-behavior";
+    public static final String BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR = "iidm.export.xml.bus-branch.voltage-level.incompatibility-behavior";
     public static final String TOPOLOGY_LEVEL = "iidm.export.xml.topology-level";
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
     public static final String EXTENSIONS_INCLUDED_LIST = "iidm.export.xml.included.extensions";
@@ -127,6 +128,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     private static final Parameter ANONYMISED_PARAMETER = new Parameter(ANONYMISED, ParameterType.BOOLEAN, "Anonymise exported network", Boolean.FALSE);
     private static final Parameter IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER = new Parameter(IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR, ParameterType.STRING, "Behavior when there is an IIDM version incompatibility", "THROW_EXCEPTION",
             List.of("LOG_ERROR", "THROW_EXCEPTION"));
+    private static final Parameter BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR_PARAMETER = new Parameter(BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR, ParameterType.STRING, "Behavior when there is a voltage level topology incompatibility", "THROW_EXCEPTION",
+            List.of("KEEP_ORIGINAL_TOPOLOGY", "THROW_EXCEPTION"));
     private static final Parameter TOPOLOGY_LEVEL_PARAMETER = new Parameter(TOPOLOGY_LEVEL, ParameterType.STRING, "Export network in this topology level",
             TopologyLevel.NODE_BREAKER.name(),
             Arrays.stream(TopologyLevel.values()).map(Enum::name).collect(Collectors.toList()));
@@ -247,6 +250,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setSorted(Parameter.readBoolean(getFormat(), parameters, SORTED_PARAMETER, defaultValueConfig))
                 .setVersion(Parameter.readString(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig))
                 .setFormat(getTreeDataFormat())
+                .setBusBranchVoltageLevelIncompatibilityBehavior(ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.valueOf(
+                        Parameter.readString(getFormat(), parameters, BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR_PARAMETER, defaultValueConfig)))
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig));
         boolean someExtensionsShouldBeIncluded = getAndCheckExtensionsToInclude(parameters, options, getFormat(), defaultValueConfig, EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, true);
         if (someExtensionsShouldBeIncluded) {
