@@ -7,11 +7,15 @@
  */
 package com.powsybl.iidm.serde.util;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -23,7 +27,23 @@ public final class TopologyLevelUtil {
 
     public static TopologyLevel determineTopologyLevel(VoltageLevel vl, NetworkSerializerContext context) {
         TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
-        return TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
+        return shouldExportWithOriginalTopology(vl, context) ? TopologyLevel.valueOf(vl.getTopologyKind().name()) : TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
+    }
+
+    private static boolean shouldExportWithOriginalTopology(VoltageLevel vl, NetworkSerializerContext context) {
+        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
+        if (topologyLevel == TopologyLevel.BUS_BRANCH &&
+                vl.getSwitchCount() > 0 &&
+                vl.getSwitchCount() == StreamSupport
+                        .stream(vl.getSwitches().spliterator(), false)
+                        .filter(Switch::isOpen).count()) {
+            if (context.getOptions()
+                    .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
+                throw new PowsyblException("Cannot export a voltage level with all its switches open");
+            }
+            return true;
+        }
+        return false;
     }
 }
 
