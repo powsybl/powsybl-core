@@ -7,9 +7,6 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.annotations.FixedWidth;
-import com.univocity.parsers.annotations.Parsed;
-
 /**
  * <p>
  * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
@@ -32,50 +29,36 @@ public class IeeeCdfInterchangeData {
     /**
      * Area number
      */
-    @FixedWidth(from = 0, to = 2)
-    @Parsed
     private int areaNumber;
 
     /**
      * Interchange slack bus number
      */
-    @FixedWidth(from = 3, to = 7)
-    @Parsed
     private int interchangeSlackBusNumber;
 
     /**
      * Alternate swing bus name
      */
-    @FixedWidth(from = 8, to = 20)
-    @Parsed
     private String alternateSwingBusName;
 
     /**
      * Area interchange export, MW
      */
-    @FixedWidth(from = 20, to = 28)
-    @Parsed
     private double areaInterchangeExport;
 
     /**
      * Area interchange tolerance, MW
      */
-    @FixedWidth(from = 29, to = 35)
-    @Parsed
     private double areaInterchangeTolerance;
 
     /**
      * Area code (abbreviated name)
      */
-    @FixedWidth(from = 37, to = 43)
-    @Parsed
     private String areaCode;
 
     /**
      * Area name
      */
-    @FixedWidth(from = 45, to = 75)
-    @Parsed
     private String areaName;
 
     public int getAreaNumber() {

@@ -7,11 +7,6 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.annotations.Convert;
-import com.univocity.parsers.annotations.FixedWidth;
-import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.fixed.FieldAlignment;
-
 /**
  * <p>
  * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
@@ -81,157 +76,111 @@ public class IeeeCdfBranch {
     /**
      * Tap bus number (I) *
      */
-    @FixedWidth(from = 0, to = 4, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int tapBusNumber;
 
     /**
      * Z bus number (I) *
      */
-    @FixedWidth(from = 5, to = 9, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int zBusNumber;
 
     /**
      * Load flow area (I)
      */
-    @FixedWidth(from = 10, to = 12, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int area;
 
     /**
      * Loss zone (I)
      */
-    @FixedWidth(from = 13, to = 15, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int lossZone;
 
     /**
      * Circuit (I) * (Use 1 for single lines)
      */
-    @FixedWidth(from = 16, to = 17, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int circuit;
 
     /**
      * Type (I) *
      */
-    @FixedWidth(from = 18, to = 19)
-    @Parsed
-    @Convert(conversionClass = BranchTypeConversion.class)
     private Type type;
 
     /**
      * Branch resistance R, per unit (F) *
      */
-    @FixedWidth(from = 19, to = 29, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private double resistance;
 
     /**
      * Branch reactance X, per unit (F) * No zero impedance lines
      */
-    @FixedWidth(from = 29, to = 40, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private double reactance;
 
     /**
      * Line charging B, per unit (F) * (total line charging, +B)
      */
-    @FixedWidth(from = 40, to = 50, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private double chargingSusceptance;
 
     /**
      * Line MVA rating No 1 (I) Left justify!
      */
-    @FixedWidth(from = 50, to = 55, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int rating1;
 
     /**
      * Line MVA rating No 2 (I) Left justify!
      */
-    @FixedWidth(from = 56, to = 61, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int rating2;
 
     /**
      * Line MVA rating No 3 (I) Left justify!
      */
-    @FixedWidth(from = 62, to = 67, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int rating3;
 
     /**
      * Control bus number
      */
-    @FixedWidth(from = 68, to = 72, alignment = FieldAlignment.RIGHT)
-    @Parsed
     private int controlBusNumber;
 
     /**
      * Side (I)
      */
-    @FixedWidth(from = 73, to = 74, alignment = FieldAlignment.RIGHT)
-    @Parsed
-    @Convert(conversionClass = BranchSideConversion.class)
     private Side side;
 
     /**
      * Transformer final turns ratio (F)
      */
-    @FixedWidth(from = 76, to = 82)
-    @Parsed
     private double finalTurnsRatio;
 
     /**
      * Transformer (phase shifter) final angle (F)
      */
-    @FixedWidth(from = 83, to = 90)
-    @Parsed
     private double finalAngle;
 
     /**
      * Minimum tap or phase shift (F)
      */
-    @FixedWidth(from = 90, to = 97)
-    @Parsed
     private double minTapOrPhaseShift;
 
     /**
      * Maximum tap or phase shift (F)
      */
-    @FixedWidth(from = 97, to = 104)
-    @Parsed
     private double maxTapOrPhaseShift;
 
     /**
      * Step size (F)
      */
-    @FixedWidth(from = 105, to = 112)
-    @Parsed
     private double stepSize;
 
     /**
      * Minimum voltage, MVAR or MW limit (F)
      */
-    @FixedWidth(from = 112, to = 118)
-    @Parsed
     private double minVoltageActiveOrReactivePowerLimit;
 
     /**
      * Maximum voltage, MVAR or MW limit (F)
      */
-    @FixedWidth(from = 119, to = 126)
-    @Parsed
     private double maxVoltageActiveOrReactivePowerLimit;
 
     /**
      * This parameter does not exist in the specification but is present in 300 buses case.
      */
-    @FixedWidth(from = 126, to = 133)
-    @Parsed
     private int unused;
 
     public int getTapBusNumber() {

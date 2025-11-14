@@ -7,16 +7,16 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.common.processor.BeanWriterProcessor;
-import com.univocity.parsers.fixed.FixedWidthWriter;
-import com.univocity.parsers.fixed.FixedWidthWriterSettings;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.Writer;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
+
+import static com.powsybl.ieeecdf.model.writer.IeeeCdfBranchWriter.writeBranches;
+import static com.powsybl.ieeecdf.model.writer.IeeeCdfBusWriter.writeBuses;
+import static com.powsybl.ieeecdf.model.writer.IeeeCdfInterchangeDataWriter.writeInterchangeData;
+import static com.powsybl.ieeecdf.model.writer.IeeeCdfLossZoneWriter.writeLossZone;
+import static com.powsybl.ieeecdf.model.writer.IeeeCdfTieLineWriter.writeTieLines;
+import static com.powsybl.ieeecdf.model.writer.IeeeCdfTitleWriter.writeTitle;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -29,47 +29,14 @@ public class IeeeCdfWriter {
         this.model = Objects.requireNonNull(model);
     }
 
-    private static <T> void writeRecords(Writer writer, List<T> beans, Class<T> aClass) {
-        FixedWidthWriterSettings settings = new FixedWidthWriterSettings();
-        settings.setWriteLineSeparatorAfterRecord(true);
-        BeanWriterProcessor<T> processor = new BeanWriterProcessor<>(aClass);
-        settings.setRowWriterProcessor(processor);
-        new FixedWidthWriter(writer, settings).processRecords(beans);
-    }
-
     public void write(BufferedWriter writer) throws IOException {
 
-        writeRecords(writer, Collections.singletonList(model.getTitle()), IeeeCdfTitle.class);
-
-        writer.write(String.format("BUS DATA FOLLOWS                            %d ITEMS", model.getBuses().size()));
-        writer.newLine();
-        writeRecords(writer, model.getBuses(), IeeeCdfBus.class);
-        writer.write("-999");
-        writer.newLine();
-
-        writer.write(String.format("BRANCH DATA FOLLOWS                         %d ITEMS", model.getBranches().size()));
-        writer.newLine();
-        writeRecords(writer, model.getBranches(), IeeeCdfBranch.class);
-        writer.write("-999");
-        writer.newLine();
-
-        writer.write(String.format("LOSS ZONES FOLLOWS                     %d ITEMS", model.getLossZones().size()));
-        writer.newLine();
-        writeRecords(writer, model.getLossZones(), IeeeCdfLossZone.class);
-        writer.write("-99");
-        writer.newLine();
-
-        writer.write(String.format("INTERCHANGE DATA FOLLOWS                 %d ITEMS", model.getInterchangeData().size()));
-        writer.newLine();
-        writeRecords(writer, model.getInterchangeData(), IeeeCdfInterchangeData.class);
-        writer.write("-9");
-        writer.newLine();
-
-        writer.write(String.format("TIE LINES FOLLOWS                     %d ITEMS", model.getTieLines().size()));
-        writer.newLine();
-        writeRecords(writer, model.getTieLines(), IeeeCdfTieLine.class);
-        writer.write("-999");
-        writer.newLine();
+        writeTitle(writer, model.getTitle());
+        writeBuses(writer, model.getBuses());
+        writeBranches(writer, model.getBranches());
+        writeLossZone(writer, model.getLossZones());
+        writeInterchangeData(writer, model.getInterchangeData());
+        writeTieLines(writer, model.getTieLines());
 
         writer.write("END OF DATA");
         writer.newLine();
