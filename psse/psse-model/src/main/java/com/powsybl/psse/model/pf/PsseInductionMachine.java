@@ -11,6 +11,9 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
+import java.util.Map;
+import java.util.function.Function;
+
 import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
 import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
@@ -21,6 +24,51 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PsseInductionMachine {
+
+    private static final Map<String, Function<PsseInductionMachine, String>> GETTERS = Map.ofEntries(
+        Map.entry("i", m -> String.valueOf(m.getI())),
+        Map.entry("ibus", m -> String.valueOf(m.getI())),
+        Map.entry("id", PsseInductionMachine::getId),
+        Map.entry("imid", PsseInductionMachine::getId),
+        Map.entry("status", m -> String.valueOf(m.getStat())),
+        Map.entry("stat", m -> String.valueOf(m.getStat())),
+        Map.entry("scode", m -> String.valueOf(m.getScode())),
+        Map.entry("dcode", m -> String.valueOf(m.getDcode())),
+        Map.entry("area", m -> String.valueOf(m.getArea())),
+        Map.entry("zone", m -> String.valueOf(m.getZone())),
+        Map.entry("owner", m -> String.valueOf(m.getOwner())),
+        Map.entry("tcode", m -> String.valueOf(m.getTcode())),
+        Map.entry("bcode", m -> String.valueOf(m.getBcode())),
+        Map.entry("mbase", m -> String.valueOf(m.getMbase())),
+        Map.entry("ratekv", m -> String.valueOf(m.getRatekv())),
+        Map.entry("pcode", m -> String.valueOf(m.getPcode())),
+        Map.entry("pset", m -> String.valueOf(m.getPset())),
+        Map.entry("h", m -> String.valueOf(m.getH())),
+        Map.entry("hconst", m -> String.valueOf(m.getH())),
+        Map.entry("a", m -> String.valueOf(m.getA())),
+        Map.entry("aconst", m -> String.valueOf(m.getA())),
+        Map.entry("b", m -> String.valueOf(m.getB())),
+        Map.entry("bconst", m -> String.valueOf(m.getB())),
+        Map.entry("d", m -> String.valueOf(m.getD())),
+        Map.entry("dconst", m -> String.valueOf(m.getD())),
+        Map.entry("e", m -> String.valueOf(m.getE())),
+        Map.entry("econst", m -> String.valueOf(m.getE())),
+        Map.entry("ra", m -> String.valueOf(m.getRa())),
+        Map.entry("xa", m -> String.valueOf(m.getXa())),
+        Map.entry("xm", m -> String.valueOf(m.getXm())),
+        Map.entry("r1", m -> String.valueOf(m.getR1())),
+        Map.entry("x1", m -> String.valueOf(m.getX1())),
+        Map.entry("r2", m -> String.valueOf(m.getR2())),
+        Map.entry("x2", m -> String.valueOf(m.getX2())),
+        Map.entry("x3", m -> String.valueOf(m.getX3())),
+        Map.entry("e1", m -> String.valueOf(m.getE1())),
+        Map.entry("se1", m -> String.valueOf(m.getSe1())),
+        Map.entry("e2", m -> String.valueOf(m.getE2())),
+        Map.entry("se2", m -> String.valueOf(m.getSe2())),
+        Map.entry("ia1", m -> String.valueOf(m.getIa1())),
+        Map.entry("ia2", m -> String.valueOf(m.getIa2())),
+        Map.entry("xamult", m -> String.valueOf(m.getXamult()))
+    );
 
     // This dataBlock is valid since version 33
     private int i;
@@ -100,44 +148,11 @@ public class PsseInductionMachine {
     public static String[] toRecord(PsseInductionMachine psseInductionMachine, String[] headers) {
         String[] row = new String[headers.length];
         for (int i = 0; i < headers.length; i++) {
-            String h = headers[i];
-            row[i] = switch (h) {
-                case "i", "ibus" -> String.valueOf(psseInductionMachine.getI());
-                case "id", "imid" -> psseInductionMachine.getId();
-                case "status", "stat" -> String.valueOf(psseInductionMachine.getStat());
-                case "scode" -> String.valueOf(psseInductionMachine.getScode());
-                case "dcode" -> String.valueOf(psseInductionMachine.getDcode());
-                case "area" -> String.valueOf(psseInductionMachine.getArea());
-                case "zone" -> String.valueOf(psseInductionMachine.getZone());
-                case "owner" -> String.valueOf(psseInductionMachine.getOwner());
-                case "tcode" -> String.valueOf(psseInductionMachine.getTcode());
-                case "bcode" -> String.valueOf(psseInductionMachine.getBcode());
-                case "mbase" -> String.valueOf(psseInductionMachine.getMbase());
-                case "ratekv" -> String.valueOf(psseInductionMachine.getRatekv());
-                case "pcode" -> String.valueOf(psseInductionMachine.getPcode());
-                case "pset" -> String.valueOf(psseInductionMachine.getPset());
-                case "h", "hconst" -> String.valueOf(psseInductionMachine.getH());
-                case "a", "aconst" -> String.valueOf(psseInductionMachine.getA());
-                case "b", "bconst" -> String.valueOf(psseInductionMachine.getB());
-                case "d", "dconst" -> String.valueOf(psseInductionMachine.getD());
-                case "e", "econst" -> String.valueOf(psseInductionMachine.getE());
-                case "ra" -> String.valueOf(psseInductionMachine.getRa());
-                case "xa" -> String.valueOf(psseInductionMachine.getXa());
-                case "xm" -> String.valueOf(psseInductionMachine.getXm());
-                case "r1" -> String.valueOf(psseInductionMachine.getR1());
-                case "x1" -> String.valueOf(psseInductionMachine.getX1());
-                case "r2" -> String.valueOf(psseInductionMachine.getR2());
-                case "x2" -> String.valueOf(psseInductionMachine.getX2());
-                case "x3" -> String.valueOf(psseInductionMachine.getX3());
-                case "e1" -> String.valueOf(psseInductionMachine.getE1());
-                case "se1" -> String.valueOf(psseInductionMachine.getSe1());
-                case "e2" -> String.valueOf(psseInductionMachine.getE2());
-                case "se2" -> String.valueOf(psseInductionMachine.getSe2());
-                case "ia1" -> String.valueOf(psseInductionMachine.getIa1());
-                case "ia2" -> String.valueOf(psseInductionMachine.getIa2());
-                case "xamult" -> String.valueOf(psseInductionMachine.getXamult());
-                default -> throw new PsseException("Unsupported header: " + h);
-            };
+            Function<PsseInductionMachine, String> getter = GETTERS.get(headers[i]);
+            if (getter == null) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = getter.apply(psseInductionMachine);
         }
         return row;
     }

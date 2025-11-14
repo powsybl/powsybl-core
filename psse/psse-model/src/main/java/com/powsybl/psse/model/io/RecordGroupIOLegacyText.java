@@ -7,6 +7,7 @@
  */
 package com.powsybl.psse.model.io;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
 
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
                 try {
                     outputStreamWriter.write(recordGroup.buildRecord(object, headers, quotedFields, context));
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new PowsyblException("Failed to write object record", e);
                 }
             });
             outputStreamWriter.flush();

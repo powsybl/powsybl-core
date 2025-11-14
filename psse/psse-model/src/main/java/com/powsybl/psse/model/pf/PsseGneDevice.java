@@ -126,40 +126,69 @@ public class PsseGneDevice {
                 case "status", "stat" -> String.valueOf(psseGneDevice.getStatus());
                 case "owner" -> String.valueOf(psseGneDevice.getOwner());
                 case "nmet" -> String.valueOf(psseGneDevice.getNmet());
-                case "real1" -> String.valueOf(psseGneDevice.getReal1());
-                case "real2" -> String.valueOf(psseGneDevice.getReal2());
-                case "real3" -> String.valueOf(psseGneDevice.getReal3());
-                case "real4" -> String.valueOf(psseGneDevice.getReal4());
-                case "real5" -> String.valueOf(psseGneDevice.getReal5());
-                case "real6" -> String.valueOf(psseGneDevice.getReal6());
-                case "real7" -> String.valueOf(psseGneDevice.getReal7());
-                case "real8" -> String.valueOf(psseGneDevice.getReal8());
-                case "real9" -> String.valueOf(psseGneDevice.getReal9());
-                case "real10" -> String.valueOf(psseGneDevice.getReal10());
-                case "intg1" -> String.valueOf(psseGneDevice.getIntg1());
-                case "intg2" -> String.valueOf(psseGneDevice.getIntg2());
-                case "intg3" -> String.valueOf(psseGneDevice.getIntg3());
-                case "intg4" -> String.valueOf(psseGneDevice.getIntg4());
-                case "intg5" -> String.valueOf(psseGneDevice.getIntg5());
-                case "intg6" -> String.valueOf(psseGneDevice.getIntg6());
-                case "intg7" -> String.valueOf(psseGneDevice.getIntg7());
-                case "intg8" -> String.valueOf(psseGneDevice.getIntg8());
-                case "intg9" -> String.valueOf(psseGneDevice.getIntg9());
-                case "intg10" -> String.valueOf(psseGneDevice.getIntg10());
-                case "char1" -> psseGneDevice.getChar1();
-                case "char2" -> psseGneDevice.getChar2();
-                case "char3" -> psseGneDevice.getChar3();
-                case "char4" -> psseGneDevice.getChar4();
-                case "char5" -> psseGneDevice.getChar5();
-                case "char6" -> psseGneDevice.getChar6();
-                case "char7" -> psseGneDevice.getChar7();
-                case "char8" -> psseGneDevice.getChar8();
-                case "char9" -> psseGneDevice.getChar9();
-                case "char10" -> psseGneDevice.getChar10();
-                default -> throw new PsseException("Unsupported header: " + h);
+                default -> psseGneDevice.getParameterAsString(h);
             };
         }
         return row;
+    }
+
+    private String getParameterAsString(String header) {
+        if (header.startsWith("real")) {
+            return getRealValue(header);
+        } else if (header.startsWith("intg")) {
+            return getIntgValue(header);
+        } else if (header.startsWith("char")) {
+            return getCharValue(header);
+        }
+        throw new PsseException("Unsupported header: " + header);
+    }
+
+    private String getRealValue(String h) {
+        return switch (h) {
+            case "real1" -> String.valueOf(getReal1());
+            case "real2" -> String.valueOf(getReal2());
+            case "real3" -> String.valueOf(getReal3());
+            case "real4" -> String.valueOf(getReal4());
+            case "real5" -> String.valueOf(getReal5());
+            case "real6" -> String.valueOf(getReal6());
+            case "real7" -> String.valueOf(getReal7());
+            case "real8" -> String.valueOf(getReal8());
+            case "real9" -> String.valueOf(getReal9());
+            case "real10" -> String.valueOf(getReal10());
+            default -> throw new PsseException("Unsupported header: " + h);
+        };
+    }
+
+    private String getIntgValue(String h) {
+        return switch (h) {
+            case "intg1" -> String.valueOf(getIntg1());
+            case "intg2" -> String.valueOf(getIntg2());
+            case "intg3" -> String.valueOf(getIntg3());
+            case "intg4" -> String.valueOf(getIntg4());
+            case "intg5" -> String.valueOf(getIntg5());
+            case "intg6" -> String.valueOf(getIntg6());
+            case "intg7" -> String.valueOf(getIntg7());
+            case "intg8" -> String.valueOf(getIntg8());
+            case "intg9" -> String.valueOf(getIntg9());
+            case "intg10" -> String.valueOf(getIntg10());
+            default -> throw new PsseException("Unsupported header: " + h);
+        };
+    }
+
+    private String getCharValue(String h) {
+        return switch (h) {
+            case "char1" -> getChar1();
+            case "char2" -> getChar2();
+            case "char3" -> getChar3();
+            case "char4" -> getChar4();
+            case "char5" -> getChar5();
+            case "char6" -> getChar6();
+            case "char7" -> getChar7();
+            case "char8" -> getChar8();
+            case "char9" -> getChar9();
+            case "char10" -> getChar10();
+            default -> throw new PsseException("Unsupported header: " + h);
+        };
     }
 
     public String getName() {

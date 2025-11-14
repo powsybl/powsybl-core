@@ -298,12 +298,12 @@ public class PsseGenerator extends PsseVersioned {
     }
 
     public int getBaslod() {
-        checkVersion("baslod");
+        checkVersion(STRING_BASLOD);
         return baslod;
     }
 
     public void setBaslod(int baslod) {
-        checkVersion("baslod");
+        checkVersion(STRING_BASLOD);
         this.baslod = baslod;
     }
 
