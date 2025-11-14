@@ -46,7 +46,7 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
 
     GeneratorAdder setTargetV(double targetV);
 
-    GeneratorAdder setTargetV(double targetV, double localTargetV);
+    GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV);
 
     GeneratorAdder setRatedS(double ratedS);
 

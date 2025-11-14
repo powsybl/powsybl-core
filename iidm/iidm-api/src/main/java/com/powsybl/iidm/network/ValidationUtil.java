@@ -223,9 +223,9 @@ public final class ValidationUtil {
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
-    public static void checkLocalTargetV(Validable validable, double localTargetV) {
-        if (!Double.isNaN(localTargetV) && localTargetV < 0) {
-            throw createInvalidValueException(validable, localTargetV, "localTargetV", "must be positive");
+    public static void checkEquivalentLocalTargetV(Validable validable, double equivalentLocalTargetV) {
+        if (!Double.isNaN(equivalentLocalTargetV) && equivalentLocalTargetV < 0) {
+            throw createInvalidValueException(validable, equivalentLocalTargetV, "equivalentLocalTargetV", "must be positive");
         }
     }
 
