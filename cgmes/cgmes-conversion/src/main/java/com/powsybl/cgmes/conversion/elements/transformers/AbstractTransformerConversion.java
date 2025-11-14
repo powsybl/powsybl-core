@@ -462,15 +462,4 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
                 .map(Map.Entry::getKey)
                 .orElse(ptc.getLowTapPosition());
     }
-
-    static int computeClosestNeutralStep(com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger) {
-        if (tapChanger instanceof PhaseTapChanger ptc) {
-            return getClosestNeutralStep(ptc);
-        } else if (tapChanger instanceof RatioTapChanger rtc) {
-            return getClosestNeutralStep(rtc);
-        } else {
-            throw new IllegalArgumentException("Unsupported type");
-        }
-    }
-
 }
