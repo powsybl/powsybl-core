@@ -34,6 +34,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     private double switchingLoss;
     private double resistiveLoss;
 
+    private DroopCurve droopCurve;
+
     private final RegulatingPoint pccRegulatingPoint;
 
     // attributes depending on the variant
@@ -332,6 +334,21 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         });
         pccRegulatingPoint.remove();
         super.remove();
+    }
+
+    @Override
+    public DroopCurveAdderImpl newDroopCurve() {
+        return new DroopCurveAdderImpl(this);
+    }
+
+    @Override
+    public void setDroopCurve(DroopCurve droopCurve) {
+        this.droopCurve = droopCurve;
+    }
+
+    @Override
+    public DroopCurve getDroopCurve() {
+        return droopCurve;
     }
 
     protected abstract I self();
