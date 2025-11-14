@@ -10,7 +10,6 @@ package com.powsybl.commons.binary;
 import com.powsybl.commons.io.TreeDataWriter;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -51,13 +50,7 @@ public class BinWriter implements TreeDataWriter {
 
     private static void writeString(String value, DataOutputStream dataOutputStream) {
         try {
-            if (value == null) {
-                writeIndex(-1, dataOutputStream);
-            } else {
-                byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-                writeIndex(bytes.length, dataOutputStream);
-                dataOutputStream.write(bytes);
-            }
+            dataOutputStream.writeUTF(value == null ? "" : value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

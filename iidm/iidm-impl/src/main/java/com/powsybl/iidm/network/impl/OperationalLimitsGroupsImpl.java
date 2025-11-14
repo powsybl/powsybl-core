@@ -75,7 +75,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
         // Update selected group id in the groups
         operationalLimitsGroupById.values().forEach(o -> o.setSelectedGroupId(id));
 
-        OperationalLimitsGroup newDefaultLimits = id == null ? null :
+        OperationalLimitsGroup newDefaultLimits = id == null || id.isEmpty() ? null :
                 getOperationalLimitsGroup(id).orElseThrow(() -> new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be the default one"));
 
         Optional<OperationalLimitsGroup> oldDefaultLimits = getSelectedOperationalLimitsGroup();

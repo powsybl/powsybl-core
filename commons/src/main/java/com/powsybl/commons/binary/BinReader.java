@@ -12,7 +12,6 @@ import com.powsybl.commons.io.TreeDataHeader;
 import com.powsybl.commons.io.TreeDataReader;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -70,16 +69,17 @@ public class BinReader implements TreeDataReader {
 
     private String readString() {
         try {
-            int stringNbBytes = dis.readShort();
-            if (stringNbBytes == -1) {
-                return null;
-            }
-            byte[] stringBytes = dis.readNBytes(stringNbBytes);
-            if (stringBytes.length != stringNbBytes) {
-                // this may happen when the attribute wasn't written in the first place, causing string length to be an aberrant number
-                throw new PowsyblException("Cannot read the full string, bytes missing: " + (stringNbBytes - stringBytes.length));
-            }
-            return new String(stringBytes, StandardCharsets.UTF_8);
+            return dis.readUTF();
+//            int stringNbBytes = dis.readShort();
+//            if (stringNbBytes == -1) {
+//                return null;
+//            }
+//            byte[] stringBytes = dis.readNBytes(stringNbBytes);
+//            if (stringBytes.length != stringNbBytes) {
+//                // this may happen when the attribute wasn't written in the first place, causing string length to be an aberrant number
+//                throw new PowsyblException("Cannot read the full string, bytes missing: " + (stringNbBytes - stringBytes.length));
+//            }
+//            return new String(stringBytes, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
