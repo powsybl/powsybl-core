@@ -10,17 +10,30 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.FluentIterable;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.nio.Attribute;
+import org.jgrapht.nio.dot.DOTSubgraph;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Stream;
+
+import static com.powsybl.iidm.network.dot.IidmDOTUtils.exportGraph;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -146,5 +159,19 @@ abstract class AbstractTopologyModel implements TopologyModel {
 
     public abstract void exportTopology(Writer writer);
 
-    public abstract void exportTopology(Writer writer, Random random);
+    public void exportTopology(Writer writer, Random random) {
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(random);
+        Map<String, Attribute> graphAttributes = new HashMap<>();
+        exportGraph(writer, random, this::exportVertices, this::exportEdges, graphAttributes);
+    }
+
+    protected abstract void exportVertices(Map<String, Map<String, Attribute>> vertexAttributes,
+                                           Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
+                                           Random random,
+                                           Graph<String, DefaultEdge> jGraph,
+                                           Map<String, DOTSubgraph<String, DefaultEdge>> subgraphs);
+
+    protected abstract void exportEdges(Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
+                                        Graph<String, DefaultEdge> jGraph);
 }

@@ -36,8 +36,6 @@ List of third-party dependencies grouped by their license type.
         * docker-java-transport-zerodep (com.github.docker-java:docker-java-transport-zerodep:3.4.2 - https://github.com/docker-java/docker-java)
         * EJML (org.ejml:ejml-core:0.44.0 - http://ejml.org/)
         * error-prone annotations (com.google.errorprone:error_prone_annotations:2.36.0 - https://errorprone.info/error_prone_annotations)
-        * FindBugs-jsr305 (com.google.code.findbugs:jsr305:3.0.2 - http://findbugs.sourceforge.net/)
-        * graphviz-builder (org.anarres.graphviz:graphviz-builder:1.0.12 - https://github.com/shevek/graphviz4j)
         * Guava: Google Core Libraries for Java (com.google.guava:guava:33.4.8-jre - https://github.com/google/guava)
         * Guava InternalFutureFailureAccess and InternalFutures (com.google.guava:failureaccess:1.0.3 - https://github.com/google/guava/failureaccess)
         * Guava ListenableFuture only (com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava - https://github.com/google/guava/listenablefuture)
@@ -156,7 +154,6 @@ List of third-party dependencies grouped by their license type.
 
     GNU Lesser General Public License v2.1
 
-        * FindBugs-Annotations (com.google.code.findbugs:annotations:3.0.1 - http://findbugs.sourceforge.net/)
         * GNU Trove (net.sf.trove4j:trove4j:3.0.3 - http://trove4j.sf.net)
 
     Go License
