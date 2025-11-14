@@ -52,13 +52,13 @@ class TransformerUpdateTest {
         assertEquals(1, twt.getPhaseTapChanger().getLowTapPosition());
         assertEquals(3, twt.getPhaseTapChanger().getHighTapPosition());
         assertEquals(2, twt.getPhaseTapChanger().getNeutralPosition().orElseThrow());
-        assertEquals(2, twt.getPhaseTapChanger().getTapPosition()); // The EQ tap position is outside the bounds, it is set to the neutral position
+        assertEquals(2, twt.getPhaseTapChanger().getTapPosition()); // The EQ normalStep is outside the bounds, it is set to the neutralStep
 
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformerStream().findAny().orElseThrow();
         assertEquals(1, t3wt.getLeg2().getRatioTapChanger().getLowTapPosition());
         assertEquals(15, t3wt.getLeg2().getRatioTapChanger().getHighTapPosition());
-        assertTrue(t3wt.getLeg2().getRatioTapChanger().getNeutralPosition().isEmpty()); // Neutral step is invalid => empty
-        assertEquals(1, t3wt.getLeg2().getRatioTapChanger().getTapPosition()); // The EQ tap position and the neutral position are outside the bounds => set to the lowest tap position
+        assertTrue(t3wt.getLeg2().getRatioTapChanger().getNeutralPosition().isEmpty()); // The EQ neutralStep is invalid => empty
+        assertEquals(1, t3wt.getLeg2().getRatioTapChanger().getTapPosition()); // The EQ normalStep and neutralStep are outside the bounds => set to the lowStep
 
         network = readCgmesResources(DIR, "transformer_EQ_erroneous_tap.xml", "transformer_SSH_erroneous_tap.xml");
         assertEquals(1, network.getThreeWindingsTransformerStream().findAny().orElseThrow().getLeg2().getRatioTapChanger().getTapPosition());
