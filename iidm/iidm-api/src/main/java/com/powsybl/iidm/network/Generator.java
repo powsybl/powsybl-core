@@ -196,10 +196,11 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
 
     /**
      * <p>
-     *     Set the voltage target in kV AND set the local voltage target to {@link Double#NaN}
+     *     Set the voltage target in kV, for the regulated terminal which can be remote or local AND without setting
+     *     the equivalentLocalTargetV which takes the value {@link Double#NaN}
      * </p>
      * <p>
-     *     To avoid setting the local voltage target to {@link Double#NaN}, please use {@link Generator#setTargetV(double, double)}
+     *     To avoid setting the equivalentLocalTargetV to {@link Double#NaN}, please use {@link Generator#setTargetV(double, double)}
      * <p/>
      * <p>Depends on the working variant.</p>
      * @see VariantManager
@@ -208,14 +209,12 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
 
     /**
      * <p>
-     *     Get the local terminal voltage target in kV.
+     *     If set, returns a local target voltage that is expected to be consistent with the remote target voltage.
+     *     When defined, this value can be used by simulators that deactivate the remote voltage algorithms,
+     *     or by dynamic simulators that use this voltage as a starting value.
      * </p>
      * <p>
-     *     This value corresponds to the backup target voltage value to be used by the simulators should they deem
-     *     the voltage regulation at the regulating terminal invalid and want to switch back to a voltage regulation local to this Generator's Terminal.
-     * </p>
-     * <p>
-     *     To set the local voltage target use {@link Generator#setTargetV(double, double)}
+     *     To set the equivalentLocalTargetV use {@link Generator#setTargetV(double, double)}
      * </p>
      * Depends on the working variant.
      * @see VariantManager
