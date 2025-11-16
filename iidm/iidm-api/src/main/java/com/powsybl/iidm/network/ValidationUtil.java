@@ -199,13 +199,17 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, ValidationLevel validationLevel, ReportNode reportNode) {
-        return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, checkValidationActionOnError(validationLevel), reportNode);
-    }
-
-    private static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, ActionOnError actionOnError, ReportNode reportNode) {
         if (voltageRegulatorOn == null) {
             throw new ValidationException(validable, "voltage regulator status is not set");
         }
+        return checkVoltageControl(validable, voltageRegulatorOn.booleanValue(), voltageSetpoint, reactivePowerSetpoint, validationLevel, reportNode);
+    }
+
+    public static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, ValidationLevel validationLevel, ReportNode reportNode) {
+        return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, checkValidationActionOnError(validationLevel), reportNode);
+    }
+
+    private static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, ActionOnError actionOnError, ReportNode reportNode) {
         if (voltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint)) {
                 throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, VOLTAGE_REGULATOR_ON, actionOnError,
@@ -814,6 +818,7 @@ public final class ValidationUtil {
                 .filter(TapChanger::isRegulating)
                 .count();
         if (regulatingTc > 1) {
+            //TODO inconsistent with ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled (allowed in EQUIPMENT)
             throw new ValidationException(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG);
         }
         validationLevel = checkOperationalLimitsGroups(validable, twt.getLeg1().getOperationalLimitsGroups(), validationLevel, actionOnError, reportNode);
@@ -832,6 +837,7 @@ public final class ValidationUtil {
         }
         if (twt.getOptionalRatioTapChanger().map(TapChanger::isRegulating).orElse(false)
                 && twt.getOptionalPhaseTapChanger().map(TapChanger::isRegulating).orElse(false)) {
+            //TODO inconsistent with ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled (allowed in EQUIPMENT)
             throw new ValidationException(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG);
         }
         validationLevel = checkOperationalLimitsGroups(validable, twt.getOperationalLimitsGroups1(), validationLevel, actionOnError, reportNode);
@@ -869,8 +875,13 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkThreeWindingsTransformer(validable, twt, actionOnError, reportNode));
             } else if (identifiable instanceof TwoWindingsTransformer twt) {
                 validationLevel = ValidationLevel.min(validationLevel, checkTwoWindingsTransformer(validable, twt, actionOnError, reportNode));
+            } else if (identifiable instanceof VoltageSourceConverter converterStation) {
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, converterStation.isVoltageRegulatorOn(), converterStation.getVoltageSetpoint(), converterStation.getReactivePowerSetpoint(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkAcDcConverterControl(validable, converterStation.getControlMode(), converterStation.getTargetP(), converterStation.getTargetVdc(), actionOnError, reportNode));
             } else if (identifiable instanceof VscConverterStation converterStation) {
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, converterStation.isVoltageRegulatorOn(), converterStation.getVoltageSetpoint(), converterStation.getReactivePowerSetpoint(), actionOnError, reportNode));
+            } else if (identifiable instanceof LineCommutatedConverter converterStation) {
+                validationLevel = ValidationLevel.min(validationLevel, checkAcDcConverterControl(validable, converterStation.getControlMode(), converterStation.getTargetP(), converterStation.getTargetVdc(), actionOnError, reportNode));
             } else if (identifiable instanceof Branch<?> branch) {
                 validationLevel = checkOperationalLimitsGroups(validable, branch.getOperationalLimitsGroups1(), validationLevel, actionOnError, reportNode);
                 validationLevel = checkOperationalLimitsGroups(validable, branch.getOperationalLimitsGroups2(), validationLevel, actionOnError, reportNode);
