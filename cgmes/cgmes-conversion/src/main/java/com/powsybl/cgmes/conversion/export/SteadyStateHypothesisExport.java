@@ -45,6 +45,7 @@ import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -392,10 +393,8 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
-        String operatingMode = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
         String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Generator gen && gen.isCondenser());
-        String calculatedOperatingMode = obtainOperatingMode(targetP, i, calculatedKind);
-        return operatingMode != null && calculatedKind.toLowerCase().contains(operatingMode) ? operatingMode : calculatedOperatingMode;
+        return obtainOperatingMode(targetP, i, calculatedKind);
     }
 
     private static String obtainOperatingMode(double targetP, Injection<?> injection, String calculatedKind) {
@@ -431,6 +430,13 @@ public final class SteadyStateHypothesisExport {
             }
             case Battery battery -> {
                 double targetQ = battery.getTargetQ();
+                VoltageRegulation voltageRegulationExtension = battery.getExtension(VoltageRegulation.class);
+                if (voltageRegulationExtension != null && voltageRegulationExtension.isVoltageRegulatorOn()) {
+                    double targetV = voltageRegulationExtension.getTargetV();
+                    if (!Double.isNaN(targetV) && targetV != 0) {
+                        return true;
+                    }
+                }
                 return !Double.isNaN(targetQ) && targetQ != 0;
             }
             default -> throw new IllegalStateException("Unexpected value: " + injection);

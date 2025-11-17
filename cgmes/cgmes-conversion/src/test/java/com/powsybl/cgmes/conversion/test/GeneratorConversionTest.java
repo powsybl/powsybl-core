@@ -75,39 +75,35 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     @Test
     void synchronousMachineOperatingModeAndKindConversion() throws IOException {
         Network network = createNetwork();
-        Generator generator1 = network.getGenerator("GEN");
-        Generator generator2 = network.getGenerator("GEN2");
-        Generator generator3 = network.getGenerator("GEN3");
-        Battery battery = network.getBattery("BAT");
 
         String eqXml = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir, new Properties());
         String sshXml = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir, new Properties());
 
-        String generator1Eq = getElement(eqXml, "SynchronousMachine", generator1.getId());
+        String generator1Eq = getElement(eqXml, "SynchronousMachine", "GEN");
         assertNotNull(generator1Eq);
         assertTrue(generator1Eq.contains("SynchronousMachineKind.generatorOrCondenser"));
-        String generator1Ssh = getElement(sshXml, "SynchronousMachine", generator1.getId());
+        String generator1Ssh = getElement(sshXml, "SynchronousMachine", "GEN");
         assertNotNull(generator1Ssh);
         assertTrue(generator1Ssh.contains("SynchronousMachineOperatingMode.generator"));
 
-        String generator2Eq = getElement(eqXml, "SynchronousMachine", generator2.getId());
+        String generator2Eq = getElement(eqXml, "SynchronousMachine", "GEN2");
         assertNotNull(generator2Eq);
         assertTrue(generator2Eq.contains("SynchronousMachineKind.generatorOrCondenser"));
-        String generator2Ssh = getElement(sshXml, "SynchronousMachine", generator2.getId());
+        String generator2Ssh = getElement(sshXml, "SynchronousMachine", "GEN2");
         assertNotNull(generator2Ssh);
         assertTrue(generator2Ssh.contains("SynchronousMachineOperatingMode.condenser"));
 
-        String generator3Eq = getElement(eqXml, "SynchronousMachine", generator3.getId());
+        String generator3Eq = getElement(eqXml, "SynchronousMachine", "GEN3");
         assertNotNull(generator3Eq);
         assertTrue(generator3Eq.contains("SynchronousMachineKind.motor"));
-        String generator3Ssh = getElement(sshXml, "SynchronousMachine", generator3.getId());
+        String generator3Ssh = getElement(sshXml, "SynchronousMachine", "GEN3");
         assertNotNull(generator3Ssh);
         assertTrue(generator3Ssh.contains("SynchronousMachineOperatingMode.motor"));
 
-        String batteryEq = getElement(eqXml, "SynchronousMachine", battery.getId());
+        String batteryEq = getElement(eqXml, "SynchronousMachine", "BAT");
         assertNotNull(batteryEq);
-        assertTrue(batteryEq.contains("SynchronousMachineKind.generatorOrMotor"));
-        String batterySsh = getElement(sshXml, "SynchronousMachine", battery.getId());
+        assertTrue(batteryEq.contains("SynchronousMachineKind.generatorOrCondenserOrMotor"));
+        String batterySsh = getElement(sshXml, "SynchronousMachine", "BAT");
         assertNotNull(batterySsh);
         assertTrue(batterySsh.contains("SynchronousMachineOperatingMode.generator"));
     }
@@ -160,8 +156,8 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         Generator generator3 = voltageLevel1.newGenerator()
             .setId("GEN3")
             .setNode(3)
-            .setMinP(0.0)
-            .setMaxP(100.0)
+            .setMinP(-100.0)
+            .setMaxP(0.0)
             .setTargetP(-10.0)
             .setTargetQ(10.0)
             .setVoltageRegulatorOn(false)
@@ -180,7 +176,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         rcca.add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(3).add();
 
-        // Will be exported as generatorOrMotor (isCondenser is false by default on batteries) and operating as a generator
+        // Will be exported as generatorOrCondenserOrMotor (isCondenser is true by default on batteries) and operating as a generator
         Battery battery = voltageLevel1.newBattery()
             .setId("BAT")
             .setNode(4)

@@ -383,7 +383,8 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringFullModelModelingAuthoritySet,
                 ExportXmlCompare::ignoringRdfChildNodeListLength,
                 ExportXmlCompare::ignoringConformLoad,
-                ExportXmlCompare::ignoringChildLookupNull);
+                ExportXmlCompare::ignoringChildLookupNull,
+                ExportXmlCompare::ignoringSshOperatingMode);
         assertTrue(ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh));
     }
 
