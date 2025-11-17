@@ -101,6 +101,9 @@ public final class TerminalRefSerDe {
         if (identifiable == null) {
             throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
         }
+        if (side != null && number != null) {
+            throw new PowsyblException("Terminal reference specifies both terminal side and terminal number: '" + id + "'");
+        }
         if (number != null) {
             return Terminal.getTerminal(identifiable, number);
         }
