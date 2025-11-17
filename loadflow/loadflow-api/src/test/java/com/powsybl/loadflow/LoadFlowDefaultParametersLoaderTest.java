@@ -13,12 +13,15 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import static com.powsybl.loadflow.LoadFlowParameters.load;
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,7 +64,7 @@ class LoadFlowDefaultParametersLoaderTest {
         // The module is present in configuration, but no "default-parameters-loader" is set.
         // A unique loader is found: it is used.
         assertNotNull(extension);
-        assertEquals("Hello", extension.getParameterString());
+        assertEquals("no", extension.getParameterString());
     }
 
     @Test
@@ -114,7 +117,7 @@ class LoadFlowDefaultParametersLoaderTest {
         JsonLoadFlowParametersTest.DummyExtension beforePlatformConfig = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
         assertNotNull(beforePlatformConfig);
         assertEquals(5, beforePlatformConfig.getParameterDouble());
-        assertEquals("Hello", beforePlatformConfig.getParameterString());
+        assertEquals("no", beforePlatformConfig.getParameterString());
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dummy-extension");
         moduleConfig.setStringProperty("parameterString", "modified");
@@ -128,4 +131,54 @@ class LoadFlowDefaultParametersLoaderTest {
         assertEquals(5, afterPlatformConfig.getParameterDouble());
         assertEquals("modified", afterPlatformConfig.getParameterString());
     }
+
+    private boolean sameMetaData(List<Parameter> l1, List<Parameter> l2) {
+        // Everything except default value shoudl be the same
+        assertEquals(l1.size(), l2.size());
+        Iterator<Parameter> it1 = l1.iterator();
+        Iterator<Parameter> it2 = l2.iterator();
+        for (int i = 0; i < l1.size(); i++) {
+            Parameter p1 = it1.next();
+            Parameter p2 = it2.next();
+            assertEquals(p1.getName(), p2.getName());
+            assertEquals(p1.getCategoryKey(), p2.getCategoryKey());
+            assertEquals(p1.getDescription(), p2.getDescription());
+            assertEquals(p1.getPossibleValues(), p2.getPossibleValues());
+            assertEquals(p1.getType(), p2.getType());
+            assertEquals(p1.getScope(), p2.getScope());
+        }
+        return true;
+    }
+
+    @Test
+    void testSpecificParameters() {
+        LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
+        LoadFlowProvider provider = new LoadFlowProviderMock();
+        List<Parameter> parameters = provider.getSpecificParameters();
+        List<Parameter> parametersWithDefaultValue = provider.getSpecificParameters(Optional.of(loader));
+
+        assertTrue(sameMetaData(parameters, parametersWithDefaultValue));
+
+        assertEquals(parameters.get(0).getDefaultValue(), 6.4);
+        assertEquals(parametersWithDefaultValue.get(0).getDefaultValue(), 5.0);
+
+        assertEquals(parameters.get(1).getDefaultValue(), false);
+        assertEquals(parametersWithDefaultValue.get(1).getDefaultValue(), false);
+
+        assertEquals(parameters.get(2).getDefaultValue(), "yes");
+        assertEquals(parametersWithDefaultValue.get(2).getDefaultValue(), "no");
+
+        assertEquals(parameters.get(3).getDefaultValue(), null);
+        assertEquals(parametersWithDefaultValue.get(3).getDefaultValue(), List.of("a", "b"));
+
+        LoadFlowDefaultParametersLoader partialDefault = new AbstractLoadFlowDefaultParametersLoader("partial", "/LoadFlowParametersPartialUpdate.json") {
+        };
+        parametersWithDefaultValue = provider.getSpecificParameters(Optional.of(partialDefault));
+        assertEquals(parametersWithDefaultValue.get(0).getDefaultValue(), 5.0);  // overrident
+        assertEquals(parametersWithDefaultValue.get(1).getDefaultValue(), false); // default value
+        assertEquals(parametersWithDefaultValue.get(2).getDefaultValue(), "yes"); // default value
+        assertEquals(parametersWithDefaultValue.get(3).getDefaultValue(), null); // default value
+
+    }
+
 }

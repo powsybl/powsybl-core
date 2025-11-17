@@ -42,13 +42,13 @@ class LoadFlowProviderTest {
     @Test
     void testParametersExtension() throws IOException {
         LoadFlowProvider provider = new LoadFlowProviderMock();
-        assertEquals(3, provider.getSpecificParameters().size());
-        assertEquals(List.of("parameterDouble", "parameterBoolean", "parameterString"), provider.getSpecificParameters().stream().map(Parameter::getName).toList());
+        assertEquals(4, provider.getSpecificParameters().size());
+        assertEquals(List.of("parameterDouble", "parameterBoolean", "parameterString", "parameterStringList"), provider.getSpecificParameters().stream().map(Parameter::getName).toList());
         assertSame(DummyExtension.class, provider.getSpecificParametersClass().orElseThrow());
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
             DummyExtension parametersExtension = (DummyExtension) provider.loadSpecificParameters(platformConfig).orElseThrow();
-            assertEquals(0, parametersExtension.getParameterDouble());
+            assertEquals(6.4, parametersExtension.getParameterDouble());
             assertFalse(parametersExtension.isParameterBoolean());
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dummy-extension");
             moduleConfig.setStringProperty("parameterDouble", "3.14");
@@ -57,7 +57,7 @@ class LoadFlowProviderTest {
             parametersExtension = (DummyExtension) provider.loadSpecificParameters(Map.of("parameterBoolean", "true")).orElseThrow();
             assertTrue(parametersExtension.isParameterBoolean());
             parametersExtension.setParameterString("ok");
-            assertEquals(Map.of("parameterDouble", "0.0", "parameterBoolean", "true", "parameterString", "ok"), provider.createMapFromSpecificParameters(parametersExtension));
+            assertEquals(Map.of("parameterDouble", "6.4", "parameterBoolean", "true", "parameterString", "ok"), provider.createMapFromSpecificParameters(parametersExtension));
             provider.updateSpecificParameters(parametersExtension, Map.of("parameterDouble", "666"));
             assertEquals(666, parametersExtension.getParameterDouble());
         }

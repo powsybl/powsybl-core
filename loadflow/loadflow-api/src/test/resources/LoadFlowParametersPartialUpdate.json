@@ -4,10 +4,7 @@
   "useReactiveLimits" : false,
   "extensions": {
     "dummy-extension": {
-      "parameterDouble": 5,
-      "parameterBoolean" : false,
-      "parameterString" : "no",
-      "parameterStringList" :  [ "a", "b" ]
+      "parameterDouble": 5
     }
   }
 }

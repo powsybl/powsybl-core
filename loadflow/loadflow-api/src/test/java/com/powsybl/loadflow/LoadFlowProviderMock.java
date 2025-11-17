@@ -19,10 +19,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummyExtension;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummySerializer;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -35,10 +32,12 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     public static final String DOUBLE_PARAMETER_NAME = "parameterDouble";
     public static final String BOOLEAN_PARAMETER_NAME = "parameterBoolean";
     public static final String STRING_PARAMETER_NAME = "parameterString";
+    public static final String STRING_LIST_PARAMETER_NAME = "parameterStringList";
 
     public static final List<Parameter> PARAMETERS = List.of(new Parameter(DOUBLE_PARAMETER_NAME, ParameterType.DOUBLE, "a double parameter", 6.4),
                                                              new Parameter(BOOLEAN_PARAMETER_NAME, ParameterType.BOOLEAN, "a boolean parameter", false),
-                                                             new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", "yes", List.of("yes", "no")));
+                                                             new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", "yes", List.of("yes", "no")),
+                                                             new Parameter(STRING_LIST_PARAMETER_NAME, ParameterType.STRING_LIST, " a string list paramter", null));
 
     @Override
     public CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
@@ -100,11 +99,25 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
         return Optional.of(extension);
     }
 
+    private String nullableListToString(List<String> value) {
+        return value == null ? null : String.join(",", value.stream().map(Object::toString).toList());
+    }
+
     @Override
     public Map<String, String> createMapFromSpecificParameters(Extension<LoadFlowParameters> extension) {
-        return Map.of(DOUBLE_PARAMETER_NAME, Double.toString(((DummyExtension) extension).getParameterDouble()),
-                      BOOLEAN_PARAMETER_NAME, Boolean.toString(((DummyExtension) extension).isParameterBoolean()),
-                      STRING_PARAMETER_NAME, ((DummyExtension) extension).getParameterString());
+        HashMap result = new HashMap();
+        DummyExtension ext = (DummyExtension) extension;
+
+        result.put(DOUBLE_PARAMETER_NAME, Objects.toString(ext.getParameterDouble()));
+        result.put(BOOLEAN_PARAMETER_NAME, Objects.toString(ext.isParameterBoolean()));
+        if (ext.getParameterString() != null) {
+            result.put(STRING_PARAMETER_NAME, ext.getParameterString());
+        }
+        if (ext.getParameterStringList() != null) {
+            result.put(STRING_LIST_PARAMETER_NAME, String.join(",", (ext.getParameterStringList()).stream().map(Object::toString).toList()));
+        }
+
+        return result;
     }
 
     @Override
@@ -115,6 +128,8 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
                 .ifPresent(prop -> ((DummyExtension) extension).setParameterBoolean(Boolean.parseBoolean(prop)));
         Optional.ofNullable(properties.get(STRING_PARAMETER_NAME))
                 .ifPresent(prop -> ((DummyExtension) extension).setParameterString(prop));
+        Optional.ofNullable(properties.get(STRING_LIST_PARAMETER_NAME))
+                .ifPresent(prop -> ((DummyExtension) extension).setParameterStringList(Arrays.asList(prop.split("[:,]"))));
     }
 
     @Override
