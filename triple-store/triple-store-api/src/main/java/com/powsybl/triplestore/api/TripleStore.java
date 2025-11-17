@@ -166,4 +166,7 @@ public interface TripleStore {
      */
     String getImplementationName();
 
+    default void close() {
+        // Do nothing
+    }
 }

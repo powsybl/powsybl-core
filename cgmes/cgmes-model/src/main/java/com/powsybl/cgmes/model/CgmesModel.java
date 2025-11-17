@@ -252,4 +252,8 @@ public interface CgmesModel {
     default void setQueryCatalog(String s) {
         // Do nothing
     }
+
+    default void close() {
+        // Do nothing
+    }
 }
