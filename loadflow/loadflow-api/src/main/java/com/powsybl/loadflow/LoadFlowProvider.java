@@ -16,11 +16,9 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
-import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -139,54 +137,33 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig config);
 
     /**
-     * Get the parameters of the parameters extension associated with this provider.
+     * Returns the parameters of the parameters extension associated with this provider, as defined by the provider
+     * without any override.
      *
      * @return the parameters of the parameters extension associated with this provider.
      */
-    List<Parameter> getSpecificParameters();
+    List<Parameter> getRawSpecificParameters();
 
     /**
-     * Retrieves the parameters of the extension associated with this provider,
-     * incorporating any overrides from the loadFlowParamtersLoader.
+     * Returns the parameters of the parameters extension associated with this provider. If a LoadFlowDefaultParameterLoader
+     * is available, the parameters should reflect the default values.
      *
-     * @return The parameters of the associated extension with overrides applied from PlatformConfig.
+     * @return the parameters of the parameters extension associated with this provider.
      */
-    default List<Parameter> getSpecificParameters(Optional<LoadFlowDefaultParametersLoader> loadFlowDefaultParametersLoader) {
-        List<Parameter> result = getSpecificParameters();
-        if (loadFlowDefaultParametersLoader.isPresent() && !getSpecificParameters().isEmpty()) {
-            LoadFlowParameters loadFlowParameters = JsonLoadFlowParameters.read(loadFlowDefaultParametersLoader.orElseThrow().loadDefaultParametersFromFile());
-            Extension<LoadFlowParameters> ext = loadFlowParameters.getExtension(getSpecificParametersClass().orElseThrow());
-            Map<String, String> values = createMapFromSpecificParameters(ext);
-            result = result.stream()
-                    .map(p -> new Parameter(p.getName(), p.getType(), p.getDescription(),
-                            getValueFromString(p.getType(), values.get(p.getName())), p.getPossibleValues(),
-                            p.getScope(), p.getCategoryKey()))
-                    .toList();
-        }
-        return result;
-    }
-
-    private Object getValueFromString(ParameterType type, String value) {
-        if (value == null || value.isEmpty()) {
-            return type == ParameterType.STRING ? value : null;
-        }
-        return switch (type) {
-            case DOUBLE -> Double.parseDouble(value);
-            case STRING -> value;
-            case BOOLEAN -> Boolean.parseBoolean(value);
-            case INTEGER -> Integer.parseInt(value);
-            case STRING_LIST -> Arrays.asList(value.trim().split("[:,]"));
-        };
+    default List<Parameter> getSpecificParameters() {
+        return LoadFlowProviderUtil.getSpecificParameters(this,
+                LoadFlowParameters.getDefaultLoadFlowParameterLoader(PlatformConfig.defaultConfig()));
     }
 
     /**
      * Retrieves the parameters of the extension associated with this provider,
-     * incorporating any overrides from the PlatformConfig.
+     * incorporating any overrides from the PlatformConfig and from the loadFlowDetaultParameterLoader
+     * if available.
      *
      * @return The parameters of the associated extension with overrides applied from PlatformConfig.
      */
     default List<Parameter> getSpecificParameters(PlatformConfig platformConfigConfig) {
-        return ConfiguredParameter.load(getSpecificParameters(LoadFlowParameters.getDefaultLoadFlowParameterLoader(platformConfigConfig)),
+        return ConfiguredParameter.load(LoadFlowProviderUtil.getSpecificParameters(this, LoadFlowParameters.getDefaultLoadFlowParameterLoader(platformConfigConfig)),
                 getModuleConfig(platformConfigConfig).orElse(null));
     }
 

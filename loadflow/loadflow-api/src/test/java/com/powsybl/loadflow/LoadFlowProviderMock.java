@@ -159,7 +159,7 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     }
 
     @Override
-    public List<Parameter> getSpecificParameters() {
+    public List<Parameter> getRawSpecificParameters() {
         return PARAMETERS;
     }
 

@@ -155,7 +155,7 @@ class LoadFlowDefaultParametersLoaderTest {
         LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
         LoadFlowProvider provider = new LoadFlowProviderMock();
         List<Parameter> parameters = provider.getSpecificParameters();
-        List<Parameter> parametersWithDefaultValue = provider.getSpecificParameters(Optional.of(loader));
+        List<Parameter> parametersWithDefaultValue = LoadFlowProviderUtil.getSpecificParameters(provider, Optional.of(loader));
 
         assertTrue(sameMetaData(parameters, parametersWithDefaultValue));
 
@@ -174,18 +174,18 @@ class LoadFlowDefaultParametersLoaderTest {
         assertNull(parameters.get(4).getDefaultValue());
         assertEquals("Hello", parametersWithDefaultValue.get(4).getDefaultValue());
 
-        assertEquals(null, parameters.get(5).getDefaultValue());
+        assertNull(parameters.get(5).getDefaultValue());
         assertEquals(List.of("a", "b"), parametersWithDefaultValue.get(5).getDefaultValue());
 
         LoadFlowDefaultParametersLoader partialDefault = new AbstractLoadFlowDefaultParametersLoader("partial", "/LoadFlowParametersPartialUpdate.json") {
         };
-        parametersWithDefaultValue = provider.getSpecificParameters(Optional.of(partialDefault));
+        parametersWithDefaultValue = LoadFlowProviderUtil.getSpecificParameters(provider, Optional.of(partialDefault));
         assertEquals(5.0, parametersWithDefaultValue.get(0).getDefaultValue());  // overriden
         assertEquals(42, parametersWithDefaultValue.get(1).getDefaultValue()); // default value
         assertEquals(false, parametersWithDefaultValue.get(2).getDefaultValue()); // default value
         assertEquals("yes", parametersWithDefaultValue.get(3).getDefaultValue()); // default value
-        assertEquals(null, parametersWithDefaultValue.get(4).getDefaultValue()); // default value
-        assertEquals(null, parametersWithDefaultValue.get(5).getDefaultValue()); // default value
+        assertNull(parametersWithDefaultValue.get(4).getDefaultValue()); // default value
+        assertNull(parametersWithDefaultValue.get(5).getDefaultValue()); // default value
 
     }
 
