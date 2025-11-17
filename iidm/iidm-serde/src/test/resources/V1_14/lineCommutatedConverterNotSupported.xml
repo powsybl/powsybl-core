@@ -13,7 +13,7 @@
                 <iidm:property name="prop name" value="prop value"/>
                 <iidm:pccTerminal id="lccBb1ACWithoutSolvedV" number="ONE"/>
             </iidm:lineCommutatedConverter>
-            <iidm:lineCommutatedConverter id="lccBb2ACWithSolvedV" name="LCC in Bus/Breaker with two AC Terminals with solved values" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="2.0" switchingLoss="0.2" resistiveLoss="2.0E-6" controlMode="P_PCC" targetP="301.0" targetVdc="502.0" bus1="bus1" connectableBus1="bus1" bus2="bus2" connectableBus2="bus2" reactiveModel="CALCULATED_POWER_FACTOR" powerFactor="0.92" p1="-100.0" q1="-200.0" p2="-100.1" q2="-200.2" p_dc1="-100.0" i_dc1="-200.0" p_dc2="0.4" i_dc2="200.0">
+            <iidm:lineCommutatedConverter id="lccBb2ACWithSolvedV" name="LCC in Bus/Breaker with two AC Terminals with solved values" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="2.0" switchingLoss="0.2" resistiveLoss="2.0E-6" controlMode="P_PCC" targetP="301.0" targetVdc="502.0" bus1="bus1" connectableBus1="bus1" bus2="bus2" connectableBus2="bus2" reactiveModel="CALCULATED_POWER_FACTOR" powerFactor="0.92" p1="-100.0" q1="-200.0" p2="-100.1" q2="-200.2" dcP1="-100.0" dcI1="-200.0" dcP2="0.4" dcI2="200.0">
                 <iidm:pccTerminal id="lineBb" side="ONE"/>
             </iidm:lineCommutatedConverter>
         </iidm:voltageLevel>
@@ -27,7 +27,7 @@
                 <iidm:internalConnection node1="3" node2="5"/>
                 <iidm:bus v="402.0" angle="12.3" nodes="0,2,4"/>
             </iidm:nodeBreakerTopology>
-            <iidm:lineCommutatedConverter id="lccNb2ACWithPartiallySolvedV" name="LCC in Node/Breaker with two AC Terminals with some solved values missing" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="3.0" switchingLoss="0.3" resistiveLoss="3.0E-6" controlMode="P_PCC" targetP="302.0" targetVdc="503.0" node1="4" node2="5" reactiveModel="FIXED_POWER_FACTOR" powerFactor="0.94" p1="-105.0" q2="-200.8" p_dc1="-102.0" i_dc2="202.0">
+            <iidm:lineCommutatedConverter id="lccNb2ACWithPartiallySolvedV" name="LCC in Node/Breaker with two AC Terminals with some solved values missing" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="3.0" switchingLoss="0.3" resistiveLoss="3.0E-6" controlMode="P_PCC" targetP="302.0" targetVdc="503.0" node1="4" node2="5" reactiveModel="FIXED_POWER_FACTOR" powerFactor="0.94" p1="-105.0" q2="-200.8" dcP1="-102.0" dcI2="202.0">
                 <iidm:pccTerminal id="lineNb" side="TWO"/>
             </iidm:lineCommutatedConverter>
         </iidm:voltageLevel>

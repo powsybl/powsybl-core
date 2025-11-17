@@ -560,10 +560,10 @@
                 <xs:attribute name="q1" use="optional" type="xs:double"/>
                 <xs:attribute name="p2" use="optional" type="xs:double"/>
                 <xs:attribute name="q2" use="optional" type="xs:double"/>
-                <xs:attribute name="p_dc1" use="optional" type="xs:double"/>
-                <xs:attribute name="i_dc1" use="optional" type="xs:double"/>
-                <xs:attribute name="p_dc2" use="optional" type="xs:double"/>
-                <xs:attribute name="i_dc2" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP2" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI2" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

@@ -14,7 +14,7 @@
                 <iidm:pccTerminal id="vscBb1ACWithoutSolvedV" number="ONE"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:voltageSourceConverter>
-            <iidm:voltageSourceConverter id="vscBb2ACWithSolvedV" name="VSC in Bus/Breaker with two AC Terminals with solved values" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="2.0" switchingLoss="0.2" resistiveLoss="2.0E-6" controlMode="P_PCC" targetP="301.0" targetVdc="502.0" bus1="bus1" connectableBus1="bus1" bus2="bus2" connectableBus2="bus2" voltageRegulatorOn="true" voltageSetpoint="387.0" reactivePowerSetpoint="12.3" p1="-100.0" q1="-200.0" p2="-100.1" q2="-200.2" p_dc1="-100.0" i_dc1="-200.0" p_dc2="0.4" i_dc2="200.0">
+            <iidm:voltageSourceConverter id="vscBb2ACWithSolvedV" name="VSC in Bus/Breaker with two AC Terminals with solved values" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="2.0" switchingLoss="0.2" resistiveLoss="2.0E-6" controlMode="P_PCC" targetP="301.0" targetVdc="502.0" bus1="bus1" connectableBus1="bus1" bus2="bus2" connectableBus2="bus2" voltageRegulatorOn="true" voltageSetpoint="387.0" reactivePowerSetpoint="12.3" p1="-100.0" q1="-200.0" p2="-100.1" q2="-200.2" dcP1="-100.0" dcI1="-200.0" dcP2="0.4" dcI2="200.0">
                 <iidm:pccTerminal id="lineBb" side="ONE"/>
                 <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="210.0"/>
             </iidm:voltageSourceConverter>
@@ -29,7 +29,7 @@
                 <iidm:internalConnection node1="3" node2="5"/>
                 <iidm:bus v="402.0" angle="12.3" nodes="0,2,4"/>
             </iidm:nodeBreakerTopology>
-            <iidm:voltageSourceConverter id="vscNb2ACWithPartiallySolvedV" name="VSC in Node/Breaker with two AC Terminals with some solved values missing" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="3.0" switchingLoss="0.3" resistiveLoss="3.0E-6" controlMode="P_PCC" targetP="302.0" targetVdc="503.0" node1="4" node2="5" voltageRegulatorOn="true" voltageSetpoint="397.0" p1="-105.0" q2="-200.8" p_dc1="-102.0" i_dc2="202.0">
+            <iidm:voltageSourceConverter id="vscNb2ACWithPartiallySolvedV" name="VSC in Node/Breaker with two AC Terminals with some solved values missing" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="3.0" switchingLoss="0.3" resistiveLoss="3.0E-6" controlMode="P_PCC" targetP="302.0" targetVdc="503.0" node1="4" node2="5" voltageRegulatorOn="true" voltageSetpoint="397.0" p1="-105.0" q2="-200.8" dcP1="-102.0" dcI2="202.0">
                 <iidm:pccTerminal id="lineNb" side="TWO"/>
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="-200.0" minQ="-190.0" maxQ="192.0"/>

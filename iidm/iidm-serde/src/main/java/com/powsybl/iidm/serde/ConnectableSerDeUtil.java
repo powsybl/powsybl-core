@@ -209,24 +209,38 @@ public final class ConnectableSerDeUtil {
                 .ifPresent(t::setQ);
     }
 
-    private static String indexToString(DcTerminal dcTerminal) {
-        if (dcTerminal.getSide() != null) {
-            return "" + dcTerminal.getSide().getNum();
-        } else if (dcTerminal.getTerminalNumber() != null) {
-            // is an AC/DC converter DC Terminal, the "_dc" portion is to be able to distinguish AC from DC part
-            return "_dc" + dcTerminal.getTerminalNumber().getNum();
+    private static String dcTerminalPAttribute(DcTerminal t) {
+        TerminalNumber number = t.getTerminalNumber();
+        if (number != null) {
+            return "dcP" + number.getNum();
         }
-        return "";
+        TwoSides side = t.getSide();
+        if (side != null) {
+            return "p" + side.getNum();
+        }
+        return "p";
+    }
+
+    private static String dcTerminalIAttribute(DcTerminal t) {
+        TerminalNumber number = t.getTerminalNumber();
+        if (number != null) {
+            return "dcI" + number.getNum();
+        }
+        TwoSides side = t.getSide();
+        if (side != null) {
+            return "i" + side.getNum();
+        }
+        return "i";
     }
 
     public static void writePI(DcTerminal t, TreeDataWriter writer) {
-        writer.writeDoubleAttribute("p" + indexToString(t), t.getP());
-        writer.writeDoubleAttribute("i" + indexToString(t), t.getI());
+        writer.writeDoubleAttribute(dcTerminalPAttribute(t), t.getP());
+        writer.writeDoubleAttribute(dcTerminalIAttribute(t), t.getI());
     }
 
     public static void readPI(DcTerminal t, TreeDataReader reader) {
-        double p = reader.readDoubleAttribute("p" + indexToString(t));
-        double i = reader.readDoubleAttribute("i" + indexToString(t));
+        double p = reader.readDoubleAttribute(dcTerminalPAttribute(t));
+        double i = reader.readDoubleAttribute(dcTerminalIAttribute(t));
         t.setP(p).setI(i);
     }
 
