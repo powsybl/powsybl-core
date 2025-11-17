@@ -13,7 +13,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.DcSwitchAdder;
 import com.powsybl.iidm.network.DcSwitchKind;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -25,6 +24,11 @@ public class DCSwitchConversion extends AbstractDCConductingEquipmentConversion 
 
     public DCSwitchConversion(PropertyBag p, Context context) {
         super(CgmesNames.DC_SWITCH, p, context, 2);
+    }
+
+    @Override
+    public boolean valid() {
+        return super.valid() && !dcNode1.equals(dcNode2);
     }
 
     @Override
@@ -45,8 +49,8 @@ public class DCSwitchConversion extends AbstractDCConductingEquipmentConversion 
     }
 
     public static void update(DcSwitch dcSwitch, Context context) {
-        Optional<Boolean> dcTerminalConnected1 = isDcTerminalConnected(dcSwitch, TwoSides.ONE, context);
-        Optional<Boolean> dcTerminalConnected2 = isDcTerminalConnected(dcSwitch, TwoSides.TWO, context);
+        Optional<Boolean> dcTerminalConnected1 = isDcTerminalConnected(dcSwitch, 1, context);
+        Optional<Boolean> dcTerminalConnected2 = isDcTerminalConnected(dcSwitch, 2, context);
         Optional<Boolean> isOpenFromAtLeastOneTerminal = dcTerminalConnected1.flatMap(c1 -> dcTerminalConnected2.map(c2 -> !c1 || !c2))
                 .or(() -> dcTerminalConnected1.map(c1 -> !c1))
                 .or(() -> dcTerminalConnected2.map(c2 -> !c2));

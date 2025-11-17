@@ -316,9 +316,18 @@ public class Conversion {
         updateTransformers(network, updateContext);
         updateStaticVarCompensators(network, cgmes, updateContext);
         updateShuntCompensators(network, cgmes, updateContext);
-        updateHvdcLines(network, cgmes, updateContext);
-        updateDanglingLines(network, updateContext);
 
+        // Update either simplified or detailed DC model
+        if (!updateContext.config().getUseDetailedDcModel()) {
+            updateHvdcLines(network, cgmes, updateContext);
+        } else {
+            updateDcSwitches(network, updateContext);
+            updateDcGrounds(network, updateContext);
+            updateDcLines(network, updateContext);
+            updateAcDcConverters(network, cgmes, updateContext);
+        }
+
+        updateDanglingLines(network, updateContext);
         // Fix dangling lines issues
         updateContext.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
         handleDangingLineDisconnectedAtBoundary(network, updateContext);
@@ -328,11 +337,6 @@ public class Conversion {
         updateVoltageLevels(network, updateContext);
         updateGrounds(network, updateContext);
         updateAreas(network, cgmes, updateContext);
-
-        updateDcSwitches(network, updateContext);
-        updateDcGrounds(network, updateContext);
-        updateDcLines(network, updateContext);
-        updateAcDcConverters(network, cgmes, updateContext);
 
         // Set voltages and angles, then complete
         updateAndCompleteVoltageAndAngles(network, updateContext);

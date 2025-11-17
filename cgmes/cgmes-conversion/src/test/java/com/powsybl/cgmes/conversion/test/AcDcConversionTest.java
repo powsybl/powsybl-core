@@ -51,7 +51,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         //   - DCBreakers can short-circuit the converters if they are closed (in case of a converter outage).
         // IIDM network:
         //   - All objects (nodes, switches, grounds, lines, converters) have been imported in their dedicated class.
-        //   - Without SSH input, all switches are closed, all converters target power are 0, lcc power factor is calculated with Q = 0,5P.
+        //   - Without SSH input, all switches are closed, all converters target power are 0, lcc power factor is calculated with Q = 0.5P.
         Network network = readCgmesResources(IMPORT_PARAMS, DIR, "mixed_bipole_EQ.xml");
 
         // Verify all objects have been imported.

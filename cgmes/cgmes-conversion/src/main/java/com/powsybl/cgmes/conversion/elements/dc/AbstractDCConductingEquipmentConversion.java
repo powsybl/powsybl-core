@@ -13,7 +13,6 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -53,8 +52,8 @@ public abstract class AbstractDCConductingEquipmentConversion extends AbstractId
         }
     }
 
-    protected static Optional<Boolean> isDcTerminalConnected(Identifiable<?> identifiable, TwoSides side, Context context) {
-        return identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + side.getNum())
+    protected static Optional<Boolean> isDcTerminalConnected(Identifiable<?> identifiable, int side, Context context) {
+        return identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + side)
                 .map(context::cgmesDcTerminal)
                 .flatMap(dcTerminalBag -> dcTerminalBag.asBoolean(CgmesNames.CONNECTED));
     }

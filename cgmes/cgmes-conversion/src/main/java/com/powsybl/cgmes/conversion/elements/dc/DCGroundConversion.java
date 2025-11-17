@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.DcGround;
 import com.powsybl.iidm.network.DcGroundAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -43,7 +42,7 @@ public class DCGroundConversion extends AbstractDCConductingEquipmentConversion 
     }
 
     public static void update(DcGround dcGround, Context context) {
-        Optional<Boolean> dcTerminalConnected = isDcTerminalConnected(dcGround, TwoSides.ONE, context);
+        Optional<Boolean> dcTerminalConnected = isDcTerminalConnected(dcGround, 1, context);
         boolean defaultConnected = getDefaultValue(null, dcGround.getDcTerminal().isConnected(), true, true, context);
         boolean connected = dcTerminalConnected.orElse(defaultConnected);
 

@@ -461,7 +461,7 @@ In the above point-to-point configurations, each `DCConverterUnit` can contain
 1 CGMES `ACDCConverter` (1* 12-pulse bridge) or 2 CGMES `ACDCConverter` (2* 6-pulses bridges).
 
 Other configurations such as back-to-back, multi-terminal or hybrid aren't supported with the reduced DC model.
-In one of these complex DC configurations is to be imported, it is required to set the optional parameter 
+If one of these complex DC configurations is to be imported, it is required to set the optional parameter 
 `iidm.import.cgmes.use-detailed-dc-model` to `true`.
 
 Each valid DC configuration is mapped to PowSyBl as follows:
@@ -580,7 +580,7 @@ CGMES `CsConverter` are imported into PowSyBl [`Line Commutated Converter`](../.
 and `VsConverter` into [`Voltage Source Converter`](../../grid_model/network_subnetwork.md#voltage-source-converter).
 Common [`AC/DC Converter`](../../grid_model/network_subnetwork.md#acdc-converter) attributes are mapped as follows:
 - `IdleLoss` is copied from EQ `idleLoss`.
-- `SwitchingLiss` is copied from EQ `switchingLoss`.
+- `SwitchingLoss` is copied from EQ `switchingLoss`.
 - `ResistiveLoss` is copied from EQ `resistiveLoss`.
 - `PccTerminal` is copied from EQ `PccTerminal`.
 - `ControlMode` is `P_PCC` if SSH `pPccControl` is `activePower` (CSC) or `pPcc` (VSC), else it is `V_DC` if `pPccControl` is `dcVoltage` (CSC) or `udc` (VSC).
@@ -589,7 +589,7 @@ Common [`AC/DC Converter`](../../grid_model/network_subnetwork.md#acdc-converter
 
 Specific `CsConverter` attributes are mapped as follows:
 - `ReactiveModel` is always set to `FIXED_POWER_FACTOR`.
-- `PowerFactor` is calculated from SSH `p` and `q` as $\arctan({\frac{p}{\sqrt{p^2 + q^2}}})$. 
+- `PowerFactor` is calculated from SSH `p` and `q` as $\|{\frac{p}{\sqrt{p^2 + q^2}}}\|$. 
 If p and q are equal to 0, the power factor is calculated with $Q = 0.5P$, which gives the value 0.89443.
 
 Specific `VsConverter` attributes are mapped as follows:

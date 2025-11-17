@@ -82,7 +82,9 @@ public class DCConversion {
         String eqType = ACDC_CONVERTER.equals(type) ? propertyBag.getLocal("type") : type;
         String node1 = context.dcMapping().getDcNode(propertyBag.getId(DC_TERMINAL1));
         String node2 = DC_GROUND.equals(type) ? null : context.dcMapping().getDcNode(propertyBag.getId(DC_TERMINAL2));
-        if (node1 != null && (node2 != null || DC_GROUND.equals(type))) {
+        if (node1 != null
+                && (node2 != null || DC_GROUND.equals(type))
+                && !(node1.equals(node2) && DC_SWITCH.equals(type))) {
             dcEquipments.add(new DCEquipment(eqId, eqType, node1, node2));
         }
     }

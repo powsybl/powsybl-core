@@ -257,7 +257,7 @@ PowSyBl [`Line Commutated Converter`](../../grid_model/network_subnetwork.md#lin
 and PowSyBl [`Voltage Source Converter`](../../grid_model/network_subnetwork.md#voltage-source-converter) as CGMES `VsConverter`.
 They share the following attributes:
 - EQ `idleLoss` is copied from `IdleLoss`.
-- EQ `switchingLiss` is copied from `SwitchingLoss`.
+- EQ `switchingLoss` is copied from `SwitchingLoss`.
 - EQ `resistiveLoss` is copied from `ResistiveLoss`.
 - EQ `ratedUdc` is copied from the `NominalV` of the associated `DC Node`.
 - EQ `PccTerminal` is copied from `PccTerminal`.

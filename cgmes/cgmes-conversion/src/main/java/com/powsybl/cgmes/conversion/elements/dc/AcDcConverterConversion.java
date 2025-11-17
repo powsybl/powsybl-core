@@ -35,9 +35,9 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         numberOfAcTerminals = 1;
     }
 
-    public AcDcConverterConversion(PropertyBag p, Context context, int numberOfTerminals) {
-        super(CgmesNames.ACDC_CONVERTER, p, context, numberOfTerminals);
-        this.numberOfAcTerminals = numberOfTerminals;
+    public AcDcConverterConversion(PropertyBag p, Context context, int numberOfAcTerminals) {
+        super(CgmesNames.ACDC_CONVERTER, p, context, numberOfAcTerminals);
+        this.numberOfAcTerminals = numberOfAcTerminals;
     }
 
     @Override
@@ -54,36 +54,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             return false;
         }
 
-        // Check PCC terminal.
-        if (!validPccTerminal()) {
-            CgmesReports.invalidPccTerminalReport(context.getReportNode(), id);
-        }
-
         return true;
-    }
-
-    private boolean validPccTerminal() {
-        String pccTerminalId = p.getId("PccTerminal");
-        if (pccTerminalId == null || pccTerminalId.equals(p.getId(CgmesNames.TERMINAL))) {
-            // PCC terminal is the local terminal.
-            return true;
-        }
-
-        Terminal mappedPccTerminal = context.terminalMapping().get(pccTerminalId);
-        if (mappedPccTerminal == null) {
-            // The CGMES PCC terminal doesn't have an IIDM equivalent.
-            // That happens for instance when it is the terminal of a Switch.
-            // In that case, make the PCC terminal the local terminal.
-            return false;
-        }
-
-        Connectable<?> pccEquipment = mappedPccTerminal.getConnectable();
-        if (pccEquipment instanceof Branch<?> || pccEquipment instanceof ThreeWindingsTransformer) {
-            pccTerminal = mappedPccTerminal;
-            return true;
-        }
-
-        return false;
     }
 
     @Override
@@ -135,9 +106,34 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         adder.setControlMode(AcDcConverter.ControlMode.P_PCC);
         adder.setTargetP(0.0);
 
-        if (pccTerminal != null) {
-            adder.setPccTerminal(pccTerminal);
+        // If invalid, don't set the pcc terminal: IIDM will consider the default one (AcDcConverter first AC terminal).
+        getValidPccTerminal().ifPresent(adder::setPccTerminal);
+    }
+
+    private Optional<Terminal> getValidPccTerminal() {
+        String pccTerminalId = p.getId("PccTerminal");
+        if (pccTerminalId == null || pccTerminalId.equals(p.getId(CgmesNames.TERMINAL))) {
+            // PCC terminal is the local terminal.
+            return Optional.empty();
         }
+
+        Terminal mappedPccTerminal = context.terminalMapping().get(pccTerminalId);
+        if (mappedPccTerminal == null) {
+            // The CGMES PCC terminal doesn't have an IIDM equivalent.
+            // That happens for instance when it is the terminal of a Switch.
+            // In that case, make the PCC terminal the local terminal.
+            CgmesReports.invalidPccTerminalReport(context.getReportNode(), id);
+            return Optional.empty();
+        }
+
+        Connectable<?> pccEquipment = mappedPccTerminal.getConnectable();
+        if (!(pccEquipment instanceof Branch<?> || pccEquipment instanceof ThreeWindingsTransformer)) {
+            // The CGMES PCC terminal has an equivalent that is not allowed by the IIDM AcDcConverter.
+            CgmesReports.invalidPccTerminalReport(context.getReportNode(), id);
+            return Optional.empty();
+        }
+
+        return Optional.of(mappedPccTerminal);
     }
 
     private void setReactivePowerControl(VoltageSourceConverterAdder adder) {
@@ -186,11 +182,11 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private static void updateDcConnect(AcDcConverter<?> converter, Context context) {
-        Optional<Boolean> dcTerminalConnected1 = isDcTerminalConnected(converter, TwoSides.ONE, context);
+        Optional<Boolean> dcTerminalConnected1 = isDcTerminalConnected(converter, 1, context);
         boolean defaultConnected1 = getDefaultValue(null, converter.getDcTerminal1().isConnected(), true, true, context);
         boolean connected1 = dcTerminalConnected1.orElse(defaultConnected1);
 
-        Optional<Boolean> dcTerminalConnected2 = isDcTerminalConnected(converter, TwoSides.TWO, context);
+        Optional<Boolean> dcTerminalConnected2 = isDcTerminalConnected(converter, 2, context);
         boolean defaultConnected2 = getDefaultValue(null, converter.getDcTerminal2().isConnected(), true, true, context);
         boolean connected2 = dcTerminalConnected2.orElse(defaultConnected2);
 
@@ -235,7 +231,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     private static void updateReactivePowerControl(VoltageSourceConverter vsc, PropertyBag cgmesData, Context context) {
         String qPccControl = cgmesData.getLocal("qPccControl");
         if (qPccControl != null && qPccControl.endsWith("voltagePcc")) {
-            double defaultVoltageSetpoint = getDefaultValue(null, vsc.getVoltageSetpoint(), vsc.getTerminal1().getVoltageLevel().getNominalV(), Double.NaN, context);
+            double defaultVoltageSetpoint = getDefaultValue(null, vsc.getVoltageSetpoint(), vsc.getPccTerminal().getVoltageLevel().getNominalV(), Double.NaN, context);
             double voltageSetpoint = cgmesData.asDouble("targetUpcc");
             double validVoltageSetpoint = isValidTargetV(voltageSetpoint) ? voltageSetpoint : defaultVoltageSetpoint;
 

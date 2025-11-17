@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.DcLine;
 import com.powsybl.iidm.network.DcLineAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -45,11 +44,11 @@ public class DCLineSegmentConversion extends AbstractDCConductingEquipmentConver
     }
 
     public static void update(DcLine dcLine, Context context) {
-        Optional<Boolean> dcTerminalConnected1 = isDcTerminalConnected(dcLine, TwoSides.ONE, context);
+        Optional<Boolean> dcTerminalConnected1 = isDcTerminalConnected(dcLine, 1, context);
         boolean defaultConnected1 = getDefaultValue(null, dcLine.getDcTerminal1().isConnected(), true, true, context);
         boolean connected1 = dcTerminalConnected1.orElse(defaultConnected1);
 
-        Optional<Boolean> dcTerminalConnected2 = isDcTerminalConnected(dcLine, TwoSides.TWO, context);
+        Optional<Boolean> dcTerminalConnected2 = isDcTerminalConnected(dcLine, 2, context);
         boolean defaultConnected2 = getDefaultValue(null, dcLine.getDcTerminal2().isConnected(), true, true, context);
         boolean connected2 = dcTerminalConnected2.orElse(defaultConnected2);
 

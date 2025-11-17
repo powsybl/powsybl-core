@@ -104,13 +104,14 @@ public final class EquipmentExport {
             writeDanglingLines(network, mapTerminal2Id, cimNamespace, euNamespace, exportedLimitTypes, writer, context, exportedBaseVoltagesByNominalV);
             writeHvdcLines(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
 
-            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = getDcNodesConverterUnit(network, context);
+            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = getAcDcConvertersUnit(network, context);
+            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = getDcNodesConverterUnit(network, acDcConvertersUnit);
             writeDcConverterUnits(network, dcNodesConverterUnit, cimNamespace, writer, context);
             writeDcNodes(network, dcNodesConverterUnit, cimNamespace, writer, context);
             writeDcSwitches(network, cimNamespace, writer, context);
             writeDcGrounds(network, cimNamespace, writer, context);
             writeDcLineSegments(network, cimNamespace, writer, context);
-            writeAcDcConverters(network, dcNodesConverterUnit, mapTerminal2Id, cimNamespace, writer, context);
+            writeAcDcConverters(network, acDcConvertersUnit, mapTerminal2Id, cimNamespace, writer, context);
 
             writeControlAreas(loadAreaId, network, cimNamespace, euNamespace, writer, context);
 
@@ -1412,11 +1413,8 @@ public final class EquipmentExport {
 
     private static void writeDcConverterUnits(Network network, Map<DcNode, DCConverterUnit> dcNodesConverterUnit, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Build DCConverterUnit adjacency.
-        // Unless specified by a property, each ACDCConverter is contained in its own DCConverterUnit.
-        // That means the DCConverterUnit only has knowledge of one DCPole extremity,
-        // and not about a potential secondary DCPole in case of a bipolar dc link.
-        // The presence of another adjacent DCPole is however needed to populate the operatingMode attribute
-        // of the DCConverterUnit, hence then need to retrieve the adjacent unit if any.
+        // In order to properly populate the DCConverterUnit.operationMode attribute, DCConverterUnit shall not be
+        // considered separately but with the possible presence of an adjacent one.
         Map<DCConverterUnit, List<DcNode>> dcNodesByConverterUnit = dcNodesConverterUnit.entrySet().stream()
                 .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
         Map<DCConverterUnit, List<DCConverterUnit>> dcConverterUnitAdjacency = new HashMap<>();
@@ -1494,9 +1492,9 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeAcDcConverters(Network network, Map<DcNode, DCConverterUnit> dcNodesConverterUnit, Map<Terminal, String> mapTerminal2Id, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeAcDcConverters(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit, Map<Terminal, String> mapTerminal2Id, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (AcDcConverter<?> converter : Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream()).toList()) {
-            String dcConverterUnitId = dcNodesConverterUnit.get(converter.getDcTerminal1().getDcNode()).id();
+            String dcConverterUnitId = acDcConvertersUnit.get(converter).id();
             String converterId = context.getNamingStrategy().getCgmesId(converter);
             String className = converterClassName(converter);
             String pccTerminalId = exportedTerminalId(mapTerminal2Id, converter.getPccTerminal());
@@ -1662,64 +1660,34 @@ public final class EquipmentExport {
 
     private record DCConverterUnit(String id, String name, String substation) { }
 
-    private static Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Network network, CgmesExportContext context) {
-        // Get the list of converters and their associated dc nodes.
-        Map<String, String> dcNodesConverter = getDcNodesConverter(network);
-        Map<String, List<String>> dcNodesByConverter = dcNodesConverter.entrySet().stream()
-                .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+    private static Map<AcDcConverter<?>, DCConverterUnit> getAcDcConvertersUnit(Network network, CgmesExportContext context) {
+        Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = new HashMap<>();
 
-        Map<DcNode, DCConverterUnit> dcNodesConverterUnit = new HashMap<>();
-        dcNodesByConverter.forEach((converterId, dcNodes) -> {
-            // Retrieve the AcDcConverter.
-            LineCommutatedConverter lcc = network.getLineCommutatedConverter(converterId);
-            VoltageSourceConverter vsc = network.getVoltageSourceConverter(converterId);
-            AcDcConverter<?> converter = lcc != null ? lcc : vsc;
+        Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
+                .forEach(converter -> {
+                    // Multiple ACDCConverter can be contained in the same DCConverterUnit if this property value is common.
+                    String unitId = converter.getProperty(Conversion.PROPERTY_CGMES_DC_CONVERTER_UNIT,
+                            context.getNamingStrategy().getCgmesId(refTyped(converter), DC_CONVERTER_UNIT));
 
-            // Get or create the DCConverterUnit for that ACDCConverter.
-            String unitId = converter.getProperty(Conversion.PROPERTY_CGMES_DC_CONVERTER_UNIT,
-                    context.getNamingStrategy().getCgmesId(refTyped(converter), DC_CONVERTER_UNIT));
-            DCConverterUnit dcConverterUnit = dcNodesConverterUnit.values().stream()
-                    .filter(u -> u.id().equals(unitId))
-                    .findFirst()
-                    .orElseGet(() -> new DCConverterUnit(
-                            unitId,
-                            converter.getNameOrId() + " Unit",
-                            context.getNamingStrategy().getCgmesId(converter.getTerminal1().getVoltageLevel().getNullableSubstation())
-                    ));
+                    // Only create a new DCConverterUnit if it hasn't been created already for another AcDcConverter.
+                    DCConverterUnit dcConverterUnit = acDcConvertersUnit.values().stream()
+                            .filter(u -> u.id().equals(unitId))
+                            .findFirst()
+                            .orElseGet(() -> new DCConverterUnit(
+                                    unitId,
+                                    converter.getNameOrId() + " Unit",
+                                    context.getNamingStrategy().getCgmesId(converter.getTerminal1().getVoltageLevel().getNullableSubstation())
+                            ));
 
-            // Record each DcNode to DCConverterUnit association.
-            dcNodes.stream()
-                    .map(network::getDcNode)
-                    .forEach(n -> dcNodesConverterUnit.put(n, dcConverterUnit));
-        });
+                    acDcConvertersUnit.put(converter, dcConverterUnit);
+                });
 
-        return dcNodesConverterUnit;
+        return acDcConvertersUnit;
     }
 
-    private static List<DCEquipment> getDCEquipmentConverters(Network network) {
-        return Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
-                .sorted(Comparator.comparing(AcDcConverter::getId))
-                .map(c -> new DCEquipment(
-                        c.getId(),
-                        CgmesNames.ACDC_CONVERTER,
-                        c.getDcTerminal1().getDcNode().getId(),
-                        c.getDcTerminal2().getDcNode().getId()))
-                .toList();
-    }
-
-    private static List<DCEquipment> getDCEquipmentSwitches(Network network) {
-        return network.getDcSwitchStream()
-                .sorted(Comparator.comparing(DcSwitch::getId))
-                .map(s -> new DCEquipment(
-                        s.getId(),
-                        CgmesNames.DC_SWITCH,
-                        s.getDcNode1().getId(),
-                        s.getDcNode2().getId()))
-                .toList();
-    }
-
-    private static Map<String, String> getDcNodesConverter(Network network) {
-        // Traverse the dc network using breadth first search starting from ACDCConverter DCNodes.
+    private static Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
+        // Build the DcNode to AcDcConverter associations by traversing the dc network
+        // using breadth first search starting from ACDCConverter DCNodes.
         List<DCEquipment> converters = getDCEquipmentConverters(network);
         List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
         Map<String, String> dcNodesConverter = new HashMap<>();
@@ -1748,7 +1716,40 @@ public final class EquipmentExport {
             }
         }
 
-        return dcNodesConverter;
+        // Build the DcNode to DCConverterUnit associations.
+        return dcNodesConverter.entrySet().stream()
+                .collect(Collectors.toMap(e -> network.getDcNode(e.getKey()),
+                        e -> acDcConvertersUnit.get(getAcDcConverter(network, e.getValue()))));
+    }
+
+    private static AcDcConverter<?> getAcDcConverter(Network network, String converterId) {
+        LineCommutatedConverter lcc = network.getLineCommutatedConverter(converterId);
+        if (lcc != null) {
+            return lcc;
+        }
+        return network.getVoltageSourceConverter(converterId);
+    }
+
+    private static List<DCEquipment> getDCEquipmentConverters(Network network) {
+        return Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
+                .sorted(Comparator.comparing(AcDcConverter::getId))
+                .map(c -> new DCEquipment(
+                        c.getId(),
+                        CgmesNames.ACDC_CONVERTER,
+                        c.getDcTerminal1().getDcNode().getId(),
+                        c.getDcTerminal2().getDcNode().getId()))
+                .toList();
+    }
+
+    private static List<DCEquipment> getDCEquipmentSwitches(Network network) {
+        return network.getDcSwitchStream()
+                .sorted(Comparator.comparing(DcSwitch::getId))
+                .map(s -> new DCEquipment(
+                        s.getId(),
+                        CgmesNames.DC_SWITCH,
+                        s.getDcNode1().getId(),
+                        s.getDcNode2().getId()))
+                .toList();
     }
 
     private static List<String> getAdjacentNodes(List<DCEquipment> dcEquipments, String node) {
