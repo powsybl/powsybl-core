@@ -56,10 +56,19 @@ class ItoolsPackagerMojoTest {
         String target = project.getBuild().getDirectory();
         assertTrue(new File(target, DEFAULT_PACKAGE_NAME + ".zip").exists());
         assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/bin/itools").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/bin/itools.bat").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/bin/powsyblsh").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/etc/itools.conf").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/etc/logback-itools.xml").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/etc/logback-powsyblsh.xml").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/lib").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/lib").isDirectory());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/share/java").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/share/java").isDirectory());
         assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
         assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/file.txt").exists());
         assertFalse(new File(target, DEFAULT_PACKAGE_NAME + "/not_exists.txt").exists());
-
     }
 
     @Test
@@ -70,6 +79,15 @@ class ItoolsPackagerMojoTest {
         mojo.execute();
         String target = project.getBuild().getDirectory();
         assertTrue(new File(target, DEFAULT_PACKAGE_NAME + ".tgz").exists());
+    }
+
+    @Test
+    @Basedir("src/test/resources/test-maven-project/")
+    @InjectMojo(goal = "package-zip")
+    @MojoParameter(name = "packageType", value = "someUnsupportedValue")
+    void testUnknownPackageType(ItoolsPackagerMojo mojo) {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, mojo::execute);
+        assertEquals("Unknown filetype 'someUnsupportedValue': should be either zip or tgz", e.getMessage());
     }
 
     @Test
