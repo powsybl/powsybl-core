@@ -170,13 +170,17 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     public static class DummyExtension extends AbstractExtension<LoadFlowParameters> {
 
         public static final double PARAMETER_DOUBLE_DEFAULT_VALUE = 6.4;
+        public static final int PARAMETER_INTEGER_DEFAULT_VALUE = 42;
         public static final boolean PARAMETER_BOOLEAN_DEFAULT_VALUE = false;
         public static final String PARAMETER_STRING_DEFAULT_VALUE = "yes";
+        public static final String PARAMETER_NULLABLE_STRING_DEFAULT_VALUE = null;
         public static final List<String> PARAMETER_STRING_LIST_DEFAULT_VALUE = null;
 
         private double parameterDouble = PARAMETER_DOUBLE_DEFAULT_VALUE;
+        private int parameterInteger = PARAMETER_INTEGER_DEFAULT_VALUE;
         private boolean parameterBoolean = PARAMETER_BOOLEAN_DEFAULT_VALUE;
         private String parameterString = PARAMETER_STRING_DEFAULT_VALUE;
+        private String parameterNullableString = PARAMETER_NULLABLE_STRING_DEFAULT_VALUE;
         private List<String> parameterStringList = PARAMETER_STRING_LIST_DEFAULT_VALUE;
 
         public DummyExtension() {
@@ -228,6 +232,22 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
 
         public void setParameterStringList(List<String> parameterStringList) {
             this.parameterStringList = parameterStringList;
+        }
+
+        public String getParameterNullableString() {
+            return parameterNullableString;
+        }
+
+        public void setParameterNullableString(String parameterNullableString) {
+            this.parameterNullableString = parameterNullableString;
+        }
+
+        public int getParameterInteger() {
+            return parameterInteger;
+        }
+
+        public void setParameterInteger(int parameterInteger) {
+            this.parameterInteger = parameterInteger;
         }
     }
 

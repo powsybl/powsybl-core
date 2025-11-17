@@ -162,22 +162,30 @@ class LoadFlowDefaultParametersLoaderTest {
         assertEquals(6.4, parameters.get(0).getDefaultValue());
         assertEquals(5.0, parametersWithDefaultValue.get(0).getDefaultValue());
 
-        assertEquals(false, parameters.get(1).getDefaultValue());
-        assertEquals(false, parametersWithDefaultValue.get(1).getDefaultValue());
+        assertEquals(42, parameters.get(1).getDefaultValue());
+        assertEquals(7, parametersWithDefaultValue.get(1).getDefaultValue());
 
-        assertEquals("yes", parameters.get(2).getDefaultValue());
-        assertEquals("no", parametersWithDefaultValue.get(2).getDefaultValue());
+        assertEquals(false, parameters.get(2).getDefaultValue());
+        assertEquals(false, parametersWithDefaultValue.get(2).getDefaultValue());
 
-        assertEquals(null, parameters.get(3).getDefaultValue());
-        assertEquals(List.of("a", "b"), parametersWithDefaultValue.get(3).getDefaultValue());
+        assertEquals("yes", parameters.get(3).getDefaultValue());
+        assertEquals("no", parametersWithDefaultValue.get(3).getDefaultValue());
+
+        assertNull(parameters.get(4).getDefaultValue());
+        assertEquals("Hello", parametersWithDefaultValue.get(4).getDefaultValue());
+
+        assertEquals(null, parameters.get(5).getDefaultValue());
+        assertEquals(List.of("a", "b"), parametersWithDefaultValue.get(5).getDefaultValue());
 
         LoadFlowDefaultParametersLoader partialDefault = new AbstractLoadFlowDefaultParametersLoader("partial", "/LoadFlowParametersPartialUpdate.json") {
         };
         parametersWithDefaultValue = provider.getSpecificParameters(Optional.of(partialDefault));
-        assertEquals(5.0, parametersWithDefaultValue.get(0).getDefaultValue());  // overrident
-        assertEquals(false, parametersWithDefaultValue.get(1).getDefaultValue()); // default value
-        assertEquals("yes", parametersWithDefaultValue.get(2).getDefaultValue()); // default value
-        assertEquals(null, parametersWithDefaultValue.get(3).getDefaultValue()); // default value
+        assertEquals(5.0, parametersWithDefaultValue.get(0).getDefaultValue());  // overriden
+        assertEquals(42, parametersWithDefaultValue.get(1).getDefaultValue()); // default value
+        assertEquals(false, parametersWithDefaultValue.get(2).getDefaultValue()); // default value
+        assertEquals("yes", parametersWithDefaultValue.get(3).getDefaultValue()); // default value
+        assertEquals(null, parametersWithDefaultValue.get(4).getDefaultValue()); // default value
+        assertEquals(null, parametersWithDefaultValue.get(5).getDefaultValue()); // default value
 
     }
 
