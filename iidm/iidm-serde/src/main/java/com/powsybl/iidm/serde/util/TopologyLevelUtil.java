@@ -39,7 +39,7 @@ public final class TopologyLevelUtil {
                         .filter(Switch::isOpen).count()) {
             if (context.getOptions()
                     .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
-                throw new PowsyblException("Cannot export a voltage level with all its switches open");
+                throw new PowsyblException("Cannot export a voltage level with all its switches open in BUS_BRANCH topology");
             }
             return true;
         }
