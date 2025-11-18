@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
 import java.util.Set;
@@ -92,9 +91,7 @@ public interface DcTerminal {
      */
     DcTerminal setI(double i);
 
-    void traverse(DcTerminal.TopologyTraverser traverser);
-
-    void traverse(DcTerminal.TopologyTraverser traverser, TraversalType traversalType);
+    void traverse(TopologyTraverser traverser);
 
     interface TopologyTraverser {
 
@@ -106,11 +103,10 @@ public interface DcTerminal {
          * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
          * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
          */
-
         TraverseResult traverse(DcTerminal terminal, boolean connected);
     }
 
-    boolean traverse(DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType);
+    boolean traverse(TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals);
 
     /**
      * Disconnect the DC terminal.<br/>

@@ -383,11 +383,11 @@ public class DcTopologyModel implements MultiVariantObject {
         }
     }
 
-    void traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, TraversalType traversalType) {
-        traverse(terminal, traverser, new HashSet<>(), traversalType);
+    void traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser) {
+        traverse(terminal, traverser, new HashSet<>());
     }
 
-    boolean traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
+    boolean traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(visitedDcTerminals);
@@ -412,7 +412,7 @@ public class DcTopologyModel implements MultiVariantObject {
             }
 
             for (DcTerminal t : nextDcTerminals) {
-                if (!t.traverse(traverser, visitedDcTerminals, traversalType)) {
+                if (!t.traverse(traverser, visitedDcTerminals)) {
                     return false;
                 }
             }

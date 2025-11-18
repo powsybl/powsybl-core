@@ -178,18 +178,11 @@ public abstract class AbstractDcLineTest {
         PowsyblException e4 = assertThrows(PowsyblException.class, () -> t2.setConnected(false));
         assertEquals("Cannot modify removed equipment dcLine1", e4.getMessage());
 
-        try {
-            t1.traverse(Mockito.mock(DcTerminal.TopologyTraverser.class));
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Associated equipment dcLine1 is removed", e.getMessage());
-        }
-        try {
-            t2.traverse(Mockito.mock(DcTerminal.TopologyTraverser.class));
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Associated equipment dcLine1 is removed", e.getMessage());
-        }
+        PowsyblException e5 = assertThrows(PowsyblException.class, () -> t1.traverse(Mockito.mock(DcTerminal.TopologyTraverser.class)));
+        assertEquals("Associated equipment dcLine1 is removed", e5.getMessage());
+
+        PowsyblException e6 = assertThrows(PowsyblException.class, () -> t2.traverse(Mockito.mock(DcTerminal.TopologyTraverser.class)));
+        assertEquals("Associated equipment dcLine1 is removed", e6.getMessage());
     }
 
     @Test

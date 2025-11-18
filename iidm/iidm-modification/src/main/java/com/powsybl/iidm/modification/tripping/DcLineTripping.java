@@ -51,12 +51,8 @@ public class DcLineTripping extends AbstractTripping {
         Objects.requireNonNull(network);
         DcLine dcLine = supplier.apply(network, id);
         if (dcLine == null) {
-            throw createNotFoundException();
+            throw new PowsyblException("DcLine '" + id + "' not found");
         }
         traverseDoubleSidedEquipment(dcNodeId, dcLine.getDcTerminal1(), dcLine.getDcTerminal2(), terminalsToDisconnect, traversedTerminals, dcLine.getType().name());
-    }
-
-    protected PowsyblException createNotFoundException() {
-        return new PowsyblException("DcLine '" + id + "' not found");
     }
 }

@@ -11,19 +11,16 @@ import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
-import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Denis Bonnand {@literal <denis.bonnand at supergrid-institute.com>}
  */
 class DcTopologyTraverseTest {
-
-    private final Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
-
     private static final class ConverterTraverser implements DcTerminal.TopologyTraverser {
         private String firstTraversedConverterId;
 
@@ -43,17 +40,73 @@ class DcTopologyTraverseTest {
 
     private static String getConverterSectionId(DcTerminal terminal) {
         ConverterTraverser connectedConverter = new ConverterTraverser();
-        terminal.traverse(connectedConverter, TraversalType.DEPTH_FIRST);
+        terminal.traverse(connectedConverter);
         return connectedConverter.getFirstTraversedConverterId();
     }
 
+    private static final class DcLineTraverser implements DcTerminal.TopologyTraverser {
+        private String firstTraversedDcLineId;
+
+        @Override
+        public TraverseResult traverse(DcTerminal terminal, boolean connected) {
+            if (terminal.getDcConnectable().getType() == IdentifiableType.DC_LINE) {
+                firstTraversedDcLineId = terminal.getDcConnectable().getId();
+                return TraverseResult.TERMINATE_TRAVERSER;
+            }
+            return TraverseResult.CONTINUE;
+        }
+
+        public String getFirstTraversedDcLineId() {
+            return firstTraversedDcLineId;
+        }
+    }
+
+    private static String getDcLineSectionId(DcTerminal terminal) {
+        DcLineTraverser connectedDcLine = new DcLineTraverser();
+        terminal.traverse(connectedDcLine);
+        return connectedDcLine.getFirstTraversedDcLineId();
+    }
+
     @Test
-    void test() {
+    void testVscSymmetricalMonopole() {
+        Network network = DcDetailedNetworkFactory.createVscSymmetricalMonopole();
+
+        assertEquals("VscGb", getConverterSectionId(network.getDcNode("dcNodeGbNeg").getDcTerminals().getFirst()));
+        assertEquals("VscGb", getConverterSectionId(network.getDcNode("dcNodeGbPos").getDcTerminals().getFirst()));
+        assertEquals("VscFr", getConverterSectionId(network.getDcNode("dcNodeFrNeg").getDcTerminals().getFirst()));
+        assertEquals("VscFr", getConverterSectionId(network.getDcNode("dcNodeFrPos").getDcTerminals().getFirst()));
         assertEquals("VscFr", getConverterSectionId(network.getDcLine("dcLineNeg").getDcTerminal1()));
         assertEquals("VscGb", getConverterSectionId(network.getDcLine("dcLineNeg").getDcTerminal2()));
         assertEquals("VscFr", getConverterSectionId(network.getDcLine("dcLinePos").getDcTerminal1()));
         assertEquals("VscGb", getConverterSectionId(network.getDcLine("dcLinePos").getDcTerminal2()));
         assertEquals("VscFr", getConverterSectionId(network.getVoltageSourceConverter("VscFr").getDcTerminal1()));
         assertEquals("VscGb", getConverterSectionId(network.getVoltageSourceConverter("VscGb").getDcTerminal1()));
+
+        assertEquals("dcLineNeg", getDcLineSectionId(network.getDcNode("dcNodeGbNeg").getDcTerminals().getFirst()));
+        assertEquals("dcLinePos", getDcLineSectionId(network.getDcNode("dcNodeGbPos").getDcTerminals().getFirst()));
+        assertEquals("dcLineNeg", getDcLineSectionId(network.getDcNode("dcNodeFrNeg").getDcTerminals().getFirst()));
+        assertEquals("dcLinePos", getDcLineSectionId(network.getDcNode("dcNodeFrPos").getDcTerminals().getFirst()));
+        assertEquals("dcLineNeg", getDcLineSectionId(network.getDcLine("dcLineNeg").getDcTerminal1()));
+        assertEquals("dcLineNeg", getDcLineSectionId(network.getDcLine("dcLineNeg").getDcTerminal2()));
+        assertEquals("dcLinePos", getDcLineSectionId(network.getDcLine("dcLinePos").getDcTerminal1()));
+        assertEquals("dcLinePos", getDcLineSectionId(network.getDcLine("dcLinePos").getDcTerminal2()));
+        assertEquals("dcLineNeg", getDcLineSectionId(network.getVoltageSourceConverter("VscFr").getDcTerminal1()));
+        assertEquals("dcLineNeg", getDcLineSectionId(network.getVoltageSourceConverter("VscGb").getDcTerminal1()));
+    }
+
+    @Test
+    void testLccBipoleGroundReturn() {
+        Network network = DcDetailedNetworkFactory.createLccBipoleGroundReturn();
+
+        assertEquals("dcLine2", getDcLineSectionId(network.getDcNode("dcNodeGbNeg").getDcTerminals().getFirst()));
+        assertEquals("dcLine1", getDcLineSectionId(network.getDcNode("dcNodeGbPos").getDcTerminals().getFirst()));
+        assertEquals("dcLine2", getDcLineSectionId(network.getDcNode("dcNodeFrNeg").getDcTerminals().getFirst()));
+        assertEquals("dcLine1", getDcLineSectionId(network.getDcNode("dcNodeFrPos").getDcTerminals().getFirst()));
+        assertEquals("dcLine1", getDcLineSectionId(network.getDcLine("dcLine1").getDcTerminal1()));
+        assertEquals("dcLine1", getDcLineSectionId(network.getDcLine("dcLine1").getDcTerminal2()));
+        assertEquals("dcLine2", getDcLineSectionId(network.getDcLine("dcLine2").getDcTerminal1()));
+        assertEquals("dcLine2", getDcLineSectionId(network.getDcLine("dcLine2").getDcTerminal2()));
+        assertNull(getDcLineSectionId(network.getDcNode("dcNodeFrMid").getDcTerminals().getFirst()));
+        assertNull(getDcLineSectionId(network.getDcNode("dcNodeGbMid").getDcTerminals().getFirst()));
     }
 }

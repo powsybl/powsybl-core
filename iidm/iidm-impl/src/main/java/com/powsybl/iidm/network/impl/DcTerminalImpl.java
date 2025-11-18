@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.math.graph.TraversalType;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Objects;
@@ -193,23 +192,18 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
 
     @Override
     public void traverse(DcTerminal.TopologyTraverser traverser) {
-        traverse(traverser, TraversalType.DEPTH_FIRST);
-    }
-
-    @Override
-    public void traverse(DcTerminal.TopologyTraverser traverser, TraversalType traversalType) {
         if (removed) {
             throw new PowsyblException(String.format("Associated equipment %s is removed", dcConnectable.getId()));
         }
-        getTopologyModel().traverse(this, traverser, traversalType);
+        getTopologyModel().traverse(this, traverser);
     }
 
     @Override
-    public boolean traverse(DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
+    public boolean traverse(TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals) {
         if (removed) {
             throw new PowsyblException(String.format("Associated equipment %s is removed", dcConnectable.getId()));
         }
-        return getTopologyModel().traverse(this, traverser, visitedDcTerminals, traversalType);
+        return getTopologyModel().traverse(this, traverser, visitedDcTerminals);
     }
 
     private DcTopologyModel getTopologyModel() {
