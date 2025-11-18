@@ -297,7 +297,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         double nominalV = context.getReader().readDoubleAttribute("nominalV");
         double lowVoltageLimit = context.getReader().readDoubleAttribute("lowVoltageLimit");
         double highVoltageLimit = context.getReader().readDoubleAttribute("highVoltageLimit");
-        TopologyKind topologyKind = context.getReader().readEnumAttribute("topologyKind", TopologyKind.class);
+        TopologyKind topologyKind = context.getReader().readEnumAttribute(TOPOLOGY_KIND_NAME, TopologyKind.class);
         return adder
                 .setNominalV(nominalV)
                 .setLowVoltageLimit(lowVoltageLimit)
