@@ -51,43 +51,40 @@ public abstract class AbstractDroopCurveTest {
 
     @Test
     public void invalidK() {
-        ValidationException e = assertThrows(ValidationException.class, () -> converter.newDroopCurve()
-                    .beginSegment()
-                        .setK(Double.NaN)
-                        .setMaxV(500.0)
-                        .setMinV(100.0)
-                    .endSegment()
-                .add());
+        DroopCurveAdder.SegmentAdder segmentAdder = converter.newDroopCurve()
+                .beginSegment()
+                .setK(Double.NaN)
+                .setMaxV(500.0)
+                .setMinV(100.0);
+        ValidationException e = assertThrows(ValidationException.class, segmentAdder::endSegment);
         assertTrue(e.getMessage().contains("k is not set"));
     }
 
     @Test
     public void invalidMaxV() {
-        ValidationException e = assertThrows(ValidationException.class, () -> converter.newDroopCurve()
-                    .beginSegment()
-                        .setK(1.0)
-                        .setMaxV(Double.NaN)
-                        .setMinV(100.0)
-                    .endSegment()
-                .add());
+        DroopCurveAdder.SegmentAdder segmentAdder = converter.newDroopCurve()
+                .beginSegment()
+                .setK(1.0)
+                .setMaxV(Double.NaN)
+                .setMinV(100.0);
+        ValidationException e = assertThrows(ValidationException.class, segmentAdder::endSegment);
         assertTrue(e.getMessage().contains("max V is not set"));
     }
 
     @Test
     public void invalidMinV() {
-        ValidationException e = assertThrows(ValidationException.class, () -> converter.newDroopCurve()
-                    .beginSegment()
-                        .setK(1.0)
-                        .setMaxV(500.0)
-                        .setMinV(Double.NaN)
-                    .endSegment()
-                .add());
+        DroopCurveAdder.SegmentAdder segmentAdder = converter.newDroopCurve()
+                .beginSegment()
+                .setK(1.0)
+                .setMaxV(500.0)
+                .setMinV(Double.NaN);
+        ValidationException e = assertThrows(ValidationException.class, segmentAdder::endSegment);
         assertTrue(e.getMessage().contains("min V is not set"));
     }
 
     @Test
     public void overlapping() {
-        ValidationException e = assertThrows(ValidationException.class, () -> converter.newDroopCurve()
+        DroopCurveAdder droopCurveAdder = converter.newDroopCurve()
                 .beginSegment()
                 .setK(1.0)
                 .setMaxV(500.0)
@@ -97,14 +94,14 @@ public abstract class AbstractDroopCurveTest {
                 .setK(1.0)
                 .setMaxV(100.0)
                 .setMinV(-500.0)
-                .endSegment()
-                .add());
+                .endSegment();
+        ValidationException e = assertThrows(ValidationException.class, droopCurveAdder::add);
         assertTrue(e.getMessage().contains("Droop segments are overlapping"));
     }
 
     @Test
     public void discontinuous() {
-        ValidationException e = assertThrows(ValidationException.class, () -> converter.newDroopCurve()
+        DroopCurveAdder droopCurveAdder = converter.newDroopCurve()
                 .beginSegment()
                 .setK(1.0)
                 .setMaxV(500.0)
@@ -114,8 +111,8 @@ public abstract class AbstractDroopCurveTest {
                 .setK(1.0)
                 .setMaxV(-100.0)
                 .setMinV(-500.0)
-                .endSegment()
-                .add());
+                .endSegment();
+        ValidationException e = assertThrows(ValidationException.class, droopCurveAdder::add);
         assertTrue(e.getMessage().contains("Droop curve is not continuous"));
     }
 }

@@ -337,8 +337,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     }
 
     @Override
-    public DroopCurveAdderImpl newDroopCurve() {
-        return new DroopCurveAdderImpl(this);
+    public DroopCurveAdder newDroopCurve() {
+        return new DroopCurveAdderImpl<>(this);
     }
 
     @Override

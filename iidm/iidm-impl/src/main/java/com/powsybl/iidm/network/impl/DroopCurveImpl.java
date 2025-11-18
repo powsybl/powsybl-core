@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DroopCurve;
 
 import java.util.Collection;
@@ -65,7 +64,7 @@ class DroopCurveImpl implements DroopCurve {
     public double getK(double v) {
         //segments list is already sorted in the DroopCurveAdder
         if (segments.isEmpty()) {
-            throw new PowsyblException("Droop curve is empty");
+            return 0.0;
         }
         if (v <= segments.getFirst().getMinV()) {
             return segments.getFirst().getK();
