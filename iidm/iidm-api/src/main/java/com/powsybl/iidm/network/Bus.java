@@ -45,20 +45,20 @@ public interface Bus extends Identifiable<Bus> {
     Bus setAngle(double angle);
 
     /**
-     * Get the active power in MW injected by equipments connected to the bus using the load sign convention (a positive value means that
-     * the equipments connected to the bus consume active power)
+     * Get the active power in MW injected by equipment connected to the bus using the load sign convention (a positive value means that
+     * equipment connected to the bus consumes active power)
      */
     double getP();
 
     /**
-     * Get the reactive power in MVAR injected by equipments connected to the bus using the load sign convention (a positive value means
-     * that the equipments connected to the bus consume reactive power).
+     * Get the reactive power in MVAR injected by equipment connected to the bus using the load sign convention (a positive value means
+     * that the equipment connected to the bus consume reactive power).
      */
     double getQ();
 
     /**
      * Returns the fictitious active power injection to the bus if set, or 0. The value is in MW and uses the load sign convention (a positive value has the same effect as a load connected to the bus)
-     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder or a state estimator.
+     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
      */
     default double getFictitiousP0() {
         return 0.0;
@@ -66,7 +66,7 @@ public interface Bus extends Identifiable<Bus> {
 
     /**
      * If supported by the implementation, adds a fictitious active power injection to the bus using the load sign convention (a positive value has the same effect as a load connected to the bus)
-     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder or a state estimator.
+     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
      * The method has no effect if the Bus implementation does not support fictitious injections.
      * @param p0 fictitious load in MW, using the load sign convention.
      */
@@ -77,7 +77,7 @@ public interface Bus extends Identifiable<Bus> {
 
     /**
      * Returns the fictitious reactive power injection to the bus if set, or 0. The value is in MVar and uses the load sign convention (a positive value has the same effect as a load connected to the bus)
-     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder or a state estimator.
+     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
      */
     default double getFictitiousQ0() {
         return 0.0;
@@ -85,7 +85,7 @@ public interface Bus extends Identifiable<Bus> {
 
     /**
      * If supported by the implementation, adds a fictitious reactive power injection to the bus using the load sign convention (a positive value has the same effect as a load connected to the bus)
-     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder or a state estimator.
+     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
      * The method has no effect if the Bus implementation does not support fictitious injections.
      * @param q0 fictitious load in MVar, using the load sign convention.
      */
