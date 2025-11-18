@@ -13,12 +13,14 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.triplestore.api.PropertyBag;
+
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -67,10 +69,6 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         String type = p.getLocal("type");
         if (type != null) {
             generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
-        }
-        String operatingMode = p.getLocal("operatingMode");
-        if (operatingMode != null) {
-            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
         }
     }
 
@@ -146,10 +144,6 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             updateGeneratingUnit(generator, generatingUnitId, context);
         }
 
-        String operatingMode = cgmesData.getLocal("operatingMode");
-        if (operatingMode != null) {
-            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
-        }
         Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
         updateRegulatingControl(generator, controlEnabled, context);
     }
