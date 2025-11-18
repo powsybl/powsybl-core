@@ -679,7 +679,7 @@ public final class ValidationUtil {
         if (pccTerminal != null) {
             var c = pccTerminal.getConnectable();
             if (!(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof AcDcConverter<?>)) {
-                throw new ValidationException(validable, "pccTerminal is not a line or transformer or the converter terminal");
+                throw new ValidationException(validable, "pccTerminal is not a line or transformer or converter terminal");
             }
             if (c instanceof AcDcConverter<?> && c != validable) {
                 throw new ValidationException(validable, "pccTerminal cannot be the terminal of another converter");
