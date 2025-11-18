@@ -122,10 +122,11 @@ The default value is `false`.
 
 **componentMode**  
 The `componentMode` property is an optional property that defines 3 possibles modes to run power flow. These modes can be :  
-- `ALL_CONNECTED`: the power flow is computed over all connected components  
-- `MAIN_CONNECTED` : the power flow is computed on the main connected component  
-- `MAIN_SYNCHRONOUS` : the power flow is computed on the main synchronous component  
-
+- `ALL_CONNECTED`: the power flow is computed over all synchronous components of all connected components  
+- `MAIN_CONNECTED` : the power flow is computed over all synchronous components of the main (largest) connected component  
+- `MAIN_SYNCHRONOUS` : the power flow is computed on the main (largest) synchronous component  
+The default value is `MAIN_CONNECTED`.
+- 
 **twtSplitShuntAdmittance**  
 The `twtSplitShuntAdmittance` property is an optional property that defines whether the shunt admittance is split at each side of the series impedance for transformers.  
 The default value is `false`.
