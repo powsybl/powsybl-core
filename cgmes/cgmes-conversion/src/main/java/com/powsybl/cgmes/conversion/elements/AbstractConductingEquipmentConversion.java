@@ -198,6 +198,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             throw new PowsyblException(String.format("Unexpected boundarySide and modelSide at boundaryNode: %s", boundaryNode));
         }
 
+        // When the IIDM dangling line comes from a CGMES switch (this happens when the switch is at the boundary),
+        // its terminals haven't been added to the mapping. They need to, so that the dangling line gets its own IIDM node.
+        if (CgmesNames.SWITCH_TYPES.contains(originalClass)) {
+            CgmesTerminal t = terminals[modelSide - 1].t;
+            context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t);
+        }
+
         DanglingLineAdder dlAdder = voltageLevel(modelSide).map(vl -> vl.newDanglingLine()
                         .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                         .setR(r)
@@ -427,16 +434,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     int iidmNode() {
-        return iidmNode(1);
+        return iidmNode(1, false);
     }
 
-    int iidmNode(int n) {
+    int iidmNode(int n, boolean isSwitchEnd) {
         if (!context.nodeBreaker()) {
             throw new ConversionException("Can't request an iidmNode if conversion context is not node-breaker");
         }
         VoltageLevel vl = terminals[n - 1].voltageLevel;
         CgmesTerminal t = terminals[n - 1].t;
-        return context.nodeMapping().iidmNodeForTerminal(t, vl);
+        return context.nodeMapping().iidmNodeForTerminal(t, isSwitchEnd, vl);
     }
 
     String busId() {
@@ -622,7 +629,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     public void connectWithOnlyEq(InjectionAdder<?, ?> adder, int terminal) {
         if (context.nodeBreaker()) {
-            adder.setNode(iidmNode(terminal));
+            adder.setNode(iidmNode(terminal, false));
         } else {
             adder.setBus(null).setConnectableBus(busId(terminal));
         }
@@ -633,8 +640,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             adder
                     .setVoltageLevel1(iidmVoltageLevelId(1))
                     .setVoltageLevel2(iidmVoltageLevelId(2))
-                    .setNode1(iidmNode(1))
-                    .setNode2(iidmNode(2));
+                    .setNode1(iidmNode(1, false))
+                    .setNode2(iidmNode(2, false));
         } else {
             String busId1 = busId(1);
             String busId2 = busId(2);
@@ -653,8 +660,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             throw new ConversionException("Not in node breaker context");
         }
         adder
-                .setNode1(iidmNode(1))
-                .setNode2(iidmNode(2));
+                .setNode1(iidmNode(1, true))
+                .setNode2(iidmNode(2, true));
     }
 
     public void connectWithOnlyEq(VoltageLevel.BusBreakerView.SwitchAdder adder) {
@@ -667,7 +674,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
-                .setNode(iidmNode(terminal));
+                .setNode(iidmNode(terminal, false));
         } else {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
