@@ -98,11 +98,11 @@ country which participating elements are used for slack distribution. If the sla
 
 **readSlackBus**  
 The `readSlackBus` is an optional property that defines if the slack bus has to be selected in the network through the [slack terminal extension](../../grid_model/extensions.md#slack-terminal).  
-The default value is `false`.
+The default value is `true`.
 
 **writeSlackBus**   
 The `writeSlackBus` is an optional property that says if the slack bus has to be written in the network using the [slack terminal extension](../../grid_model/extensions.md#slack-terminal) after a load flow computation.  
-The default value is `false`.
+The default value is `true`.
 
 **useReactiveLimits**  
 The `useReactiveLimits` property is an optional property that defines whether the load flow should take into account equipment's reactive limits. Applies to generators, batteries, static VAR compensators, dangling lines, and HVDC VSCs.  

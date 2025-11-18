@@ -52,7 +52,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.targetP = new TDoubleArrayList(variantArraySize);
         this.targetVdc = new TDoubleArrayList(variantArraySize);
-        pccRegulatingPoint = new RegulatingPoint(id, () -> null, variantArraySize, controlMode.ordinal(), ControlMode.V_DC.ordinal(), false);
+        pccRegulatingPoint = new RegulatingPoint(id, () -> (TerminalExt) getTerminal1(), variantArraySize, controlMode.ordinal(), ControlMode.V_DC.ordinal(), false);
         pccRegulatingPoint.setRegulatingTerminal(pccTerminal);
         for (int i = 0; i < variantArraySize; i++) {
             this.targetP.add(targetP);
@@ -198,7 +198,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     public I setPccTerminal(Terminal pccTerminal) {
         Objects.requireNonNull(pccTerminal);
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, PCC_TERMINAL);
-        ValidationUtil.checkAcDcConverterPccTerminal(this, getTerminal2().isPresent(), pccTerminal, getTerminal1().getVoltageLevel());
+        ValidationUtil.checkAcDcConverterPccTerminal(this, pccTerminal, getTerminal1().getVoltageLevel());
         Terminal oldValue = pccRegulatingPoint.getRegulatingTerminal();
         pccRegulatingPoint.setRegulatingTerminal((TerminalExt) pccTerminal);
         notifyUpdate(PCC_TERMINAL, oldValue, pccRegulatingPoint.getRegulatingTerminal());
