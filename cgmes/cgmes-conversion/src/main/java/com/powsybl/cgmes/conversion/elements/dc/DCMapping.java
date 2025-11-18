@@ -24,8 +24,16 @@ public class DCMapping {
 
     public DCMapping(Context context) {
         // Store the CGMES terminal to CGMES node association.
-        String node = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
-        context.cgmes().dcTerminals().forEach(t -> dcTerminalNodes.put(t.getId(DC_TERMINAL), t.getId(node)));
+        String nodeTag = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
+        context.cgmes().dcTerminals().forEach(t -> {
+            String dcTerminalId = t.getId(DC_TERMINAL);
+            String dcNodeId = t.getId(nodeTag);
+            if (dcNodeId == null) {
+                context.missing(String.format("Association to a DCNode/DCTopologicalNode for ACDCConverterDCTerminal/DCTerminal %s", dcTerminalId));
+            } else {
+                dcTerminalNodes.put(dcTerminalId, dcNodeId);
+            }
+        });
     }
 
     public String getDcNode(String dcTerminalId) {
