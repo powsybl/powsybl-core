@@ -67,8 +67,8 @@ class TerminalRefTest extends AbstractIidmSerDeTest {
         LineCommutatedConverter converter = network.getLineCommutatedConverter(lccFr);
         Terminal t1 = TerminalRefSerDe.resolve(lccFr, null, TerminalNumber.ONE, network);
         Terminal t2 = TerminalRefSerDe.resolve(lccFr, null, TerminalNumber.TWO, network);
-        assertSame(t1, converter.getTerminal1());
-        assertSame(t2, converter.getTerminal2().orElseThrow());
+        assertSame(converter.getTerminal1(), t1);
+        assertSame(converter.getTerminal2().orElseThrow(), t2);
     }
 
     @Test
@@ -77,7 +77,7 @@ class TerminalRefTest extends AbstractIidmSerDeTest {
         String vscFr = "VscFr";
         VoltageSourceConverter converter = network.getVoltageSourceConverter(vscFr);
         Terminal t1 = TerminalRefSerDe.resolve(converter.getId(), null, TerminalNumber.ONE, network);
-        assertSame(t1, converter.getTerminal1());
+        assertSame(converter.getTerminal1(), t1);
         PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefSerDe.resolve(vscFr, null, TerminalNumber.TWO, network));
         assertEquals("This AC/DC converter does not have a second AC Terminal: VscFr", e.getMessage());
     }
