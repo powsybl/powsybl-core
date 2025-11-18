@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -106,6 +107,13 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         String batterySsh = getElement(sshXml, "SynchronousMachine", "BAT");
         assertNotNull(batterySsh);
         assertTrue(batterySsh.contains("SynchronousMachineOperatingMode.generator"));
+
+        String battery2Eq = getElement(eqXml, "SynchronousMachine", "BAT2");
+        assertNotNull(battery2Eq);
+        assertTrue(battery2Eq.contains("SynchronousMachineKind.generatorOrCondenser"));
+        String battery2Ssh = getElement(sshXml, "SynchronousMachine", "BAT2");
+        assertNotNull(battery2Ssh);
+        assertTrue(battery2Ssh.contains("SynchronousMachineOperatingMode.condenser"));
     }
 
     private Network createNetwork() {
@@ -187,6 +195,21 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .add();
         battery.getTerminal().disconnect();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(4).add();
+
+        // Will be exported as generatorOrCondenser (isCondenser is true by default on batteries) and operating as a condenser
+        Battery battery2 = voltageLevel1.newBattery()
+            .setId("BAT2")
+            .setNode(5)
+            .setMinP(0.0)
+            .setMaxP(10.0)
+            .setTargetP(0.0)
+            .setTargetQ(0.0)
+            .add();
+        battery2.newExtension(VoltageRegulationAdder.class)
+                .withTargetV(400.0)
+                .withVoltageRegulatorOn(true)
+                .add();
+        voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(5).add();
 
         return network;
     }
