@@ -19,7 +19,8 @@ class DroopCurveAdderImpl<O extends Validable & AcDcConverter<?>> implements Dro
 
     private final O owner;
 
-    private final HashSet<DroopCurve.Segment> segments = new HashSet<>();
+    private final List<DroopCurve.Segment> segments = new ArrayList<>() {
+    };
 
     private final class SegmentAdderImpl implements SegmentAdder {
 
@@ -75,12 +76,11 @@ class DroopCurveAdderImpl<O extends Validable & AcDcConverter<?>> implements Dro
 
     @Override
     public DroopCurve add() {
-        List<DroopCurve.Segment> segmentList = new ArrayList<>(segments);
-        segmentList.sort(Comparator.comparingDouble(DroopCurve.Segment::getMinV));
-        for (int i = 0; i < segmentList.size() - 1; i++) {
+        segments.sort(Comparator.comparingDouble(DroopCurve.Segment::getMinV));
+        for (int i = 0; i < segments.size() - 1; i++) {
 
-            DroopCurve.Segment curr = segmentList.get(i);
-            DroopCurve.Segment next = segmentList.get(i + 1);
+            DroopCurve.Segment curr = segments.get(i);
+            DroopCurve.Segment next = segments.get(i + 1);
 
             if (curr.getMaxV() > next.getMinV()) {
                 throw new ValidationException(owner, "Droop segments are overlapping");
@@ -91,7 +91,7 @@ class DroopCurveAdderImpl<O extends Validable & AcDcConverter<?>> implements Dro
             }
         }
         DroopCurveImpl curve = new DroopCurveImpl(segments);
-        owner.setDroopCurve(curve);
+        ((AbstractAcDcConverter<?>) owner).setDroopCurve(curve);
         return curve;
     }
 }

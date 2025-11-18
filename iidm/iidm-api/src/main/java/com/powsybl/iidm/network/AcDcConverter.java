@@ -248,11 +248,6 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
     DroopCurveAdder newDroopCurve();
 
     /**
-     * Set the Droop curve;
-     */
-    void setDroopCurve(DroopCurve droopCurve);
-
-    /**
      * Get the Converter droop curve;
      */
     DroopCurve getDroopCurve();

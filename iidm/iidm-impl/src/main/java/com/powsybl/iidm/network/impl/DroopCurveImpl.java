@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.DroopCurve;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author Denis Bonnand {@literal <denis.bonnand at supergrid-institute.com>}
@@ -50,9 +50,9 @@ class DroopCurveImpl implements DroopCurve {
 
     }
 
-    private final HashSet<Segment> segments;
+    private final List<Segment> segments;
 
-    DroopCurveImpl(HashSet<Segment> segments) {
+    DroopCurveImpl(List<Segment> segments) {
         this.segments = segments;
     }
 
@@ -63,11 +63,18 @@ class DroopCurveImpl implements DroopCurve {
 
     @Override
     public double getK(double v) {
+        //segments list is already sorted in the DroopCurveAdder
+        if (segments.isEmpty()) {
+            throw new PowsyblException("Droop curve is empty");
+        }
+        if (v <= segments.getFirst().getMinV()) {
+            return segments.getFirst().getK();
+        }
         for (Segment segment : segments) {
             if (v >= segment.getMinV() && v < segment.getMaxV()) {
                 return segment.getK();
             }
         }
-        throw new PowsyblException("Droop coefficient is not defined for Vdc = " + v);
+        return segments.getLast().getK();
     }
 }

@@ -8,16 +8,17 @@
 package com.powsybl.iidm.network;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
- * A droop curve to define droop function of a <code>AcDcConverter<code>
- * in <code>P_PCC_Droop<code> mode.
+ * A droop curve to define droop function of a <code>AcDcConverter</code>
+ * in <code>P_PCC_DROOP</code> mode.
  * <p>
  * This curve is made of <code>Segment</code> and each segment is defined by its minimum
  * and maximum voltage associated with a droop coefficient.
  * <p>
  * The following graph shows a 3 segments droop curve. On the X-axis
- * is the <code>AcDcConverter<code> DC voltage, on the Y-axis the droop coefficient.
+ * is the <code>AcDcConverter</code> DC voltage, on the Y-axis the droop coefficient.
  *<pre>
  * k
  * ^
@@ -25,7 +26,7 @@ import java.util.Collection;
  * |
  * |------
  * |      --------
- * +---------------------> V (MW)
+ * +---------------------> V (kV)
  * |              --------
  * |
  * |
@@ -34,6 +35,19 @@ import java.util.Collection;
  * @author Denis Bonnand {@literal <denis.bonnand at supergrid-institute.com>}
  */
 public interface DroopCurve {
+
+    DroopCurve EMPTY = new DroopCurve() {
+
+        @Override
+        public Collection<Segment> getSegments() {
+            return List.of();
+        }
+
+        @Override
+        public double getK(double v) {
+            return 0;
+        }
+    };
 
     /**
      * A segment of the droop curve, for a given voltage range, the droop coefficient associated.
