@@ -209,38 +209,22 @@ public final class ConnectableSerDeUtil {
                 .ifPresent(t::setQ);
     }
 
-    private static String dcTerminalPAttribute(DcTerminal t) {
+    private static String dcTerminalNumSuffix(DcTerminal t) {
         TerminalNumber number = t.getTerminalNumber();
-        if (number != null) {
-            return "dcP" + number.getNum();
-        }
         TwoSides side = t.getSide();
-        if (side != null) {
-            return "p" + side.getNum();
-        }
-        return "p";
-    }
-
-    private static String dcTerminalIAttribute(DcTerminal t) {
-        TerminalNumber number = t.getTerminalNumber();
-        if (number != null) {
-            return "dcI" + number.getNum();
-        }
-        TwoSides side = t.getSide();
-        if (side != null) {
-            return "i" + side.getNum();
-        }
-        return "i";
+        return "" + (side != null ? side.getNum() : "") + (number != null ? number.getNum() : "");
     }
 
     public static void writePI(DcTerminal t, TreeDataWriter writer) {
-        writer.writeDoubleAttribute(dcTerminalPAttribute(t), t.getP());
-        writer.writeDoubleAttribute(dcTerminalIAttribute(t), t.getI());
+        String numSuffix = dcTerminalNumSuffix(t);
+        writer.writeDoubleAttribute("dcP" + numSuffix, t.getP());
+        writer.writeDoubleAttribute("dcI" + numSuffix, t.getI());
     }
 
     public static void readPI(DcTerminal t, TreeDataReader reader) {
-        double p = reader.readDoubleAttribute(dcTerminalPAttribute(t));
-        double i = reader.readDoubleAttribute(dcTerminalIAttribute(t));
+        String numSuffix = dcTerminalNumSuffix(t);
+        double p = reader.readDoubleAttribute("dcP" + numSuffix);
+        double i = reader.readDoubleAttribute("dcI" + numSuffix);
         t.setP(p).setI(i);
     }
 

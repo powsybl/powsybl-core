@@ -826,8 +826,8 @@
                 <xs:attribute name="dcNode" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="connected" use="required" type="xs:boolean"/>
-                <xs:attribute name="p" use="optional" type="xs:double"/>
-                <xs:attribute name="i" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -839,10 +839,10 @@
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="connected1" use="required" type="xs:boolean"/>
                 <xs:attribute name="connected2" use="required" type="xs:boolean"/>
-                <xs:attribute name="p1" use="optional" type="xs:double"/>
-                <xs:attribute name="i1" use="optional" type="xs:double"/>
-                <xs:attribute name="p2" use="optional" type="xs:double"/>
-                <xs:attribute name="i2" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP2" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI2" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

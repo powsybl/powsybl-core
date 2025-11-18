@@ -5,5 +5,5 @@
         <iidm:alias>someAlias</iidm:alias>
         <iidm:property name="prop name" value="prop value"/>
     </iidm:dcGround>
-    <iidm:dcGround id="dcGroundWithSolvedValues" name="A DC Ground with solved values" dcNode="dcNode" r="2.0" connected="true" p="1.1" i="2.2"/>
+    <iidm:dcGround id="dcGroundWithSolvedValues" name="A DC Ground with solved values" dcNode="dcNode" r="2.0" connected="true" dcP="1.1" dcI="2.2"/>
 </iidm:network>
