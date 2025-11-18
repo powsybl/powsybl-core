@@ -67,6 +67,27 @@ class VoltageLevelUpdateTest {
         assertSsh(network.getVoltageLevel("VoltageLevel"), 405.0, 435.0);
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "voltageLevel_EQ.xml", "voltageLevel_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "voltageLevel_EQ.xml", "voltageLevel_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getVoltageLevelStream().allMatch(voltageLevel -> voltageLevel.getPropertyNames().isEmpty()));
+        assertTrue(network.getVoltageLevelStream().allMatch(voltageLevel -> voltageLevel.getAliases().isEmpty()));
+    }
+
     private static void assertEq(VoltageLevel voltageLevel) {
         assertNotNull(voltageLevel);
 

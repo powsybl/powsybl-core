@@ -74,6 +74,41 @@ class LoadUpdateTest {
         assertFlowsAfterSv(network);
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "load_EQ.xml", "load_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "load_EQ.xml", "load_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    @Test
+    void removeAllPropertiesAndAliasesAfterSomeUpdatesTest() {
+        Network network = readCgmesResources(DIR, "load_EQ.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        readCgmesResources(network, DIR, "load_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        readCgmesResources(network, properties, DIR, "load_SSH_1.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getLoadStream().allMatch(load -> load.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getLoadStream().allMatch(load -> load.getAliases().isEmpty()));
+    }
+
     private static void assertEq(Network network) {
         assertEq(network.getLoad("EnergyConsumer"));
         assertEq(network.getLoad("EnergySource"));

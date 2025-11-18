@@ -131,6 +131,35 @@ class TransformerUpdateTest {
         assertTapChangerStepsAfterSshAndSvTogether(network);
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "transformer_EQ.xml", "transformer_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getTwoWindingsTransformerStream().allMatch(t2w -> t2w.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getTwoWindingsTransformerStream().allMatch(t2w -> t2w.getAliases().isEmpty()));
+        assertTrue(network.getThreeWindingsTransformerStream().allMatch(t3w -> t3w.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getThreeWindingsTransformerStream().allMatch(t3w -> t3w.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getTwoWindingsTransformerStream().allMatch(t2w -> t2w.getOperationalLimitsGroups1().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getTwoWindingsTransformerStream().allMatch(t2w -> t2w.getOperationalLimitsGroups2().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getThreeWindingsTransformerStream().allMatch(t3w -> t3w.getLeg1().getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getThreeWindingsTransformerStream().allMatch(t3w -> t3w.getLeg2().getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getThreeWindingsTransformerStream().allMatch(t3w -> t3w.getLeg3().getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+    }
+
     private static void assertEq(Network network) {
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
         assertEq(t2w);
