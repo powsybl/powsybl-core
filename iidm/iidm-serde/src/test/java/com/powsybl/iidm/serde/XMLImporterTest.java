@@ -99,9 +99,10 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     private String unsupportedIidmVersionNamespaceURI() {
         String currentIidmVersion = CURRENT_IIDM_VERSION.toString();
         String currentIidmNamespaceURI = CURRENT_IIDM_VERSION.getNamespaceURI();
-        int currentVersionMajor = Integer.parseInt(currentIidmVersion.split("_")[1]);
-        int currentVersionMinor = Integer.parseInt(currentIidmVersion.split("_")[2]);
-        String unsupportedIidmVersion = String.format("%d_%d", currentVersionMajor, ++currentVersionMinor);
+        String[] currentIidmVersionSplit = currentIidmVersion.split("_");
+        int currentVersionMajor = Integer.parseInt(currentIidmVersionSplit[1]);
+        int currentVersionMinor = Integer.parseInt(currentIidmVersionSplit[2]);
+        String unsupportedIidmVersion = String.format("%d_%d", currentVersionMajor, currentVersionMinor + 1);
         return currentIidmNamespaceURI.substring(0, currentIidmNamespaceURI.lastIndexOf("/") + 1) + unsupportedIidmVersion;
     }
 
@@ -174,7 +175,8 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     void testUnsupportedIidmVersion() {
         Path dir = fileSystem.getPath("/");
         ReadOnlyDataSource dataSource = new DirectoryDataSource(dir, "test9");
-        String expectedError = "Unsupported IIDM Version (maximum supported version: " + CURRENT_IIDM_VERSION.toString(".") + ")";
+        String expectedError = "IIDM Version 1.19 is not supported. Max supported version: "
+                + CURRENT_IIDM_VERSION.toString(".");
         assertThrows(PowsyblException.class, () -> importer.exists(dataSource), expectedError);
     }
 

@@ -86,29 +86,22 @@ public enum IidmVersion {
         return Stream.of(IidmVersion.values())
                 .filter(v -> version.equals(v.toString(separator)))
                 .findFirst() // there can only be 0 or exactly 1 match
-                .orElseThrow(() -> new PowsyblException("Version " + version + " is not supported."));
+                .orElseThrow(() -> new PowsyblException("IIDM Version " + version + " is not supported. Max supported version: "
+                        + CURRENT_IIDM_VERSION.toString(".")));
     }
 
-    public static int compareVersions(String v1, String v2) {
-        if (v1.isEmpty() || v2.isEmpty()) {
-            return 0;
+    public static IidmVersion fromNamespaceURI(String namespaceURI) {
+        String version = namespaceURI.substring(namespaceURI.lastIndexOf('/') + 1);
+        IidmVersion v = of(version, "_");
+        String namespaceUriV = v.getNamespaceURI();
+        if (!namespaceURI.equals(namespaceUriV)) {
+            if (v.compareTo(V_1_7) >= 0 && namespaceURI.equals(v.getNamespaceURI(false))) {
+                return v;
+            }
+            throw new PowsyblException("Namespace " + namespaceURI + " is not supported. " +
+                    "The namespace for IIDM XML version " + v.toString(".") + " is: " + namespaceUriV + ".");
         }
-
-        int[] version1 = parseVersion(v1);
-        int[] version2 = parseVersion(v2);
-
-        if (version1[0] != version2[0]) {
-            return Integer.compare(version1[0], version2[0]);
-        }
-        return Integer.compare(version1[1], version2[1]);
-    }
-
-    private static int[] parseVersion(String v) {
-        String version = v.startsWith("V_") ? v.substring(2) : v;
-        String[] parts = version.split("_");
-        int major = Integer.parseInt(parts[0]);
-        int minor = Integer.parseInt(parts[1]);
-        return new int[]{major, minor};
+        return v;
     }
 
 }
