@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" id="testCase11" caseDate="2022-07-26T13:56:23.057+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="subst" name="subst" country="FR">
-        <iidm:voltageLevel id="vl1" name="vl1" nominalV="380.0" topologyKind="NODE_BREAKER">
+        <iidm:voltageLevel id="vl1" name="vl1" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="vl1_0" name="vl1_0"/>
                 <iidm:bus id="vl1_1" name="vl1_1"/>
@@ -45,7 +45,7 @@
             <iidm:load id="load1" name="load1" loadType="UNDEFINED" p0="10.0" q0="10.0" node="4"/>
             <iidm:load id="load2" name="load2" loadType="UNDEFINED" p0="10.0" q0="10.0" node="8"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="vl2" name="vl2" nominalV="225.0" topologyKind="NODE_BREAKER">
+        <iidm:voltageLevel id="vl2" name="vl2" nominalV="225.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="vl2_0" name="vl2_0"/>
                 <iidm:bus id="vl2_1" name="vl2_1"/>

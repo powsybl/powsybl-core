@@ -58,6 +58,7 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         Properties properties = new Properties();
         properties.put(VOLTAGE_LEVELS_BUS_BREAKER, "vl1,vl2,vl3");
         properties.put(VOLTAGE_LEVELS_BUS_BRANCH, "vl3"); // vl3 is not unique and will be ignored
+        properties.put("iidm.export.xml.bus-branch.voltage-level.incompatibility-behavior", "KEEP_ORIGINAL_TOPOLOGY");
         exporterTest(network, () -> getClass().getResourceAsStream("/topologyLevelVoltageLevels.xml"), properties);
     }
 
