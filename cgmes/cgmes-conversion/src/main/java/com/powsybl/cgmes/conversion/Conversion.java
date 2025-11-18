@@ -176,6 +176,9 @@ public class Conversion {
         cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
         bvAdder.add();
         cgmes.computedTerminals().forEach(t -> context.terminalMapping().buildTopologicalNodeCgmesTerminalsMapping(t));
+        cgmes.computedTerminals().stream()
+                .filter(t -> !CgmesNames.SWITCH_TYPES.contains(t.conductingEquipmentType()))
+                .forEach(t -> context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t));
         cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
         context.popReportNode();
 
