@@ -13,16 +13,6 @@ package com.powsybl.iidm.network;
 public interface LineCharacteristics {
 
     /**
-     * Get the series resistance in &#937;.
-     */
-    double getR();
-
-    /**
-     * Get the series reactance in &#937;.
-     */
-    double getX();
-
-    /**
      * Get the first side shunt conductance in S.
      */
     double getG1();

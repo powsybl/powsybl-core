@@ -149,30 +149,6 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     }
 
     /**
-     * Get the nominal series resistance specified in &#937; at the secondary
-     * voltage side.
-     */
-    double getR();
-
-    /**
-     * Set the nominal series resistance specified in &#937; at the secondary
-     * voltage side.
-     */
-    TwoWindingsTransformer setR(double r);
-
-    /**
-     * Get the nominal series reactance specified in &#937; at the secondary
-     * voltage side.
-     */
-    double getX();
-
-    /**
-     * Set the nominal series reactance specified in &#937; at the secondary
-     * voltage side.
-     */
-    TwoWindingsTransformer setX(double x);
-
-    /**
      * Get the nominal magnetizing conductance specified in S at the secondary
      * voltage side.
      */
