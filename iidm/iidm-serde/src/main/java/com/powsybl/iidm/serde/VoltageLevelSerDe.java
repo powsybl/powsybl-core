@@ -15,10 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.StreamSupport;
 
 import static com.powsybl.iidm.serde.PropertiesSerDe.NAME;
 import static com.powsybl.iidm.serde.PropertiesSerDe.VALUE;
+import static com.powsybl.iidm.serde.ConnectableSerDeUtil.determineTopologyLevel;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -48,24 +48,13 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeDoubleAttribute("nominalV", vl.getNominalV());
         context.getWriter().writeDoubleAttribute("lowVoltageLimit", vl.getLowVoltageLimit());
         context.getWriter().writeDoubleAttribute("highVoltageLimit", vl.getHighVoltageLimit());
-
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        if (shouldExportwithOriginalTopology(vl, context)) {
-            context.getWriter().writeEnumAttribute("topologyKind", vl.getTopologyKind());
-        } else {
-            context.getWriter().writeEnumAttribute("topologyKind", topologyLevel.getTopologyKind());
-        }
+        context.getWriter().writeEnumAttribute("topologyKind", determineTopologyLevel(vl, context).getTopologyKind());
     }
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkSerializerContext context) {
-        TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
-        TopologyLevel originalContextTopologyLevel = context.getOptions().getTopologyLevel();
-        if (shouldExportwithOriginalTopology(vl, context)) {
-            topologyLevel = TopologyLevel.NODE_BREAKER;
-            context.getOptions().setTopologyLevel(TopologyLevel.valueOf(vl.getTopologyKind().name()));
-        }
+        TopologyLevel topologyLevel = determineTopologyLevel(vl, context);
+
         switch (topologyLevel) {
             case NODE_BREAKER -> writeNodeBreakerTopology(vl, context);
             case BUS_BREAKER -> writeBusBreakerTopology(vl, context);
@@ -82,23 +71,6 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         writeVscConverterStations(vl, context);
         writeLccConverterStations(vl, context);
         writeGrounds(vl, context);
-        context.getOptions().setTopologyLevel(originalContextTopologyLevel);
-    }
-
-    private boolean shouldExportwithOriginalTopology(VoltageLevel vl, NetworkSerializerContext context) {
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        if (topologyLevel == TopologyLevel.BUS_BRANCH &&
-                vl.getSwitchCount() > 0 &&
-                vl.getSwitchCount() == StreamSupport
-                        .stream(vl.getSwitches().spliterator(), false)
-                        .filter(Switch::isOpen).count()) {
-            if (context.getOptions()
-                    .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
-                throw new PowsyblException("Cannot export a voltage level with all its switches open");
-            }
-            return true;
-        }
-        return false;
     }
 
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkSerializerContext context) {

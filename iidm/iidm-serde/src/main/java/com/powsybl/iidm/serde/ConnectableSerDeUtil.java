@@ -15,11 +15,13 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -64,13 +66,33 @@ public final class ConnectableSerDeUtil {
         if (index != null) {
             context.getWriter().writeStringAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
         }
-        TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
+        TopologyLevel topologyLevel = determineTopologyLevel(t.getVoltageLevel(), context);
         switch (topologyLevel) {
             case NODE_BREAKER -> writeNode(index, t, context);
             case BUS_BREAKER -> writeBus(index, t.getBusBreakerView().getBus(), t.getBusBreakerView().getConnectableBus(), context);
             case BUS_BRANCH -> writeBus(index, t.getBusView().getBus(), t.getBusView().getConnectableBus(), context);
             default -> throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
         }
+    }
+
+    public static TopologyLevel determineTopologyLevel(VoltageLevel vl, NetworkSerializerContext context) {
+        TopologyLevel originalVoltageLevelTopologyLevel = TopologyLevel.valueOf(vl.getTopologyKind().name());
+        TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
+        TopologyLevel askedTopologyLevel = TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
+        boolean canExportWithAskedTopology = canExportWithAskedTopologyLevel(vl, askedTopologyLevel);
+        if (!canExportWithAskedTopology && context.getOptions()
+                .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
+            throw new PowsyblException("Cannot export a voltage level with all its switches open");
+        }
+        return canExportWithAskedTopology ? askedTopologyLevel : originalVoltageLevelTopologyLevel;
+    }
+
+    private static boolean canExportWithAskedTopologyLevel(VoltageLevel vl, TopologyLevel askedTopologyLevel) {
+        return askedTopologyLevel != TopologyLevel.BUS_BRANCH ||
+                vl.getSwitchCount() <= 0 ||
+                vl.getSwitchCount() != StreamSupport
+                        .stream(vl.getSwitches().spliterator(), false)
+                        .filter(Switch::isOpen).count();
     }
 
     private static void writeNode(Integer index, Terminal t, NetworkSerializerContext context) {
