@@ -261,13 +261,17 @@ public class Conversion {
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
 
-        updateWithAllInputs(network, reportNode);
+        updateWithAllInputs(network, reportNode, context);
 
         return network;
     }
 
-    private void updateWithAllInputs(Network network, ReportNode reportNode) {
+    private void updateWithAllInputs(Network network, ReportNode reportNode, Context importContext) {
         if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
+            // Remove all properties and aliases, this will invalidate all subsequent updates
+            if (importContext.config().getRemovePropertiesAndAliasesAfterImport()) {
+                removeAllAliasesAndProperties(network);
+            }
             return;
         }
         this.cgmes.setQueryCatalog(QUERY_CATALOG_NAME_UPDATE);
