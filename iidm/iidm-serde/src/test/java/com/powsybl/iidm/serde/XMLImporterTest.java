@@ -173,9 +173,13 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void testUnsupportedIidmVersion() {
+        String[] currentIidmVersionSplit = CURRENT_IIDM_VERSION.toString().split("_");
+        int unsupportedIidmVersionMajor = Integer.parseInt(currentIidmVersionSplit[1]);
+        int unsupportedIidmVersionMinor = Integer.parseInt(currentIidmVersionSplit[2]) + 1;
+        String unsupportedIidmVersion = String.format("%d.%d", unsupportedIidmVersionMajor, unsupportedIidmVersionMinor);
         Path dir = fileSystem.getPath("/");
         ReadOnlyDataSource dataSource = new DirectoryDataSource(dir, "test9");
-        String expectedError = "IIDM Version 1.19 is not supported. Max supported version: "
+        String expectedError = "IIDM Version " + unsupportedIidmVersion + "is not supported. Max supported version: "
                 + CURRENT_IIDM_VERSION.toString(".");
         assertThrows(PowsyblException.class, () -> importer.exists(dataSource), expectedError);
     }
