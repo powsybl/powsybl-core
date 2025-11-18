@@ -75,9 +75,11 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
                 .setMaxP(maxP)
                 .setRatedS(ratedS)
                 .setTargetP(targetP)
-                .setTargetV(targetV)
                 .setTargetQ(targetQ)
                 .setVoltageRegulatorOn(voltageRegulatorOn);
+        // Since V_1_15 -> use 'setTargetV(targetV, equivalentLocalTargetV)' instead of 'setTargetV(targetV)'
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_14, context, () ->
+            adder.setTargetV(targetV));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () ->
             adder.setTargetV(targetV, context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN)));
 
