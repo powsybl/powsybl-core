@@ -248,7 +248,7 @@ with the `enabled` activated and the generator attribute `voltageRegulatorOn` se
 #### Synchronous machine kind (EQ) and operating mode (SSH)
 
 The `SynchronousMachine.SynchronousMachineKind` is exported in the EQ profile depending on the [reactive limits](../../grid_model/additional.md#reactive-limits) of the 
-generator or battery and its capacity to behave like a condenser (a battery cannot behave like a condenser so the flag `isCondenser` is considered as `false`):
+generator or battery and its capacity to behave like a condenser (a battery can behave like a condenser but does not have the flag `isCondenser` so we consider it as `true`):
 - if the flag `isCondenser` is `true`: 
   - if the minimum and the maximum active power limit are positive, then the generator or battery will be exported as `generatorOrCondenser`,
   - if the minimum and the maximum active power limit are negative, then the generator or battery will be exported as `motorOrCondenser`,
