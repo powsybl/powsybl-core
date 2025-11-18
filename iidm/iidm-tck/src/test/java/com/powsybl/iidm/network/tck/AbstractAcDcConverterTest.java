@@ -735,8 +735,7 @@ public abstract class AbstractAcDcConverterTest {
         vsc.newDroopCurve()
                 .add();
 
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> vsc.getDroopCurve().getK(10.0));
-        assertEquals("Droop curve is empty", e1.getMessage());
+        assertEquals(0., vsc.getDroopCurve().getK(400.));
     }
 
     @Test
