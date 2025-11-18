@@ -122,14 +122,15 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String VOLTAGE_LEVELS_BUS_BREAKER = "iidm.export.xml.topology-level.voltage-levels.bus-breaker";
     public static final String VOLTAGE_LEVELS_BUS_BRANCH = "iidm.export.xml.topology-level.voltage-levels.bus-branch";
 
+    private static final String THROW_EXCEPTION = "THROW_EXCEPTION";
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
     private static final Parameter ONLY_MAIN_CC_PARAMETER = new Parameter(ONLY_MAIN_CC, ParameterType.BOOLEAN, "Export only main CC", Boolean.FALSE);
     private static final Parameter ANONYMISED_PARAMETER = new Parameter(ANONYMISED, ParameterType.BOOLEAN, "Anonymise exported network", Boolean.FALSE);
-    private static final Parameter IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER = new Parameter(IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR, ParameterType.STRING, "Behavior when there is an IIDM version incompatibility", "THROW_EXCEPTION",
-            List.of("LOG_ERROR", "THROW_EXCEPTION"));
-    private static final Parameter BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR_PARAMETER = new Parameter(BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR, ParameterType.STRING, "Behavior when there is a voltage level topology incompatibility", "THROW_EXCEPTION",
-            List.of("KEEP_ORIGINAL_TOPOLOGY", "THROW_EXCEPTION"));
+    private static final Parameter IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER = new Parameter(IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR, ParameterType.STRING, "Behavior when there is an IIDM version incompatibility", THROW_EXCEPTION,
+            List.of("LOG_ERROR", THROW_EXCEPTION));
+    private static final Parameter BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR_PARAMETER = new Parameter(BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR, ParameterType.STRING, "Behavior when there is a voltage level topology incompatibility", THROW_EXCEPTION,
+            List.of("KEEP_ORIGINAL_TOPOLOGY", THROW_EXCEPTION));
     private static final Parameter TOPOLOGY_LEVEL_PARAMETER = new Parameter(TOPOLOGY_LEVEL, ParameterType.STRING, "Export network in this topology level",
             TopologyLevel.NODE_BREAKER.name(),
             Arrays.stream(TopologyLevel.values()).map(Enum::name).collect(Collectors.toList()));

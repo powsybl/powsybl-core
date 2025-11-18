@@ -29,6 +29,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     static final String ROOT_ELEMENT_NAME = "voltageLevel";
     static final String ARRAY_ELEMENT_NAME = "voltageLevels";
+    private static final String TOPOLOGY_KIND_NAME = "topologyKind";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VoltageLevelSerDe.class);
 
@@ -51,9 +52,9 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
         if (shouldExportwithOriginalTopology(vl, context)) {
-            context.getWriter().writeEnumAttribute("topologyKind", vl.getTopologyKind());
+            context.getWriter().writeEnumAttribute(TOPOLOGY_KIND_NAME, vl.getTopologyKind());
         } else {
-            context.getWriter().writeEnumAttribute("topologyKind", topologyLevel.getTopologyKind());
+            context.getWriter().writeEnumAttribute(TOPOLOGY_KIND_NAME, topologyLevel.getTopologyKind());
         }
     }
 
@@ -94,8 +95,9 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                         .filter(Switch::isOpen).count()) {
             if (context.getOptions()
                     .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
-                throw new PowsyblException("Cannot export a voltage level with all its switches open");
+                throw new PowsyblException("Cannot export a voltage level with all its switches open in BUS_BRANCH topology");
             }
+            LOGGER.warn("Voltage level '{}' has all its switches open, exporting it in original topology", vl.getId());
             return true;
         }
         return false;
