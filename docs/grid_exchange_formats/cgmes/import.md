@@ -589,7 +589,7 @@ Common [`AC/DC Converter`](../../grid_model/network_subnetwork.md#acdc-converter
 
 Specific `CsConverter` attributes are mapped as follows:
 - `ReactiveModel` is always set to `FIXED_POWER_FACTOR`.
-- `PowerFactor` is calculated from SSH `p` and `q` as $\|{\frac{p}{\sqrt{p^2 + q^2}}}\|$. 
+- `PowerFactor` is calculated from SSH `p` and `q` as $\left|{\frac{p}{\sqrt{p^2 + q^2}}}\right|$. 
 If p and q are equal to 0, the power factor is calculated with $Q = 0.5P$, which gives the value 0.89443.
 
 Specific `VsConverter` attributes are mapped as follows:
