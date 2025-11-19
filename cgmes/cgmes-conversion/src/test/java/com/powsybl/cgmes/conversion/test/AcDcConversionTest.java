@@ -8,8 +8,10 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
@@ -547,6 +549,32 @@ class AcDcConversionTest extends AbstractSerDeTest {
 
         // Since it is a bus-branch topology model, there is as many DcNode as DcBus.
         assertEquals(network.getDcNodeCount(), network.getDcBusCount());
+    }
+
+    @Test
+    void dcNetworkBusBranchExportTest() throws IOException {
+        // IIDM network:
+        //   A node-breaker HVDC bipole.
+        // CGMES network:
+        //   A bus-branch HVDC bipole.
+        Network network = readCgmesResources(IMPORT_PARAMS, DIR, "mixed_bipole_EQ.xml", "mixed_bipole_SSH.xml");
+        assertEquals(12, network.getDcSwitchCount());
+        assertEquals(14, network.getDcNodeCount());
+        assertEquals(6, network.getDcBusCount());
+
+        // In CIM16 bus-branch export, there is no DCNode and no DCSwitch.
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.TOPOLOGY_KIND, CgmesTopologyKind.BUS_BRANCH.name());
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
+        assertEquals(0, getElementCount(eqFile, "DCBreaker"));
+        assertEquals(0, getElementCount(eqFile, "DCDisconnector"));
+        assertEquals(0, getElementCount(eqFile, "DCNode"));
+        assertFalse(eqFile.contains("cim:DCBaseTerminal.DCNode"));
+
+        // In CIM100 bus-branch export, DCNodes come from IIDM DcBuses.
+        exportParams.put(CgmesExport.CIM_VERSION, "100");
+        eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
+        assertEquals(6, getElementCount(eqFile, "DCNode"));
     }
 
 }

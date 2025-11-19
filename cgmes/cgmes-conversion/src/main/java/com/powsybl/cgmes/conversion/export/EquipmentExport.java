@@ -1401,7 +1401,12 @@ public final class EquipmentExport {
 
     private static void writeDcTerminal(Identifiable<?> dcIdentifiable, DcNode dcNode, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String dcIdentifiableId = context.getNamingStrategy().getCgmesId(dcIdentifiable);
-        String dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
+        String dcNodeId = null;
+        if (!context.isBusBranchExport()) {
+            dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
+        } else if (!context.isCim16BusBranchExport()) {
+            dcNodeId = context.getNamingStrategy().getCgmesId(dcNode.getDcBus());
+        }
         String dcTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dcIdentifiable, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + sequenceNumber);
         String className = dcIdentifiable instanceof AcDcConverter<?> ? AC_DC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
         writeDcTerminal(className, dcTerminalId, dcIdentifiable.getNameOrId() + " " + sequenceNumber, dcIdentifiableId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
@@ -1455,21 +1460,36 @@ public final class EquipmentExport {
     }
 
     private static void writeDcNodes(Network network, Map<DcNode, DCConverterUnit> dcNodesConverters, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DcNode dcNode : network.getDcNodes()) {
-            String dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
-            String dcConverterUnitId = dcNodesConverters.containsKey(dcNode) ? dcNodesConverters.get(dcNode).id() : null;
-            writeDCNode(dcNodeId, dcNode.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
+        // DCNodes are:
+        // - exported from DcNodes in case of a node-breaker export
+        // - exported from DcBuses in case of a CIM100 bus-branch export
+        // - never exported in case of a CIM16 bus-branch export
+        if (!context.isBusBranchExport()) {
+            for (DcNode dcNode : network.getDcNodes()) {
+                String dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
+                String dcConverterUnitId = dcNodesConverters.containsKey(dcNode) ? dcNodesConverters.get(dcNode).id() : null;
+                writeDCNode(dcNodeId, dcNode.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
+            }
+        } else if (!context.isCim16BusBranchExport()) {
+            for (DcBus dcBus : network.getDcBuses()) {
+                String dcBusId = context.getNamingStrategy().getCgmesId(dcBus);
+                DcNode refDcNode = dcBus.getDcNodeStream().min(Comparator.comparing(DcNode::getId)).orElseThrow();
+                String dcConverterUnitId = dcNodesConverters.containsKey(refDcNode) ? dcNodesConverters.get(refDcNode).id() : null;
+                writeDCNode(dcBusId, dcBus.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
+            }
         }
     }
 
     private static void writeDcSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DcSwitch dcSwitch : network.getDcSwitches()) {
-            String className = dcSwitch.getKind() == DcSwitchKind.BREAKER ? "DCBreaker" : "DCDisconnector";
-            String dcSwitchId = context.getNamingStrategy().getCgmesId(dcSwitch);
-            DCSwitchEq.write(className, dcSwitchId, dcSwitch.getNameOrId(), cimNamespace, writer, context);
+        if (!context.isBusBranchExport()) {
+            for (DcSwitch dcSwitch : network.getDcSwitches()) {
+                String className = dcSwitch.getKind() == DcSwitchKind.BREAKER ? "DCBreaker" : "DCDisconnector";
+                String dcSwitchId = context.getNamingStrategy().getCgmesId(dcSwitch);
+                DCSwitchEq.write(className, dcSwitchId, dcSwitch.getNameOrId(), cimNamespace, writer, context);
 
-            writeDcTerminal(dcSwitch, dcSwitch.getDcNode1(), 1, cimNamespace, writer, context);
-            writeDcTerminal(dcSwitch, dcSwitch.getDcNode2(), 2, cimNamespace, writer, context);
+                writeDcTerminal(dcSwitch, dcSwitch.getDcNode1(), 1, cimNamespace, writer, context);
+                writeDcTerminal(dcSwitch, dcSwitch.getDcNode2(), 2, cimNamespace, writer, context);
+            }
         }
     }
 
