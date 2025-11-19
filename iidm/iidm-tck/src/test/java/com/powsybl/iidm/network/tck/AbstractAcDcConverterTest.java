@@ -745,6 +745,8 @@ public abstract class AbstractAcDcConverterTest {
                 .setBus1(b1a.getId())
                 .setBus2(b2a.getId());
 
+        acDcConverterB = createLccB(vlb);
+
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("AC/DC Line Commutated Converter 'converterA': controlMode is not set", e1.getMessage());
 
@@ -759,11 +761,11 @@ public abstract class AbstractAcDcConverterTest {
         adder.setTargetP(200.);
         adder.setPccTerminal(lax.getTerminal());
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': converter has two AC terminals and pccTerminal is not a line or transformer terminal", e4.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not a line or transformer or converter terminal", e4.getMessage());
 
-        adder.setBus2(null);
+        adder.setPccTerminal(acDcConverterB.getTerminal1());
         PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not a line or transformer or the converter terminal", e5.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal cannot be the terminal of another converter", e5.getMessage());
 
         adder.setPccTerminal(lineax.getTerminal1());
         PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
@@ -826,6 +828,14 @@ public abstract class AbstractAcDcConverterTest {
         assertTrue(acDcConverterA.getTerminal(TerminalNumber.TWO).isPresent());
 
         // change PCC Terminal to line terminal
+        acDcConverterA.setPccTerminal(lineax.getTerminal1());
+        assertSame(lineax.getTerminal1(), acDcConverterA.getPccTerminal());
+
+        // check we can set again to converter's AC terminal
+        acDcConverterA.setPccTerminal(acDcConverterA.getTerminal1());
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal());
+
+        // change again PCC Terminal to line terminal
         acDcConverterA.setPccTerminal(lineax.getTerminal1());
         assertSame(lineax.getTerminal1(), acDcConverterA.getPccTerminal());
 
