@@ -1,14 +1,11 @@
-/**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2019-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.ieeecdf.model;
-
-import com.univocity.parsers.annotations.FixedWidth;
-import com.univocity.parsers.annotations.Parsed;
+package com.powsybl.ieeecdf.model.elements;
 
 /**
  * <p>
@@ -27,55 +24,41 @@ import com.univocity.parsers.annotations.Parsed;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class IeeeCdfInterchangeData {
+public class IeeeCdfInterchangeData extends AbstractIeeeElement {
 
     /**
      * Area number
      */
-    @FixedWidth(from = 0, to = 2)
-    @Parsed
     private int areaNumber;
 
     /**
      * Interchange slack bus number
      */
-    @FixedWidth(from = 3, to = 7)
-    @Parsed
     private int interchangeSlackBusNumber;
 
     /**
      * Alternate swing bus name
      */
-    @FixedWidth(from = 8, to = 20)
-    @Parsed
     private String alternateSwingBusName;
 
     /**
      * Area interchange export, MW
      */
-    @FixedWidth(from = 20, to = 28)
-    @Parsed
     private double areaInterchangeExport;
 
     /**
      * Area interchange tolerance, MW
      */
-    @FixedWidth(from = 29, to = 35)
-    @Parsed
     private double areaInterchangeTolerance;
 
     /**
      * Area code (abbreviated name)
      */
-    @FixedWidth(from = 37, to = 43)
-    @Parsed
     private String areaCode;
 
     /**
      * Area name
      */
-    @FixedWidth(from = 45, to = 75)
-    @Parsed
     private String areaName;
 
     public int getAreaNumber() {

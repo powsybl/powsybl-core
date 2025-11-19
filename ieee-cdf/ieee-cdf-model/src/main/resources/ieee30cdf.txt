@@ -78,8 +78,8 @@ LOSS ZONES FOLLOWS                     1 ITEMS
   1 IEEE 30 BUS
 -99
 INTERCHANGE DATA FOLLOWS                 1 ITEMS
--9
  1    2 Claytor  132    0.0  999.99  IEEE30  IEEE 30 Bus Test Case
+-9
 TIE LINES FOLLOWS                     0 ITEMS
 -999
 END OF DATA
