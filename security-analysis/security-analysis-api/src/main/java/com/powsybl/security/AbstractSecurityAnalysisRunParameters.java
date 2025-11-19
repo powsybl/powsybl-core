@@ -13,6 +13,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.results.SecurityAnalysisResultHandler;
 import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public abstract class AbstractSecurityAnalysisRunParameters<T extends AbstractSe
     private List<OperatorStrategy> operatorStrategies = new ArrayList<>();
     private List<Action> actions = new ArrayList<>();
     private List<StateMonitor> monitors = new ArrayList<>();
+    private List<SecurityAnalysisResultHandler> handlers = new ArrayList<>();
     private ReportNode reportNode = ReportNode.NO_OP;
 
     /**
@@ -132,6 +134,15 @@ public abstract class AbstractSecurityAnalysisRunParameters<T extends AbstractSe
     }
 
     /**
+     * Sets the list of handlers referenced in {@link SecurityAnalysisResultHandler}
+     */
+    public T setResultHandlers(List<SecurityAnalysisResultHandler> handlers) {
+        Objects.requireNonNull(handlers, "Handler list should not be null");
+        this.handlers = handlers;
+        return self();
+    }
+
+    /**
      * Sets the reportNode used for functional logs, see {@link ReportNode}
      */
     public T setReportNode(ReportNode reportNode) {
@@ -161,6 +172,12 @@ public abstract class AbstractSecurityAnalysisRunParameters<T extends AbstractSe
     public T addAction(Action action) {
         Objects.requireNonNull(action, "Action should not be null");
         actions.add(action);
+        return self();
+    }
+
+    public T addResultHandler(SecurityAnalysisResultHandler handler) {
+        Objects.requireNonNull(handlers, "Handler should not be null");
+        handlers.add(handler);
         return self();
     }
 
