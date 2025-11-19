@@ -548,6 +548,16 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringSshOperatingMode(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ATTR_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("SynchronousMachine.operatingMode")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringTextValueShuntCompensatorControlEnabled(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
             String cxpath = comparison.getControlDetails().getXPath();
