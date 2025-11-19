@@ -530,15 +530,25 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="P_PCC"/>
             <xs:enumeration value="V_DC"/>
+            <xs:enumeration value="P_PCC_DROOP"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:complexType name="DroopCurve">
+        <xs:sequence>
+            <xs:element name="segment" minOccurs="1" maxOccurs="unbounded" type="iidm:DroopCurveSegment"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="DroopCurveSegment">
+        <xs:attribute name="minV" use="required" type="xs:double"/>
+        <xs:attribute name="maxV" use="required" type="xs:double"/>
+        <xs:attribute name="k" use="required" type="xs:double"/>
+    </xs:complexType>
     <xs:complexType name="AcDcConverter">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:sequence>
-                    <xs:choice>
-                        <xs:element name="pccTerminal" type="iidm:TerminalRef"/>
-                    </xs:choice>
+                    <xs:element name="pccTerminal" type="iidm:TerminalRef"/>
+                    <xs:element name="droopCurve" minOccurs="0" maxOccurs="1" type="iidm:DroopCurve"/>
                 </xs:sequence>
                 <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="dcConnected1" use="required" type="xs:boolean"/>

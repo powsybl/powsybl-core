@@ -51,6 +51,7 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
     @Override
     protected void writeSubElements(T converter, VoltageLevel vl, NetworkSerializerContext context) {
         TerminalRefSerDe.writeTerminalRef(converter.getPccTerminal(), context, "pccTerminal");
+        DroopCurveSerDe.INSTANCE.write(converter, context);
         super.writeSubElements(converter, vl, context);
     }
 
@@ -83,6 +84,8 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
     protected void readSubElement(String elementName, T converter, NetworkDeserializerContext context) {
         if ("pccTerminal".equals(elementName)) {
             TerminalRefSerDe.readTerminalRef(context, converter.getNetwork(), converter::setPccTerminal);
+        } else if (DroopCurveSerDe.ELEM_DROOP_CURVE.equals(elementName)) {
+            DroopCurveSerDe.INSTANCE.read(converter, context);
         } else {
             super.readSubElement(elementName, converter, context);
         }

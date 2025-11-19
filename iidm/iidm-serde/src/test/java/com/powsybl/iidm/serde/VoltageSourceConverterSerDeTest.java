@@ -126,14 +126,14 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
 
         VoltageSourceConverter vsc2 = vlBb400.newVoltageSourceConverter()
                 .setId("vscBb2ACWithSolvedV")
-                .setName("VSC in Bus/Breaker with two AC Terminals with solved values")
+                .setName("VSC in Bus/Breaker with two AC Terminals with solved values and droop curve")
                 .setDcNode1(dcNode1.getId())
                 .setDcConnected1(true)
                 .setDcNode2(dcNode2.getId())
                 .setDcConnected2(true)
                 .setBus1(bus1.getId())
                 .setBus2(bus2.getId())
-                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP)
                 .setTargetVdc(502.)
                 .setTargetP(301.)
                 .setPccTerminal(lineBb.getTerminal1())
@@ -149,6 +149,12 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
         vsc2.getDcTerminal2().setP(0.4).setI(200.);
         vsc2.getTerminal1().setP(-100.).setQ(-200.);
         vsc2.getTerminal2().orElseThrow().setP(-100.1).setQ(-200.2);
+
+        vsc2.newDroopCurve()
+                .beginSegment().setK(-10.).setMinV(-500.).setMaxV(-100.).endSegment()
+                .beginSegment().setK(-5.).setMinV(-100.).setMaxV(100.).endSegment()
+                .beginSegment().setK(-1.).setMinV(100.).setMaxV(500.).endSegment()
+                .add();
 
         VoltageSourceConverter vsc3 = vlNb400.newVoltageSourceConverter()
                 .setId("vscNb2ACWithPartiallySolvedV")

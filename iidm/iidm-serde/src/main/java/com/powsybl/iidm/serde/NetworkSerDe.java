@@ -676,6 +676,7 @@ public final class NetworkSerDe {
                 Map.entry(DcGroundSerDe.ARRAY_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(DcLineSerDe.ARRAY_ELEMENT_NAME, DcLineSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(DcSwitchSerDe.ARRAY_ELEMENT_NAME, DcSwitchSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(DroopCurveSerDe.ARRAY_ELEMENT_NAME, DroopCurveSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(GeneratorSerDe.ARRAY_ELEMENT_NAME, GeneratorSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(HvdcLineSerDe.ARRAY_ELEMENT_NAME, HvdcLineSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(LccConverterStationSerDe.ARRAY_ELEMENT_NAME, LccConverterStationSerDe.ROOT_ELEMENT_NAME),

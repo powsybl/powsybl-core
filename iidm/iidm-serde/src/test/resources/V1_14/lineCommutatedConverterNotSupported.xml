@@ -13,8 +13,13 @@
                 <iidm:property name="prop name" value="prop value"/>
                 <iidm:pccTerminal id="lccBb1ACWithoutSolvedV" number="ONE"/>
             </iidm:lineCommutatedConverter>
-            <iidm:lineCommutatedConverter id="lccBb2ACWithSolvedV" name="LCC in Bus/Breaker with two AC Terminals with solved values" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="2.0" switchingLoss="0.2" resistiveLoss="2.0E-6" controlMode="P_PCC" targetP="301.0" targetVdc="502.0" bus1="bus1" connectableBus1="bus1" bus2="bus2" connectableBus2="bus2" reactiveModel="CALCULATED_POWER_FACTOR" powerFactor="0.92" p1="-100.0" q1="-200.0" p2="-100.1" q2="-200.2" dcP1="-100.0" dcI1="-200.0" dcP2="0.4" dcI2="200.0">
+            <iidm:lineCommutatedConverter id="lccBb2ACWithSolvedV" name="LCC in Bus/Breaker with two AC Terminals with solved values and droop curve" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="2.0" switchingLoss="0.2" resistiveLoss="2.0E-6" controlMode="P_PCC_DROOP" targetP="301.0" targetVdc="502.0" bus1="bus1" connectableBus1="bus1" bus2="bus2" connectableBus2="bus2" reactiveModel="CALCULATED_POWER_FACTOR" powerFactor="0.92" p1="-100.0" q1="-200.0" p2="-100.1" q2="-200.2" dcP1="-100.0" dcI1="-200.0" dcP2="0.4" dcI2="200.0">
                 <iidm:pccTerminal id="lineBb" side="ONE"/>
+                <iidm:droopCurve>
+                    <iidm:segment minV="-500.0" maxV="-100.0" k="-10.0"/>
+                    <iidm:segment minV="-100.0" maxV="100.0" k="-5.0"/>
+                    <iidm:segment minV="100.0" maxV="500.0" k="-1.0"/>
+                </iidm:droopCurve>
             </iidm:lineCommutatedConverter>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="vlNB400" nominalV="400.0" topologyKind="NODE_BREAKER">
