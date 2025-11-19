@@ -486,4 +486,49 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertTrue(dcTopologicalNode.contains("<cim:IdentifiedObject.name>DC node 1 1P</cim:IdentifiedObject.name>"));
     }
 
+    @Test
+    void dcNetworkSvExportTest() throws IOException {
+        // IIDM network:
+        //   A mixed HVDC bipole.
+        // CGMES network:
+        //   DCTerminal and ACDCConverterDCTerminal referencing a DCTopologicalNode.
+        Network network = readCgmesResources(IMPORT_PARAMS, DIR, "mixed_bipole_EQ.xml", "mixed_bipole_SSH.xml");
+
+        // Set some Idc and Udc values (simulate that a load flow has been run) and export SV.
+        LineCommutatedConverter lcc = network.getLineCommutatedConverter("CSC_1_1");
+        lcc.getDcTerminal1().setI(1000);
+        lcc.getDcTerminal1().getDcNode().setV(250);
+        lcc.getDcTerminal2().getDcNode().setV(0);
+
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("VSC_1_2");
+        vsc.getDcTerminal1().setI(1000);
+        vsc.getDcTerminal1().getDcNode().setV(0);
+        vsc.getDcTerminal2().getDcNode().setV(-500);
+
+        String svFile = writeCgmesProfile(network, "SV", tmpDir, new Properties());
+
+        // Verify all dc objects have been exported.
+        assertEquals(2, getElementCount(svFile, "CsConverter"));
+        assertEquals(2, getElementCount(svFile, "VsConverter"));
+
+        // Verify dc objects properties.
+        // CsConverter
+        String csConverter = getElement(svFile, "CsConverter", "CSC_1_1");
+        assertTrue(csConverter.contains("<cim:ACDCConverter.poleLossP>1</cim:ACDCConverter.poleLossP>"));
+        assertTrue(csConverter.contains("<cim:ACDCConverter.idc>1000</cim:ACDCConverter.idc>"));
+        assertTrue(csConverter.contains("<cim:ACDCConverter.uc>0</cim:ACDCConverter.uc>"));
+        assertTrue(csConverter.contains("<cim:ACDCConverter.udc>250</cim:ACDCConverter.udc>"));
+        assertTrue(csConverter.contains("<cim:CsConverter.alpha>0</cim:CsConverter.alpha>"));
+        assertTrue(csConverter.contains("<cim:CsConverter.gamma>0</cim:CsConverter.gamma>"));
+
+        // VsConverter
+        String vsConverter = getElement(svFile, "VsConverter", "VSC_1_2");
+        assertTrue(vsConverter.contains("<cim:ACDCConverter.poleLossP>2</cim:ACDCConverter.poleLossP>"));
+        assertTrue(vsConverter.contains("<cim:ACDCConverter.idc>1000</cim:ACDCConverter.idc>"));
+        assertTrue(vsConverter.contains("<cim:ACDCConverter.uc>0</cim:ACDCConverter.uc>"));
+        assertTrue(vsConverter.contains("<cim:ACDCConverter.udc>500</cim:ACDCConverter.udc>"));
+        assertTrue(vsConverter.contains("<cim:VsConverter.delta>0</cim:VsConverter.delta>"));
+        assertTrue(vsConverter.contains("<cim:VsConverter.uf>0</cim:VsConverter.uf>"));
+    }
+
 }
