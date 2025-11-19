@@ -144,8 +144,8 @@ LOSS ZONES FOLLOWS                     1 ITEMS
   1 IEEE 57 BUS
 -99
 INTERCHANGE DATA FOLLOWS                 1 ITEMS
- 1    8 Clinch Rv V1    0.0  999.99  IEEE57  IEEE 57 Bus Test Case
 -9
+ 1    8 Clinch Rv V1    0.0  999.99  IEEE57  IEEE 57 Bus Test Case
 TIE LINES FOLLOWS                     0 ITEMS
 -999
 END OF DATA
