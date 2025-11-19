@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.action.*;
 import com.powsybl.iidm.network.ThreeSides;
@@ -43,12 +42,24 @@ import static com.powsybl.security.LimitViolationType.*;
 class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
 
     @Test
-    void operatorStrategyReadV10() throws IOException {
+    void operatorStrategyReadV10() {
         OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.0.json"));
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            operatorStrategies.write(bos);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/OperatorStrategyFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+        assertEquals(6, operatorStrategies.getOperatorStrategies().size());
+        for (var opStrategy : operatorStrategies.getOperatorStrategies()) {
+            assertEquals(1, opStrategy.getConditionalActions().size());
+            assertEquals("default", opStrategy.getConditionalActions().getFirst().getId());
         }
+        assertEquals("contingencyId5", operatorStrategies.getOperatorStrategies().get(5).getContingencyContext().getContingencyId());
+    }
+
+    @Test
+    void operatorStrategyReadV11() {
+        OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.1.json"));
+        assertEquals(6, operatorStrategies.getOperatorStrategies().size());
+        for (var opStrategy : operatorStrategies.getOperatorStrategies()) {
+            assertEquals(1, opStrategy.getConditionalActions().size());
+        }
+        assertEquals("stage1", operatorStrategies.getOperatorStrategies().get(5).getConditionalActions().getFirst().getId());
     }
 
     @Test

@@ -1,5 +1,5 @@
 {
-  "version" : "1.7",
+  "version" : "1.8",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -177,6 +177,37 @@
     },
     "conditionalActionsResults" : [ {
       "conditionalActionsId" : "strategyId",
+      "status" : "CONVERGED",
+      "limitViolationsResult" : {
+        "limitViolations" : [ ],
+        "actionsTaken" : [ ]
+      },
+      "networkResult" : {
+        "branchResults" : [ ],
+        "busResults" : [ ],
+        "threeWindingsTransformerResults" : [ ]
+      }
+    } ]
+  }, {
+    "operatorStrategy" : {
+      "id" : "strategyId2",
+      "contingencyContextType" : "SPECIFIC",
+      "contingencyId" : "contingency1",
+      "conditionalActions" : [ {
+        "id" : "stage1",
+        "condition" : {
+          "type" : "THRESHOLD_CONDITION",
+          "threshold" : 2.0,
+          "equipmentId" : "Line1",
+          "side" : "ONE",
+          "comparisonType" : "GREATER_THAN",
+          "variable" : "CURRENT"
+        },
+        "actionIds" : [ "actionId1" ]
+      } ]
+    },
+    "conditionalActionsResults" : [ {
+      "conditionalActionsId" : "strategyId2",
       "status" : "CONVERGED",
       "limitViolationsResult" : {
         "limitViolations" : [ ],
