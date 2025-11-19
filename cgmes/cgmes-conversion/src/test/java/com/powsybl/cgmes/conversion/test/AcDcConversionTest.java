@@ -531,4 +531,22 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertTrue(vsConverter.contains("<cim:VsConverter.uf>0</cim:VsConverter.uf>"));
     }
 
+    @Test
+    void dcNetworkBusBranchImportTest() {
+        // CGMES network:
+        //   A bus-branch HVDC bipole.
+        // IIDM network:
+        //   CGMES DCTopologicalNode have been imported into IIDM DcNode. Each DcNode has its own DcBus.
+        Network network = readCgmesResources(IMPORT_PARAMS, DIR, "dc_bus_branch_EQ.xml", "dc_bus_branch_TP.xml");
+
+        // Verify all dc objects have been imported.
+        assertEquals(6, network.getDcNodeCount());
+        assertEquals(2, network.getDcLineCount());
+        assertEquals(2, network.getVoltageSourceConverterCount());
+        assertEquals(2, network.getLineCommutatedConverterCount());
+
+        // Since it is a bus-branch topology model, there is as many DcNode as DcBus.
+        assertEquals(network.getDcNodeCount(), network.getDcBusCount());
+    }
+
 }
