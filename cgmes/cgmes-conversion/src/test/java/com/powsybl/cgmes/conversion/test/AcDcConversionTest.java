@@ -42,7 +42,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void mixedBipoleEqTest() {
+    void dcNetworkEqImportTest() {
         // CGMES network:
         //   A mixed HVDC bipole:
         //   - Pole 1 is LCC based, has 2 AC connections and is rated at 250MW/250kV.
@@ -54,7 +54,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         //   - Without SSH input, all switches are closed, all converters target power are 0, lcc power factor is calculated with Q = 0.5P.
         Network network = readCgmesResources(IMPORT_PARAMS, DIR, "mixed_bipole_EQ.xml");
 
-        // Verify all objects have been imported.
+        // Verify all dc objects have been imported.
         assertEquals(14, network.getDcNodeCount());
         assertEquals(12, network.getDcSwitchCount());
         assertEquals(1, network.getDcGroundCount());
@@ -62,7 +62,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(2, network.getVoltageSourceConverterCount());
         assertEquals(2, network.getLineCommutatedConverterCount());
 
-        // Verify objects properties.
+        // Verify dc objects properties.
         // DCNode
         DcNode dcNode11 = network.getDcNode("DCN_1_1");
         assertNotNull(dcNode11);
@@ -173,14 +173,14 @@ class AcDcConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void mixedBipoleSshTest() {
+    void dcNetworkSshImportTest() {
         // CGMES network:
         //   SSH data brings switches statuses and converter state values.
         // IIDM network:
         //   Switches are open and converters have their rated state values.
         Network network = readCgmesResources(IMPORT_PARAMS, DIR, "mixed_bipole_EQ.xml", "mixed_bipole_SSH.xml");
 
-        // Verify all objects have been imported.
+        // Verify all dc objects have been imported.
         assertEquals(14, network.getDcNodeCount());
         assertEquals(12, network.getDcSwitchCount());
         assertEquals(1, network.getDcGroundCount());
@@ -188,7 +188,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(2, network.getVoltageSourceConverterCount());
         assertEquals(2, network.getLineCommutatedConverterCount());
 
-        // Verify objects properties.
+        // Verify dc objects properties.
         // DCSwitch
         DcSwitch dcBreaker = network.getDcSwitch("DCSW_1_1");
         assertTrue(dcBreaker.isOpen());
@@ -228,7 +228,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void exportDcNetworkEqTest() throws IOException {
+    void dcNetworkEqExportTest() throws IOException {
         // IIDM network:
         //   A mixed HVDC bipole with VSC, LCC, some DCSwitches and a DCGround.
         // CGMES network:
@@ -236,7 +236,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         Network network = readCgmesResources(IMPORT_PARAMS, DIR, "mixed_bipole_EQ.xml");
         String eqFile = writeCgmesProfile(network, "EQ", tmpDir, new Properties());
 
-        // Verify all objects have been exported.
+        // Verify all dc objects have been exported.
         assertEquals(4, getElementCount(eqFile, "DCConverterUnit"));
         assertEquals(14, getElementCount(eqFile, "DCNode"));
         assertEquals(31, getElementCount(eqFile, "DCTerminal"));
@@ -248,7 +248,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(2, getElementCount(eqFile, "VsConverter"));
         assertEquals(2, getElementCount(eqFile, "CsConverter"));
 
-        // Verify objects properties.
+        // Verify dc objects properties.
         // DCNode
         String dcNode11 = getElement(eqFile, "DCNode", "DCN_1_1");
         assertTrue(dcNode11.contains("<cim:IdentifiedObject.name>DC node 1 1</cim:IdentifiedObject.name>"));
@@ -374,7 +374,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void exportDcNetworkSshTest() throws IOException {
+    void dcNetworkSshExportTest() throws IOException {
         // IIDM network:
         //   A mixed HVDC bipole with VSC, LCC, some DCSwitches and a DCGround.
         // CGMES network:
@@ -382,13 +382,13 @@ class AcDcConversionTest extends AbstractSerDeTest {
         Network network = readCgmesResources(IMPORT_PARAMS, DIR, "mixed_bipole_EQ.xml", "mixed_bipole_SSH.xml");
         String sshFile = writeCgmesProfile(network, "SSH", tmpDir, new Properties());
 
-        // Verify all objects have been exported.
+        // Verify all dc objects have been exported.
         assertEquals(31, getElementCount(sshFile, "DCTerminal"));
         assertEquals(8, getElementCount(sshFile, "ACDCConverterDCTerminal"));
         assertEquals(2, getElementCount(sshFile, "VsConverter"));
         assertEquals(2, getElementCount(sshFile, "CsConverter"));
 
-        // Verify objects properties.
+        // Verify dc objects properties.
         // DCTerminal
         String notConnectedDcTerminal = getElement(sshFile, "DCTerminal", "T_DCSW_1_1_1");
         assertTrue(notConnectedDcTerminal.contains("<cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>"));
@@ -450,4 +450,40 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertTrue(vsc2.contains("<cim:VsConverter.pPccControl rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.udc\"/>"));
         assertTrue(vsc2.contains("<cim:VsConverter.qPccControl rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.voltagePcc\"/>"));
     }
+
+    @Test
+    void dcNetworkTpExportTest() throws IOException {
+        // IIDM network:
+        //   A mixed HVDC bipole with more DCNode than DCBus (node-breaker topology model).
+        // CGMES network:
+        //   DCTerminal and ACDCConverterDCTerminal referencing a DCTopologicalNode.
+        Network network = readCgmesResources(IMPORT_PARAMS, DIR, "mixed_bipole_EQ.xml", "mixed_bipole_SSH.xml");
+        String tpFile = writeCgmesProfile(network, "TP", tmpDir, new Properties());
+
+        // Verify all dc objects have been exported.
+        assertEquals(31, getElementCount(tpFile, "DCTerminal"));
+        assertEquals(8, getElementCount(tpFile, "ACDCConverterDCTerminal"));
+        assertEquals(6, getElementCount(tpFile, "DCTopologicalNode"));
+
+        // Verify dc objects properties.
+        // DCTerminal
+        String closedDcSwitchDcTerminal1 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1P_1");
+        String closedDcSwitchDcTerminal2 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1P_2");
+        assertTrue(closedDcSwitchDcTerminal1.contains("<cim:DCBaseTerminal.DCTopologicalNode rdf:resource=\"#_DCN_1_1P_dcBus\"/>"));
+        assertTrue(closedDcSwitchDcTerminal2.contains("<cim:DCBaseTerminal.DCTopologicalNode rdf:resource=\"#_DCN_1_1P_dcBus\"/>"));
+
+        String openDcSwitchDcTerminal1 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1_1");
+        String openDcSwitchDcTerminal2 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1_2");
+        assertTrue(openDcSwitchDcTerminal1.contains("<cim:DCBaseTerminal.DCTopologicalNode rdf:resource=\"#_DCN_1_1_dcBus\"/>"));
+        assertTrue(openDcSwitchDcTerminal2.contains("<cim:DCBaseTerminal.DCTopologicalNode rdf:resource=\"#_DCN_1_1P_dcBus\"/>"));
+
+        // ACDCConverterDCTerminal
+        String acDcConverterDcTerminal = getElement(tpFile, "ACDCConverterDCTerminal", "T_CSC_1_1_3");
+        assertTrue(acDcConverterDcTerminal.contains("<cim:DCBaseTerminal.DCTopologicalNode rdf:resource=\"#_DCN_1_1P_dcBus\"/>"));
+
+        // DCTopologicalNode
+        String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
+        assertTrue(dcTopologicalNode.contains("<cim:IdentifiedObject.name>DC node 1 1P</cim:IdentifiedObject.name>"));
+    }
+
 }
