@@ -9,9 +9,11 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,9 +21,12 @@ import java.util.Map;
  */
 public class NodeMapping {
 
-    public NodeMapping() {
-        cgmes2iidm = new HashMap<>(100);
-        voltageLevelNumNodes = new HashMap<>(100);
+    private final Map<String, Integer> cgmes2iidm = HashMap.newHashMap(100);
+    private final Map<VoltageLevel, Integer> voltageLevelNumNodes = HashMap.newHashMap(100);
+    private final Context context;
+
+    public NodeMapping(Context context) {
+        this.context = context;
     }
 
     public int iidmNodeForTopologicalNode(String id, int associatedNode, VoltageLevel vl) {
@@ -39,21 +44,86 @@ public class NodeMapping {
         return iidmNodeForTopologicalNode;
     }
 
-    public int iidmNodeForTerminal(CgmesTerminal t, VoltageLevel vl) {
-        int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
-        // Add internal connection from terminal to connectivity node
+    public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl) {
+        if (isSwitchEnd) {
+            // For switches the iidm node is the one from the connectivity node
+            return cgmes2iidm.get(t.connectivityNode());
+        } else if (context.config().createBusbarSectionForEveryConnectivityNode()) {
+            createInternalConnection(t, vl);
+        } else if (!cgmes2iidm.containsKey(t.id())) {
+            // Create internal connections but only if too many terminals on connectivity node
+            createInternalConnectionsIfNeeded(t.connectivityNode(), vl);
+        }
+
+        return cgmes2iidm.get(t.id());
+    }
+
+    private void createInternalConnectionsIfNeeded(String connectivityNode, VoltageLevel vl) {
+        List<CgmesTerminal> connectivityNodeTerminals = context.terminalMapping().getConnectivityNodeTerminals(connectivityNode);
+        switch (connectivityNodeTerminals.size()) {
+            case 0 -> throw new PowsyblException("Erroneous connectivity node terminals mapping");
+            case 1 ->
+                // Only one terminal: no need to create an internal connection
+                // Connectivity node and terminal share the same iidm node
+                oneIidmNodeForBothTerminalAndConnectivityNode(connectivityNodeTerminals.get(0), vl);
+            case 2 -> {
+                // There are two terminals on the same connectivity node. We need one (and only one!) internal connection
+                // between the two terminals as iidm can only handle one terminal per node.
+                // There's a special treatment for BusbarSections described below. Indeed, a bbs is a central equipment,
+                // to which bays/cells connect. We want to keep this physical centrality in iidm, especially for
+                // easy graph traversals and visualization. Note that there are no other central equipments of this type.
+                // - if there's one bbs, it is placed at the connectivity node: in iidm we want the node of the bbs terminal
+                // (and not the connectivity point!) to be where all feeders connect.
+                // - if there are two bbs on the same connectivity node (that is, two united bbs), this is only done for
+                // the first bbs of the list.
+                CgmesTerminal t0 = connectivityNodeTerminals.get(0);
+                CgmesTerminal t1 = connectivityNodeTerminals.get(1);
+                if (!isBusbarSectionTerminal(t0) && isBusbarSectionTerminal(t1)) {
+                    oneIidmNodeForBothTerminalAndConnectivityNode(t1, vl);
+                    createInternalConnection(t0, vl);
+                } else {
+                    oneIidmNodeForBothTerminalAndConnectivityNode(t0, vl);
+                    createInternalConnection(t1, vl);
+                }
+            }
+            default -> {
+                // We need the connectivity node as connecting point between terminals
+                // Similarly to previous case, there's a special treatment for BusbarSections described thereafter for
+                // the same mentioned reasons.
+                // - if there's only one bbs, it is placed at the connectivity node.
+                // - if there are several bbs (that is, several united bbs), this is only done for the first one
+                // encountered, the other ones are connected to the first one with internal connections.
+                boolean bbsEncountered = false;
+                for (CgmesTerminal t : connectivityNodeTerminals) {
+                    if (!bbsEncountered && isBusbarSectionTerminal(t)) {
+                        oneIidmNodeForBothTerminalAndConnectivityNode(t, vl);
+                        bbsEncountered = true;
+                    } else {
+                        // Add internal connection from terminal to connectivity node as iidm can only handle one terminal per node
+                        // For node-breaker models we create an internal connection between the terminal and its connectivity node
+                        createInternalConnection(t, vl);
+                    }
+                }
+            }
+        }
+    }
+
+    private void createInternalConnection(CgmesTerminal t, VoltageLevel vl) {
         int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
-
-        // For node-breaker models we create an internal connection between
-        // the terminal and its connectivity node
-        // TODO(Luma): do not add an internal connection if is has already been added?
-        // TODO When it is a terminal of a switch, the internal connection is not necessary
+        int iidmNodeForTerminal = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
         vl.getNodeBreakerView().newInternalConnection()
-                .setNode1(iidmNodeForConductingEquipment)
-                .setNode2(iidmNodeForConnectivityNode)
+                .setNode1(iidmNodeForConnectivityNode)
+                .setNode2(iidmNodeForTerminal)
                 .add();
+    }
 
-        return iidmNodeForConductingEquipment;
+    private void oneIidmNodeForBothTerminalAndConnectivityNode(CgmesTerminal t, VoltageLevel vl) {
+        int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+        cgmes2iidm.put(t.id(), iidmNodeForConnectivityNode); // connectivity node and terminal share the same iidm node
+    }
+
+    private static boolean isBusbarSectionTerminal(CgmesTerminal t) {
+        return t.conductingEquipmentType().equals("BusbarSection");
     }
 
     public int iidmNodeForConnectivityNode(String id, VoltageLevel vl) {
@@ -68,7 +138,4 @@ public class NodeMapping {
         int numNodes = voltageLevelNumNodes.merge(vl, 1, Integer::sum);
         return numNodes - 1;
     }
-
-    private final Map<String, Integer> cgmes2iidm;
-    private final Map<VoltageLevel, Integer> voltageLevelNumNodes;
 }
