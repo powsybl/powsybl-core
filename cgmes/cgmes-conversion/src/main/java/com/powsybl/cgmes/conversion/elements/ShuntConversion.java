@@ -93,7 +93,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static OptionalInt getSections(PropertyBag cgmesData) {
-        double sections = cgmesData.asDouble("SSHsections", cgmesData.asDouble("SVsections"));
+        double sections = cgmesData.asDouble("SSHsections");
         return Double.isFinite(sections) ? OptionalInt.of(Math.abs(fromContinuous(sections))) : OptionalInt.empty();
     }
 
