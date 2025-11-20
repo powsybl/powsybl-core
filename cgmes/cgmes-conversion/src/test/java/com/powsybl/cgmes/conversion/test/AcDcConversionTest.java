@@ -253,126 +253,126 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // Verify dc objects properties.
         // DCNode
         String dcNode11 = getElement(eqFile, "DCNode", "DCN_1_1");
-        assertTrue(dcNode11.contains("<cim:IdentifiedObject.name>DC node 1 1</cim:IdentifiedObject.name>"));
+        assertEquals("DC node 1 1", getAttribute(dcNode11, "IdentifiedObject.name"));
 
         // DCBreaker
         String dcBreaker = getElement(eqFile, "DCBreaker", "DCSW_1_1");
-        assertTrue(dcBreaker.contains("<cim:IdentifiedObject.name>DC breaker 1 1</cim:IdentifiedObject.name>"));
+        assertEquals("DC breaker 1 1", getAttribute(dcBreaker, "IdentifiedObject.name"));
 
         String dcBreakerT1 = getElement(eqFile, "DCTerminal", "T_DCSW_1_1_1");
-        assertTrue(dcBreakerT1.contains("<cim:IdentifiedObject.name>DC breaker 1 1 1</cim:IdentifiedObject.name>"));
-        assertTrue(dcBreakerT1.contains("<cim:DCTerminal.DCConductingEquipment rdf:resource=\"#_DCSW_1_1\"/>"));
-        assertTrue(dcBreakerT1.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_1_1\"/>"));
-        assertTrue(dcBreakerT1.contains("<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("DC breaker 1 1 1", getAttribute(dcBreakerT1, "IdentifiedObject.name"));
+        assertEquals("DCSW_1_1", getAttribute(dcBreakerT1, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_1", getAttribute(dcBreakerT1, "DCBaseTerminal.DCNode"));
+        assertEquals("1", getAttribute(dcBreakerT1, "ACDCTerminal.sequenceNumber"));
 
         String dcBreakerT2 = getElement(eqFile, "DCTerminal", "T_DCSW_1_1_2");
-        assertTrue(dcBreakerT2.contains("<cim:IdentifiedObject.name>DC breaker 1 1 2</cim:IdentifiedObject.name>"));
-        assertTrue(dcBreakerT2.contains("<cim:DCTerminal.DCConductingEquipment rdf:resource=\"#_DCSW_1_1\"/>"));
-        assertTrue(dcBreakerT2.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_1_G\"/>"));
-        assertTrue(dcBreakerT2.contains("<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("DC breaker 1 1 2", getAttribute(dcBreakerT2, "IdentifiedObject.name"));
+        assertEquals("DCSW_1_1", getAttribute(dcBreakerT2, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_G", getAttribute(dcBreakerT2, "DCBaseTerminal.DCNode"));
+        assertEquals("2", getAttribute(dcBreakerT2, "ACDCTerminal.sequenceNumber"));
 
         // DCDisconnector
         String dcDisconnector = getElement(eqFile, "DCDisconnector", "DCSW_1_1P");
-        assertTrue(dcDisconnector.contains("<cim:IdentifiedObject.name>DC disconnector 1 1P</cim:IdentifiedObject.name>"));
+        assertEquals("DC disconnector 1 1P", getAttribute(dcDisconnector, "IdentifiedObject.name"));
 
         String dcDisconnectorT1 = getElement(eqFile, "DCTerminal", "T_DCSW_1_1P_1");
-        assertTrue(dcDisconnectorT1.contains("<cim:IdentifiedObject.name>DC disconnector 1 1P 1</cim:IdentifiedObject.name>"));
-        assertTrue(dcDisconnectorT1.contains("<cim:DCTerminal.DCConductingEquipment rdf:resource=\"#_DCSW_1_1P\"/>"));
-        assertTrue(dcDisconnectorT1.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_1_1P\"/>"));
-        assertTrue(dcDisconnectorT1.contains("<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("DC disconnector 1 1P 1", getAttribute(dcDisconnectorT1, "IdentifiedObject.name"));
+        assertEquals("DCSW_1_1P", getAttribute(dcDisconnectorT1, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_1P", getAttribute(dcDisconnectorT1, "DCBaseTerminal.DCNode"));
+        assertEquals("1", getAttribute(dcDisconnectorT1, "ACDCTerminal.sequenceNumber"));
 
         String dcDisconnectorT2 = getElement(eqFile, "DCTerminal", "T_DCSW_1_1P_2");
-        assertTrue(dcDisconnectorT2.contains("<cim:IdentifiedObject.name>DC disconnector 1 1P 2</cim:IdentifiedObject.name>"));
-        assertTrue(dcDisconnectorT2.contains("<cim:DCTerminal.DCConductingEquipment rdf:resource=\"#_DCSW_1_1P\"/>"));
-        assertTrue(dcDisconnectorT2.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_1_G\"/>"));
-        assertTrue(dcDisconnectorT2.contains("<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("DC disconnector 1 1P 2", getAttribute(dcDisconnectorT2, "IdentifiedObject.name"));
+        assertEquals("DCSW_1_1P", getAttribute(dcDisconnectorT2, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_G", getAttribute(dcDisconnectorT2, "DCBaseTerminal.DCNode"));
+        assertEquals("2", getAttribute(dcDisconnectorT2, "ACDCTerminal.sequenceNumber"));
 
         // DCGround
         String dcGround = getElement(eqFile, "DCGround", "DCGRND");
-        assertTrue(dcGround.contains("<cim:IdentifiedObject.name>DC ground</cim:IdentifiedObject.name>"));
-        assertTrue(dcGround.contains("<cim:DCGround.r>0.1</cim:DCGround.r>"));
+        assertEquals("DC ground", getAttribute(dcGround, "IdentifiedObject.name"));
+        assertEquals("0.1", getAttribute(dcGround, "DCGround.r"));
 
         String dcGroundT1 = getElement(eqFile, "DCTerminal", "T_DCGRND");
-        assertTrue(dcGroundT1.contains("<cim:IdentifiedObject.name>DC ground 1</cim:IdentifiedObject.name>"));
-        assertTrue(dcGroundT1.contains("<cim:DCTerminal.DCConductingEquipment rdf:resource=\"#_DCGRND\"/>"));
-        assertTrue(dcGroundT1.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_1_G\"/>"));
-        assertTrue(dcGroundT1.contains("<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("DC ground 1", getAttribute(dcGroundT1, "IdentifiedObject.name"));
+        assertEquals("DCGRND", getAttribute(dcGroundT1, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_G", getAttribute(dcGroundT1, "DCBaseTerminal.DCNode"));
+        assertEquals("1", getAttribute(dcGroundT1, "ACDCTerminal.sequenceNumber"));
 
         // DCLineSegment
         String dcLine = getElement(eqFile, "DCLineSegment", "DCL_1");
-        assertTrue(dcLine.contains("<cim:IdentifiedObject.name>DC line 1</cim:IdentifiedObject.name>"));
-        assertTrue(dcLine.contains("<cim:DCLineSegment.resistance>0.5</cim:DCLineSegment.resistance>"));
+        assertEquals("DC line 1", getAttribute(dcLine, "IdentifiedObject.name"));
+        assertEquals("0.5", getAttribute(dcLine, "DCLineSegment.resistance"));
 
         String dcLineT1 = getElement(eqFile, "DCTerminal", "T_DCL_1_1");
-        assertTrue(dcLineT1.contains("<cim:IdentifiedObject.name>DC line 1 1</cim:IdentifiedObject.name>"));
-        assertTrue(dcLineT1.contains("<cim:DCTerminal.DCConductingEquipment rdf:resource=\"#_DCL_1\"/>"));
-        assertTrue(dcLineT1.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_1_1\"/>"));
-        assertTrue(dcLineT1.contains("<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("DC line 1 1", getAttribute(dcLineT1, "IdentifiedObject.name"));
+        assertEquals("DCL_1", getAttribute(dcLineT1, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_1", getAttribute(dcLineT1, "DCBaseTerminal.DCNode"));
+        assertEquals("1", getAttribute(dcLineT1, "ACDCTerminal.sequenceNumber"));
 
         String dcLineT2 = getElement(eqFile, "DCTerminal", "T_DCL_1_2");
-        assertTrue(dcLineT2.contains("<cim:IdentifiedObject.name>DC line 1 2</cim:IdentifiedObject.name>"));
-        assertTrue(dcLineT2.contains("<cim:DCTerminal.DCConductingEquipment rdf:resource=\"#_DCL_1\"/>"));
-        assertTrue(dcLineT2.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_2_1\"/>"));
-        assertTrue(dcLineT2.contains("<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("DC line 1 2", getAttribute(dcLineT2, "IdentifiedObject.name"));
+        assertEquals("DCL_1", getAttribute(dcLineT2, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_2_1", getAttribute(dcLineT2, "DCBaseTerminal.DCNode"));
+        assertEquals("2", getAttribute(dcLineT2, "ACDCTerminal.sequenceNumber"));
 
         // CsConverter
         String lcc = getElement(eqFile, "CsConverter", "CSC_1_1");
-        assertTrue(lcc.contains("<cim:IdentifiedObject.name>Current source converter 1 1</cim:IdentifiedObject.name>"));
-        assertTrue(lcc.contains("<cim:ACDCConverter.ratedUdc>250</cim:ACDCConverter.ratedUdc>"));
-        assertTrue(lcc.contains("<cim:ACDCConverter.idleLoss>0.1</cim:ACDCConverter.idleLoss>"));
-        assertTrue(lcc.contains("<cim:ACDCConverter.switchingLoss>0.0003</cim:ACDCConverter.switchingLoss>"));
-        assertTrue(lcc.contains("<cim:ACDCConverter.resistiveLoss>0.6</cim:ACDCConverter.resistiveLoss>"));
-        assertTrue(lcc.contains("<cim:ACDCConverter.PccTerminal rdf:resource=\"#_T_ACL_1_1\"/>"));
-        assertTrue(lcc.contains("<cim:Equipment.EquipmentContainer rdf:resource=\"#_DCCU_1_1\"/>"));
+        assertEquals("Current source converter 1 1", getAttribute(lcc, "IdentifiedObject.name"));
+        assertEquals("250", getAttribute(lcc, "ACDCConverter.ratedUdc"));
+        assertEquals("0.1", getAttribute(lcc, "ACDCConverter.idleLoss"));
+        assertEquals("0.0003", getAttribute(lcc, "ACDCConverter.switchingLoss"));
+        assertEquals("0.6", getAttribute(lcc, "ACDCConverter.resistiveLoss"));
+        assertEquals("T_ACL_1_1", getAttribute(lcc, "ACDCConverter.PccTerminal"));
+        assertEquals("DCCU_1_1", getAttribute(lcc, "Equipment.EquipmentContainer"));
 
         String lccT1 = getElement(eqFile, "ACDCConverterDCTerminal", "T_CSC_1_1_3");
-        assertTrue(lccT1.contains("<cim:IdentifiedObject.name>Current source converter 1 1 1</cim:IdentifiedObject.name>"));
-        assertTrue(lccT1.contains("<cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource=\"#_CSC_1_1\"/>"));
-        assertTrue(lccT1.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_1_1P\"/>"));
-        assertTrue(lccT1.contains("<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("Current source converter 1 1 1", getAttribute(lccT1, "IdentifiedObject.name"));
+        assertEquals("CSC_1_1", getAttribute(lccT1, "ACDCConverterDCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_1P", getAttribute(lccT1, "DCBaseTerminal.DCNode"));
+        assertEquals("1", getAttribute(lccT1, "ACDCTerminal.sequenceNumber"));
 
         String lccT2 = getElement(eqFile, "ACDCConverterDCTerminal", "T_CSC_1_1_4");
-        assertTrue(lccT2.contains("<cim:IdentifiedObject.name>Current source converter 1 1 2</cim:IdentifiedObject.name>"));
-        assertTrue(lccT2.contains("<cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource=\"#_CSC_1_1\"/>"));
-        assertTrue(lccT2.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_1_1N\"/>"));
-        assertTrue(lccT2.contains("<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("Current source converter 1 1 2", getAttribute(lccT2, "IdentifiedObject.name"));
+        assertEquals("CSC_1_1", getAttribute(lccT2, "ACDCConverterDCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_1N", getAttribute(lccT2, "DCBaseTerminal.DCNode"));
+        assertEquals("2", getAttribute(lccT2, "ACDCTerminal.sequenceNumber"));
 
         // VsConverter
         String vsc = getElement(eqFile, "VsConverter", "VSC_1_2");
-        assertTrue(vsc.contains("<cim:IdentifiedObject.name>Voltage source converter 1 2</cim:IdentifiedObject.name>"));
-        assertTrue(vsc.contains("<cim:ACDCConverter.ratedUdc>500</cim:ACDCConverter.ratedUdc>"));
-        assertTrue(vsc.contains("<cim:ACDCConverter.idleLoss>0.2</cim:ACDCConverter.idleLoss>"));
-        assertTrue(vsc.contains("<cim:ACDCConverter.switchingLoss>0.0006</cim:ACDCConverter.switchingLoss>"));
-        assertTrue(vsc.contains("<cim:ACDCConverter.resistiveLoss>1.2</cim:ACDCConverter.resistiveLoss>"));
-        assertTrue(vsc.contains("<cim:Equipment.EquipmentContainer rdf:resource=\"#_DCCU_1_2\"/>"));
-        assertTrue(vsc.contains("<cim:ACDCConverter.PccTerminal rdf:resource=\"#_T_PTE_1_2_1\"/>"));
-        assertTrue(vsc.contains("<cim:VsConverter.CapabilityCurve rdf:resource=\"#_VSC_1_2_VSC_RCC\"/>"));
+        assertEquals("Voltage source converter 1 2", getAttribute(vsc, "IdentifiedObject.name"));
+        assertEquals("500", getAttribute(vsc, "ACDCConverter.ratedUdc"));
+        assertEquals("0.2", getAttribute(vsc, "ACDCConverter.idleLoss"));
+        assertEquals("0.0006", getAttribute(vsc, "ACDCConverter.switchingLoss"));
+        assertEquals("1.2", getAttribute(vsc, "ACDCConverter.resistiveLoss"));
+        assertEquals("DCCU_1_2", getAttribute(vsc, "Equipment.EquipmentContainer"));
+        assertEquals("T_PTE_1_2_1", getAttribute(vsc, "ACDCConverter.PccTerminal"));
+        assertEquals("VSC_1_2_VSC_RCC", getAttribute(vsc, "VsConverter.CapabilityCurve"));
 
         String vscT1 = getElement(eqFile, "ACDCConverterDCTerminal", "T_VSC_1_2_2");
-        assertTrue(vscT1.contains("<cim:IdentifiedObject.name>Voltage source converter 1 2 1</cim:IdentifiedObject.name>"));
-        assertTrue(vscT1.contains("<cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource=\"#_VSC_1_2\"/>"));
-        assertTrue(vscT1.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_1_2P\"/>"));
-        assertTrue(vscT1.contains("<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("Voltage source converter 1 2 1", getAttribute(vscT1, "IdentifiedObject.name"));
+        assertEquals("VSC_1_2", getAttribute(vscT1, "ACDCConverterDCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_2P", getAttribute(vscT1, "DCBaseTerminal.DCNode"));
+        assertEquals("1", getAttribute(vscT1, "ACDCTerminal.sequenceNumber"));
 
         String vscT2 = getElement(eqFile, "ACDCConverterDCTerminal", "T_VSC_1_2_3");
-        assertTrue(vscT2.contains("<cim:IdentifiedObject.name>Voltage source converter 1 2 2</cim:IdentifiedObject.name>"));
-        assertTrue(vscT2.contains("<cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource=\"#_VSC_1_2\"/>"));
-        assertTrue(vscT2.contains("<cim:DCBaseTerminal.DCNode rdf:resource=\"#_DCN_1_2N\"/>"));
-        assertTrue(vscT2.contains("<cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>"));
+        assertEquals("Voltage source converter 1 2 2", getAttribute(vscT2, "IdentifiedObject.name"));
+        assertEquals("VSC_1_2", getAttribute(vscT2, "ACDCConverterDCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_2N", getAttribute(vscT2, "DCBaseTerminal.DCNode"));
+        assertEquals("2", getAttribute(vscT2, "ACDCTerminal.sequenceNumber"));
 
         // VsCapabilityCurve
         String vscc = getElement(eqFile, "VsCapabilityCurve", "VSC_1_2_VSC_RCC");
-        assertTrue(vscc.contains("<cim:IdentifiedObject.name>RCC_Voltage source converter 1 2</cim:IdentifiedObject.name>"));
-        assertTrue(vscc.contains("<cim:Curve.curveStyle rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#CurveStyle.straightLineYValues\"/>"));
-        assertTrue(vscc.contains("<cim:Curve.xUnit rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.W\"/>"));
-        assertTrue(vscc.contains("<cim:Curve.y1Unit rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr\"/>"));
-        assertTrue(vscc.contains("<cim:Curve.y2Unit rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr\"/>"));
+        assertEquals("RCC_Voltage source converter 1 2", getAttribute(vscc, "IdentifiedObject.name"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CurveStyle.straightLineYValues", getAttribute(vscc, "Curve.curveStyle"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.W", getAttribute(vscc, "Curve.xUnit"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr", getAttribute(vscc, "Curve.y1Unit"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr", getAttribute(vscc, "Curve.y2Unit"));
 
         String cd0 = getElement(eqFile, "CurveData", "VSC_1_2_VSC_0_RCC_CP");
-        assertTrue(cd0.contains("<cim:CurveData.xvalue>-525</cim:CurveData.xvalue>"));
-        assertTrue(cd0.contains("<cim:CurveData.y1value>-100</cim:CurveData.y1value>"));
-        assertTrue(cd0.contains("<cim:CurveData.y2value>100</cim:CurveData.y2value>"));
-        assertTrue(cd0.contains("<cim:CurveData.Curve rdf:resource=\"#_VSC_1_2_VSC_RCC\"/>"));
+        assertEquals("-525", getAttribute(cd0, "CurveData.xvalue"));
+        assertEquals("-100", getAttribute(cd0, "CurveData.y1value"));
+        assertEquals("100", getAttribute(cd0, "CurveData.y2value"));
+        assertEquals("VSC_1_2_VSC_RCC", getAttribute(cd0, "CurveData.Curve"));
     }
 
     @Test
@@ -393,64 +393,64 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // Verify dc objects properties.
         // DCTerminal
         String notConnectedDcTerminal = getElement(sshFile, "DCTerminal", "T_DCSW_1_1_1");
-        assertTrue(notConnectedDcTerminal.contains("<cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>"));
+        assertEquals("false", getAttribute(notConnectedDcTerminal, "ACDCTerminal.connected"));
 
         String connectedDcTerminal = getElement(sshFile, "DCTerminal", "T_DCSW_1_1P_1");
-        assertTrue(connectedDcTerminal.contains("<cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>"));
+        assertEquals("true", getAttribute(connectedDcTerminal, "ACDCTerminal.connected"));
 
         // ACDCConverterDCTerminal
         String acDcConverterDcTerminal = getElement(sshFile, "ACDCConverterDCTerminal", "T_CSC_1_1_3");
-        assertTrue(acDcConverterDcTerminal.contains("<cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>"));
+        assertEquals("true", getAttribute(acDcConverterDcTerminal, "ACDCTerminal.connected"));
 
         // CsConverter
         String lcc1 = getElement(sshFile, "CsConverter", "CSC_1_1");
-        assertTrue(lcc1.contains("<cim:ACDCConverter.targetPpcc>250</cim:ACDCConverter.targetPpcc>"));
-        assertTrue(lcc1.contains("<cim:ACDCConverter.targetUdc>0</cim:ACDCConverter.targetUdc>"));
-        assertTrue(lcc1.contains("<cim:ACDCConverter.p>0</cim:ACDCConverter.p>"));
-        assertTrue(lcc1.contains("<cim:ACDCConverter.q>0</cim:ACDCConverter.q>"));
-        assertTrue(lcc1.contains("<cim:CsConverter.targetAlpha>0</cim:CsConverter.targetAlpha>"));
-        assertTrue(lcc1.contains("<cim:CsConverter.targetGamma>0</cim:CsConverter.targetGamma>"));
-        assertTrue(lcc1.contains("<cim:CsConverter.targetIdc>0</cim:CsConverter.targetIdc>"));
-        assertTrue(lcc1.contains("<cim:CsConverter.operatingMode rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#CsOperatingModeKind.rectifier\"/>"));
-        assertTrue(lcc1.contains("<cim:CsConverter.pPccControl rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#CsPpccControlKind.activePower\"/>"));
+        assertEquals("250", getAttribute(lcc1, "ACDCConverter.targetPpcc"));
+        assertEquals("0", getAttribute(lcc1, "ACDCConverter.targetUdc"));
+        assertEquals("0", getAttribute(lcc1, "ACDCConverter.p"));
+        assertEquals("0", getAttribute(lcc1, "ACDCConverter.q"));
+        assertEquals("0", getAttribute(lcc1, "CsConverter.targetAlpha"));
+        assertEquals("0", getAttribute(lcc1, "CsConverter.targetGamma"));
+        assertEquals("0", getAttribute(lcc1, "CsConverter.targetIdc"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsOperatingModeKind.rectifier", getAttribute(lcc1, "CsConverter.operatingMode"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsPpccControlKind.activePower", getAttribute(lcc1, "CsConverter.pPccControl"));
 
         String lcc2 = getElement(sshFile, "CsConverter", "CSC_2_1");
-        assertTrue(lcc2.contains("<cim:ACDCConverter.targetPpcc>0</cim:ACDCConverter.targetPpcc>"));
-        assertTrue(lcc2.contains("<cim:ACDCConverter.targetUdc>248.5</cim:ACDCConverter.targetUdc>"));
-        assertTrue(lcc2.contains("<cim:ACDCConverter.p>0</cim:ACDCConverter.p>"));
-        assertTrue(lcc2.contains("<cim:ACDCConverter.q>0</cim:ACDCConverter.q>"));
-        assertTrue(lcc2.contains("<cim:CsConverter.targetAlpha>0</cim:CsConverter.targetAlpha>"));
-        assertTrue(lcc2.contains("<cim:CsConverter.targetGamma>0</cim:CsConverter.targetGamma>"));
-        assertTrue(lcc2.contains("<cim:CsConverter.targetIdc>0</cim:CsConverter.targetIdc>"));
-        assertTrue(lcc2.contains("<cim:CsConverter.operatingMode rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#CsOperatingModeKind.inverter\"/>"));
-        assertTrue(lcc2.contains("<cim:CsConverter.pPccControl rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#CsPpccControlKind.dcVoltage\"/>"));
+        assertEquals("0", getAttribute(lcc2, "ACDCConverter.targetPpcc"));
+        assertEquals("248.5", getAttribute(lcc2, "ACDCConverter.targetUdc"));
+        assertEquals("0", getAttribute(lcc2, "ACDCConverter.p"));
+        assertEquals("0", getAttribute(lcc2, "ACDCConverter.q"));
+        assertEquals("0", getAttribute(lcc2, "CsConverter.targetAlpha"));
+        assertEquals("0", getAttribute(lcc2, "CsConverter.targetGamma"));
+        assertEquals("0", getAttribute(lcc2, "CsConverter.targetIdc"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsOperatingModeKind.inverter", getAttribute(lcc2, "CsConverter.operatingMode"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsPpccControlKind.dcVoltage", getAttribute(lcc2, "CsConverter.pPccControl"));
 
         // VsConverter
         String vsc1 = getElement(sshFile, "VsConverter", "VSC_1_2");
-        assertTrue(vsc1.contains("<cim:ACDCConverter.targetPpcc>500</cim:ACDCConverter.targetPpcc>"));
-        assertTrue(vsc1.contains("<cim:ACDCConverter.targetUdc>0</cim:ACDCConverter.targetUdc>"));
-        assertTrue(vsc1.contains("<cim:ACDCConverter.p>0</cim:ACDCConverter.p>"));
-        assertTrue(vsc1.contains("<cim:ACDCConverter.q>0</cim:ACDCConverter.q>"));
-        assertTrue(vsc1.contains("<cim:VsConverter.droop>0</cim:VsConverter.droop>"));
-        assertTrue(vsc1.contains("<cim:VsConverter.droopCompensation>0</cim:VsConverter.droopCompensation>"));
-        assertTrue(vsc1.contains("<cim:VsConverter.qShare>0</cim:VsConverter.qShare>"));
-        assertTrue(vsc1.contains("<cim:VsConverter.targetQpcc>1</cim:VsConverter.targetQpcc>"));
-        assertTrue(vsc1.contains("<cim:VsConverter.targetUpcc>0</cim:VsConverter.targetUpcc>"));
-        assertTrue(vsc1.contains("<cim:VsConverter.pPccControl rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.pPcc\"/>"));
-        assertTrue(vsc1.contains("<cim:VsConverter.qPccControl rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.reactivePcc\"/>"));
+        assertEquals("500", getAttribute(vsc1, "ACDCConverter.targetPpcc"));
+        assertEquals("0", getAttribute(vsc1, "ACDCConverter.targetUdc"));
+        assertEquals("0", getAttribute(vsc1, "ACDCConverter.p"));
+        assertEquals("0", getAttribute(vsc1, "ACDCConverter.q"));
+        assertEquals("0", getAttribute(vsc1, "VsConverter.droop"));
+        assertEquals("0", getAttribute(vsc1, "VsConverter.droopCompensation"));
+        assertEquals("0", getAttribute(vsc1, "VsConverter.qShare"));
+        assertEquals("1", getAttribute(vsc1, "VsConverter.targetQpcc"));
+        assertEquals("0", getAttribute(vsc1, "VsConverter.targetUpcc"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.pPcc", getAttribute(vsc1, "VsConverter.pPccControl"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.reactivePcc", getAttribute(vsc1, "VsConverter.qPccControl"));
 
         String vsc2 = getElement(sshFile, "VsConverter", "VSC_2_2");
-        assertTrue(vsc2.contains("<cim:ACDCConverter.targetPpcc>0</cim:ACDCConverter.targetPpcc>"));
-        assertTrue(vsc2.contains("<cim:ACDCConverter.targetUdc>497</cim:ACDCConverter.targetUdc>"));
-        assertTrue(vsc2.contains("<cim:ACDCConverter.p>0</cim:ACDCConverter.p>"));
-        assertTrue(vsc2.contains("<cim:ACDCConverter.q>0</cim:ACDCConverter.q>"));
-        assertTrue(vsc2.contains("<cim:VsConverter.droop>0</cim:VsConverter.droop>"));
-        assertTrue(vsc2.contains("<cim:VsConverter.droopCompensation>0</cim:VsConverter.droopCompensation>"));
-        assertTrue(vsc2.contains("<cim:VsConverter.qShare>0</cim:VsConverter.qShare>"));
-        assertTrue(vsc2.contains("<cim:VsConverter.targetQpcc>0</cim:VsConverter.targetQpcc>"));
-        assertTrue(vsc2.contains("<cim:VsConverter.targetUpcc>400</cim:VsConverter.targetUpcc>"));
-        assertTrue(vsc2.contains("<cim:VsConverter.pPccControl rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.udc\"/>"));
-        assertTrue(vsc2.contains("<cim:VsConverter.qPccControl rdf:resource=\"http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.voltagePcc\"/>"));
+        assertEquals("0", getAttribute(vsc2, "ACDCConverter.targetPpcc"));
+        assertEquals("497", getAttribute(vsc2, "ACDCConverter.targetUdc"));
+        assertEquals("0", getAttribute(vsc2, "ACDCConverter.p"));
+        assertEquals("0", getAttribute(vsc2, "ACDCConverter.q"));
+        assertEquals("0", getAttribute(vsc2, "VsConverter.droop"));
+        assertEquals("0", getAttribute(vsc2, "VsConverter.droopCompensation"));
+        assertEquals("0", getAttribute(vsc2, "VsConverter.qShare"));
+        assertEquals("0", getAttribute(vsc2, "VsConverter.targetQpcc"));
+        assertEquals("400", getAttribute(vsc2, "VsConverter.targetUpcc"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.udc", getAttribute(vsc2, "VsConverter.pPccControl"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.voltagePcc", getAttribute(vsc2, "VsConverter.qPccControl"));
     }
 
     @Test
@@ -471,21 +471,21 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // DCTerminal
         String closedDcSwitchDcTerminal1 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1P_1");
         String closedDcSwitchDcTerminal2 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1P_2");
-        assertTrue(closedDcSwitchDcTerminal1.contains("<cim:DCBaseTerminal.DCTopologicalNode rdf:resource=\"#_DCN_1_1P_dcBus\"/>"));
-        assertTrue(closedDcSwitchDcTerminal2.contains("<cim:DCBaseTerminal.DCTopologicalNode rdf:resource=\"#_DCN_1_1P_dcBus\"/>"));
+        assertEquals("DCN_1_1P_dcBus", getAttribute(closedDcSwitchDcTerminal1, "DCBaseTerminal.DCTopologicalNode"));
+        assertEquals("DCN_1_1P_dcBus", getAttribute(closedDcSwitchDcTerminal2, "DCBaseTerminal.DCTopologicalNode"));
 
         String openDcSwitchDcTerminal1 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1_1");
         String openDcSwitchDcTerminal2 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1_2");
-        assertTrue(openDcSwitchDcTerminal1.contains("<cim:DCBaseTerminal.DCTopologicalNode rdf:resource=\"#_DCN_1_1_dcBus\"/>"));
-        assertTrue(openDcSwitchDcTerminal2.contains("<cim:DCBaseTerminal.DCTopologicalNode rdf:resource=\"#_DCN_1_1P_dcBus\"/>"));
+        assertEquals("DCN_1_1_dcBus", getAttribute(openDcSwitchDcTerminal1, "DCBaseTerminal.DCTopologicalNode"));
+        assertEquals("DCN_1_1P_dcBus", getAttribute(openDcSwitchDcTerminal2, "DCBaseTerminal.DCTopologicalNode"));
 
         // ACDCConverterDCTerminal
         String acDcConverterDcTerminal = getElement(tpFile, "ACDCConverterDCTerminal", "T_CSC_1_1_3");
-        assertTrue(acDcConverterDcTerminal.contains("<cim:DCBaseTerminal.DCTopologicalNode rdf:resource=\"#_DCN_1_1P_dcBus\"/>"));
+        assertEquals("DCN_1_1P_dcBus", getAttribute(acDcConverterDcTerminal, "DCBaseTerminal.DCTopologicalNode"));
 
         // DCTopologicalNode
         String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
-        assertTrue(dcTopologicalNode.contains("<cim:IdentifiedObject.name>DC node 1 1P</cim:IdentifiedObject.name>"));
+        assertEquals("DC node 1 1P", getAttribute(dcTopologicalNode, "IdentifiedObject.name"));
     }
 
     @Test
@@ -516,21 +516,21 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // Verify dc objects properties.
         // CsConverter
         String csConverter = getElement(svFile, "CsConverter", "CSC_1_1");
-        assertTrue(csConverter.contains("<cim:ACDCConverter.poleLossP>1</cim:ACDCConverter.poleLossP>"));
-        assertTrue(csConverter.contains("<cim:ACDCConverter.idc>1000</cim:ACDCConverter.idc>"));
-        assertTrue(csConverter.contains("<cim:ACDCConverter.uc>0</cim:ACDCConverter.uc>"));
-        assertTrue(csConverter.contains("<cim:ACDCConverter.udc>250</cim:ACDCConverter.udc>"));
-        assertTrue(csConverter.contains("<cim:CsConverter.alpha>0</cim:CsConverter.alpha>"));
-        assertTrue(csConverter.contains("<cim:CsConverter.gamma>0</cim:CsConverter.gamma>"));
+        assertEquals("1", getAttribute(csConverter, "ACDCConverter.poleLossP"));
+        assertEquals("1000", getAttribute(csConverter, "ACDCConverter.idc"));
+        assertEquals("0", getAttribute(csConverter, "ACDCConverter.uc"));
+        assertEquals("250", getAttribute(csConverter, "ACDCConverter.udc"));
+        assertEquals("0", getAttribute(csConverter, "CsConverter.alpha"));
+        assertEquals("0", getAttribute(csConverter, "CsConverter.gamma"));
 
         // VsConverter
         String vsConverter = getElement(svFile, "VsConverter", "VSC_1_2");
-        assertTrue(vsConverter.contains("<cim:ACDCConverter.poleLossP>2</cim:ACDCConverter.poleLossP>"));
-        assertTrue(vsConverter.contains("<cim:ACDCConverter.idc>1000</cim:ACDCConverter.idc>"));
-        assertTrue(vsConverter.contains("<cim:ACDCConverter.uc>0</cim:ACDCConverter.uc>"));
-        assertTrue(vsConverter.contains("<cim:ACDCConverter.udc>500</cim:ACDCConverter.udc>"));
-        assertTrue(vsConverter.contains("<cim:VsConverter.delta>0</cim:VsConverter.delta>"));
-        assertTrue(vsConverter.contains("<cim:VsConverter.uf>0</cim:VsConverter.uf>"));
+        assertEquals("2", getAttribute(vsConverter, "ACDCConverter.poleLossP"));
+        assertEquals("1000", getAttribute(vsConverter, "ACDCConverter.idc"));
+        assertEquals("0", getAttribute(vsConverter, "ACDCConverter.uc"));
+        assertEquals("500", getAttribute(vsConverter, "ACDCConverter.udc"));
+        assertEquals("0", getAttribute(vsConverter, "VsConverter.delta"));
+        assertEquals("0", getAttribute(vsConverter, "VsConverter.uf"));
     }
 
     @Test
@@ -569,7 +569,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0, getElementCount(eqFile, "DCBreaker"));
         assertEquals(0, getElementCount(eqFile, "DCDisconnector"));
         assertEquals(0, getElementCount(eqFile, "DCNode"));
-        assertFalse(eqFile.contains("cim:DCBaseTerminal.DCNode"));
+        assertFalse(eqFile.contains("DCBaseTerminal.DCNode"));
 
         // In CIM100 bus-branch export, DCNodes come from IIDM DcBuses.
         exportParams.put(CgmesExport.CIM_VERSION, "100");
