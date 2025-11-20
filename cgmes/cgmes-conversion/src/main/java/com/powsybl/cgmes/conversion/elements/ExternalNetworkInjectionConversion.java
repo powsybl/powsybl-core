@@ -61,7 +61,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
 
         double targetP = getDefaultValue(null, generator.getTargetP(), 0.0, 0.0, context);
         double targetQ = getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
-        PowerFlow updatedPowerFlow = updatedPowerFlow(generator, cgmesData, context);
+        PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
         if (updatedPowerFlow.defined()) {
             targetP = -updatedPowerFlow.p();
             targetQ = -updatedPowerFlow.q();
