@@ -28,6 +28,9 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
 
         // Test for the current version
         allFormatsRoundTripTest(network, "/dcLineRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility - checks from version 1.15
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcLineRoundTripRef.xml", IidmVersion.V_1_15);
     }
 
     @Test

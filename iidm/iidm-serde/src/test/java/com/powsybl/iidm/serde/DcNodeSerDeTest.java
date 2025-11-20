@@ -29,6 +29,9 @@ class DcNodeSerDeTest extends AbstractIidmSerDeTest {
 
         // Test for the current version
         allFormatsRoundTripTest(network, "/dcNodeRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility - checks from version 1.15
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcNodeRoundTripRef.xml", IidmVersion.V_1_15);
     }
 
     @Test

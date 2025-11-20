@@ -29,6 +29,9 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
 
         // Test for the current version
         allFormatsRoundTripTest(network, "/dcSwitchRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility - checks from version 1.15
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcSwitchRoundTripRef.xml", IidmVersion.V_1_15);
     }
 
     @Test

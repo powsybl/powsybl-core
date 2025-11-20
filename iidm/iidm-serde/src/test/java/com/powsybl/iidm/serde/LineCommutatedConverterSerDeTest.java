@@ -26,6 +26,9 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
 
         // Test for the current version
         allFormatsRoundTripTest(network, "/lineCommutatedConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility - checks from version 1.15
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/lineCommutatedConverterRoundTripRef.xml", IidmVersion.V_1_15);
     }
 
     @Test
