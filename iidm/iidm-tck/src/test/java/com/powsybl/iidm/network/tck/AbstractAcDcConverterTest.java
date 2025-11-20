@@ -718,6 +718,27 @@ public abstract class AbstractAcDcConverterTest {
     }
 
     @Test
+    public void testDroopCurve() {
+        AcDcConverter<?> vsc = createVscA(vla).setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP);
+
+        assertEquals(DroopCurve.EMPTY, vsc.getDroopCurve());
+
+        vsc.newDroopCurve()
+                .beginSegment().setK(-10.).setMinV(-500.).setMaxV(-100.).endSegment()
+                .beginSegment().setK(-5.).setMinV(-100.).setMaxV(100.).endSegment()
+                .beginSegment().setK(-1.).setMinV(100.).setMaxV(500.).endSegment()
+                .add();
+        assertEquals(-10., vsc.getDroopCurve().getK(-250.));
+        assertEquals(-5., vsc.getDroopCurve().getK(-100.));
+        assertEquals(-1., vsc.getDroopCurve().getK(400.));
+
+        vsc.newDroopCurve()
+                .add();
+
+        assertEquals(0., vsc.getDroopCurve().getK(400.));
+    }
+
+    @Test
     public void testCreationError() {
         LineCommutatedConverterAdder adder = vla.newLineCommutatedConverter()
                 .setId("converterA")
