@@ -216,8 +216,7 @@ public final class TopologyExport {
         for (DcConnectable<?> dcConnectable : network.getDcConnectables()) {
             for (DcTerminal dcTerminal : dcConnectable.getDcTerminals()) {
                 String className = dcConnectable instanceof AcDcConverter<?> ? CgmesNames.ACDC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
-                TerminalNumber terminalNumber = dcTerminal.getTerminalNumber();
-                int sequenceNumber = terminalNumber != null ? terminalNumber.getNum() : 1;
+                int sequenceNumber = getDcTerminalNumber(dcTerminal);
                 String dcTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dcConnectable, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + sequenceNumber);
                 String dcTopologicalNodeId = context.getNamingStrategy().getCgmesId(dcTerminal.getDcNode().getDcBus());
                 writeDCBaseTerminal(className, dcTerminalId, dcTopologicalNodeId, cimNamespace, writer, context);
@@ -231,6 +230,15 @@ public final class TopologyExport {
             String dcTopologicalNode2Id = context.getNamingStrategy().getCgmesId(dcSwitch.getDcNode2().getDcBus());
             writeDCBaseTerminal(CgmesNames.DC_TERMINAL, dcTerminal2Id, dcTopologicalNode2Id, cimNamespace, writer, context);
         }
+    }
+
+    private static int getDcTerminalNumber(DcTerminal dcTerminal) {
+        if (dcTerminal.getDcConnectable() instanceof AcDcConverter<?>) {
+            return dcTerminal.getTerminalNumber().getNum();
+        } else if (dcTerminal.getSide() != null) {
+            return dcTerminal.getSide().getNum();
+        }
+        return 1;
     }
 
     private static void writeDcTerminals(HvdcLine line, HvdcConverterStation<?> converter, int side, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

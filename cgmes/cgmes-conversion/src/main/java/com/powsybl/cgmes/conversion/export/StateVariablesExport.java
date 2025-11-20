@@ -688,9 +688,15 @@ public final class StateVariablesExport {
             writer.writeStartElement(cimNamespace, "VsConverter.delta");
             writer.writeCharacters(CgmesExportUtil.format(0));
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "VsConverter.uf");
-            writer.writeCharacters(CgmesExportUtil.format(0));
-            writer.writeEndElement();
+            if (context.getCimVersion() == 16) {
+                writer.writeStartElement(cimNamespace, "VsConverter.uf");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+            } else if (context.getCimVersion() == 100) {
+                writer.writeStartElement(cimNamespace, "VsConverter.uv");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+            }
         }
         writer.writeEndElement();
     }

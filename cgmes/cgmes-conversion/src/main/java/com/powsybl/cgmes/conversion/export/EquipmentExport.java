@@ -1403,8 +1403,10 @@ public final class EquipmentExport {
         String dcIdentifiableId = context.getNamingStrategy().getCgmesId(dcIdentifiable);
         String dcNodeId = null;
         if (!context.isBusBranchExport()) {
+            // node-breaker export
             dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
         } else if (!context.isCim16BusBranchExport()) {
+            // CIM100 bus-branch export
             dcNodeId = context.getNamingStrategy().getCgmesId(dcNode.getDcBus());
         }
         String dcTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dcIdentifiable, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + sequenceNumber);
@@ -1466,12 +1468,14 @@ public final class EquipmentExport {
         // - never exported in case of a CIM16 bus-branch export
         if (!context.isBusBranchExport()) {
             for (DcNode dcNode : network.getDcNodes()) {
+                // node-breaker export
                 String dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
                 String dcConverterUnitId = dcNodesConverters.containsKey(dcNode) ? dcNodesConverters.get(dcNode).id() : null;
                 writeDCNode(dcNodeId, dcNode.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
             }
         } else if (!context.isCim16BusBranchExport()) {
             for (DcBus dcBus : network.getDcBuses()) {
+                // CIM100 bus-branch export
                 String dcBusId = context.getNamingStrategy().getCgmesId(dcBus);
                 DcNode refDcNode = dcBus.getDcNodeStream().min(Comparator.comparing(DcNode::getId)).orElseThrow();
                 String dcConverterUnitId = dcNodesConverters.containsKey(refDcNode) ? dcNodesConverters.get(refDcNode).id() : null;
