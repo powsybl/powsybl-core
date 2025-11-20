@@ -13,6 +13,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -62,6 +63,39 @@ class TapChangerConversionTest extends AbstractSerDeTest {
         assertTrue(ptc.hasLoadTapChangingCapabilities());
         assertTrue(ptc.isRegulating());
         assertTrue(logs.contains("TapChanger PTC has regulation enabled but has no load tap changing capability. Fixed ltcFlag to true."));
+    }
+
+    @Test
+    void currentLimiterExportTest() throws IOException {
+        // IIDM network:
+        //   A PhaseShifter with current limiter regulation mode.
+        // CGMES network:
+        //   A PhaseShifter with active power regulation mode, off regulation and the current limit saved as an operational limit.
+        Network network = PhaseShifterTestCaseFactory.createRegulatingWithoutMode();
+
+        // PhaseShifter PS1 has a PhaseTapChanger in current limiter regulation mode,
+        // with a current limit value of 200A at PS1 secondary terminal.
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("PS1").getPhaseTapChanger();
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, ptc.getRegulationMode());
+        assertEquals(200, ptc.getRegulationValue());
+        assertTrue(ptc.isRegulating());
+        assertEquals("PS1", ptc.getRegulationTerminal().getConnectable().getId());
+        assertEquals(2, ptc.getRegulationTerminal().getSide().getNum());
+        assertTrue(network.getTwoWindingsTransformer("PS1").getOperationalLimitsGroups2().isEmpty());
+
+        // PhaseTapChanger is in active power regulation mode and the regulation is disabled.
+        // A CurentLimit with the value 200A has been created.
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        String tapChangerControl = getElement(eqFile, "TapChangerControl", "PS1_PTC_RC");
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.activePower", getResource(tapChangerControl, "RegulatingControl.mode"));
+        String limitSet = getElement(eqFile, "OperationalLimitSet", "PS1_PT_T_2_CURRENT_LIMITER_OLS");
+        assertEquals("PS1_PT_T_2", getResource(limitSet, "OperationalLimitSet.Terminal"));
+        String currentLimit = getElement(eqFile, "CurrentLimit", "PS1_PT_T_2_CURRENT_LIMITER_OLS_CurrentLimit_PATL_OLV");
+        assertEquals("200", getAttribute(currentLimit, "CurrentLimit.value"));
+
+        String sshFile = writeCgmesProfile(network, "SSH", tmpDir);
+        tapChangerControl = getElement(sshFile, "TapChangerControl", "PS1_PTC_RC");
+        assertEquals("false", getAttribute(tapChangerControl, "RegulatingControl.enabled"));
     }
 
 }
