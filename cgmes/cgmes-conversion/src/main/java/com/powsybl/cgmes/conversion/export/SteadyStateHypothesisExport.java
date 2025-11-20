@@ -488,19 +488,23 @@ public final class SteadyStateHypothesisExport {
             } else if (tc instanceof PhaseTapChanger phaseTapChanger
                     && CgmesExportUtil.regulatingControlIsDefined(phaseTapChanger)) {
                 boolean valid;
-                String unitMultiplier = switch (CgmesExportUtil.getPhaseTapChangerRegulationMode(phaseTapChanger)) {
-                    case RegulatingControlEq.REGULATING_CONTROL_CURRENT_FLOW -> {
+                boolean regulating;
+                String unitMultiplier = switch (phaseTapChanger.getRegulationMode()) {
+                    case PhaseTapChanger.RegulationMode.CURRENT_LIMITER -> {
                         // Unit multiplier is none (multiply by 1), regulation value is a current in Amperes
                         valid = true;
+                        regulating = false;
                         yield "none";
                     }
-                    case RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER -> {
+                    case PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL -> {
                         // Unit multiplier is M, regulation value is an active power flow in MW
                         valid = true;
+                        regulating = phaseTapChanger.isRegulating();
                         yield "M";
                     }
                     default -> {
                         valid = false;
+                        regulating = false;
                         yield "none";
                     }
                 };
@@ -508,7 +512,7 @@ public final class SteadyStateHypothesisExport {
                     rcv = new RegulatingControlView(controlId,
                             RegulatingControlType.TAP_CHANGER_CONTROL,
                             true,
-                            phaseTapChanger.isRegulating(),
+                            regulating,
                             phaseTapChanger.getTargetDeadband(),
                             phaseTapChanger.getRegulationValue(),
                             unitMultiplier);
