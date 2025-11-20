@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Range;
 import com.powsybl.commons.json.JsonUtil;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,14 +202,14 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
     }
 
-    public List<T> splitMsa(List<Range<Integer>> newChunks) {
+    public List<T> splitByRanges(List<Range<@NonNull Integer>> newChunks) {
         List<C> splitNewChunks = new ArrayList<>();
         for (C chunkToSplit : getCheckedChunks(false)) {
-            for (Range<Integer> range : newChunks) {
+            for (Range<@NonNull Integer> range : newChunks) {
                 splitMsa(chunkToSplit, splitNewChunks, range.lowerEndpoint(), range.upperEndpoint());
             }
         }
-        return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
+        return splitNewChunks.stream().map(this::createTimeSeries).toList();
     }
 
     public void writeJson(JsonGenerator generator) {
