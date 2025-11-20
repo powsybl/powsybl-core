@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.export.elements.*;
@@ -854,7 +855,8 @@ public final class EquipmentExport {
                     String controlName = twtName + "_PTC_RC";
                     String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
                     if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER) {
-                        //TODO log not supported regulation mode
+                        // Log not supported regulation mode
+                        CgmesReports.phaseTapChangerCurrentLimiterModeNotSupportedReport(context.getReportNode(), cgmesTapChangerId);
 
                         // Add a CurrentLimit with the PhaseTapChanger current limiter regulation value to the regulated terminal.
                         String operationalLimitSetId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(PhaseTapChanger.RegulationMode.CURRENT_LIMITER.name()), OPERATIONAL_LIMIT_SET);
