@@ -75,6 +75,27 @@ class StaticVarCompensatorUpdateTest {
         assertUnassignedFlows(network);
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getStaticVarCompensatorStream().allMatch(svc -> svc.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getStaticVarCompensatorStream().allMatch(svc -> svc.getAliases().isEmpty()));
+    }
+
     private static void assertEq(Network network) {
         assertEq(network.getStaticVarCompensator("StaticVarCompensator-V"), StaticVarCompensator.RegulationMode.VOLTAGE);
         assertEq(network.getStaticVarCompensator("StaticVarCompensator-Q"), StaticVarCompensator.RegulationMode.REACTIVE_POWER);

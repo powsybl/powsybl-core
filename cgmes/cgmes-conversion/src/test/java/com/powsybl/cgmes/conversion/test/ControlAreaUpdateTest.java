@@ -67,6 +67,27 @@ class ControlAreaUpdateTest {
         assertSsh(network.getArea("ControlArea"), 235.0, 10.0);
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "controlArea_EQ.xml", "controlArea_EQ_BD.xml", "controlArea_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "controlArea_EQ.xml", "controlArea_EQ_BD.xml", "controlArea_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getAreaStream().allMatch(area -> area.getPropertyNames().isEmpty()));
+        assertTrue(network.getAreaStream().allMatch(area -> area.getAliases().isEmpty()));
+    }
+
     private static void assertEq(Area area) {
         assertNotNull(area);
         assertEquals("ControlAreaTypeKind.Interchange", area.getAreaType());

@@ -120,6 +120,28 @@ class DanglingLineUpdateTest {
         assertSvTogether(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getDanglingLineStream().allMatch(dl -> dl.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getDanglingLineStream().allMatch(dl -> dl.getAliases().isEmpty()));
+        assertEquals(expected, network.getDanglingLineStream().allMatch(dl -> dl.getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+    }
+
     private static void assertEq(Network network) {
         assertEq(network.getDanglingLine("ACLineSegment"));
         assertNotDefinedLimits(network.getDanglingLine("ACLineSegment"));
