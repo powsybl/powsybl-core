@@ -28,7 +28,8 @@ public class DroopCurveSerDe {
 
     public void write(AcDcConverter<?> converter, NetworkSerializerContext context) {
         DroopCurve curve = converter.getDroopCurve();
-        if (curve.getSegments().isEmpty()) {
+        // iidm-impl ensures that curve is never null, but other IIDM implementations may decide otherwise
+        if (curve == null || curve.getSegments().isEmpty()) {
             return;
         }
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_DROOP_CURVE);
