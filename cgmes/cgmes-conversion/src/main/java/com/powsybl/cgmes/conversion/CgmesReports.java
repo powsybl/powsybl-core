@@ -285,4 +285,12 @@ public final class CgmesReports {
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
+
+    public static void phaseTapChangerCurrentLimiterModeNotSupportedReport(ReportNode reportNode, String phaseTapChangerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.phaseTapChangerCurrentLimiterModeNotSupported")
+                .withUntypedValue("phaseTapChangerId", phaseTapChangerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
 }
