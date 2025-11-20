@@ -208,7 +208,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("targetV", variantId, oldValueTargetV, targetV);
-        //
+
         ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
         double oldEquivalentLocalTargetV = this.equivalentLocalTargetV.set(variantIndex, equivalentLocalTargetV);
         notifyUpdate("equivalentLocalTargetV", variantId, oldEquivalentLocalTargetV, equivalentLocalTargetV);
