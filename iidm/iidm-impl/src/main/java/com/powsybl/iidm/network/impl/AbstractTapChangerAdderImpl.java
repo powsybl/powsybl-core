@@ -12,10 +12,7 @@ import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -24,7 +21,7 @@ abstract class AbstractTapChangerAdderImpl<
         A extends AbstractTapChangerAdderImpl<A, H, T, S>,
         H extends TapChangerParent,
         T extends TapChanger<T, ?, ?, ?>,
-        S extends TapChangerStepImpl<S>> {
+        S extends TapChangerStepImpl<S>> extends AbstractPropertiesHolder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTapChangerAdderImpl.class);
 
@@ -85,7 +82,7 @@ abstract class AbstractTapChangerAdderImpl<
         return self();
     }
 
-    NetworkImpl getNetwork() {
+    public NetworkImpl getNetwork() {
         return parent.getNetwork();
     }
 
@@ -117,7 +114,9 @@ abstract class AbstractTapChangerAdderImpl<
                 targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         T tapChanger = createTapChanger(parent, lowTapPosition, steps, regulationTerminal, tapPosition, solvedTapPosition, regulating, loadTapChangingCapabilities, regulationValue, targetDeadband);
-
+        for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
+            tapChanger.setProperty((String) z.getKey(), (String) z.getValue());
+        }
         Set<TapChanger<?, ?, ?, ?>> otherTapChangers = new HashSet<>(parent.getAllTapChangers());
         otherTapChangers.remove(tapChanger);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, otherTapChangers, regulating,

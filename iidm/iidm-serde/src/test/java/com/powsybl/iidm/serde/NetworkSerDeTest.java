@@ -358,4 +358,141 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
             assertEquals("", readNetwork.getSourceFormat());
         });
     }
+
+    /*
+[ ]  Extension / AbstractExtension:
+[ ]  TopologyModel / AbstractTopologyModel:
+[ ]  ReactiveLimits / ReactiveCapabilityCurveImpl & MinMaxReactiveLimitsImpl:
+[ ]  ReactiveCapabilityCurve.Point / ReactiveCapabilityCurveImpl.PointImpl:
+[ ]  LoadModel / AbstractLoadModel:
+[ ]  ShuntCompensatorModel / ShuntCompensatorLinearModelImpl & ShuntCompensatorNonLinearModelImpl:
+[ ]  ShuntCompensatorNonLinearModel.Section / ShuntCompensatorNonLinearModelImpl.SectionImpl:
+[ ]  OperationalLimits / AbstractLoadingLimits & AbstractReducedLoadingLimits:
+[ ]  LoadingLimits / AbstractLoadingLimits.TemporaryLimitImpl & AbstractReducedLoadingLimits.ReducedTemporaryLimit:
+[ ]  OverloadManagementSystem.Tripping / OverloadManagementSystemImpl.AbstractTrippingImpl:
+[X]  TapChangerStep / TapChangerStepImpl:
+[X]  TapChanger / AbstractTapChanger:
+[X] AreaBoundary / AreaBoundaryImpl:
+     */
+
+    private TwoWindingsTransformer createTwoWindingsTransformer(Substation substation) {
+        return substation.newTwoWindingsTransformer()
+                .setId("twt2")
+                .setName("twt2_name")
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
+    }
+
+    private void createPhaseTapChanger(PhaseTapChangerHolder ptch) {
+        PhaseTapChanger phaseTapChanger = ptch.newPhaseTapChanger()
+                .setTapPosition(1)
+                .setLowTapPosition(0)
+                .setRegulating(false)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
+                .endStep()
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
+                .endStep()
+                .add();
+        phaseTapChanger.setProperty("test", "valuePhaseTapChanger");
+        phaseTapChanger.getCurrentStep().setProperty("test", "value");
+    }
+
+    private void createRatioTapChanger(RatioTapChangerHolder rtch) {
+        RatioTapChanger ratioTapChanger = rtch.newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(1)
+                .setLoadTapChangingCapabilities(false)
+                .beginStep()
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78474)
+                .setX(39.784726)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78475)
+                .setX(39.784727)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .add();
+        ratioTapChanger.setProperty("test", "valueRatioTapChanger");
+        ratioTapChanger.getCurrentStep().setProperty("test", "value");
+    }
+
+    @Test
+    void propertiesHolderSerDeTest() throws IOException {
+        Network network = NetworkTest1Factory.create();
+
+        Area defaultControlArea = network.newArea().setId("defaultControlArea").setAreaType("test").add();
+        defaultControlArea.setProperty("test", "testValue");
+
+        BusbarSection bb = network.getBusbarSection("voltageLevel1BusbarSection1");
+        bb.setProperty("test", "testBusbarSectionValue");
+
+        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_15.toString("."));
+        Network nodeBreakerNetwork = writeAndRead(network, options);
+
+        //Check that busbar and its extension is still here
+        BusbarSection bb2 = nodeBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1");
+        assertEquals("testBusbarSectionValue", bb2.getProperty("test"));
+        assertEquals("testValue", nodeBreakerNetwork.getArea("defaultControlArea").getProperty("test"));
+    }
+
+    @Test
+    void propertiesHolderSerDeTestTapChangers() throws IOException {
+        Network network = NoEquipmentNetworkFactory.create();
+        Substation substation = network.getSubstation("sub");
+        substation.setProperty("test", "value");
+        substation.setProperty("test2", "value2");
+
+        // Check name for two winding transformers
+        TwoWindingsTransformer twt2 = createTwoWindingsTransformer(substation);
+        twt2.setProperty("test", "twt2Value");
+        createPhaseTapChanger(twt2);
+        createRatioTapChanger(twt2);
+
+        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_15.toString("."));
+        Network network2 = writeAndRead(network, options);
+        assertEquals("value", network2.getSubstation("sub").getProperty("test"));
+        assertEquals("value2", network2.getSubstation("sub").getProperty("test2"));
+        TwoWindingsTransformer transformer = network2.getSubstation("sub").getTwoWindingsTransformers().iterator().next();
+        assertEquals("twt2Value", transformer.getProperty("test"));
+        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
+        RatioTapChanger ratioTapChanger = transformer.getRatioTapChanger();
+        //assertEquals("valuePhaseTapChanger", phaseTapChanger.getProperty("test"));
+        assertEquals("valueRatioTapChanger", ratioTapChanger.getProperty("test"));
+        assertEquals("value", phaseTapChanger.getStep(1).getProperty("test"));
+
+    }
 }
