@@ -33,6 +33,7 @@ public class ReactiveLimitsSerDe {
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_CURVE);
                 context.getWriter().writeStartNodes();
+                PropertiesSerDe.write(curve, context);
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), POINT_ROOT_ELEMENT_NAME);
                     context.getWriter().writeDoubleAttribute("p", point.getP());
@@ -49,6 +50,7 @@ public class ReactiveLimitsSerDe {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_MIN_MAX_REACTIVE_LIMITS);
                 context.getWriter().writeDoubleAttribute(ATTR_MIN_Q, limits.getMinQ());
                 context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, limits.getMaxQ());
+                PropertiesSerDe.write(limits, context);
                 context.getWriter().writeEndNode();
                 break;
 
@@ -60,7 +62,9 @@ public class ReactiveLimitsSerDe {
     public void readReactiveCapabilityCurve(ReactiveLimitsHolder holder, NetworkDeserializerContext context) {
         ReactiveCapabilityCurveAdder curveAdder = holder.newReactiveCapabilityCurve();
         context.getReader().readChildNodes(elementName -> {
-            if (elementName.equals(POINT_ROOT_ELEMENT_NAME)) {
+            if (elementName.equals(PropertiesSerDe.ROOT_ELEMENT_NAME)) {
+                PropertiesSerDe.read(curveAdder, context);
+            } else if (elementName.equals(POINT_ROOT_ELEMENT_NAME)) {
                 double p = context.getReader().readDoubleAttribute("p");
                 double minQ = context.getReader().readDoubleAttribute(ATTR_MIN_Q);
                 double maxQ = context.getReader().readDoubleAttribute(ATTR_MAX_Q);

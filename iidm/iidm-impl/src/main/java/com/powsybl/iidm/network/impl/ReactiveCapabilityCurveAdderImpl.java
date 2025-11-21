@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -20,7 +21,7 @@ import java.util.TreeMap;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable> implements ReactiveCapabilityCurveAdder {
+class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable> extends AbstractPropertiesHolder implements ReactiveCapabilityCurveAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityCurveAdderImpl.class);
 
@@ -103,6 +104,9 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
             throw new ValidationException(owner, "a reactive capability curve should have at least two points");
         }
         ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(points, owner.getMessageHeader().toString());
+        for (Map.Entry<Object, Object> prop : getProperties().entrySet()) {
+            curve.setProperty(prop.getKey().toString(), prop.getValue().toString());
+        }
         owner.setReactiveLimits(curve);
         return curve;
     }

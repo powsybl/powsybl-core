@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ZipLoadModelAdder;
 
+import java.util.Map;
 import java.util.Objects;
 
 import static com.powsybl.iidm.network.impl.ZipLoadModelImpl.checkCoefficient;
@@ -17,7 +18,7 @@ import static com.powsybl.iidm.network.impl.ZipLoadModelImpl.checkCoefficient;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ZipLoadModelAdderImpl implements ZipLoadModelAdder {
+public class ZipLoadModelAdderImpl extends AbstractPropertiesHolder implements ZipLoadModelAdder {
 
     private final LoadAdderImpl parentAdder;
 
@@ -76,7 +77,11 @@ public class ZipLoadModelAdderImpl implements ZipLoadModelAdder {
         if (Math.abs(c0q + c1q + c2q - 1d) > SUM_EPSILON) {
             throw new ValidationException(parentAdder, "Sum of c0q, c1q and c2q should be 1");
         }
-        parentAdder.setModel(new ZipLoadModelImpl(c0p, c1p, c2p, c0q, c1q, c2q));
+        ZipLoadModelImpl model = new ZipLoadModelImpl(c0p, c1p, c2p, c0q, c1q, c2q);
+        for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
+            model.setProperty((String) z.getKey(), (String) z.getValue());
+        }
+        parentAdder.setModel(model);
         return parentAdder;
     }
 }
