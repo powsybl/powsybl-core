@@ -982,6 +982,31 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     @Test
+    void synchronousMachineKindExportAndImportTest() throws IOException {
+        Network network = createOneGeneratorNetwork();
+
+        // Define the synchronous machine kind property
+        Generator expectedGenerator = network.getGenerator("generator1");
+        expectedGenerator.setMinP(-50.0).setMaxP(0.0).setTargetP(-10.0);
+        String expectedSynchronousMachineKind = "motorOrCondenser";
+        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, expectedSynchronousMachineKind);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "oneGeneratorSynchronousMachineKind";
+        new CgmesExport().export(network, new Properties(), new DirectoryDataSource(outputPath, baseName));
+
+        // re-import
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Generator actualGenerator = actual.getGenerator("generator1");
+
+        // check the synchronous machine kind
+        String actualSynchronousMachineKind = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
+        assertEquals(expectedSynchronousMachineKind, actualSynchronousMachineKind);
+    }
+
+    @Test
     void phaseTapChangerTapChangerControlEQTest() throws IOException {
         String exportFolder = "/test-pst-tcc";
         String baseName = "testPstTcc";
