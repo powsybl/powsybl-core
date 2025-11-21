@@ -157,7 +157,13 @@ public final class ConversionUtil {
     }
 
     public static String getAttribute(String element, String attributeName) {
-        String regex = "<cim:" + attributeName + "(?: rdf:resource=\"(?:#_)?|>)(.*?)(?:\"/>|</cim:" + attributeName + ">)";
+        String regex = "<cim:" + attributeName + ">(.*?)</cim:" + attributeName + ">";
+        Pattern pattern = Pattern.compile(regex);
+        return getFirstMatch(element, pattern);
+    }
+
+    public static String getResource(String element, String attributeName) {
+        String regex = "<cim:" + attributeName + " rdf:resource=\"(?:#_)?(.*?)\"/>";
         Pattern pattern = Pattern.compile(regex);
         return getFirstMatch(element, pattern);
     }

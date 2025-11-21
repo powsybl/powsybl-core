@@ -261,14 +261,14 @@ class AcDcConversionTest extends AbstractSerDeTest {
 
         String dcBreakerT1 = getElement(eqFile, "DCTerminal", "T_DCSW_1_1_1");
         assertEquals("DC breaker 1 1 1", getAttribute(dcBreakerT1, "IdentifiedObject.name"));
-        assertEquals("DCSW_1_1", getAttribute(dcBreakerT1, "DCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_1_1", getAttribute(dcBreakerT1, "DCBaseTerminal.DCNode"));
+        assertEquals("DCSW_1_1", getResource(dcBreakerT1, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_1", getResource(dcBreakerT1, "DCBaseTerminal.DCNode"));
         assertEquals("1", getAttribute(dcBreakerT1, "ACDCTerminal.sequenceNumber"));
 
         String dcBreakerT2 = getElement(eqFile, "DCTerminal", "T_DCSW_1_1_2");
         assertEquals("DC breaker 1 1 2", getAttribute(dcBreakerT2, "IdentifiedObject.name"));
-        assertEquals("DCSW_1_1", getAttribute(dcBreakerT2, "DCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_1_G", getAttribute(dcBreakerT2, "DCBaseTerminal.DCNode"));
+        assertEquals("DCSW_1_1", getResource(dcBreakerT2, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_G", getResource(dcBreakerT2, "DCBaseTerminal.DCNode"));
         assertEquals("2", getAttribute(dcBreakerT2, "ACDCTerminal.sequenceNumber"));
 
         // DCDisconnector
@@ -277,14 +277,14 @@ class AcDcConversionTest extends AbstractSerDeTest {
 
         String dcDisconnectorT1 = getElement(eqFile, "DCTerminal", "T_DCSW_1_1P_1");
         assertEquals("DC disconnector 1 1P 1", getAttribute(dcDisconnectorT1, "IdentifiedObject.name"));
-        assertEquals("DCSW_1_1P", getAttribute(dcDisconnectorT1, "DCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_1_1P", getAttribute(dcDisconnectorT1, "DCBaseTerminal.DCNode"));
+        assertEquals("DCSW_1_1P", getResource(dcDisconnectorT1, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_1P", getResource(dcDisconnectorT1, "DCBaseTerminal.DCNode"));
         assertEquals("1", getAttribute(dcDisconnectorT1, "ACDCTerminal.sequenceNumber"));
 
         String dcDisconnectorT2 = getElement(eqFile, "DCTerminal", "T_DCSW_1_1P_2");
         assertEquals("DC disconnector 1 1P 2", getAttribute(dcDisconnectorT2, "IdentifiedObject.name"));
-        assertEquals("DCSW_1_1P", getAttribute(dcDisconnectorT2, "DCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_1_G", getAttribute(dcDisconnectorT2, "DCBaseTerminal.DCNode"));
+        assertEquals("DCSW_1_1P", getResource(dcDisconnectorT2, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_G", getResource(dcDisconnectorT2, "DCBaseTerminal.DCNode"));
         assertEquals("2", getAttribute(dcDisconnectorT2, "ACDCTerminal.sequenceNumber"));
 
         // DCGround
@@ -294,8 +294,8 @@ class AcDcConversionTest extends AbstractSerDeTest {
 
         String dcGroundT1 = getElement(eqFile, "DCTerminal", "T_DCGRND");
         assertEquals("DC ground 1", getAttribute(dcGroundT1, "IdentifiedObject.name"));
-        assertEquals("DCGRND", getAttribute(dcGroundT1, "DCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_1_G", getAttribute(dcGroundT1, "DCBaseTerminal.DCNode"));
+        assertEquals("DCGRND", getResource(dcGroundT1, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_G", getResource(dcGroundT1, "DCBaseTerminal.DCNode"));
         assertEquals("1", getAttribute(dcGroundT1, "ACDCTerminal.sequenceNumber"));
 
         // DCLineSegment
@@ -305,14 +305,14 @@ class AcDcConversionTest extends AbstractSerDeTest {
 
         String dcLineT1 = getElement(eqFile, "DCTerminal", "T_DCL_1_1");
         assertEquals("DC line 1 1", getAttribute(dcLineT1, "IdentifiedObject.name"));
-        assertEquals("DCL_1", getAttribute(dcLineT1, "DCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_1_1", getAttribute(dcLineT1, "DCBaseTerminal.DCNode"));
+        assertEquals("DCL_1", getResource(dcLineT1, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_1", getResource(dcLineT1, "DCBaseTerminal.DCNode"));
         assertEquals("1", getAttribute(dcLineT1, "ACDCTerminal.sequenceNumber"));
 
         String dcLineT2 = getElement(eqFile, "DCTerminal", "T_DCL_1_2");
         assertEquals("DC line 1 2", getAttribute(dcLineT2, "IdentifiedObject.name"));
-        assertEquals("DCL_1", getAttribute(dcLineT2, "DCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_2_1", getAttribute(dcLineT2, "DCBaseTerminal.DCNode"));
+        assertEquals("DCL_1", getResource(dcLineT2, "DCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_2_1", getResource(dcLineT2, "DCBaseTerminal.DCNode"));
         assertEquals("2", getAttribute(dcLineT2, "ACDCTerminal.sequenceNumber"));
 
         // CsConverter
@@ -322,19 +322,19 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals("0.1", getAttribute(lcc, "ACDCConverter.idleLoss"));
         assertEquals("0.0003", getAttribute(lcc, "ACDCConverter.switchingLoss"));
         assertEquals("0.6", getAttribute(lcc, "ACDCConverter.resistiveLoss"));
-        assertEquals("T_ACL_1_1", getAttribute(lcc, "ACDCConverter.PccTerminal"));
-        assertEquals("DCCU_1_1", getAttribute(lcc, "Equipment.EquipmentContainer"));
+        assertEquals("T_ACL_1_1", getResource(lcc, "ACDCConverter.PccTerminal"));
+        assertEquals("DCCU_1_1", getResource(lcc, "Equipment.EquipmentContainer"));
 
         String lccT1 = getElement(eqFile, "ACDCConverterDCTerminal", "T_CSC_1_1_3");
         assertEquals("Current source converter 1 1 1", getAttribute(lccT1, "IdentifiedObject.name"));
-        assertEquals("CSC_1_1", getAttribute(lccT1, "ACDCConverterDCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_1_1P", getAttribute(lccT1, "DCBaseTerminal.DCNode"));
+        assertEquals("CSC_1_1", getResource(lccT1, "ACDCConverterDCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_1P", getResource(lccT1, "DCBaseTerminal.DCNode"));
         assertEquals("1", getAttribute(lccT1, "ACDCTerminal.sequenceNumber"));
 
         String lccT2 = getElement(eqFile, "ACDCConverterDCTerminal", "T_CSC_1_1_4");
         assertEquals("Current source converter 1 1 2", getAttribute(lccT2, "IdentifiedObject.name"));
-        assertEquals("CSC_1_1", getAttribute(lccT2, "ACDCConverterDCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_1_1N", getAttribute(lccT2, "DCBaseTerminal.DCNode"));
+        assertEquals("CSC_1_1", getResource(lccT2, "ACDCConverterDCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_1N", getResource(lccT2, "DCBaseTerminal.DCNode"));
         assertEquals("2", getAttribute(lccT2, "ACDCTerminal.sequenceNumber"));
 
         // VsConverter
@@ -344,35 +344,35 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals("0.2", getAttribute(vsc, "ACDCConverter.idleLoss"));
         assertEquals("0.0006", getAttribute(vsc, "ACDCConverter.switchingLoss"));
         assertEquals("1.2", getAttribute(vsc, "ACDCConverter.resistiveLoss"));
-        assertEquals("DCCU_1_2", getAttribute(vsc, "Equipment.EquipmentContainer"));
-        assertEquals("T_PTE_1_2_1", getAttribute(vsc, "ACDCConverter.PccTerminal"));
-        assertEquals("VSC_1_2_VSC_RCC", getAttribute(vsc, "VsConverter.CapabilityCurve"));
+        assertEquals("DCCU_1_2", getResource(vsc, "Equipment.EquipmentContainer"));
+        assertEquals("T_PTE_1_2_1", getResource(vsc, "ACDCConverter.PccTerminal"));
+        assertEquals("VSC_1_2_VSC_RCC", getResource(vsc, "VsConverter.CapabilityCurve"));
 
         String vscT1 = getElement(eqFile, "ACDCConverterDCTerminal", "T_VSC_1_2_2");
         assertEquals("Voltage source converter 1 2 1", getAttribute(vscT1, "IdentifiedObject.name"));
-        assertEquals("VSC_1_2", getAttribute(vscT1, "ACDCConverterDCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_1_2P", getAttribute(vscT1, "DCBaseTerminal.DCNode"));
+        assertEquals("VSC_1_2", getResource(vscT1, "ACDCConverterDCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_2P", getResource(vscT1, "DCBaseTerminal.DCNode"));
         assertEquals("1", getAttribute(vscT1, "ACDCTerminal.sequenceNumber"));
 
         String vscT2 = getElement(eqFile, "ACDCConverterDCTerminal", "T_VSC_1_2_3");
         assertEquals("Voltage source converter 1 2 2", getAttribute(vscT2, "IdentifiedObject.name"));
-        assertEquals("VSC_1_2", getAttribute(vscT2, "ACDCConverterDCTerminal.DCConductingEquipment"));
-        assertEquals("DCN_1_2N", getAttribute(vscT2, "DCBaseTerminal.DCNode"));
+        assertEquals("VSC_1_2", getResource(vscT2, "ACDCConverterDCTerminal.DCConductingEquipment"));
+        assertEquals("DCN_1_2N", getResource(vscT2, "DCBaseTerminal.DCNode"));
         assertEquals("2", getAttribute(vscT2, "ACDCTerminal.sequenceNumber"));
 
         // VsCapabilityCurve
         String vscc = getElement(eqFile, "VsCapabilityCurve", "VSC_1_2_VSC_RCC");
         assertEquals("RCC_Voltage source converter 1 2", getAttribute(vscc, "IdentifiedObject.name"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CurveStyle.straightLineYValues", getAttribute(vscc, "Curve.curveStyle"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.W", getAttribute(vscc, "Curve.xUnit"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr", getAttribute(vscc, "Curve.y1Unit"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr", getAttribute(vscc, "Curve.y2Unit"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CurveStyle.straightLineYValues", getResource(vscc, "Curve.curveStyle"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.W", getResource(vscc, "Curve.xUnit"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr", getResource(vscc, "Curve.y1Unit"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr", getResource(vscc, "Curve.y2Unit"));
 
         String cd0 = getElement(eqFile, "CurveData", "VSC_1_2_VSC_0_RCC_CP");
         assertEquals("-525", getAttribute(cd0, "CurveData.xvalue"));
         assertEquals("-100", getAttribute(cd0, "CurveData.y1value"));
         assertEquals("100", getAttribute(cd0, "CurveData.y2value"));
-        assertEquals("VSC_1_2_VSC_RCC", getAttribute(cd0, "CurveData.Curve"));
+        assertEquals("VSC_1_2_VSC_RCC", getResource(cd0, "CurveData.Curve"));
     }
 
     @Test
@@ -411,8 +411,8 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals("0", getAttribute(lcc1, "CsConverter.targetAlpha"));
         assertEquals("0", getAttribute(lcc1, "CsConverter.targetGamma"));
         assertEquals("0", getAttribute(lcc1, "CsConverter.targetIdc"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsOperatingModeKind.rectifier", getAttribute(lcc1, "CsConverter.operatingMode"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsPpccControlKind.activePower", getAttribute(lcc1, "CsConverter.pPccControl"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsOperatingModeKind.rectifier", getResource(lcc1, "CsConverter.operatingMode"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsPpccControlKind.activePower", getResource(lcc1, "CsConverter.pPccControl"));
 
         String lcc2 = getElement(sshFile, "CsConverter", "CSC_2_1");
         assertEquals("0", getAttribute(lcc2, "ACDCConverter.targetPpcc"));
@@ -422,8 +422,8 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals("0", getAttribute(lcc2, "CsConverter.targetAlpha"));
         assertEquals("0", getAttribute(lcc2, "CsConverter.targetGamma"));
         assertEquals("0", getAttribute(lcc2, "CsConverter.targetIdc"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsOperatingModeKind.inverter", getAttribute(lcc2, "CsConverter.operatingMode"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsPpccControlKind.dcVoltage", getAttribute(lcc2, "CsConverter.pPccControl"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsOperatingModeKind.inverter", getResource(lcc2, "CsConverter.operatingMode"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#CsPpccControlKind.dcVoltage", getResource(lcc2, "CsConverter.pPccControl"));
 
         // VsConverter
         String vsc1 = getElement(sshFile, "VsConverter", "VSC_1_2");
@@ -436,8 +436,8 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals("0", getAttribute(vsc1, "VsConverter.qShare"));
         assertEquals("1", getAttribute(vsc1, "VsConverter.targetQpcc"));
         assertEquals("0", getAttribute(vsc1, "VsConverter.targetUpcc"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.pPcc", getAttribute(vsc1, "VsConverter.pPccControl"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.reactivePcc", getAttribute(vsc1, "VsConverter.qPccControl"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.pPcc", getResource(vsc1, "VsConverter.pPccControl"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.reactivePcc", getResource(vsc1, "VsConverter.qPccControl"));
 
         String vsc2 = getElement(sshFile, "VsConverter", "VSC_2_2");
         assertEquals("0", getAttribute(vsc2, "ACDCConverter.targetPpcc"));
@@ -449,8 +449,8 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals("0", getAttribute(vsc2, "VsConverter.qShare"));
         assertEquals("0", getAttribute(vsc2, "VsConverter.targetQpcc"));
         assertEquals("400", getAttribute(vsc2, "VsConverter.targetUpcc"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.udc", getAttribute(vsc2, "VsConverter.pPccControl"));
-        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.voltagePcc", getAttribute(vsc2, "VsConverter.qPccControl"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.udc", getResource(vsc2, "VsConverter.pPccControl"));
+        assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.voltagePcc", getResource(vsc2, "VsConverter.qPccControl"));
     }
 
     @Test
@@ -471,17 +471,17 @@ class AcDcConversionTest extends AbstractSerDeTest {
         // DCTerminal
         String closedDcSwitchDcTerminal1 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1P_1");
         String closedDcSwitchDcTerminal2 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1P_2");
-        assertEquals("DCN_1_1P_dcBus", getAttribute(closedDcSwitchDcTerminal1, "DCBaseTerminal.DCTopologicalNode"));
-        assertEquals("DCN_1_1P_dcBus", getAttribute(closedDcSwitchDcTerminal2, "DCBaseTerminal.DCTopologicalNode"));
+        assertEquals("DCN_1_1P_dcBus", getResource(closedDcSwitchDcTerminal1, "DCBaseTerminal.DCTopologicalNode"));
+        assertEquals("DCN_1_1P_dcBus", getResource(closedDcSwitchDcTerminal2, "DCBaseTerminal.DCTopologicalNode"));
 
         String openDcSwitchDcTerminal1 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1_1");
         String openDcSwitchDcTerminal2 = getElement(tpFile, "DCTerminal", "T_DCSW_1_1_2");
-        assertEquals("DCN_1_1_dcBus", getAttribute(openDcSwitchDcTerminal1, "DCBaseTerminal.DCTopologicalNode"));
-        assertEquals("DCN_1_1P_dcBus", getAttribute(openDcSwitchDcTerminal2, "DCBaseTerminal.DCTopologicalNode"));
+        assertEquals("DCN_1_1_dcBus", getResource(openDcSwitchDcTerminal1, "DCBaseTerminal.DCTopologicalNode"));
+        assertEquals("DCN_1_1P_dcBus", getResource(openDcSwitchDcTerminal2, "DCBaseTerminal.DCTopologicalNode"));
 
         // ACDCConverterDCTerminal
         String acDcConverterDcTerminal = getElement(tpFile, "ACDCConverterDCTerminal", "T_CSC_1_1_3");
-        assertEquals("DCN_1_1P_dcBus", getAttribute(acDcConverterDcTerminal, "DCBaseTerminal.DCTopologicalNode"));
+        assertEquals("DCN_1_1P_dcBus", getResource(acDcConverterDcTerminal, "DCBaseTerminal.DCTopologicalNode"));
 
         // DCTopologicalNode
         String dcTopologicalNode = getElement(tpFile, "DCTopologicalNode", "DCN_1_1P_dcBus");
