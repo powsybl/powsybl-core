@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.StreamSupport;
 
 import static com.powsybl.iidm.serde.PropertiesSerDe.NAME;
 import static com.powsybl.iidm.serde.PropertiesSerDe.VALUE;
@@ -28,6 +29,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     static final String ROOT_ELEMENT_NAME = "voltageLevel";
     static final String ARRAY_ELEMENT_NAME = "voltageLevels";
+    private static final String TOPOLOGY_KIND_NAME = "topologyKind";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VoltageLevelSerDe.class);
 
@@ -49,13 +51,22 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeDoubleAttribute("highVoltageLimit", vl.getHighVoltageLimit());
 
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        context.getWriter().writeEnumAttribute("topologyKind", topologyLevel.getTopologyKind());
+        if (shouldExportwithOriginalTopology(vl, context)) {
+            context.getWriter().writeEnumAttribute(TOPOLOGY_KIND_NAME, vl.getTopologyKind());
+        } else {
+            context.getWriter().writeEnumAttribute(TOPOLOGY_KIND_NAME, topologyLevel.getTopologyKind());
+        }
     }
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkSerializerContext context) {
         TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
+        TopologyLevel originalContextTopologyLevel = context.getOptions().getTopologyLevel();
+        if (shouldExportwithOriginalTopology(vl, context)) {
+            topologyLevel = TopologyLevel.NODE_BREAKER;
+            context.getOptions().setTopologyLevel(TopologyLevel.valueOf(vl.getTopologyKind().name()));
+        }
         switch (topologyLevel) {
             case NODE_BREAKER -> writeNodeBreakerTopology(vl, context);
             case BUS_BREAKER -> writeBusBreakerTopology(vl, context);
@@ -72,6 +83,24 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         writeVscConverterStations(vl, context);
         writeLccConverterStations(vl, context);
         writeGrounds(vl, context);
+        context.getOptions().setTopologyLevel(originalContextTopologyLevel);
+    }
+
+    private boolean shouldExportwithOriginalTopology(VoltageLevel vl, NetworkSerializerContext context) {
+        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
+        if (topologyLevel == TopologyLevel.BUS_BRANCH &&
+                vl.getSwitchCount() > 0 &&
+                vl.getSwitchCount() == StreamSupport
+                        .stream(vl.getSwitches().spliterator(), false)
+                        .filter(Switch::isOpen).count()) {
+            if (context.getOptions()
+                    .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
+                throw new PowsyblException("Cannot export a voltage level with all its switches open in BUS_BRANCH topology");
+            }
+            LOGGER.warn("Voltage level '{}' has all its switches open, exporting it in original topology", vl.getId());
+            return true;
+        }
+        return false;
     }
 
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkSerializerContext context) {
@@ -296,7 +325,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         double nominalV = context.getReader().readDoubleAttribute("nominalV");
         double lowVoltageLimit = context.getReader().readDoubleAttribute("lowVoltageLimit");
         double highVoltageLimit = context.getReader().readDoubleAttribute("highVoltageLimit");
-        TopologyKind topologyKind = context.getReader().readEnumAttribute("topologyKind", TopologyKind.class);
+        TopologyKind topologyKind = context.getReader().readEnumAttribute(TOPOLOGY_KIND_NAME, TopologyKind.class);
         return adder
                 .setNominalV(nominalV)
                 .setLowVoltageLimit(lowVoltageLimit)
