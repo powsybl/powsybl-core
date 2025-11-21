@@ -14,6 +14,19 @@ import com.powsybl.commons.datasource.ResourceSet;
 import static com.powsybl.cgmes.conformity.CgmesCatalogsConstants.*;
 
 /**
+ * ReliCapGrid (Reliability + Capacity) is a collection of test models using CGMES and Network Code CIM profiles.
+ *
+ * <p>It has been developed by ENTSO-E and is publicly available at <a href="https://github.com/entsoe/relicapgrid">relicapgrid</a>.</p>
+ *
+ * <p>The full data package comprises a synthetic fake grid model (IGMs and CGM)
+ * and instances of the CIM-extension network code (NC) profiles referring to the grid.
+ * Only the grid model has been fetched here.</p>
+ *
+ * <p>This class provides methods to make the IGMs and the CGM available in the form of {@link GridModelReferenceResources}.</p>
+ *
+ * <p>Some more files are available in the directory but not used here directly:
+ * updated IGMs SSH, CGM SV and TP, IGMs bilateral boundaries.</p>
+ *
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 public final class ReliCapGridCatalog {
