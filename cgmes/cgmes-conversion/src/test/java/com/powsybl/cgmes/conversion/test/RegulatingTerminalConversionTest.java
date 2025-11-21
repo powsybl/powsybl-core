@@ -101,7 +101,7 @@ class RegulatingTerminalConversionTest {
         assertNotNull(generator);
         assertEquals("VL2_400_BBS1", generator.getRegulatingTerminal().getConnectable().getId());
         System.err.printf("Type %s %n", generator.getRegulatingTerminal().getConnectable().getType());
-        assertTrue(IdentifiableType.BUSBAR_SECTION == generator.getRegulatingTerminal().getConnectable().getType());
+        assertSame(IdentifiableType.BUSBAR_SECTION, generator.getRegulatingTerminal().getConnectable().getType());
     }
 
     @Test
@@ -119,7 +119,7 @@ class RegulatingTerminalConversionTest {
         Generator generator = network.getGenerator("GEN");
         assertNotNull(generator);
         assertEquals("LOAD", generator.getRegulatingTerminal().getConnectable().getId());
-        assertTrue(IdentifiableType.LOAD == generator.getRegulatingTerminal().getConnectable().getType());
+        assertSame(IdentifiableType.LOAD, generator.getRegulatingTerminal().getConnectable().getType());
     }
 
     private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
