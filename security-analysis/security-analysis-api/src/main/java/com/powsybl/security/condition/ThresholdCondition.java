@@ -10,6 +10,8 @@ package com.powsybl.security.condition;
 
 import com.powsybl.iidm.network.ThreeSides;
 
+import java.util.Objects;
+
 /**
  * Condition triggered by a threshold
  */
@@ -46,10 +48,10 @@ public class ThresholdCondition implements Condition {
 
     public ThresholdCondition(double threshold, ComparisonType type, String equipmentId, ThreeSides side, Variable variable) {
         this.threshold = threshold;
-        this.equipmentId = equipmentId;
-        this.type = type;
+        this.equipmentId = Objects.requireNonNull(equipmentId);
+        this.type = Objects.requireNonNull(type);
         this.side = side;
-        this.variable = variable;
+        this.variable = Objects.requireNonNull(variable);
     }
 
     public double getThreshold() {
