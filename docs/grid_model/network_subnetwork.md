@@ -196,6 +196,7 @@ The `isCondenser` value corresponds for instance to generators which can control
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
+- [Manual Frequency Restoration Reserve](extensions.md#manual-frequency-restoration-reserve)
 
 (load)=
 ## Load
