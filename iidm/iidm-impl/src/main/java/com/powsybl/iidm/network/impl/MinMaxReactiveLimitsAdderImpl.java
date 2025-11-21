@@ -21,11 +21,8 @@ class MinMaxReactiveLimitsAdderImpl<O extends ReactiveLimitsOwner & Validable> i
 
     private double maxQ = Double.NaN;
 
-    private Network network;
-
-    MinMaxReactiveLimitsAdderImpl(O owner, Network network) {
+    MinMaxReactiveLimitsAdderImpl(O owner) {
         this.owner = owner;
-        this.network = network;
     }
 
     @Override
@@ -51,7 +48,7 @@ class MinMaxReactiveLimitsAdderImpl<O extends ReactiveLimitsOwner & Validable> i
         if (maxQ < minQ) {
             throw new ValidationException(owner, "maximum reactive power is expected to be greater than or equal to minimum reactive power");
         }
-        MinMaxReactiveLimitsImpl limits = new MinMaxReactiveLimitsImpl(network, minQ, maxQ);
+        MinMaxReactiveLimitsImpl limits = new MinMaxReactiveLimitsImpl(minQ, maxQ);
         owner.setReactiveLimits(limits);
         return limits;
     }

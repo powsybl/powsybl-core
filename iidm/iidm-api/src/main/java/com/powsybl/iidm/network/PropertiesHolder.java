@@ -53,5 +53,5 @@ public interface PropertiesHolder {
      */
     Set<String> getPropertyNames();
 
-    Network getNetwork();
+    //Network getNetwork();
 }

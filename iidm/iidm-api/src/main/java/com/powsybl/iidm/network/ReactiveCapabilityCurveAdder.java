@@ -23,12 +23,10 @@ public interface ReactiveCapabilityCurveAdder {
 
         ReactiveCapabilityCurveAdder endPoint();
 
-        Network getNetwork();
     }
 
     PointAdder beginPoint();
 
     ReactiveCapabilityCurve add();
 
-    Network getNetwork();
 }

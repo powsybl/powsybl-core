@@ -26,33 +26,9 @@ public abstract class AbstractReducedLoadingLimits extends AbstractPropertiesHol
     private final double originalPermanentLimit;
     private final double permanentLimitReduction;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
-    private Network network;
 
-    public static class ReducedTemporaryLimit extends AbstractPropertiesHolder implements TemporaryLimit {
-
-        private Network network;
-        private String name;
-        private double value;
-        private int acceptableDuration;
-        private boolean fictitious;
-        private double originalValue;
-        private double limitReduction;
-
-        public ReducedTemporaryLimit(Network network, String name, double value, int acceptableDuration, boolean fictitious, double originalValue, double limitReduction) {
-            this.network = network;
-            this.name = name;
-            this.value = value;
-            this.acceptableDuration = acceptableDuration;
-            this.fictitious = fictitious;
-            this.originalValue = originalValue;
-            this.limitReduction = limitReduction;
-        }
-
-        @Override
-        public Network getNetwork() {
-            return network;
-        }
-
+    public record ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
+                                 double originalValue, double limitReduction) implements TemporaryLimit {
         @Override
         public String getName() {
             return name;
@@ -87,12 +63,11 @@ public abstract class AbstractReducedLoadingLimits extends AbstractPropertiesHol
         this.permanentLimit = permanentLimit;
         this.originalPermanentLimit = originalPermanentLimit;
         this.permanentLimitReduction = permanentLimitReduction;
-        this.network = network;
     }
 
     public void addTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
                                   double originalValue, double limitReduction) {
-        temporaryLimits.put(acceptableDuration, new ReducedTemporaryLimit(getNetwork(), name, value, acceptableDuration, fictitious,
+        temporaryLimits.put(acceptableDuration, new ReducedTemporaryLimit(name, value, acceptableDuration, fictitious,
                 originalValue, limitReduction));
     }
 
@@ -138,10 +113,4 @@ public abstract class AbstractReducedLoadingLimits extends AbstractPropertiesHol
     public void remove() {
         throw new UnsupportedOperationException("Reduced loading limits are not linked to a network element and thus cannot be removed.");
     }
-
-    @Override
-    public Network getNetwork() {
-        return network;
-    }
-
 }

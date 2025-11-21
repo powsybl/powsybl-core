@@ -28,19 +28,7 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
 
     private final TreeMap<Double, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
 
-    private final Network network;
-
     private final class PointAdderImpl implements PointAdder {
-
-        public Network getNetwork() {
-            return network;
-        }
-
-        private Network network;
-
-        public PointAdderImpl(Network network) {
-            this.network = network;
-        }
 
         private double p = Double.NaN;
 
@@ -94,20 +82,19 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
             //     throw new ValidationException(owner,
             //             "maximum reactive power is expected to be greater than or equal to minimum reactive power");
             // }
-            points.put(p, new PointImpl(getNetwork(), p, minQ, maxQ));
+            points.put(p, new PointImpl(p, minQ, maxQ));
             return ReactiveCapabilityCurveAdderImpl.this;
         }
 
     }
 
-    ReactiveCapabilityCurveAdderImpl(O owner, Network network) {
+    ReactiveCapabilityCurveAdderImpl(O owner) {
         this.owner = owner;
-        this.network = network;
     }
 
     @Override
     public PointAdder beginPoint() {
-        return new PointAdderImpl(getNetwork());
+        return new PointAdderImpl();
     }
 
     @Override
@@ -115,14 +102,9 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
         if (points.size() < 2) {
             throw new ValidationException(owner, "a reactive capability curve should have at least two points");
         }
-        ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(getNetwork(), points, owner.getMessageHeader().toString());
+        ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(points, owner.getMessageHeader().toString());
         owner.setReactiveLimits(curve);
         return curve;
-    }
-
-    @Override
-    public Network getNetwork() {
-        return network;
     }
 
 }

@@ -46,6 +46,7 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     @Override
     protected void writeSubElements(Load load, VoltageLevel parent, NetworkSerializerContext context) {
+        PropertiesSerDe.write(load, context);
         load.getModel().ifPresent(model -> {
             IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, MODEL, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_10, context);
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_10, context, () -> writeModel(model, context));
@@ -59,6 +60,7 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), EXPONENTIAL_MODEL);
                 context.getWriter().writeDoubleAttribute("np", expModel.getNp());
                 context.getWriter().writeDoubleAttribute("nq", expModel.getNq());
+                PropertiesSerDe.write(expModel, context);
                 context.getWriter().writeEndNode();
             }
             case ZIP -> {
@@ -70,6 +72,7 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                 context.getWriter().writeDoubleAttribute("c0q", zipModel.getC0q());
                 context.getWriter().writeDoubleAttribute("c1q", zipModel.getC1q());
                 context.getWriter().writeDoubleAttribute("c2q", zipModel.getC2q());
+                PropertiesSerDe.write(zipModel, context);
                 context.getWriter().writeEndNode();
             }
             default -> throw new PowsyblException("Unexpected load model type: " + model.getType());
@@ -103,7 +106,8 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_10, context);
                     double np = context.getReader().readDoubleAttribute("np");
                     double nq = context.getReader().readDoubleAttribute("nq");
-                    context.getReader().readEndNode();
+                    PropertiesSerDe.readProperties(context, adder);
+                    //context.getReader().readEndNode();
                     adder.newExponentialModel()
                             .setNp(np)
                             .setNq(nq)
@@ -117,7 +121,8 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                     double c0q = context.getReader().readDoubleAttribute("c0q");
                     double c1q = context.getReader().readDoubleAttribute("c1q");
                     double c2q = context.getReader().readDoubleAttribute("c2q");
-                    context.getReader().readEndNode();
+                    PropertiesSerDe.readProperties(context, adder);
+                    //context.getReader().readEndNode();
                     adder.newZipModel()
                             .setC0p(c0p)
                             .setC1p(c1p)

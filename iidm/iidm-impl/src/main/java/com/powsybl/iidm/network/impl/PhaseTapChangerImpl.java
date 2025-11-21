@@ -49,7 +49,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public PhaseTapChangerStepsReplacerImpl stepsReplacer() {
-        return new PhaseTapChangerStepsReplacerImpl(this, getNetwork());
+        return new PhaseTapChangerStepsReplacerImpl(this);
     }
 
     @Override

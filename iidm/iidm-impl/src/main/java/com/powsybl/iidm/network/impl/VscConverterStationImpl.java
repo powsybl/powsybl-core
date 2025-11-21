@@ -35,7 +35,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
         this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
         this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
-        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(getNetwork(), -Double.MAX_VALUE, Double.MAX_VALUE));
+        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, true);
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
     }
@@ -107,12 +107,12 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this, getNetwork());
+        return new ReactiveCapabilityCurveAdderImpl(this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this, getNetwork());
+        return new MinMaxReactiveLimitsAdderImpl(this);
     }
 
     @Override

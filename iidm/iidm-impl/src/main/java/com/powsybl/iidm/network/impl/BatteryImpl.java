@@ -32,7 +32,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         super(ref, id, name, fictitious);
         this.minP = minP;
         this.maxP = maxP;
-        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(getNetwork(), -Double.MAX_VALUE, Double.MAX_VALUE));
+        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.targetP = new TDoubleArrayList(variantArraySize);
@@ -176,7 +176,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this, getNetwork());
+        return new ReactiveCapabilityCurveAdderImpl(this);
     }
 
     /**
@@ -184,7 +184,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this, getNetwork());
+        return new MinMaxReactiveLimitsAdderImpl(this);
     }
 
     /**

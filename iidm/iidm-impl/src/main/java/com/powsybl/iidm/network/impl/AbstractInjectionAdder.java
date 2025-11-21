@@ -39,7 +39,7 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
     }
 
     @Override
-    protected NetworkImpl getNetwork() {
+    public NetworkImpl getNetwork() {
         return voltageLevel.getNetwork();
     }
 

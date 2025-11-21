@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadModel;
-import com.powsybl.iidm.network.Network;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -21,8 +20,4 @@ abstract class AbstractLoadModelImpl extends AbstractPropertiesHolder implements
         this.load = load;
     }
 
-    @Override
-    public Network getNetwork() {
-        return load.getNetwork();
-    }
 }

@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ApparentPowerLimits;
-import com.powsybl.iidm.network.Network;
 
 import java.util.TreeMap;
 
@@ -26,8 +25,4 @@ class ApparentPowerLimitsImpl extends AbstractLoadingLimits<ApparentPowerLimitsI
         group.removeApparentPowerLimits();
     }
 
-    @Override
-    public Network getNetwork() {
-        return group.getNetwork();
-    }
 }

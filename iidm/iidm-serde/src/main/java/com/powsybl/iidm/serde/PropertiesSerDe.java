@@ -8,8 +8,8 @@
 
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.PropertiesHolder;
-import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public final class PropertiesSerDe {
             context.getWriter().writeStartNodes();
             for (String name : IidmSerDeUtil.sortedNames(propertiesHolder.getPropertyNames(), context.getOptions())) {
                 String value = propertiesHolder.getProperty(name);
-                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(propertiesHolder.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), ROOT_ELEMENT_NAME);
+                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
                 context.getWriter().writeStringAttribute(NAME, name);
                 context.getWriter().writeStringAttribute(VALUE, value);
                 context.getWriter().writeEndNode();
@@ -56,5 +56,20 @@ public final class PropertiesSerDe {
     }
 
     private PropertiesSerDe() {
+    }
+
+    public static void readProperties(NetworkDeserializerContext context, PropertiesHolder holder) {
+        if (context.getVersion().compareTo(IidmVersion.V_1_15) <= 0) {
+            context.getReader().readChildNodes(elementName -> {
+                if (elementName.equals(PropertiesSerDe.ROOT_ELEMENT_NAME)) {
+                    String name = context.getReader().readStringAttribute(NAME);
+                    String value = context.getReader().readStringAttribute(VALUE);
+                    context.getReader().readEndNode();
+                    holder.setProperty(name, value);
+                } else {
+                    throw new PowsyblException(String.format("Unknown element name '%s' in '%s'", elementName, holder.getClass().getSimpleName()));
+                }
+            });
+        }
     }
 }

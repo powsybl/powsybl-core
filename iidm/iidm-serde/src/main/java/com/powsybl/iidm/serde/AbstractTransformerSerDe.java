@@ -335,21 +335,6 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         readPhaseTapChanger(PHASE_TAP_CHANGER + leg, twl.newPhaseTapChanger(), twl.getTerminal(), context);
     }
 
-    private static void readProperties(NetworkDeserializerContext context, PropertiesHolder adder) {
-        if (context.getVersion().compareTo(IidmVersion.V_1_15) <= 0) {
-            context.getReader().readChildNodes(elementName -> {
-                if (elementName.equals(PropertiesSerDe.ROOT_ELEMENT_NAME)) {
-                    String name = context.getReader().readStringAttribute(NAME);
-                    String value = context.getReader().readStringAttribute(VALUE);
-                    context.getReader().readEndNode();
-                    adder.setProperty(name, value);
-                } else {
-                    throw new PowsyblException(String.format("Unknown element name '%s' in '%s'", elementName, adder.getClass().getSimpleName()));
-                }
-            });
-        }
-    }
-
     private static double[] readCommonDoubleAttributesForAdder(NetworkDeserializerContext context) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
@@ -364,13 +349,13 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         double alpha = context.getReader().readDoubleAttribute("alpha");
         adder.setR(rxgbrho[0]).setX(rxgbrho[1]).setG(rxgbrho[2]).setB(rxgbrho[3]).setRho(rxgbrho[4]);
         adder.setAlpha(alpha);
-        readProperties(context, adder);
+        PropertiesSerDe.readProperties(context, adder);
     }
 
     private static void readSteps(NetworkDeserializerContext context, TapChangerStepAdder<?, ?> adder) {
         double[] rxgbrho = readCommonDoubleAttributesForAdder(context);
         adder.setR(rxgbrho[0]).setX(rxgbrho[1]).setG(rxgbrho[2]).setB(rxgbrho[3]).setRho(rxgbrho[4]);
-        readProperties(context, adder);
+        PropertiesSerDe.readProperties(context, adder);
     }
 
     /**

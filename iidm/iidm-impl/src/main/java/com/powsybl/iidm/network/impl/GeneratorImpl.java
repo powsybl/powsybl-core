@@ -51,7 +51,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.energySource = energySource;
         this.minP = minP;
         this.maxP = maxP;
-        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(getNetwork(), -Double.MAX_VALUE, Double.MAX_VALUE));
+        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.ratedS = ratedS;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, true);
@@ -223,12 +223,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this, getNetwork());
+        return new ReactiveCapabilityCurveAdderImpl(this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this, getNetwork());
+        return new MinMaxReactiveLimitsAdderImpl(this);
     }
 
     @Override

@@ -98,7 +98,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
                 throw new ValidationException(validable, "acceptable duration must be >= 0");
             }
             checkAndGetUniqueName();
-            temporaryLimits.put(acceptableDuration, new AbstractLoadingLimits.TemporaryLimitImpl(network, name, value, acceptableDuration, fictitious));
+            temporaryLimits.put(acceptableDuration, new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
             return (B) AbstractLoadingLimitsAdder.this;
         }
 
