@@ -96,6 +96,8 @@ Actions are applied if a condition is met. The conditions can be diversified and
   network.
 - Any violation condition on a list of elements: meaning that the list of actions is applied if one or more elements
   provided are overloaded.
+- Threshold condition : condition triggered when a threshold violation is detected on the network. The threshold can
+  refer to an active power, reactive power, current or target P value on a specific point of the network. 
 
 ### Operator strategies
 
