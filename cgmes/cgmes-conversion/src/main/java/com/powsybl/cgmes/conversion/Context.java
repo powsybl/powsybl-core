@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.Conversion.Config;
+import com.powsybl.cgmes.conversion.elements.dc.DCMapping;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -56,6 +57,7 @@ public class Context {
         loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping(this);
+        dcMapping = new DCMapping(this);
 
         cachedGroupedTransformerEnds = new HashMap<>();
         cachedGroupedRatioTapChangers = new HashMap<>();
@@ -68,6 +70,7 @@ public class Context {
         buildCaches();
 
         cgmesTerminals = new HashMap<>();
+        cgmesDcTerminals = new HashMap<>();
         ratioTapChangers = new HashMap<>();
         phaseTapChangers = new HashMap<>();
         regulatingControls = new HashMap<>();
@@ -127,6 +130,10 @@ public class Context {
 
     public NodeContainerMapping nodeContainerMapping() {
         return nodeContainerMapping;
+    }
+
+    public DCMapping dcMapping() {
+        return dcMapping;
     }
 
     public CgmesBoundary boundary() {
@@ -198,6 +205,7 @@ public class Context {
 
     public void buildUpdateCache() {
         buildUpdateCache(cgmesTerminals, cgmes.terminals(), CgmesNames.TERMINAL);
+        buildUpdateCache(cgmesDcTerminals, cgmes.dcTerminals(), CgmesNames.DC_TERMINAL);
         buildUpdateCache(ratioTapChangers, cgmes.ratioTapChangers(), CgmesNames.RATIO_TAP_CHANGER);
         buildUpdateCache(phaseTapChangers, cgmes.phaseTapChangers(), CgmesNames.PHASE_TAP_CHANGER);
         buildUpdateCache(regulatingControls, cgmes.regulatingControls(), CgmesNames.REGULATING_CONTROL);
@@ -217,6 +225,10 @@ public class Context {
 
     public PropertyBag cgmesTerminal(String id) {
         return cgmesTerminals.get(id);
+    }
+
+    public PropertyBag cgmesDcTerminal(String id) {
+        return cgmesDcTerminals.get(id);
     }
 
     public PropertyBag ratioTapChanger(String id) {
@@ -357,6 +369,7 @@ public class Context {
     private final NodeMapping nodeMapping;
     private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
+    private final DCMapping dcMapping;
 
     private final Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private final Map<String, PropertyBags> cachedGroupedRatioTapChangers;
@@ -367,6 +380,7 @@ public class Context {
     private final Map<String, PropertyBags> cachedGroupedReactiveCapabilityCurveData;
 
     private final Map<String, PropertyBag> cgmesTerminals;
+    private final Map<String, PropertyBag> cgmesDcTerminals;
     private final Map<String, PropertyBag> ratioTapChangers;
     private final Map<String, PropertyBag> phaseTapChangers;
     private final Map<String, PropertyBag> regulatingControls;
