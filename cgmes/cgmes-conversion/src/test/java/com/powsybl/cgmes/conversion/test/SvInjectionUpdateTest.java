@@ -59,6 +59,27 @@ class SvInjectionUpdateTest {
         assertLoad(load);
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "svInjection_EQ.xml", "svInjection_TP.xml", "svInjection_SV.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertTrue(network.getLoadStream().allMatch(load -> load.getPropertyNames().isEmpty()));
+        assertTrue(network.getLoadStream().allMatch(load -> load.getAliases().isEmpty()));
+    }
+
     private static void assertLoad(Load load) {
         assertNotNull(load);
         double tol = 0.0000001;

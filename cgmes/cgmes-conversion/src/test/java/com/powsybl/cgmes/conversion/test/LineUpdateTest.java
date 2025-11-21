@@ -53,7 +53,7 @@ class LineUpdateTest {
         readCgmesResources(network, DIR, "line_SSH_1.xml");
         assertSecondSsh(network);
 
-        assertFlowsBeforeSv(network);
+        assertUnassignedFlows(network);
         readCgmesResources(network, DIR, "line_SV.xml");
         assertFlowsAfterSv(network);
     }
@@ -69,7 +69,30 @@ class LineUpdateTest {
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertFlowsAfterSv(network);
+        assertUnassignedFlows(network);
+    }
+
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "line_EQ.xml", "line_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "line_EQ.xml", "line_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getLineStream().allMatch(line -> line.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getLineStream().allMatch(line -> line.getAliases().isEmpty()));
+        assertEquals(expected, network.getLineStream().allMatch(line -> line.getOperationalLimitsGroups1().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getLineStream().allMatch(line -> line.getOperationalLimitsGroups2().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
     }
 
     private static void assertEq(Network network) {
@@ -111,16 +134,23 @@ class LineUpdateTest {
         assertNotDefinedLimits(network.getLine("SeriesCompensator"));
     }
 
-    private static void assertFlowsBeforeSv(Network network) {
-        assertFlows(network.getLine("ACLineSegment").getTerminal1(), Double.NaN, Double.NaN, network.getLine("ACLineSegment").getTerminal2(), Double.NaN, Double.NaN);
-        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), Double.NaN, Double.NaN, network.getLine("EquivalentBranch").getTerminal2(), Double.NaN, Double.NaN);
-        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), Double.NaN, Double.NaN, network.getLine("SeriesCompensator").getTerminal2(), Double.NaN, Double.NaN);
+    private static void assertUnassignedFlows(Network network) {
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        assertFlows(network.getLine("ACLineSegment").getTerminal1(), 275.0, 50.0, network.getLine("ACLineSegment").getTerminal2(), -275.1, -50.1);
-        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), 175.0, 40.0, network.getLine("EquivalentBranch").getTerminal2(), -175.1, -40.1);
-        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), 75.0, 30.0, network.getLine("SeriesCompensator").getTerminal2(), -75.1, -30.1);
+        assertFlows(network, 275.0, 50.0, -275.1, -50.1,
+                175.0, 40.0, -175.1, -40.1,
+                75.0, 30.0, -75.1, -30.1);
+
+    }
+
+    private static void assertFlows(Network network, double aCLineSegmentP1, double aCLineSegmentQ1, double aCLineSegmentP2, double aCLineSegmentQ2,
+                                    double equivalentBranchP1, double equivalentBranchQ1, double equivalentBranchP2, double equivalentBranchQ2,
+                                    double seriesCompensatorP1, double seriesCompensatorQ1, double seriesCompensatorP2, double seriesCompensatorQ2) {
+        assertFlows(network.getLine("ACLineSegment").getTerminal1(), aCLineSegmentP1, aCLineSegmentQ1, network.getLine("ACLineSegment").getTerminal2(), aCLineSegmentP2, aCLineSegmentQ2);
+        assertFlows(network.getLine("EquivalentBranch").getTerminal1(), equivalentBranchP1, equivalentBranchQ1, network.getLine("EquivalentBranch").getTerminal2(), equivalentBranchP2, equivalentBranchQ2);
+        assertFlows(network.getLine("SeriesCompensator").getTerminal1(), seriesCompensatorP1, seriesCompensatorQ1, network.getLine("SeriesCompensator").getTerminal2(), seriesCompensatorP2, seriesCompensatorQ2);
     }
 
     private static void assertEq(Line line) {

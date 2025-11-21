@@ -72,6 +72,7 @@ class TieLineUpdateTest {
 
         TieLine tieLine = network.getTieLine("ACLineSegment-1 + ACLineSegment-2");
         assertSv(tieLine);
+        assertFlowsSv(tieLine);
     }
 
     @Test
@@ -80,15 +81,12 @@ class TieLineUpdateTest {
         assertEqCount(network, 2, 4);
 
         TieLine tieLine = network.getTieLine("ACLineSegment-1 + ACLineSegment-2");
-        assertFlow(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
-        assertFlow(tieLine.getDanglingLine2(), Double.NaN, Double.NaN);
-        assertBusVoltage(tieLine.getDanglingLine1().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
-        assertBusVoltage(tieLine.getDanglingLine2().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
-        assertBoundaryBusVoltage(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
-        assertBoundaryBusVoltage(tieLine.getDanglingLine2(), Double.NaN, Double.NaN);
+        assertFlowsEmptySv(tieLine);
+        assertEmptySv(tieLine);
 
         readCgmesResources(network, DIR, "tieLine_TP.xml", "tieLine_SV.xml");
         assertSv(tieLine);
+        assertFlowsSv(tieLine);
     }
 
     @Test
@@ -97,22 +95,62 @@ class TieLineUpdateTest {
         assertEqCount(network, 2, 4);
         assertFirstSsh(network);
         assertSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
+        assertFlowsSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertEqCount(network, 2, 4);
         assertFirstSsh(network);
-        assertSv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
+        assertEmptySv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
+        assertFlowsEmptySv(network.getTieLine("ACLineSegment-1 + ACLineSegment-2"));
+    }
+
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml", "tieLine_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "tieLine_EQ.xml", "tieLine_EQ_BD.xml", "tieLine_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertTrue(network.getTieLineStream().allMatch(tieLine -> tieLine.getPropertyNames().isEmpty()));
+        assertTrue(network.getTieLineStream().allMatch(tieLine -> tieLine.getAliases().isEmpty()));
+        assertEquals(expected, network.getTieLineStream().allMatch(tieLine -> tieLine.getOperationalLimitsGroups1().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getTieLineStream().allMatch(tieLine -> tieLine.getOperationalLimitsGroups2().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
     }
 
     private static void assertSv(TieLine tieLine) {
-        assertFlow(tieLine.getDanglingLine1(), 275.1, 50.5);
-        assertFlow(tieLine.getDanglingLine2(), -275.0, -50.0);
         assertBusVoltage(tieLine.getDanglingLine1().getTerminal().getBusView().getBus(), 400.5, -3.0);
         assertBusVoltage(tieLine.getDanglingLine2().getTerminal().getBusView().getBus(), 402.5, -5.0);
         assertBoundaryBusVoltage(tieLine.getDanglingLine1(), 401.5130326083143, -4.023034681728034);
         assertBoundaryBusVoltage(tieLine.getDanglingLine2(), 401.5130326083143, -4.023034681728034);
+    }
+
+    private static void assertEmptySv(TieLine tieLine) {
+        assertBusVoltage(tieLine.getDanglingLine1().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
+        assertBusVoltage(tieLine.getDanglingLine2().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
+        assertBoundaryBusVoltage(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
+        assertBoundaryBusVoltage(tieLine.getDanglingLine2(), Double.NaN, Double.NaN);
+    }
+
+    private static void assertFlowsSv(TieLine tieLine) {
+        assertFlow(tieLine.getDanglingLine1(), 275.1, 50.5);
+        assertFlow(tieLine.getDanglingLine2(), -275.0, -50.0);
+    }
+
+    private static void assertFlowsEmptySv(TieLine tieLine) {
+        assertFlow(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
+        assertFlow(tieLine.getDanglingLine2(), Double.NaN, Double.NaN);
     }
 
     private static void assertEq(Network network) {

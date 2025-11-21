@@ -929,9 +929,10 @@ LCC and VSC share the following characteristics.
 | $SwitchingLoss$ | MW / A   | Switching losses                                                      |
 | $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
 | $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
-| $ControlMode$   |          | The converter's control mode: P_PCC or V_DC                           |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or V_DC_DROOP               |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
+| $DroopCurve$    |          | Droop curve for droop control mode                                    |
 
 Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
 With `i` being the DC current through the converter, the Converter losses are computed as follows:
@@ -959,6 +960,11 @@ It cannot be a Busbar Section Terminal since no active power can be measured on 
 ![Detailed DC Model PCC Terminal](img/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-light"}
 ![Detailed DC Model PCC Terminal](img/dark_mode/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-dark"}
 
+For AC/DC converters modeled with two AC terminals, it is acceptable for the converter’s PCC terminal to be designated
+as one of the converter terminals. In this case, when the converter’s `ControlMode` is set to `P_PCC`, simulators
+shall interpret `TargetP` as the total active power flow to be achieved across both AC terminals, not just through the
+PCC Terminal.
+
 When the `ControlMode` of the converter is set to `V_DC`, the converter controls DC voltage at its DC Terminals.
 `TargetVdc` is the desired target DC voltage, and is the voltage difference between DC Node 1 and DC Node 2.
 `TargetVdc` may be either positive or negative. Negative value may be used to model reverse polarity operation in case of LCCs.
@@ -969,6 +975,23 @@ between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
 - If no DC Ground is present, the configuration is symmetrical, in this case the converter provides internally an implicit DC Ground and imposes:
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
+
+When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter controls active power as in the `P_PCC` control mode
+for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
+$P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
+Where:
+- $k$ is the droop coefficient of the actual droop segment. 
+- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint. 
+It represents the operating point before the security analysis starts.
+- $V_{REF}$ is the DC voltage which was calculated during the base loadflow. The droop control is only used for P controlled converters, so they should not have a targetVdc.
+- $P_{DC}$ is the actual power at DC side during the security analysis, which is determined by Newton Raphson.
+- $V_{DC}$ is the actual DC voltage during the security analysis, which is determined by Newton Raphson.
+
+Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual 
+droop segment should be the one which verifies:
+$V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
+
+
 
 ##### Line Commutated Converter
 

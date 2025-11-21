@@ -46,6 +46,25 @@ class TransformerUpdateTest {
     }
 
     @Test
+    void importErroneousTapTest() {
+        Network network = readCgmesResources(DIR, "transformer_erroneous_tap_EQ.xml");
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformerStream().findAny().orElseThrow();
+        assertEquals(1, twt.getPhaseTapChanger().getLowTapPosition());
+        assertEquals(3, twt.getPhaseTapChanger().getHighTapPosition());
+        assertEquals(2, twt.getPhaseTapChanger().getNeutralPosition().orElseThrow());
+        assertEquals(2, twt.getPhaseTapChanger().getTapPosition()); // The EQ normalStep is outside the bounds, it is set to the neutralStep
+
+        ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformerStream().findAny().orElseThrow();
+        assertEquals(1, t3wt.getLeg2().getRatioTapChanger().getLowTapPosition());
+        assertEquals(15, t3wt.getLeg2().getRatioTapChanger().getHighTapPosition());
+        assertTrue(t3wt.getLeg2().getRatioTapChanger().getNeutralPosition().isEmpty()); // The EQ neutralStep is invalid => empty
+        assertEquals(1, t3wt.getLeg2().getRatioTapChanger().getTapPosition()); // The EQ normalStep and neutralStep are outside the bounds => set to the lowStep
+
+        network = readCgmesResources(DIR, "transformer_erroneous_tap_EQ.xml", "transformer_erroneous_tap_SSH.xml");
+        assertEquals(1, network.getThreeWindingsTransformerStream().findAny().orElseThrow().getLeg2().getRatioTapChanger().getTapPosition());
+    }
+
+    @Test
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "transformer_EQ.xml");
         assertEquals(1, network.getTwoWindingsTransformerCount());
@@ -59,7 +78,7 @@ class TransformerUpdateTest {
         readCgmesResources(network, DIR, "transformer_SSH_1.xml");
         assertSecondSsh(network);
 
-        assertFlowsBeforeSv(network);
+        assertUnassignedFlows(network);
         assertTapChangerStepsBeforeSv(network);
         readCgmesResources(network, DIR, "transformer_SV.xml");
         assertFlowsAfterSv(network);
@@ -102,14 +121,43 @@ class TransformerUpdateTest {
         assertEquals(1, network.getThreeWindingsTransformerCount());
         assertFirstSsh(network);
         assertFlowsAfterSv(network);
-        assertTapChangerStepsAfterSshAndSvTogether(network);
+        assertTapChangerStepsAfterSshAndSvTogether(network, 7, 13);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertFlowsAfterSv(network);
-        assertTapChangerStepsAfterSshAndSvTogether(network);
+        assertUnassignedFlows(network);
+        assertTapChangerStepsAfterSshAndSvTogether(network, null, null);
+    }
+
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "transformer_EQ.xml", "transformer_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "transformer_EQ.xml", "transformer_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getTwoWindingsTransformerStream().allMatch(t2w -> t2w.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getTwoWindingsTransformerStream().allMatch(t2w -> t2w.getAliases().isEmpty()));
+        assertTrue(network.getThreeWindingsTransformerStream().allMatch(t3w -> t3w.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getThreeWindingsTransformerStream().allMatch(t3w -> t3w.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getTwoWindingsTransformerStream().allMatch(t2w -> t2w.getOperationalLimitsGroups1().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getTwoWindingsTransformerStream().allMatch(t2w -> t2w.getOperationalLimitsGroups2().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getThreeWindingsTransformerStream().allMatch(t3w -> t3w.getLeg1().getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getThreeWindingsTransformerStream().allMatch(t3w -> t3w.getLeg2().getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getThreeWindingsTransformerStream().allMatch(t3w -> t3w.getLeg3().getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
     }
 
     private static void assertEq(Network network) {
@@ -157,26 +205,23 @@ class TransformerUpdateTest {
                 new ApparentPowerLimit(27.0, 900, 32.0));
     }
 
-    private static void assertFlowsBeforeSv(Network network) {
-        TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
-        assertFlows(t2w.getTerminal1(), Double.NaN, Double.NaN);
-        assertFlows(t2w.getTerminal2(), Double.NaN, Double.NaN);
-
-        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
-        assertFlows(t3w.getLeg1().getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(t3w.getLeg2().getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(t3w.getLeg3().getTerminal(), Double.NaN, Double.NaN);
+    private static void assertUnassignedFlows(Network network) {
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
+        assertFlows(network, 100.0, -50.0, -100.1, 50.5, 200.0, 50.0, -150.0, -40.0, -50.0, -10.0);
+    }
+
+    private static void assertFlows(Network network, double t2wP1, double t2wQ1, double t2wP2, double t2wQ2, double t3wP1, double t3wQ1, double t3wP2, double t3wQ2, double t3wP3, double t3wQ3) {
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
-        assertFlows(t2w.getTerminal1(), 100.0, -50.0);
-        assertFlows(t2w.getTerminal2(), -100.1, 50.5);
+        assertFlows(t2w.getTerminal1(), t2wP1, t2wQ1);
+        assertFlows(t2w.getTerminal2(), t2wP2, t2wQ2);
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
-        assertFlows(t3w.getLeg1().getTerminal(), 200.0, 50.0);
-        assertFlows(t3w.getLeg2().getTerminal(), -150.0, -40.0);
-        assertFlows(t3w.getLeg3().getTerminal(), -50.0, -10.0);
+        assertFlows(t3w.getLeg1().getTerminal(), t3wP1, t3wQ1);
+        assertFlows(t3w.getLeg2().getTerminal(), t3wP2, t3wQ2);
+        assertFlows(t3w.getLeg3().getTerminal(), t3wP3, t3wQ3);
     }
 
     private static void assertTapChangerStepsBeforeSv(Network network) {
@@ -193,27 +238,26 @@ class TransformerUpdateTest {
 
     private static void assertTapChangerStepsAfterSv(Network network) {
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
-        assertEquals(7, t2w.getPhaseTapChanger().getTapPosition());
+        assertEquals(4, t2w.getPhaseTapChanger().getTapPosition());
         assertFalse(t2w.getPhaseTapChanger().isRegulating());
         assertEquals(7, t2w.getPhaseTapChanger().getSolvedTapPosition());
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
-        assertEquals(13, t3w.getLeg2().getRatioTapChanger().getTapPosition());
+        assertEquals(8, t3w.getLeg2().getRatioTapChanger().getTapPosition());
         assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
         assertEquals(13, t3w.getLeg2().getRatioTapChanger().getSolvedTapPosition());
     }
 
-    // When SSH and SV are imported in one shot, the SSH step takes priority over the SV step
-    private static void assertTapChangerStepsAfterSshAndSvTogether(Network network) {
+    private static void assertTapChangerStepsAfterSshAndSvTogether(Network network, Integer tw2SolvedTapPosition, Integer t3wSolvedTapPosition) {
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T2W");
         assertEquals(-2, t2w.getPhaseTapChanger().getTapPosition());
         assertTrue(t2w.getPhaseTapChanger().isRegulating());
-        assertEquals(7, t2w.getPhaseTapChanger().getSolvedTapPosition());
+        assertEquals(tw2SolvedTapPosition, t2w.getPhaseTapChanger().getSolvedTapPosition());
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("T3W");
         assertEquals(8, t3w.getLeg2().getRatioTapChanger().getTapPosition());
         assertTrue(t3w.getLeg2().getRatioTapChanger().isRegulating());
-        assertEquals(13, t3w.getLeg2().getRatioTapChanger().getSolvedTapPosition());
+        assertEquals(t3wSolvedTapPosition, t3w.getLeg2().getRatioTapChanger().getSolvedTapPosition());
     }
 
     private static void assertEq(TwoWindingsTransformer t2w) {

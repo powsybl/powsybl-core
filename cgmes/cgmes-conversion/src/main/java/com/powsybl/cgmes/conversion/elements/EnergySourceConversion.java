@@ -45,7 +45,7 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
     public static void update(Load load, PropertyBag cgmesData, Context context) {
         updateTerminals(load, context, load.getTerminal());
 
-        PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
+        PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
         load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : getDefaultP0(load, context));
         load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : getDefaultQ0(load, context));
     }
