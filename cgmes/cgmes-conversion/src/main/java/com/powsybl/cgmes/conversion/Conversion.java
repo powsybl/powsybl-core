@@ -164,7 +164,7 @@ public class Conversion {
         Network network = createNetwork();
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         Context context = new Context(cgmes, config, network, reportNode);
-        assignNetworkProperties(context);
+        setNetworkTimes(context);
         addMetadataModels(network, context);
         addCimCharacteristics(network);
 
@@ -524,11 +524,7 @@ public class Conversion {
         return context;
     }
 
-    private void assignNetworkProperties(Context context) {
-        context.network().setProperty(NETWORK_PS_CGMES_MODEL_DETAIL,
-                context.nodeBreaker()
-                        ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
-                        : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
+    private void setNetworkTimes(Context context) {
         ZonedDateTime modelScenarioTime = cgmes.scenarioTime();
         ZonedDateTime modelCreated = cgmes.created();
         long forecastDistance = Duration.between(modelCreated, modelScenarioTime).toMinutes();
@@ -637,8 +633,9 @@ public class Conversion {
 
     private void addCimCharacteristics(Network network) {
         if (cgmes instanceof CgmesModelTripleStore cgmesModelTripleStore) {
+            boolean isNodeBreaker = cgmes.isNodeBreaker() && !config.importNodeBreakerAsBusBreaker();
             network.newExtension(CimCharacteristicsAdder.class)
-                    .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
+                    .setTopologyKind(isNodeBreaker ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
                     .setCimVersion(cgmesModelTripleStore.getCimVersion())
                     .add();
         }
@@ -1119,10 +1116,6 @@ public class Conversion {
     private final NetworkFactory networkFactory;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
-
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
     public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
