@@ -50,7 +50,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     }
 
-    class ShuntCompensatorLinearModelAdderImpl implements ShuntCompensatorLinearModelAdder, ShuntCompensatorModelBuilder {
+    class ShuntCompensatorLinearModelAdderImpl extends AbstractPropertiesHolder implements ShuntCompensatorLinearModelAdder, ShuntCompensatorModelBuilder {
 
         private double bPerSection = Double.NaN;
 

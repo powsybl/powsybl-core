@@ -36,6 +36,7 @@ import java.time.ZonedDateTime;
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -197,7 +198,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     private static Network writeAndRead(Network network, ExportOptions options) throws IOException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             NetworkSerDe.write(network, options, os);
-
             try (InputStream is = new ByteArrayInputStream(os.toByteArray())) {
                 return NetworkSerDe.read(is);
             }
@@ -360,19 +360,20 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     /*
-[ ]  Extension / AbstractExtension:
-[ ]  TopologyModel / AbstractTopologyModel:
-[ ]  ReactiveLimits / ReactiveCapabilityCurveImpl & MinMaxReactiveLimitsImpl:
-[ ]  ReactiveCapabilityCurve.Point / ReactiveCapabilityCurveImpl.PointImpl:
-[ ]  LoadModel / AbstractLoadModel:
-[ ]  ShuntCompensatorModel / ShuntCompensatorLinearModelImpl & ShuntCompensatorNonLinearModelImpl:
-[ ]  ShuntCompensatorNonLinearModel.Section / ShuntCompensatorNonLinearModelImpl.SectionImpl:
-[ ]  OperationalLimits / AbstractLoadingLimits & AbstractReducedLoadingLimits:
-[ ]  LoadingLimits / AbstractLoadingLimits.TemporaryLimitImpl & AbstractReducedLoadingLimits.ReducedTemporaryLimit:
-[ ]  OverloadManagementSystem.Tripping / OverloadManagementSystemImpl.AbstractTrippingImpl:
-[X]  TapChangerStep / TapChangerStepImpl:
-[X]  TapChanger / AbstractTapChanger:
-[X] AreaBoundary / AreaBoundaryImpl:
+     *   [ ]  Extension / AbstractExtension:
+     *   [X]  VoltageLevel
+     *   [ ]  TopologyModel / AbstractTopologyModel:
+     *   [X]  ReactiveLimits / ReactiveCapabilityCurveImpl & MinMaxReactiveLimitsImpl:
+     *   [ ]  ReactiveCapabilityCurve.Point / ReactiveCapabilityCurveImpl.PointImpl:
+     *   [X]  LoadModel / AbstractLoadModel:
+     *   [+]  ShuntCompensatorModel / ShuntCompensatorLinearModelImpl & ShuntCompensatorNonLinearModelImpl:
+     *   [ ]  ShuntCompensatorNonLinearModel.Section / ShuntCompensatorNonLinearModelImpl.SectionImpl:
+     *   [ ]  OperationalLimits / AbstractLoadingLimits & AbstractReducedLoadingLimits:
+     *   [ ]  LoadingLimits / AbstractLoadingLimits.TemporaryLimitImpl & AbstractReducedLoadingLimits.ReducedTemporaryLimit:
+     *   [ ]  OverloadManagementSystem.Tripping / OverloadManagementSystemImpl.AbstractTrippingImpl:
+     *   [X]  TapChangerStep / TapChangerStepImpl:
+     *   [X]  TapChanger / AbstractTapChanger:
+     *   [X] AreaBoundary / AreaBoundaryImpl:
      */
 
     private TwoWindingsTransformer createTwoWindingsTransformer(Substation substation) {
@@ -454,6 +455,47 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void propertiesHolderSerDeTest() throws IOException {
         Network network = NetworkTest1Factory.create();
 
+        network.getGenerator("generator1").getReactiveLimits(ReactiveCapabilityCurve.class).setProperty("test", "valueReactiveCapabilityCurve");
+        VoltageLevel voltageLevel = network.getVoltageLevel("voltageLevel1");
+        voltageLevel.setProperty("test", "valueVoltageLevel");
+
+        Load zipLoad = voltageLevel.newLoad()
+                .setId("zipLoad")
+                .setNode(3)
+                .setP0(10)
+                .setQ0(3)
+                .newZipModel().setC0p(0.5).setC0q(0.25).setC1p(0.25).setC1q(0.25).setC2p(0.25).setC2q(0.5).add()
+                .add();
+
+        zipLoad.setProperty("test", "valueZipLoad");
+        zipLoad.getModel().orElseThrow().setProperty("test", "valueZipLoadModel");
+
+        Load expLoad = voltageLevel.newLoad()
+                .setId("expLoad")
+                .setNode(4)
+                .setP0(10)
+                .setQ0(3)
+                .newExponentialModel().add()
+                .add();
+
+        expLoad.setProperty("test", "valueExpLoad");
+        expLoad.getModel().orElseThrow().setProperty("test", "valueExpLoadModel");
+
+        ShuntCompensator shuntCompensator = voltageLevel.newShuntCompensator()
+                .setId("shunt")
+                .setNode(6)
+                .setSectionCount(1)
+                .setVoltageRegulatorOn(true)
+                .setRegulatingTerminal(zipLoad.getTerminal())
+                .setTargetV(200)
+                .setTargetDeadband(5.0)
+                .newLinearModel()
+                .setMaximumSectionCount(1)
+                .setBPerSection(3)
+                .add()
+                .add();
+        shuntCompensator.setProperty("test", "valueShuntCompensator");
+
         Area defaultControlArea = network.newArea().setId("defaultControlArea").setAreaType("test").add();
         defaultControlArea.setProperty("test", "testValue");
 
@@ -467,6 +509,20 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         BusbarSection bb2 = nodeBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1");
         assertEquals("testBusbarSectionValue", bb2.getProperty("test"));
         assertEquals("testValue", nodeBreakerNetwork.getArea("defaultControlArea").getProperty("test"));
+
+        Load load1 = nodeBreakerNetwork.getLoad("zipLoad");
+        assertEquals("valueZipLoad", load1.getProperty("test"));
+        assertEquals("valueZipLoadModel", load1.getModel().orElseThrow().getProperty("test"));
+
+        Load load2 = nodeBreakerNetwork.getLoad("expLoad");
+        assertEquals("valueExpLoad", load2.getProperty("test"));
+        assertEquals("valueExpLoadModel", load2.getModel().orElseThrow().getProperty("test"));
+
+        assertEquals("valueVoltageLevel", nodeBreakerNetwork.getVoltageLevel("voltageLevel1").getProperty("test"));
+        assertEquals("valueShuntCompensator", voltageLevel.getShuntCompensators().iterator().next().getProperty("test"));
+
+        assertEquals("valueReactiveCapabilityCurve", nodeBreakerNetwork.getGenerator("generator1").getReactiveLimits(ReactiveCapabilityCurve.class).getProperty("test"));
+
     }
 
     @Test
@@ -490,7 +546,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         assertEquals("twt2Value", transformer.getProperty("test"));
         PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
         RatioTapChanger ratioTapChanger = transformer.getRatioTapChanger();
-        //assertEquals("valuePhaseTapChanger", phaseTapChanger.getProperty("test"));
+        assertEquals("valuePhaseTapChanger", phaseTapChanger.getProperty("test"));
         assertEquals("valueRatioTapChanger", ratioTapChanger.getProperty("test"));
         assertEquals("value", phaseTapChanger.getStep(1).getProperty("test"));
 

@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface ReactiveCapabilityCurveAdder {
+public interface ReactiveCapabilityCurveAdder extends PropertiesHolder {
 
     interface PointAdder {
 

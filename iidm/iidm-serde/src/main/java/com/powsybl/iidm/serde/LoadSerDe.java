@@ -106,10 +106,9 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_10, context);
                     double np = context.getReader().readDoubleAttribute("np");
                     double nq = context.getReader().readDoubleAttribute("nq");
-                    PropertiesSerDe.readProperties(context, adder);
-                    //context.getReader().readEndNode();
-                    adder.newExponentialModel()
-                            .setNp(np)
+                    ExponentialLoadModelAdder modelAdder = adder.newExponentialModel();
+                    PropertiesSerDe.readProperties(context, modelAdder);
+                    modelAdder.setNp(np)
                             .setNq(nq)
                             .add();
                 }
@@ -121,10 +120,9 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                     double c0q = context.getReader().readDoubleAttribute("c0q");
                     double c1q = context.getReader().readDoubleAttribute("c1q");
                     double c2q = context.getReader().readDoubleAttribute("c2q");
-                    PropertiesSerDe.readProperties(context, adder);
-                    //context.getReader().readEndNode();
-                    adder.newZipModel()
-                            .setC0p(c0p)
+                    ZipLoadModelAdder modelAdder = adder.newZipModel();
+                    PropertiesSerDe.readProperties(context, modelAdder);
+                    modelAdder.setC0p(c0p)
                             .setC1p(c1p)
                             .setC2p(c2p)
                             .setC0q(c0q)

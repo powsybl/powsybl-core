@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ExponentialLoadModelAdder;
 
+import java.util.Map;
 import java.util.Objects;
 
 import static com.powsybl.iidm.network.impl.ExponentialLoadModelImpl.checkExponent;
@@ -41,7 +42,11 @@ public class ExponentialLoadModelAdderImpl extends AbstractPropertiesHolder impl
 
     @Override
     public LoadAdderImpl add() {
-        parentAdder.setModel(new ExponentialLoadModelImpl(np, nq));
+        ExponentialLoadModelImpl model = new ExponentialLoadModelImpl(np, nq);
+        for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
+            model.setProperty((String) z.getKey(), (String) z.getValue());
+        }
+        parentAdder.setModel(model);
         return parentAdder;
     }
 }
