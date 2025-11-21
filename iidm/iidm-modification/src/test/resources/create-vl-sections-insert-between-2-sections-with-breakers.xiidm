@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="test" caseDate="2023-12-13T10:05:55.570Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="test" caseDate="2023-12-13T10:05:55.570Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1" country="FR">
         <iidm:voltageLevel id="VL1" nominalV="1.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -41,19 +41,19 @@
                 <iidm:switch id="B_GEN_3" kind="BREAKER" retained="false" open="false" node1="50" node2="51"/>
                 <iidm:switch id="VL1_BREAKER_53_54" kind="BREAKER" retained="true" open="false" node1="53" node2="54"/>
                 <iidm:switch id="VL1_DISCONNECTOR_54_52" kind="DISCONNECTOR" retained="false" open="false" node1="54" node2="52"/>
-                <iidm:switch id="VL1_DISCONNECTOR_52_55" kind="DISCONNECTOR" retained="false" open="false" node1="52" node2="55"/>
-                <iidm:switch id="VL1_BREAKER_55_56" kind="BREAKER" retained="true" open="false" node1="55" node2="56"/>
-                <iidm:switch id="VL1_DISCONNECTOR_56_3" kind="DISCONNECTOR" retained="false" open="false" node1="56" node2="3"/>
+                <iidm:switch id="VL1_DISCONNECTOR_52_55" kind="DISCONNECTOR" retained="false" open="true" node1="52" node2="55"/>
+                <iidm:switch id="VL1_BREAKER_55_56" kind="BREAKER" retained="true" open="true" node1="55" node2="56"/>
+                <iidm:switch id="VL1_DISCONNECTOR_56_3" kind="DISCONNECTOR" retained="false" open="true" node1="56" node2="3"/>
                 <iidm:switch id="VL1_BREAKER_58_59" kind="BREAKER" retained="true" open="false" node1="58" node2="59"/>
                 <iidm:switch id="VL1_DISCONNECTOR_59_57" kind="DISCONNECTOR" retained="false" open="false" node1="59" node2="57"/>
-                <iidm:switch id="VL1_DISCONNECTOR_57_60" kind="DISCONNECTOR" retained="false" open="false" node1="57" node2="60"/>
-                <iidm:switch id="VL1_BREAKER_60_61" kind="BREAKER" retained="true" open="false" node1="60" node2="61"/>
-                <iidm:switch id="VL1_DISCONNECTOR_61_4" kind="DISCONNECTOR" retained="false" open="false" node1="61" node2="4"/>
+                <iidm:switch id="VL1_DISCONNECTOR_57_60" kind="DISCONNECTOR" retained="false" open="true" node1="57" node2="60"/>
+                <iidm:switch id="VL1_BREAKER_60_61" kind="BREAKER" retained="true" open="true" node1="60" node2="61"/>
+                <iidm:switch id="VL1_DISCONNECTOR_61_4" kind="DISCONNECTOR" retained="false" open="true" node1="61" node2="4"/>
                 <iidm:switch id="VL1_BREAKER_63_64" kind="BREAKER" retained="true" open="false" node1="63" node2="64"/>
                 <iidm:switch id="VL1_DISCONNECTOR_64_62" kind="DISCONNECTOR" retained="false" open="false" node1="64" node2="62"/>
-                <iidm:switch id="VL1_DISCONNECTOR_62_65" kind="DISCONNECTOR" retained="false" open="false" node1="62" node2="65"/>
-                <iidm:switch id="VL1_BREAKER_65_66" kind="BREAKER" retained="true" open="false" node1="65" node2="66"/>
-                <iidm:switch id="VL1_DISCONNECTOR_66_5" kind="DISCONNECTOR" retained="false" open="false" node1="66" node2="5"/>
+                <iidm:switch id="VL1_DISCONNECTOR_62_65" kind="DISCONNECTOR" retained="false" open="true" node1="62" node2="65"/>
+                <iidm:switch id="VL1_BREAKER_65_66" kind="BREAKER" retained="true" open="true" node1="65" node2="66"/>
+                <iidm:switch id="VL1_DISCONNECTOR_66_5" kind="DISCONNECTOR" retained="false" open="true" node1="66" node2="5"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="GEN_1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="31">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>

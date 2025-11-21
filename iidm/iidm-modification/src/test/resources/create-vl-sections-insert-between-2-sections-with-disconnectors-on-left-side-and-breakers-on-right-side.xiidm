@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="test" caseDate="2023-12-13T10:05:55.570Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="test" caseDate="2023-12-13T10:05:55.570Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1" country="FR">
         <iidm:voltageLevel id="VL1" nominalV="1.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -15,15 +15,15 @@
                 <iidm:busbarSection id="VL1_1_2" name="52" node="52"/>
                 <iidm:busbarSection id="VL1_2_2" name="55" node="55"/>
                 <iidm:busbarSection id="VL1_3_2" name="58" node="58"/>
-                <iidm:switch id="VL1_DISCONNECTOR_0_52" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="52"/>
+                <iidm:switch id="VL1_DISCONNECTOR_0_52" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="52"/>
                 <iidm:switch id="D_BBS12_BBS13_1" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="20"/>
                 <iidm:switch id="B_BBS12_BBS13" kind="BREAKER" retained="false" open="false" node1="20" node2="21"/>
                 <iidm:switch id="D_BBS12_BBS13_2" kind="DISCONNECTOR" retained="false" open="false" node1="21" node2="6"/>
-                <iidm:switch id="VL1_DISCONNECTOR_1_55" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="55"/>
+                <iidm:switch id="VL1_DISCONNECTOR_1_55" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="55"/>
                 <iidm:switch id="D_BBS22_BBS23_1" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="22"/>
                 <iidm:switch id="B_BBS22_BBS23" kind="BREAKER" retained="false" open="false" node1="22" node2="23"/>
                 <iidm:switch id="D_BBS22_BBS23_2" kind="DISCONNECTOR" retained="false" open="false" node1="23" node2="7"/>
-                <iidm:switch id="VL1_DISCONNECTOR_2_58" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="58"/>
+                <iidm:switch id="VL1_DISCONNECTOR_2_58" kind="DISCONNECTOR" retained="false" open="true" node1="2" node2="58"/>
                 <iidm:switch id="D_BBS32_BBS33_1" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="24"/>
                 <iidm:switch id="B_BBS32_BBS33" kind="BREAKER" retained="false" open="false" node1="24" node2="25"/>
                 <iidm:switch id="D_BBS32_BBS33_2" kind="DISCONNECTOR" retained="false" open="false" node1="25" node2="8"/>

@@ -139,16 +139,16 @@ parallel and there are exactly two parallel busbar sections, then no open discon
 
 #### Create Voltage Level Topology
 This class allows the creation of the topology inside a voltage level if it is meant to be symmetrical.
-The voltage level must already have been created and does not have to be empty.
-When applied to a network, it will create buses or busbar section in a matrix of aligned buses or busbar sections.
+The voltage level must already exist and does not have to be empty.
+When applied to a network, it will create buses or busbar sections in a matrix of aligned buses or busbar sections.
 In `BUS_BREAKER` topology, the buses will be separated by `Breakers` and in `NODE_BREAKER`, the switch type between each
 section must be specified.
 It takes as input:
 - The ID of the voltage level
-- The aligned buses or busbar section count. This integer indicates the "row" number of the matrix of buses or
+- The count of aligned buses or busbar sections. This integer indicates the "row" number of the matrix of buses or
   busbar sections.
 - The section count. This integer indicates the "column" number of the matrix of buses or busbar sections.
-- A list of switch kinds, for `NODE_BREAKER` voltage levels. This list indicates the switch that should be created
+- A list of switch kinds, for `NODE_BREAKER` voltage levels. This list indicates the switches that should be created
   between each busbar section.
   In the end, `alignedBusesOrBusbarCount` * `sectionCount` buses or busbar sections will be created, and they will be
   connected by section either by `Breakers` in `BUS_BREAKER` topology or by the switch specified by the list in `NODE_BREAKER`
@@ -166,6 +166,10 @@ Additional input can be provided:
   or busbar sections. This prefix is followed by the "row" index and the section number. If it is not specified, then the
   name of the voltage level is used as prefix.
 - The switch prefix ID is also optional.
+- The boolean connectExistingConnectables indicates whether existing connectables should be connected to the new topology
+if the busbar sections are created in a non-empty voltage level. If true, they will all be connected with
+an open switch of the same kind as the first switch that connects the connectable to the other busbar sections.
+If this boolean is true, the [`ConnectFeedersToBusbarSections`](#connect-feeders-to-busbar-sections) modification will be called on the network.
 
 #### Create Voltage Level Sections
 This class allows the creation of new busbar sections inside a voltage level in the NODE_BREAKER topology.
@@ -185,11 +189,40 @@ It takes as input:
   - BREAKER means that a BREAKER switch surrounded by two DISCONNECTOR switches will be created
 - A boolean indicating if the new switches created left to the newly created busbar section(s) are fictitious
 - A boolean indicating if the new switches created right to the newly created busbar section(s) are fictitious
+- A boolean indicating if the new switches created left to the newly created busbar section(s) will be open
+- A boolean indicating if the new switches created right to the newly created busbar section(s) will be open
 - The switch prefix ID, used as a prefix for the IDs of the newly created switches.
 - The busbar section prefix ID, used as a prefix for the IDs of the newly created busbar sections. This prefix
   is followed by the busbar index and the section index, if the default naming strategy is used.
 
 <span style="color: red">TODO: add single line diagrams</span>
+
+### Connect feeders to busbar sections
+This class allows the connection of feeders to busbar sections in `NODE_BREAKER` topology.
+The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) must be available for each busbar section in the voltage level.
+
+It takes as input:
+- A list of connectables that should be connected. None of them should be a `BusbarSection`. 
+- A list of busbar sections. The connectables will be connected to these busbar sections if they are not already. 
+- A boolean `connectCouplingDevices` indicating if the coupling devices of the voltage level should be connected to the busbar sections.
+If the busbar sections are not already connected on each side of the coupling device breaker, an open switch will be created.
+- A string `couplingDeviceSwitchPrefixId` that will be used, if the boolean `connectCouplingDevices` is true, in the naming strategy
+to determine the IDs of the new disconnectors.
+
+When applied to a network, the network modification will loop through all the parallel busbar sections of each input busbar section to gather the 
+switches that are connecting the feeders. Then, the feeders and coupling devices will be connected by a switch of the same kind
+as the first switch that connects the feeder to the other busbar sections. If all the feeders are already connected to the busbar sections, 
+then the network modification will do nothing.
+
+Let's take an example. This is the voltage level before applying the modification:
+![Node/breaker network with coupling devices](img/networkNodeBreakerWithCouplingDevices.svg){width="100%" align=center}
+
+If we apply the modification with both busbar sections, all the connectables and coupling devices, we will get:
+![Node/breaker network with coupling devices and connected feeder](img/networkNodeBreakerWithFeedersConnected.svg){width="100%" align=center}
+
+If we want to only connect the two-winding transformers on busbar section bbs3, we can specify the right lists as input and we will get:
+![Node/breaker network with connected transformers on bbs3](img/networkNodeBreakerWithTwtConnected.svg){width="100%" align=center}
+
 
 ### Network element removal
 

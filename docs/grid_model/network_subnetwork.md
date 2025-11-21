@@ -192,6 +192,7 @@ The `isCondenser` value corresponds for instance to generators which can control
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Generator ENTSO-E Category](extensions.md#generator-entso-e-category)
 - [Generator Short-Circuit](extensions.md#generator-short-circuit)
+- [Generator Startup](extensions.md#generator-startup)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
@@ -844,12 +845,11 @@ A VSC converter station is made with switching devices that can be turned both o
 ### Detailed DC model (beta)
 
 ```{warning}
-**The detailed DC model was introduced in iIDM v1.14 and is currently in beta.**
+**The detailed DC model was introduced in IIDM v1.14 and is currently in beta.**
 
-Future releases will enhance this model with support for DC topology processing and serialization/deserialization.  
-These improvements will introduce **breaking changes** and **will not be backward compatible**.
+Future IIDM v1.15 will add support for DC equipment serialization/deserialization.
 
-Currently, this model is only available in the iIDM representation.
+Currently, this model is only available in the IIDM representation.
 Support in exchange formats (CGMES, ...) as well as in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
 Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
 
@@ -929,9 +929,10 @@ LCC and VSC share the following characteristics.
 | $SwitchingLoss$ | MW / A   | Switching losses                                                      |
 | $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
 | $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
-| $ControlMode$   |          | The converter's control mode: P_PCC or V_DC                           |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or V_DC_DROOP               |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
+| $DroopCurve$    |          | Droop curve for droop control mode                                    |
 
 Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
 With `i` being the DC current through the converter, the Converter losses are computed as follows:
@@ -959,6 +960,11 @@ It cannot be a Busbar Section Terminal since no active power can be measured on 
 ![Detailed DC Model PCC Terminal](img/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-light"}
 ![Detailed DC Model PCC Terminal](img/dark_mode/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-dark"}
 
+For AC/DC converters modeled with two AC terminals, it is acceptable for the converter’s PCC terminal to be designated
+as one of the converter terminals. In this case, when the converter’s `ControlMode` is set to `P_PCC`, simulators
+shall interpret `TargetP` as the total active power flow to be achieved across both AC terminals, not just through the
+PCC Terminal.
+
 When the `ControlMode` of the converter is set to `V_DC`, the converter controls DC voltage at its DC Terminals.
 `TargetVdc` is the desired target DC voltage, and is the voltage difference between DC Node 1 and DC Node 2.
 `TargetVdc` may be either positive or negative. Negative value may be used to model reverse polarity operation in case of LCCs.
@@ -969,6 +975,23 @@ between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
 - If no DC Ground is present, the configuration is symmetrical, in this case the converter provides internally an implicit DC Ground and imposes:
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
+
+When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter controls active power as in the `P_PCC` control mode
+for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
+$P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
+Where:
+- $k$ is the droop coefficient of the actual droop segment. 
+- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint. 
+It represents the operating point before the security analysis starts.
+- $V_{REF}$ is the DC voltage which was calculated during the base loadflow. The droop control is only used for P controlled converters, so they should not have a targetVdc.
+- $P_{DC}$ is the actual power at DC side during the security analysis, which is determined by Newton Raphson.
+- $V_{DC}$ is the actual DC voltage during the security analysis, which is determined by Newton Raphson.
+
+Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual 
+droop segment should be the one which verifies:
+$V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
+
+
 
 ##### Line Commutated Converter
 
@@ -1004,6 +1027,38 @@ hence a PowerFactor of 0.89443.
 - The reactive power setpoint (in MVar) is required if the voltage regulator is off for the converter. The setpoint is in passive sign convention: a positive value of $ReactivePowerSetpoint$ means withdrawal from the bus.
 - A set of reactive limits can be associated to a VSC converter. All the reactive limits modeling available in the library are described [here](./additional.md#reactive-limits).
 
+#### DC Topology Processing
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcTerminal.html) DcTerminal<br>
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcBus.html) DcBus<br>
+
+DC equipment connectivity may be modified in two ways:
+- By changing the `connected` attribute of a `DcTerminal` of a DC Line, or a DC Ground, or an AC/DC Converter:
+  - When `connected = true`, the DC terminal is connected to its associated DC Node. 
+  - When `connected = false` the DC terminal is disconnected from its associated DC Node. 
+- By changing the `open` attribute of a `DcSwitch`.
+
+PowSyBl's IIDM topology processor computes DC Buses as follows:
+- A DC Bus is formed when there is at least one DC Terminal connected to a DC Node.
+- DC Nodes linked by a closed DC switch are considered part of the same DC Bus.
+- A DC Node with no switch connected but with at least a DC Terminal connected will form a DC Bus.
+- DC Nodes without any connected DC Terminal do not form a DC Bus. A DC Bus is guaranteed to contain at least one connected DC Terminal.
+
+DC Buses linked together via DC Lines and/or AC/DC Converters are part of the same *DC Component* (also called *DC Island*).
+*Synchronous Components* (also called *AC Islands*) connected together via a DC island through AC/DC converters will form a
+*Connected Component*.
+
+The IIDM API provides methods for navigating the network topology, for example:
+- getting the DC Bus of a DC Terminal,
+- getting the DC Nodes part of a DC Bus,
+- getting the DC Component/Island of a DC Bus,
+- getting all DC Buses of a network or a subnetwork
+- getting all DC Components/Islands of a network or a subnetwork
+- getting all DC Buses part of a DC Component or a Connected Component
+- etc.
+ 
+Please refer to the javadoc for an exhaustive list of the available methods. 
+
 #### DC Equipment containment in main network and subnetworks
 
 Modeling a DC link involves creating multiple objects in the model such as DC nodes, lines, converters, switches, grounds
@@ -1013,7 +1068,7 @@ either the main network or the same subnetwork. For example, the following assoc
 - creating a DC Ground in subnetwork A connecting a DC Node contained in subnetwork B
 - creating an AC/DC converter in a voltage level in subnetwork A connecting to DC nodes contained in main network
 - setting the Point of Common Coupling of an AC/DC converter in a voltage level in subnetwork A to be a line terminal in subnetwork B
-- etc ...
+- etc.
 
 For more details about working with subnetworks, see [Working with subnetworks](../grid_features/working_with_subnetworks.md).
 

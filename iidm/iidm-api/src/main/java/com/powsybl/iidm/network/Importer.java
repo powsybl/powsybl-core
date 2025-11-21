@@ -111,6 +111,11 @@ public interface Importer {
         public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
             importer.copy(fromDataSource, toDataSource);
         }
+
+        @Override
+        public void update(Network network, ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+            importer.update(network, dataSource, parameters, reportNode);
+        }
     }
 
     /**
@@ -304,14 +309,6 @@ public interface Importer {
      * @return true if the data source is importable, false otherwise
      */
     boolean exists(ReadOnlyDataSource dataSource);
-
-    /**
-     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties)} instead.
-     */
-    @Deprecated(since = "2.6.0")
-    default Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        return importData(dataSource, NetworkFactory.findDefault(), parameters);
-    }
 
     /**
      * Create a model.

@@ -42,9 +42,7 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         // Use the default extension version => also the default serialization name
         AbstractExtensionSerDe<?, ?> serde = new NetworkSourceExtensionSerDe();
         assertEquals(serde.getExtensionName(), serde.getSerializationName(serde.getVersion()));
-        Set<String> serializationNames = serde.getSerializationNames();
-        assertEquals(1, serializationNames.size());
-        assertTrue(serializationNames.contains("networkSource"));
+        assertEquals(Set.of("networkSource"), serde.getSerializationNames());
     }
 
     @Test
@@ -54,9 +52,7 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         assertEquals(LOAD_MOCK, serde.getExtensionName());
         assertEquals(LOAD_MOCK, serde.getSerializationName(serde.getVersion()));
         assertEquals(LOAD_ELEMENT_MOCK, serde.getSerializationName("0.1"));
-        Set<String> serializationNames = serde.getSerializationNames();
-        assertEquals(3, serializationNames.size());
-        assertTrue(serializationNames.containsAll(Set.of(LOAD_MOCK, LOAD_ELEMENT_MOCK, "loadEltMock")));
+        assertEquals(Set.of(LOAD_MOCK, LOAD_ELEMENT_MOCK, "loadEltMock"), serde.getSerializationNames());
     }
 
     @Test
@@ -90,12 +86,12 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         // Read a network with an old extension serialization name
         // To specify the extension to import, both the real extension name or the serialization name can be used.
         String file = "/extensionName_0_1_otherPrefix.xml";
-        ImportOptions importOptions = new ImportOptions().addExtension("loadElementMock");
+        ImportOptions importOptions = new ImportOptions().addIncludedExtension("loadElementMock");
         Network network = NetworkSerDe.read(getClass().getResourceAsStream(file), importOptions, null);
         assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class),
                 "Using the serialization name as extension to load should work.");
 
-        importOptions = new ImportOptions().addExtension("loadMock");
+        importOptions = new ImportOptions().addIncludedExtension("loadMock");
         network = NetworkSerDe.read(getClass().getResourceAsStream(file), importOptions, null);
         assertNotNull(network.getLoad("Load1").getExtension(LoadMockExt.class),
                 "Using the real extension name as extension to load should work.");

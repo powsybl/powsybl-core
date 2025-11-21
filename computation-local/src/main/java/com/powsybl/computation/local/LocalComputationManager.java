@@ -148,27 +148,55 @@ public class LocalComputationManager implements ComputationManager {
             throws InterruptedException {
         // TODO concurrent
         List<ExecutionError> errors = new ArrayList<>();
-        ExecutorService executionSubmitter = Executors.newCachedThreadPool();
 
-        for (CommandExecution commandExecution : commandExecutionList) {
-            Command command = commandExecution.getCommand();
-            CountDownLatch latch = new CountDownLatch(commandExecution.getExecutionCount());
-            ExecutionParameters executionParameters = new ExecutionParameters(workingDir, dumpDir, commandExecution, variables, computationParameters, executionSubmitter,
-                command, latch, errors, monitor);
-            IntStream.range(0, commandExecution.getExecutionCount()).forEach(idx -> performSingleExecution(executionParameters, idx));
-            latch.await();
-        }
+        try (AutoCloseableExecutorService executionSubmitter = new AutoCloseableExecutorService(Executors.newCachedThreadPool(), getTimeout())) {
+            for (CommandExecution commandExecution : commandExecutionList) {
+                Command command = commandExecution.getCommand();
+                CountDownLatch latch = new CountDownLatch(commandExecution.getExecutionCount());
+                ExecutionParameters executionParameters =
+                    new ExecutionParameters(workingDir, dumpDir, commandExecution, variables, computationParameters,
+                        executionSubmitter.get(), command, latch, errors, monitor);
 
-        // TODO remove duplicated code
-        executionSubmitter.shutdown();
-        if (!executionSubmitter.awaitTermination(20, TimeUnit.SECONDS)) {
-            executionSubmitter.shutdownNow();
-            if (!executionSubmitter.awaitTermination(20, TimeUnit.SECONDS)) {
-                LOGGER.error("Thread pool did not terminate");
+                IntStream.range(0, commandExecution.getExecutionCount())
+                    .forEach(idx -> performSingleExecution(executionParameters, idx));
+                latch.await();
             }
         }
 
         return new DefaultExecutionReport(workingDir, errors);
+    }
+
+    /**
+     * Method overridden in the tests to change the timeout value. It should not have to be overridden otherwise.
+     * @return the timeout value
+     */
+    protected long getTimeout() {
+        return 20L;
+    }
+
+    /**
+     * This class is used to properly close the ExecutorService in a try-with-resources block.
+     */
+    private record AutoCloseableExecutorService(ExecutorService delegate, long timeout) implements AutoCloseable {
+        ExecutorService get() {
+            return delegate;
+        }
+
+        @Override
+        public void close() {
+            try {
+                delegate.shutdown();
+                if (!delegate.awaitTermination(timeout, TimeUnit.SECONDS)) {
+                    delegate.shutdownNow();
+                    if (!delegate.awaitTermination(timeout, TimeUnit.SECONDS)) {
+                        LOGGER.error("Thread pool did not terminate");
+                    }
+                }
+            } catch (InterruptedException e) {
+                delegate.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     private record ExecutionParameters(Path workingDir, Path dumpDir, CommandExecution commandExecution,

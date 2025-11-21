@@ -49,6 +49,7 @@ contingencies are:
 - HVDC line contingency
 - Battery contingency
 - Shunt Compensator contingency
+- Switch contingency
 
 A contingency is made of contingency elements. A contingency can trigger one element at a time (N-1) or several elements
 at a time (N-K). Bus bar and bus contingencies are special N-K contingencies as they trigger all the equipments
@@ -60,8 +61,8 @@ Remedial actions are actions that are applied when limit violations occur. Suppo
 
 | Action                             | Description                                                                                                                                                                                   |
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `LoadAction`                       | Change the relative of absolute `P0` and/or `Q0` of a load.                                                                                                                                   |
-| `DanglingLineAction`               | Change the relative of absolute `P0` and/or `Q0` of the load part of a dangling line.                                                                                                         |
+| `LoadAction`                       | Change the relative or absolute `P0` and/or `Q0` of a load.                                                                                                                                   |
+| `DanglingLineAction`               | Change the relative or absolute `P0` and/or `Q0` of the load part of a dangling line.                                                                                                         |
 | `SwitchAction`                     | Open or close a switch.                                                                                                                                                                       |
 | `TerminalsConnectionAction`        | Open or close a terminal.                                                                                                                                                                     |
 | `PhaseTapChangerTapPositionAction` | Change the tap of a phase tap changer.                                                                                                                                                        |

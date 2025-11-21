@@ -35,6 +35,7 @@ load-flow-default-parameters:
     twtSplitShuntAdmittance: false
     dcUseTransformerRatio: true
     dcPowerFactor: 1.0
+    hvdcAcEmulation: true
 ```
 
 The parameters may also be overridden with a JSON file, in which case the configuration will look like:
@@ -55,7 +56,8 @@ The parameters may also be overridden with a JSON file, in which case the config
   "connectedComponentMode": "MAIN",
   "twtSplitShuntAdmittance": false,
   "dcUseTransformerRatio": true,
-  "dcPowerFactor": 1.0
+  "dcPowerFactor": 1.0,
+  "hvdcAcEmulation": true
 }
 ```
 
@@ -96,11 +98,11 @@ country which participating elements are used for slack distribution. If the sla
 
 **readSlackBus**  
 The `readSlackBus` is an optional property that defines if the slack bus has to be selected in the network through the [slack terminal extension](../../grid_model/extensions.md#slack-terminal).  
-The default value is `false`.
+The default value is `true`.
 
 **writeSlackBus**   
 The `writeSlackBus` is an optional property that says if the slack bus has to be written in the network using the [slack terminal extension](../../grid_model/extensions.md#slack-terminal) after a load flow computation.  
-The default value is `false`.
+The default value is `true`.
 
 **useReactiveLimits**  
 The `useReactiveLimits` property is an optional property that defines whether the load flow should take into account equipment's reactive limits. Applies to generators, batteries, static VAR compensators, dangling lines, and HVDC VSCs.  
@@ -134,6 +136,10 @@ The default value of this parameter is `true`.
 **dcPowerFactor**  
 The `dcPowerFactor` property is an optional property that defines the power factor used to convert current limits into active power limits in DC calculations.  
 The default value is `1.0`.
+
+**hvdcAcEmulation**  
+The `hvdcAcEmulation` property is an optional property that defines whether AC emulation for HVDC should be simulated in the load flow or not (HVDC that are in AC emulation mode should have the hvdc-angle-droop-active-power-control extension).  
+The default value is `true`.
 
 ### Specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:

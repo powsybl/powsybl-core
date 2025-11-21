@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="test" caseDate="2023-12-13T10:05:55.570Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="test" caseDate="2023-12-13T10:05:55.570Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1" country="FR">
         <iidm:voltageLevel id="VL1" nominalV="1.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -39,9 +39,9 @@
                 <iidm:switch id="D_23_GEN_3" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="50"/>
                 <iidm:switch id="D_33_GEN_3" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="50"/>
                 <iidm:switch id="B_GEN_3" kind="BREAKER" retained="false" open="false" node1="50" node2="51"/>
-                <iidm:switch id="VL1_DISCONNECTOR_6_52" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="52"/>
-                <iidm:switch id="VL1_DISCONNECTOR_7_53" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="53"/>
-                <iidm:switch id="VL1_DISCONNECTOR_8_54" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="54"/>
+                <iidm:switch id="VL1_DISCONNECTOR_6_52" kind="DISCONNECTOR" retained="false" open="true" node1="6" node2="52"/>
+                <iidm:switch id="VL1_DISCONNECTOR_7_53" kind="DISCONNECTOR" retained="false" open="true" node1="7" node2="53"/>
+                <iidm:switch id="VL1_DISCONNECTOR_8_54" kind="DISCONNECTOR" retained="false" open="true" node1="8" node2="54"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="GEN_1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="31">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>

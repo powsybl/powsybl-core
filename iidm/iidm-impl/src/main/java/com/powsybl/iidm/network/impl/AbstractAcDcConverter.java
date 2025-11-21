@@ -34,6 +34,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     private double switchingLoss;
     private double resistiveLoss;
 
+    private DroopCurve droopCurve = DroopCurve.EMPTY;
+
     private final RegulatingPoint pccRegulatingPoint;
 
     // attributes depending on the variant
@@ -52,7 +54,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.targetP = new TDoubleArrayList(variantArraySize);
         this.targetVdc = new TDoubleArrayList(variantArraySize);
-        pccRegulatingPoint = new RegulatingPoint(id, () -> null, variantArraySize, controlMode.ordinal(), ControlMode.V_DC.ordinal(), false);
+        pccRegulatingPoint = new RegulatingPoint(id, () -> (TerminalExt) getTerminal1(), variantArraySize, controlMode.ordinal(), ControlMode.V_DC.ordinal(), false);
         pccRegulatingPoint.setRegulatingTerminal(pccTerminal);
         for (int i = 0; i < variantArraySize; i++) {
             this.targetP.add(targetP);
@@ -76,27 +78,27 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     }
 
     @Override
-    public TwoSides getSide(Terminal terminal) {
+    public TerminalNumber getTerminalNumber(Terminal terminal) {
         Objects.requireNonNull(terminal);
         if (getTerminal1() == terminal) {
-            return TwoSides.ONE;
+            return TerminalNumber.ONE;
         } else if (getTerminal2().orElse(null) == terminal) {
-            return TwoSides.TWO;
+            return TerminalNumber.TWO;
         } else {
             throw new IllegalStateException("The terminal is not connected to this AC/DC converter");
         }
     }
 
     @Override
-    public Terminal getTerminal(TwoSides side) {
-        Objects.requireNonNull(side);
+    public Optional<Terminal> getTerminal(TerminalNumber terminalNumber) {
+        Objects.requireNonNull(terminalNumber);
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal");
-        if (side == TwoSides.ONE) {
-            return getTerminal1();
-        } else if (side == TwoSides.TWO) {
-            return getTerminal2().orElseThrow(() -> new IllegalStateException("This AC/DC converter does not have a second AC Terminal"));
+        if (terminalNumber == TerminalNumber.ONE) {
+            return Optional.of(getTerminal1());
+        } else if (terminalNumber == TerminalNumber.TWO) {
+            return getTerminal2();
         }
-        throw new IllegalStateException("Unexpected side: " + side);
+        throw new IllegalStateException("Unexpected AC terminal number: " + terminalNumber);
     }
 
     @Override
@@ -112,27 +114,27 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     }
 
     @Override
-    public TwoSides getSide(DcTerminal dcTerminal) {
+    public TerminalNumber getTerminalNumber(DcTerminal dcTerminal) {
         Objects.requireNonNull(dcTerminal);
         if (getDcTerminal1() == dcTerminal) {
-            return TwoSides.ONE;
+            return TerminalNumber.ONE;
         } else if (getDcTerminal2() == dcTerminal) {
-            return TwoSides.TWO;
+            return TerminalNumber.TWO;
         } else {
             throw new IllegalStateException("The DC terminal is not connected to this AC/DC converter");
         }
     }
 
     @Override
-    public DcTerminal getDcTerminal(TwoSides side) {
-        Objects.requireNonNull(side);
+    public DcTerminal getDcTerminal(TerminalNumber terminalNumber) {
+        Objects.requireNonNull(terminalNumber);
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, "terminal");
-        if (side == TwoSides.ONE) {
+        if (terminalNumber == TerminalNumber.ONE) {
             return this.dcTerminals.get(0);
-        } else if (side == TwoSides.TWO) {
+        } else if (terminalNumber == TerminalNumber.TWO) {
             return this.dcTerminals.get(1);
         }
-        throw new IllegalStateException("Unexpected side: " + side);
+        throw new IllegalStateException("Unexpected DC terminal number: " + terminalNumber);
     }
 
     @Override
@@ -198,7 +200,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     public I setPccTerminal(Terminal pccTerminal) {
         Objects.requireNonNull(pccTerminal);
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, PCC_TERMINAL);
-        ValidationUtil.checkAcDcConverterPccTerminal(this, getTerminal2().isPresent(), pccTerminal, getTerminal1().getVoltageLevel());
+        ValidationUtil.checkAcDcConverterPccTerminal(this, pccTerminal, getTerminal1().getVoltageLevel());
         Terminal oldValue = pccRegulatingPoint.getRegulatingTerminal();
         pccRegulatingPoint.setRegulatingTerminal((TerminalExt) pccTerminal);
         notifyUpdate(PCC_TERMINAL, oldValue, pccRegulatingPoint.getRegulatingTerminal());
@@ -326,9 +328,26 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     @Override
     public void remove() {
-        dcTerminals.forEach(DcTerminalImpl::remove);
+        dcTerminals.forEach(dcTerminal -> {
+            ((AbstractNetwork) getParentNetwork()).getDcTopologyModel().detach(dcTerminal);
+            dcTerminal.remove();
+        });
         pccRegulatingPoint.remove();
         super.remove();
+    }
+
+    @Override
+    public DroopCurveAdder newDroopCurve() {
+        return new DroopCurveAdderImpl<>(this);
+    }
+
+    @Override
+    public DroopCurve getDroopCurve() {
+        return droopCurve;
+    }
+
+    public void setDroopCurve(DroopCurve droopCurve) {
+        this.droopCurve = droopCurve;
     }
 
     protected abstract I self();

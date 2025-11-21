@@ -66,9 +66,10 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
         if (open == null) {
             throw new ValidationException(this, "open is not set");
         }
-        DcSwitch dcSwitch = new DcSwitchImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), kind, dcNode1, dcNode2, open);
+        DcSwitchImpl dcSwitch = new DcSwitchImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), kind, dcNode1, dcNode2, open);
         getNetwork().getIndex().checkAndAdd(dcSwitch);
         getNetwork().getListeners().notifyCreation(dcSwitch);
+        getParentNetwork().getDcTopologyModel().addDcSwitchToTopology(dcSwitch, dcNode1Id, dcNode2Id);
         return dcSwitch;
     }
 
@@ -77,8 +78,8 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
         return networkRef.get();
     }
 
-    private Network getParentNetwork() {
-        return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
+    private AbstractNetwork getParentNetwork() {
+        return Optional.ofNullable((AbstractNetwork) subnetworkRef.get()).orElse(getNetwork());
     }
 
     @Override

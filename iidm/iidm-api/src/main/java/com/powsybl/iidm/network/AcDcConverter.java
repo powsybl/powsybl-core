@@ -100,6 +100,14 @@ import java.util.Optional;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">DC voltage target</td>
  *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">DroopCurve</td>
+ *             <td style="border: 1px solid black">DroopCurve</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Curve which contains multiple droop segments</td>
+ *         </tr>
  *     </tbody>
  * </table>
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -117,7 +125,11 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
         /**
          * Controlling DC Voltage
          */
-        V_DC
+        V_DC,
+        /**
+         * Controlling DC Voltage with Droop Control
+         */
+        P_PCC_DROOP
     }
 
     /**
@@ -131,14 +143,14 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
     Optional<Terminal> getTerminal2();
 
     /**
-     * Get the side the AC terminal is connected to.
+     * Get the terminal number of the AC terminal.
      */
-    TwoSides getSide(Terminal terminal);
+    TerminalNumber getTerminalNumber(Terminal terminal);
 
     /**
-     * Get the AC terminal at provided side.
+     * Get the AC terminal of provided terminal number.
      */
-    Terminal getTerminal(TwoSides side);
+    Optional<Terminal> getTerminal(TerminalNumber terminalNumber);
 
     /**
      * Get the first DC terminal.
@@ -151,14 +163,14 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
     DcTerminal getDcTerminal2();
 
     /**
-     * Get the side the DC terminal is connected to.
+     * Get the terminal number the DC terminal.
      */
-    TwoSides getSide(DcTerminal dcTerminal);
+    TerminalNumber getTerminalNumber(DcTerminal dcTerminal);
 
     /**
-     * Get the DC terminal at provided side.
+     * Get the DC terminal of provided terminal number.
      */
-    DcTerminal getDcTerminal(TwoSides side);
+    DcTerminal getDcTerminal(TerminalNumber terminalNumber);
 
     /**
      * Set the idle loss (MW).
@@ -229,4 +241,14 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
      * Get the target DC voltage (kV DC)
      */
     double getTargetVdc();
+
+    /**
+     * Create a Droop curve;
+     */
+    DroopCurveAdder newDroopCurve();
+
+    /**
+     * Get the Converter droop curve;
+     */
+    DroopCurve getDroopCurve();
 }
