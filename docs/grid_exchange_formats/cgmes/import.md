@@ -698,5 +698,19 @@ If it is set to `false`, only one fictitious voltage level is created for each l
 **iidm.import.cgmes.use-previous-values-during-update**  
 Optional property that defines whether the CGMES importer should use previous values to fill in missing SSH attributes during an update.
 When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
-If set to `false`, missing SSH attributes will be filled using default values.
+If set to `false`, missing SSH attributes will be filled using default values. 
+This property does not apply to SV data. SV data is handled as a complete dataset, with no support for incremental updates of the SV file.
+`false` by default.
+
+**iidm.import.cgmes.remove-properties-and-aliases-after-import**  
+Properties and aliases are generated during the EQ import process and are used both in the initial import and in subsequent network updates.
+When this option is set to `true`, all generated properties and aliases are removed after the import/update process.
+If the option is set to `true` during the initial import, then both the EQ and SSH files must be provided to obtain a valid network at the steady-state hypothesis level.
+Cgmes importer will import the EQ file, create the properties and aliases, perform the update by importing the SSH file, and finally remove the properties and aliases.
+If only the EQ file is provided, the properties and aliases will be deleted immediately after the import, not allowing any future update. 
+In this case, the imported network will only be valid at the Equipment level.
+If the option is set to `true` during an update, the update will be performed and then the properties and aliases will be removed.
+Removing properties and aliases invalidates all subsequent updates but reduces the size of the IIDM network during serialization, 
+thereby improving performance. This option is suitable when the user does not need to preserve CGMES data for persistency purposes 
+or does not intend to perform further network updates.
 `false` by default.

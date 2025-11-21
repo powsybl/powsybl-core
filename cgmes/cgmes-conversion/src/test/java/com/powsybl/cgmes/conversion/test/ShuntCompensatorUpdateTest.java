@@ -56,11 +56,11 @@ class ShuntCompensatorUpdateTest {
         readCgmesResources(network, DIR, "shuntCompensator_SSH_1.xml");
         assertSecondSsh(network);
 
-        assertFlowsBeforeSv(network);
+        assertUnassignedFlows(network);
         assertSectionsBeforeSv(network);
         readCgmesResources(network, DIR, "shuntCompensator_SV.xml");
         assertFlowsAfterSv(network);
-        assertSectionsAfterSv(network);
+        assertSectionsAfterSv(network, 1, 2);
     }
 
     @Test
@@ -68,15 +68,36 @@ class ShuntCompensatorUpdateTest {
         Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml", "shuntCompensator_SV.xml");
         assertEquals(3, network.getShuntCompensatorCount());
         assertFirstSsh(network);
-        assertSectionsAfterSv(network);
+        assertSectionsAfterSv(network, 1, 2);
         assertFlowsAfterSv(network);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertSectionsAfterSv(network);
-        assertFlowsAfterSv(network);
+        assertSectionsAfterSv(network, null, null);
+        assertUnassignedFlows(network);
+    }
+
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "shuntCompensator_EQ.xml", "shuntCompensator_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getPropertyNames().isEmpty());
+        assertTrue(network.getAliases().isEmpty());
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getShuntCompensatorStream().allMatch(shc -> shc.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getShuntCompensatorStream().allMatch(shc -> shc.getAliases().isEmpty()));
     }
 
     private static void assertEq(Network network) {
@@ -97,16 +118,18 @@ class ShuntCompensatorUpdateTest {
         assertSsh(network.getShuntCompensator("EquivalentShunt"), 0, Double.NaN, Double.NaN, false);
     }
 
-    private static void assertFlowsBeforeSv(Network network) {
-        assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), Double.NaN, Double.NaN);
+    private static void assertUnassignedFlows(Network network) {
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), 0.0, 50.0);
-        assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), 1.0, 25.0);
-        assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), 2.0, -5.0);
+        assertFlows(network, 0.0, 50.0, 1.0, 25.0, 2.0, -5.0);
+    }
+
+    private static void assertFlows(Network network, double linearShuntCompensatorP, double linearShuntCompensatorQ, double nonLinearShuntCompensatorP, double nonLinearShuntCompensatorQ, double equivalentShuntP, double equivalentShuntQ) {
+        assertFlows(network.getShuntCompensator("LinearShuntCompensator").getTerminal(), linearShuntCompensatorP, linearShuntCompensatorQ);
+        assertFlows(network.getShuntCompensator("NonLinearShuntCompensator").getTerminal(), nonLinearShuntCompensatorP, nonLinearShuntCompensatorQ);
+        assertFlows(network.getShuntCompensator("EquivalentShunt").getTerminal(), equivalentShuntP, equivalentShuntQ);
     }
 
     private static void assertSectionsBeforeSv(Network network) {
@@ -115,9 +138,9 @@ class ShuntCompensatorUpdateTest {
         assertNull(network.getShuntCompensator("EquivalentShunt").getSolvedSectionCount());
     }
 
-    private static void assertSectionsAfterSv(Network network) {
-        assertEquals(1, network.getShuntCompensator("LinearShuntCompensator").getSolvedSectionCount());
-        assertEquals(2, network.getShuntCompensator("NonLinearShuntCompensator").getSolvedSectionCount());
+    private static void assertSectionsAfterSv(Network network, Integer linearShuntCompensatorSolvedSectionCount, Integer nonLinearShuntCompensatorSolvedSectionCount) {
+        assertEquals(linearShuntCompensatorSolvedSectionCount, network.getShuntCompensator("LinearShuntCompensator").getSolvedSectionCount());
+        assertEquals(nonLinearShuntCompensatorSolvedSectionCount, network.getShuntCompensator("NonLinearShuntCompensator").getSolvedSectionCount());
         assertNull(network.getShuntCompensator("EquivalentShunt").getSolvedSectionCount());
     }
 
