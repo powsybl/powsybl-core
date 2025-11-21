@@ -30,12 +30,38 @@ public class OverloadImpl implements Overload {
         this(temporaryLimit, previousLimitName, previousLimit, 1);
     }
 
+    public OverloadImpl(String previousLimitName, double previousLimit, double limitReductionCoefficient) {
+        this(UNACCEPTABLE_LIMIT, previousLimitName, previousLimit, limitReductionCoefficient);
+    }
+
     public OverloadImpl(LoadingLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit, double limitReductionCoefficient) {
         this.temporaryLimit = Objects.requireNonNull(temporaryLimit);
         this.previousLimitName = previousLimitName;
         this.previousLimit = previousLimit;
         this.limitReductionCoefficient = limitReductionCoefficient;
     }
+
+    private static final LoadingLimits.TemporaryLimit UNACCEPTABLE_LIMIT = new LoadingLimits.TemporaryLimit() {
+        @Override
+        public String getName() {
+            return "Unacceptable";
+        }
+
+        @Override
+        public double getValue() {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        @Override
+        public int getAcceptableDuration() {
+            return 0;
+        }
+
+        @Override
+        public boolean isFictitious() {
+            return true;
+        }
+    };
 
     @Override
     public LoadingLimits.TemporaryLimit getTemporaryLimit() {
