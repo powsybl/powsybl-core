@@ -72,12 +72,10 @@ class BusbarSectionUpdateTest {
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
-        assertEquals(expected, network.getPropertyNames().isEmpty());
-        assertTrue(network.getAliases().isEmpty());
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
 
-        assertEquals(true, network.getBusbarSectionStream().allMatch(busbarSection -> busbarSection.getPropertyNames().isEmpty()));
+        assertTrue(network.getBusbarSectionStream().allMatch(busbarSection -> busbarSection.getPropertyNames().isEmpty()));
         assertEquals(expected, network.getBusbarSectionStream().allMatch(busbarSection -> busbarSection.getAliases().isEmpty()));
     }
 

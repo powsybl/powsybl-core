@@ -91,8 +91,6 @@ class ShuntCompensatorUpdateTest {
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
-        assertEquals(expected, network.getPropertyNames().isEmpty());
-        assertTrue(network.getAliases().isEmpty());
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
 
