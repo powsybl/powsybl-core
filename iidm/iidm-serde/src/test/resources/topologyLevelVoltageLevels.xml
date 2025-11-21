@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" id="testCase11" caseDate="2022-07-26T13:56:23.057+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="subst" name="subst" country="FR">
-        <iidm:voltageLevel id="vl1" name="vl1" nominalV="380.0" topologyKind="NODE_BREAKER">
+        <iidm:voltageLevel id="vl1" name="vl1" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="vl1_0" name="vl1_0"/>
                 <iidm:bus id="vl1_1" name="vl1_1"/>
@@ -36,16 +36,16 @@
                 <iidm:switch id="btrf18" name="btrf18" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_1" bus2="vl1_33"/>
                 <iidm:switch id="bline11_2" name="bline11_2" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_0" bus2="vl1_35"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="6">
+            <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" bus="vl1_6" connectableBus="vl1_6">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
-            <iidm:generator id="gen2" name="gen2" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="10">
+            <iidm:generator id="gen2" name="gen2" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" bus="vl1_10" connectableBus="vl1_10">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
-            <iidm:load id="load1" name="load1" loadType="UNDEFINED" p0="10.0" q0="10.0" node="4"/>
-            <iidm:load id="load2" name="load2" loadType="UNDEFINED" p0="10.0" q0="10.0" node="8"/>
+            <iidm:load id="load1" name="load1" loadType="UNDEFINED" p0="10.0" q0="10.0" bus="vl1_4" connectableBus="vl1_4"/>
+            <iidm:load id="load2" name="load2" loadType="UNDEFINED" p0="10.0" q0="10.0" bus="vl1_8" connectableBus="vl1_8"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="vl2" name="vl2" nominalV="225.0" topologyKind="NODE_BREAKER">
+        <iidm:voltageLevel id="vl2" name="vl2" nominalV="225.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="vl2_0" name="vl2_0"/>
                 <iidm:bus id="vl2_1" name="vl2_1"/>
@@ -69,10 +69,10 @@
                 <iidm:switch id="btrf27" name="btrf27" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl2_0" bus2="vl2_19"/>
                 <iidm:switch id="btrf28" name="btrf28" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl2_1" bus2="vl2_21"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="gen4" name="gen4" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="4">
+            <iidm:generator id="gen4" name="gen4" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" bus="vl2_4" connectableBus="vl2_4">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
-            <iidm:load id="load3" name="load3" loadType="UNDEFINED" p0="10.0" q0="10.0" node="2"/>
+            <iidm:load id="load3" name="load3" loadType="UNDEFINED" p0="10.0" q0="10.0" bus="vl2_2" connectableBus="vl2_2"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="vl3" name="vl3" nominalV="50.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -90,14 +90,14 @@
             </iidm:nodeBreakerTopology>
             <iidm:load id="load4" name="load4" loadType="UNDEFINED" p0="10.0" q0="10.0" node="1"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf1" name="trf1" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="vl1" node1="19" voltageLevelId2="vl2" node2="9"/>
-        <iidm:twoWindingsTransformer id="trf2" name="trf2" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="vl1" node1="21" voltageLevelId2="vl2" node2="11"/>
-        <iidm:twoWindingsTransformer id="trf3" name="trf3" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="vl1" node1="23" voltageLevelId2="vl2" node2="13"/>
-        <iidm:twoWindingsTransformer id="trf4" name="trf4" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="vl1" node1="25" voltageLevelId2="vl2" node2="15"/>
-        <iidm:twoWindingsTransformer id="trf5" name="trf5" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="vl1" node1="27" voltageLevelId2="vl3" node2="4"/>
-        <iidm:threeWindingsTransformer id="trf6" name="trf6" r1="0.5" x1="1.0" g1="0.1" b1="0.1" ratedU1="400.0" r2="0.5" x2="1.0" g2="0.0" b2="0.0" ratedU2="225.0" r3="0.5" x3="1.0" g3="0.0" b3="0.0" ratedU3="50.0" ratedU0="400.0" voltageLevelId1="vl1" node1="29" voltageLevelId2="vl2" node2="17" voltageLevelId3="vl3" node3="6"/>
-        <iidm:threeWindingsTransformer id="trf7" name="trf7" r1="0.5" x1="1.0" g1="0.1" b1="0.1" ratedU1="400.0" r2="0.5" x2="1.0" g2="0.0" b2="0.0" ratedU2="225.0" r3="0.5" x3="1.0" g3="0.0" b3="0.0" ratedU3="50.0" ratedU0="400.0" voltageLevelId1="vl1" node1="31" voltageLevelId2="vl2" node2="19" voltageLevelId3="vl3" node3="8"/>
-        <iidm:threeWindingsTransformer id="trf8" name="trf8" r1="0.5" x1="1.0" g1="0.1" b1="0.1" ratedU1="400.0" r2="0.5" x2="1.0" g2="0.0" b2="0.0" ratedU2="225.0" r3="0.5" x3="1.0" g3="0.0" b3="0.0" ratedU3="50.0" ratedU0="400.0" voltageLevelId1="vl1" node1="33" voltageLevelId2="vl2" node2="21" voltageLevelId3="vl3" node3="10"/>
+        <iidm:twoWindingsTransformer id="trf1" name="trf1" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="vl1" bus1="vl1_19" connectableBus1="vl1_19" voltageLevelId2="vl2" bus2="vl2_9" connectableBus2="vl2_9"/>
+        <iidm:twoWindingsTransformer id="trf2" name="trf2" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="vl1" bus1="vl1_21" connectableBus1="vl1_21" voltageLevelId2="vl2" bus2="vl2_11" connectableBus2="vl2_11"/>
+        <iidm:twoWindingsTransformer id="trf3" name="trf3" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="vl1" bus1="vl1_23" connectableBus1="vl1_23" voltageLevelId2="vl2" bus2="vl2_13" connectableBus2="vl2_13"/>
+        <iidm:twoWindingsTransformer id="trf4" name="trf4" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="vl1" bus1="vl1_25" connectableBus1="vl1_25" voltageLevelId2="vl2" bus2="vl2_15" connectableBus2="vl2_15"/>
+        <iidm:twoWindingsTransformer id="trf5" name="trf5" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="vl1" bus1="vl1_27" connectableBus1="vl1_27" voltageLevelId2="vl3" node2="4"/>
+        <iidm:threeWindingsTransformer id="trf6" name="trf6" r1="0.5" x1="1.0" g1="0.1" b1="0.1" ratedU1="400.0" r2="0.5" x2="1.0" g2="0.0" b2="0.0" ratedU2="225.0" r3="0.5" x3="1.0" g3="0.0" b3="0.0" ratedU3="50.0" ratedU0="400.0" voltageLevelId1="vl1" bus1="vl1_29" connectableBus1="vl1_29" voltageLevelId2="vl2" bus2="vl2_17" connectableBus2="vl2_17" voltageLevelId3="vl3" node3="6"/>
+        <iidm:threeWindingsTransformer id="trf7" name="trf7" r1="0.5" x1="1.0" g1="0.1" b1="0.1" ratedU1="400.0" r2="0.5" x2="1.0" g2="0.0" b2="0.0" ratedU2="225.0" r3="0.5" x3="1.0" g3="0.0" b3="0.0" ratedU3="50.0" ratedU0="400.0" voltageLevelId1="vl1" bus1="vl1_31" connectableBus1="vl1_31" voltageLevelId2="vl2" bus2="vl2_19" connectableBus2="vl2_19" voltageLevelId3="vl3" node3="8"/>
+        <iidm:threeWindingsTransformer id="trf8" name="trf8" r1="0.5" x1="1.0" g1="0.1" b1="0.1" ratedU1="400.0" r2="0.5" x2="1.0" g2="0.0" b2="0.0" ratedU2="225.0" r3="0.5" x3="1.0" g3="0.0" b3="0.0" ratedU3="50.0" ratedU0="400.0" voltageLevelId1="vl1" bus1="vl1_33" connectableBus1="vl1_33" voltageLevelId2="vl2" bus2="vl2_21" connectableBus2="vl2_21" voltageLevelId3="vl3" node3="10"/>
     </iidm:substation>
     <iidm:substation id="subst2" name="subst2" country="FR">
         <iidm:voltageLevel id="vlSubst2" name="vlSubst2" nominalV="380.0" topologyKind="NODE_BREAKER">
@@ -108,5 +108,5 @@
             </iidm:nodeBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:line id="line1" name="line1" r="2.0" x="14.745" g1="1.0" b1="1.0" g2="1.0" b2="1.0" voltageLevelId1="vl1" node1="35" voltageLevelId2="vlSubst2" node2="2"/>
+    <iidm:line id="line1" name="line1" r="2.0" x="14.745" g1="1.0" b1="1.0" g2="1.0" b2="1.0" voltageLevelId1="vl1" bus1="vl1_35" connectableBus1="vl1_35" voltageLevelId2="vlSubst2" node2="2"/>
 </iidm:network>
