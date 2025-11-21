@@ -7,10 +7,18 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.Map;
+import java.util.function.Function;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -18,149 +26,171 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseSwitchedShunt extends PsseVersioned {
 
-    @Parsed(field = {"i", "ibus"})
+    private static final String STRING_SWREM = "swrem";
+    private static final String STRING_SWREG = "swreg";
+
+    private static final Map<String, Function<PsseSwitchedShunt, String>> GETTERS = Map.ofEntries(
+        Map.entry("i", switchShunt -> String.valueOf(switchShunt.getI())),
+        Map.entry("ibus", switchShunt -> String.valueOf(switchShunt.getI())),
+        Map.entry("modsw", switchShunt -> String.valueOf(switchShunt.getModsw())),
+        Map.entry("adjm", switchShunt -> String.valueOf(switchShunt.getAdjm())),
+        Map.entry("stat", switchShunt -> String.valueOf(switchShunt.getStat())),
+        Map.entry("vswhi", switchShunt -> String.valueOf(switchShunt.getVswhi())),
+        Map.entry("vswlo", switchShunt -> String.valueOf(switchShunt.getVswlo())),
+        Map.entry(STRING_SWREM, switchShunt -> String.valueOf(switchShunt.getSwrem())),
+        Map.entry("rmpct", switchShunt -> String.valueOf(switchShunt.getRmpct())),
+        Map.entry("rmidnt", PsseSwitchedShunt::getRmidnt),
+        Map.entry("binit", switchShunt -> String.valueOf(switchShunt.getBinit())),
+        Map.entry("n1", switchShunt -> String.valueOf(switchShunt.getN1())),
+        Map.entry("b1", switchShunt -> String.valueOf(switchShunt.getB1())),
+        Map.entry("n2", switchShunt -> String.valueOf(switchShunt.getN2())),
+        Map.entry("b2", switchShunt -> String.valueOf(switchShunt.getB2())),
+        Map.entry("n3", switchShunt -> String.valueOf(switchShunt.getN3())),
+        Map.entry("b3", switchShunt -> String.valueOf(switchShunt.getB3())),
+        Map.entry("n4", switchShunt -> String.valueOf(switchShunt.getN4())),
+        Map.entry("b4", switchShunt -> String.valueOf(switchShunt.getB4())),
+        Map.entry("n5", switchShunt -> String.valueOf(switchShunt.getN5())),
+        Map.entry("b5", switchShunt -> String.valueOf(switchShunt.getB5())),
+        Map.entry("n6", switchShunt -> String.valueOf(switchShunt.getN6())),
+        Map.entry("b6", switchShunt -> String.valueOf(switchShunt.getB6())),
+        Map.entry("n7", switchShunt -> String.valueOf(switchShunt.getN7())),
+        Map.entry("b7", switchShunt -> String.valueOf(switchShunt.getB7())),
+        Map.entry("n8", switchShunt -> String.valueOf(switchShunt.getN8())),
+        Map.entry("b8", switchShunt -> String.valueOf(switchShunt.getB8())),
+        Map.entry("id", PsseSwitchedShunt::getId),
+        Map.entry("shntid", PsseSwitchedShunt::getId),
+        Map.entry(STRING_SWREG, switchShunt -> String.valueOf(switchShunt.getSwreg())),
+        Map.entry("nreg", switchShunt -> String.valueOf(switchShunt.getNreg())),
+        Map.entry("s1", switchShunt -> String.valueOf(switchShunt.getS1())),
+        Map.entry("s2", switchShunt -> String.valueOf(switchShunt.getS2())),
+        Map.entry("s3", switchShunt -> String.valueOf(switchShunt.getS3())),
+        Map.entry("s4", switchShunt -> String.valueOf(switchShunt.getS4())),
+        Map.entry("s5", switchShunt -> String.valueOf(switchShunt.getS5())),
+        Map.entry("s6", switchShunt -> String.valueOf(switchShunt.getS6())),
+        Map.entry("s7", switchShunt -> String.valueOf(switchShunt.getS7())),
+        Map.entry("s8", switchShunt -> String.valueOf(switchShunt.getS8()))
+    );
+
     private int i;
-
-    @Parsed
     private int modsw = 1;
-
-    @Parsed
     private int adjm = 0;
-
-    @Parsed
     private int stat = 1;
-
-    @Parsed
     private double vswhi = 1.0;
-
-    @Parsed
     private double vswlo = 1.0;
 
-    @Parsed
     @Revision(until = 33)
     private int swrem = 0;
 
-    @Parsed
     private double rmpct = 100.0;
-
-    @Parsed(defaultNullRead = " ")
     private String rmidnt;
-
-    @Parsed
     private double binit = 0.0;
-
-    @Parsed
     private int n1 = 0;
-
-    @Parsed
     private double b1 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n2 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b2 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n3 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b3 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n4 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b4 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n5 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b5 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n6 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b6 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n7 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b7 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int n8 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double b8 = 0.0;
 
-    @Parsed(field = {"id", "shntid"}, defaultNullRead = "1")
     @Revision(since = 35)
     private String id;
 
-    @Parsed
     @Revision(since = 35)
     private int swreg = 0;
 
-    @Parsed
     @Revision(since = 35)
     private int nreg = 0;
 
-    @Parsed
     @Revision(since = 35)
     private int s1 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s2 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s3 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s4 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s5 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s6 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s7 = 1;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int s8 = 1;
+
+    public static PsseSwitchedShunt fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        PsseSwitchedShunt psseSwitchedShunt = new PsseSwitchedShunt();
+        psseSwitchedShunt.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseSwitchedShunt.setModsw(parseIntFromRecord(rec, 1, headers, "modsw"));
+        psseSwitchedShunt.setAdjm(parseIntFromRecord(rec, 0, headers, "adjm"));
+        psseSwitchedShunt.setStat(parseIntFromRecord(rec, 1, headers, "stat"));
+        psseSwitchedShunt.setVswhi(parseDoubleFromRecord(rec, 1.0, headers, "vswhi"));
+        psseSwitchedShunt.setVswlo(parseDoubleFromRecord(rec, 1.0, headers, "vswlo"));
+        if (version.getMajorNumber() <= 33) {
+            psseSwitchedShunt.setSwrem(parseIntFromRecord(rec, 0, headers, STRING_SWREM));
+        }
+        psseSwitchedShunt.setRmpct(parseDoubleFromRecord(rec, 100.0, headers, "rmpct"));
+        psseSwitchedShunt.setRmidnt(parseStringFromRecord(rec, " ", headers, "rmidnt"));
+        psseSwitchedShunt.setBinit(parseDoubleFromRecord(rec, headers, "binit"));
+        psseSwitchedShunt.setN1(parseIntFromRecord(rec, 0, headers, "n1"));
+        psseSwitchedShunt.setB1(parseDoubleFromRecord(rec, 0.0, headers, "b1"));
+        psseSwitchedShunt.setN2(parseIntFromRecord(rec, 0, headers, "n2"));
+        psseSwitchedShunt.setB2(parseDoubleFromRecord(rec, 0.0, headers, "b2"));
+        psseSwitchedShunt.setN3(parseIntFromRecord(rec, 0, headers, "n3"));
+        psseSwitchedShunt.setB3(parseDoubleFromRecord(rec, 0.0, headers, "b3"));
+        psseSwitchedShunt.setN4(parseIntFromRecord(rec, 0, headers, "n4"));
+        psseSwitchedShunt.setB4(parseDoubleFromRecord(rec, 0.0, headers, "b4"));
+        psseSwitchedShunt.setN5(parseIntFromRecord(rec, 0, headers, "n5"));
+        psseSwitchedShunt.setB5(parseDoubleFromRecord(rec, 0.0, headers, "b5"));
+        psseSwitchedShunt.setN6(parseIntFromRecord(rec, 0, headers, "n6"));
+        psseSwitchedShunt.setB6(parseDoubleFromRecord(rec, 0.0, headers, "b6"));
+        psseSwitchedShunt.setN7(parseIntFromRecord(rec, 0, headers, "n7"));
+        psseSwitchedShunt.setB7(parseDoubleFromRecord(rec, 0.0, headers, "b7"));
+        psseSwitchedShunt.setN8(parseIntFromRecord(rec, 0, headers, "n8"));
+        psseSwitchedShunt.setB8(parseDoubleFromRecord(rec, 0.0, headers, "b8"));
+        if (version.getMajorNumber() >= 35) {
+            psseSwitchedShunt.setId(parseStringFromRecord(rec, "1", headers, "id", "shntid"));
+            psseSwitchedShunt.setSwreg(parseIntFromRecord(rec, headers, STRING_SWREG));
+            psseSwitchedShunt.setNreg(parseIntFromRecord(rec, headers, "nreg"));
+            psseSwitchedShunt.setS1(parseIntFromRecord(rec, headers, "s1"));
+            psseSwitchedShunt.setS2(parseIntFromRecord(rec, 1, headers, "s2"));
+            psseSwitchedShunt.setS3(parseIntFromRecord(rec, 1, headers, "s3"));
+            psseSwitchedShunt.setS4(parseIntFromRecord(rec, 1, headers, "s4"));
+            psseSwitchedShunt.setS5(parseIntFromRecord(rec, 1, headers, "s5"));
+            psseSwitchedShunt.setS6(parseIntFromRecord(rec, 1, headers, "s6"));
+            psseSwitchedShunt.setS7(parseIntFromRecord(rec, 1, headers, "s7"));
+            psseSwitchedShunt.setS8(parseIntFromRecord(rec, 1, headers, "s8"));
+        }
+        return psseSwitchedShunt;
+    }
+
+    public static String[] toRecord(PsseSwitchedShunt psseSwitchedShunt, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            Function<PsseSwitchedShunt, String> getter = GETTERS.get(headers[i]);
+            if (getter == null) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = getter.apply(psseSwitchedShunt);
+        }
+        return row;
+    }
 
     public int getI() {
         return i;
@@ -211,7 +241,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getSwrem() {
-        checkVersion("swrem");
+        checkVersion(STRING_SWREM);
         return swrem;
     }
 
@@ -381,7 +411,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getSwreg() {
-        checkVersion("swreg");
+        checkVersion(STRING_SWREG);
         return swreg;
     }
 
