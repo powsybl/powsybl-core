@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 
 /**
@@ -30,16 +29,13 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> extends AbstractProper
 
     private double b;
 
-    private Network network;
-
-    protected TapChangerStepImpl(Network network, int position, double rho, double r, double x, double g, double b) {
+    protected TapChangerStepImpl(int position, double rho, double r, double x, double g, double b) {
         this.position = position;
         this.rho = rho;
         this.r = r;
         this.x = x;
         this.g = g;
         this.b = b;
-        this.network = network;
     }
 
     protected void setParent(AbstractTapChanger<?, ?, ?> parent) {
@@ -121,10 +117,5 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> extends AbstractProper
         if (Double.isNaN(this.getB())) {
             throw new ValidationException(parent, "step b is not set");
         }
-    }
-
-    @Override
-    public Network getNetwork() {
-        return network;
     }
 }

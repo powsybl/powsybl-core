@@ -16,7 +16,7 @@ import static com.powsybl.iidm.network.impl.ExponentialLoadModelImpl.checkExpone
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ExponentialLoadModelAdderImpl implements ExponentialLoadModelAdder {
+public class ExponentialLoadModelAdderImpl extends AbstractPropertiesHolder implements ExponentialLoadModelAdder {
 
     private final LoadAdderImpl parentAdder;
 

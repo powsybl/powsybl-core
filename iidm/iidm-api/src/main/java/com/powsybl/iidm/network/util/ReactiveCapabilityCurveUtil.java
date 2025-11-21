@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import org.apache.commons.lang3.function.TriFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public final class ReactiveCapabilityCurveUtil {
      * @param ownerDescription                Description of the ReactiveCapabilityCurve's owner (for logging purpose)
      * @return A ReactiveCapabilityCurve.Point of the extrapolated limits at the requested value of p
      */
-    public static ReactiveCapabilityCurve.Point extrapolateReactiveLimitsSlope(Network network, double p, TreeMap<Double, ReactiveCapabilityCurve.Point> points, QuadFunction<Network, Double, Double, Double, ReactiveCapabilityCurve.Point> valuesToReactiveCapabilityPoint, String ownerDescription) {
+    public static ReactiveCapabilityCurve.Point extrapolateReactiveLimitsSlope(double p, TreeMap<Double, ReactiveCapabilityCurve.Point> points, TriFunction<Double, Double, Double, ReactiveCapabilityCurve.Point> valuesToReactiveCapabilityPoint, String ownerDescription) {
         double minQ;
         double maxQ;
         ReactiveCapabilityCurve.Point pBound;
@@ -56,11 +56,11 @@ public final class ReactiveCapabilityCurveUtil {
         maxQ = pBound.getMaxQ() + slopeMaxQ * (p - pBound.getP());
 
         if (minQ <= maxQ) {
-            return valuesToReactiveCapabilityPoint.apply(network, p, minQ, maxQ);
+            return valuesToReactiveCapabilityPoint.apply(p, minQ, maxQ);
         } else { // Corner case of intersecting reactive limits when extrapolated
             double limitQ = (minQ + maxQ) / 2;
             LOGGER.warn("Extrapolation of reactive capability curve for {} leads to minQ > maxQ, correcting to minQ = maxQ", ownerDescription); // This log message can be over flowing (if called at each iteration), apply filters in logback to avoid it
-            return valuesToReactiveCapabilityPoint.apply(network, p, limitQ, limitQ); // Returning the mean as limits minQ and maxQ
+            return valuesToReactiveCapabilityPoint.apply(p, limitQ, limitQ); // Returning the mean as limits minQ and maxQ
         }
     }
 }

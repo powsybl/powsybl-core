@@ -74,10 +74,6 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractPropertiesHolder implem
             return "section" + sectionNum + "." + attribute;
         }
 
-        @Override
-        public Network getNetwork() {
-            return shuntCompensator.getNetwork();
-        }
     }
 
     private ShuntCompensatorImpl shuntCompensator;
@@ -131,11 +127,6 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractPropertiesHolder implem
             throw new ValidationException(shuntCompensator, "invalid section count (must be in [0;maximumSectionCount]");
         }
         return sectionCount == 0 ? 0 : sections.get(sectionCount - 1).getG();
-    }
-
-    @Override
-    public Network getNetwork() {
-        return shuntCompensator.getNetwork();
     }
 
 }

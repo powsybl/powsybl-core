@@ -64,7 +64,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
 
         @Override
         public RatioTapChangerAdder endStep() {
-            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(getNetwork(), steps.size(), rho, r, x, g, b);
+            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
             for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
                 step.setProperty((String) z.getKey(), (String) z.getValue());
             }
@@ -73,10 +73,6 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
             return RatioTapChangerAdderImpl.this;
         }
 
-        @Override
-        public Network getNetwork() {
-            return parent.getNetwork();
-        }
     }
 
     RatioTapChangerAdderImpl(RatioTapChangerParent parent) {

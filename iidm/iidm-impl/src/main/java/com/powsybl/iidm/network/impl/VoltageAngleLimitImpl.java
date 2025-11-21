@@ -68,8 +68,4 @@ class VoltageAngleLimitImpl extends AbstractPropertiesHolder implements VoltageA
         this.networkRef.get().getVoltageAngleLimitsIndex().remove(id);
     }
 
-    @Override
-    public Network getNetwork() {
-        return networkRef.get();
-    }
 }

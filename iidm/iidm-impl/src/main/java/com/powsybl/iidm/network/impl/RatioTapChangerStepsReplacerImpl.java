@@ -8,7 +8,6 @@
 
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChangerStepsReplacer;
 
 import java.util.Map;
@@ -18,11 +17,7 @@ import java.util.Map;
  */
 public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsReplacer<RatioTapChangerStepsReplacerImpl, RatioTapChangerStepImpl> implements RatioTapChangerStepsReplacer {
 
-    private Network network;
-
     class StepAdderImpl extends AbstractPropertiesHolder implements RatioTapChangerStepsReplacer.StepAdder {
-
-        private final Network network;
 
         private double rho = Double.NaN;
 
@@ -34,8 +29,7 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
 
         private double b = 0.0;
 
-        public StepAdderImpl(Network network) {
-            this.network = network;
+        public StepAdderImpl() {
         }
 
         @Override
@@ -70,7 +64,7 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
 
         @Override
         public RatioTapChangerStepsReplacer endStep() {
-            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(network, steps.size(), rho, r, x, g, b);
+            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
             for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
                 step.setProperty((String) z.getKey(), (String) z.getValue());
             }
@@ -78,19 +72,14 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
             return RatioTapChangerStepsReplacerImpl.this;
         }
 
-        @Override
-        public Network getNetwork() {
-            return network;
-        }
     }
 
-    RatioTapChangerStepsReplacerImpl(RatioTapChangerImpl ratioTapChanger, Network network) {
+    RatioTapChangerStepsReplacerImpl(RatioTapChangerImpl ratioTapChanger) {
         super(ratioTapChanger);
-        this.network = network;
     }
 
     @Override
     public RatioTapChangerStepsReplacer.StepAdder beginStep() {
-        return new StepAdderImpl(network);
+        return new StepAdderImpl();
     }
 }

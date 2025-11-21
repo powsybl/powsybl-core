@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -107,8 +106,4 @@ class ShuntCompensatorLinearModelImpl extends AbstractPropertiesHolder implement
         return ShuntCompensatorModelType.LINEAR;
     }
 
-    @Override
-    public Network getNetwork() {
-        return shuntCompensator.getNetwork();
-    }
 }

@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import org.slf4j.Logger;
@@ -39,14 +38,11 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
 
         private final boolean fictitious;
 
-        private final Network network;
-
-        TemporaryLimitImpl(Network network, String name, double value, int acceptableDuration, boolean hasOverloadingProtection) {
+        TemporaryLimitImpl(String name, double value, int acceptableDuration, boolean hasOverloadingProtection) {
             this.name = Objects.requireNonNull(name);
             this.value = value;
             this.acceptableDuration = acceptableDuration;
             this.fictitious = hasOverloadingProtection;
-            this.network = network;
         }
 
         @Override
@@ -69,10 +65,6 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
             return fictitious;
         }
 
-        @Override
-        public Network getNetwork() {
-            return network;
-        }
     }
 
     AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
@@ -125,7 +117,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
                 LOGGER.warn("{}Temporary limit {}s value changed from {} to {}, but it is not valid", group.getValidable().getMessageHeader(), acceptableDuration, oldValue, temporaryLimitValue);
             }
 
-            this.temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(getNetwork(), identifiedLimit.getName(), temporaryLimitValue,
+            this.temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(identifiedLimit.getName(), temporaryLimitValue,
                     identifiedLimit.getAcceptableDuration(), identifiedLimit.isFictitious()));
 
             group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue, acceptableDuration);

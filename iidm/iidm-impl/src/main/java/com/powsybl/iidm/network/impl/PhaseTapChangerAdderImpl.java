@@ -72,7 +72,7 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
 
         @Override
         public PhaseTapChangerAdder endStep() {
-            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(getNetwork(), steps.size(), alpha, rho, r, x, g, b);
+            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
             for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
                 step.setProperty((String) z.getKey(), (String) z.getValue());
             }
@@ -80,12 +80,6 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;
         }
-
-        @Override
-        public Network getNetwork() {
-            return parent.getNetwork();
-        }
-
     }
 
     PhaseTapChangerAdderImpl(PhaseTapChangerParent parent) {

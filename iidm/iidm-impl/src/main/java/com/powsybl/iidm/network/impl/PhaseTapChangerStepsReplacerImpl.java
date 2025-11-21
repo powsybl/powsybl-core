@@ -8,7 +8,6 @@
 
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChangerStepsReplacer;
 
 import java.util.Map;
@@ -18,11 +17,7 @@ import java.util.Map;
  */
 public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsReplacer<PhaseTapChangerStepsReplacerImpl, PhaseTapChangerStepImpl> implements PhaseTapChangerStepsReplacer {
 
-    Network network;
-
     class StepAdderImpl extends AbstractPropertiesHolder implements PhaseTapChangerStepsReplacer.StepAdder {
-
-        Network network;
 
         private double alpha = Double.NaN;
 
@@ -36,8 +31,7 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
 
         private double b = 0.0;
 
-        public StepAdderImpl(Network network) {
-            this.network = network;
+        public StepAdderImpl() {
         }
 
         @Override
@@ -78,27 +72,21 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
 
         @Override
         public PhaseTapChangerStepsReplacer endStep() {
-            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(network, steps.size(), alpha, rho, r, x, g, b);
+            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
             for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
                 step.setProperty((String) z.getKey(), (String) z.getValue());
             }
             steps.add(step);
             return PhaseTapChangerStepsReplacerImpl.this;
         }
-
-        @Override
-        public Network getNetwork() {
-            return network;
-        }
     }
 
-    PhaseTapChangerStepsReplacerImpl(PhaseTapChangerImpl phaseTapChanger, NetworkImpl network) {
+    PhaseTapChangerStepsReplacerImpl(PhaseTapChangerImpl phaseTapChanger) {
         super(phaseTapChanger);
-        this.network = network;
     }
 
     @Override
     public PhaseTapChangerStepsReplacer.StepAdder beginStep() {
-        return new StepAdderImpl(this.network);
+        return new StepAdderImpl();
     }
 }

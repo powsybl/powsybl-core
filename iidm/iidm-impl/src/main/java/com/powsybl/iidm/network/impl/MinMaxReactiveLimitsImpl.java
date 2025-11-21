@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 
 /**
@@ -21,12 +20,9 @@ class MinMaxReactiveLimitsImpl extends AbstractPropertiesHolder implements MinMa
 
     private final double maxQ;
 
-    private Network network;
-
-    MinMaxReactiveLimitsImpl(Network network, double minQ, double maxQ) {
+    MinMaxReactiveLimitsImpl(double minQ, double maxQ) {
         this.minQ = minQ;
         this.maxQ = maxQ;
-        this.network = network;
     }
 
     @Override
@@ -54,8 +50,4 @@ class MinMaxReactiveLimitsImpl extends AbstractPropertiesHolder implements MinMa
         return maxQ;
     }
 
-    @Override
-    public Network getNetwork() {
-        return network;
-    }
 }

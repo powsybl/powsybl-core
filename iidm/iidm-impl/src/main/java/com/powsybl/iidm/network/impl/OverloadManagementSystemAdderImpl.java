@@ -226,7 +226,6 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
 
     private OverloadManagementSystem.Tripping createTripping(SwitchTrippingAdderImpl adder, String overloadManagementSystemId) {
         return new OverloadManagementSystemImpl.SwitchTrippingImpl(
-                getNetwork(),
                 overloadManagementSystemId, adder.key, adder.name,
                 adder.currentLimit, adder.openAction,
                 adder.checkSwitchId());
@@ -234,7 +233,6 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
 
     private OverloadManagementSystem.Tripping createTripping(BranchTrippingAdderImpl adder, String overloadManagementSystemId) {
         return new OverloadManagementSystemImpl.BranchTrippingImpl(
-                getNetwork(),
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
                 adder.checkBranchId(), adder.side);
@@ -243,7 +241,6 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     private OverloadManagementSystem.Tripping createTripping(ThreeWindingsTransformerTrippingAdderImpl adder,
                                                              String overloadManagementSystemId) {
         return new OverloadManagementSystemImpl.ThreeWindingsTransformerTrippingImpl(
-                getNetwork(),
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
                 adder.checkThreeWindingsTransformerId(), adder.side);

@@ -74,8 +74,4 @@ public class AreaBoundaryImpl extends AbstractPropertiesHolder implements AreaBo
         }
     }
 
-    @Override
-    public Network getNetwork() {
-        return area.getNetwork();
-    }
 }

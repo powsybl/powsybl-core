@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface IdentifiableAdder<T extends Identifiable<T>, A extends IdentifiableAdder> {
+public interface IdentifiableAdder<T extends Identifiable<T>, A extends IdentifiableAdder> extends PropertiesHolder {
 
     A setId(String id);
 
