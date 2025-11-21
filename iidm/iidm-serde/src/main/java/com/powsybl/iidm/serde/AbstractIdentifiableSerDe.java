@@ -14,7 +14,7 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractIdentifiableSerDe<T extends Identifiable<? super T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> {
+abstract class AbstractIdentifiableSerDe<T extends Identifiable<T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> {
 
     protected abstract String getRootElementName();
 

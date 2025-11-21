@@ -45,8 +45,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        Integer solvedPosition = rtc.getSolvedTapPosition();
-        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
+        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
 
         rtc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -72,8 +71,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         boolean isLtcFlag = ptc.isLtcFlag();
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
-        Integer solvedPosition = ptc.getSolvedTapPosition();
-        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position).setSolvedTapPosition(solvedPosition);
+        ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
 
         ptc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -194,7 +192,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
 
         int defaultTapPosition = getDefaultTapPosition(tw, rtc, ratioTapChangerId, getClosestNeutralStep(rtc), context);
         rtc.setTapPosition(findValidTapPosition(rtc, ratioTapChangerId, defaultTapPosition, context));
-        findValidSolvedTapPosition(rtc, ratioTapChangerId, context).ifPresent(rtc::setSolvedTapPosition);
+        findValidSolvedTapPosition(rtc, ratioTapChangerId, context).ifPresentOrElse(rtc::setSolvedTapPosition, rtc::unsetSolvedTapPosition);
 
         if (rtc.getRegulationTerminal() != null) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, ratioTapChangerId, context);
@@ -260,7 +258,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
 
         int defaultTapPosition = getDefaultTapPosition(tw, ptc, phaseTapChangerId, getClosestNeutralStep(ptc), context);
         ptc.setTapPosition(findValidTapPosition(ptc, phaseTapChangerId, defaultTapPosition, context));
-        findValidSolvedTapPosition(ptc, phaseTapChangerId, context).ifPresent(ptc::setSolvedTapPosition);
+        findValidSolvedTapPosition(ptc, phaseTapChangerId, context).ifPresentOrElse(ptc::setSolvedTapPosition, ptc::unsetSolvedTapPosition);
 
         if (ptc.getRegulationTerminal() != null) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, phaseTapChangerId, context);
@@ -344,9 +342,13 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     private static <C extends Connectable<C>> int getDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, int closestNeutralTapPosition, Context context) {
+        Integer validNormalStep = null;
         OptionalInt normalStep = getNormalStep(tw, tapChangerId);
+        if (normalStep.isPresent() && isValidTapPosition(tapChanger, normalStep.getAsInt())) {
+            validNormalStep = normalStep.getAsInt();
+        }
         OptionalInt neutralPosition = tapChanger.getNeutralPosition();
-        return getDefaultValue(normalStep.isPresent() ? normalStep.getAsInt() : null,
+        return getDefaultValue(validNormalStep,
                 tapChanger.getTapPosition(),
                 neutralPosition.isPresent() ? neutralPosition.getAsInt() : null,
                 closestNeutralTapPosition,
@@ -358,7 +360,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     private static OptionalInt findTapPosition(PropertyBag p) {
-        double tapPosition = p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP));
+        double tapPosition = p.asDouble(CgmesNames.STEP);
         return Double.isFinite(tapPosition) ? OptionalInt.of(AbstractObjectConversion.fromContinuous(tapPosition)) : OptionalInt.empty();
     }
 
