@@ -120,18 +120,25 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     protected abstract T createTimeSeries(C chunk);
 
-    private void splitMsa(C chunkToSplit, List<C> splitChunks, int firstIndex, int lastIndex) {
-        C msa;
-        if (firstIndex == chunkToSplit.getOffset()) {
-            msa = chunkToSplit;
-        } else {
-            DataChunk.Split<P, C> split = chunkToSplit.splitAt(firstIndex);
-            msa = split.getChunk2();
+    private void splitByFirstAndLastIndex(C chunkToSplit, List<C> splitChunks, int firstIndex, int lastIndex) {
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Split chunk [{}, {}]", firstIndex, lastIndex);
         }
-        if (lastIndex == chunkToSplit.getLength() - 1) {
-            splitChunks.add(msa);
+        C newChunk;
+        // chunkToSplit = [x0, y0] -> newChunk = [x0=firstIndex, y0]
+        if (firstIndex == chunkToSplit.getOffset()) {
+            newChunk = chunkToSplit;
         } else {
-            DataChunk.Split<P, C> split = msa.splitAt(lastIndex + 1);
+            // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, y0]
+            DataChunk.Split<P, C> split = chunkToSplit.splitAt(firstIndex);
+            newChunk = split.getChunk2();
+        }
+        // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, y0=lastIndex]
+        if (lastIndex == chunkToSplit.getLength() - 1) {
+            splitChunks.add(newChunk);
+        } else {
+            // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, lastIndex]
+            DataChunk.Split<P, C> split = newChunk.splitAt(lastIndex + 1);
             splitChunks.add(split.getChunk1());
         }
     }
@@ -206,7 +213,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         List<C> splitNewChunks = new ArrayList<>();
         for (C chunkToSplit : getCheckedChunks(false)) {
             for (Range<@NonNull Integer> range : newChunks) {
-                splitMsa(chunkToSplit, splitNewChunks, range.lowerEndpoint(), range.upperEndpoint());
+                splitByFirstAndLastIndex(chunkToSplit, splitNewChunks, range.lowerEndpoint(), range.upperEndpoint());
             }
         }
         return splitNewChunks.stream().map(this::createTimeSeries).toList();
