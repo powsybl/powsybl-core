@@ -58,32 +58,44 @@ public class XMLImporter extends AbstractTreeDataImporter {
     }
 
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        try {
-            if (ext != null) {
-                try (InputStream is = dataSource.newInputStream(null, ext)) {
-                    // check the first root element is network and namespace is IIDM
-                    XMLStreamReader xmlsr = getXMLInputFactory().createXMLStreamReader(is);
-                    try {
-                        while (xmlsr.hasNext()) {
-                            int eventType = xmlsr.next();
-                            if (eventType == XMLStreamConstants.START_ELEMENT) {
-                                String name = xmlsr.getLocalName();
-                                String ns = xmlsr.getNamespaceURI();
-                                return NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name)
-                                        && (Stream.of(IidmVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
-                                        || Stream.of(IidmVersion.values()).filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0).anyMatch(v -> v.getNamespaceURI(false).equals(ns)));
-                            }
-                        }
-                    } finally {
-                        cleanClose(xmlsr);
+        if (ext == null) {
+            return false;
+        }
+
+        try (InputStream is = dataSource.newInputStream(null, ext)) {
+            XMLStreamReader xmlsr = getXMLInputFactory().createXMLStreamReader(is);
+            try {
+                return isValidNetworkRoot(xmlsr);
+            } finally {
+                cleanClose(xmlsr);
+            }
+        } catch (XMLStreamException e) {
+            return false; // not a valid XML file
+        }
+    }
+
+    private boolean isValidNetworkRoot(XMLStreamReader xmlsr) throws XMLStreamException {
+        while (xmlsr.hasNext()) {
+            if (xmlsr.next() == XMLStreamConstants.START_ELEMENT) {
+                String name = xmlsr.getLocalName();
+                String ns = xmlsr.getNamespaceURI();
+
+                if (!NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name)) {
+                    return false;
+                }
+
+                if (!ns.isEmpty()) {
+                    String version = ns.substring(ns.lastIndexOf('/') + 1);
+                    if (!version.isEmpty()) {
+                        IidmVersion.fromNamespaceURI(ns);
+                        return Stream.of(IidmVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
+                                || Stream.of(IidmVersion.values()).filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0)
+                                .anyMatch(v -> v.getNamespaceURI(false).equals(ns));
                     }
                 }
             }
-            return false;
-        } catch (XMLStreamException e) {
-            // not a valid xml file
-            return false;
         }
+        return false;
     }
 
     private void cleanClose(XMLStreamReader xmlStreamReader) {
