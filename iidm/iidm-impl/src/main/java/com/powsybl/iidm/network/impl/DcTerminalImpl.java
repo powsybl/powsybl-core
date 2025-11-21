@@ -7,12 +7,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -186,5 +188,30 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
 
     String getAttributeSideOrNumberSuffix() {
         return "" + (side != null ? side.getNum() : "") + (terminalNumber != null ? terminalNumber.getNum() : "");
+    }
+
+    @Override
+    public void traverse(DcTerminal.TopologyTraverser traverser) {
+        if (removed) {
+            throw new PowsyblException(String.format("Associated equipment %s is removed", dcConnectable.getId()));
+        }
+        getTopologyModel().traverse(this, traverser);
+    }
+
+    @Override
+    public boolean traverse(TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals) {
+        if (removed) {
+            throw new PowsyblException(String.format("Associated equipment %s is removed", dcConnectable.getId()));
+        }
+        return getTopologyModel().traverse(this, traverser, visitedDcTerminals);
+    }
+
+    private DcTopologyModel getTopologyModel() {
+        return this.getNetwork().getDcTopologyModel();
+    }
+
+    @Override
+    public boolean disconnect() {
+        return getTopologyModel().disconnect(this);
     }
 }

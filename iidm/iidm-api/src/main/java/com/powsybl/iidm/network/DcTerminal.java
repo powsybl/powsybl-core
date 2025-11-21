@@ -7,6 +7,10 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.math.graph.TraverseResult;
+
+import java.util.Set;
+
 /**
  * A DC equipment connection point in a DC system.
  *
@@ -86,4 +90,29 @@ public interface DcTerminal {
      * @see VariantManager
      */
     DcTerminal setI(double i);
+
+    void traverse(TopologyTraverser traverser);
+
+    interface TopologyTraverser {
+
+        /**
+         * Called when a DC terminal is encountered.
+         *
+         * @param terminal  the encountered DC terminal
+         * @param connected in bus/breaker topology, give the DC terminal connection status
+         * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+         * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+         */
+        TraverseResult traverse(DcTerminal terminal, boolean connected);
+    }
+
+    boolean traverse(TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals);
+
+    /**
+     * Disconnect the DC terminal.<br/>
+     * Depends on the working variant.
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    boolean disconnect();
 }

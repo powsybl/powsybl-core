@@ -11,8 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefChain;
-import com.powsybl.iidm.network.DcBus;
-import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
@@ -355,5 +354,83 @@ public class DcTopologyModel implements MultiVariantObject {
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
+    }
+
+    private static TraverseResult getTraverserResult(Set<DcTerminal> visitedDcTerminals, DcTerminal terminal, DcTerminal.TopologyTraverser traverser) {
+        return visitedDcTerminals.add(terminal) ? traverser.traverse(terminal, terminal.isConnected()) : TraverseResult.TERMINATE_PATH;
+    }
+
+    protected static void addNextDcTerminals(DcTerminal otherDcTerminal, List<DcTerminal> nextDcTerminals) {
+        Objects.requireNonNull(otherDcTerminal);
+        Objects.requireNonNull(nextDcTerminals);
+        DcConnectable<?> otherDcConnectable = otherDcTerminal.getDcConnectable();
+        if (otherDcConnectable instanceof DcLine dcLine) {
+            if (dcLine.getDcTerminal1() == otherDcTerminal) {
+                nextDcTerminals.add(dcLine.getDcTerminal2());
+            } else if (dcLine.getDcTerminal2() == otherDcTerminal) {
+                nextDcTerminals.add(dcLine.getDcTerminal1());
+            } else {
+                throw new IllegalStateException();
+            }
+        } else if (otherDcConnectable instanceof VoltageSourceConverter converter) {
+            if (converter.getDcTerminal1() == otherDcTerminal) {
+                nextDcTerminals.add(converter.getDcTerminal2());
+            } else if (converter.getDcTerminal2() == otherDcTerminal) {
+                nextDcTerminals.add(converter.getDcTerminal1());
+            } else {
+                throw new IllegalStateException();
+            }
+        }
+    }
+
+    void traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser) {
+        traverse(terminal, traverser, new HashSet<>());
+    }
+
+    boolean traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals) {
+        Objects.requireNonNull(terminal);
+        Objects.requireNonNull(traverser);
+        Objects.requireNonNull(visitedDcTerminals);
+
+        // check if we are allowed to traverse the terminal itself
+        TraverseResult termTraverseResult = getTraverserResult(visitedDcTerminals, terminal, traverser);
+        if (termTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
+            return false;
+        } else if (termTraverseResult == TraverseResult.CONTINUE) {
+            List<DcTerminal> nextDcTerminals = new ArrayList<>();
+            addNextDcTerminals(terminal, nextDcTerminals);
+
+            // then check we can traverse terminals connected to same dc node
+            DcNode dcNode = terminal.getDcNode();
+            for (DcTerminal t : dcNode.getDcTerminals()) {
+                TraverseResult tTraverseResult = getTraverserResult(visitedDcTerminals, t, traverser);
+                if (tTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
+                    return false;
+                } else if (tTraverseResult == TraverseResult.CONTINUE) {
+                    addNextDcTerminals(t, nextDcTerminals);
+                }
+            }
+
+            for (DcTerminal t : nextDcTerminals) {
+                if (!t.traverse(traverser, visitedDcTerminals)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    boolean disconnect(DcTerminal terminal) {
+        // already disconnected?
+        if (!terminal.isConnected()) {
+            return false;
+        }
+
+        terminal.setConnected(false);
+
+        // invalidate connected components
+        invalidateCache();
+
+        return true;
     }
 }
