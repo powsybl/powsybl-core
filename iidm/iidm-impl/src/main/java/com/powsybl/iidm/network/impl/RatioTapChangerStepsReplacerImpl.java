@@ -11,6 +11,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChangerStepsReplacer;
 
+import java.util.Map;
+
 /**
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
@@ -18,7 +20,7 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
 
     private Network network;
 
-    class StepAdderImpl implements RatioTapChangerStepsReplacer.StepAdder {
+    class StepAdderImpl extends AbstractPropertiesHolder implements RatioTapChangerStepsReplacer.StepAdder {
 
         private final Network network;
 
@@ -69,10 +71,17 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         @Override
         public RatioTapChangerStepsReplacer endStep() {
             RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(network, steps.size(), rho, r, x, g, b);
+            for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
+                step.setProperty((String) z.getKey(), (String) z.getValue());
+            }
             steps.add(step);
             return RatioTapChangerStepsReplacerImpl.this;
         }
 
+        @Override
+        public Network getNetwork() {
+            return network;
+        }
     }
 
     RatioTapChangerStepsReplacerImpl(RatioTapChangerImpl ratioTapChanger, Network network) {

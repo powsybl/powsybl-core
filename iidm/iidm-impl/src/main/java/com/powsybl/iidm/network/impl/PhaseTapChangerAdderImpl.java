@@ -7,12 +7,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -22,7 +20,7 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 
-    class StepAdderImpl implements PhaseTapChangerAdder.StepAdder {
+    class StepAdderImpl extends AbstractPropertiesHolder implements PhaseTapChangerAdder.StepAdder {
 
         private double alpha = Double.NaN;
 
@@ -75,9 +73,17 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
         @Override
         public PhaseTapChangerAdder endStep() {
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(getNetwork(), steps.size(), alpha, rho, r, x, g, b);
+            for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
+                step.setProperty((String) z.getKey(), (String) z.getValue());
+            }
             step.validate(parent);
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;
+        }
+
+        @Override
+        public Network getNetwork() {
+            return parent.getNetwork();
         }
 
     }

@@ -11,6 +11,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChangerStepsReplacer;
 
+import java.util.Map;
+
 /**
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
@@ -18,7 +20,7 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
 
     Network network;
 
-    class StepAdderImpl implements PhaseTapChangerStepsReplacer.StepAdder {
+    class StepAdderImpl extends AbstractPropertiesHolder implements PhaseTapChangerStepsReplacer.StepAdder {
 
         Network network;
 
@@ -77,10 +79,17 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         @Override
         public PhaseTapChangerStepsReplacer endStep() {
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(network, steps.size(), alpha, rho, r, x, g, b);
+            for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
+                step.setProperty((String) z.getKey(), (String) z.getValue());
+            }
             steps.add(step);
             return PhaseTapChangerStepsReplacerImpl.this;
         }
 
+        @Override
+        public Network getNetwork() {
+            return network;
+        }
     }
 
     PhaseTapChangerStepsReplacerImpl(PhaseTapChangerImpl phaseTapChanger, NetworkImpl network) {

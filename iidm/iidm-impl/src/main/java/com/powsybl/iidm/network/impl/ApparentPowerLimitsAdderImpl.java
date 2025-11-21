@@ -21,7 +21,6 @@ public class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<App
 
     Supplier<OperationalLimitsGroupImpl> groupSupplier;
 
-
     public ApparentPowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, NetworkImpl network) {
         super(network, validable, ownerId);
         this.groupSupplier = groupSupplier;
