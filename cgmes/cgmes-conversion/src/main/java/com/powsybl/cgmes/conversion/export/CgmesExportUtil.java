@@ -559,13 +559,6 @@ public final class CgmesExportUtil {
         };
     }
 
-    public static String getPhaseTapChangerRegulationMode(PhaseTapChanger ptc) {
-        return switch (ptc.getRegulationMode()) {
-            case CURRENT_LIMITER -> RegulatingControlEq.REGULATING_CONTROL_CURRENT_FLOW;
-            case ACTIVE_POWER_CONTROL -> RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
-        };
-    }
-
     public static boolean isMinusOrMaxValue(double value) {
         return value == -Double.MAX_VALUE || value == Double.MAX_VALUE;
     }
