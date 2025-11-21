@@ -12,6 +12,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.*;
 import java.util.function.Function;
@@ -42,9 +43,11 @@ public final class RegulatingTerminalMapper {
                         .or(() -> new EquivalentTerminalFinderVoltageControl(cgmesTerminalId, context).find())
                         // As a last resource, rely on the "find" method of terminal mapping:
                         // Bus/branch models may define remote voltage controls that point to busbar sections
-                        // Busbar sections are not mapped to IIDM
+                        // Since busbar sections are not mapped to IIDM, we look for an equivalent IIDM terminal
+                        // is connected to the busbar section via switches
                         .or(() -> Optional.ofNullable(context.terminalMapping()
-                                .findFromTopologicalNode(context.terminalMapping().getTopologicalNode(cgmesTerminalId))));
+                                .findFromTopologicalNode(context.terminalMapping().getTopologicalNode(cgmesTerminalId)))
+                                .or(() -> findEquivalentTerminalForVoltageRegulatingTerminalDefinedAtBusbarSection(cgmesTerminalId, context)));
     }
 
     public static Optional<TerminalAndSign> mapForFlowControl(String cgmesTerminalId, Context context) {
@@ -397,6 +400,30 @@ public final class RegulatingTerminalMapper {
             Terminal terminalEnd2 = findForFlow(end2, end1);
             return best(terminalEnd1, terminalEnd2);
         }
+    }
+
+    static Optional<Terminal> findEquivalentTerminalForVoltageRegulatingTerminalDefinedAtBusbarSection(String cgmesTerminalId, Context context) {
+        CgmesTerminal busbarSectionCgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
+        String switchCgmesTerminalId = busbarSectionCgmesTerminal != null
+                ? findSwitchCgmesTerminalIdForConnectivityNode(busbarSectionCgmesTerminal.connectivityNode(), context).orElse(null)
+                : null;
+        return switchCgmesTerminalId != null ? new EquivalentTerminalFinderVoltageControl(switchCgmesTerminalId, context).find() : Optional.empty();
+    }
+
+    private static Optional<String> findSwitchCgmesTerminalIdForConnectivityNode(String connectivityNode, Context context) {
+        return context.cgmes().switches().stream()
+                .map(swPropertyBag -> getSwitchCgmesTerminalId(swPropertyBag, connectivityNode, context))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    private static String getSwitchCgmesTerminalId(PropertyBag swPropertyBag, String connectivityNode, Context context) {
+        return Stream.of(CgmesNames.TERMINAL1, CgmesNames.TERMINAL2)
+                .map(swPropertyBag::getId)
+                .filter(Objects::nonNull)
+                .filter(id -> connectivityNode.equals(context.cgmes().terminal(id).connectivityNode()))
+                .findFirst()
+                .orElse(null);
     }
 
     private static Bus getTerminalBus(Terminal terminal) {
