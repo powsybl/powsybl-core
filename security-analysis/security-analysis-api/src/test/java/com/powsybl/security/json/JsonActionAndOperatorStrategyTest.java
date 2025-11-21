@@ -16,11 +16,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.action.*;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.condition.AllViolationCondition;
 import com.powsybl.security.condition.AnyViolationCondition;
+import com.powsybl.security.condition.ThresholdCondition;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
@@ -41,12 +42,24 @@ import static com.powsybl.security.LimitViolationType.*;
 class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
 
     @Test
-    void operatorStrategyReadV10() throws IOException {
+    void operatorStrategyReadV10() {
         OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.0.json"));
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            operatorStrategies.write(bos);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/OperatorStrategyFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+        assertEquals(6, operatorStrategies.getOperatorStrategies().size());
+        for (var opStrategy : operatorStrategies.getOperatorStrategies()) {
+            assertEquals(1, opStrategy.getConditionalActions().size());
+            assertEquals("default", opStrategy.getConditionalActions().getFirst().getId());
         }
+        assertEquals("contingencyId5", operatorStrategies.getOperatorStrategies().get(5).getContingencyContext().getContingencyId());
+    }
+
+    @Test
+    void operatorStrategyReadV11() {
+        OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.1.json"));
+        assertEquals(6, operatorStrategies.getOperatorStrategies().size());
+        for (var opStrategy : operatorStrategies.getOperatorStrategies()) {
+            assertEquals(1, opStrategy.getConditionalActions().size());
+        }
+        assertEquals("stage1", operatorStrategies.getOperatorStrategies().get(5).getConditionalActions().getFirst().getId());
     }
 
     @Test
@@ -68,6 +81,9 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
                 List.of("actionId1", "actionId5")))));
         operatorStrategies.add(new OperatorStrategy("id6", ContingencyContext.specificContingency("contingencyId5"),
             List.of(new ConditionalActions("stage1", new AllViolationCondition(List.of("violation1", "violation2")),
+                List.of("actionId3")))));
+        operatorStrategies.add(new OperatorStrategy("id7", ContingencyContext.specificContingency("contingencyId5"),
+            List.of(new ConditionalActions("stage1", new ThresholdCondition(2.0, ThresholdCondition.ComparisonType.GREATER_THAN, "Line1", ThreeSides.ONE, ThresholdCondition.Variable.CURRENT),
                 List.of("actionId3")))));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");

@@ -1,5 +1,5 @@
 {
-  "version" : "1.1",
+  "version" : "1.2",
   "operatorStrategies" : [ {
     "id" : "id1",
     "contingencyContextType" : "SPECIFIC",
@@ -68,6 +68,22 @@
       "condition" : {
         "type" : "ALL_VIOLATION",
         "violationIds" : [ "violation1", "violation2" ]
+      },
+      "actionIds" : [ "actionId3" ]
+    } ]
+  }, {
+    "id" : "id7",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId5",
+    "conditionalActions" : [ {
+      "id" : "stage1",
+      "condition" : {
+        "type" : "THRESHOLD_CONDITION",
+        "threshold" : 2.0,
+        "equipmentId" : "Line1",
+        "side" : "ONE",
+        "comparisonType" : "GREATER_THAN",
+        "variable" : "CURRENT"
       },
       "actionIds" : [ "actionId3" ]
     } ]
