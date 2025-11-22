@@ -8,7 +8,7 @@
 package com.powsybl.timeseries;
 
 import com.google.common.base.Stopwatch;
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +140,7 @@ public class TimeSeriesTable {
 
     private final IntFunction<ByteBuffer> byteBufferAllocator;
 
-    private final TIntArrayList timeSeriesIndexDoubleOrString = new TIntArrayList(); // global index to typed index
+    private final IntArrayList timeSeriesIndexDoubleOrString = new IntArrayList(); // global index to typed index
 
     private final TimeSeriesNameMap doubleTimeSeriesNames = new TimeSeriesNameMap();
 
@@ -282,7 +282,7 @@ public class TimeSeriesTable {
         if (timeSeriesNum < 0 || timeSeriesNum >= timeSeriesIndexDoubleOrString.size()) {
             throw new IllegalArgumentException("Time series number is out of range [0, " + (timeSeriesIndexDoubleOrString.size() - 1) + "]");
         }
-        return timeSeriesIndexDoubleOrString.get(timeSeriesNum);
+        return timeSeriesIndexDoubleOrString.getInt(timeSeriesNum);
     }
 
     private void checkPoint(int point) {
@@ -606,7 +606,7 @@ public class TimeSeriesTable {
     private void fillCache(int point, CsvCache cache, int cachedPoints, int version) {
         for (int i = 0; i < timeSeriesMetadata.size(); i++) {
             TimeSeriesMetadata metadata = timeSeriesMetadata.get(i);
-            int timeSeriesNum = timeSeriesIndexDoubleOrString.get(i);
+            int timeSeriesNum = timeSeriesIndexDoubleOrString.getInt(i);
             long timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
             if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
                 for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
@@ -643,7 +643,7 @@ public class TimeSeriesTable {
             }
             for (int i = 0; i < timeSeriesMetadata.size(); i++) {
                 TimeSeriesMetadata metadata = timeSeriesMetadata.get(i);
-                int timeSeriesNum = timeSeriesIndexDoubleOrString.get(i);
+                int timeSeriesNum = timeSeriesIndexDoubleOrString.getInt(i);
                 writer.write(timeSeriesCsvConfig.separator());
                 if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
                     double value = cache.doubleCache[cachedPoint * doubleTimeSeriesNames.size() + timeSeriesNum];
