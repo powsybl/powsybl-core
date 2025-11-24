@@ -8,7 +8,7 @@
 package com.powsybl.security.condition;
 
 /**
- * Condition triggered by a threshold
+ * Condition on an injection triggered by a threshold
  *
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */

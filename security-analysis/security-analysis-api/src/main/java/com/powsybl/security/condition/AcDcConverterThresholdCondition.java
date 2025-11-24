@@ -8,7 +8,7 @@
 package com.powsybl.security.condition;
 
 /**
- * Condition triggered by a threshold
+ * Condition on an acdc converter triggered by a threshold
  *
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
@@ -16,9 +16,9 @@ public class AcDcConverterThresholdCondition extends AbstractThresholdCondition 
 
     public static final String NAME = "AC_DC_CONVERTER_THRESHOLD_CONDITION";
 
-    // For AcDcConverter true if AC side, false if DC side
+    // True to target AC side, false for DC side
     private final boolean acSide;
-    // For AcDcConverter, terminal number
+    // Terminal number to target
     private final int terminalNumber;
 
     public AcDcConverterThresholdCondition(double threshold, AbstractThresholdCondition.ComparisonType type, String equipmentId,

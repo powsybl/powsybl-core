@@ -10,7 +10,7 @@ package com.powsybl.security.condition;
 import com.powsybl.iidm.network.ThreeSides;
 
 /**
- * Condition triggered by a threshold
+ * Condition on a branch triggered by a threshold
  *
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
