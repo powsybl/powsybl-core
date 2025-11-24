@@ -6,11 +6,9 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.contingency.contingency.list;
+package com.powsybl.contingency.list;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyListLoader;
-import com.powsybl.contingency.ContingencyListLoaderProvider;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.io.FilenameUtils;
 

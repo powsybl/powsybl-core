@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.contingency.contingency.list;
+package com.powsybl.contingency.list;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
