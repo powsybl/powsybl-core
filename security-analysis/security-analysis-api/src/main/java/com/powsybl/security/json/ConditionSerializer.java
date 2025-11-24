@@ -42,16 +42,16 @@ public class ConditionSerializer extends StdSerializer<Condition> {
                 serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializerProvider);
                 break;
             case InjectionThresholdCondition.NAME:
-                serializeThresholdCondition((AbstractThresholdCondition) condition, jsonGenerator, serializerProvider);
+                serializeThresholdCondition((AbstractThresholdCondition) condition, jsonGenerator);
                 break;
             case BranchThresholdCondition.NAME:
                 BranchThresholdCondition branchCondition = (BranchThresholdCondition) condition;
-                serializeThresholdCondition(branchCondition, jsonGenerator, serializerProvider);
+                serializeThresholdCondition(branchCondition, jsonGenerator);
                 jsonGenerator.writeStringField("side", branchCondition.getSide().name());
                 break;
             case AcDcConverterThresholdCondition.NAME:
                 AcDcConverterThresholdCondition acDcConverterCondition = (AcDcConverterThresholdCondition) condition;
-                serializeThresholdCondition(acDcConverterCondition, jsonGenerator, serializerProvider);
+                serializeThresholdCondition(acDcConverterCondition, jsonGenerator);
                 jsonGenerator.writeBooleanField("acSide", acDcConverterCondition.isAcSide());
                 jsonGenerator.writeNumberField("terminalNumber", acDcConverterCondition.getTerminalNumber());
                 break;
@@ -61,7 +61,7 @@ public class ConditionSerializer extends StdSerializer<Condition> {
         jsonGenerator.writeEndObject();
     }
 
-    public void serializeThresholdCondition(AbstractThresholdCondition condition, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serializeThresholdCondition(AbstractThresholdCondition condition, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeNumberField("threshold", condition.getThreshold());
         jsonGenerator.writeStringField("equipmentId", condition.getEquipmentId());
         jsonGenerator.writeStringField("comparisonType", condition.getComparisonType().name());
