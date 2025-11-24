@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.contingency;
+package com.powsybl.contingency.list;
 
 import com.powsybl.commons.util.ServiceLoaderCache;
 
