@@ -180,7 +180,7 @@ class LoadFlowDefaultParametersLoaderTest {
         LoadFlowDefaultParametersLoader partialDefault = new AbstractLoadFlowDefaultParametersLoader("partial", "/LoadFlowParametersPartialUpdate.json") {
         };
         parametersWithDefaultValue = LoadFlowProviderUtil.getSpecificParameters(provider, Optional.of(partialDefault));
-        assertEquals(5.0, parametersWithDefaultValue.get(0).getDefaultValue());  // overriden
+        assertEquals(5.0, parametersWithDefaultValue.get(0).getDefaultValue());  // overridden
         assertEquals(42, parametersWithDefaultValue.get(1).getDefaultValue()); // default value
         assertEquals(false, parametersWithDefaultValue.get(2).getDefaultValue()); // default value
         assertEquals("yes", parametersWithDefaultValue.get(3).getDefaultValue()); // default value
