@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ManualFrequencyRestorationReserveTest {
 
     @Test
-    void testTrueSetIsTrueGet() {
+    void testGetterSetter() {
         Network network = EurostagTutorialExample1Factory.create();
         var generator = network.getGenerator("GEN");
         generator.newExtension(ManualFrequencyRestorationReserveAdderImpl.class)
