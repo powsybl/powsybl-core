@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,14 +49,13 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeDoubleAttribute("lowVoltageLimit", vl.getLowVoltageLimit());
         context.getWriter().writeDoubleAttribute("highVoltageLimit", vl.getHighVoltageLimit());
 
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
+        TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(vl, context);
         context.getWriter().writeEnumAttribute("topologyKind", topologyLevel.getTopologyKind());
     }
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkSerializerContext context) {
-        TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
+        TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(vl, context);
         switch (topologyLevel) {
             case NODE_BREAKER -> writeNodeBreakerTopology(vl, context);
             case BUS_BREAKER -> writeBusBreakerTopology(vl, context);
