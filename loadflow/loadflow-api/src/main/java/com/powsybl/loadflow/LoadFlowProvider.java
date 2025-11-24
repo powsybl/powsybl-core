@@ -157,7 +157,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
 
     /**
      * Retrieves the parameters of the extension associated with this provider,
-     * incorporating any overrides from the PlatformConfig and from the loadFlowDetaultParameterLoader
+     * incorporating any overrides from the PlatformConfig and from the loadFlowDefaultParameterLoader
      * if available.
      *
      * @return The parameters of the associated extension with overrides applied from PlatformConfig.
