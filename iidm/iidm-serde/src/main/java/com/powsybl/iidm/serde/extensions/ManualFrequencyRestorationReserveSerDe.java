@@ -28,7 +28,7 @@ public class ManualFrequencyRestorationReserveSerDe extends AbstractExtensionSer
 
     public ManualFrequencyRestorationReserveSerDe() {
         super(ManualFrequencyRestorationReserve.NAME, "network", ManualFrequencyRestorationReserve.class, "manualFrequencyRestorationReserve.xsd",
-                "http://www.powsybl.org/schema/iidm/ext/manual_frequency_restoration_reserve/1_0", "tr");
+                "http://www.powsybl.org/schema/iidm/ext/manual_frequency_restoration_reserve/1_0", "mfrr");
     }
 
     @Override

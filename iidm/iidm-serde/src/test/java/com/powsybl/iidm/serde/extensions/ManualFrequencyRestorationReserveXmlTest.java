@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -35,7 +34,7 @@ class ManualFrequencyRestorationReserveXmlTest extends AbstractIidmSerDeTest {
                 .withParticipate(true)
                 .add();
 
-        Network network2 = allFormatsRoundTripTest(network, "/manualFrequencyRestorationReserve.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTest(network, "/manualFrequencyRestorationReserve.xml");
 
         var extension = network2.getGenerator("GEN").getExtension(ManualFrequencyRestorationReserve.class);
         assertNotNull(extension);
