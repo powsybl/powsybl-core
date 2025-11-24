@@ -21,7 +21,7 @@ import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
+ * @author Jacques Borsenberger {@literal <jacques.borsenberger at rte-france.com>}
  */
 class ManualFrequencyRestorationReserveXmlTest extends AbstractIidmSerDeTest {
 
