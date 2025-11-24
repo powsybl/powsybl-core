@@ -98,6 +98,7 @@ Actions are applied if a condition is met. The conditions can be diversified and
   provided are overloaded.
 - Threshold condition : condition triggered when a threshold violation is detected on the network. The threshold can
   refer to an active power, reactive power, current or target P value on a specific point of the network. 
+  Three condition types are available depending on the equipment to target : branch threshold condition, injection threshold condition and AC/DC converter threshold condition. 
 
 ### Operator strategies
 
