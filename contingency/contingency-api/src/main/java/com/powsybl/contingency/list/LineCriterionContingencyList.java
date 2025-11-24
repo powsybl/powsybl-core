@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.contingency.contingency.list;
+package com.powsybl.contingency.list;
 
 import com.powsybl.iidm.criteria.PropertyCriterion;
 import com.powsybl.iidm.criteria.RegexCriterion;
@@ -18,14 +18,15 @@ import java.util.List;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class HvdcLineCriterionContingencyList extends AbstractLineCriterionContingencyList {
+public class LineCriterionContingencyList extends AbstractLineCriterionContingencyList {
 
-    public static final String TYPE = "hvdcCriterion";
+    public static final String TYPE = "lineCriterion";
 
-    public HvdcLineCriterionContingencyList(String name, TwoCountriesCriterion twoCountriesCriterion,
-                                            TwoNominalVoltageCriterion twoNominalVoltageCriterion,
-                                            List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.HVDC_LINE, twoCountriesCriterion, twoNominalVoltageCriterion, propertyCriteria, regexCriterion);
+    public LineCriterionContingencyList(String name,
+                                        TwoCountriesCriterion twoCountriesCriterion,
+                                        TwoNominalVoltageCriterion twoNominalVoltageCriterion,
+                                        List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
+        super(name, IdentifiableType.LINE, twoCountriesCriterion, twoNominalVoltageCriterion, propertyCriteria, regexCriterion);
     }
 
     @Override

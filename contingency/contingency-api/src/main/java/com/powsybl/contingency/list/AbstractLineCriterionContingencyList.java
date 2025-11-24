@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.contingency.contingency.list;
+package com.powsybl.contingency.list;
 
 import com.powsybl.iidm.criteria.PropertyCriterion;
 import com.powsybl.iidm.criteria.RegexCriterion;
