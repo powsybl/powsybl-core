@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<!-- Exported from CIMSpy/CIMdesk on 2025-05-19T14:54:30Z. -->
+	<md:FullModel rdf:about="urn:uuid:7e5e27b6-cb5a-4168-88bf-f395a19cbec1">
+		<md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+		<md:Model.DependentOn rdf:resource="urn:uuid:1b65ada7-39ca-42b8-a278-39c457ed82c3"/>
+		<md:Model.created>2025-02-06T14:18:22Z</md:Model.created>
+		<md:Model.description>BD test data.</md:Model.description>
+		<md:Model.modelingAuthoritySet>http://ninerealms.nr/boundary</md:Model.modelingAuthoritySet>
+		<md:Model.scenarioTime>2022-06-16T23:30:00Z</md:Model.scenarioTime>
+		<md:Model.version>1</md:Model.version>
+	</md:FullModel>
+	<cim:ConnectivityNode rdf:ID="_cfb37abe-3dde-4bd3-84a6-b2d8d0df6203">
+		<entsoe:ConnectivityNode.fromEndIsoCode>GA</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Alfheim1</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Galia</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>BO</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Brussia1</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Belgovia</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_a581a1d6-dbfe-40b7-9405-bd6303376efc"/>
+		<cim:IdentifiedObject.description>BP_GA-BO1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>cfb37abe-3dde-4bd3-84a6-b2d8d0df6203</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BO1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO1</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_84fa6e19-e794-5149-a356-3edf26da1472</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_b67c8340-cb6e-11e1-bcee-406c8f32ef58">
+		<entsoe:ConnectivityNode.fromEndIsoCode>GA</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Alfheim2</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Galia</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>BO</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Brussia2</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Belgovia</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_bd25e87a-c626-4dd7-a846-7fba517fbb8f"/>
+		<cim:IdentifiedObject.description>BP_GA-BO2</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>b67c8340-cb6e-11e1-bcee-406c8f32ef58</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BO2</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO2</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_690ae844-4239-d34e-a391-980c08bc44c4</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_b67cf870-cb6e-11e1-bcee-406c8f32ef58">
+		<entsoe:ConnectivityNode.fromEndIsoCode>GA</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Alfheim3</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Galia</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>BO</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Brussia3</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Belgovia</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_54a2e470-ef70-443f-ae81-bcf2d117caa2"/>
+		<cim:IdentifiedObject.description>BP_GA-BO3</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>b67cf870-cb6e-11e1-bcee-406c8f32ef58</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BO3</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO3</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_a80950ae-1fe8-e447-98fa-507b13213ea4</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_1a14d3b4-b7b5-4b73-9467-04cad5fb6557">
+		<entsoe:ConnectivityNode.fromEndIsoCode>GA</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Alfheim4</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Galia</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>BO</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Brussia4</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Belgovia</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_e454ebf1-94fd-4513-89e4-23239bdca8eb"/>
+		<cim:IdentifiedObject.description>BP_GA-BO4</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>1a14d3b4-b7b5-4b73-9467-04cad5fb6557</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BO4</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO4</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_abf98a59-ad8f-cd4d-8878-756664ffac61</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_b675a570-cb6e-11e1-bcee-406c8f32ef58">
+		<entsoe:ConnectivityNode.fromEndIsoCode>GA</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Alfheim5</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Galia</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>BO</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Brussia5</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Belgovia</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_eac31e3d-fdf5-4656-b10e-66481bfcfec5"/>
+		<cim:IdentifiedObject.description>BP_GA-BO5</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>b675a570-cb6e-11e1-bcee-406c8f32ef58</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BO5</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO5</entsoe:IdentifiedObject.shortName>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-DK-SE-00001D</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<cim:ConnectivityNode.TopologicalNode>_212ab4e8-129d-e543-8455-d4c88ea96b77</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:Line rdf:ID="_a581a1d6-dbfe-40b7-9405-bd6303376efc">
+		<cim:IdentifiedObject.description>Line BP_GA-BO1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>a581a1d6-dbfe-40b7-9405-bd6303376efc</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BO1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO1</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_bd25e87a-c626-4dd7-a846-7fba517fbb8f">
+		<cim:IdentifiedObject.description>Line BP_GA-BO2</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>bd25e87a-c626-4dd7-a846-7fba517fbb8f</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BO2</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO2</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_54a2e470-ef70-443f-ae81-bcf2d117caa2">
+		<cim:IdentifiedObject.description>Line BP_GA-BO3</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>54a2e470-ef70-443f-ae81-bcf2d117caa2</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BO3</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO3</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_e454ebf1-94fd-4513-89e4-23239bdca8eb">
+		<cim:IdentifiedObject.description>Line BP_GA-BO4</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>e454ebf1-94fd-4513-89e4-23239bdca8eb</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BO4</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO4</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_eac31e3d-fdf5-4656-b10e-66481bfcfec5">
+		<cim:IdentifiedObject.description>Line BP_GA-BO5</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>eac31e3d-fdf5-4656-b10e-66481bfcfec5</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BO5</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO5</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:TopologicalNode rdf:ID="_84fa6e19-e794-5149-a356-3edf26da1472">
+		<cim:IdentifiedObject.name>BP_GA-BO1</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_GA-BO1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO1</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>GA</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>BO</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Alfheim1</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Brussia1</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Galia</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Belgovia</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_a581a1d6-dbfe-40b7-9405-bd6303376efc</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_690ae844-4239-d34e-a391-980c08bc44c4">
+		<cim:IdentifiedObject.name>BP_GA-BO2</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_GA-BO2</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO2</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>GA</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>BO</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Alfheim2</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Brussia2</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Galia</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Belgovia</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_bd25e87a-c626-4dd7-a846-7fba517fbb8f</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_a80950ae-1fe8-e447-98fa-507b13213ea4">
+		<cim:IdentifiedObject.name>BP_GA-BO3</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_GA-BO3</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO3</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>GA</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>BO</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Alfheim3</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Brussia3</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Galia</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Belgovia</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_54a2e470-ef70-443f-ae81-bcf2d117caa2</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_abf98a59-ad8f-cd4d-8878-756664ffac61">
+		<cim:IdentifiedObject.name>BP_GA-BO4</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_GA-BO4</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO4</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>GA</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>BO</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Alfheim4</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Brussia4</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Galia</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Belgovia</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_e454ebf1-94fd-4513-89e4-23239bdca8eb</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_212ab4e8-129d-e543-8455-d4c88ea96b77">
+		<cim:IdentifiedObject.name>BP_GA-BO5</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_GA-BO5</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BO5</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>GA</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>BO</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Alfheim5</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Brussia5</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Galia</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Belgovia</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_eac31e3d-fdf5-4656-b10e-66481bfcfec5</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+</rdf:RDF>
