@@ -41,7 +41,7 @@ public final class LoadFlowProviderUtil {
 
     /**
      * Retrieves the parameters of the extension associated with this provider,
-     * incorporating any overrides from the loadFlowParamtersLoader.
+     * incorporating any overrides from the loadFlowParametersLoader.
      *
      * @return The parameters of the associated extension with overrides applied from PlatformConfig.
      */
