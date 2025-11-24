@@ -8,7 +8,7 @@
 package com.powsybl.security.results;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
 

@@ -8,8 +8,8 @@
 package com.powsybl.security.comparator;
 
 import com.google.common.base.Equivalence;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 
 import java.util.Objects;
 

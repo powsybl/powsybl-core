@@ -11,7 +11,7 @@ import com.google.common.base.Preconditions;
 import com.powsybl.computation.Partition;
 import com.powsybl.computation.SimpleCommand;
 import com.powsybl.computation.SimpleCommandBuilder;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolationType;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.nio.file.Path;

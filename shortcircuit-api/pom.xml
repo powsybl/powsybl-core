@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-security-analysis-api</artifactId>
+            <artifactId>powsybl-contingency-api</artifactId>
         </dependency>
 
         <!-- Test dependencies -->

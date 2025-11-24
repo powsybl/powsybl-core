@@ -8,12 +8,12 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.contingency.violations.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.PermanentLimitCheckResult;
-import com.powsybl.security.detectors.LoadingLimitType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public final class LimitViolationDetection {
 
     /**
      * Checks whether the current and voltage values on all equipments
-     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * of the specified {@link Network} should be considered as {@link com.powsybl.contingency.violations.LimitViolation}s.
      * In case it should, feeds the consumer with it.
      *
      * @param network           The network on which physical values must be checked.
@@ -53,7 +53,7 @@ public final class LimitViolationDetection {
 
     /**
      * Checks whether the current and voltage values on all equipments
-     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * of the specified {@link Network} should be considered as {@link com.powsybl.contingency.violations.LimitViolation}s.
      * In case it should, feeds the consumer with it.
      * In this DC power flow mode, the current is computed using the DC power factor if necessary.
      *

@@ -1,0 +1,22 @@
+{
+  "version" : "1.5",
+  "operatorStrategies" : [ {
+    "id" : "id1",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId1",
+    "conditionalActions" : [ {
+      "id" : "default",
+      "condition" : {
+        "type" : "TRUE_CONDITION"
+      },
+      "actionIds" : [ "actionId1", "actionId2", "actionId3" ]
+    } ],
+    "extensions" : {
+      "dummy-operator-strategy-extension" : {
+        "parameterDouble" : 20.0,
+        "parameterBoolean" : true,
+        "parameterString" : "Hello"
+      }
+    }
+  } ]
+}

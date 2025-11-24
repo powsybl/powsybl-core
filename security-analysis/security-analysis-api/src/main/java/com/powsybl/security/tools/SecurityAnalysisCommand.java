@@ -7,7 +7,7 @@
  */
 package com.powsybl.security.tools;
 
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.tools.Command;
