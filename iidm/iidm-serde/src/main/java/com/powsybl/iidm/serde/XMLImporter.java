@@ -80,11 +80,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
                 String name = xmlsr.getLocalName();
                 String ns = xmlsr.getNamespaceURI();
 
-                if (!NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name)) {
-                    return false;
-                }
-
-                if (ns.isEmpty()) {
+                if (!NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name) || ns.isEmpty()) {
                     return false;
                 }
 
