@@ -10,7 +10,7 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.contingency.list.ThreeWindingsTransformerCriterionContingencyList;
+import com.powsybl.contingency.list.ThreeWindingsTransformerCriterionContingencyList;
 import com.powsybl.iidm.criteria.SingleCountryCriterion;
 import com.powsybl.iidm.criteria.ThreeNominalVoltageCriterion;
 
