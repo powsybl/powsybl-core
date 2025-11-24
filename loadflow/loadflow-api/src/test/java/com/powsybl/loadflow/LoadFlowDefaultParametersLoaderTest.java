@@ -132,7 +132,7 @@ class LoadFlowDefaultParametersLoaderTest {
         assertEquals("modified", afterPlatformConfig.getParameterString());
     }
 
-    private boolean sameMetaData(List<Parameter> l1, List<Parameter> l2) {
+    private void assertSameMetaData(List<Parameter> l1, List<Parameter> l2) {
         // Everything except default value should be the same
         assertEquals(l1.size(), l2.size());
         Iterator<Parameter> it1 = l1.iterator();
@@ -147,7 +147,6 @@ class LoadFlowDefaultParametersLoaderTest {
             assertEquals(p1.getType(), p2.getType());
             assertEquals(p1.getScope(), p2.getScope());
         }
-        return true;
     }
 
     @Test
@@ -157,7 +156,7 @@ class LoadFlowDefaultParametersLoaderTest {
         List<Parameter> parameters = provider.getSpecificParameters();
         List<Parameter> parametersWithDefaultValue = LoadFlowProviderUtil.getSpecificParameters(provider, Optional.of(loader));
 
-        assertTrue(sameMetaData(parameters, parametersWithDefaultValue));
+        assertSameMetaData(parameters, parametersWithDefaultValue);
 
         assertEquals(6.4, parameters.get(0).getDefaultValue());
         assertEquals(5.0, parametersWithDefaultValue.get(0).getDefaultValue());

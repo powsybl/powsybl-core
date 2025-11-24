@@ -196,10 +196,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     protected LoadFlowParameters(PlatformConfig config) {
-        this(ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
-                .stream()
-                .map(ServiceLoader.Provider::get)
-                .toList(), config);
+        this(getDefaultParemtersLoaders(), config);
     }
 
     public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders) {
@@ -207,11 +204,14 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     public static Optional<LoadFlowDefaultParametersLoader> getDefaultLoadFlowParameterLoader(PlatformConfig config) {
-        return getDefaultLoadFlowParameterLoader(ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
-                        .stream()
-                        .map(ServiceLoader.Provider::get)
-                        .toList(),
-                config);
+        return getDefaultLoadFlowParameterLoader(getDefaultParemtersLoaders(), config);
+    }
+
+    private static List<LoadFlowDefaultParametersLoader> getDefaultParemtersLoaders() {
+        return ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList();
     }
 
     public static Optional<LoadFlowDefaultParametersLoader> getDefaultLoadFlowParameterLoader(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
