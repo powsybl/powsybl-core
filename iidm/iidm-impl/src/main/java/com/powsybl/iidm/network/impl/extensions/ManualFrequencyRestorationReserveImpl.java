@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
 
 /**
- * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
+ * @author Jacques Borsenberger {@literal <jacques.borsenberger at rte-france.com>}
  */
 public class ManualFrequencyRestorationReserveImpl extends AbstractExtension<Generator> implements ManualFrequencyRestorationReserve {
 

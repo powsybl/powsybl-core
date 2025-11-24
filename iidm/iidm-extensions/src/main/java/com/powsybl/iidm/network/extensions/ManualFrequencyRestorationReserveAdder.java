@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Generator;
 
 /**
- * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
+ * @author Jacques Borsenberger {@literal <jacques.borsenberger at rte-france.com>}
  */
 public interface ManualFrequencyRestorationReserveAdder
         extends ExtensionAdder<Generator, ManualFrequencyRestorationReserve> {

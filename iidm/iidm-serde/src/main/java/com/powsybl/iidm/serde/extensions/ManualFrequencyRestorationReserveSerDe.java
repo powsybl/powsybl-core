@@ -21,7 +21,7 @@ import com.powsybl.iidm.serde.NetworkSerializerContext;
 import static com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe.convertContext;
 
 /**
- * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
+ * @author Jacques Borsenberger {@literal <jacques.borsenberger at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
 public class ManualFrequencyRestorationReserveSerDe extends AbstractExtensionSerDe<Generator, ManualFrequencyRestorationReserve> {

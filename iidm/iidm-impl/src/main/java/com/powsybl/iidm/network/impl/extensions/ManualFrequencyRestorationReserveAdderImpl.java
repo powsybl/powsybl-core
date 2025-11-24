@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
 import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserveAdder;
 
 /**
- * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
+ * @author Jacques Borsenberger {@literal <jacques.borsenberger at rte-france.com>}
  */
 public class ManualFrequencyRestorationReserveAdderImpl extends AbstractExtensionAdder<Generator, ManualFrequencyRestorationReserve> implements ManualFrequencyRestorationReserveAdder {
 
