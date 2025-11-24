@@ -8,28 +8,30 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
-import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
 import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserveAdder;
 
 /**
  * @author Jacques Borsenberger {@literal <jacques.borsenberger at rte-france.com>}
  */
-public class ManualFrequencyRestorationReserveAdderImpl extends AbstractExtensionAdder<Generator, ManualFrequencyRestorationReserve> implements ManualFrequencyRestorationReserveAdder {
+public class ManualFrequencyRestorationReserveAdderImpl<I extends Injection<I>>
+        extends AbstractExtensionAdder<I, ManualFrequencyRestorationReserve<I>>
+        implements ManualFrequencyRestorationReserveAdder<I> {
 
     private boolean participate = false;
 
-    protected ManualFrequencyRestorationReserveAdderImpl(Generator generator) {
-        super(generator);
+    protected ManualFrequencyRestorationReserveAdderImpl(I injection) {
+        super(injection);
     }
 
     @Override
-    protected ManualFrequencyRestorationReserve createExtension(Generator generator) {
-        return new ManualFrequencyRestorationReserveImpl(generator, participate);
+    protected ManualFrequencyRestorationReserve<I> createExtension(I injection) {
+        return new ManualFrequencyRestorationReserveImpl<>(injection, participate);
     }
 
     @Override
-    public ManualFrequencyRestorationReserveAdder withParticipate(boolean participate) {
+    public ManualFrequencyRestorationReserveAdder<I> withParticipate(boolean participate) {
         this.participate = participate;
         return this;
     }
