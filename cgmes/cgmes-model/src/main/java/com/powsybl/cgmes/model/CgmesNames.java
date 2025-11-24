@@ -33,6 +33,9 @@ public final class CgmesNames {
     public static final String SUPERSEDES = "Model.Supersedes";
     public static final String MODELING_AUTHORITY_SET = "Model.modelingAuthoritySet";
 
+    public static final String REGION_ID = "regionId";
+    public static final String REGION_NAME = "regionName";
+    public static final String SUB_REGION_ID = "subRegionId";
     public static final String CONNECTIVITY_NODE = "ConnectivityNode";
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";

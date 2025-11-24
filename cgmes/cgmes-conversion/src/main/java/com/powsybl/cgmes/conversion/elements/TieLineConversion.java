@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.TieLineUtil;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGION_NAME;
 import static com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion.identify;
 
 /**
@@ -58,7 +58,7 @@ public final class TieLineConversion {
     }
 
     private static String obtainRegionName(VoltageLevel voltageLevel) {
-        return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
+        return voltageLevel.getSubstation().map(s -> s.getProperty(PROPERTY_REGION_NAME)).orElse(null);
     }
 
     private static void convertToTieLine(Context context, DanglingLine dl1, DanglingLine dl2) {

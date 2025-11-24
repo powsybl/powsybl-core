@@ -89,6 +89,8 @@ public final class EquipmentExport {
             writeTerminals(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
             writeSwitches(network, cimNamespace, writer, context);
 
+            writeGeographicalRegions(cimNamespace, writer, context);
+            writeSubGeographicalRegions(cimNamespace, writer, context);
             writeSubstations(network, cimNamespace, writer, context);
             writeVoltageLevels(network, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
             writeBusbarSections(network, cimNamespace, writer, context);
@@ -196,23 +198,21 @@ public final class EquipmentExport {
         }
     }
 
+    private static void writeGeographicalRegions(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        context.getRegions().forEach((regionId, regionName) -> {
+            String cgmesRegionId = context.getNamingStrategy().getCgmesId(regionId);
+            writeGeographicalRegion(cgmesRegionId, regionName, cimNamespace, writer, context);
+        });
+    }
+
+    private static void writeSubGeographicalRegions(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        context.getSubRegions().forEach(subRegion -> writeSubGeographicalRegion(subRegion.id(), subRegion.name(), subRegion.regionId(), cimNamespace, writer, context));
+    }
+
     private static void writeSubstations(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (String geographicalRegionId : context.getRegionsIds()) {
-            // To ensure we always export valid mRIDs, even if input CGMES used invalid ones
-            String cgmesRegionId = context.getNamingStrategy().getCgmesId(geographicalRegionId);
-            writeGeographicalRegion(cgmesRegionId, context.getRegionName(geographicalRegionId), cimNamespace, writer, context);
-        }
-        List<String> writtenSubRegions = new ArrayList<>();
         for (Substation substation : network.getSubstations()) {
-            String subGeographicalRegionId = context.getNamingStrategy().getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId");
-            String geographicalRegionId = context.getNamingStrategy().getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
-            if (!writtenSubRegions.contains(subGeographicalRegionId)) {
-                writeSubGeographicalRegion(subGeographicalRegionId,
-                        Optional.ofNullable(context.getSubRegionName(subGeographicalRegionId)).orElse("N/A"), // FIXME sub-regions can be non-unique (same name for different IDs)
-                        geographicalRegionId, cimNamespace, writer, context);
-                writtenSubRegions.add(subGeographicalRegionId);
-            }
-            SubstationEq.write(context.getNamingStrategy().getCgmesId(substation), substation.getNameOrId(), subGeographicalRegionId, cimNamespace, writer, context);
+            String subRegionId = context.getSubstationSubRegion(substation.getId());
+            SubstationEq.write(context.getNamingStrategy().getCgmesId(substation), substation.getNameOrId(), subRegionId, cimNamespace, writer, context);
         }
     }
 

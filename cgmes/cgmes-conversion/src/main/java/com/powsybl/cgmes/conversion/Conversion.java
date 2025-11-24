@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Update.*;
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.isBoundaryTerminalConnected;
-import static com.powsybl.cgmes.model.CgmesNames.REGULATION_CAPABILITY;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -1152,4 +1152,7 @@ public class Conversion {
     public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL;
     public static final String PROPERTY_CGMES_REGULATION_CAPABILITY = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATION_CAPABILITY;
     public static final String PROPERTY_CGMES_DC_CONVERTER_UNIT = CGMES_PREFIX_ALIAS_PROPERTIES + "DCConverterUnit";
+    public static final String PROPERTY_REGION_ID = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID;
+    public static final String PROPERTY_REGION_NAME = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME;
+    public static final String PROPERTY_SUB_REGION_ID = CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID;
 }

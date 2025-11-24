@@ -8,8 +8,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.fasterxml.uuid.Generators;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.CgmesExport.ExportParameters;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
@@ -31,6 +29,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.export.EquipmentExport.hasDifferentTNsAtBothEnds;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
@@ -46,10 +45,7 @@ public class CgmesExportContext {
     private static final String GENERATING_UNIT = "GeneratingUnit";
 
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
-    private static final String REGION_ID = "regionId";
-    private static final String REGION_NAME = "regionName";
     private static final String DEFAULT_REGION = "default region";
-    public static final String SUB_REGION_ID = "subRegionId";
     private static final String BOUNDARY_EQ_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_BD_ID";
     private static final String BOUNDARY_TP_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
 
@@ -98,8 +94,11 @@ public class CgmesExportContext {
 
     private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 
-    private final BiMap<String, String> regionsIdsByRegionName = HashBiMap.create();
-    private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
+    record Region(String id, String name) { }
+    protected record SubRegion(String id, String name, String regionId) { }
+    private final Map<String, String> regionsNameById = new HashMap<>();
+    private final Map<String, SubRegion> subRegionsById = new HashMap<>();
+    private final Map<String, String> substationsSubRegion = new HashMap<>();
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
@@ -147,6 +146,7 @@ public class CgmesExportContext {
         computeTopologyKind(exportParameters, network);
         computeModelingAuthoritySet(exportParameters, referenceDataProvider);
         computeBoundaryIds(exportParameters, network);
+        computeSubstationMapping(network);
         addIidmMappings(network);
     }
 
@@ -252,7 +252,6 @@ public class CgmesExportContext {
     public void addIidmMappings(Network network) {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
         // TODO add option to skip this part (if from CGMES)
-        addIidmMappingsSubstations(network);
         BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
         if (bvMapping == null) {
             network.newExtension(BaseVoltageMappingAdder.class).add();
@@ -269,54 +268,48 @@ public class CgmesExportContext {
         addIidmMappingsEquivalentInjection(network);
     }
 
-    private void addIidmMappingsSubstations(Network network) {
+    private void computeSubstationMapping(Network network) {
         for (Substation substation : network.getSubstations()) {
-            String regionName;
-            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID)) {
-                Pair<String, String> region = getCreateRegion(substation);
-                String regionId = region.getLeft();
-                regionName = region.getRight();
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID, regionId);
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME, regionName);
-            } else {
-                // Only add with this name if the id is not already mapped
-                // We cannot have the same id mapped to two different names
-                String regionId = namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID);
-                regionName = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME);
-                if (!regionsIdsByRegionName.containsValue(regionId)) {
-                    regionsIdsByRegionName.computeIfAbsent(regionName, k -> regionId);
-                }
-            }
-            String geoTag;
-            if (substation.getGeographicalTags().size() == 1) {
-                geoTag = substation.getGeographicalTags().iterator().next();
-            } else {
-                geoTag = regionName;
-            }
-            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID)) {
-                String id = subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getCgmesId(ref(k), SUB_GEOGRAPHICAL_REGION));
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID, id);
-            } else {
-                subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID));
-            }
+            Region region = getOrCreateRegion(substation);
+            String subRegionId = getOrCreateSubRegion(substation, region);
+            substationsSubRegion.put(substation.getId(), subRegionId);
         }
     }
 
-    private Pair<String, String> getCreateRegion(Substation substation) {
-        // The current substation does not have explicit information for geographical region,
-        // Try to obtain it from the reference data based on the current sourcing actor we are using for export
-        Pair<String, String> region = null;
-        if (referenceDataProvider != null) {
-            region = referenceDataProvider.getSourcingActorRegion();
+    private Region getOrCreateRegion(Substation substation) {
+        String regionId;
+        String regionName;
+        String defaultRegionName = substation.hasProperty(PROPERTY_REGION_NAME) ?
+                substation.getProperty(PROPERTY_REGION_NAME) :
+                substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
+        if (substation.hasProperty(PROPERTY_REGION_ID)) {
+            // Add this geographical region id from property if it is not already mapped.
+            regionId = namingStrategy.getCgmesIdFromProperty(substation, PROPERTY_REGION_ID);
+            regionName = regionsNameById.computeIfAbsent(regionId, k -> defaultRegionName);
+        } else {
+            if (referenceDataProvider != null && referenceDataProvider.getSourcingActorRegion() != null) {
+                // If not defined by a property, try to retrieve geographical region id from the reference data.
+                Pair<String, String> regionRef = referenceDataProvider.getSourcingActorRegion();
+                regionId = regionRef.getLeft();
+                regionName = regionsNameById.computeIfAbsent(regionId, k -> regionRef.getRight());
+            } else {
+                // If not in the reference data, create a new unique id.
+                regionId = namingStrategy.getCgmesId(ref(defaultRegionName), GEOGRAPHICAL_REGION);
+                regionName = regionsNameById.computeIfAbsent(regionId, k -> defaultRegionName);
+            }
         }
-        if (region == null) {
-            // If no information is available from reference data,
-            // Just create a new geographical region using country name as name
-            String regionName = substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
-            String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> namingStrategy.getCgmesId(ref(k), GEOGRAPHICAL_REGION));
-            region = Pair.of(regionId, regionName);
-        }
-        return region;
+        return new Region(regionId, regionName);
+    }
+
+    private String getOrCreateSubRegion(Substation substation, Region region) {
+        Set<String> geoTags = substation.getGeographicalTags();
+        String subRegionName = geoTags.size() == 1 ? geoTags.iterator().next() : region.name;
+        String subRegionId = substation.hasProperty(PROPERTY_SUB_REGION_ID) ?
+                namingStrategy.getCgmesIdFromProperty(substation, PROPERTY_SUB_REGION_ID) :
+                namingStrategy.getCgmesId(ref(subRegionName), SUB_GEOGRAPHICAL_REGION);
+        subRegionsById.computeIfAbsent(subRegionId, k -> new SubRegion(subRegionId, subRegionName, region.id));
+
+        return subRegionId;
     }
 
     private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network) {
@@ -756,16 +749,16 @@ public class CgmesExportContext {
         return baseVoltageByNominalVoltageMapping.get(nominalV);
     }
 
-    public Collection<String> getRegionsIds() {
-        return Collections.unmodifiableSet(regionsIdsByRegionName.values());
+    protected Map<String, String> getRegions() {
+        return new HashMap<>(regionsNameById);
     }
 
-    public String getRegionName(String regionId) {
-        return regionsIdsByRegionName.inverse().get(regionId);
+    protected Set<SubRegion> getSubRegions() {
+        return new HashSet<>(subRegionsById.values());
     }
 
-    public String getSubRegionName(String subRegionId) {
-        return subRegionsIdsBySubRegionName.inverse().get(subRegionId);
+    protected String getSubstationSubRegion(String substationId) {
+        return substationsSubRegion.get(substationId);
     }
 
     public CgmesExportContext setReportNode(ReportNode reportNode) {
