@@ -96,14 +96,16 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         writeNetwork(fileName, unsupportedIidmVersionNamespaceURI(), false);
     }
 
+    private static String unsupportedIidmVersion() {
+        String[] currentIidmVersionSplit = CURRENT_IIDM_VERSION.toString().split("_");
+        int unsupportedIidmVersionMajor = Integer.parseInt(currentIidmVersionSplit[1]);
+        int unsupportedIidmVersionMinor = Integer.parseInt(currentIidmVersionSplit[2]) + 1;
+        return String.format("%d.%d", unsupportedIidmVersionMajor, unsupportedIidmVersionMinor);
+    }
+
     private String unsupportedIidmVersionNamespaceURI() {
-        String currentIidmVersion = CURRENT_IIDM_VERSION.toString();
         String currentIidmNamespaceURI = CURRENT_IIDM_VERSION.getNamespaceURI();
-        String[] currentIidmVersionSplit = currentIidmVersion.split("_");
-        int currentVersionMajor = Integer.parseInt(currentIidmVersionSplit[1]);
-        int currentVersionMinor = Integer.parseInt(currentIidmVersionSplit[2]);
-        String unsupportedIidmVersion = String.format("%d_%d", currentVersionMajor, currentVersionMinor + 1);
-        return currentIidmNamespaceURI.substring(0, currentIidmNamespaceURI.lastIndexOf("/") + 1) + unsupportedIidmVersion;
+        return currentIidmNamespaceURI.substring(0, currentIidmNamespaceURI.lastIndexOf("/") + 1) + unsupportedIidmVersion();
     }
 
     @BeforeEach
@@ -173,13 +175,9 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void testUnsupportedIidmVersion() {
-        String[] currentIidmVersionSplit = CURRENT_IIDM_VERSION.toString().split("_");
-        int unsupportedIidmVersionMajor = Integer.parseInt(currentIidmVersionSplit[1]);
-        int unsupportedIidmVersionMinor = Integer.parseInt(currentIidmVersionSplit[2]) + 1;
-        String unsupportedIidmVersion = String.format("%d.%d", unsupportedIidmVersionMajor, unsupportedIidmVersionMinor);
         Path dir = fileSystem.getPath("/");
         ReadOnlyDataSource dataSource = new DirectoryDataSource(dir, "test9");
-        String expectedError = "IIDM Version " + unsupportedIidmVersion + "is not supported. Max supported version: "
+        String expectedError = "IIDM Version " + unsupportedIidmVersion() + "is not supported. Max supported version: "
                 + CURRENT_IIDM_VERSION.toString(".");
         assertThrows(PowsyblException.class, () -> importer.exists(dataSource), expectedError);
     }

@@ -84,18 +84,51 @@ public class XMLImporter extends AbstractTreeDataImporter {
                     return false;
                 }
 
-                if (!ns.isEmpty()) {
-                    String version = ns.substring(ns.lastIndexOf('/') + 1);
+                if (ns.isEmpty()) {
+                    return false;
+                }
+
+                String currentPrefix = extractPrefix(ns);
+                if (isValidPrefix(currentPrefix)) {
+                    String version = extractVersion(ns);
                     if (!version.isEmpty()) {
-                        IidmVersion.fromNamespaceURI(ns);
-                        return Stream.of(IidmVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
-                                || Stream.of(IidmVersion.values()).filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0)
-                                .anyMatch(v -> v.getNamespaceURI(false).equals(ns));
+                        // If it is not supported, this will throw an exception giving details on the encountered version
+                        // and the maximum supported version.
+                        IidmVersion.of(version, "_");
+                        return isValidNamespace(ns);
                     }
                 }
             }
         }
         return false;
+    }
+
+    private String extractPrefix(String namespace) {
+        int lastSlash = namespace.lastIndexOf('/');
+        return (lastSlash > 0) ? namespace.substring(0, lastSlash) : namespace;
+    }
+
+    private String extractVersion(String namespace) {
+        int lastSlash = namespace.lastIndexOf('/');
+        return (lastSlash >= 0 && lastSlash < namespace.length() - 1) ? namespace.substring(lastSlash + 1) : "";
+    }
+
+    private boolean isValidPrefix(String prefix) {
+        return Stream.of(IidmVersion.values())
+                .map(v -> extractPrefix(v.getNamespaceURI(true)))
+                .anyMatch(prefix::equals)
+                || Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0)
+                .map(v -> extractPrefix(v.getNamespaceURI(false)))
+                .anyMatch(prefix::equals);
+    }
+
+    private boolean isValidNamespace(String ns) {
+        return Stream.of(IidmVersion.values())
+                .anyMatch(v -> v.getNamespaceURI().equals(ns))
+                || Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0)
+                .anyMatch(v -> v.getNamespaceURI(false).equals(ns));
     }
 
     private void cleanClose(XMLStreamReader xmlStreamReader) {

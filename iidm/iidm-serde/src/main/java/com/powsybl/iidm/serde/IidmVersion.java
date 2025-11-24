@@ -87,7 +87,7 @@ public enum IidmVersion {
                 .filter(v -> version.equals(v.toString(separator)))
                 .findFirst() // there can only be 0 or exactly 1 match
                 .orElseThrow(() -> new PowsyblException("IIDM Version " + version + " is not supported. Max supported version: "
-                        + CURRENT_IIDM_VERSION.toString(".")));
+                        + CURRENT_IIDM_VERSION.toString(separator)));
     }
 
     public static IidmVersion fromNamespaceURI(String namespaceURI) {
