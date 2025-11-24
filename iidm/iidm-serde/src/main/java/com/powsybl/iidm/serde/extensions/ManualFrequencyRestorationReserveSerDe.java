@@ -12,7 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
-import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
 import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserveAdder;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
@@ -24,8 +24,7 @@ import static com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtens
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
 @AutoService(ExtensionSerDe.class)
-public class ManualFrequencyRestorationReserveSerDe<I extends Injection<I>>
-        extends AbstractExtensionSerDe<I, ManualFrequencyRestorationReserve<I>> {
+public class ManualFrequencyRestorationReserveSerDe extends AbstractExtensionSerDe<Generator, ManualFrequencyRestorationReserve> {
 
     public ManualFrequencyRestorationReserveSerDe() {
         super(ManualFrequencyRestorationReserve.NAME, "network", ManualFrequencyRestorationReserve.class, "manualFrequencyRestorationReserve.xsd",
@@ -33,18 +32,18 @@ public class ManualFrequencyRestorationReserveSerDe<I extends Injection<I>>
     }
 
     @Override
-    public void write(ManualFrequencyRestorationReserve<I> manualFrequencyRestorationReserve, SerializerContext context) {
+    public void write(ManualFrequencyRestorationReserve manualFrequencyRestorationReserve, SerializerContext context) {
         NetworkSerializerContext networkContext = convertContext(context);
         networkContext.getWriter().writeBooleanAttribute("participate", manualFrequencyRestorationReserve.isParticipate());
     }
 
     @Override
-    public ManualFrequencyRestorationReserve<I> read(I injection, DeserializerContext context) {
+    public ManualFrequencyRestorationReserve read(Generator generator, DeserializerContext context) {
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         boolean participate = networkContext.getReader().readBooleanAttribute("participate");
         context.getReader().readEndNode();
-        ManualFrequencyRestorationReserveAdder<I> mFRR = injection.newExtension(ManualFrequencyRestorationReserveAdder.class);
-        return mFRR.withParticipate(participate)
+        return generator.newExtension(ManualFrequencyRestorationReserveAdder.class)
+                .withParticipate(participate)
                 .add();
     }
 }

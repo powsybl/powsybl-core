@@ -7,9 +7,7 @@
  */
 package com.powsybl.iidm.network.impl.tck.extensions;
 
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
 import com.powsybl.iidm.network.impl.extensions.ManualFrequencyRestorationReserveAdderImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
@@ -25,14 +23,13 @@ class ManualFrequencyRestorationReserveTest {
     void testGetterSetter() {
         Network network = EurostagTutorialExample1Factory.create();
         var generator = network.getGenerator("GEN");
-        generator.newExtension(ManualFrequencyRestorationReserveAdderImpl.class)
+        var tertiaryReserve = generator.newExtension(ManualFrequencyRestorationReserveAdderImpl.class)
                  .withParticipate(true)
                  .add();
-        ManualFrequencyRestorationReserve<Generator> mFRR = generator.getExtension(ManualFrequencyRestorationReserve.class);
-        assertNotNull(mFRR);
-        assertTrue(mFRR.isParticipate());
-        mFRR.setParticipate(false);
-        assertFalse(mFRR.isParticipate());
+        assertNotNull(tertiaryReserve);
+        assertTrue(tertiaryReserve.isParticipate());
+        tertiaryReserve.setParticipate(false);
+        assertFalse(tertiaryReserve.isParticipate());
     }
 
 }

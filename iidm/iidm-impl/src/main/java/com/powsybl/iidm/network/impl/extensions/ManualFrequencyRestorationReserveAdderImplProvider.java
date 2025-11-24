@@ -9,15 +9,15 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
 
 /**
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
 @AutoService(ExtensionAdderProvider.class)
-public class ManualFrequencyRestorationReserveAdderImplProvider <I extends Injection<I>>
-        implements ExtensionAdderProvider<I, ManualFrequencyRestorationReserve<I>, ManualFrequencyRestorationReserveAdderImpl<I>> {
+public class ManualFrequencyRestorationReserveAdderImplProvider implements
+        ExtensionAdderProvider<Generator, ManualFrequencyRestorationReserve, ManualFrequencyRestorationReserveAdderImpl> {
 
     @Override
     public String getImplementationName() {
@@ -35,7 +35,7 @@ public class ManualFrequencyRestorationReserveAdderImplProvider <I extends Injec
     }
 
     @Override
-    public ManualFrequencyRestorationReserveAdderImpl<I> newAdder(I extendable) {
-        return new ManualFrequencyRestorationReserveAdderImpl<>(extendable);
+    public ManualFrequencyRestorationReserveAdderImpl newAdder(Generator generator) {
+        return new ManualFrequencyRestorationReserveAdderImpl(generator);
     }
 }
