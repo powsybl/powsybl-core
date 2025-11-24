@@ -127,12 +127,11 @@ class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoad
         config.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt.class))
     }
 
-    public Map<String, NodeCalc> load(String script, ReadOnlyTimeSeriesStore store) {
+    static Map<String, NodeCalc> load(Binding binding, String script, ReadOnlyTimeSeriesStore store) {
         long start = System.currentTimeMillis()
 
         Map<String, NodeCalc> nodes = new HashMap<>()
 
-        Binding binding = new Binding()
         bind(binding, store, nodes)
 
         def shell = new GroovyShell(binding, createCompilerConfig())
@@ -150,5 +149,10 @@ class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoad
         LOGGER.trace("Check for duplication done in {} ms", (System.currentTimeMillis() -start))
 
         nodes
+
+    }
+
+    Map<String, NodeCalc> load(String script, ReadOnlyTimeSeriesStore store) {
+        load(new Binding(), script, store)
     }
 }
