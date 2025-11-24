@@ -146,9 +146,9 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readJsonVersion20() {
+    void readJsonVersion110() {
         LoadFlowParameters parameters = JsonLoadFlowParameters
-                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion20.json"));
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion110.json"));
         assertEquals(LoadFlowParameters.ComponentMode.MAIN_SYNCHRONOUS, parameters.getComponentMode());
     }
 

@@ -99,8 +99,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     // VERSION = 1.7 hvdcAcEmulation
     // VERSION = 1.8 noGeneratorReactiveLimits -> useReactiveLimits
     // VERSION = 1.9 dcPowerFactor
-    // VERSION = 2.0 componentMode instead of connectedComponentMode
-    public static final String VERSION = "2.0";
+    // VERSION = 1.10 componentMode instead of connectedComponentMode
+    public static final String VERSION = "1.10";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;

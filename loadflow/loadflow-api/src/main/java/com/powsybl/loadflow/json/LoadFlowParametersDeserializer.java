@@ -157,13 +157,13 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "connectedComponentMode":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.5");
-                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "2.0");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.10");
                     parser.nextToken();
                     parameters.setComponentMode(JsonUtil.readValue(deserializationContext, parser, LoadFlowParameters.ComponentMode.class));
                     break;
 
                 case "componentMode":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "2.0");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.10");
                     parser.nextToken();
                     parameters.setComponentMode(JsonUtil.readValue(deserializationContext, parser, LoadFlowParameters.ComponentMode.class));
                     break;

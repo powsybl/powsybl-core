@@ -431,7 +431,7 @@ public final class JsonUtil {
 
     public static void assertSupportedVersion(String contextName, String version, String maxSupportedVersion) {
         Objects.requireNonNull(version);
-        if (version.compareTo(maxSupportedVersion) > 0) {
+        if (compareVersions(version, maxSupportedVersion) > 0) {
             String exception = String.format(
                     "%s. Unsupported version %s. Version should be <= %s %n",
                     contextName, version, maxSupportedVersion);
@@ -441,7 +441,7 @@ public final class JsonUtil {
 
     public static void assertLessThanOrEqualToReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
-        if (version.compareTo(referenceVersion) > 0) {
+        if (compareVersions(version, referenceVersion) > 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be <= %s %n",
                     contextName, elementName, version, referenceVersion);
@@ -471,7 +471,7 @@ public final class JsonUtil {
 
     public static void assertLessThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
-        if (version.compareTo(referenceVersion) >= 0) {
+        if (compareVersions(version, referenceVersion) >= 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be < %s %n",
                     contextName, elementName, version, referenceVersion);
