@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * @author Didier Vidal {@literal <didier.vidal_externe at rte-france.com>}
+ */
 public final class LoadFlowProviderUtil {
 
     private LoadFlowProviderUtil() {
