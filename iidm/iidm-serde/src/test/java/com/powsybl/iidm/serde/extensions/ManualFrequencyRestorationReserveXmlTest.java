@@ -36,8 +36,8 @@ class ManualFrequencyRestorationReserveXmlTest extends AbstractIidmSerDeTest {
 
         Network network2 = allFormatsRoundTripTest(network, "/manualFrequencyRestorationReserve.xml");
 
-        var tertiaryReserve = network2.getGenerator("GEN").getExtension(ManualFrequencyRestorationReserve.class);
-        assertNotNull(tertiaryReserve);
+        var extension = network2.getGenerator("GEN").getExtension(ManualFrequencyRestorationReserve.class);
+        assertNotNull(extension);
 
     }
 
