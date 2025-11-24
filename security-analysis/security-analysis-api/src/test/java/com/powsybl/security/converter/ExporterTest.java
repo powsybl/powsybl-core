@@ -16,8 +16,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.security.condition.AtLeastOneViolationCondition;
-import com.powsybl.security.condition.ThresholdCondition;
+import com.powsybl.security.condition.*;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
@@ -88,7 +87,10 @@ class ExporterTest extends AbstractSerDeTest {
 
         var opStrategyResult2 = new OperatorStrategyResult(
             new OperatorStrategy("strategyId2", ContingencyContext.specificContingency("contingency1"),
-                List.of(new ConditionalActions("stage1", new ThresholdCondition(2.0, ThresholdCondition.ComparisonType.GREATER_THAN, "Line1", ThreeSides.ONE, ThresholdCondition.Variable.CURRENT), Collections.singletonList("actionId1")))),
+                List.of(
+                    new ConditionalActions("stage1", new BranchThresholdCondition(2.0, AbstractThresholdCondition.ComparisonType.GREATER_THAN, "Line1", AbstractThresholdCondition.Variable.CURRENT, ThreeSides.ONE), List.of("actionId3")),
+                    new ConditionalActions("stage2", new InjectionThresholdCondition(2.0, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, "Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER), List.of("actionId3", "actionId4")),
+                    new ConditionalActions("stage3", new AcDcConverterThresholdCondition(3.0, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, "Converter1", AbstractThresholdCondition.Variable.CURRENT, true, 2), List.of("actionId3", "actionId4", "actionId5")))),
             PostContingencyComputationStatus.CONVERGED,
             new LimitViolationsResult(Collections.emptyList()),
             new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));

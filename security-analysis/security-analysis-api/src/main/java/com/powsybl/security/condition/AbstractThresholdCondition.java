@@ -8,16 +8,14 @@
 
 package com.powsybl.security.condition;
 
-import com.powsybl.iidm.network.ThreeSides;
-
 import java.util.Objects;
 
 /**
  * Condition triggered by a threshold
+ *
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class ThresholdCondition implements Condition {
-
-    public static final String NAME = "THRESHOLD_CONDITION";
+public abstract class AbstractThresholdCondition implements Condition {
 
     public enum ComparisonType {
         EQUALS,
@@ -39,18 +37,15 @@ public class ThresholdCondition implements Condition {
     private final double threshold;
     // Equipment on which to check the threshold
     private final String equipmentId;
-    // Side of the equipment on which to check the threshold
-    private final ThreeSides side;
     // Comparison type for the threshold
     private final ComparisonType type;
     // Variable to be measured against the threshold
     private final Variable variable;
 
-    public ThresholdCondition(double threshold, ComparisonType type, String equipmentId, ThreeSides side, Variable variable) {
+    protected AbstractThresholdCondition(double threshold, ComparisonType type, String equipmentId, Variable variable) {
         this.threshold = threshold;
         this.equipmentId = Objects.requireNonNull(equipmentId);
         this.type = Objects.requireNonNull(type);
-        this.side = side;
         this.variable = Objects.requireNonNull(variable);
     }
 
@@ -62,20 +57,11 @@ public class ThresholdCondition implements Condition {
         return equipmentId;
     }
 
-    public ThreeSides getSide() {
-        return side;
-    }
-
     public ComparisonType getComparisonType() {
         return type;
     }
 
     public Variable getVariable() {
         return variable;
-    }
-
-    @Override
-    public String getType() {
-        return NAME;
     }
 }

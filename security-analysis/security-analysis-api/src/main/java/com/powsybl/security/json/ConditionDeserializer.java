@@ -33,8 +33,10 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
         double threshold;
         String equipmentId;
         ThreeSides side;
-        ThresholdCondition.ComparisonType comparisonType;
-        ThresholdCondition.Variable variable;
+        boolean isAcSide;
+        int terminalNumber;
+        AbstractThresholdCondition.ComparisonType comparisonType;
+        AbstractThresholdCondition.Variable variable;
     }
 
     public ConditionDeserializer() {
@@ -68,13 +70,21 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                     parser.nextToken();
                     context.side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
                     return true;
+                case "acSide":
+                    parser.nextToken();
+                    context.isAcSide = parser.getBooleanValue();
+                    return true;
+                case "terminalNumber":
+                    parser.nextToken();
+                    context.terminalNumber = parser.getValueAsInt();
+                    return true;
                 case "comparisonType":
                     parser.nextToken();
-                    context.comparisonType = JsonUtil.readValue(deserializationContext, parser, ThresholdCondition.ComparisonType.class);
+                    context.comparisonType = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.ComparisonType.class);
                     return true;
                 case "variable":
                     parser.nextToken();
-                    context.variable = JsonUtil.readValue(deserializationContext, parser, ThresholdCondition.Variable.class);
+                    context.variable = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.Variable.class);
                     return true;
                 default:
                     return false;
@@ -89,8 +99,12 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 return new AtLeastOneViolationCondition(context.violationIds, context.conditionFilters);
             case AllViolationCondition.NAME:
                 return new AllViolationCondition(context.violationIds, context.conditionFilters);
-            case ThresholdCondition.NAME:
-                return new ThresholdCondition(context.threshold, context.comparisonType, context.equipmentId, context.side, context.variable);
+            case InjectionThresholdCondition.NAME:
+                return new InjectionThresholdCondition(context.threshold, context.comparisonType, context.equipmentId, context.variable);
+            case BranchThresholdCondition.NAME:
+                return new BranchThresholdCondition(context.threshold, context.comparisonType, context.equipmentId, context.variable, context.side);
+            case AcDcConverterThresholdCondition.NAME:
+                return new AcDcConverterThresholdCondition(context.threshold, context.comparisonType, context.equipmentId, context.variable, context.isAcSide, context.terminalNumber);
             default:
                 throw new JsonMappingException(parser, "Unexpected condition type: " + context.type);
         }

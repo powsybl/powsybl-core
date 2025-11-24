@@ -19,10 +19,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.action.*;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.security.condition.AllViolationCondition;
-import com.powsybl.security.condition.AnyViolationCondition;
-import com.powsybl.security.condition.ThresholdCondition;
-import com.powsybl.security.condition.TrueCondition;
+import com.powsybl.security.condition.*;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.security.strategy.ConditionalActions;
@@ -83,8 +80,10 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
             List.of(new ConditionalActions("stage1", new AllViolationCondition(List.of("violation1", "violation2")),
                 List.of("actionId3")))));
         operatorStrategies.add(new OperatorStrategy("id7", ContingencyContext.specificContingency("contingencyId5"),
-            List.of(new ConditionalActions("stage1", new ThresholdCondition(2.0, ThresholdCondition.ComparisonType.GREATER_THAN, "Line1", ThreeSides.ONE, ThresholdCondition.Variable.CURRENT),
-                List.of("actionId3")))));
+            List.of(
+                new ConditionalActions("stage1", new BranchThresholdCondition(2.0, AbstractThresholdCondition.ComparisonType.GREATER_THAN, "Line1", AbstractThresholdCondition.Variable.CURRENT, ThreeSides.ONE), List.of("actionId3")),
+                new ConditionalActions("stage2", new InjectionThresholdCondition(2.0, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, "Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER), List.of("actionId3", "actionId4")),
+                new ConditionalActions("stage3", new AcDcConverterThresholdCondition(3.0, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, "Converter1", AbstractThresholdCondition.Variable.CURRENT, true, 2), List.of("actionId3", "actionId4", "actionId5")))));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
     }

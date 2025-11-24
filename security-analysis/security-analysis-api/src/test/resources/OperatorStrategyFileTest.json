@@ -78,14 +78,36 @@
     "conditionalActions" : [ {
       "id" : "stage1",
       "condition" : {
-        "type" : "THRESHOLD_CONDITION",
+        "type" : "BRANCH_THRESHOLD_CONDITION",
         "threshold" : 2.0,
         "equipmentId" : "Line1",
-        "side" : "ONE",
         "comparisonType" : "GREATER_THAN",
-        "variable" : "CURRENT"
+        "variable" : "CURRENT",
+        "side" : "ONE"
       },
       "actionIds" : [ "actionId3" ]
+    }, {
+      "id" : "stage2",
+      "condition" : {
+        "type" : "INJECTION_THRESHOLD_CONDITION",
+        "threshold" : 2.0,
+        "equipmentId" : "Gen2",
+        "comparisonType" : "GREATER_THAN_OR_EQUALS",
+        "variable" : "ACTIVE_POWER"
+      },
+      "actionIds" : [ "actionId3", "actionId4" ]
+    }, {
+      "id" : "stage3",
+      "condition" : {
+        "type" : "AC_DC_CONVERTER_THRESHOLD_CONDITION",
+        "threshold" : 3.0,
+        "equipmentId" : "Converter1",
+        "comparisonType" : "LESS_THAN_OR_EQUALS",
+        "variable" : "CURRENT",
+        "acSide" : true,
+        "terminalNumber" : 2
+      },
+      "actionIds" : [ "actionId3", "actionId4", "actionId5" ]
     } ]
   } ]
 }
