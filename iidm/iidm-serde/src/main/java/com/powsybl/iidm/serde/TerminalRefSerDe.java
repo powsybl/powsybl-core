@@ -11,6 +11,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -65,7 +66,7 @@ public final class TerminalRefSerDe {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
         if (t.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER
-                && context.getOptions().getTopologyLevel() != TopologyLevel.NODE_BREAKER
+                && TopologyLevelUtil.determineTopologyLevel(t.getVoltageLevel(), context) != TopologyLevel.NODE_BREAKER
                 && t.getConnectable() instanceof BusbarSection) {
             throw new PowsyblException(String.format("Terminal ref should not point to a busbar section (here %s). Try to export in node-breaker or delete this terminal ref.",
                     t.getConnectable().getId()));
