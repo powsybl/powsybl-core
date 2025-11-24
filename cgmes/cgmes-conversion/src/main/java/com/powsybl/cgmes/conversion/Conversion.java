@@ -18,7 +18,6 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -165,7 +164,7 @@ public class Conversion {
         Network network = createNetwork();
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         Context context = new Context(cgmes, config, network, reportNode);
-        assignNetworkProperties(context);
+        setNetworkTimes(context);
         addMetadataModels(network, context);
         addCimCharacteristics(network);
 
@@ -176,6 +175,9 @@ public class Conversion {
         cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
         bvAdder.add();
         cgmes.computedTerminals().forEach(t -> context.terminalMapping().buildTopologicalNodeCgmesTerminalsMapping(t));
+        cgmes.computedTerminals().stream()
+                .filter(t -> !CgmesNames.SWITCH_TYPES.contains(t.conductingEquipmentType()))
+                .forEach(t -> context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t));
         cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
         context.popReportNode();
 
@@ -261,13 +263,17 @@ public class Conversion {
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
 
-        updateWithAllInputs(network, reportNode);
+        updateWithAllInputs(network, reportNode, context);
 
         return network;
     }
 
-    private void updateWithAllInputs(Network network, ReportNode reportNode) {
+    private void updateWithAllInputs(Network network, ReportNode reportNode, Context importContext) {
         if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
+            // Remove all properties and aliases, this will invalidate all subsequent updates
+            if (importContext.config().getRemovePropertiesAndAliasesAfterImport()) {
+                removeAllAliasesAndProperties(network);
+            }
             return;
         }
         this.cgmes.setQueryCatalog(QUERY_CATALOG_NAME_UPDATE);
@@ -281,6 +287,34 @@ public class Conversion {
         update(network, updateContext, reportNode);
     }
 
+    private static void removeAllAliasesAndProperties(Network network) {
+        network.getIdentifiables().forEach(identifiable -> {
+            identifiable.getAliases().forEach(identifiable::removeAlias);
+            identifiable.getPropertyNames().forEach(identifiable::removeProperty);
+        });
+
+        network.getBranchStream()
+                .map(branch -> (Branch<?>) branch)
+                .forEach(branch -> {
+                    removeProperties(branch.getOperationalLimitsGroups1());
+                    removeProperties(branch.getOperationalLimitsGroups2());
+                });
+
+        network.getThreeWindingsTransformers().forEach(t3w -> {
+            removeProperties(t3w.getLeg1().getOperationalLimitsGroups());
+            removeProperties(t3w.getLeg2().getOperationalLimitsGroups());
+            removeProperties(t3w.getLeg3().getOperationalLimitsGroups());
+        });
+
+        network.getDanglingLines().forEach(danglingLine ->
+                removeProperties(danglingLine.getOperationalLimitsGroups()));
+    }
+
+    private static void removeProperties(Collection<OperationalLimitsGroup> operationalLimitsGroupCollection) {
+        operationalLimitsGroupCollection.forEach(operationalLimitsGroup ->
+                operationalLimitsGroup.getPropertyNames().forEach(operationalLimitsGroup::removeProperty));
+    }
+
     private static boolean sshOrSvIsIncludedInCgmesModel(CgmesModel cgmes) {
         return cgmes.fullModels().stream()
                 .map(fullModel -> fullModel.getId("profileList"))
@@ -289,6 +323,11 @@ public class Conversion {
 
     public void update(Network network, ReportNode reportNode) {
         Objects.requireNonNull(network);
+
+        if (network.getIdentifiables().stream().allMatch(i -> i.getPropertyNames().isEmpty())) {
+            throw new ConversionException("The network has no properties and aliases, they have been removed. Update is not allowed.");
+        }
+
         Objects.requireNonNull(reportNode);
         Context updateContext = createUpdateContext(network, reportNode);
 
@@ -334,6 +373,11 @@ public class Conversion {
 
         network.runValidationChecks(false, reportNode);
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+
+        // Remove all properties and aliases, this will invalidate all subsequent updates
+        if (updateContext.config().getRemovePropertiesAndAliasesAfterImport()) {
+            removeAllAliasesAndProperties(network);
+        }
     }
 
     /**
@@ -480,25 +524,7 @@ public class Conversion {
         return context;
     }
 
-    private void assignNetworkProperties(Context context) {
-        context.network().setProperty(NETWORK_PS_CGMES_MODEL_DETAIL,
-                context.nodeBreaker()
-                        ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
-                        : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
-        PropertyBags modelProfiles = context.cgmes().modelProfiles();
-        String fullModel = "FullModel";
-        modelProfiles.sort(Comparator.comparing(p -> p.getId(fullModel)));
-        for (PropertyBag modelProfile : modelProfiles) { // Import of profiles ID as properties TODO import them in a dedicated extension
-            if (modelProfile.getId(fullModel).equals(context.network().getId())) {
-                continue;
-            }
-            String profile = CgmesNamespace.getProfile(modelProfile.getId("profile"));
-            if (profile != null && !"EQ_OP".equals(profile) && !"SV".equals(profile)) { // don't import EQ_OP and SV profiles as they are not used for CGMES export
-                context.network()
-                        .setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID", property -> context.network().hasProperty(property)),
-                                modelProfile.getId(fullModel));
-            }
-        }
+    private void setNetworkTimes(Context context) {
         ZonedDateTime modelScenarioTime = cgmes.scenarioTime();
         ZonedDateTime modelCreated = cgmes.created();
         long forecastDistance = Duration.between(modelCreated, modelScenarioTime).toMinutes();
@@ -607,8 +633,9 @@ public class Conversion {
 
     private void addCimCharacteristics(Network network) {
         if (cgmes instanceof CgmesModelTripleStore cgmesModelTripleStore) {
+            boolean isNodeBreaker = cgmes.isNodeBreaker() && !config.importNodeBreakerAsBusBreaker();
             network.newExtension(CimCharacteristicsAdder.class)
-                    .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
+                    .setTopologyKind(isNodeBreaker ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
                     .setCimVersion(cgmesModelTripleStore.getCimVersion())
                     .add();
         }
@@ -1040,6 +1067,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean getRemovePropertiesAndAliasesAfterImport() {
+            return removePropertiesAndAliasesAfterImport;
+        }
+
+        public Config setRemovePropertiesAndAliasesAfterImport(boolean remove) {
+            removePropertiesAndAliasesAfterImport = remove;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
@@ -1070,6 +1106,7 @@ public class Conversion {
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
         private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
         private boolean usePreviousValuesDuringUpdate = false;
+        private boolean removePropertiesAndAliasesAfterImport = false;
     }
 
     private final CgmesModel cgmes;
@@ -1079,10 +1116,6 @@ public class Conversion {
     private final NetworkFactory networkFactory;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
-
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
     public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
