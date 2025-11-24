@@ -451,7 +451,7 @@ public final class JsonUtil {
 
     public static void assertGreaterThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
-        if (version.compareTo(referenceVersion) <= 0) {
+        if (compareVersions(version, referenceVersion) <= 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be > %s %n",
                     contextName, elementName, version, referenceVersion);
@@ -461,7 +461,7 @@ public final class JsonUtil {
 
     public static void assertGreaterOrEqualThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
-        if (version.compareTo(referenceVersion) < 0) {
+        if (compareVersions(version, referenceVersion) < 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be >= %s %n",
                     contextName, elementName, version, referenceVersion);
@@ -477,6 +477,19 @@ public final class JsonUtil {
                     contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
         }
+    }
+
+    public static int compareVersions(String v1, String v2) {
+        String[] parts1 = v1.split("\\.");
+        String[] parts2 = v2.split("\\.");
+        int major1 = Integer.parseInt(parts1[0]);
+        int major2 = Integer.parseInt(parts2[0]);
+        if (major1 != major2) {
+            return Integer.compare(major1, major2);
+        }
+        int minor1 = parts1.length > 1 ? Integer.parseInt(parts1[1]) : 0;
+        int minor2 = parts2.length > 1 ? Integer.parseInt(parts2[1]) : 0;
+        return Integer.compare(minor1, minor2);
     }
 
     /**
