@@ -104,6 +104,15 @@ public interface DcTerminal {
          * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
          */
         TraverseResult traverse(DcTerminal terminal, boolean connected);
+
+        /**
+         * Called when a DC switch is encountered
+         *
+         * @param aSwitch the encountered switch
+         * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+         * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+         */
+        TraverseResult traverse(DcSwitch aSwitch);
     }
 
     boolean traverse(TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals);

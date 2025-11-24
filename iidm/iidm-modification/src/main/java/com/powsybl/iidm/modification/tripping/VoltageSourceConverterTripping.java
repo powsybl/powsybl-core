@@ -41,7 +41,7 @@ public class VoltageSourceConverterTripping extends AbstractTripping {
     }
 
     @Override
-    public void traverseDc(Network network, Set<DcTerminal> terminalsToDisconnect, Set<DcTerminal> traversedDcTerminals) {
+    public void traverseDc(Network network, Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect, Set<DcTerminal> traversedDcTerminals) {
         Objects.requireNonNull(network);
         AcDcConverter<VoltageSourceConverter> converter = network.getVoltageSourceConverter(id);
         if (converter == null) {
@@ -49,7 +49,7 @@ public class VoltageSourceConverterTripping extends AbstractTripping {
         }
 
         for (DcTerminal t : converter.getDcTerminals()) {
-            TrippingTopologyTraverser.traverse(t, terminalsToDisconnect, traversedDcTerminals);
+            TrippingTopologyTraverser.traverse(t, dcSwitchesToOpen, dcTerminalsToDisconnect, traversedDcTerminals);
         }
     }
 }

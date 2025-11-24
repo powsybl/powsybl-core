@@ -47,12 +47,12 @@ public class DcLineTripping extends AbstractTripping {
     }
 
     @Override
-    public void traverseDc(Network network, Set<DcTerminal> terminalsToDisconnect, Set<DcTerminal> traversedTerminals) {
+    public void traverseDc(Network network, Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect, Set<DcTerminal> traversedTerminals) {
         Objects.requireNonNull(network);
         DcLine dcLine = supplier.apply(network, id);
         if (dcLine == null) {
             throw new PowsyblException("DcLine '" + id + "' not found");
         }
-        traverseDoubleSidedEquipment(dcNodeId, dcLine.getDcTerminal1(), dcLine.getDcTerminal2(), terminalsToDisconnect, traversedTerminals, dcLine.getType().name());
+        traverseDoubleSidedEquipment(dcNodeId, dcLine.getDcTerminal1(), dcLine.getDcTerminal2(), dcSwitchesToOpen, dcTerminalsToDisconnect, traversedTerminals, dcLine.getType().name());
     }
 }

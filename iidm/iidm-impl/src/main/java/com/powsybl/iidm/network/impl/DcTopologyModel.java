@@ -400,8 +400,9 @@ public class DcTopologyModel implements MultiVariantObject {
             List<DcTerminal> nextDcTerminals = new ArrayList<>();
             addNextDcTerminals(terminal, nextDcTerminals);
 
-            // then check we can traverse terminals connected to same dc node
-            DcNode dcNode = terminal.getDcNode();
+            // then check we can traverse terminals connected to same DC node
+            int v = getVertex(terminal.getDcNode().getId());
+            DcNode dcNode = graph.getVertexObject(v);
             for (DcTerminal t : dcNode.getDcTerminals()) {
                 TraverseResult tTraverseResult = getTraverserResult(visitedDcTerminals, t, traverser);
                 if (tTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
@@ -411,13 +412,38 @@ public class DcTopologyModel implements MultiVariantObject {
                 }
             }
 
+            // then go through other connected DC nodes
+            boolean traversalTerminated = traverseOtherDcNodes(v, nextDcTerminals, traverser, visitedDcTerminals);
+            if (traversalTerminated) {
+                return false;
+            }
+
             for (DcTerminal t : nextDcTerminals) {
                 if (!t.traverse(traverser, visitedDcTerminals)) {
                     return false;
                 }
             }
         }
+
         return true;
+    }
+
+    private boolean traverseOtherDcNodes(int v, List<DcTerminal> nextDcTerminals,
+                                       DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals) {
+        return !graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
+            DcSwitchImpl aSwitch = graph.getEdgeObject(e);
+            List<DcTerminal> otherBusDcTerminals = graph.getVertexObject(v2).getDcTerminals();
+            TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
+            if (switchTraverseResult == TraverseResult.CONTINUE && !otherBusDcTerminals.isEmpty()) {
+                DcTerminal otherDcTerminal = otherBusDcTerminals.get(0);
+                TraverseResult otherTermTraverseResult = getTraverserResult(visitedDcTerminals, otherDcTerminal, traverser);
+                if (otherTermTraverseResult == TraverseResult.CONTINUE) {
+                    addNextDcTerminals(otherDcTerminal, nextDcTerminals);
+                }
+                return otherTermTraverseResult;
+            }
+            return switchTraverseResult;
+        });
     }
 
     boolean disconnect(DcTerminal terminal) {

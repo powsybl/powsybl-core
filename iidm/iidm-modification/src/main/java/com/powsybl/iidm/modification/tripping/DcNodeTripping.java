@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.Network;
 
@@ -30,7 +31,7 @@ public class DcNodeTripping extends AbstractTripping {
     }
 
     @Override
-    public void traverseDc(Network network, Set<DcTerminal> terminalsToDisconnect, Set<DcTerminal> traversedDcTerminals) {
+    public void traverseDc(Network network, Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect, Set<DcTerminal> traversedDcTerminals) {
         Objects.requireNonNull(network);
         DcNode dcNode = network.getDcNode(id);
         if (dcNode == null) {
@@ -38,7 +39,7 @@ public class DcNodeTripping extends AbstractTripping {
         }
 
         for (DcTerminal t : dcNode.getDcTerminals()) {
-            TrippingTopologyTraverser.traverse(t, terminalsToDisconnect, traversedDcTerminals);
+            TrippingTopologyTraverser.traverse(t, dcSwitchesToOpen, dcTerminalsToDisconnect, traversedDcTerminals);
         }
     }
 }

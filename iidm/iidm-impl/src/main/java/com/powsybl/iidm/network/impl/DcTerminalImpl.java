@@ -186,6 +186,15 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         throw new IllegalStateException("Unexpected dcConnectable type: " + dcConnectable.getClass().getName());
     }
 
+    Network getParentNetwork() {
+        if (dcConnectable instanceof AbstractDcConnectable<?> abstractDcConnectable) {
+            return abstractDcConnectable.getParentNetwork();
+        } else if (dcConnectable instanceof AbstractAcDcConverter<?> abstractDcConverter) {
+            return abstractDcConverter.getParentNetwork();
+        }
+        throw new IllegalStateException("Unexpected dcConnectable type: " + dcConnectable.getClass().getName());
+    }
+
     String getAttributeSideOrNumberSuffix() {
         return "" + (side != null ? side.getNum() : "") + (terminalNumber != null ? terminalNumber.getNum() : "");
     }
@@ -207,7 +216,12 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     }
 
     private DcTopologyModel getTopologyModel() {
-        return this.getNetwork().getDcTopologyModel();
+        Network parent = this.getParentNetwork();
+        if (parent instanceof SubnetworkImpl subnetwork) {
+            return subnetwork.getDcTopologyModel();
+        } else {
+            return ((NetworkImpl) parent).getDcTopologyModel();
+        }
     }
 
     @Override

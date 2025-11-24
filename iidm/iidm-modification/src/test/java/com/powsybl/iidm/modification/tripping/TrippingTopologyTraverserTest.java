@@ -129,20 +129,25 @@ class TrippingTopologyTraverserTest {
                 .add();
 
         Set<DcTerminal> dcTerminalsToDisconnect = new HashSet<>();
-        TrippingTopologyTraverser.traverse(dcLine.getDcTerminal1(), dcTerminalsToDisconnect, null);
+        Set<DcSwitch> dcSwitchesToOpen = new HashSet<>();
+        TrippingTopologyTraverser.traverse(dcLine.getDcTerminal1(), dcSwitchesToOpen, dcTerminalsToDisconnect, null);
         assertEquals(1, dcTerminalsToDisconnect.size());
+        assertTrue(dcSwitchesToOpen.isEmpty());
 
         dcTerminalsToDisconnect.clear();
-        TrippingTopologyTraverser.traverse(dcLine.getDcTerminal2(), dcTerminalsToDisconnect, null);
+        TrippingTopologyTraverser.traverse(dcLine.getDcTerminal2(), dcSwitchesToOpen, dcTerminalsToDisconnect, null);
         assertEquals(1, dcTerminalsToDisconnect.size());
+        assertTrue(dcSwitchesToOpen.isEmpty());
 
         dcTerminalsToDisconnect.clear();
-        TrippingTopologyTraverser.traverse(converter.getDcTerminal1(), dcTerminalsToDisconnect, null);
+        TrippingTopologyTraverser.traverse(converter.getDcTerminal1(), dcSwitchesToOpen, dcTerminalsToDisconnect, null);
         assertEquals(1, dcTerminalsToDisconnect.size());
+        assertTrue(dcSwitchesToOpen.isEmpty());
 
         dcTerminalsToDisconnect.clear();
-        TrippingTopologyTraverser.traverse(converter.getDcTerminal2(), dcTerminalsToDisconnect, null);
+        TrippingTopologyTraverser.traverse(converter.getDcTerminal2(), dcSwitchesToOpen, dcTerminalsToDisconnect, null);
         assertEquals(1, dcTerminalsToDisconnect.size());
+        assertTrue(dcSwitchesToOpen.isEmpty());
 
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
         Set<Switch> switchesToOpen = new HashSet<>();

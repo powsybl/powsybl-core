@@ -28,7 +28,7 @@ public class DcGroundTripping extends AbstractTripping {
     }
 
     @Override
-    public void traverseDc(Network network, Set<DcTerminal> terminalsToDisconnect, Set<DcTerminal> traversedDcTerminals) {
+    public void traverseDc(Network network, Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect, Set<DcTerminal> traversedDcTerminals) {
         Objects.requireNonNull(network);
         DcGround dcGround = network.getDcGround(id);
         if (dcGround == null) {
@@ -36,7 +36,7 @@ public class DcGroundTripping extends AbstractTripping {
         }
 
         for (DcTerminal t : dcGround.getDcTerminals()) {
-            TrippingTopologyTraverser.traverse(t, terminalsToDisconnect, traversedDcTerminals);
+            TrippingTopologyTraverser.traverse(t, dcSwitchesToOpen, dcTerminalsToDisconnect, traversedDcTerminals);
         }
     }
 }
