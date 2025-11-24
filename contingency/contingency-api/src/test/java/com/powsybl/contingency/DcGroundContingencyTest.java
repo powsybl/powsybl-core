@@ -8,7 +8,7 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.iidm.modification.tripping.DcGroundTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
