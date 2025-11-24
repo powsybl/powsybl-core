@@ -8,18 +8,18 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 
 /**
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
-public interface ManualFrequencyRestorationReserveAdder
-        extends ExtensionAdder<Generator, ManualFrequencyRestorationReserve> {
+public interface ManualFrequencyRestorationReserveAdder<I extends Injection<I>>
+        extends ExtensionAdder<I, ManualFrequencyRestorationReserve<I>> {
 
     @Override
     default Class<ManualFrequencyRestorationReserve> getExtensionClass() {
         return ManualFrequencyRestorationReserve.class;
     }
 
-    ManualFrequencyRestorationReserveAdder withParticipate(boolean participate);
+    ManualFrequencyRestorationReserveAdder<I> withParticipate(boolean participate);
 }

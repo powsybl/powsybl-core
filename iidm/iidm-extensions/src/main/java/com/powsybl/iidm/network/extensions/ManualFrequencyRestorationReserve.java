@@ -8,12 +8,12 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 
 /**
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
-public interface ManualFrequencyRestorationReserve extends Extension<Generator> {
+public interface ManualFrequencyRestorationReserve<I extends Injection<I>> extends Extension<I> {
 
     String NAME = "manualFrequencyRestorationReserve";
 
@@ -24,5 +24,5 @@ public interface ManualFrequencyRestorationReserve extends Extension<Generator> 
 
     boolean isParticipate();
 
-    ManualFrequencyRestorationReserve setParticipate(boolean participate);
+    ManualFrequencyRestorationReserve<I> setParticipate(boolean participate);
 }

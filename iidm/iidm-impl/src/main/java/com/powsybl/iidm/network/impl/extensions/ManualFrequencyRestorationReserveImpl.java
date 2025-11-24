@@ -8,18 +8,20 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ManualFrequencyRestorationReserve;
 
 /**
  * @author Jacques Borsenberger {literal <jacques.borsenberger at rte-france.com}
  */
-public class ManualFrequencyRestorationReserveImpl extends AbstractExtension<Generator> implements ManualFrequencyRestorationReserve {
+public class ManualFrequencyRestorationReserveImpl<I extends Injection<I>>
+        extends AbstractExtension<I>
+        implements ManualFrequencyRestorationReserve<I> {
 
     private boolean participate;
 
-    public ManualFrequencyRestorationReserveImpl(Generator generator, boolean participate) {
-        super(generator);
+    public ManualFrequencyRestorationReserveImpl(I extendable, boolean participate) {
+        super(extendable);
         this.participate = participate;
     }
 
@@ -29,7 +31,7 @@ public class ManualFrequencyRestorationReserveImpl extends AbstractExtension<Gen
     }
 
     @Override
-    public ManualFrequencyRestorationReserve setParticipate(boolean participate) {
+    public ManualFrequencyRestorationReserve<I> setParticipate(boolean participate) {
         this.participate = participate;
         return this;
     }
