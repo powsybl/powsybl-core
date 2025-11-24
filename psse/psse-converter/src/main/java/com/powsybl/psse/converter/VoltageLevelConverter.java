@@ -297,7 +297,7 @@ class VoltageLevelConverter extends AbstractConverter {
         }
         // we try to assign a busView inside mainConnectedComponent with the strong psse bus type and, we preserve the original bus type
         busIBusViews.forEach((busI, busList) -> {
-            Bus selectedBus = busList.stream().min(Comparator.comparingInt(VoltageLevelConverter::findPriorityType)).orElseThrow();
+            Bus selectedBus = busList.stream().min(Comparator.comparingInt(VoltageLevelConverter::findPriorityType).thenComparing(Bus::getId)).orElseThrow();
             contextExport.getUpdateExport().addBusIBusView(busI, selectedBus);
         });
     }
@@ -338,7 +338,7 @@ class VoltageLevelConverter extends AbstractConverter {
                         contextForRepresentedNode(voltageLevel, representedNode, representativeNode, contextExport);
                     });
 
-            Bus selectedBus = busViewBusesForBusI.stream().min(Comparator.comparingInt(VoltageLevelConverter::findPriorityType)).orElse(null);
+            Bus selectedBus = busViewBusesForBusI.stream().min(Comparator.comparingInt(VoltageLevelConverter::findPriorityType).thenComparing(Bus::getId)).orElse(null);
             contextExport.getFullExport().addBusIBusView(busI, selectedBus);
         });
 
