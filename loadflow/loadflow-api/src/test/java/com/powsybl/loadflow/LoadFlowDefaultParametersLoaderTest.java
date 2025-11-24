@@ -133,7 +133,7 @@ class LoadFlowDefaultParametersLoaderTest {
     }
 
     private boolean sameMetaData(List<Parameter> l1, List<Parameter> l2) {
-        // Everything except default value shoudl be the same
+        // Everything except default value should be the same
         assertEquals(l1.size(), l2.size());
         Iterator<Parameter> it1 = l1.iterator();
         Iterator<Parameter> it2 = l2.iterator();
