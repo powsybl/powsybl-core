@@ -286,6 +286,14 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static void invalidPccTerminalReport(ReportNode reportNode, String converterId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.invalidPccTerminal")
+                .withUntypedValue("converterId", converterId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
     public static void phaseTapChangerCurrentLimiterModeNotSupportedReport(ReportNode reportNode, String phaseTapChangerId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.phaseTapChangerCurrentLimiterModeNotSupported")

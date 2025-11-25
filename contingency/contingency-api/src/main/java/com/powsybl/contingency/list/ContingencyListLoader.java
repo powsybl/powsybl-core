@@ -6,9 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.contingency;
-
-import com.powsybl.contingency.contingency.list.ContingencyList;
+package com.powsybl.contingency.list;
 
 import java.io.IOException;
 import java.io.InputStream;

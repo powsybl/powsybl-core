@@ -8,7 +8,7 @@
 package com.powsybl.contingency;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.iidm.network.Identifiable;
