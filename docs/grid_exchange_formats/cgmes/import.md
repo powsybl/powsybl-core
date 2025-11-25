@@ -576,15 +576,55 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 The `TapPosition` of the IIDM `TapChanger` is copied from the CGMES SSH `step` if present. If not, it is copied from CGMES `SVtapStep` or `normalStep` from EQ.
 The `SolvedTapPosition` is copied from `SVtapStep` if the SV is imported, and left to `null` otherwise.
 
-(cgmes-metadata-model-import)=
-### CGMES metadata model
+(cgmes-metadata-models-import)=
+### CGMES metadata models
 
-<span style="color: red">TODO</span>
+This extension is attached to a Network and is used to store the metadata information about the imported CGMES dataset.
+The extension consists of a collection of `CgmesMetadataModel` objects, one per CGMES instance file or _subset_, 
+that hold the metadata information present in the `FullModel` tag in the header of the CGMES instance file.
+
+| Attribute            | Type          | Unit | Required | Default value      | Description                                                                                    |
+|----------------------|---------------|------|----------|--------------------|------------------------------------------------------------------------------------------------|
+| id                   | String        | -    | no       | -                  | Unique identifier of the model                                                                 |
+| subset               | CgmesSubset   | -    | yes      | -                  | The imported instance file<br/>(EQUIPMENT, TOPOLOGY, STEADY_STATE_HYPOTHESIS, STATE_VARIABLES) |
+| description          | String        | -    | no       | \<subset\> + Model | The description of the model and explanation of the purpose                                    |
+| version              | int           | -    | no       | 1                  | The version number of the model                                                                |
+| modelingAuthoritySet | String        | -    | yes      | -                  | The organisation role which is the source of the model                                         |
+| profiles             | Set\<String\> | -    | no       | -                  | The profiles included in this subset                                                           |
+| dependentOn          | Set\<String\> | -    | no       | -                  | References to other models this model depends on                                               |
+| supersedes           | Set\<String\> | -    | no       | -                  | References to other models this model supsersedes                                              |
+
+Example of code to read the extension and retrieve the modeling authority set assuming the network has been imported from a CGMES datasource:
+
+```java
+CgmesMetadataModels models = network.getExtension(CgmesMetadataModels.class);
+CgmesMetadataModel eqModel = models.getModelForSubset(CgmesSubset.EQUIPMENT).orElseThrow();
+String modelingAuthoritySet = eqModel.getModelingAuthoritySet();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 (cgmes-cim-characteristics-import)=
 ### CIM characteristics
 
-<span style="color: red">TODO</span>
+This extension is attached to a network and is used to store characteristics about the imported CGMES dataset.
+
+| Attribute    | Type              | Unit | Required | Default value      | Description                                                                             |
+|--------------|-------------------|------|----------|--------------------|-----------------------------------------------------------------------------------------|
+| cimVersion   | int               | -    | yes      | -                  | Version number of imported dataset: 16 for CIM16/CGMES 2.4.15, 100 for CIM100/CGMES 3.0 |
+| topologyKind | CgmesTopologyKind | -    | yes      | -                  | Topology kind: NODE_BREAKER or BUS_BRANCH                                               |
+
+Please note that the topologyKind attribute reflects how the dataset has been considered:
+if the `iidm.import.cgmes.import-node-breaker-as-bus-breaker` import parameter has been set to `true`, topologyKind will be `BUS_BRANCH`, even if the network has `NODE_BREAKER` model details. 
+
+Example of code to read the extension and retrieve the topology kind assuming the network has been imported from a CGMES datasource:
+
+```java
+CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
+CgmesTopologyKind topologyKind = cimCharacteristics.getTopologyKind();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 (cgmes-model-import)=
 ### CGMES model
@@ -675,7 +715,8 @@ If it is set to `false`, only one fictitious voltage level is created for each l
 **iidm.import.cgmes.use-previous-values-during-update**  
 Optional property that defines whether the CGMES importer should use previous values to fill in missing SSH attributes during an update.
 When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
-If set to `false`, missing SSH attributes will be filled using default values.
+If set to `false`, missing SSH attributes will be filled using default values. 
+This property does not apply to SV data. SV data is handled as a complete dataset, with no support for incremental updates of the SV file.
 `false` by default.
 
 **iidm.import.cgmes.remove-properties-and-aliases-after-import**  
