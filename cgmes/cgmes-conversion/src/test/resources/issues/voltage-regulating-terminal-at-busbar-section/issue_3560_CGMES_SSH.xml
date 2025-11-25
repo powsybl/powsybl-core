@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#">
-    <md:FullModel rdf:about="urn:uuid:test_N_STEADY_STATE_HYPOTHESIS_2025-11-15T13:55:26Z_1_1D__FM">
-        <md:Model.scenarioTime>2025-11-15T13:55:26Z</md:Model.scenarioTime>
-        <md:Model.created>2025-11-15T13:55:26Z</md:Model.created>
+    <md:FullModel rdf:about="urn:uuid:test_N_STEADY_STATE_HYPOTHESIS_2025-11-25T12:06:35Z_1_1D__FM">
+        <md:Model.scenarioTime>2025-11-25T12:06:35Z</md:Model.scenarioTime>
+        <md:Model.created>2025-11-25T12:06:36Z</md:Model.created>
         <md:Model.description>SSH Model</md:Model.description>
         <md:Model.version>1</md:Model.version>
-        <md:Model.DependentOn rdf:resource="urn:uuid:test_N_EQUIPMENT_2025-11-15T13:55:26Z_1_1D__FM"/>
+        <md:Model.DependentOn rdf:resource="urn:uuid:test_N_EQUIPMENT_2025-11-25T12:06:35Z_1_1D__FM"/>
         <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
         <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
     </md:FullModel>
@@ -27,9 +27,24 @@
         <cim:RegulatingControl.targetValue>400</cim:RegulatingControl.targetValue>
         <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
     </cim:RegulatingControl>
-    <cim:Breaker rdf:about="#_VL2_400_COUPLER">
+    <cim:Breaker rdf:about="#_VL2_400_COUPLER_BBS2_BBS3">
         <cim:Switch.open>false</cim:Switch.open>
     </cim:Breaker>
+    <cim:Disconnector rdf:about="#_VL2_400_DISCONNECTOR_23a">
+        <cim:Switch.open>false</cim:Switch.open>
+    </cim:Disconnector>
+    <cim:Disconnector rdf:about="#_VL2_400_DISCONNECTOR_23b">
+        <cim:Switch.open>false</cim:Switch.open>
+    </cim:Disconnector>
+    <cim:Breaker rdf:about="#_VL2_400_COUPLER_BBS1_BBS3">
+        <cim:Switch.open>false</cim:Switch.open>
+    </cim:Breaker>
+    <cim:Disconnector rdf:about="#_VL2_400_DISCONNECTOR_13a">
+        <cim:Switch.open>false</cim:Switch.open>
+    </cim:Disconnector>
+    <cim:Disconnector rdf:about="#_VL2_400_DISCONNECTOR_13b">
+        <cim:Switch.open>false</cim:Switch.open>
+    </cim:Disconnector>
     <cim:Terminal rdf:about="#_VL1_400_BBS_BS_T_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
@@ -54,16 +69,49 @@
     <cim:Terminal rdf:about="#_GEN_SM_T_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_BBS3_BS_T_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
     <cim:Terminal rdf:about="#_VL2_400_BBS1_BS_T_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
     <cim:Terminal rdf:about="#_VL2_400_BBS2_BS_T_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_VL2_400_COUPLER_SW_T_1">
+    <cim:Terminal rdf:about="#_VL2_400_COUPLER_BBS2_BBS3_SW_T_1">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
-    <cim:Terminal rdf:about="#_VL2_400_COUPLER_SW_T_2">
+    <cim:Terminal rdf:about="#_VL2_400_COUPLER_BBS2_BBS3_SW_T_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_DISCONNECTOR_23a_SW_T_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_DISCONNECTOR_23a_SW_T_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_DISCONNECTOR_23b_SW_T_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_DISCONNECTOR_23b_SW_T_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_COUPLER_BBS1_BBS3_SW_T_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_COUPLER_BBS1_BBS3_SW_T_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_DISCONNECTOR_13a_SW_T_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_DISCONNECTOR_13a_SW_T_2">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_DISCONNECTOR_13b_SW_T_1">
+        <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:about="#_VL2_400_DISCONNECTOR_13b_SW_T_2">
         <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
     </cim:Terminal>
 </rdf:RDF>

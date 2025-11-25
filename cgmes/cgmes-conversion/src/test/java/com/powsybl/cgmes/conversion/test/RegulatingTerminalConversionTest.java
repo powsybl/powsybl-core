@@ -100,7 +100,6 @@ class RegulatingTerminalConversionTest {
         Generator generator = network.getGenerator("GEN");
         assertNotNull(generator);
         assertEquals("VL2_400_BBS1", generator.getRegulatingTerminal().getConnectable().getId());
-        System.err.printf("Type %s %n", generator.getRegulatingTerminal().getConnectable().getType());
         assertSame(IdentifiableType.BUSBAR_SECTION, generator.getRegulatingTerminal().getConnectable().getType());
     }
 

@@ -12,7 +12,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.*;
 import java.util.function.Function;
@@ -340,7 +339,7 @@ public final class RegulatingTerminalMapper {
 
         private Optional<Terminal> findBusBranch() {
             Bus end1 = vl.getBusBreakerView().getBus1(sw.getId());
-            List<Terminal> terminals = findTerminalsBusBranch(end1);
+            List<Terminal> terminals = findTerminalsBusBranch(vl, end1);
             return best(terminals);
         }
 
@@ -349,7 +348,7 @@ public final class RegulatingTerminalMapper {
             return allTerminals(vl, nodes, t -> t.getNodeBreakerView().getNode());
         }
 
-        private List<Terminal> findTerminalsBusBranch(Bus end) {
+        private static List<Terminal> findTerminalsBusBranch(VoltageLevel vl, Bus end) {
             Set<Bus> buses = allBusesReachableBySwitches(vl, end);
             return allTerminals(vl, buses, RegulatingTerminalMapper::getTerminalBus);
         }
@@ -404,26 +403,13 @@ public final class RegulatingTerminalMapper {
 
     static Optional<Terminal> findEquivalentTerminalForVoltageRegulatingTerminalDefinedAtBusbarSection(String cgmesTerminalId, Context context) {
         CgmesTerminal busbarSectionCgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
-        String switchCgmesTerminalId = busbarSectionCgmesTerminal != null
-                ? findSwitchCgmesTerminalIdForConnectivityNode(busbarSectionCgmesTerminal.connectivityNode(), context).orElse(null)
-                : null;
-        return switchCgmesTerminalId != null ? new EquivalentTerminalFinderVoltageControl(switchCgmesTerminalId, context).find() : Optional.empty();
-    }
-
-    private static Optional<String> findSwitchCgmesTerminalIdForConnectivityNode(String connectivityNode, Context context) {
-        return context.cgmes().switches().stream()
-                .map(swPropertyBag -> getSwitchCgmesTerminalId(swPropertyBag, connectivityNode, context))
-                .filter(Objects::nonNull)
-                .findFirst();
-    }
-
-    private static String getSwitchCgmesTerminalId(PropertyBag swPropertyBag, String connectivityNode, Context context) {
-        return Stream.of(CgmesNames.TERMINAL1, CgmesNames.TERMINAL2)
-                .map(swPropertyBag::getId)
-                .filter(Objects::nonNull)
-                .filter(id -> connectivityNode.equals(context.cgmes().terminal(id).connectivityNode()))
-                .findFirst()
-                .orElse(null);
+        if (busbarSectionCgmesTerminal == null) {
+            return Optional.empty();
+        }
+        Bus busBreakerView = context.network().getBusBreakerView().getBus(busbarSectionCgmesTerminal.topologicalNode());
+        return busBreakerView != null
+                ? EquivalentTerminalFinderVoltageControl.best(EquivalentTerminalFinderVoltageControl.findTerminalsBusBranch(busBreakerView.getVoltageLevel(), busBreakerView))
+                : Optional.empty();
     }
 
     private static Bus getTerminalBus(Terminal terminal) {
