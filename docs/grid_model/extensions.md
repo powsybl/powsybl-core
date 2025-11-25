@@ -36,6 +36,25 @@ The participation status, the participation factor, the max targetP and the min 
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+##(manual-frequency-restoration-reserve)=
+## Manual frequency restoration reserve
+
+This extension models whether an injection is part of the manual frequency restoration reserve.
+
+| Attribute  | Type    | Unit | Required |Default value| Description                                                    |
+|------------|---------|------|----------|-------------|----------------------------------------------------------------|
+| participate| boolean | -    | yes      | -           | indicates if the injection participates in the manual frequency restoration reserve|
+
+This extension is provided in the  `com.powsybl:powsybl-iidm-extensions` module.
+
+Here is how to add a manual frequency restoration reserve extension to an injection:
+```java
+generator.newExtension(ManualFrequencyRestorationReserve.class)
+    .withParticipate(true)
+    .add();
+       
+```
+
 (branch-observability-extension)=
 ## Branch observability
 

@@ -198,6 +198,7 @@ The optional `EquivalentLocalTargetV` value can be used by simulators that deact
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
+- [Manual Frequency Restoration Reserve](extensions.md#manual-frequency-restoration-reserve)
 
 (load)=
 ## Load
