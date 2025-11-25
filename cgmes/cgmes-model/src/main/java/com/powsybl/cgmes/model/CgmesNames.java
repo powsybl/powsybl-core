@@ -54,6 +54,7 @@ public final class CgmesNames {
 
     public static final String DC_NODE = "DCNode";
     public static final String DC_TOPOLOGICAL_NODE = "DCTopologicalNode";
+    public static final String ACDC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
     public static final String DC_TERMINAL = "DCTerminal";
     public static final String DC_TERMINAL1 = "DCTerminal1";
     public static final String DC_TERMINAL2 = "DCTerminal2";
