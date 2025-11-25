@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
+
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -16,16 +17,13 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
-public final class DCGroundEq {
+public final class DCSwitchEq {
 
-    public static void write(String dcGroundId, String dcGroundName, double resistance, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("DCGround", dcGroundId, dcGroundName, cimNamespace, writer, context);
-        writer.writeStartElement(cimNamespace, "DCGround.r");
-        writer.writeCharacters(CgmesExportUtil.format(resistance));
-        writer.writeEndElement();
+    public static void write(String className, String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(className, id, name, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 
-    private DCGroundEq() {
+    private DCSwitchEq() {
     }
 }

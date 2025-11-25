@@ -691,148 +691,105 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
-            CgmesExportUtil.writeStartAbout(CgmesExportUtil.converterClassName(converterStation), context.getNamingStrategy().getCgmesId(converterStation), cimNamespace, writer, context);
-            double ppcc;
-            if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
-                ppcc = converterStation.getHvdcLine().getActivePowerSetpoint();
+            writeConverterStation(converterStation, cimNamespace, writer, context);
+        }
+        for (LineCommutatedConverter lccConverter : network.getLineCommutatedConverters()) {
+            writeAcDcConverter(lccConverter, cimNamespace, writer, context);
+        }
+        for (VoltageSourceConverter vscConverter : network.getVoltageSourceConverters()) {
+            writeAcDcConverter(vscConverter, cimNamespace, writer, context);
+        }
+    }
 
-                writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
-                writer.writeCharacters(CgmesExportUtil.format(ppcc));
-                writer.writeEndElement();
-                writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
-                writer.writeCharacters(CgmesExportUtil.format(0.0));
-                writer.writeEndElement();
-            } else {
-                HvdcLine hvdcLine = converterStation.getHvdcLine();
-                double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
-                double pDCRectifier = hvdcLine.getActivePowerSetpoint() * (1 - otherConverterStationLossFactor / 100);
-                double idc = pDCRectifier / hvdcLine.getNominalV();
-                double pDCInverter = -1 * (pDCRectifier - hvdcLine.getR() * idc * idc);
-                double udcInverter = hvdcLine.getNominalV() - hvdcLine.getR() * idc;
-                double poleLoss = converterStation.getLossFactor() / 100 * Math.abs(pDCInverter);
-                ppcc = pDCInverter + poleLoss;
+    private static void writeConverterStation(HvdcConverterStation<?> converterStation, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String converterId = context.getNamingStrategy().getCgmesId(converterStation);
+        double targetPpcc;
+        double targetUdc;
+        double p;
+        double q;
+        if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
+            targetPpcc = converterStation.getHvdcLine().getActivePowerSetpoint();
+            targetUdc = 0.0;
+            p = targetPpcc;
+        } else {
+            HvdcLine hvdcLine = converterStation.getHvdcLine();
+            double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
+            double pDCRectifier = hvdcLine.getActivePowerSetpoint() * (1 - otherConverterStationLossFactor / 100);
+            double idc = pDCRectifier / hvdcLine.getNominalV();
+            double pDCInverter = -1 * (pDCRectifier - hvdcLine.getR() * idc * idc);
+            double poleLoss = converterStation.getLossFactor() / 100 * Math.abs(pDCInverter);
+            targetPpcc = 0.0;
+            targetUdc = hvdcLine.getNominalV() - hvdcLine.getR() * idc;
+            p = pDCInverter + poleLoss;
+        }
 
-                writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
-                writer.writeCharacters(CgmesExportUtil.format(0.0));
-                writer.writeEndElement();
-                writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
-                writer.writeCharacters(CgmesExportUtil.format(udcInverter));
-                writer.writeEndElement();
-            }
-            if (converterStation instanceof LccConverterStation lccConverterStation) {
-                writePandQ(cimNamespace, ppcc, Math.abs(getQfromPowerFactor(ppcc, lccConverterStation.getPowerFactor())), writer);
-                writer.writeStartElement(cimNamespace, "CsConverter.targetAlpha");
-                writer.writeCharacters(CgmesExportUtil.format(0));
-                writer.writeEndElement();
-                writer.writeStartElement(cimNamespace, "CsConverter.targetGamma");
-                writer.writeCharacters(CgmesExportUtil.format(0));
-                writer.writeEndElement();
-                writer.writeStartElement(cimNamespace, "CsConverter.targetIdc");
-                writer.writeCharacters(CgmesExportUtil.format(0));
-                writer.writeEndElement();
-                writer.writeEmptyElement(cimNamespace, "CsConverter.operatingMode");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(lccConverterStation));
-                writer.writeEmptyElement(cimNamespace, "CsConverter.pPccControl");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterControlMode(converterStation));
-            } else if (converterStation instanceof VscConverterStation vscConverterStation) {
-                writePandQ(cimNamespace, ppcc, vscConverterStation.getReactivePowerSetpoint(), writer);
-                writer.writeStartElement(cimNamespace, "VsConverter.droop");
-                writer.writeCharacters(CgmesExportUtil.format(0));
-                writer.writeEndElement();
-                writer.writeStartElement(cimNamespace, "VsConverter.droopCompensation");
-                writer.writeCharacters(CgmesExportUtil.format(0));
-                writer.writeEndElement();
-                writer.writeStartElement(cimNamespace, "VsConverter.qShare");
-                writer.writeCharacters(CgmesExportUtil.format(0));
-                writer.writeEndElement();
-                writer.writeStartElement(cimNamespace, "VsConverter.targetQpcc");
-                writer.writeCharacters(CgmesExportUtil.format(vscConverterStation.getReactivePowerSetpoint()));
-                writer.writeEndElement();
-                writer.writeStartElement(cimNamespace, "VsConverter.targetUpcc");
-                writer.writeCharacters(CgmesExportUtil.format(vscConverterStation.getVoltageSetpoint()));
-                writer.writeEndElement();
-                writer.writeEmptyElement(cimNamespace, "VsConverter.pPccControl");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterControlMode(converterStation));
-                writer.writeEmptyElement(cimNamespace, "VsConverter.qPccControl");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "VsQpccControlKind." + (vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc"));
-            }
-            writer.writeEndElement();
+        if (converterStation instanceof LccConverterStation lccConverterStation) {
+            q = Math.abs(getQfromPowerFactor(p, lccConverterStation.getPowerFactor()));
+            String operatingMode = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "rectifier" : "inverter";
+            String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "activePower" : "dcVoltage";
+            writeCsConverter(converterId, targetPpcc, targetUdc, p, q, operatingMode, pPccControl, cimNamespace, writer, context);
+        } else if (converterStation instanceof VscConverterStation vscConverterStation) {
+            p = vscConverterStation.getRegulatingTerminal().getP();
+            q = vscConverterStation.getRegulatingTerminal().getQ();
+            double targetQpcc = vscConverterStation.getReactivePowerSetpoint();
+            double targetUpcc = vscConverterStation.getVoltageSetpoint();
+            String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "pPcc" : "udc";
+            String qPccControl = vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
+            writeVsConverter(converterId, targetPpcc, targetUdc, targetQpcc, targetUpcc, p, q, pPccControl, qPccControl, cimNamespace, writer, context);
         }
     }
 
     private static void writeDCTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (HvdcLine line : network.getHvdcLines()) {
-            String acdcConverterDcTerminal1 = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
-            writeDCTerminal(acdcConverterDcTerminal1, ACDC_CONVERTER_DC_TERMINAL, cimNamespace, writer, context);
-            String acdcConverterDcTerminal1G = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
-            writeDCTerminal(acdcConverterDcTerminal1G, ACDC_CONVERTER_DC_TERMINAL, cimNamespace, writer, context);
-
-            String acdcConverterDcTerminal2 = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
-            writeDCTerminal(acdcConverterDcTerminal2, ACDC_CONVERTER_DC_TERMINAL, cimNamespace, writer, context);
-            String acdcConverterDcTerminal2G = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
-            writeDCTerminal(acdcConverterDcTerminal2G, ACDC_CONVERTER_DC_TERMINAL, cimNamespace, writer, context);
-
-            String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
-            writeDCTerminal(dcTerminal1, CgmesNames.DC_TERMINAL, cimNamespace, writer, context);
-            String dcTerminal1G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("1G"));
-            writeDCTerminal(dcTerminal1G, CgmesNames.DC_TERMINAL, cimNamespace, writer, context);
-
-            String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
-            writeDCTerminal(dcTerminal2, CgmesNames.DC_TERMINAL, cimNamespace, writer, context);
-            String dcTerminal2G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("2G"));
-            writeDCTerminal(dcTerminal2G, CgmesNames.DC_TERMINAL, cimNamespace, writer, context);
+            writeHvdcLineDCTerminals(line, cimNamespace, writer, context);
+        }
+        for (DcConnectable<?> dcConnectable : network.getDcConnectables()) {
+            for (DcTerminal dcTerminal : dcConnectable.getDcTerminals()) {
+                TwoSides twoSides = dcTerminal.getSide();
+                int sequenceNumber = twoSides != null ? twoSides.getNum() : 1;
+                String dcTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dcConnectable, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + sequenceNumber);
+                String className = dcConnectable instanceof AcDcConverter<?> ? ACDC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
+                boolean connected = dcTerminal.isConnected();
+                writeDCTerminal(dcTerminalId, className, connected, cimNamespace, writer, context);
+            }
+        }
+        for (DcSwitch dcSwitch : network.getDcSwitches()) {
+            boolean connected = !dcSwitch.isOpen();
+            String dcTerminal1Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1);
+            writeDCTerminal(dcTerminal1Id, CgmesNames.DC_TERMINAL, connected, cimNamespace, writer, context);
+            String dcTerminal2Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL2);
+            writeDCTerminal(dcTerminal2Id, CgmesNames.DC_TERMINAL, connected, cimNamespace, writer, context);
         }
     }
 
-    private static void writeDCTerminal(String terminalId, String className, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeHvdcLineDCTerminals(HvdcLine line, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String acdcConverterDcTerminal1 = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
+        writeDCTerminal(acdcConverterDcTerminal1, ACDC_CONVERTER_DC_TERMINAL, true, cimNamespace, writer, context);
+        String acdcConverterDcTerminal1G = line.getConverterStation1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
+        writeDCTerminal(acdcConverterDcTerminal1G, ACDC_CONVERTER_DC_TERMINAL, true, cimNamespace, writer, context);
+
+        String acdcConverterDcTerminal2 = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
+        writeDCTerminal(acdcConverterDcTerminal2, ACDC_CONVERTER_DC_TERMINAL, true, cimNamespace, writer, context);
+        String acdcConverterDcTerminal2G = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
+        writeDCTerminal(acdcConverterDcTerminal2G, ACDC_CONVERTER_DC_TERMINAL, true, cimNamespace, writer, context);
+
+        String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
+        writeDCTerminal(dcTerminal1, CgmesNames.DC_TERMINAL, true, cimNamespace, writer, context);
+        String dcTerminal1G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("1G"));
+        writeDCTerminal(dcTerminal1G, CgmesNames.DC_TERMINAL, true, cimNamespace, writer, context);
+
+        String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
+        writeDCTerminal(dcTerminal2, CgmesNames.DC_TERMINAL, true, cimNamespace, writer, context);
+        String dcTerminal2G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("2G"));
+        writeDCTerminal(dcTerminal2G, CgmesNames.DC_TERMINAL, true, cimNamespace, writer, context);
+    }
+
+    private static void writeDCTerminal(String terminalId, String className, boolean connected, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(className, terminalId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ACDCTerminal.connected");
-        writer.writeCharacters(Boolean.toString(true));
+        writer.writeCharacters(Boolean.toString(connected));
         writer.writeEndElement();
         writer.writeEndElement();
-    }
-
-    private static void writePandQ(String cimNamespace, double p, double q, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "ACDCConverter.p");
-        writer.writeCharacters(CgmesExportUtil.format(p));
-        writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, "ACDCConverter.q");
-        writer.writeCharacters(CgmesExportUtil.format(q));
-        writer.writeEndElement();
-    }
-
-    public static String converterOperatingMode(LccConverterStation converterStation) {
-        if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
-            return "CsOperatingModeKind.rectifier";
-        } else {
-            return "CsOperatingModeKind.inverter";
-        }
-    }
-
-    public static String converterControlMode(HvdcConverterStation<?> converterStation) {
-        if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
-            return controlModeRectifier(converterStation);
-        } else {
-            return controlModeInverter(converterStation);
-        }
-    }
-
-    public static String controlModeRectifier(HvdcConverterStation<?> converterStation) {
-        if (converterStation instanceof LccConverterStation) {
-            return "CsPpccControlKind.activePower";
-        } else if (converterStation instanceof VscConverterStation) {
-            return "VsPpccControlKind.pPcc";
-        }
-        throw new PowsyblException("Invalid converter type");
-    }
-
-    public static String controlModeInverter(HvdcConverterStation<?> converterStation) {
-        if (converterStation instanceof LccConverterStation) {
-            return "CsPpccControlKind.dcVoltage";
-        } else if (converterStation instanceof VscConverterStation) {
-            return "VsPpccControlKind.udc";
-        }
-        throw new PowsyblException("Invalid converter type");
     }
 
     private static double getQfromPowerFactor(double p, double powerFactor) {
@@ -931,6 +888,89 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(CgmesExportUtil.format(pTolerance));
         }
         writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static void writeAcDcConverter(AcDcConverter<?> converter, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String converterId = context.getNamingStrategy().getCgmesId(converter);
+        double targetPpcc = converter.getControlMode() == AcDcConverter.ControlMode.P_PCC ? converter.getTargetP() : 0.0;
+        double targetUdc = converter.getControlMode() == AcDcConverter.ControlMode.V_DC ? converter.getTargetVdc() : 0.0;
+        double p = converter.getPccTerminal().getP();
+        double q = converter.getPccTerminal().getQ();
+        if (converter instanceof LineCommutatedConverter) {
+            String operatingMode = targetPpcc > 0.0 ? "rectifier" : "inverter";
+            String pPccControl = converter.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "activePower" : "dcVoltage";
+            writeCsConverter(converterId, targetPpcc, targetUdc, p, q, operatingMode, pPccControl, cimNamespace, writer, context);
+        } else if (converter instanceof VoltageSourceConverter vsc) {
+            double targetQpcc = vsc.getReactivePowerSetpoint();
+            double targetUpcc = vsc.getVoltageSetpoint();
+            String pPccControl = vsc.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "pPcc" : "udc";
+            String qPccControl = vsc.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
+            writeVsConverter(converterId, targetPpcc, targetUdc, targetQpcc, targetUpcc, p, q, pPccControl, qPccControl, cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeCsConverter(String converterId, double targetPpcc, double targetUdc,
+                                         double p, double q, String operatingMode, String pPccControl,
+                                         String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout(CgmesNames.CS_CONVERTER, converterId, cimNamespace, writer, context);
+        writeCommonAcDcConverter(targetPpcc, targetUdc, p, q, cimNamespace, writer);
+        writer.writeStartElement(cimNamespace, "CsConverter.targetAlpha");
+        writer.writeCharacters(CgmesExportUtil.format(0.0));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "CsConverter.targetGamma");
+        writer.writeCharacters(CgmesExportUtil.format(0.0));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "CsConverter.targetIdc");
+        writer.writeCharacters(CgmesExportUtil.format(0.0));
+        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, "CsConverter.operatingMode");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "CsOperatingModeKind." + operatingMode);
+        writer.writeEmptyElement(cimNamespace, "CsConverter.pPccControl");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "CsPpccControlKind." + pPccControl);
+        writer.writeEndElement();
+    }
+
+    private static void writeVsConverter(String converterId, double targetPpcc, double targetUdc, double targetQpcc, double targetUpcc,
+                                         double p, double q, String pPccControl, String qPccControl,
+                                         String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout(CgmesNames.VS_CONVERTER, converterId, cimNamespace, writer, context);
+        writeCommonAcDcConverter(targetPpcc, targetUdc, p, q, cimNamespace, writer);
+        writer.writeStartElement(cimNamespace, "VsConverter.droop");
+        writer.writeCharacters(CgmesExportUtil.format(0.0));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "VsConverter.droopCompensation");
+        writer.writeCharacters(CgmesExportUtil.format(0.0));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "VsConverter.qShare");
+        writer.writeCharacters(CgmesExportUtil.format(0.0));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "VsConverter.targetQpcc");
+        writer.writeCharacters(CgmesExportUtil.format(targetQpcc));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "VsConverter.targetUpcc");
+        writer.writeCharacters(CgmesExportUtil.format(targetUpcc));
+        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, "VsConverter.pPccControl");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "VsPpccControlKind." + pPccControl);
+        writer.writeEmptyElement(cimNamespace, "VsConverter.qPccControl");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "VsQpccControlKind." + qPccControl);
+        writer.writeEndElement();
+    }
+
+    private static void writeCommonAcDcConverter(double targetPpcc, double targetUdc, double p, double q,
+                                                 String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
+        writer.writeCharacters(CgmesExportUtil.format(targetPpcc));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
+        writer.writeCharacters(CgmesExportUtil.format(targetUdc));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ACDCConverter.p");
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ACDCConverter.q");
+        writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
     }
 
