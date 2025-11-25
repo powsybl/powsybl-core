@@ -151,8 +151,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @return the parameters of the parameters extension associated with this provider.
      */
     default List<Parameter> getSpecificParameters() {
-        return LoadFlowProviderUtil.getSpecificParameters(this,
-                LoadFlowParameters.getDefaultLoadFlowParameterLoader(PlatformConfig.defaultConfig()));
+        return LoadFlowProviderUtil.getSpecificParameters(this, PlatformConfig.defaultConfig());
     }
 
     /**
@@ -163,8 +162,10 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @return The parameters of the associated extension with overrides applied from PlatformConfig.
      */
     default List<Parameter> getSpecificParameters(PlatformConfig platformConfigConfig) {
-        return ConfiguredParameter.load(LoadFlowProviderUtil.getSpecificParameters(this, LoadFlowParameters.getDefaultLoadFlowParameterLoader(platformConfigConfig)),
-                getModuleConfig(platformConfigConfig).orElse(null));
+        return ConfiguredParameter.load(
+                LoadFlowProviderUtil.getSpecificParameters(this, platformConfigConfig),
+                getModuleConfig(platformConfigConfig).orElse(null)
+        );
     }
 
     /**

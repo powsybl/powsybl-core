@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.FileSystem;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 import static com.powsybl.loadflow.LoadFlowParameters.load;
 import static org.junit.jupiter.api.Assertions.*;
@@ -154,7 +153,7 @@ class LoadFlowDefaultParametersLoaderTest {
         LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
         LoadFlowProvider provider = new LoadFlowProviderMock();
         List<Parameter> parameters = provider.getSpecificParameters();
-        List<Parameter> parametersWithDefaultValue = LoadFlowProviderUtil.getSpecificParameters(provider, Optional.of(loader));
+        List<Parameter> parametersWithDefaultValue = LoadFlowProviderUtil.getSpecificParameters(provider, loader);
 
         assertSameMetaData(parameters, parametersWithDefaultValue);
 
@@ -178,7 +177,7 @@ class LoadFlowDefaultParametersLoaderTest {
 
         LoadFlowDefaultParametersLoader partialDefault = new AbstractLoadFlowDefaultParametersLoader("partial", "/LoadFlowParametersPartialUpdate.json") {
         };
-        parametersWithDefaultValue = LoadFlowProviderUtil.getSpecificParameters(provider, Optional.of(partialDefault));
+        parametersWithDefaultValue = LoadFlowProviderUtil.getSpecificParameters(provider, partialDefault);
         assertEquals(5.0, parametersWithDefaultValue.get(0).getDefaultValue());  // overridden
         assertEquals(42, parametersWithDefaultValue.get(1).getDefaultValue()); // default value
         assertEquals(false, parametersWithDefaultValue.get(2).getDefaultValue()); // default value
