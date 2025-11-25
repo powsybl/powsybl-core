@@ -47,7 +47,7 @@ This extension models whether an injection is part of the manual frequency resto
 
 This extension is provided in the  `com.powsybl:powsybl-iidm-extensions` module.
 
-Here is how to add a manual frequency restoration reserve extension to a generator:
+Here is how to add a manual frequency restoration reserve extension to an injection:
 ```java
 generator.newExtension(ManualFrequencyRestorationReserve.class)
     .withParticipate(true)
