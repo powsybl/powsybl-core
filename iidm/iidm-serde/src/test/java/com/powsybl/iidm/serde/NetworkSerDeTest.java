@@ -32,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.function.Supplier;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -42,6 +43,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NetworkSerDeTest extends AbstractIidmSerDeTest {
+
+    public static final String TEST_PROPERTY = "test";
 
     static Network createEurostagTutorialExample1() {
         Network network = EurostagTutorialExample1Factory.create();
@@ -140,11 +143,11 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testValidationIssueWithProperties() {
         Network network = createEurostagTutorialExample1();
-        network.getGenerator("GEN").setProperty("test", "foo");
+        network.getGenerator("GEN").setProperty(TEST_PROPERTY, "foo");
         Path xmlFile = tmpDir.resolve("n.xml");
         NetworkSerDe.write(network, xmlFile);
         Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
-        assertEquals("foo", readNetwork.getGenerator("GEN").getProperty("test"));
+        assertEquals("foo", readNetwork.getGenerator("GEN").getProperty(TEST_PROPERTY));
     }
 
     @Test
@@ -364,16 +367,16 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
      *   [X]  VoltageLevel
      *   [ ]  TopologyModel / AbstractTopologyModel:
      *   [X]  ReactiveLimits / ReactiveCapabilityCurveImpl & MinMaxReactiveLimitsImpl:
-     *   [ ]  ReactiveCapabilityCurve.Point / ReactiveCapabilityCurveImpl.PointImpl:
+     *   [X]  ReactiveCapabilityCurve.Point / ReactiveCapabilityCurveImpl.PointImpl:
      *   [X]  LoadModel / AbstractLoadModel:
-     *   [+]  ShuntCompensatorModel / ShuntCompensatorLinearModelImpl & ShuntCompensatorNonLinearModelImpl:
-     *   [ ]  ShuntCompensatorNonLinearModel.Section / ShuntCompensatorNonLinearModelImpl.SectionImpl:
-     *   [ ]  OperationalLimits / AbstractLoadingLimits & AbstractReducedLoadingLimits:
-     *   [ ]  LoadingLimits / AbstractLoadingLimits.TemporaryLimitImpl & AbstractReducedLoadingLimits.ReducedTemporaryLimit:
-     *   [ ]  OverloadManagementSystem.Tripping / OverloadManagementSystemImpl.AbstractTrippingImpl:
+     *   [X]  ShuntCompensatorModel / ShuntCompensatorLinearModelImpl & ShuntCompensatorNonLinearModelImpl:
+     *   [X]  ShuntCompensatorNonLinearModel.Section / ShuntCompensatorNonLinearModelImpl.SectionImpl:
+     *   [X]  OperationalLimits / AbstractLoadingLimits & AbstractReducedLoadingLimits:  (pas trouvé de serialisation iidm pour AbstractReducedLoadingLimits)
+     *   [X]  LoadingLimits / AbstractLoadingLimits.TemporaryLimitImpl & AbstractReducedLoadingLimits.ReducedTemporaryLimit:
+     *   [X]  OverloadManagementSystem.Tripping / OverloadManagementSystemImpl.AbstractTrippingImpl:
      *   [X]  TapChangerStep / TapChangerStepImpl:
      *   [X]  TapChanger / AbstractTapChanger:
-     *   [X] AreaBoundary / AreaBoundaryImpl:
+     *   [X]  AreaBoundary / AreaBoundaryImpl:
      */
 
     private TwoWindingsTransformer createTwoWindingsTransformer(Substation substation) {
@@ -416,8 +419,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 .setRho(6.0)
                 .endStep()
                 .add();
-        phaseTapChanger.setProperty("test", "valuePhaseTapChanger");
-        phaseTapChanger.getCurrentStep().setProperty("test", "value");
+        phaseTapChanger.setProperty(TEST_PROPERTY, "valuePhaseTapChanger");
+        phaseTapChanger.getCurrentStep().setProperty(TEST_PROPERTY, "value");
     }
 
     private void createRatioTapChanger(RatioTapChangerHolder rtch) {
@@ -447,17 +450,19 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 .setRho(1.0)
                 .endStep()
                 .add();
-        ratioTapChanger.setProperty("test", "valueRatioTapChanger");
-        ratioTapChanger.getCurrentStep().setProperty("test", "value");
+        ratioTapChanger.setProperty(TEST_PROPERTY, "valueRatioTapChanger");
+        ratioTapChanger.getCurrentStep().setProperty(TEST_PROPERTY, "value");
     }
 
     @Test
     void propertiesHolderSerDeTest() throws IOException {
         Network network = NetworkTest1Factory.create();
 
-        network.getGenerator("generator1").getReactiveLimits(ReactiveCapabilityCurve.class).setProperty("test", "valueReactiveCapabilityCurve");
+        ReactiveCapabilityCurve reactiveCapabilityCurve = network.getGenerator("generator1").getReactiveLimits(ReactiveCapabilityCurve.class);
+        reactiveCapabilityCurve.setProperty(TEST_PROPERTY, "valueReactiveCapabilityCurve");
+        reactiveCapabilityCurve.getPoints().iterator().next().setProperty(TEST_PROPERTY, "valueReactiveCapabilityCurvePoint");
         VoltageLevel voltageLevel = network.getVoltageLevel("voltageLevel1");
-        voltageLevel.setProperty("test", "valueVoltageLevel");
+        voltageLevel.setProperty(TEST_PROPERTY, "valueVoltageLevel");
 
         Load zipLoad = voltageLevel.newLoad()
                 .setId("zipLoad")
@@ -467,8 +472,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 .newZipModel().setC0p(0.5).setC0q(0.25).setC1p(0.25).setC1q(0.25).setC2p(0.25).setC2q(0.5).add()
                 .add();
 
-        zipLoad.setProperty("test", "valueZipLoad");
-        zipLoad.getModel().orElseThrow().setProperty("test", "valueZipLoadModel");
+        zipLoad.setProperty(TEST_PROPERTY, "valueZipLoad");
+        zipLoad.getModel().orElseThrow().setProperty(TEST_PROPERTY, "valueZipLoadModel");
 
         Load expLoad = voltageLevel.newLoad()
                 .setId("expLoad")
@@ -478,8 +483,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 .newExponentialModel().add()
                 .add();
 
-        expLoad.setProperty("test", "valueExpLoad");
-        expLoad.getModel().orElseThrow().setProperty("test", "valueExpLoadModel");
+        expLoad.setProperty(TEST_PROPERTY, "valueExpLoad");
+        expLoad.getModel().orElseThrow().setProperty(TEST_PROPERTY, "valueExpLoadModel");
 
         ShuntCompensator shuntCompensator = voltageLevel.newShuntCompensator()
                 .setId("shunt")
@@ -494,61 +499,165 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 .setBPerSection(3)
                 .add()
                 .add();
-        shuntCompensator.setProperty("test", "valueShuntCompensator");
+        shuntCompensator.setProperty(TEST_PROPERTY, "valueLinearShuntCompensator");
+        ShuntCompensatorLinearModel linearModel = (ShuntCompensatorLinearModel) shuntCompensator.getModel();
+        linearModel.setProperty(TEST_PROPERTY, "valueLinearShuntCompensatorModel");
 
-        Area defaultControlArea = network.newArea().setId("defaultControlArea").setAreaType("test").add();
-        defaultControlArea.setProperty("test", "testValue");
+        ShuntCompensator nonLinearShuntCompensator = voltageLevel.newShuntCompensator()
+                .setId("shuntNonLinear")
+                .setNode(8)
+                .setSectionCount(1)
+                .setVoltageRegulatorOn(true)
+                .setRegulatingTerminal(zipLoad.getTerminal())
+                .setTargetV(200)
+                .setTargetDeadband(5.0)
+                .newNonLinearModel()
+                .beginSection()
+                .setB(1.0)
+                .setG(2.0).endSection()
+                .add()
+                .add();
+        nonLinearShuntCompensator.setProperty(TEST_PROPERTY, "valueNonLinearShuntCompensator");
+        ShuntCompensatorNonLinearModel nonLinearModel = (ShuntCompensatorNonLinearModel) nonLinearShuntCompensator.getModel();
+        nonLinearModel.setProperty(TEST_PROPERTY, "valueNonLinearShuntCompensatorModel");
+        for (ShuntCompensatorNonLinearModel.Section s : nonLinearModel.getAllSections()) {
+            s.setProperty(TEST_PROPERTY, "valueNonLinearShuntCompensatorModelSection");
+        }
+
+        Area defaultControlArea = network.newArea().setId("defaultControlArea").setAreaType(TEST_PROPERTY).add();
+        defaultControlArea.setProperty(TEST_PROPERTY, "testValue");
 
         BusbarSection bb = network.getBusbarSection("voltageLevel1BusbarSection1");
-        bb.setProperty("test", "testBusbarSectionValue");
+        bb.setProperty(TEST_PROPERTY, "testBusbarSectionValue");
 
         ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_15.toString("."));
         Network nodeBreakerNetwork = writeAndRead(network, options);
 
         //Check that busbar and its extension is still here
         BusbarSection bb2 = nodeBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1");
-        assertEquals("testBusbarSectionValue", bb2.getProperty("test"));
-        assertEquals("testValue", nodeBreakerNetwork.getArea("defaultControlArea").getProperty("test"));
+        assertEquals("testBusbarSectionValue", bb2.getProperty(TEST_PROPERTY));
+        assertEquals("testValue", nodeBreakerNetwork.getArea("defaultControlArea").getProperty(TEST_PROPERTY));
 
         Load load1 = nodeBreakerNetwork.getLoad("zipLoad");
-        assertEquals("valueZipLoad", load1.getProperty("test"));
-        assertEquals("valueZipLoadModel", load1.getModel().orElseThrow().getProperty("test"));
+        assertEquals("valueZipLoad", load1.getProperty(TEST_PROPERTY));
+        assertEquals("valueZipLoadModel", load1.getModel().orElseThrow().getProperty(TEST_PROPERTY));
 
         Load load2 = nodeBreakerNetwork.getLoad("expLoad");
-        assertEquals("valueExpLoad", load2.getProperty("test"));
-        assertEquals("valueExpLoadModel", load2.getModel().orElseThrow().getProperty("test"));
+        assertEquals("valueExpLoad", load2.getProperty(TEST_PROPERTY));
+        assertEquals("valueExpLoadModel", load2.getModel().orElseThrow().getProperty(TEST_PROPERTY));
 
-        assertEquals("valueVoltageLevel", nodeBreakerNetwork.getVoltageLevel("voltageLevel1").getProperty("test"));
-        assertEquals("valueShuntCompensator", voltageLevel.getShuntCompensators().iterator().next().getProperty("test"));
+        assertEquals("valueVoltageLevel", nodeBreakerNetwork.getVoltageLevel("voltageLevel1").getProperty(TEST_PROPERTY));
+        for (ShuntCompensator shuntCompensator1 : voltageLevel.getShuntCompensators()) {
+            ShuntCompensatorModel model1 = shuntCompensator1.getModel();
+            if (model1 instanceof ShuntCompensatorNonLinearModel) {
+                assertEquals("valueNonLinearShuntCompensator", shuntCompensator1.getProperty(TEST_PROPERTY));
+                assertEquals("valueNonLinearShuntCompensatorModel", model1.getProperty(TEST_PROPERTY));
+                for (ShuntCompensatorNonLinearModel.Section s : ((ShuntCompensatorNonLinearModel) model1).getAllSections()) {
+                    assertEquals("valueNonLinearShuntCompensatorModelSection", s.getProperty(TEST_PROPERTY));
+                }
+            } else if (model1 instanceof ShuntCompensatorLinearModel) {
+                assertEquals("valueLinearShuntCompensator", shuntCompensator1.getProperty(TEST_PROPERTY));
+                assertEquals("valueLinearShuntCompensatorModel", model1.getProperty(TEST_PROPERTY));
+            }
+        }
 
-        assertEquals("valueReactiveCapabilityCurve", nodeBreakerNetwork.getGenerator("generator1").getReactiveLimits(ReactiveCapabilityCurve.class).getProperty("test"));
+        ReactiveCapabilityCurve reactiveCapabilityCurve1 = nodeBreakerNetwork.getGenerator("generator1").getReactiveLimits(ReactiveCapabilityCurve.class);
+        assertEquals("valueReactiveCapabilityCurve", reactiveCapabilityCurve1.getProperty(TEST_PROPERTY));
+        assertEquals("valueReactiveCapabilityCurvePoint", reactiveCapabilityCurve1.getPoints().iterator().next().getProperty(TEST_PROPERTY));
 
+    }
+
+    @Test
+    void testTrippings() throws IOException {
+        Network network = OverloadManagementSystemSerDeTest.createNetwork();
+        for (OverloadManagementSystem.Tripping tripping : network.getOverloadManagementSystem("OMS1").getTrippings()) {
+            tripping.setProperty(TEST_PROPERTY, "valueTripping");
+        }
+        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_15.toString("."));
+        Network network2 = writeAndRead(network, options);
+        for (OverloadManagementSystem.Tripping tripping : network2.getOverloadManagementSystem("OMS1").getTrippings()) {
+            assertEquals("valueTripping", tripping.getProperty(TEST_PROPERTY));
+        }
     }
 
     @Test
     void propertiesHolderSerDeTestTapChangers() throws IOException {
         Network network = NoEquipmentNetworkFactory.create();
         Substation substation = network.getSubstation("sub");
-        substation.setProperty("test", "value");
+        substation.setProperty(TEST_PROPERTY, "value");
         substation.setProperty("test2", "value2");
 
         // Check name for two winding transformers
         TwoWindingsTransformer twt2 = createTwoWindingsTransformer(substation);
-        twt2.setProperty("test", "twt2Value");
+        twt2.setProperty(TEST_PROPERTY, "twt2Value");
         createPhaseTapChanger(twt2);
         createRatioTapChanger(twt2);
 
         ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_15.toString("."));
         Network network2 = writeAndRead(network, options);
-        assertEquals("value", network2.getSubstation("sub").getProperty("test"));
+        assertEquals("value", network2.getSubstation("sub").getProperty(TEST_PROPERTY));
         assertEquals("value2", network2.getSubstation("sub").getProperty("test2"));
         TwoWindingsTransformer transformer = network2.getSubstation("sub").getTwoWindingsTransformers().iterator().next();
-        assertEquals("twt2Value", transformer.getProperty("test"));
+        assertEquals("twt2Value", transformer.getProperty(TEST_PROPERTY));
         PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
         RatioTapChanger ratioTapChanger = transformer.getRatioTapChanger();
-        assertEquals("valuePhaseTapChanger", phaseTapChanger.getProperty("test"));
-        assertEquals("valueRatioTapChanger", ratioTapChanger.getProperty("test"));
-        assertEquals("value", phaseTapChanger.getStep(1).getProperty("test"));
+        assertEquals("valuePhaseTapChanger", phaseTapChanger.getProperty(TEST_PROPERTY));
+        assertEquals("valueRatioTapChanger", ratioTapChanger.getProperty(TEST_PROPERTY));
+        assertEquals("value", phaseTapChanger.getStep(1).getProperty(TEST_PROPERTY));
 
+    }
+
+    @Test
+    void testPowerLimits() throws IOException {
+        Network network = DanglingLineNetworkFactory.create();
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        DanglingLine dl = network.getDanglingLine("DL");
+        OperationalLimitsGroup operationalLimitsGroup = dl.getOrCreateSelectedOperationalLimitsGroup();
+        ActivePowerLimits activePowerLimit = createLoadingLimits(operationalLimitsGroup::newActivePowerLimits);
+        ApparentPowerLimits apparentPowerLimit = createLoadingLimits(operationalLimitsGroup::newApparentPowerLimits);
+        CurrentLimits currentLimits = createLoadingLimits(operationalLimitsGroup::newCurrentLimits);
+        activePowerLimit.setProperty(TEST_PROPERTY, "valueActivePowerLimits");
+        apparentPowerLimit.setProperty(TEST_PROPERTY, "valueApparentPowerLimits");
+        currentLimits.setProperty(TEST_PROPERTY, "valueCurrentLimits");
+        ExportOptions options = new ExportOptions().setVersion(IidmVersion.V_1_15.toString("."));
+        Network network2 = writeAndRead(network, options);
+        DanglingLine dl2 = network2.getDanglingLine("DL");
+        assertEquals("valueActivePowerLimits", dl2.getActivePowerLimits().orElseThrow().getProperty(TEST_PROPERTY));
+        assertEquals("valueApparentPowerLimits", dl2.getApparentPowerLimits().orElseThrow().getProperty(TEST_PROPERTY));
+        assertEquals("valueCurrentLimits", dl2.getCurrentLimits().orElseThrow().getProperty(TEST_PROPERTY));
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> L createLoadingLimits(Supplier<A> limitsAdderSupplier) {
+        A adder = limitsAdderSupplier.get()
+                .setPermanentLimit(350)
+                .beginTemporaryLimit()
+                .setValue(370)
+                .setAcceptableDuration(20 * 60)
+                .setName("20'")
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setValue(380)
+                .setAcceptableDuration(10 * 60)
+                .setName("10'")
+                .endTemporaryLimit();
+        adder.setProperty(TEST_PROPERTY, "testLoadingLimit");
+        return adder.add();
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> L createReducedLoadingLimits(Supplier<A> limitsAdderSupplier) {
+        A adder = limitsAdderSupplier.get()
+                .setPermanentLimit(350)
+                .beginTemporaryLimit()
+                .setValue(370)
+                .setAcceptableDuration(20 * 60)
+                .setName("20'")
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setValue(380)
+                .setAcceptableDuration(10 * 60)
+                .setName("10'")
+                .endTemporaryLimit();
+        adder.setProperty(TEST_PROPERTY, "testLoadingLimit");
+        return adder.add();
     }
 }

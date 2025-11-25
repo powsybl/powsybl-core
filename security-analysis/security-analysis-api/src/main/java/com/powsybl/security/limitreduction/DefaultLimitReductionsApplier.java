@@ -35,7 +35,6 @@ import java.util.Map;
 public class DefaultLimitReductionsApplier extends AbstractLimitReductionsApplier<Identifiable<?>, LoadingLimits> {
 
     private final Map<Identifiable<?>, DefaultNetworkElementAdapter> networkElementAdapterCache = new HashMap<>();
-    private final Network network;
 
     /**
      * Create a new {@link AbstractLimitReductionsApplier} for {@link com.powsybl.iidm.network.Identifiable}
@@ -43,9 +42,8 @@ public class DefaultLimitReductionsApplier extends AbstractLimitReductionsApplie
      *
      * @param limitReductionList the list of the reductions to use when computing reduced limits.
      */
-    public DefaultLimitReductionsApplier(Network network, List<LimitReduction> limitReductionList) {
+    public DefaultLimitReductionsApplier(List<LimitReduction> limitReductionList) {
         super(limitReductionList);
-        this.network = network;
     }
 
     @Override
@@ -55,7 +53,7 @@ public class DefaultLimitReductionsApplier extends AbstractLimitReductionsApplie
 
     @Override
     protected AbstractLimitsReducerCreator<LoadingLimits, AbstractLimitsReducer<LoadingLimits>> getLimitsReducerCreator() {
-        return (id, originalLimits) -> new DefaultLimitsReducer(network, originalLimits);
+        return (id, originalLimits) -> new DefaultLimitsReducer(originalLimits);
     }
 
     @Override

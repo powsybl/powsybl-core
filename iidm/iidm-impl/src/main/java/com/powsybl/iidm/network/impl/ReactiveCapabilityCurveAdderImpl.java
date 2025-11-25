@@ -29,7 +29,7 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
 
     private final TreeMap<Double, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
 
-    private final class PointAdderImpl implements PointAdder {
+    private final class PointAdderImpl extends AbstractPropertiesHolder implements PointAdder {
 
         private double p = Double.NaN;
 
@@ -83,7 +83,11 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
             //     throw new ValidationException(owner,
             //             "maximum reactive power is expected to be greater than or equal to minimum reactive power");
             // }
-            points.put(p, new PointImpl(p, minQ, maxQ));
+            PointImpl pointImpl = new PointImpl(p, minQ, maxQ);
+            for (Map.Entry<Object, Object> prop : getProperties().entrySet()) {
+                pointImpl.setProperty(prop.getKey().toString(), prop.getValue().toString());
+            }
+            points.put(p, pointImpl);
             return ReactiveCapabilityCurveAdderImpl.this;
         }
 

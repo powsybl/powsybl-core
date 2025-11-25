@@ -11,6 +11,9 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Overload;
 
 import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A simple, default implementation of {@link Overload}.
@@ -42,6 +45,44 @@ public class OverloadImpl implements Overload {
     }
 
     private static final LoadingLimits.TemporaryLimit UNACCEPTABLE_LIMIT = new LoadingLimits.TemporaryLimit() {
+
+        final Properties properties = new Properties();
+
+        @Override
+        public boolean hasProperty() {
+            return !properties.isEmpty();
+        }
+
+        @Override
+        public boolean hasProperty(String key) {
+            return properties.containsKey(key);
+        }
+
+        @Override
+        public String getProperty(String key) {
+            return properties.getProperty(key);
+        }
+
+        @Override
+        public String getProperty(String key, String defaultValue) {
+            return properties.getProperty(key, defaultValue);
+        }
+
+        @Override
+        public String setProperty(String key, String value) {
+            return String.format("%s", properties.setProperty(key, value));
+        }
+
+        @Override
+        public boolean removeProperty(String key) {
+            return properties.remove(key) != null;
+        }
+
+        @Override
+        public Set<String> getPropertyNames() {
+            return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+        }
+
         @Override
         public String getName() {
             return "Unacceptable";

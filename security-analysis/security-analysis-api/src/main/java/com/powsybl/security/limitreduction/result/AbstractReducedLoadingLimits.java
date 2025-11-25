@@ -8,7 +8,6 @@
 package com.powsybl.security.limitreduction.result;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.AbstractPropertiesHolder;
 import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 
@@ -27,8 +26,27 @@ public abstract class AbstractReducedLoadingLimits extends AbstractPropertiesHol
     private final double permanentLimitReduction;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
-    public record ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
-                                 double originalValue, double limitReduction) implements TemporaryLimit {
+    public static final class ReducedTemporaryLimit extends AbstractPropertiesHolder implements TemporaryLimit {
+        // 1. Fields (equivalent to the record components)
+        private final String name;
+        private final double value;
+        private final int acceptableDuration;
+        private final boolean fictitious;
+        private final double originalValue;
+        private final double limitReduction;
+
+        // 2. Canonical Constructor (to initialize all fields)
+        public ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
+                                     double originalValue, double limitReduction) {
+            this.name = name;
+            this.value = value;
+            this.acceptableDuration = acceptableDuration;
+            this.fictitious = fictitious;
+            this.originalValue = originalValue;
+            this.limitReduction = limitReduction;
+        }
+
+        // 3. Accessor Methods (Getters)
         @Override
         public String getName() {
             return name;
@@ -58,7 +76,7 @@ public abstract class AbstractReducedLoadingLimits extends AbstractPropertiesHol
         }
     }
 
-    protected AbstractReducedLoadingLimits(Network network, double permanentLimit, double originalPermanentLimit,
+    protected AbstractReducedLoadingLimits(double permanentLimit, double originalPermanentLimit,
                                            double permanentLimitReduction) {
         this.permanentLimit = permanentLimit;
         this.originalPermanentLimit = originalPermanentLimit;

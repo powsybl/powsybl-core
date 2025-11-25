@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public interface OperationalLimitsAdder<L extends OperationalLimits, A extends OperationalLimitsAdder<L, A>> {
+public interface OperationalLimitsAdder<L extends OperationalLimits, A extends OperationalLimitsAdder<L, A>> extends PropertiesHolder {
 
     L add();
 }

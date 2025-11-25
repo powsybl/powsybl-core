@@ -13,7 +13,7 @@ package com.powsybl.iidm.network;
  */
 public interface ReactiveCapabilityCurveAdder extends PropertiesHolder {
 
-    interface PointAdder {
+    interface PointAdder extends PropertiesHolder {
 
         PointAdder setP(double p);
 

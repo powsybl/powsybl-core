@@ -123,15 +123,18 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
             context.getWriter().writeDoubleAttribute(B_PER_SECTION, getBPerSection(sc, context.getVersion()));
             context.getWriter().writeDoubleAttribute("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection());
             context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, sc.getMaximumSectionCount());
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(sc, context));
             context.getWriter().writeEndNode();
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
                 context.getWriter().writeStartNodes();
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(sc, context));
                 for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SECTION_ROOT_ELEMENT_NAME);
                     context.getWriter().writeDoubleAttribute("b", s.getB());
                     context.getWriter().writeDoubleAttribute("g", s.getG());
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(s, context));
                     context.getWriter().writeEndNode();
                 }
                 context.getWriter().writeEndNodes();
@@ -199,25 +202,35 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
                     double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
                     double gPerSection = context.getReader().readDoubleAttribute("gPerSection");
                     int maximumSectionCount = context.getReader().readIntAttribute(MAXIMUM_SECTION_COUNT);
-                    context.getReader().readEndNode();
-                    adder.newLinearModel()
+                    ShuntCompensatorLinearModelAdder linearAdder = adder.newLinearModel()
                             .setBPerSection(bPerSection)
                             .setGPerSection(gPerSection)
-                            .setMaximumSectionCount(maximumSectionCount)
-                            .add();
+                            .setMaximumSectionCount(maximumSectionCount);
+                    context.getReader().readChildNodes(nodeName -> {
+                        if (PropertiesSerDe.ROOT_ELEMENT_NAME.equals(nodeName)) {
+                            PropertiesSerDe.read(linearAdder, context);
+                        }
+                    });
+                    linearAdder.add();
                 }
                 case SHUNT_NON_LINEAR_MODEL -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_NON_LINEAR_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
                     ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
                     context.getReader().readChildNodes(nodeName -> {
-                        if (SECTION_ROOT_ELEMENT_NAME.equals(nodeName)) {
+                        if (PropertiesSerDe.ROOT_ELEMENT_NAME.equals(nodeName)) {
+                            PropertiesSerDe.read(modelAdder, context);
+                        } else if (SECTION_ROOT_ELEMENT_NAME.equals(nodeName)) {
                             double b = context.getReader().readDoubleAttribute("b");
                             double g = context.getReader().readDoubleAttribute("g");
-                            modelAdder.beginSection()
+                            ShuntCompensatorNonLinearModelAdder.SectionAdder sectionAdder = modelAdder.beginSection()
                                     .setB(b)
-                                    .setG(g)
-                                    .endSection();
-                            context.getReader().readEndNode();
+                                    .setG(g);
+                            context.getReader().readChildNodes(sectionNodeName -> {
+                                if (PropertiesSerDe.ROOT_ELEMENT_NAME.equals(sectionNodeName)) {
+                                    PropertiesSerDe.read(sectionAdder, context);
+                                }
+                            });
+                            sectionAdder.endSection();
                         } else {
                             throw new PowsyblException("Unknown element name '" + nodeName + "' in '" + id + "'");
                         }

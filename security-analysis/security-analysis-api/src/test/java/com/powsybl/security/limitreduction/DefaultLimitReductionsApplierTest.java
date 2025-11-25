@@ -73,7 +73,7 @@ class DefaultLimitReductionsApplierTest {
         LimitReduction reduction6 = LimitReduction.builder(LimitType.CURRENT, 0.2)
                 .withMonitoringOnly(true)
                 .build();
-        applier = new DefaultLimitReductionsApplier(network, List.of(reduction1, reduction2, reduction3, reduction4, reduction5, reduction6));
+        applier = new DefaultLimitReductionsApplier(List.of(reduction1, reduction2, reduction3, reduction4, reduction5, reduction6));
     }
 
     @Test
@@ -234,14 +234,14 @@ class DefaultLimitReductionsApplierTest {
     }
 
     static Stream<Arguments> getNoChangesComputers() {
-        DefaultLimitReductionsApplier noReductionComputer = new DefaultLimitReductionsApplier(network, Collections.emptyList());
+        DefaultLimitReductionsApplier noReductionComputer = new DefaultLimitReductionsApplier(Collections.emptyList());
         LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 1.)
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .build();
         LimitReduction reduction2 = LimitReduction.builder(LimitType.CURRENT, 1.)
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .build();
-        DefaultLimitReductionsApplier reductionsTo1Computer = new DefaultLimitReductionsApplier(network, List.of(reduction1, reduction2));
+        DefaultLimitReductionsApplier reductionsTo1Computer = new DefaultLimitReductionsApplier(List.of(reduction1, reduction2));
         return Stream.of(
                 Arguments.of("No reductions", noReductionComputer),
                 Arguments.of("Reductions to 1.0", reductionsTo1Computer)
