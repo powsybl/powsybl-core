@@ -78,7 +78,8 @@ public final class ConnectableSerDeUtil {
     public static void writeNodeOrBus(AcDcConverter<?> converter, NetworkSerializerContext context) {
         Terminal t1 = converter.getTerminal1();
         Optional<Terminal> t2 = converter.getTerminal2();
-        TopologyLevel topologyLevel = TopologyLevel.min(t1.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
+        // Note that t1 and t2 are in the same voltage level, and therefore share the same topology level.
+        TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(t1.getVoltageLevel(), context);
         switch (topologyLevel) {
             case NODE_BREAKER -> {
                 context.getWriter().writeIntAttribute(NODE + "1", t1.getNodeBreakerView().getNode());
