@@ -121,12 +121,12 @@ public class SensitivityAnalysisRunParameters {
     }
 
     public SensitivityAnalysisRunParameters setOperatorStrategies(List<OperatorStrategy> operatorStrategies) {
-        this.operatorStrategies = Objects.requireNonNull(operatorStrategies, "operatorStrategies should not be null");;
+        this.operatorStrategies = Objects.requireNonNull(operatorStrategies, "operatorStrategies should not be null");
         return this;
     }
 
     public SensitivityAnalysisRunParameters setActions(List<Action> actions) {
-        this.actions = Objects.requireNonNull(actions, "actions should not be null");;
+        this.actions = Objects.requireNonNull(actions, "actions should not be null");
         return this;
     }
 }
