@@ -75,7 +75,7 @@ class JsonUtilTest {
     }
 
     @Test
-    void testCompareVersions() throws IOException {
+    void testCompareVersions() {
         assertTrue(JsonUtil.compareVersions("1.9", "1.10") < 0);
         assertTrue(JsonUtil.compareVersions("2.0", "1.9") > 0);
         assertTrue(JsonUtil.compareVersions("1.10", "1.10.1") < 0);

@@ -480,6 +480,8 @@ public final class JsonUtil {
     }
 
     public static int compareVersions(String v1, String v2) {
+        Objects.requireNonNull(v1);
+        Objects.requireNonNull(v2);
         String[] parts1 = v1.split("\\.");
         String[] parts2 = v2.split("\\.");
         try {
