@@ -482,36 +482,41 @@ public final class JsonUtil {
     public static int compareVersions(String v1, String v2) {
         Objects.requireNonNull(v1);
         Objects.requireNonNull(v2);
+
         String[] parts1 = v1.split("\\.");
         String[] parts2 = v2.split("\\.");
-        try {
-            int major1 = parts1.length > 0 ? Integer.parseInt(parts1[0]) : 0;
-            int major2 = parts2.length > 0 ? Integer.parseInt(parts2[0]) : 0;
-            if (major1 != major2) {
-                return Integer.compare(major1, major2);
+
+        int length = Math.max(parts1.length, parts2.length);
+
+        for (int i = 0; i < length; i++) {
+            String p1 = i < parts1.length ? parts1[i] : "";
+            String p2 = i < parts2.length ? parts2[i] : "";
+
+            Integer n1 = parseOrNull(p1);
+            Integer n2 = parseOrNull(p2);
+
+            if (n1 != null && n2 != null) {
+                if (!n1.equals(n2)) {
+                    return Integer.compare(n1, n2);
+                }
+            } else {
+                int cmp = p1.compareTo(p2);
+                if (cmp != 0) {
+                    return cmp;
+                }
             }
-        } catch (NumberFormatException e) {
-            return v1.compareTo(v2);
+        }
+        return 0;
+    }
+
+    private static Integer parseOrNull(String s) {
+        if (s.isEmpty()) {
+            return 0;
         }
         try {
-            int minor1 = parts1.length > 1 ? Integer.parseInt(parts1[1]) : 0;
-            int minor2 = parts2.length > 1 ? Integer.parseInt(parts2[1]) : 0;
-            if (minor1 != minor2) {
-                return Integer.compare(minor1, minor2);
-            }
+            return Integer.parseInt(s);
         } catch (NumberFormatException e) {
-            String p1 = parts1.length > 1 ? parts1[1] : "";
-            String p2 = parts2.length > 1 ? parts2[1] : "";
-            return p1.compareTo(p2);
-        }
-        try {
-            int patch1 = parts1.length > 2 ? Integer.parseInt(parts1[2]) : 0;
-            int patch2 = parts2.length > 2 ? Integer.parseInt(parts2[2]) : 0;
-            return Integer.compare(patch1, patch2);
-        } catch (NumberFormatException e) {
-            String p1 = parts1.length > 2 ? parts1[2] : "";
-            String p2 = parts2.length > 2 ? parts2[2] : "";
-            return p1.compareTo(p2);
+            return null;
         }
     }
 

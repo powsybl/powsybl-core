@@ -94,7 +94,7 @@ class JsonUtilTest {
     }
 
     @Test
-    void testAssertSupportedVersion() throws IOException {
+    void testAssertSupportedVersion() {
         String contextName = "TestContext";
         String supportedVersion = "1.9";
         String unsupportedVersion = "1.11";

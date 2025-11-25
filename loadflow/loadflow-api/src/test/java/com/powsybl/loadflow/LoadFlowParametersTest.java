@@ -18,7 +18,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.HashSet;
 import java.util.Set;
@@ -422,8 +421,7 @@ class LoadFlowParametersTest {
     }
 
     @Test
-    void testComponentMode() throws IOException {
-        LoadFlowParameters parameters = new LoadFlowParameters();
+    void testComponentMode() {
         assertEquals(LoadFlowParameters.ComponentMode.MAIN_CONNECTED, LoadFlowParameters.ComponentMode.fromString("MAIN"));
         assertEquals(LoadFlowParameters.ComponentMode.ALL_CONNECTED, LoadFlowParameters.ComponentMode.fromString("ALL"));
         assertEquals(LoadFlowParameters.ComponentMode.MAIN_CONNECTED, LoadFlowParameters.ComponentMode.fromString("MAIN_CONNECTED"));
