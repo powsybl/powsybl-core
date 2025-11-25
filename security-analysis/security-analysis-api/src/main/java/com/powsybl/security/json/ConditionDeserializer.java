@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.condition.*;
@@ -34,7 +35,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
         String equipmentId;
         ThreeSides side;
         boolean isAcSide;
-        int terminalNumber;
+        TerminalNumber terminalNumber;
         AbstractThresholdCondition.ComparisonType comparisonType;
         AbstractThresholdCondition.Variable variable;
     }
@@ -76,7 +77,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                     return true;
                 case "terminalNumber":
                     parser.nextToken();
-                    context.terminalNumber = parser.getValueAsInt();
+                    context.terminalNumber = TerminalNumber.valueOf(parser.getValueAsInt());
                     return true;
                 case "comparisonType":
                     parser.nextToken();

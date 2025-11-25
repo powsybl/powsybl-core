@@ -7,6 +7,8 @@
  */
 package com.powsybl.security.condition;
 
+import com.powsybl.iidm.network.TerminalNumber;
+
 /**
  * Condition on an acdc converter triggered by a threshold
  *
@@ -19,10 +21,10 @@ public class AcDcConverterThresholdCondition extends AbstractThresholdCondition 
     // True to target AC side, false for DC side
     private final boolean acSide;
     // Terminal number to target
-    private final int terminalNumber;
+    private final TerminalNumber terminalNumber;
 
     public AcDcConverterThresholdCondition(double threshold, AbstractThresholdCondition.ComparisonType type, String equipmentId,
-                                           AbstractThresholdCondition.Variable variable, boolean acSide, int terminalNumber) {
+                                           AbstractThresholdCondition.Variable variable, boolean acSide, TerminalNumber terminalNumber) {
         super(threshold, type, equipmentId, variable);
         this.acSide = acSide;
         this.terminalNumber = terminalNumber;
@@ -32,7 +34,7 @@ public class AcDcConverterThresholdCondition extends AbstractThresholdCondition 
         return acSide;
     }
 
-    public int getTerminalNumber() {
+    public TerminalNumber getTerminalNumber() {
         return terminalNumber;
     }
 

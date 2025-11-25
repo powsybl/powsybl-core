@@ -18,6 +18,7 @@ import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.action.*;
+import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.condition.*;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -83,7 +84,7 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
             List.of(
                 new ConditionalActions("stage1", new BranchThresholdCondition(2.0, AbstractThresholdCondition.ComparisonType.GREATER_THAN, "Line1", AbstractThresholdCondition.Variable.CURRENT, ThreeSides.ONE), List.of("actionId3")),
                 new ConditionalActions("stage2", new InjectionThresholdCondition(2.0, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, "Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER), List.of("actionId3", "actionId4")),
-                new ConditionalActions("stage3", new AcDcConverterThresholdCondition(3.0, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, "Converter1", AbstractThresholdCondition.Variable.CURRENT, true, 2), List.of("actionId3", "actionId4", "actionId5")))));
+                new ConditionalActions("stage3", new AcDcConverterThresholdCondition(3.0, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, "Converter1", AbstractThresholdCondition.Variable.CURRENT, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5")))));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
     }

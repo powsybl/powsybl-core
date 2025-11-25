@@ -79,10 +79,10 @@
       "id" : "stage1",
       "condition" : {
         "type" : "BRANCH_THRESHOLD_CONDITION",
-        "threshold" : 2.0,
         "equipmentId" : "Line1",
-        "comparisonType" : "GREATER_THAN",
         "variable" : "CURRENT",
+        "comparisonType" : "GREATER_THAN",
+        "threshold" : 2.0,
         "side" : "ONE"
       },
       "actionIds" : [ "actionId3" ]
@@ -90,20 +90,20 @@
       "id" : "stage2",
       "condition" : {
         "type" : "INJECTION_THRESHOLD_CONDITION",
-        "threshold" : 2.0,
         "equipmentId" : "Gen2",
+        "variable" : "ACTIVE_POWER",
         "comparisonType" : "GREATER_THAN_OR_EQUALS",
-        "variable" : "ACTIVE_POWER"
+        "threshold" : 2.0
       },
       "actionIds" : [ "actionId3", "actionId4" ]
     }, {
       "id" : "stage3",
       "condition" : {
         "type" : "AC_DC_CONVERTER_THRESHOLD_CONDITION",
-        "threshold" : 3.0,
         "equipmentId" : "Converter1",
-        "comparisonType" : "LESS_THAN_OR_EQUALS",
         "variable" : "CURRENT",
+        "comparisonType" : "LESS_THAN_OR_EQUALS",
+        "threshold" : 3.0,
         "acSide" : true,
         "terminalNumber" : 2
       },
