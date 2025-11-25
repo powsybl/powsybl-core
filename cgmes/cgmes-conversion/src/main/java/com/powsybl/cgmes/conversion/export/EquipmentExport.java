@@ -1281,7 +1281,7 @@ public final class EquipmentExport {
             writeDCNode(dcNode1G, line.getNameOrId() + "_1G", dcConverterUnit1, cimNamespace, writer, context);
 
             String dcConverterUnit2 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(2));
-            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_1", MONOPOLAR_GROUND_RETURN, substation2Id, cimNamespace, writer, context);
+            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_2", MONOPOLAR_GROUND_RETURN, substation2Id, cimNamespace, writer, context);
             String dcNode2 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(2));
             writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2, cimNamespace, writer, context);
             String dcNode2G = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref("2G"));

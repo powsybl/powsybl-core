@@ -266,7 +266,7 @@ They share the following attributes:
 - SSH `p` is the PCC terminal's `P` value.
 - SSH `q` is the PCC terminal's `Q` value.
 
-Specific `Line Commutated Converter` attribute:
+Specific `Line Commutated Converter` attributes:
 - SSH `pPccControl` is `CsPpccControlKind.activePower` if `ControlMode` is `P_PCC`, else it is `CsPpccControlKind.dcVoltage`.
 - SSH `operatingMode` is `CsOperatingModeKind.rectifier` if the `TargetP` is greater than 0, else it is `CsOperatingModeKind.inverter`.
 - SSH `targetAlpha` is defaulted to 0.

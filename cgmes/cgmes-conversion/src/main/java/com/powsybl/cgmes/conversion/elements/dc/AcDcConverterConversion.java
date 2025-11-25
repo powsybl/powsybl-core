@@ -27,7 +27,6 @@ import static com.powsybl.cgmes.model.CgmesNames.VS_CONVERTER;
 public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversion {
 
     int numberOfAcTerminals;
-    Terminal pccTerminal;
     static final double DEFAULT_POWER_FACTOR = 1.0 / Math.hypot(1.0, 0.5);  // Default power factor calculated with Q = P / 2
 
     public AcDcConverterConversion(PropertyBag p, Context context) {
