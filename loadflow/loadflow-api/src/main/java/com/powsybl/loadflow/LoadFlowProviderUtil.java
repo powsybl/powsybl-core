@@ -65,13 +65,15 @@ public final class LoadFlowProviderUtil {
         if (!result.isEmpty() && provider.getSpecificParametersClass().isPresent()) {
             LoadFlowParameters loadFlowParameters = JsonLoadFlowParameters.read(loadFlowDefaultParametersLoader.loadDefaultParametersFromFile());
             Extension<LoadFlowParameters> ext = loadFlowParameters.getExtension(provider.getSpecificParametersClass().orElseThrow());
-
-            Map<String, String> values = provider.createMapFromSpecificParameters(ext);
-            result = result.stream()
-                    .map(p -> new Parameter(p.getName(), p.getType(), p.getDescription(),
-                            getValueFromString(p.getType(), values.get(p.getName())), p.getPossibleValues(),
-                            p.getScope(), p.getCategoryKey()))
-                    .toList();
+            // default parameter loader may not contain the extension in the JSON file
+            if (ext != null) {
+                Map<String, String> values = provider.createMapFromSpecificParameters(ext);
+                result = result.stream()
+                        .map(p -> new Parameter(p.getName(), p.getType(), p.getDescription(),
+                                getValueFromString(p.getType(), values.get(p.getName())), p.getPossibleValues(),
+                                p.getScope(), p.getCategoryKey()))
+                        .toList();
+            }
 
         }
         return result;
