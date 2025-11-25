@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -92,15 +93,19 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
         @Override
         public ShuntCompensatorModelExt build() {
-            return new ShuntCompensatorLinearModelImpl(bPerSection, gPerSection, maximumSectionCount);
+            ShuntCompensatorLinearModelImpl linearModel = new ShuntCompensatorLinearModelImpl(bPerSection, gPerSection, maximumSectionCount);
+            for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
+                linearModel.setProperty((String) entry.getKey(), (String) entry.getValue());
+            }
+            return linearModel;
         }
     }
 
-    class ShuntCompensatorNonLinearModelAdderImpl implements ShuntCompensatorNonLinearModelAdder, ShuntCompensatorModelBuilder {
+    class ShuntCompensatorNonLinearModelAdderImpl extends AbstractPropertiesHolder implements ShuntCompensatorNonLinearModelAdder, ShuntCompensatorModelBuilder {
 
         private final List<SectionAdderImpl> sectionAdders = new ArrayList<>();
 
-        class SectionAdderImpl implements SectionAdder {
+        class SectionAdderImpl extends AbstractPropertiesHolder implements SectionAdder {
 
             private double b = Double.NaN;
 
@@ -154,7 +159,11 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                 return new ShuntCompensatorNonLinearModelImpl.SectionImpl(s + 1, adder.b, adder.g);
             }).collect(Collectors.toList());
 
-            return new ShuntCompensatorNonLinearModelImpl(sections);
+            ShuntCompensatorNonLinearModelImpl nonLinearModel = new ShuntCompensatorNonLinearModelImpl(sections);
+            for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
+                nonLinearModel.setProperty((String) entry.getKey(), (String) entry.getValue());
+            }
+            return nonLinearModel;
         }
 
         @Override

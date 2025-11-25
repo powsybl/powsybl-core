@@ -20,7 +20,7 @@ import static java.lang.Integer.MAX_VALUE;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
+abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends AbstractPropertiesHolder implements LoadingLimitsAdder<L, A> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
     protected final Validable validable;
@@ -29,8 +29,6 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     protected double permanentLimit = Double.NaN;
 
     protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
-
-    protected final Network network;
 
     public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> implements TemporaryLimitAdder<B> {
 
@@ -44,10 +42,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
         private boolean ensureNameUnicity = false;
 
-        private Network network;
-
-        public TemporaryLimitAdderImpl(Network network) {
-            this.network = network;
+        public TemporaryLimitAdderImpl() {
         }
 
         @Override
@@ -122,10 +117,9 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
     }
 
-    AbstractLoadingLimitsAdder(Network network, Validable validable, String ownerId) {
+    AbstractLoadingLimitsAdder(Validable validable, String ownerId) {
         this.validable = Objects.requireNonNull(validable);
         this.ownerId = ownerId;
-        this.network = network;
     }
 
     @Override
@@ -136,7 +130,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
     @Override
     public TemporaryLimitAdder<A> beginTemporaryLimit() {
-        return new TemporaryLimitAdderImpl<>(network);
+        return new TemporaryLimitAdderImpl<>();
     }
 
     @Override

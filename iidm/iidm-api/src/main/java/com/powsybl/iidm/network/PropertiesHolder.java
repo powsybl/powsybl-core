@@ -52,6 +52,4 @@ public interface PropertiesHolder {
      * Get properties key values.
      */
     Set<String> getPropertyNames();
-
-    //Network getNetwork();
 }

@@ -327,16 +327,23 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="ShuntLinearModel">
+        <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
         <xs:attribute name="bPerSection" use="required" type="xs:double"/>
         <xs:attribute name="gPerSection" use="optional" type="xs:double"/>
         <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
     </xs:complexType>
     <xs:complexType name="ShuntNonLinearModel">
         <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="section" maxOccurs="unbounded" type="iidm:ShuntSection" />
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="ShuntSection">
+        <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
         <xs:attribute name="b" use="required" type="xs:double"/>
         <xs:attribute name="g" use="optional" type="xs:double"/>
     </xs:complexType>

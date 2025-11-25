@@ -46,7 +46,7 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     @Override
     protected void writeSubElements(Load load, VoltageLevel parent, NetworkSerializerContext context) {
-        PropertiesSerDe.write(load, context);
+        //PropertiesSerDe.write(load, context);
         load.getModel().ifPresent(model -> {
             IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, MODEL, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_10, context);
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_10, context, () -> writeModel(model, context));
@@ -60,7 +60,7 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), EXPONENTIAL_MODEL);
                 context.getWriter().writeDoubleAttribute("np", expModel.getNp());
                 context.getWriter().writeDoubleAttribute("nq", expModel.getNq());
-                PropertiesSerDe.write(expModel, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(expModel, context));
                 context.getWriter().writeEndNode();
             }
             case ZIP -> {
@@ -72,7 +72,7 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                 context.getWriter().writeDoubleAttribute("c0q", zipModel.getC0q());
                 context.getWriter().writeDoubleAttribute("c1q", zipModel.getC1q());
                 context.getWriter().writeDoubleAttribute("c2q", zipModel.getC2q());
-                PropertiesSerDe.write(zipModel, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(zipModel, context));
                 context.getWriter().writeEndNode();
             }
             default -> throw new PowsyblException("Unexpected load model type: " + model.getType());

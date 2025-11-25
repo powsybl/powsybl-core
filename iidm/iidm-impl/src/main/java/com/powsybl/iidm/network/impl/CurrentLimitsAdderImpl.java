@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.Validable;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -22,20 +23,26 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
 
     Supplier<OperationalLimitsGroupImpl> groupSupplier;
 
+    private final NetworkImpl network;
+
     public CurrentLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, NetworkImpl network) {
-        super(network, validable, ownerId);
+        super(validable, ownerId);
         this.groupSupplier = groupSupplier;
+        this.network = network;
     }
 
     @Override
     public CurrentLimits add() {
-        checkAndUpdateValidationLevel(groupSupplier.get().getNetwork());
+        checkAndUpdateValidationLevel(network);
         OperationalLimitsGroupImpl group = groupSupplier.get();
         if (group == null) {
             throw new PowsyblException(String.format("Error adding CurrentLimits on %s: error getting or creating the group", getOwnerId()));
         }
         CurrentLimitsImpl limits = new CurrentLimitsImpl(group, permanentLimit, temporaryLimits);
         group.setCurrentLimits(limits);
+        for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
+            limits.setProperty((String) entry.getKey(), (String) entry.getValue());
+        }
         return limits;
     }
 

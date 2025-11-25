@@ -41,9 +41,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, NetworkSerializerContext context) {
         readCommonTapChangerAttributes(tcs, context);
-        if (context.getVersion().compareTo(IidmVersion.V_1_15) <= 0) {
-            PropertiesSerDe.write(tcs, context);
-        }
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(tcs, context));
     }
 
     private static TreeDataWriter readCommonTapChangerAttributes(TapChangerStep<?> tcs, NetworkSerializerContext context) {
@@ -58,9 +56,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     protected static void writePhaseTapChangerStep(PhaseTapChangerStep ptcs, NetworkSerializerContext context) {
         readCommonTapChangerAttributes(ptcs, context).writeDoubleAttribute("alpha", ptcs.getAlpha());
-        if (context.getVersion().compareTo(IidmVersion.V_1_15) <= 0) {
-            PropertiesSerDe.write(ptcs, context);
-        }
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(ptcs, context));
     }
 
     private static void writeTargetDeadband(double targetDeadband, NetworkSerializerContext context) {
@@ -116,9 +112,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         });
         TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
 
-        if (context.getVersion().compareTo(IidmVersion.V_1_15) <= 0) {
-            PropertiesSerDe.write(rtc, context);
-        }
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(rtc, context));
 
         context.getWriter().writeStartNodes();
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
@@ -237,9 +231,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, ptc.getRegulationValue());
         TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
 
-        if (context.getVersion().compareTo(IidmVersion.V_1_15) <= 0) {
-            PropertiesSerDe.write(ptc, context);
-        }
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(ptc, context));
 
         context.getWriter().writeStartNodes();
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {

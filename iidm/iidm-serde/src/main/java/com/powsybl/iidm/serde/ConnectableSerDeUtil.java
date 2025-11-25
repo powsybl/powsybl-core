@@ -200,6 +200,8 @@ public final class ConnectableSerDeUtil {
                         .setValue(value)
                         .setFictitious(fictitious)
                         .endTemporaryLimit();
+            } else if (PropertiesSerDe.ROOT_ELEMENT_NAME.equals(elementName)) {
+                PropertiesSerDe.read(adder, context);
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
             }
@@ -235,38 +237,34 @@ public final class ConnectableSerDeUtil {
         readAllLoadingLimits(groupElementName, group, context);
     }
 
-    static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, TreeDataWriter writer, IidmVersion version,
-                                              boolean valid, ExportOptions exportOptions) {
-        writeLoadingLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions, ACTIVE_POWER_LIMITS);
+    static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, NetworkSerializerContext context) {
+        writeLoadingLimits(index, limits, context, ACTIVE_POWER_LIMITS); // writer, version.getNamespaceURI(valid), version, valid, exportOptions
     }
 
-    static void writeApparentPowerLimits(Integer index, ApparentPowerLimits limits, TreeDataWriter writer, IidmVersion version,
-                                              boolean valid, ExportOptions exportOptions) {
-        writeLoadingLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions, APPARENT_POWER_LIMITS);
+    static void writeApparentPowerLimits(Integer index, ApparentPowerLimits limits, NetworkSerializerContext context) {
+        writeLoadingLimits(index, limits, context, APPARENT_POWER_LIMITS);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, IidmVersion version,
-                                          boolean valid, ExportOptions exportOptions) {
-        writeCurrentLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions);
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, NetworkSerializerContext context) {
+        writeLoadingLimits(index, limits, context, CURRENT_LIMITS);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, String nsUri, IidmVersion version,
-                                          boolean valid, ExportOptions exportOptions) {
-        writeLoadingLimits(index, limits, writer, nsUri, version, valid, exportOptions, CURRENT_LIMITS);
-    }
-
-    private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version,
-                                           boolean valid, ExportOptions exportOptions, String type) {
+    private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, NetworkSerializerContext context, String type) {
         if (limits != null && (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty())) {
-            writer.writeStartNode(nsUri, type + indexToString(index));
+            TreeDataWriter writer = context.getWriter();
+            IidmVersion version = context.getVersion();
+            String namespaceURI = version.getNamespaceURI(context.isValid());
+            writer.writeStartNode(namespaceURI, type + indexToString(index));
             writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
             writer.writeStartNodes();
-            for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
-                writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(limits, context));
+            for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), context.getOptions())) {
+                writer.writeStartNode(namespaceURI, TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
                 writer.writeStringAttribute("name", tl.getName());
                 writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
                 writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
                 writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(tl, context));
                 writer.writeEndNode();
             }
             writer.writeEndNodes();
@@ -295,17 +293,17 @@ public final class ConnectableSerDeUtil {
                 IidmSerDeUtil.assertMinimumVersion(rootName, ACTIVE_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
             }
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () ->
-                    writeActivePowerLimits(index, activePowerLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+                    writeActivePowerLimits(index, activePowerLimits, context));
 
             var apparentPowerLimits = Optional.ofNullable(defaultGroup).flatMap(OperationalLimitsGroup::getApparentPowerLimits).orElse(null);
             if (apparentPowerLimits != null) {
                 IidmSerDeUtil.assertMinimumVersion(rootName, APPARENT_POWER_LIMITS + suffix, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
             }
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () ->
-                    writeApparentPowerLimits(index, apparentPowerLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+                    writeApparentPowerLimits(index, apparentPowerLimits, context));
 
             var currentLimits = Optional.ofNullable(defaultGroup).flatMap(OperationalLimitsGroup::getCurrentLimits).orElse(null);
-            writeCurrentLimits(index, currentLimits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
+            writeCurrentLimits(index, currentLimits, context);
         });
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
@@ -325,10 +323,10 @@ public final class ConnectableSerDeUtil {
             writer.writeStringAttribute("id", g.getId());
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> PropertiesSerDe.write(g, context));
             g.getActivePowerLimits()
-                    .ifPresent(l -> writeActivePowerLimits(null, l, writer, version, valid, exportOptions));
+                    .ifPresent(l -> writeActivePowerLimits(null, l, context));
             g.getApparentPowerLimits()
-                    .ifPresent(l -> writeApparentPowerLimits(null, l, writer, version, valid, exportOptions));
-            g.getCurrentLimits().ifPresent(l -> writeCurrentLimits(null, l, writer, version, valid, exportOptions));
+                    .ifPresent(l -> writeApparentPowerLimits(null, l, context));
+            g.getCurrentLimits().ifPresent(l -> writeCurrentLimits(null, l, context));
             writer.writeEndNode();
         }
         writer.writeEndNodes();
