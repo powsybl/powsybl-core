@@ -83,6 +83,8 @@ class JsonUtilTest {
         assertTrue(JsonUtil.compareVersions("2.1.1", "2.") > 0);
         assertTrue(JsonUtil.compareVersions(".1", "2.1") < 0);
         assertTrue(JsonUtil.compareVersions("2.1", ".1") > 0);
+        assertTrue(JsonUtil.compareVersions(".", "1.1") < 0);
+        assertTrue(JsonUtil.compareVersions("1.1", ".") > 0);
         assertEquals(0, JsonUtil.compareVersions("1.10.1", "1.10.1"));
         assertTrue(JsonUtil.compareVersions("1.10.", "1.10.1") < 0);
         assertTrue(JsonUtil.compareVersions("1.10.1", "1.10") > 0);
