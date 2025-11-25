@@ -718,11 +718,34 @@ public abstract class AbstractAcDcConverterTest {
     }
 
     @Test
+    public void testDroopCurve() {
+        AcDcConverter<?> vsc = createVscA(vla).setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP);
+
+        assertEquals(DroopCurve.EMPTY, vsc.getDroopCurve());
+
+        vsc.newDroopCurve()
+                .beginSegment().setK(-10.).setMinV(-500.).setMaxV(-100.).endSegment()
+                .beginSegment().setK(-5.).setMinV(-100.).setMaxV(100.).endSegment()
+                .beginSegment().setK(-1.).setMinV(100.).setMaxV(500.).endSegment()
+                .add();
+        assertEquals(-10., vsc.getDroopCurve().getK(-250.));
+        assertEquals(-5., vsc.getDroopCurve().getK(-100.));
+        assertEquals(-1., vsc.getDroopCurve().getK(400.));
+
+        vsc.newDroopCurve()
+                .add();
+
+        assertEquals(0., vsc.getDroopCurve().getK(400.));
+    }
+
+    @Test
     public void testCreationError() {
         LineCommutatedConverterAdder adder = vla.newLineCommutatedConverter()
                 .setId("converterA")
                 .setBus1(b1a.getId())
                 .setBus2(b2a.getId());
+
+        acDcConverterB = createLccB(vlb);
 
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("AC/DC Line Commutated Converter 'converterA': controlMode is not set", e1.getMessage());
@@ -738,11 +761,11 @@ public abstract class AbstractAcDcConverterTest {
         adder.setTargetP(200.);
         adder.setPccTerminal(lax.getTerminal());
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': converter has two AC terminals and pccTerminal is not a line or transformer terminal", e4.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not a line or transformer or converter terminal", e4.getMessage());
 
-        adder.setBus2(null);
+        adder.setPccTerminal(acDcConverterB.getTerminal1());
         PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not a line or transformer or the converter terminal", e5.getMessage());
+        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal cannot be the terminal of another converter", e5.getMessage());
 
         adder.setPccTerminal(lineax.getTerminal1());
         PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
@@ -805,6 +828,14 @@ public abstract class AbstractAcDcConverterTest {
         assertTrue(acDcConverterA.getTerminal(TerminalNumber.TWO).isPresent());
 
         // change PCC Terminal to line terminal
+        acDcConverterA.setPccTerminal(lineax.getTerminal1());
+        assertSame(lineax.getTerminal1(), acDcConverterA.getPccTerminal());
+
+        // check we can set again to converter's AC terminal
+        acDcConverterA.setPccTerminal(acDcConverterA.getTerminal1());
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal());
+
+        // change again PCC Terminal to line terminal
         acDcConverterA.setPccTerminal(lineax.getTerminal1());
         assertSame(lineax.getTerminal1(), acDcConverterA.getPccTerminal());
 

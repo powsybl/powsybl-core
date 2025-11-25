@@ -156,6 +156,18 @@ public final class ConversionUtil {
         return getFirstMatch(xmlFile, pattern);
     }
 
+    public static String getAttribute(String element, String attributeName) {
+        String regex = "<cim:" + attributeName + ">(.*?)</cim:" + attributeName + ">";
+        Pattern pattern = Pattern.compile(regex);
+        return getFirstMatch(element, pattern);
+    }
+
+    public static String getResource(String element, String attributeName) {
+        String regex = "<cim:" + attributeName + " rdf:resource=\"(?:#_)?(.*?)\"/>";
+        Pattern pattern = Pattern.compile(regex);
+        return getFirstMatch(element, pattern);
+    }
+
     public static long getElementCount(String xmlFile, String className) {
         String regex = "(<cim:" + className + " (rdf:ID=\"_|rdf:about=\"#_).*?\")>";
         Pattern pattern = Pattern.compile(regex);
