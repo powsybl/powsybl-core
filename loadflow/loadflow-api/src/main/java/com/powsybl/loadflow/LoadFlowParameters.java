@@ -196,18 +196,25 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     protected LoadFlowParameters(PlatformConfig config) {
-        this(ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
-                .stream()
-                .map(ServiceLoader.Provider::get)
-                .toList(), config);
+        this(getDefaultParemtersLoaders(), config);
     }
 
     public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders) {
         this(defaultParametersLoaders, PlatformConfig.defaultConfig());
     }
 
-    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
-        // Check default-parameters-loader config parameter
+    public static Optional<LoadFlowDefaultParametersLoader> getDefaultLoadFlowParameterLoader(PlatformConfig config) {
+        return getDefaultLoadFlowParameterLoader(getDefaultParemtersLoaders(), config);
+    }
+
+    private static List<LoadFlowDefaultParametersLoader> getDefaultParemtersLoaders() {
+        return ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList();
+    }
+
+    public static Optional<LoadFlowDefaultParametersLoader> getDefaultLoadFlowParameterLoader(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
         String selectedLoaderName;
         Optional<LoadFlowDefaultParametersLoader> selectedLoader = Optional.empty();
         selectedLoaderName = config.getOptionalModuleConfig("load-flow")
@@ -227,14 +234,19 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 List<String> names = defaultParametersLoaders.stream()
                         .map(LoadFlowDefaultParametersLoader::getSourceName).toList();
                 String message = String.format("Multiple default loadflow parameter loader classes have been found in the class path : %s." +
-                                " Specify which one to use with the 'default-parameters-loader' parameter of 'load-flow' module " +
-                                "of Powsybl configuration.", names);
+                        " Specify which one to use with the 'default-parameters-loader' parameter of 'load-flow' module " +
+                        "of Powsybl configuration.", names);
                 throw new PowsyblException(message);
             } else if (numberOfLoadersFound == 1) {
                 selectedLoader = defaultParametersLoaders.stream().findFirst();
             }
         }
+        return selectedLoader;
+    }
 
+    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
+        // Check default-parameters-loader config parameter
+        Optional<LoadFlowDefaultParametersLoader> selectedLoader = getDefaultLoadFlowParameterLoader(defaultParametersLoaders, config);
         if (selectedLoader.isPresent()) {
             JsonLoadFlowParameters.update(this, selectedLoader.get().loadDefaultParametersFromFile());
             LOGGER.debug("Default loadflow configuration has been updated using the reference from parameters loader '{}'",

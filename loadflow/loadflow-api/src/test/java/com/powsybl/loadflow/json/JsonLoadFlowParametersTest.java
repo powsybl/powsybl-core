@@ -30,6 +30,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES;
@@ -168,13 +169,19 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
 
     public static class DummyExtension extends AbstractExtension<LoadFlowParameters> {
 
-        public static final double PARAMETER_DOUBLE_DEFAULT_VALUE = 0;
+        public static final double PARAMETER_DOUBLE_DEFAULT_VALUE = 6.4;
+        public static final int PARAMETER_INTEGER_DEFAULT_VALUE = 42;
         public static final boolean PARAMETER_BOOLEAN_DEFAULT_VALUE = false;
-        public static final String PARAMETER_STRING_DEFAULT_VALUE = null;
+        public static final String PARAMETER_STRING_DEFAULT_VALUE = "yes";
+        public static final String PARAMETER_NULLABLE_STRING_DEFAULT_VALUE = null;
+        public static final List<String> PARAMETER_STRING_LIST_DEFAULT_VALUE = null;
 
         private double parameterDouble = PARAMETER_DOUBLE_DEFAULT_VALUE;
+        private int parameterInteger = PARAMETER_INTEGER_DEFAULT_VALUE;
         private boolean parameterBoolean = PARAMETER_BOOLEAN_DEFAULT_VALUE;
         private String parameterString = PARAMETER_STRING_DEFAULT_VALUE;
+        private String parameterNullableString = PARAMETER_NULLABLE_STRING_DEFAULT_VALUE;
+        private List<String> parameterStringList = PARAMETER_STRING_LIST_DEFAULT_VALUE;
 
         public DummyExtension() {
             super();
@@ -184,6 +191,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
             this.parameterDouble = another.parameterDouble;
             this.parameterBoolean = another.parameterBoolean;
             this.parameterString = another.parameterString;
+            this.parameterStringList = another.parameterStringList;
         }
 
         /**
@@ -216,6 +224,30 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
 
         public void setParameterString(String parameterString) {
             this.parameterString = parameterString;
+        }
+
+        public List<String> getParameterStringList() {
+            return parameterStringList;
+        }
+
+        public void setParameterStringList(List<String> parameterStringList) {
+            this.parameterStringList = parameterStringList;
+        }
+
+        public String getParameterNullableString() {
+            return parameterNullableString;
+        }
+
+        public void setParameterNullableString(String parameterNullableString) {
+            this.parameterNullableString = parameterNullableString;
+        }
+
+        public int getParameterInteger() {
+            return parameterInteger;
+        }
+
+        public void setParameterInteger(int parameterInteger) {
+            this.parameterInteger = parameterInteger;
         }
     }
 
