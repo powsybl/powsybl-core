@@ -417,8 +417,9 @@ In a `RatioTapChanger`, the `TapChangerControl` is exported with `RegulatingCont
 `RatioTapChanger` `regulationMode` is set to `VOLTAGE`.
 
 In a `PhaseTapChanger`, the `TapChangerControl` is always exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.activePower`.
-If the original `PhaseTapChanger` `regulationMode` is `CURRENT_LIMITER`, the `TapChangerControl` regulation is disabled
-and an `OperationalLimitSet` with a `CurrentLimit` is created at the regulated terminal with the regulation value.
+If the original `PhaseTapChanger` `regulationMode` is `CURRENT_LIMITER`, the `TapChangerControl` regulation is disabled,
+the regulation target value and deadband are set to 0, and an `OperationalLimitSet` with a `CurrentLimit` is created
+at the regulated terminal with the regulation value.
 
 (cgmes-two-winding-transformer-export)=
 ### TwoWindingsTransformer

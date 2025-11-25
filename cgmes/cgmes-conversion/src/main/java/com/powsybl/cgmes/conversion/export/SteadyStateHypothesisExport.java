@@ -488,33 +488,30 @@ public final class SteadyStateHypothesisExport {
             } else if (tc instanceof PhaseTapChanger phaseTapChanger
                     && CgmesExportUtil.regulatingControlIsDefined(phaseTapChanger)) {
                 boolean valid;
-                boolean regulating;
                 String unitMultiplier = switch (phaseTapChanger.getRegulationMode()) {
                     case PhaseTapChanger.RegulationMode.CURRENT_LIMITER -> {
                         // Unit multiplier is none (multiply by 1), regulation value is a current in Amperes
                         valid = true;
-                        regulating = false;
                         yield "none";
                     }
                     case PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL -> {
                         // Unit multiplier is M, regulation value is an active power flow in MW
                         valid = true;
-                        regulating = phaseTapChanger.isRegulating();
                         yield "M";
                     }
                     default -> {
                         valid = false;
-                        regulating = false;
                         yield "none";
                     }
                 };
                 if (valid) {
+                    boolean isActivePowerControlMode = phaseTapChanger.getRegulationMode() == PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL;
                     rcv = new RegulatingControlView(controlId,
                             RegulatingControlType.TAP_CHANGER_CONTROL,
                             true,
-                            regulating,
-                            phaseTapChanger.getTargetDeadband(),
-                            phaseTapChanger.getRegulationValue(),
+                            isActivePowerControlMode && phaseTapChanger.isRegulating(),
+                            isActivePowerControlMode ? phaseTapChanger.getTargetDeadband() : 0.0,
+                            isActivePowerControlMode ? phaseTapChanger.getRegulationValue() : 0.0,
                             unitMultiplier);
                 }
             }

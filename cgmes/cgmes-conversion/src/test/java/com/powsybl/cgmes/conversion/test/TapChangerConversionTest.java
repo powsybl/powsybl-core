@@ -96,6 +96,8 @@ class TapChangerConversionTest extends AbstractSerDeTest {
         String sshFile = writeCgmesProfile(network, "SSH", tmpDir);
         tapChangerControl = getElement(sshFile, "TapChangerControl", "PS1_PTC_RC");
         assertEquals("false", getAttribute(tapChangerControl, "RegulatingControl.enabled"));
+        assertEquals("0", getAttribute(tapChangerControl, "RegulatingControl.targetDeadband"));
+        assertEquals("0", getAttribute(tapChangerControl, "RegulatingControl.targetValue"));
     }
 
 }
