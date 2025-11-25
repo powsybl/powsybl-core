@@ -9,6 +9,7 @@ package com.powsybl.commons.json;
 
 import java.io.IOException;
 
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.BeforeEach;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -90,5 +91,16 @@ class JsonUtilTest {
         assertTrue(JsonUtil.compareVersions("1.10.1", "1.10") > 0);
         assertTrue(JsonUtil.compareVersions("1.10.1", "1.10.2") < 0);
         assertTrue(JsonUtil.compareVersions("A.2", "B.2") < 0);
+    }
+
+    @Test
+    void testAssertSupportedVersion() throws IOException {
+        String contextName = "TestContext";
+        String supportedVersion = "1.9";
+        String unsupportedVersion = "1.11";
+        String maxSupportedVersion = "1.10";
+        assertDoesNotThrow(() -> JsonUtil.assertSupportedVersion(contextName, supportedVersion, maxSupportedVersion));
+        String expectedException = String.format("%s. Unsupported version %s. Version should be <= %s %n", contextName, unsupportedVersion, maxSupportedVersion);
+        assertThrows(PowsyblException.class, () -> JsonUtil.assertSupportedVersion(contextName, unsupportedVersion, maxSupportedVersion), expectedException);
     }
 }
