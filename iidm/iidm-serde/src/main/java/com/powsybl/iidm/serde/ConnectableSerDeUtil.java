@@ -13,6 +13,7 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -65,7 +66,7 @@ public final class ConnectableSerDeUtil {
         if (index != null) {
             context.getWriter().writeStringAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
         }
-        TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
+        TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(t.getVoltageLevel(), context);
         switch (topologyLevel) {
             case NODE_BREAKER -> writeNode(index, t, context);
             case BUS_BREAKER -> writeBus(index, t.getBusBreakerView().getBus(), t.getBusBreakerView().getConnectableBus(), context);
