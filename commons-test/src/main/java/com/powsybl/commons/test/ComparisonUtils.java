@@ -105,5 +105,6 @@ public final class ComparisonUtils {
         while (expected.hasNext()) {
             assertEquals(expected.next(), actual.next());
         }
+        assertFalse(actual.hasNext());
     }
 }
