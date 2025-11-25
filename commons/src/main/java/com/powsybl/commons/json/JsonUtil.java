@@ -485,8 +485,8 @@ public final class JsonUtil {
         String[] parts1 = v1.split("\\.");
         String[] parts2 = v2.split("\\.");
         try {
-            int major1 = Integer.parseInt(parts1[0]);
-            int major2 = Integer.parseInt(parts2[0]);
+            int major1 = parts1.length > 0 ? Integer.parseInt(parts1[0]) : 0;
+            int major2 = parts2.length > 0 ? Integer.parseInt(parts2[0]) : 0;
             if (major1 != major2) {
                 return Integer.compare(major1, major2);
             }
@@ -500,14 +500,18 @@ public final class JsonUtil {
                 return Integer.compare(minor1, minor2);
             }
         } catch (NumberFormatException e) {
-            return parts1[1].compareTo(parts2[1]);
+            String p1 = parts1.length > 1 ? parts1[1] : "";
+            String p2 = parts2.length > 1 ? parts2[1] : "";
+            return p1.compareTo(p2);
         }
         try {
             int patch1 = parts1.length > 2 ? Integer.parseInt(parts1[2]) : 0;
             int patch2 = parts2.length > 2 ? Integer.parseInt(parts2[2]) : 0;
             return Integer.compare(patch1, patch2);
         } catch (NumberFormatException e) {
-            return parts1[2].compareTo(parts2[2]);
+            String p1 = parts1.length > 2 ? parts1[2] : "";
+            String p2 = parts2.length > 2 ? parts2[2] : "";
+            return p1.compareTo(p2);
         }
     }
 
