@@ -17,6 +17,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,5 +99,11 @@ public final class ComparisonUtils {
         String expectedStr = TestUtil.normalizeLineSeparator(expected);
         String actualStr = TestUtil.normalizeLineSeparator(actual);
         assertEquals(expectedStr, actualStr);
+    }
+
+    public static <E, A> void assertIteratorsEquals(Iterator<E> expected, Iterator<A> actual) {
+        while (expected.hasNext()) {
+            assertEquals(expected.next(), actual.next());
+        }
     }
 }
