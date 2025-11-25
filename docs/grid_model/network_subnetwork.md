@@ -160,19 +160,20 @@ A generator is a piece of equipment that injects or consumes active power, and i
 
 **Characteristics**
 
-| Attribute            | Unit | Description                                                 |
-|----------------------|------|-------------------------------------------------------------|
-| $MinP$               | MW   | Minimum generator active power output                       |
-| $MaxP$               | MW   | Maximum generator active power output                       |
-| $ReactiveLimits$     | MVar | Operational limits of the generator (P/Q/V diagram)         |
-| $RatedS$             | MVA  | The rated nominal power                                     |
-| $TargetP$            | MW   | The active power target                                     |
-| $TargetQ$            | MVAr | The reactive power target at local terminal                 |
-| $TargetV$            | kV   | The voltage target at regulating terminal                   |
-| $RegulatingTerminal$ |      | Associated node or bus for which voltage is to be regulated |
-| $VoltageRegulatorOn$ |      | True if the generator regulates voltage                     |
-| $EnergySource$       |      | The energy source harnessed to turn the generator           |
-| $IsCondenser$        |      | True if the generator may behave as a condenser             |
+| Attribute                | Unit | Description                                                                         |
+|--------------------------|------|-------------------------------------------------------------------------------------|
+| $MinP$                   | MW   | Minimum generator active power output                                               |
+| $MaxP$                   | MW   | Maximum generator active power output                                               |
+| $ReactiveLimits$         | MVar | Operational limits of the generator (P/Q/V diagram)                                 |
+| $RatedS$                 | MVA  | The rated nominal power                                                             |
+| $TargetP$                | MW   | The active power target                                                             |
+| $TargetQ$                | MVAr | The reactive power target at local terminal                                         |
+| $TargetV$                | kV   | The voltage target at regulating terminal which can be remote or local              |
+| $EquivalentLocalTargetV$ | kV   | The local voltage target consistent with the remote voltage target                  |
+| $RegulatingTerminal$     |      | Associated node or bus for which voltage is to be regulated, can be remote or local |
+| $VoltageRegulatorOn$     |      | True if the generator regulates voltage                                             |
+| $EnergySource$           |      | The energy source harnessed to turn the generator                                   |
+| $IsCondenser$            |      | True if the generator may behave as a condenser                                     |
 
 **Specifications**
 
@@ -184,6 +185,7 @@ Target values for generators (`TargetP` and `TargetQ`) follow the generator sign
 
 The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
 
+The optional `EquivalentLocalTargetV` value can be used by simulators that deactivate the remote voltage algorithms, or by dynamic simulators that use this voltage as a starting value.
 
 **Available extensions**
 
@@ -196,6 +198,7 @@ The `isCondenser` value corresponds for instance to generators which can control
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
+- [Manual Frequency Restoration Reserve](extensions.md#manual-frequency-restoration-reserve)
 
 (load)=
 ## Load
