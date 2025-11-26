@@ -356,7 +356,7 @@ The fictitious injections on buses (bus-branch topology) or on nodes (node-break
 - Bus topology: `Bus.setFictitiousP0(double)` and `Bus.setFictitiousQ0(double)`
 - Node-breaker: `VoltageLevel.getNodeBreakerView().setFictitiousP0(int node, double)` and `setFictitiousQ0(int node, double)`
 
-These fictitious injections are exported in CGMES as a `NonConformLoad` or an `EnergySource` depending on `fictitiousP0` and a `Terminal`, with values written to SSH and connectivity/topology bindings set according to the network topology and CIM version. A corresponding `SvPowerFlow` is written in SV for the terminal.
+These fictitious injections are exported in CGMES as a `NonConformLoad` or an `EnergySource` depending on `fictitiousP0`, with values written to SSH and connectivity/topology bindings set according to the network topology and CIM version. A corresponding `SvPowerFlow` is written in SV for the terminal.
 In case of a node-breaker or CIM100 export, the terminal will refer to a `ConnectivityNode`.
 
 (cgmes-shunt-compensator-export)=
