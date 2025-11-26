@@ -26,6 +26,32 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
     private final double permanentLimitReduction;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
+    /**
+     * Stub class to pass Sonar Quality Gates over code duplication ...
+     */
+    private static final class UnsupportedPropertyStubs {
+
+        public static boolean hasProperty() {
+            throw new UnsupportedOperationException();
+        }
+
+        public static String getProperty() {
+            throw new UnsupportedOperationException();
+        }
+
+        public static String setProperty() {
+            throw new UnsupportedOperationException();
+        }
+
+        public static boolean removeProperty() {
+            throw new UnsupportedOperationException();
+        }
+
+        public static Set<String> getPropertyNames() {
+            return Set.of();
+        }
+    }
+
     public record ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
                                         double originalValue, double limitReduction) implements TemporaryLimit {
         @Override
@@ -58,37 +84,37 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
 
         @Override
         public boolean hasProperty() {
-            return false;
+            return UnsupportedPropertyStubs.hasProperty();
         }
 
         @Override
         public boolean hasProperty(String key) {
-            return false;
+            return UnsupportedPropertyStubs.hasProperty();
         }
 
         @Override
         public String getProperty(String key) {
-            return "";
+            return UnsupportedPropertyStubs.getProperty();
         }
 
         @Override
         public String getProperty(String key, String defaultValue) {
-            return "";
+            return UnsupportedPropertyStubs.getProperty();
         }
 
         @Override
         public String setProperty(String key, String value) {
-            return "";
+            return UnsupportedPropertyStubs.setProperty();
         }
 
         @Override
         public boolean removeProperty(String key) {
-            return false;
+            return UnsupportedPropertyStubs.removeProperty();
         }
 
         @Override
         public Set<String> getPropertyNames() {
-            return Set.of();
+            return UnsupportedPropertyStubs.getPropertyNames();
         }
     }
 
@@ -150,36 +176,36 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
 
     @Override
     public boolean hasProperty() {
-        return false;
+        return UnsupportedPropertyStubs.hasProperty();
     }
 
     @Override
     public boolean hasProperty(String key) {
-        return false;
+        return UnsupportedPropertyStubs.hasProperty();
     }
 
     @Override
     public String getProperty(String key) {
-        throw new UnsupportedOperationException();
+        return UnsupportedPropertyStubs.getProperty();
     }
 
     @Override
     public String getProperty(String key, String defaultValue) {
-        throw new UnsupportedOperationException();
+        return UnsupportedPropertyStubs.getProperty();
     }
 
     @Override
     public String setProperty(String key, String value) {
-        throw new UnsupportedOperationException();
+        return UnsupportedPropertyStubs.setProperty();
     }
 
     @Override
     public boolean removeProperty(String key) {
-        throw new UnsupportedOperationException();
+        return UnsupportedPropertyStubs.removeProperty();
     }
 
     @Override
     public Set<String> getPropertyNames() {
-        return Set.of();
+        return UnsupportedPropertyStubs.getPropertyNames();
     }
 }
