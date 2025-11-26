@@ -9,6 +9,7 @@ package com.powsybl.security.limitreduction.result;
 
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.util.LoadingLimitsUtil;
+import com.powsybl.iidm.network.util.UnsupportedPropertiesHolder;
 
 import java.util.Collection;
 import java.util.Optional;
