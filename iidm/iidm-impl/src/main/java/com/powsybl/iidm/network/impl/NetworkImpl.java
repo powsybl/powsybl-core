@@ -1267,7 +1267,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             }
         }
         for (DanglingLine dl2 : findCandidateDanglingLines(other, dl1byPairingKey::containsKey)) {
-            findAndAssociateDanglingLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byPairingKey));
+            findAndAssociateDanglingLines(dl2, dl1byPairingKey::get, (dllA, dllB) -> pairDanglingLines(lines, dllA, dllB, dl1byPairingKey));
         }
 
         // create a subnetwork for the other network
@@ -1279,7 +1279,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         // merge the indexes
         index.merge(otherNetwork.index);
 
-        replaceDanglingLineByTieLine(lines);
+        pairDanglingLinesWithTieLines(lines);
 
         other.getVoltageAngleLimits().forEach(l -> getVoltageAngleLimitsIndex().put(l.getId(), l));
 
@@ -1339,58 +1339,17 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             if (dl1.getPairingKey() != null) {
                 dl1byPairingKey.get(dl1.getPairingKey()).remove(dl1);
             }
-            DanglingLinePair l = new DanglingLinePair();
-            l.id = buildMergedId(dl1.getId(), dl2.getId());
-            l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
-            l.dl1Id = dl1.getId();
-            l.dl2Id = dl2.getId();
-            l.aliases = new HashMap<>();
-            // No need to merge properties or aliases because we keep the original dangling lines after merge
-            danglingLinePairs.add(l);
-
-            if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
-                ((DanglingLineImpl) dl1).replaceId(l.dl1Id + "_1");
-                ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
-                l.dl1Id = dl1.getId();
-                l.dl2Id = dl2.getId();
-            } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
-                // Invert the ids to always have them in lexicographical order (to ensure reproducibility)
-                var tmp = l.dl1Id;
-                l.dl1Id = l.dl2Id;
-                l.dl2Id = tmp;
-            }
+            danglingLinePairs.add(new DanglingLinePair(dl1, dl2));
         }
     }
 
-    private void replaceDanglingLineByTieLine(List<DanglingLinePair> lines) {
+    private void pairDanglingLinesWithTieLines(List<DanglingLinePair> lines) {
         for (DanglingLinePair danglingLinePair : lines) {
-            LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
-                    danglingLinePair.id, danglingLinePair.dl1Id, danglingLinePair.dl2Id);
-            TieLineImpl l = newTieLine()
-                    .setId(danglingLinePair.id)
-                    .setEnsureIdUnicity(true)
-                    .setName(danglingLinePair.name)
-                    .setDanglingLine1(danglingLinePair.dl1Id)
-                    .setDanglingLine2(danglingLinePair.dl2Id)
-                    .add();
-            danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            danglingLinePair.aliases.forEach((alias, type) -> {
-                if (type.isEmpty()) {
-                    l.addAlias(alias);
-                } else {
-                    l.addAlias(alias, type);
-                }
-            });
+            pairDanglingLinesWithTieLine(danglingLinePair.dlA(), danglingLinePair.dlB(), newTieLine());
         }
     }
 
-    static class DanglingLinePair {
-        String id;
-        String name;
-        String dl1Id;
-        String dl2Id;
-        Map<String, String> aliases;
-        Properties properties = new Properties();
+    record DanglingLinePair(DanglingLine dlA, DanglingLine dlB) {
     }
 
     @Override
