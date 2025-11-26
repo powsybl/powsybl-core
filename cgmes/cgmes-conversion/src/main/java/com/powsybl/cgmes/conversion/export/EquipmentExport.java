@@ -10,20 +10,19 @@ package com.powsybl.cgmes.conversion.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
-import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
-import com.powsybl.cgmes.extensions.BaseVoltageMapping;
-import com.powsybl.cgmes.extensions.CgmesTapChanger;
-import com.powsybl.cgmes.extensions.CgmesTapChangers;
-import com.powsybl.cgmes.extensions.Source;
+import com.powsybl.cgmes.conversion.export.elements.*;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -35,18 +34,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.converterClassName;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
-import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.converterClassName;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
 import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL2;
 import static com.powsybl.cgmes.model.CgmesNames.NONCONFORM_LOAD;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -350,7 +349,7 @@ public final class EquipmentExport {
                     case CgmesNames.ASYNCHRONOUS_MACHINE ->
                         writeAsynchronousMachine(loadId, load.getNameOrId(), cimNamespace, writer, context);
                     case CgmesNames.ENERGY_SOURCE -> writeEnergySource(loadId, load.getNameOrId(), context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
-                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
+                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
                         String loadGroup = loadGroups.groupFor(className, context);
                         String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load, cimNamespace, writer, context);
                         EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), loadResponseCharacteristicId, cimNamespace, writer, context);
