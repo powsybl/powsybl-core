@@ -99,11 +99,6 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         }
 
         @Override
-        public Type getType() {
-            return SwitchTripping.super.getType();
-        }
-
-        @Override
         public String getSwitchToOperateId() {
             return this.switchToOperateId;
         }
@@ -119,7 +114,6 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
     static class BranchTrippingImpl extends AbstractTrippingImpl implements OverloadManagementSystem.BranchTripping {
         private String branchToOperateId;
         private TwoSides side;
-        private Network network;
 
         protected BranchTrippingImpl(String overloadManagementSystemId, String key, String name,
                                      double currentLimit, boolean openAction,
@@ -127,11 +121,6 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
             setBranchToOperateId(branchToOperateId);
             setSideToOperate(side);
-        }
-
-        @Override
-        public Type getType() {
-            return BranchTripping.super.getType();
         }
 
         @Override
@@ -169,12 +158,6 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
             super(overloadManagementSystemId, key, name, currentLimit, openAction);
             setThreeWindingsTransformerToOperateId(threeWindingsTransformerId);
             setSideToOperate(side);
-
-        }
-
-        @Override
-        public Type getType() {
-            return ThreeWindingsTransformerTripping.super.getType();
         }
 
         @Override

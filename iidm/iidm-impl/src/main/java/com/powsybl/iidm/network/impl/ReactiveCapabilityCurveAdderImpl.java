@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -84,9 +83,7 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
             //             "maximum reactive power is expected to be greater than or equal to minimum reactive power");
             // }
             PointImpl pointImpl = new PointImpl(p, minQ, maxQ);
-            for (Map.Entry<Object, Object> prop : getProperties().entrySet()) {
-                pointImpl.setProperty(prop.getKey().toString(), prop.getValue().toString());
-            }
+            this.copyPropertiesTo(pointImpl);
             points.put(p, pointImpl);
             return ReactiveCapabilityCurveAdderImpl.this;
         }
@@ -108,9 +105,7 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
             throw new ValidationException(owner, "a reactive capability curve should have at least two points");
         }
         ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(points, owner.getMessageHeader().toString());
-        for (Map.Entry<Object, Object> prop : getProperties().entrySet()) {
-            curve.setProperty(prop.getKey().toString(), prop.getValue().toString());
-        }
+        this.copyPropertiesTo(curve);
         owner.setReactiveLimits(curve);
         return curve;
     }

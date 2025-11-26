@@ -21,7 +21,7 @@ import java.util.function.Predicate;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>> extends AbstractPropertiesHolder implements Validable {
+abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>> implements Validable {
 
     private String id;
 

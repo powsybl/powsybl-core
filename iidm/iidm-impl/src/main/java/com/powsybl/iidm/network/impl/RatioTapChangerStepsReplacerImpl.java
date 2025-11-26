@@ -10,8 +10,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.RatioTapChangerStepsReplacer;
 
-import java.util.Map;
-
 /**
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
@@ -28,9 +26,6 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         private double g = 0.0;
 
         private double b = 0.0;
-
-        public StepAdderImpl() {
-        }
 
         @Override
         public RatioTapChangerStepsReplacer.StepAdder setRho(double rho) {
@@ -65,9 +60,7 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         @Override
         public RatioTapChangerStepsReplacer endStep() {
             RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
-            for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
-                step.setProperty((String) z.getKey(), (String) z.getValue());
-            }
+            this.copyPropertiesTo(step);
             steps.add(step);
             return RatioTapChangerStepsReplacerImpl.this;
         }

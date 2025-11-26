@@ -44,7 +44,7 @@ abstract class AbstractTopologyModel extends AbstractPropertiesHolder implements
                 .orElse(DEFAULT_NODE_INDEX_LIMIT);
     }
 
-    public NetworkImpl getNetwork() {
+    protected NetworkImpl getNetwork() {
         return voltageLevel.getNetwork();
     }
 

@@ -10,8 +10,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.PhaseTapChangerStepsReplacer;
 
-import java.util.Map;
-
 /**
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
@@ -30,9 +28,6 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         private double g = 0.0;
 
         private double b = 0.0;
-
-        public StepAdderImpl() {
-        }
 
         @Override
         public PhaseTapChangerStepsReplacer.StepAdder setAlpha(double alpha) {
@@ -73,9 +68,7 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         @Override
         public PhaseTapChangerStepsReplacer endStep() {
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
-            for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
-                step.setProperty((String) z.getKey(), (String) z.getValue());
-            }
+            this.copyPropertiesTo(step);
             steps.add(step);
             return PhaseTapChangerStepsReplacerImpl.this;
         }

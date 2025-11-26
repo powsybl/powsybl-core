@@ -229,9 +229,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
                 overloadManagementSystemId, adder.key, adder.name,
                 adder.currentLimit, adder.openAction,
                 adder.checkSwitchId());
-        for (Map.Entry<Object, Object> entry : adder.getProperties().entrySet()) {
-            tripping.setProperty((String) entry.getKey(), (String) entry.getValue());
-        }
+        adder.copyPropertiesTo(tripping);
         return tripping;
     }
 
@@ -240,9 +238,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
                 adder.checkBranchId(), adder.side);
-        for (Map.Entry<Object, Object> entry : adder.getProperties().entrySet()) {
-            tripping.setProperty((String) entry.getKey(), (String) entry.getValue());
-        }
+        adder.copyPropertiesTo(tripping);
         return tripping;
     }
 
@@ -252,9 +248,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
                 adder.checkThreeWindingsTransformerId(), adder.side);
-        for (Map.Entry<Object, Object> entry : adder.getProperties().entrySet()) {
-            tripping.setProperty((String) entry.getKey(), (String) entry.getValue());
-        }
+        adder.copyPropertiesTo(tripping);
         return tripping;
     }
 }

@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.ApparentPowerLimits;
 import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
 import com.powsybl.iidm.network.Validable;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -39,9 +38,7 @@ public class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<App
         }
         ApparentPowerLimits limits = new ApparentPowerLimitsImpl(group, permanentLimit, temporaryLimits);
         group.setApparentPowerLimits(limits);
-        for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
-            limits.setProperty((String) entry.getKey(), (String) entry.getValue());
-        }
+        this.copyPropertiesTo(limits);
         return limits;
     }
 

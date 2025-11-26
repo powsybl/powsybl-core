@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.Validable;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -40,9 +39,7 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
         }
         CurrentLimitsImpl limits = new CurrentLimitsImpl(group, permanentLimit, temporaryLimits);
         group.setCurrentLimits(limits);
-        for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
-            limits.setProperty((String) entry.getKey(), (String) entry.getValue());
-        }
+        this.copyPropertiesTo(limits);
         return limits;
     }
 

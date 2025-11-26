@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -65,9 +64,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
         @Override
         public RatioTapChangerAdder endStep() {
             RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
-            for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
-                step.setProperty((String) z.getKey(), (String) z.getValue());
-            }
+            this.copyPropertiesTo(step);
             step.validate(parent);
             steps.add(step);
             return RatioTapChangerAdderImpl.this;

@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -94,9 +92,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         @Override
         public ShuntCompensatorModelExt build() {
             ShuntCompensatorLinearModelImpl linearModel = new ShuntCompensatorLinearModelImpl(bPerSection, gPerSection, maximumSectionCount);
-            for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
-                linearModel.setProperty((String) entry.getKey(), (String) entry.getValue());
-            }
+            this.copyPropertiesTo(linearModel);
             return linearModel;
         }
     }
@@ -130,7 +126,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                     if (sectionAdders.isEmpty()) {
                         g = 0;
                     } else {
-                        g = sectionAdders.get(sectionAdders.size() - 1).g;
+                        g = sectionAdders.getLast().g;
                     }
                 }
                 sectionAdders.add(this);
@@ -157,12 +153,9 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             List<ShuntCompensatorNonLinearModelImpl.SectionImpl> sections = IntStream.range(0, sectionAdders.size()).mapToObj(s -> {
                 SectionAdderImpl adder = sectionAdders.get(s);
                 return new ShuntCompensatorNonLinearModelImpl.SectionImpl(s + 1, adder.b, adder.g);
-            }).collect(Collectors.toList());
-
+            }).toList();
             ShuntCompensatorNonLinearModelImpl nonLinearModel = new ShuntCompensatorNonLinearModelImpl(sections);
-            for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
-                nonLinearModel.setProperty((String) entry.getKey(), (String) entry.getValue());
-            }
+            this.copyPropertiesTo(nonLinearModel);
             return nonLinearModel;
         }
 

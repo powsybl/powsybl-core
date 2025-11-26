@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -35,9 +34,7 @@ public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<Activ
         }
         ActivePowerLimits limits = new ActivePowerLimitsImpl(group, permanentLimit, temporaryLimits);
         group.setActivePowerLimits(limits);
-        for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
-            limits.setProperty((String) entry.getKey(), (String) entry.getValue());
-        }
+        this.copyPropertiesTo(limits);
         return limits;
     }
 
