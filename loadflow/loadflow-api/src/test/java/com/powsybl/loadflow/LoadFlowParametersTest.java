@@ -49,7 +49,7 @@ class LoadFlowParametersTest {
                              boolean simulShunt, boolean readSlackBus, boolean writeSlackBus,
                              boolean dc, boolean distributedSlack, LoadFlowParameters.BalanceType balanceType,
                              boolean dcUseTransformerRatio, Set<Country> countriesToBalance,
-                             LoadFlowParameters.ConnectedComponentMode computedConnectedComponent,
+                             LoadFlowParameters.ComponentMode computedComponent,
                              boolean hvdcAcEmulation, double dcPowerFactor) {
         assertEquals(parameters.getVoltageInitMode(), voltageInitMode);
         assertEquals(parameters.isTransformerVoltageControlOn(), transformerVoltageControlOn);
@@ -64,7 +64,7 @@ class LoadFlowParametersTest {
         assertEquals(parameters.getBalanceType(), balanceType);
         assertEquals(parameters.isDcUseTransformerRatio(), dcUseTransformerRatio);
         assertEquals(parameters.getCountriesToBalance(), countriesToBalance);
-        assertEquals(parameters.getConnectedComponentMode(), computedConnectedComponent);
+        assertEquals(parameters.getComponentMode(), computedComponent);
         assertEquals(parameters.isHvdcAcEmulation(), hvdcAcEmulation);
         assertEquals(parameters.getDcPowerFactor(), dcPowerFactor);
     }
@@ -86,7 +86,7 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
                 LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE,
+                LoadFlowParameters.DEFAULT_COMPONENT_MODE,
                 LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
                 LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
@@ -104,7 +104,7 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
+                LoadFlowParameters.DEFAULT_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
                 LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
 
@@ -118,7 +118,7 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
+                LoadFlowParameters.DEFAULT_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
                 LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
 
@@ -133,7 +133,7 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
+                LoadFlowParameters.DEFAULT_COMPONENT_MODE, LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
                 LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
 
@@ -155,7 +155,7 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
                 LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE,
+                LoadFlowParameters.DEFAULT_COMPONENT_MODE,
                 LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
                 LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
@@ -177,7 +177,7 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
                 LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE,
+                LoadFlowParameters.DEFAULT_COMPONENT_MODE,
                 LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
                 LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
 
@@ -198,7 +198,7 @@ class LoadFlowParametersTest {
                 LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
                 LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
-                LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE,
+                LoadFlowParameters.DEFAULT_COMPONENT_MODE,
                 LoadFlowParameters.DEFAULT_HVDC_AC_EMULATION_ON,
                 LoadFlowParameters.DEFAULT_DC_POWER_FACTOR);
     }
@@ -218,7 +218,7 @@ class LoadFlowParametersTest {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
         boolean dcUseTransformerRatio = true;
         Set<Country> countriesToBalance = new HashSet<>();
-        LoadFlowParameters.ConnectedComponentMode computedConnectedComponent = LoadFlowParameters.ConnectedComponentMode.MAIN;
+        LoadFlowParameters.ComponentMode computedComponent = LoadFlowParameters.ComponentMode.MAIN_CONNECTED;
         boolean hvdcAcEmulation = false;
         double dcPowerFactor = 0.95;
 
@@ -240,7 +240,7 @@ class LoadFlowParametersTest {
 
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn, useReactiveLimits,
                     phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                    dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent, hvdcAcEmulation, dcPowerFactor);
+                    dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedComponent, hvdcAcEmulation, dcPowerFactor);
     }
 
     @Test
@@ -258,7 +258,7 @@ class LoadFlowParametersTest {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
         boolean dcUseTransformerRatio = true;
         Set<Country> countriesToBalance = new HashSet<>();
-        LoadFlowParameters.ConnectedComponentMode computedConnectedComponent = LoadFlowParameters.ConnectedComponentMode.MAIN;
+        LoadFlowParameters.ComponentMode computedComponent = LoadFlowParameters.ComponentMode.MAIN_CONNECTED;
         boolean hvdcAcEmulation = false;
         double dcPowerFactor = 0.95;
         LoadFlowParameters parameters = new LoadFlowParameters()
@@ -275,7 +275,7 @@ class LoadFlowParametersTest {
                 .setBalanceType(balanceType)
                 .setDcUseTransformerRatio(dcUseTransformerRatio)
                 .setCountriesToBalance(countriesToBalance)
-                .setConnectedComponentMode(computedConnectedComponent)
+                .setComponentMode(computedComponent)
                 .setHvdcAcEmulation(hvdcAcEmulation)
                 .setDcPowerFactor(dcPowerFactor);
         LoadFlowParameters parametersCloned = parameters.copy();
@@ -283,7 +283,7 @@ class LoadFlowParametersTest {
                 parameters.isUseReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isTwtSplitShuntAdmittance(),
                 parameters.isShuntCompensatorVoltageControlOn(), parameters.isReadSlackBus(), parameters.isWriteSlackBus(),
                 parameters.isDc(), parameters.isDistributedSlack(), parameters.getBalanceType(), parameters.isDcUseTransformerRatio(),
-                parameters.getCountriesToBalance(), parameters.getConnectedComponentMode(), parameters.isHvdcAcEmulation(), parameters.getDcPowerFactor());
+                parameters.getCountriesToBalance(), parameters.getComponentMode(), parameters.isHvdcAcEmulation(), parameters.getDcPowerFactor());
     }
 
     @Test
@@ -344,7 +344,7 @@ class LoadFlowParametersTest {
         LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
         boolean dcUseTransformerRatio = false;
         Set<Country> countriesToBalance = Set.of(Country.FR);
-        LoadFlowParameters.ConnectedComponentMode connectedComponentMode = LoadFlowParameters.ConnectedComponentMode.ALL;
+        LoadFlowParameters.ComponentMode componentMode = LoadFlowParameters.ComponentMode.ALL_CONNECTED;
         boolean hvdcAcEmulation = false;
         double dcPowerFactor = 0.95;
 
@@ -362,7 +362,7 @@ class LoadFlowParametersTest {
         moduleConfig.setStringProperty("balanceType", balanceType.name());
         moduleConfig.setStringProperty("dcUseTransformerRatio", Boolean.toString(dcUseTransformerRatio));
         moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(Enum::name).toList());
-        moduleConfig.setStringProperty("connectedComponentMode", connectedComponentMode.name());
+        moduleConfig.setStringProperty("componentMode", componentMode.name());
         moduleConfig.setStringProperty("hvdcAcEmulation", Boolean.toString(hvdcAcEmulation));
         moduleConfig.setStringProperty("dcPowerFactor", Double.toString(dcPowerFactor));
 
@@ -370,7 +370,7 @@ class LoadFlowParametersTest {
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn, useReactiveLimits, phaseShifterRegulationOn,
             twtSplitShuntAdmittance, shuntCompensatorVoltageControlOn, readSlackBus, writeSlackBus, dc, distributedSlack,
-            balanceType, dcUseTransformerRatio, countriesToBalance, connectedComponentMode, hvdcAcEmulation, dcPowerFactor);
+            balanceType, dcUseTransformerRatio, countriesToBalance, componentMode, hvdcAcEmulation, dcPowerFactor);
     }
 
     @Test
@@ -388,7 +388,7 @@ class LoadFlowParametersTest {
         LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
         boolean dcUseTransformerRatio = false;
         Set<Country> countriesToBalance = Set.of(Country.FR);
-        LoadFlowParameters.ConnectedComponentMode connectedComponentMode = LoadFlowParameters.ConnectedComponentMode.ALL;
+        LoadFlowParameters.ComponentMode componentMode = LoadFlowParameters.ComponentMode.ALL_CONNECTED;
         boolean hvdcAcEmulation = false;
         double dcPowerFactor = 0.95;
 
@@ -409,7 +409,7 @@ class LoadFlowParametersTest {
         moduleConfig.setStringProperty("balanceType", balanceType.name());
         moduleConfig.setStringProperty("dcUseTransformerRatio", Boolean.toString(dcUseTransformerRatio));
         moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(Enum::name).toList());
-        moduleConfig.setStringProperty("connectedComponentMode", connectedComponentMode.name());
+        moduleConfig.setStringProperty("componentMode", componentMode.name());
         moduleConfig.setStringProperty("hvdcAcEmulation", Boolean.toString(hvdcAcEmulation));
         moduleConfig.setStringProperty("dcPowerFactor", Double.toString(dcPowerFactor));
 
@@ -417,6 +417,16 @@ class LoadFlowParametersTest {
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn, useReactiveLimits, phaseShifterRegulationOn,
             twtSplitShuntAdmittance, shuntCompensatorVoltageControlOn, readSlackBus, writeSlackBus, dc, distributedSlack,
-            balanceType, dcUseTransformerRatio, countriesToBalance, connectedComponentMode, hvdcAcEmulation, dcPowerFactor);
+            balanceType, dcUseTransformerRatio, countriesToBalance, componentMode, hvdcAcEmulation, dcPowerFactor);
+    }
+
+    @Test
+    void testComponentMode() {
+        assertEquals(LoadFlowParameters.ComponentMode.MAIN_CONNECTED, LoadFlowParameters.ComponentMode.fromString("MAIN"));
+        assertEquals(LoadFlowParameters.ComponentMode.ALL_CONNECTED, LoadFlowParameters.ComponentMode.fromString("ALL"));
+        assertEquals(LoadFlowParameters.ComponentMode.MAIN_CONNECTED, LoadFlowParameters.ComponentMode.fromString("MAIN_CONNECTED"));
+        assertEquals(LoadFlowParameters.ComponentMode.ALL_CONNECTED, LoadFlowParameters.ComponentMode.fromString("ALL_CONNECTED"));
+        assertEquals(LoadFlowParameters.ComponentMode.MAIN_SYNCHRONOUS, LoadFlowParameters.ComponentMode.fromString("MAIN_SYNCHRONOUS"));
+        assertThrows(IllegalArgumentException.class, () -> LoadFlowParameters.ComponentMode.fromString("UNKNOWN"), "ComponentMode unknown value");
     }
 }
