@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction.result;
+package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.PropertiesHolder;
 

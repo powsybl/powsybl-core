@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Overload;
 
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * A simple, default implementation of {@link Overload}.
@@ -42,43 +41,7 @@ public class OverloadImpl implements Overload {
         this.limitReductionCoefficient = limitReductionCoefficient;
     }
 
-    private static final LoadingLimits.TemporaryLimit UNACCEPTABLE_LIMIT = new LoadingLimits.TemporaryLimit() {
-
-        @Override
-        public boolean hasProperty() {
-            return false;
-        }
-
-        @Override
-        public boolean hasProperty(String key) {
-            return false;
-        }
-
-        @Override
-        public String getProperty(String key) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String getProperty(String key, String defaultValue) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String setProperty(String key, String value) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean removeProperty(String key) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Set<String> getPropertyNames() {
-            return Set.of();
-        }
-
+    private static final class UnsupportedPropertiesHolderUnacceptableTemporaryLimit extends UnsupportedPropertiesHolder implements LoadingLimits.TemporaryLimit {
         @Override
         public String getName() {
             return "Unacceptable";
@@ -98,7 +61,9 @@ public class OverloadImpl implements Overload {
         public boolean isFictitious() {
             return true;
         }
-    };
+    }
+
+    private static final LoadingLimits.TemporaryLimit UNACCEPTABLE_LIMIT = new UnsupportedPropertiesHolderUnacceptableTemporaryLimit();
 
     @Override
     public LoadingLimits.TemporaryLimit getTemporaryLimit() {
