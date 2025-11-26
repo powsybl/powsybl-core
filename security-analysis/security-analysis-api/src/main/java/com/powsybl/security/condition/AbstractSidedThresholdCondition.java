@@ -12,13 +12,13 @@ package com.powsybl.security.condition;
  *
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public abstract class SidedThresholdCondition<S> extends AbstractThresholdCondition {
+public abstract class AbstractSidedThresholdCondition<S> extends AbstractThresholdCondition {
 
     // Side of the equipment on which to check the threshold
     private final S side;
 
-    protected SidedThresholdCondition(String equipmentId, Variable variable, ComparisonType comparisonType,
-                                   double threshold, S side) {
+    protected AbstractSidedThresholdCondition(String equipmentId, Variable variable, ComparisonType comparisonType,
+                                              double threshold, S side) {
         super(equipmentId, variable, comparisonType, threshold);
         this.side = side;
     }

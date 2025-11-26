@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.ThreeSides;
  *
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class ThreeWindingsTransformerThresholdCondition extends SidedThresholdCondition<ThreeSides> {
+public class ThreeWindingsTransformerThresholdCondition extends AbstractSidedThresholdCondition<ThreeSides> {
 
     public static final String NAME = "THREE_WINDINGS_TRANSFORMER_THRESHOLD_CONDITION";
 

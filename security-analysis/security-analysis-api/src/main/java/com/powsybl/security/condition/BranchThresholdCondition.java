@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.TwoSides;
  *
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class BranchThresholdCondition extends SidedThresholdCondition<TwoSides> {
+public class BranchThresholdCondition extends AbstractSidedThresholdCondition<TwoSides> {
 
     public static final String NAME = "BRANCH_THRESHOLD_CONDITION";
 
