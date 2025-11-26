@@ -7,56 +7,61 @@
  */
 package com.powsybl.iidm.geodata.geojson.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.extensions.Coordinate;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class LineStringDto extends AbstractGeometryDto {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private List<CoordinatesDto> coordinates;
+    private List<Coordinate> coordinates;
 
     public LineStringDto() {
+        this.coordinates = new ArrayList<>();
     }
 
-    public LineStringDto(List<CoordinatesDto> coordinatesDtoList) {
+    public LineStringDto(List<Coordinate> coordinatesDtoList) {
         this.coordinates = coordinatesDtoList;
     }
 
     public LineStringDto(double[][] coordinates) {
-        this.coordinates = new ArrayList<>();
-        Arrays.asList(coordinates).forEach(c -> this.coordinates.add(new CoordinatesDto(c)));
+        this.coordinates = Arrays.stream(coordinates)
+            .map(coords -> new Coordinate(coords[0], coords[1]))
+            .collect(Collectors.toList());
     }
 
-    public List<CoordinatesDto> getCoordinates() {
-        return coordinates;
+    public List<Coordinate> getCoordinates() {
+        return List.copyOf(coordinates);
     }
 
-    public void setCoordinates(List<CoordinatesDto> coordinates) {
+    public void setCoordinates(List<Coordinate> coordinates) {
         this.coordinates = coordinates;
-    }
-
-    @JsonIgnore
-    public List<Coordinate> getCoordinateList() {
-        return coordinates.stream().map(c -> new Coordinate(c.getLatitude(), c.getLongitude())).toList();
     }
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof LineStringDto otherLineString) {
-            return coordinates.equals(otherLineString.coordinates);
+            return compareCoordinates(coordinates, otherLineString.coordinates);
         }
         return false;
+    }
+
+    protected static boolean compareCoordinates(List<Coordinate> coordinates, List<Coordinate> otherCoordinates) {
+        if (coordinates.size() != otherCoordinates.size()) {
+            return false;
+        }
+        for (int i = 0; i < coordinates.size(); i++) {
+            if (!coordinates.get(i).equals(otherCoordinates.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
