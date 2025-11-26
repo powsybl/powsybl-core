@@ -406,9 +406,9 @@ public final class RegulatingTerminalMapper {
         if (busbarSectionCgmesTerminal == null) {
             return Optional.empty();
         }
-        Bus busBreakerView = context.network().getBusBreakerView().getBus(busbarSectionCgmesTerminal.topologicalNode());
-        return busBreakerView != null
-                ? EquivalentTerminalFinderVoltageControl.best(EquivalentTerminalFinderVoltageControl.findTerminalsBusBranch(busBreakerView.getVoltageLevel(), busBreakerView))
+        Bus busInBusBreakerView = context.network().getBusBreakerView().getBus(busbarSectionCgmesTerminal.topologicalNode());
+        return busInBusBreakerView != null
+                ? EquivalentTerminalFinderVoltageControl.best(EquivalentTerminalFinderVoltageControl.findTerminalsBusBranch(busInBusBreakerView.getVoltageLevel(), busInBusBreakerView))
                 : Optional.empty();
     }
 
