@@ -11,8 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
 
-import java.util.Map;
-
 /**
  *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -87,9 +85,7 @@ class VoltageAngleLimitAdderImpl extends AbstractPropertiesHolder implements Vol
 
         VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(id, from, to, lowLimit, highLimit, networkRef);
         networkRef.get().getVoltageAngleLimitsIndex().put(id, voltageAngleLimit);
-        for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
-            voltageAngleLimit.setProperty((String) entry.getKey(), (String) entry.getValue());
-        }
+        this.copyPropertiesTo(voltageAngleLimit);
         return voltageAngleLimit;
     }
 

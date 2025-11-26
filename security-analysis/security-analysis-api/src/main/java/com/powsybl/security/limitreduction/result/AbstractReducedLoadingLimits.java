@@ -8,11 +8,11 @@
 package com.powsybl.security.limitreduction.result;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.impl.AbstractPropertiesHolder;
 import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -20,59 +20,75 @@ import java.util.TreeMap;
  * reduced limits without altering the real limits of the network element.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractReducedLoadingLimits extends AbstractPropertiesHolder implements LoadingLimits {
+public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
     private final double permanentLimit;
     private final double originalPermanentLimit;
     private final double permanentLimitReduction;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
-    public static final class ReducedTemporaryLimit extends AbstractPropertiesHolder implements TemporaryLimit {
-        // 1. Fields (equivalent to the record components)
-        private final String name;
-        private final double value;
-        private final int acceptableDuration;
-        private final boolean fictitious;
-        private final double originalValue;
-        private final double limitReduction;
-
-        // 2. Canonical Constructor (to initialize all fields)
-        public ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
-                                     double originalValue, double limitReduction) {
-            this.name = name;
-            this.value = value;
-            this.acceptableDuration = acceptableDuration;
-            this.fictitious = fictitious;
-            this.originalValue = originalValue;
-            this.limitReduction = limitReduction;
-        }
-
-        // 3. Accessor Methods (Getters)
+    public record ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
+                                        double originalValue, double limitReduction) implements TemporaryLimit {
         @Override
         public String getName() {
-            return name;
+            return name();
         }
 
         @Override
         public double getValue() {
-            return value;
+            return value();
         }
 
         @Override
         public int getAcceptableDuration() {
-            return acceptableDuration;
+            return acceptableDuration();
         }
 
         @Override
         public boolean isFictitious() {
-            return fictitious;
+            return fictitious();
         }
 
         public double getOriginalValue() {
-            return originalValue;
+            return originalValue();
         }
 
         public double getLimitReduction() {
-            return limitReduction;
+            return limitReduction();
+        }
+
+        @Override
+        public boolean hasProperty() {
+            return false;
+        }
+
+        @Override
+        public boolean hasProperty(String key) {
+            return false;
+        }
+
+        @Override
+        public String getProperty(String key) {
+            return "";
+        }
+
+        @Override
+        public String getProperty(String key, String defaultValue) {
+            return "";
+        }
+
+        @Override
+        public String setProperty(String key, String value) {
+            return "";
+        }
+
+        @Override
+        public boolean removeProperty(String key) {
+            return false;
+        }
+
+        @Override
+        public Set<String> getPropertyNames() {
+            return Set.of();
         }
     }
 
@@ -130,5 +146,40 @@ public abstract class AbstractReducedLoadingLimits extends AbstractPropertiesHol
     @Override
     public void remove() {
         throw new UnsupportedOperationException("Reduced loading limits are not linked to a network element and thus cannot be removed.");
+    }
+
+    @Override
+    public boolean hasProperty() {
+        return false;
+    }
+
+    @Override
+    public boolean hasProperty(String key) {
+        return false;
+    }
+
+    @Override
+    public String getProperty(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String setProperty(String key, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeProperty(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        return Set.of();
     }
 }

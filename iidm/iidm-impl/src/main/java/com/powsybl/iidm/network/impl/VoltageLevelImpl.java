@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt, PropertiesHolder {
+class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
 
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;

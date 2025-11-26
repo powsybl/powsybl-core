@@ -76,7 +76,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected abstract RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating);
 
-    public NetworkImpl getNetwork() {
+    protected NetworkImpl getNetwork() {
         return parent.getNetwork();
     }
 

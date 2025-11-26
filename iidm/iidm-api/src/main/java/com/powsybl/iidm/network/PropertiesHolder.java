@@ -52,4 +52,12 @@ public interface PropertiesHolder {
      * Get properties key values.
      */
     Set<String> getPropertyNames();
+
+    /**
+     * Copy the properties to another properties holder
+     * @param propertiesHolder the destination properties holder
+     * */
+    default void copyPropertiesTo(PropertiesHolder propertiesHolder) {
+        getPropertyNames().forEach(name -> propertiesHolder.setProperty(name, getProperty(name)));
+    }
 }

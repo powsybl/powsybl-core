@@ -42,9 +42,6 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
         private boolean ensureNameUnicity = false;
 
-        public TemporaryLimitAdderImpl() {
-        }
-
         @Override
         public TemporaryLimitAdder<B> setName(String name) {
             this.name = name;

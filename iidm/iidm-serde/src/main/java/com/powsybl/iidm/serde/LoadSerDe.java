@@ -46,7 +46,6 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     @Override
     protected void writeSubElements(Load load, VoltageLevel parent, NetworkSerializerContext context) {
-        //PropertiesSerDe.write(load, context);
         load.getModel().ifPresent(model -> {
             IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, MODEL, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_10, context);
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_10, context, () -> writeModel(model, context));

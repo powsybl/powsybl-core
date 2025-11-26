@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -73,9 +72,7 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
         @Override
         public PhaseTapChangerAdder endStep() {
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
-            for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
-                step.setProperty((String) z.getKey(), (String) z.getValue());
-            }
+            this.copyPropertiesTo(step);
             step.validate(parent);
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;

@@ -82,7 +82,7 @@ abstract class AbstractTapChangerAdderImpl<
         return self();
     }
 
-    public NetworkImpl getNetwork() {
+    NetworkImpl getNetwork() {
         return parent.getNetwork();
     }
 
@@ -114,9 +114,7 @@ abstract class AbstractTapChangerAdderImpl<
                 targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         T tapChanger = createTapChanger(parent, lowTapPosition, steps, regulationTerminal, tapPosition, solvedTapPosition, regulating, loadTapChangingCapabilities, regulationValue, targetDeadband);
-        for (Map.Entry<Object, Object> z : getProperties().entrySet()) {
-            tapChanger.setProperty((String) z.getKey(), (String) z.getValue());
-        }
+        this.copyPropertiesTo(tapChanger);
         Set<TapChanger<?, ?, ?, ?>> otherTapChangers = new HashSet<>(parent.getAllTapChangers());
         otherTapChangers.remove(tapChanger);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, otherTapChangers, regulating,
