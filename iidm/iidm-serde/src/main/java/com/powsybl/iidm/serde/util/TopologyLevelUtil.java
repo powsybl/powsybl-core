@@ -26,12 +26,36 @@ public final class TopologyLevelUtil {
     }
 
     public static TopologyLevel determineTopologyLevel(VoltageLevel vl, NetworkSerializerContext context) {
-        TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
-        return shouldExportWithOriginalTopology(vl, context) ? TopologyLevel.valueOf(vl.getTopologyKind().name()) : TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
+        TopologyLevel exportTopologyLevel = context.getVoltageLevelExportTopologyLevel(vl.getId());
+        if (exportTopologyLevel == null) {
+            TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
+            exportTopologyLevel = checkVoltageLevelExportTopology(vl, context, TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel));
+            context.addVoltageLevelExportTopologyLevel(vl.getId(), exportTopologyLevel);
+        }
+        return exportTopologyLevel;
     }
 
-    private static boolean shouldExportWithOriginalTopology(VoltageLevel vl, NetworkSerializerContext context) {
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
+    /**
+     * Validates and possibly adjusts the topology level to use when exporting a voltage level.
+     *
+     * If the requested topologyLevel is TopologyLevel.BUS_BRANCH and the provided VoltageLevel has switches,
+     * this method checks whether all switches are open. If all switches are open this is considered
+     * incompatible with BUS_BRANCH export. In that situation the behavior is driven by the export options
+     * available in the provided context:
+     * - If the configured BusBranchVoltageLevelIncompatibilityBehavior is THROW_EXCEPTION, a PowsyblException is thrown.
+     * - Otherwise, the method falls back to the voltage level's own topology kind.
+     *
+     * If the requested topologyLevel is not BUS_BRANCH or the voltage level does not contain only-open switches,
+     * the original topologyLevel is returned unchanged.
+     *
+     * @param vl the voltage level being exported
+     * @param context the serialization context
+     * @param topologyLevel the requested topology level for export
+     * @return the topology level that should be used for export
+     * @throws PowsyblException if exporting a BUS_BRANCH topology while all switches are open and the configured behavior is THROW_EXCEPTION
+     */
+    private static TopologyLevel checkVoltageLevelExportTopology(VoltageLevel vl, NetworkSerializerContext context, TopologyLevel topologyLevel) {
+
         if (topologyLevel == TopologyLevel.BUS_BRANCH &&
                 vl.getSwitchCount() > 0 &&
                 vl.getSwitchCount() == StreamSupport
@@ -41,9 +65,9 @@ public final class TopologyLevelUtil {
                     .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
                 throw new PowsyblException("Cannot export a voltage level with all its switches open in BUS_BRANCH topology");
             }
-            return true;
+            return TopologyLevel.valueOf(vl.getTopologyKind().name());
         }
-        return false;
+        return topologyLevel;
     }
 }
 
