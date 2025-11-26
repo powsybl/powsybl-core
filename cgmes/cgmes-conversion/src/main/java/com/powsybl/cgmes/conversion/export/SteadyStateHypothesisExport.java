@@ -488,13 +488,13 @@ public final class SteadyStateHypothesisExport {
             } else if (tc instanceof PhaseTapChanger phaseTapChanger
                     && CgmesExportUtil.regulatingControlIsDefined(phaseTapChanger)) {
                 boolean valid;
-                String unitMultiplier = switch (CgmesExportUtil.getPhaseTapChangerRegulationMode(phaseTapChanger)) {
-                    case RegulatingControlEq.REGULATING_CONTROL_CURRENT_FLOW -> {
+                String unitMultiplier = switch (phaseTapChanger.getRegulationMode()) {
+                    case PhaseTapChanger.RegulationMode.CURRENT_LIMITER -> {
                         // Unit multiplier is none (multiply by 1), regulation value is a current in Amperes
                         valid = true;
                         yield "none";
                     }
-                    case RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER -> {
+                    case PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL -> {
                         // Unit multiplier is M, regulation value is an active power flow in MW
                         valid = true;
                         yield "M";
@@ -505,12 +505,13 @@ public final class SteadyStateHypothesisExport {
                     }
                 };
                 if (valid) {
+                    boolean isActivePowerControlMode = phaseTapChanger.getRegulationMode() == PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL;
                     rcv = new RegulatingControlView(controlId,
                             RegulatingControlType.TAP_CHANGER_CONTROL,
                             true,
-                            phaseTapChanger.isRegulating(),
-                            phaseTapChanger.getTargetDeadband(),
-                            phaseTapChanger.getRegulationValue(),
+                            isActivePowerControlMode && phaseTapChanger.isRegulating(),
+                            isActivePowerControlMode ? phaseTapChanger.getTargetDeadband() : 0.0,
+                            isActivePowerControlMode ? phaseTapChanger.getRegulationValue() : 0.0,
                             unitMultiplier);
                 }
             }
