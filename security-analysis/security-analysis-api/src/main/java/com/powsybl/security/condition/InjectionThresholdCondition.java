@@ -16,8 +16,9 @@ public class InjectionThresholdCondition extends AbstractThresholdCondition {
 
     public static final String NAME = "INJECTION_THRESHOLD_CONDITION";
 
-    public InjectionThresholdCondition(double threshold, AbstractThresholdCondition.ComparisonType type, String equipmentId, AbstractThresholdCondition.Variable variable) {
-        super(threshold, type, equipmentId, variable);
+    public InjectionThresholdCondition(String equipmentId, Variable variable, ComparisonType comparisonType,
+                                       double threshold) {
+        super(equipmentId, variable, comparisonType, threshold);
     }
 
     @Override

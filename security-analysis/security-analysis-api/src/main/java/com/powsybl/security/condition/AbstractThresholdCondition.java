@@ -38,15 +38,15 @@ public abstract class AbstractThresholdCondition implements Condition {
     // Equipment on which to check the threshold
     private final String equipmentId;
     // Comparison type for the threshold
-    private final ComparisonType type;
+    private final ComparisonType comparisonType;
     // Variable to be measured against the threshold
     private final Variable variable;
 
-    protected AbstractThresholdCondition(double threshold, ComparisonType type, String equipmentId, Variable variable) {
-        this.threshold = threshold;
+    protected AbstractThresholdCondition(String equipmentId, Variable variable, ComparisonType comparisonType, double threshold) {
         this.equipmentId = Objects.requireNonNull(equipmentId);
-        this.type = Objects.requireNonNull(type);
         this.variable = Objects.requireNonNull(variable);
+        this.comparisonType = Objects.requireNonNull(comparisonType);
+        this.threshold = threshold;
     }
 
     public double getThreshold() {
@@ -58,7 +58,7 @@ public abstract class AbstractThresholdCondition implements Condition {
     }
 
     public ComparisonType getComparisonType() {
-        return type;
+        return comparisonType;
     }
 
     public Variable getVariable() {

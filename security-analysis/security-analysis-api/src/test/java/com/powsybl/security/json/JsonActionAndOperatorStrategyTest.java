@@ -82,9 +82,9 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
                 List.of("actionId3")))));
         operatorStrategies.add(new OperatorStrategy("id7", ContingencyContext.specificContingency("contingencyId5"),
             List.of(
-                new ConditionalActions("stage1", new BranchThresholdCondition(2.0, AbstractThresholdCondition.ComparisonType.GREATER_THAN, "Line1", AbstractThresholdCondition.Variable.CURRENT, ThreeSides.ONE), List.of("actionId3")),
-                new ConditionalActions("stage2", new InjectionThresholdCondition(2.0, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, "Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER), List.of("actionId3", "actionId4")),
-                new ConditionalActions("stage3", new AcDcConverterThresholdCondition(3.0, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, "Converter1", AbstractThresholdCondition.Variable.CURRENT, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5")))));
+                new ConditionalActions("stage1", new BranchThresholdCondition("Line1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.GREATER_THAN, 2.0, ThreeSides.ONE), List.of("actionId3")),
+                new ConditionalActions("stage2", new InjectionThresholdCondition("Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, 2.0), List.of("actionId3", "actionId4")),
+                new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5")))));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
     }

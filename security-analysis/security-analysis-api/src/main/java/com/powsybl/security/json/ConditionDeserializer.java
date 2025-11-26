@@ -101,11 +101,11 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
             case AllViolationCondition.NAME:
                 return new AllViolationCondition(context.violationIds, context.conditionFilters);
             case InjectionThresholdCondition.NAME:
-                return new InjectionThresholdCondition(context.threshold, context.comparisonType, context.equipmentId, context.variable);
+                return new InjectionThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold);
             case BranchThresholdCondition.NAME:
-                return new BranchThresholdCondition(context.threshold, context.comparisonType, context.equipmentId, context.variable, context.side);
+                return new BranchThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.side);
             case AcDcConverterThresholdCondition.NAME:
-                return new AcDcConverterThresholdCondition(context.threshold, context.comparisonType, context.equipmentId, context.variable, context.isAcSide, context.terminalNumber);
+                return new AcDcConverterThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.isAcSide, context.terminalNumber);
             default:
                 throw new JsonMappingException(parser, "Unexpected condition type: " + context.type);
         }

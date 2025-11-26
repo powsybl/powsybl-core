@@ -21,9 +21,9 @@ public class BranchThresholdCondition extends AbstractThresholdCondition {
     // Side of the equipment on which to check the threshold
     private final ThreeSides side;
 
-    public BranchThresholdCondition(double threshold, AbstractThresholdCondition.ComparisonType type, String equipmentId,
-                                    AbstractThresholdCondition.Variable variable, ThreeSides side) {
-        super(threshold, type, equipmentId, variable);
+    public BranchThresholdCondition(String equipmentId, Variable variable, ComparisonType comparisonType,
+                                    double threshold, ThreeSides side) {
+        super(equipmentId, variable, comparisonType, threshold);
         this.side = side;
     }
 

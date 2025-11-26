@@ -23,9 +23,9 @@ public class AcDcConverterThresholdCondition extends AbstractThresholdCondition 
     // Terminal number to target
     private final TerminalNumber terminalNumber;
 
-    public AcDcConverterThresholdCondition(double threshold, AbstractThresholdCondition.ComparisonType type, String equipmentId,
-                                           AbstractThresholdCondition.Variable variable, boolean acSide, TerminalNumber terminalNumber) {
-        super(threshold, type, equipmentId, variable);
+    public AcDcConverterThresholdCondition(String equipmentId, Variable variable, ComparisonType comparisonType,
+                                           double threshold, boolean acSide, TerminalNumber terminalNumber) {
+        super(equipmentId, variable, comparisonType, threshold);
         this.acSide = acSide;
         this.terminalNumber = terminalNumber;
     }
