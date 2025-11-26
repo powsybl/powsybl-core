@@ -115,7 +115,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
         assertEquals(2, parameters.getCountriesToBalance().size());
         assertTrue(parameters.getCountriesToBalance().contains(Country.FR));
         assertTrue(parameters.getCountriesToBalance().contains(Country.KI));
-        assertEquals(LoadFlowParameters.ConnectedComponentMode.MAIN, parameters.getConnectedComponentMode());
+        assertEquals(LoadFlowParameters.ComponentMode.MAIN_CONNECTED, parameters.getComponentMode());
     }
 
     @Test
@@ -144,6 +144,13 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
         LoadFlowParameters parameters = JsonLoadFlowParameters
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion19.json"));
         assertEquals(0.8d, parameters.getDcPowerFactor(), 0d);
+    }
+
+    @Test
+    void readJsonVersion110() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion110.json"));
+        assertEquals(LoadFlowParameters.ComponentMode.MAIN_SYNCHRONOUS, parameters.getComponentMode());
     }
 
     @Test
