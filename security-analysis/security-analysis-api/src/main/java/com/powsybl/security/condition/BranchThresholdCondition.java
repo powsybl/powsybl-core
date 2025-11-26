@@ -8,6 +8,7 @@
 package com.powsybl.security.condition;
 
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TwoSides;
 
 /**
  * Condition on a branch triggered by a threshold
@@ -20,6 +21,12 @@ public class BranchThresholdCondition extends AbstractThresholdCondition {
 
     // Side of the equipment on which to check the threshold
     private final ThreeSides side;
+
+    public BranchThresholdCondition(String equipmentId, Variable variable, ComparisonType comparisonType,
+                                    double threshold, TwoSides side) {
+        super(equipmentId, variable, comparisonType, threshold);
+        this.side = side.toThreeSides();
+    }
 
     public BranchThresholdCondition(String equipmentId, Variable variable, ComparisonType comparisonType,
                                     double threshold, ThreeSides side) {
