@@ -49,6 +49,11 @@ public class ConditionSerializer extends StdSerializer<Condition> {
                 serializeThresholdCondition(branchCondition, jsonGenerator);
                 jsonGenerator.writeStringField("side", branchCondition.getSide().name());
                 break;
+            case ThreeWindingsTransformerThresholdCondition.NAME:
+                ThreeWindingsTransformerThresholdCondition threeWtCondition = (ThreeWindingsTransformerThresholdCondition) condition;
+                serializeThresholdCondition(threeWtCondition, jsonGenerator);
+                jsonGenerator.writeStringField("side", threeWtCondition.getSide().name());
+                break;
             case AcDcConverterThresholdCondition.NAME:
                 AcDcConverterThresholdCondition acDcConverterCondition = (AcDcConverterThresholdCondition) condition;
                 serializeThresholdCondition(acDcConverterCondition, jsonGenerator);

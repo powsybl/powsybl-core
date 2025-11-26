@@ -7,19 +7,19 @@
  */
 package com.powsybl.security.condition;
 
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.ThreeSides;
 
 /**
- * Condition on a branch equipment triggered by a threshold
+ * Condition on a three windings transformer equipment triggered by a threshold
  *
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class BranchThresholdCondition extends SidedThresholdCondition<TwoSides> {
+public class ThreeWindingsTransformerThresholdCondition extends SidedThresholdCondition<ThreeSides> {
 
-    public static final String NAME = "BRANCH_THRESHOLD_CONDITION";
+    public static final String NAME = "THREE_WINDINGS_TRANSFORMER_THRESHOLD_CONDITION";
 
-    public BranchThresholdCondition(String equipmentId, Variable variable, ComparisonType comparisonType,
-                                    double threshold, TwoSides side) {
+    public ThreeWindingsTransformerThresholdCondition(String equipmentId, Variable variable, ComparisonType comparisonType,
+                                    double threshold, ThreeSides side) {
         super(equipmentId, variable, comparisonType, threshold, side);
     }
 

@@ -207,7 +207,7 @@
       }, {
         "id" : "stage1",
         "condition" : {
-          "type" : "BRANCH_THRESHOLD_CONDITION",
+          "type" : "THREE_WINDINGS_TRANSFORMER_THRESHOLD_CONDITION",
           "equipmentId" : "3WTransformer1",
           "variable" : "REACTIVE_POWER",
           "comparisonType" : "NOT_EQUAL",

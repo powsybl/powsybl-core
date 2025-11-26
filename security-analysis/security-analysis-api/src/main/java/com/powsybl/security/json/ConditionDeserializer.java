@@ -103,7 +103,9 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
             case InjectionThresholdCondition.NAME:
                 return new InjectionThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold);
             case BranchThresholdCondition.NAME:
-                return new BranchThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.side);
+                return new BranchThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.side.toTwoSides());
+            case ThreeWindingsTransformerThresholdCondition.NAME:
+                return new ThreeWindingsTransformerThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.side);
             case AcDcConverterThresholdCondition.NAME:
                 return new AcDcConverterThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.isAcSide, context.terminalNumber);
             default:
