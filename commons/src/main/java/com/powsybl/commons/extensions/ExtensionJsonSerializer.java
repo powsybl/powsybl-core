@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.commons.report.ReportNode;
 
 import java.io.IOException;
 
@@ -31,6 +32,10 @@ public interface ExtensionJsonSerializer<T extends Extendable, E extends Extensi
      */
     E deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException;
 
+    default E deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, ReportNode reportNode) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Deserializes the provided JSON to update the provided extension. Returns the updated extension.
      *
@@ -39,5 +44,9 @@ public interface ExtensionJsonSerializer<T extends Extendable, E extends Extensi
      */
     default E deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, E extension) throws IOException {
         return deserialize(jsonParser, deserializationContext);
+    }
+
+    default E deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, E extension, ReportNode reportNode) throws IOException {
+        throw new UnsupportedOperationException();
     }
 }
