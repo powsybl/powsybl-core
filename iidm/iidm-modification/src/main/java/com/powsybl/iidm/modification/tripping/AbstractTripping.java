@@ -13,7 +13,11 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DcSwitch;
+import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.HashSet;
 import java.util.Objects;

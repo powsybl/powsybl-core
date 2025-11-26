@@ -216,12 +216,7 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
     }
 
     private DcTopologyModel getTopologyModel() {
-        Network parent = this.getParentNetwork();
-        if (parent instanceof SubnetworkImpl subnetwork) {
-            return subnetwork.getDcTopologyModel();
-        } else {
-            return ((NetworkImpl) parent).getDcTopologyModel();
-        }
+        return ((AbstractNetwork) this.getParentNetwork()).getDcTopologyModel();
     }
 
     @Override

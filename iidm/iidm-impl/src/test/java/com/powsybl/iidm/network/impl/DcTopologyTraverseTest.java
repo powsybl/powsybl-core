@@ -7,7 +7,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DcSwitch;
+import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import com.powsybl.math.graph.TraverseResult;
 import org.junit.jupiter.api.Test;
