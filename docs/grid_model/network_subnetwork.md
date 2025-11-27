@@ -845,13 +845,9 @@ A VSC converter station is made with switching devices that can be turned both o
 
 - [Connectable position](extensions.md#connectable-position)
 
-### Detailed DC model (beta)
+### Detailed DC model
 
-```{warning}
-**The detailed DC model was introduced in IIDM v1.14 and is currently in beta.**
-
-Future IIDM v1.15 will add support for DC equipment serialization/deserialization.
-
+```{note}
 Currently, this model is only available in the IIDM representation.
 Support in exchange formats (CGMES, ...) as well as in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
 Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
