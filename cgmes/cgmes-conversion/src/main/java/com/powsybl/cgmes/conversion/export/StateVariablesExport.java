@@ -272,7 +272,9 @@ public final class StateVariablesExport {
             }
 
             boolean isInAccordance;
-            if (BusTools.hasAnyFinite(busViewBus, Terminal::getP) && BusTools.hasAnyFinite(busViewBus, Terminal::getQ)) {
+            if (bus.getFictitiousP0() != 0.0
+                || bus.getFictitiousQ0() != 0.0
+                || BusTools.hasAnyFinite(busViewBus, Terminal::getP) && BusTools.hasAnyFinite(busViewBus, Terminal::getQ)) {
                 double sumP = BusTools.sum(busViewBus, Terminal::getP) + bus.getFictitiousP0();
                 double sumQ = BusTools.sum(busViewBus, Terminal::getQ) + bus.getFictitiousQ0();
                 isInAccordance = Math.abs(sumP) <= maxPMismatchConverged && Math.abs(sumQ) <= maxQMismatchConverged;
