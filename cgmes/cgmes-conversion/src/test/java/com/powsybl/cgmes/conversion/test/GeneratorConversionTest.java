@@ -80,41 +80,42 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         String eqXml = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir, new Properties());
         String sshXml = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir, new Properties());
         String type = "http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.";
+        String operatingMode = "http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineOperatingMode.";
 
         String generator1Eq = getElement(eqXml, "SynchronousMachine", "GEN");
         assertNotNull(generator1Eq);
         assertEquals(type + "generatorOrCondenser", getResource(generator1Eq, "SynchronousMachine.type"));
         String generator1Ssh = getElement(sshXml, "SynchronousMachine", "GEN");
         assertNotNull(generator1Ssh);
-        assertTrue(generator1Ssh.contains("SynchronousMachineOperatingMode.generator"));
+        assertEquals(operatingMode + "generator", getResource(generator1Ssh, "SynchronousMachine.operatingMode"));
 
         String generator2Eq = getElement(eqXml, "SynchronousMachine", "GEN2");
         assertNotNull(generator2Eq);
-        assertTrue(generator2Eq.contains("SynchronousMachineKind.generatorOrCondenser"));
+        assertEquals(type + "generatorOrCondenser", getResource(generator2Eq, "SynchronousMachine.type"));
         String generator2Ssh = getElement(sshXml, "SynchronousMachine", "GEN2");
         assertNotNull(generator2Ssh);
-        assertTrue(generator2Ssh.contains("SynchronousMachineOperatingMode.condenser"));
+        assertEquals(operatingMode + "condenser", getResource(generator2Ssh, "SynchronousMachine.operatingMode"));
 
         String generator3Eq = getElement(eqXml, "SynchronousMachine", "GEN3");
         assertNotNull(generator3Eq);
-        assertTrue(generator3Eq.contains("SynchronousMachineKind.motor"));
+        assertEquals(type + "motor", getResource(generator3Eq, "SynchronousMachine.type"));
         String generator3Ssh = getElement(sshXml, "SynchronousMachine", "GEN3");
         assertNotNull(generator3Ssh);
-        assertTrue(generator3Ssh.contains("SynchronousMachineOperatingMode.motor"));
+        assertEquals(operatingMode + "motor", getResource(generator3Ssh, "SynchronousMachine.operatingMode"));
 
         String batteryEq = getElement(eqXml, "SynchronousMachine", "BAT");
         assertNotNull(batteryEq);
-        assertTrue(batteryEq.contains("SynchronousMachineKind.generatorOrCondenserOrMotor"));
+        assertEquals(type + "generatorOrCondenserOrMotor", getResource(batteryEq, "SynchronousMachine.type"));
         String batterySsh = getElement(sshXml, "SynchronousMachine", "BAT");
         assertNotNull(batterySsh);
-        assertTrue(batterySsh.contains("SynchronousMachineOperatingMode.generator"));
+        assertEquals(operatingMode + "generator", getResource(batterySsh, "SynchronousMachine.operatingMode"));
 
         String battery2Eq = getElement(eqXml, "SynchronousMachine", "BAT2");
         assertNotNull(battery2Eq);
-        assertTrue(battery2Eq.contains("SynchronousMachineKind.generatorOrCondenser"));
+        assertEquals(type + "generatorOrCondenser", getResource(battery2Eq, "SynchronousMachine.type"));
         String battery2Ssh = getElement(sshXml, "SynchronousMachine", "BAT2");
         assertNotNull(battery2Ssh);
-        assertTrue(battery2Ssh.contains("SynchronousMachineOperatingMode.condenser"));
+        assertEquals(operatingMode + "condenser", getResource(battery2Ssh, "SynchronousMachine.operatingMode"));
     }
 
     private Network createNetwork() {
