@@ -383,11 +383,11 @@ public class DcTopologyModel implements MultiVariantObject {
         }
     }
 
-    void traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser) {
-        traverse(terminal, traverser, new HashSet<>());
+    void traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, TraversalType traversalType) {
+        traverse(terminal, traverser, new HashSet<>(), traversalType);
     }
 
-    boolean traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals) {
+    boolean traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(visitedDcTerminals);
@@ -413,13 +413,13 @@ public class DcTopologyModel implements MultiVariantObject {
             }
 
             // then go through other connected DC nodes
-            boolean traversalTerminated = traverseOtherDcNodes(v, nextDcTerminals, traverser, visitedDcTerminals);
+            boolean traversalTerminated = traverseOtherDcNodes(v, nextDcTerminals, traverser, visitedDcTerminals, traversalType);
             if (traversalTerminated) {
                 return false;
             }
 
             for (DcTerminal t : nextDcTerminals) {
-                if (!t.traverse(traverser, visitedDcTerminals)) {
+                if (!t.traverse(traverser, visitedDcTerminals, traversalType)) {
                     return false;
                 }
             }
@@ -429,8 +429,8 @@ public class DcTopologyModel implements MultiVariantObject {
     }
 
     private boolean traverseOtherDcNodes(int v, List<DcTerminal> nextDcTerminals,
-                                       DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals) {
-        return !graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
+                                       DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
+        return !graph.traverse(v, traversalType, (v1, e, v2) -> {
             DcSwitchImpl aSwitch = graph.getEdgeObject(e);
             List<DcTerminal> otherBusDcTerminals = graph.getVertexObject(v2).getDcTerminals();
             TraverseResult switchTraverseResult = traverser.traverse(aSwitch);

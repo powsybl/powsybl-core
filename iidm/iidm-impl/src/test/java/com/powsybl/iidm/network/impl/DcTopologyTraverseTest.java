@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
+import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 import org.junit.jupiter.api.Test;
 
@@ -89,7 +90,7 @@ class DcTopologyTraverseTest {
 
     private static String getDcLineSectionId(DcTerminal terminal) {
         DcLineTraverser connectedDcLine = new DcLineTraverser(terminal.isConnected());
-        terminal.traverse(connectedDcLine);
+        terminal.traverse(connectedDcLine, TraversalType.BREADTH_FIRST);
         return connectedDcLine.getFirstTraversedDcLineId();
     }
 
