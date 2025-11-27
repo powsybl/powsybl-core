@@ -486,9 +486,9 @@ public final class CgmesExportUtil {
 
     // Original synchronous machine kind it is only preserved if it is compatible with the calculated synchronous machine kind
     // calculated synchronous machine kind is based on the present limits
-    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve) {
+    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
         String kind = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
-        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, kind);
+        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, isCondenser);
         if (kind == null) {
             return calculatedKind;
         } else if (calculatedKind.contains(kind)) {
@@ -499,27 +499,37 @@ public final class CgmesExportUtil {
         }
     }
 
-    // we cannot discriminate between generatorOrMotor and generatorOrCondenserOrMotor so,
-    // we preserve the original kind if it is available
-    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, String originalKind) {
+    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
         double min = curve != null ? curve.getMinP() : minP;
         double max = curve != null ? curve.getMaxP() : maxP;
 
         String kind;
-        if (min > 0) {
-            kind = "generator";
-        } else if (max < 0) {
-            kind = "motor";
-        } else if (min == 0 && max == 0) {
-            kind = "condenser";
-        } else if (min == 0) {
-            kind = "generatorOrCondenser";
-        } else if (max == 0) {
-            kind = "motorOrCondenser";
+        if (!isCondenser) {
+            kind = getKindNotCondenser(min, max);
         } else {
-            kind = originalKind != null && (originalKind.equals(GENERATOR_OR_MOTOR) || originalKind.equals("generatorOrCondenserOrMotor")) ? originalKind : "generatorOrCondenserOrMotor";
+            kind = getKindCondenser(min, max);
         }
         return kind;
+    }
+
+    private static String getKindCondenser(double min, double max) {
+        if (min >= 0 && max > 0) {
+            return "generatorOrCondenser";
+        } else if (max <= 0 && min < 0) {
+            return "motorOrCondenser";
+        } else if (min == 0 && max == 0) {
+            return "condenser";
+        }
+        return "generatorOrCondenserOrMotor";
+    }
+
+    private static String getKindNotCondenser(double min, double max) {
+        if (min >= 0) {
+            return "generator";
+        } else if (max <= 0) {
+            return "motor";
+        }
+        return "generatorOrMotor";
     }
 
     public static boolean isValidVoltageSetpoint(double v) {
