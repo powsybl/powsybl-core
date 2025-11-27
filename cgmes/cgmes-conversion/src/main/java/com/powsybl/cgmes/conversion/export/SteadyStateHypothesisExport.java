@@ -395,7 +395,6 @@ public final class SteadyStateHypothesisExport {
                         || !Double.isNaN(generator.getTargetQ()) && generator.getTargetQ() != 0;
             }
             case Battery battery -> {
-                double targetQ = battery.getTargetQ();
                 VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
                 return voltageRegulation != null && voltageRegulation.isVoltageRegulatorOn() && !Double.isNaN(voltageRegulation.getTargetV())
                         || !Double.isNaN(battery.getTargetQ()) && battery.getTargetQ() != 0;
