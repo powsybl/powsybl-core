@@ -11,8 +11,6 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.psse.model.PsseException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -109,11 +107,6 @@ class PsseImporterIllinoisTest extends AbstractSerDeTest {
     private static Network load(String resourcePath, String sample) {
         String baseName = sample.substring(0, sample.lastIndexOf('.'));
         return Network.read(new ResourceDataSource(baseName, new ResourceSet(resourcePath, sample)));
-    }
-
-    private static void testInvalid(String resourcePath, String sample, String message) {
-        PsseException exception = Assertions.assertThrows(PsseException.class, () -> load(resourcePath, sample));
-        Assertions.assertEquals(message, exception.getMessage());
     }
 
     private static Network testValid(String resourcePath, String sample) {
