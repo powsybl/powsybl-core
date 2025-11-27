@@ -6,14 +6,14 @@
   "useReactiveLimits" : false,
   "twtSplitShuntAdmittance" : false,
   "shuntCompensatorVoltageControlOn" : false,
-  "readSlackBus" : true,
-  "writeSlackBus" : true,
+  "readSlackBus" : false,
+  "writeSlackBus" : false,
   "dc" : false,
   "distributedSlack" : true,
   "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
   "dcUseTransformerRatio" : true,
-  "countriesToBalance" : [ ],
-  "componentMode" : "MAIN_CONNECTED",
-  "hvdcAcEmulation" : true,
-  "dcPowerFactor" : 1.0
+  "countriesToBalance" : [ "FR" , "KI" ],
+  "componentMode" : "MAIN_SYNCHRONOUS",
+  "hvdcAcEmulation" : false,
+  "dcPowerFactor": 0.8
 }
