@@ -18,7 +18,6 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -165,7 +164,7 @@ public class Conversion {
         Network network = createNetwork();
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         Context context = new Context(cgmes, config, network, reportNode);
-        assignNetworkProperties(context);
+        setNetworkTimes(context);
         addMetadataModels(network, context);
         addCimCharacteristics(network);
 
@@ -226,7 +225,7 @@ public class Conversion {
 
         // Convert DC equipments, limits, SV injections, control areas, regulating controls
         context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, "DC network"));
-        new DCConversion(cgmes, context);
+        new DCConversion(context);
         clearUnattachedHvdcConverterStations(network, context);
         context.popReportNode();
 
@@ -356,9 +355,18 @@ public class Conversion {
         updateTransformers(network, updateContext);
         updateStaticVarCompensators(network, cgmes, updateContext);
         updateShuntCompensators(network, cgmes, updateContext);
-        updateHvdcLines(network, cgmes, updateContext);
-        updateDanglingLines(network, updateContext);
 
+        // Update either simplified or detailed DC model
+        if (!updateContext.config().getUseDetailedDcModel()) {
+            updateHvdcLines(network, cgmes, updateContext);
+        } else {
+            updateDcSwitches(network, updateContext);
+            updateDcGrounds(network, updateContext);
+            updateDcLines(network, updateContext);
+            updateAcDcConverters(network, cgmes, updateContext);
+        }
+
+        updateDanglingLines(network, updateContext);
         // Fix dangling lines issues
         updateContext.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
         handleDangingLineDisconnectedAtBoundary(network, updateContext);
@@ -525,25 +533,7 @@ public class Conversion {
         return context;
     }
 
-    private void assignNetworkProperties(Context context) {
-        context.network().setProperty(NETWORK_PS_CGMES_MODEL_DETAIL,
-                context.nodeBreaker()
-                        ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
-                        : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
-        PropertyBags modelProfiles = context.cgmes().modelProfiles();
-        String fullModel = "FullModel";
-        modelProfiles.sort(Comparator.comparing(p -> p.getId(fullModel)));
-        for (PropertyBag modelProfile : modelProfiles) { // Import of profiles ID as properties TODO import them in a dedicated extension
-            if (modelProfile.getId(fullModel).equals(context.network().getId())) {
-                continue;
-            }
-            String profile = CgmesNamespace.getProfile(modelProfile.getId("profile"));
-            if (profile != null && !"EQ_OP".equals(profile) && !"SV".equals(profile)) { // don't import EQ_OP and SV profiles as they are not used for CGMES export
-                context.network()
-                        .setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID", property -> context.network().hasProperty(property)),
-                                modelProfile.getId(fullModel));
-            }
-        }
+    private void setNetworkTimes(Context context) {
         ZonedDateTime modelScenarioTime = cgmes.scenarioTime();
         ZonedDateTime modelCreated = cgmes.created();
         long forecastDistance = Duration.between(modelCreated, modelScenarioTime).toMinutes();
@@ -652,8 +642,9 @@ public class Conversion {
 
     private void addCimCharacteristics(Network network) {
         if (cgmes instanceof CgmesModelTripleStore cgmesModelTripleStore) {
+            boolean isNodeBreaker = cgmes.isNodeBreaker() && !config.importNodeBreakerAsBusBreaker();
             network.newExtension(CimCharacteristicsAdder.class)
-                    .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
+                    .setTopologyKind(isNodeBreaker ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
                     .setCimVersion(cgmesModelTripleStore.getCimVersion())
                     .add();
         }
@@ -1094,6 +1085,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean getUseDetailedDcModel() {
+            return useDetailedDcModel;
+        }
+
+        public Config setUseDetailedDcModel(boolean useDetailedDcModel) {
+            this.useDetailedDcModel = useDetailedDcModel;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
@@ -1125,6 +1125,7 @@ public class Conversion {
         private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
         private boolean usePreviousValuesDuringUpdate = false;
         private boolean removePropertiesAndAliasesAfterImport = false;
+        private boolean useDetailedDcModel = false;
     }
 
     private final CgmesModel cgmes;
@@ -1134,10 +1135,6 @@ public class Conversion {
     private final NetworkFactory networkFactory;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
-
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
     public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
@@ -1154,4 +1151,5 @@ public class Conversion {
     public static final String PROPERTY_OPERATIONAL_LIMIT_SET_RDFID = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetRdfID";
     public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL;
     public static final String PROPERTY_CGMES_REGULATION_CAPABILITY = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATION_CAPABILITY;
+    public static final String PROPERTY_CGMES_DC_CONVERTER_UNIT = CGMES_PREFIX_ALIAS_PROPERTIES + "DCConverterUnit";
 }

@@ -91,6 +91,9 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         if (!Double.isNaN(starBusV) && !Double.isNaN(starBusTheta)) {
             twt.setProperty(CgmesNames.VOLTAGE, Double.toString(starBusV));
             twt.setProperty(CgmesNames.ANGLE, Double.toString(starBusTheta));
+        } else {
+            twt.removeProperty(CgmesNames.VOLTAGE);
+            twt.removeProperty(CgmesNames.ANGLE);
         }
     }
 

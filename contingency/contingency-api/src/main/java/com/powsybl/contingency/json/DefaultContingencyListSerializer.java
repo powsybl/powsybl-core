@@ -11,7 +11,7 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.contingency.contingency.list.DefaultContingencyList;
+import com.powsybl.contingency.list.DefaultContingencyList;
 
 import java.io.IOException;
 
