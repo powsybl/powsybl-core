@@ -79,10 +79,11 @@ class GeneratorConversionTest extends AbstractSerDeTest {
 
         String eqXml = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir, new Properties());
         String sshXml = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir, new Properties());
+        String type = "http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.";
 
         String generator1Eq = getElement(eqXml, "SynchronousMachine", "GEN");
         assertNotNull(generator1Eq);
-        assertTrue(generator1Eq.contains("SynchronousMachineKind.generatorOrCondenser"));
+        assertEquals(type + "generatorOrCondenser", getResource(generator1Eq, "SynchronousMachine.type"));
         String generator1Ssh = getElement(sshXml, "SynchronousMachine", "GEN");
         assertNotNull(generator1Ssh);
         assertTrue(generator1Ssh.contains("SynchronousMachineOperatingMode.generator"));
