@@ -9,9 +9,7 @@ package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -123,7 +121,7 @@ public final class DcDetailedNetworkFactory {
                 .setQ0(0.0)
                 .setBus(b.getId())
                 .add();
-        xNodes.forEach((xNode, v) -> {
+        new TreeMap<>(xNodes).forEach((xNode, v) -> {
             load.setP0(load.getP0() - v);
             vl.newDanglingLine()
                     .setId("DLAC-" + country.name() + "-" + xNode)
