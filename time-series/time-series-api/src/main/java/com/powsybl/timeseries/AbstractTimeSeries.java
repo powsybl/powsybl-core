@@ -108,12 +108,20 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         return checkedChunks;
     }
 
-    public Stream<P> stream() {
-        return getCheckedChunks(true).stream().flatMap(chunk -> chunk.stream(metadata.getIndex()));
+    public Stream<P> uncompressedStream() {
+        return getCheckedChunks(true).stream().flatMap(chunk -> chunk.uncompressedStream(metadata.getIndex()));
     }
 
-    public Iterator<P> iterator() {
-        return Iterators.concat(getCheckedChunks(true).stream().map(c -> c.iterator(metadata.getIndex())).collect(Collectors.toList()).iterator());
+    public Stream<P> compressedStream() {
+        return getCheckedChunks(true).stream().flatMap(chunk -> chunk.compressedStream(metadata.getIndex()));
+    }
+
+    public Iterator<P> uncompressedIterator() {
+        return Iterators.concat(getCheckedChunks(true).stream().map(c -> c.uncompressedIterator(metadata.getIndex())).collect(Collectors.toList()).iterator());
+    }
+
+    public Iterator<P> compressedIterator() {
+        return Iterators.concat(getCheckedChunks(true).stream().map(c -> c.compressedIterator(metadata.getIndex())).collect(Collectors.toList()).iterator());
     }
 
     protected abstract T createTimeSeries(C chunk);
