@@ -346,8 +346,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         return droopCurve;
     }
 
-    public void setDroopCurve(DroopCurve droopCurve) {
-        this.droopCurve = droopCurve;
+    void setDroopCurve(DroopCurve droopCurve) {
+        this.droopCurve = Objects.requireNonNull(droopCurve);
     }
 
     protected abstract I self();
