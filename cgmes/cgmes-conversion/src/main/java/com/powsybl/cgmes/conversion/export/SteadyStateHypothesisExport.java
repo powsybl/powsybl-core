@@ -391,24 +391,14 @@ public final class SteadyStateHypothesisExport {
     private static boolean isOperatingAsACondenser(Injection<?> injection) {
         switch (injection) {
             case Generator generator -> {
-                if (generator.isVoltageRegulatorOn()) {
-                    double targetV = generator.getTargetV();
-                    return !Double.isNaN(targetV) && targetV != 0;
-                } else {
-                    double targetQ = generator.getTargetQ();
-                    return !Double.isNaN(targetQ) && targetQ != 0;
-                }
+                return generator.isVoltageRegulatorOn() && !Double.isNaN(generator.getTargetV())
+                        || !Double.isNaN(generator.getTargetQ()) && generator.getTargetQ() != 0;
             }
             case Battery battery -> {
                 double targetQ = battery.getTargetQ();
-                VoltageRegulation voltageRegulationExtension = battery.getExtension(VoltageRegulation.class);
-                if (voltageRegulationExtension != null && voltageRegulationExtension.isVoltageRegulatorOn()) {
-                    double targetV = voltageRegulationExtension.getTargetV();
-                    if (!Double.isNaN(targetV) && targetV != 0) {
-                        return true;
-                    }
-                }
-                return !Double.isNaN(targetQ) && targetQ != 0;
+                VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
+                return voltageRegulation != null && voltageRegulation.isVoltageRegulatorOn() && !Double.isNaN(voltageRegulation.getTargetV())
+                        || !Double.isNaN(battery.getTargetQ()) && battery.getTargetQ() != 0;
             }
             default -> throw new IllegalStateException("Unexpected value: " + injection);
         }
