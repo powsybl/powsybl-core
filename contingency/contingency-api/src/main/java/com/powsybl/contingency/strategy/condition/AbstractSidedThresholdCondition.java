@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.condition;
+package com.powsybl.contingency.strategy.condition;
 
 /**
  * Condition on a sided equipment triggered by a threshold

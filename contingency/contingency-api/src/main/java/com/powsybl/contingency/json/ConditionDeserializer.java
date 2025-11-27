@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.security.LimitViolationType;
-import com.powsybl.security.condition.*;
 import com.powsybl.contingency.strategy.condition.*;
 import com.powsybl.contingency.violations.LimitViolationType;
 

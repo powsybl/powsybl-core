@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.security.condition;
+package com.powsybl.contingency.strategy.condition;
 
 import java.util.Objects;
 
