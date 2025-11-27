@@ -990,8 +990,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
         expectedGenerator.setMinP(-50.0).setMaxP(0.0).setTargetP(-10.0);
         String expectedSynchronousMachineKind = "motorOrCondenser";
         expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, expectedSynchronousMachineKind);
-        String expectedOperatingMode = "motor";
-        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, expectedOperatingMode);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -1006,8 +1004,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // check the synchronous machine kind
         String actualSynchronousMachineKind = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
         assertEquals(expectedSynchronousMachineKind, actualSynchronousMachineKind);
-        String actualOperatingMode = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
-        assertEquals(expectedOperatingMode, actualOperatingMode);
     }
 
     @Test
@@ -1427,6 +1423,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setTargetP(25.0)
                 .setTargetQ(10.0)
                 .setVoltageRegulatorOn(false)
+                .setCondenser(true)
                 .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();
