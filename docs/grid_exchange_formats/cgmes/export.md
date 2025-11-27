@@ -298,9 +298,9 @@ generator has the extension [`RemoteReactivePowerControl`](../../grid_model/exte
 with the `enabled` activated and the generator attribute `voltageRegulatorOn` set to `false`. In all other cases, a
 `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
-#### Synchronous machine kind (EQ) and operating mode (SSH)
+#### SynchronousMachine type (EQ) and operatingMode (SSH)
 
-The `SynchronousMachine.SynchronousMachineKind` is exported in the EQ profile depending on the [reactive limits](../../grid_model/additional.md#reactive-limits) of the 
+The `SynchronousMachine.type` is exported in the EQ profile depending on the [reactive limits](../../grid_model/additional.md#reactive-limits) of the 
 generator or battery and its capacity to behave like a condenser (a battery can behave like a condenser but does not have the flag `isCondenser` so we consider it as `true`):
 - if the flag `isCondenser` is `true`: 
   - if the minimum and the maximum active power limit are positive, then the generator or battery will be exported as `generatorOrCondenser`,
@@ -312,12 +312,12 @@ generator or battery and its capacity to behave like a condenser (a battery can 
   - if the maximum active power limit is negative, then the generator or battery will be exported as `motor`,
   - otherwise, the generator will be exported as `generatorOrMotor`.
 
-The `SynchronousMachine.SynchronousMachineOperatingMode` is exported in the SSH profile depending on the target active 
+The `SynchronousMachine.operatingMode` is exported in the SSH profile depending on the target active 
 power of the generator or battery and on fact that it is regulating or not:
 - if the target active power is positive, then the generator or battery will be exported as `generator`,
 - if the target active power is negative, then the generator or battery will be exported as `motor`,
 - if the target active power is zero and the generator or battery is regulating, then the operating mode will be `condenser`.
-- otherwise, the generator or battery will be exported as `generator` if is allowed by its `SynchronousMachine.SynchronousMachineKind`,
+- otherwise, the generator or battery will be exported as `generator` if is allowed by its `SynchronousMachine.type`,
 otherwise `motor` and otherwise `condenser`. 
 To know if the generator or battery is behaving as a condenser, its `targetV`, `targetQ` and `voltageRegulatorOn` attributes are used.
 
