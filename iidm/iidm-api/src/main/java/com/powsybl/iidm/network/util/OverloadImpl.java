@@ -41,7 +41,7 @@ public class OverloadImpl implements Overload {
         this.limitReductionCoefficient = limitReductionCoefficient;
     }
 
-    private static final class UnsupportedPropertiesHolderUnacceptableTemporaryLimit extends UnsupportedPropertiesHolder implements LoadingLimits.TemporaryLimit {
+    private static final class UnacceptableTemporaryLimit extends UnsupportedPropertiesHolder implements LoadingLimits.TemporaryLimit {
         @Override
         public String getName() {
             return "Unacceptable";
@@ -63,7 +63,7 @@ public class OverloadImpl implements Overload {
         }
     }
 
-    private static final LoadingLimits.TemporaryLimit UNACCEPTABLE_LIMIT = new UnsupportedPropertiesHolderUnacceptableTemporaryLimit();
+    private static final LoadingLimits.TemporaryLimit UNACCEPTABLE_LIMIT = new UnacceptableTemporaryLimit();
 
     @Override
     public LoadingLimits.TemporaryLimit getTemporaryLimit() {

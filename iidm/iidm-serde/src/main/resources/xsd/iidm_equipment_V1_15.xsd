@@ -208,6 +208,9 @@
         <xs:attribute name="node2" use="required" type="xs:int"/>
     </xs:complexType>
     <xs:complexType name="Point">
+        <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
         <xs:attribute name="p" use="required" type="xs:double"/>
         <xs:attribute name="minQ" use="required" type="xs:double"/>
         <xs:attribute name="maxQ" use="required" type="xs:double"/>
@@ -819,6 +822,7 @@
     </xs:complexType>
     <xs:complexType name="VoltageAngleLimit">
         <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="from" type="iidm:TerminalRef"/>
             <xs:element name="to" type="iidm:TerminalRef"/>
         </xs:sequence>
