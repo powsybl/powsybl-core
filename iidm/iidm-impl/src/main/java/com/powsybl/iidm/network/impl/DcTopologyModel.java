@@ -11,8 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefChain;
-import com.powsybl.iidm.network.DcBus;
-import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
@@ -355,5 +354,109 @@ public class DcTopologyModel implements MultiVariantObject {
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
+    }
+
+    private static TraverseResult getTraverserResult(Set<DcTerminal> visitedDcTerminals, DcTerminal terminal, DcTerminal.TopologyTraverser traverser) {
+        return visitedDcTerminals.add(terminal) ? traverser.traverse(terminal, terminal.isConnected()) : TraverseResult.TERMINATE_PATH;
+    }
+
+    protected static void addNextDcTerminals(DcTerminal otherDcTerminal, List<DcTerminalImpl> nextDcTerminals) {
+        Objects.requireNonNull(otherDcTerminal);
+        Objects.requireNonNull(nextDcTerminals);
+        DcConnectable<?> otherDcConnectable = otherDcTerminal.getDcConnectable();
+        if (otherDcConnectable instanceof DcLine dcLine) {
+            if (dcLine.getDcTerminal1() == otherDcTerminal) {
+                nextDcTerminals.add((DcTerminalImpl) dcLine.getDcTerminal2());
+            } else if (dcLine.getDcTerminal2() == otherDcTerminal) {
+                nextDcTerminals.add((DcTerminalImpl) dcLine.getDcTerminal1());
+            } else {
+                throw new IllegalStateException();
+            }
+        } else if (otherDcConnectable instanceof VoltageSourceConverter converter) {
+            if (converter.getDcTerminal1() == otherDcTerminal) {
+                nextDcTerminals.add((DcTerminalImpl) converter.getDcTerminal2());
+            } else if (converter.getDcTerminal2() == otherDcTerminal) {
+                nextDcTerminals.add((DcTerminalImpl) converter.getDcTerminal1());
+            } else {
+                throw new IllegalStateException();
+            }
+        }
+    }
+
+    void traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, TraversalType traversalType) {
+        traverse(terminal, traverser, new HashSet<>(), traversalType);
+    }
+
+    boolean traverse(DcTerminal terminal, DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
+        Objects.requireNonNull(terminal);
+        Objects.requireNonNull(traverser);
+        Objects.requireNonNull(visitedDcTerminals);
+
+        // check if we are allowed to traverse the terminal itself
+        TraverseResult termTraverseResult = getTraverserResult(visitedDcTerminals, terminal, traverser);
+        if (termTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
+            return false;
+        } else if (termTraverseResult == TraverseResult.CONTINUE) {
+            List<DcTerminalImpl> nextDcTerminals = new ArrayList<>();
+            addNextDcTerminals(terminal, nextDcTerminals);
+
+            // then check we can traverse terminals connected to same DC node
+            int v = getVertex(terminal.getDcNode().getId());
+            DcNode dcNode = graph.getVertexObject(v);
+            for (DcTerminal t : dcNode.getDcTerminals()) {
+                TraverseResult tTraverseResult = getTraverserResult(visitedDcTerminals, t, traverser);
+                if (tTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
+                    return false;
+                } else if (tTraverseResult == TraverseResult.CONTINUE) {
+                    addNextDcTerminals(t, nextDcTerminals);
+                }
+            }
+
+            // then go through other connected DC nodes
+            boolean traversalTerminated = traverseOtherDcNodes(v, nextDcTerminals, traverser, visitedDcTerminals, traversalType);
+            if (traversalTerminated) {
+                return false;
+            }
+
+            for (DcTerminalImpl t : nextDcTerminals) {
+                if (!t.traverse(traverser, visitedDcTerminals, traversalType)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private boolean traverseOtherDcNodes(int v, List<DcTerminalImpl> nextDcTerminals,
+                                       DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
+        return !graph.traverse(v, traversalType, (v1, e, v2) -> {
+            DcSwitchImpl aSwitch = graph.getEdgeObject(e);
+            List<DcTerminal> otherBusDcTerminals = graph.getVertexObject(v2).getDcTerminals();
+            TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
+            if (switchTraverseResult == TraverseResult.CONTINUE && !otherBusDcTerminals.isEmpty()) {
+                DcTerminal otherDcTerminal = otherBusDcTerminals.getFirst();
+                TraverseResult otherTermTraverseResult = getTraverserResult(visitedDcTerminals, otherDcTerminal, traverser);
+                if (otherTermTraverseResult == TraverseResult.CONTINUE) {
+                    addNextDcTerminals(otherDcTerminal, nextDcTerminals);
+                }
+                return otherTermTraverseResult;
+            }
+            return switchTraverseResult;
+        });
+    }
+
+    boolean disconnect(DcTerminal terminal) {
+        // already disconnected?
+        if (!terminal.isConnected()) {
+            return false;
+        }
+
+        terminal.setConnected(false);
+
+        // invalidate connected components
+        invalidateCache();
+
+        return true;
     }
 }
