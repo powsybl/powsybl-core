@@ -92,9 +92,10 @@ public class PsseFixes {
 
         psseObjects.forEach(psseObject -> {
             var id = idBuilder.apply(psseObject);
-            if (indexes.containsKey(id)) {
+            Integer index = indexes.get(id);
+            if (index != null) {
                 LOGGER.warn("Duplicated {} Id: {}", elementTypeName, id);
-                unique.set(indexes.get(id), psseObject);
+                unique.set(index, psseObject);
             } else {
                 indexes.put(id, unique.size());
                 unique.add(psseObject);
@@ -184,11 +185,6 @@ public class PsseFixes {
         if (LOGGER.isWarnEnabled()) {
             LOGGER.warn("{} {} controlled bus {} not found; fixed to 0", type, recordId, controlledBus);
         }
-    }
-
-    @FunctionalInterface
-    public interface IdFixer<T> {
-        String fix(T t, Set<String> usedIds);
     }
 
     private void fixNonTransformersBranchX() {
