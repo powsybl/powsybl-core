@@ -97,10 +97,51 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
         forEachMaterializedValueIndex((v, i) -> buffer.putString(timeSeriesOffset + i, v));
     }
 
+    /**
+     * Get an uncompressed point iterator (i.e., there will be {@code uncompressedLength} elements in the iterator).
+     *
+     * @param index the time series index
+     * @return a point iterator
+     */
     @Override
-    public Iterator<StringPoint> iterator(TimeSeriesIndex index) {
+    public Iterator<StringPoint> uncompressedIterator(TimeSeriesIndex index) {
         Objects.requireNonNull(index);
-        return new Iterator<StringPoint>() {
+        return new Iterator<>() {
+
+            private int i = offset;
+            private int step = 0;
+            private int stepLimit = offset + stepLengths[0];
+
+            @Override
+            public boolean hasNext() {
+                return i < offset + uncompressedLength;
+            }
+
+            @Override
+            public StringPoint next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                StringPoint point = new StringPoint(i, index.getInstantAt(i), stepValues[step]);
+                i++;
+                if (i >= stepLimit && step + 1 < stepLengths.length) {
+                    step++;
+                    stepLimit += stepLengths[step];
+                }
+                return point;
+            }
+        };
+    }
+
+    /**
+     * Get an RLE (Run-Length encoding) compressed point iterator.
+     * @param index the time series index
+     * @return a compressed point iterator
+     */
+    @Override
+    public Iterator<StringPoint> compressedIterator(TimeSeriesIndex index) {
+        Objects.requireNonNull(index);
+        return new Iterator<>() {
 
             private int i = offset;
             private int step = 0;
@@ -123,10 +164,29 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
         };
     }
 
+    /**
+     * Get an uncompressed point stream (i.e., there will be {@code uncompressedLength} elements in the stream).
+     *
+     * @param index the time series index
+     * @return a point stream
+     */
     @Override
-    public Stream<StringPoint> stream(TimeSeriesIndex index) {
+    public Stream<StringPoint> uncompressedStream(TimeSeriesIndex index) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-                iterator(index),
+            uncompressedIterator(index),
+            Spliterator.ORDERED | Spliterator.IMMUTABLE), false);
+    }
+
+    /**
+     * Get an RLE (Run-Length encoding) compressed point stream.
+     *
+     * @param index the time series index
+     * @return a point stream
+     */
+    @Override
+    public Stream<StringPoint> compressedStream(TimeSeriesIndex index) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+                compressedIterator(index),
                 Spliterator.ORDERED | Spliterator.IMMUTABLE), false);
     }
 
