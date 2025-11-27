@@ -18,14 +18,14 @@ import java.util.*;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> implements LoadingLimits {
+abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends AbstractPropertiesHolder implements LoadingLimits {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
     protected final OperationalLimitsGroupImpl group;
     private double permanentLimit;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
-    static class TemporaryLimitImpl implements TemporaryLimit {
+    static class TemporaryLimitImpl extends AbstractPropertiesHolder implements TemporaryLimit {
 
         private final String name;
 
@@ -61,6 +61,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         public boolean isFictitious() {
             return fictitious;
         }
+
     }
 
     AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
