@@ -15,10 +15,13 @@ import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.condition.AtLeastOneViolationCondition;
 import com.powsybl.contingency.violations.*;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TerminalNumber;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
+import com.powsybl.security.condition.*;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
@@ -77,13 +80,27 @@ class ExporterTest extends AbstractSerDeTest {
         List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = List.of(new ThreeWindingsTransformerResult("threeWindingsTransformerId", 1, 2, 3, 1.1, 2.1, 3.1, 1.2, 2.2, 3.2));
         List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>();
-        operatorStrategyResults.add(
-                new OperatorStrategyResult(
-                        new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"),
-                                List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
-                        PostContingencyComputationStatus.CONVERGED,
-                        new LimitViolationsResult(Collections.emptyList()),
-                        new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
+
+        var opStrategyResult1 = new OperatorStrategyResult(
+            new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"),
+                List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
+            PostContingencyComputationStatus.CONVERGED,
+            new LimitViolationsResult(Collections.emptyList()),
+            new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
+
+        var opStrategyResult2 = new OperatorStrategyResult(
+            new OperatorStrategy("strategyId2", ContingencyContext.specificContingency("contingency1"),
+                List.of(
+                    new ConditionalActions("stage1", new BranchThresholdCondition("Line1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.GREATER_THAN, 2.0, TwoSides.ONE), List.of("actionId3")),
+                    new ConditionalActions("stage1", new ThreeWindingsTransformerThresholdCondition("3WTransformer1", AbstractThresholdCondition.Variable.REACTIVE_POWER, AbstractThresholdCondition.ComparisonType.NOT_EQUAL, 52.0, ThreeSides.THREE), List.of("actionId3")),
+                    new ConditionalActions("stage2", new InjectionThresholdCondition("Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, 2.0), List.of("actionId3", "actionId4")),
+                    new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5")))),
+            PostContingencyComputationStatus.CONVERGED,
+            new LimitViolationsResult(Collections.emptyList()),
+            new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
+
+        operatorStrategyResults.add(opStrategyResult1);
+        operatorStrategyResults.add(opStrategyResult2);
         SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED,
                 Collections.singletonList(postContingencyResult),
                 preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults, operatorStrategyResults);
@@ -134,7 +151,8 @@ class ExporterTest extends AbstractSerDeTest {
     private static Stream<Arguments> provideArguments2() {
         return Stream.of(
             Arguments.of("/SecurityAnalysisResultV1.5.json"),
-            Arguments.of("/SecurityAnalysisResultV1.6.json")
+            Arguments.of("/SecurityAnalysisResultV1.6.json"),
+            Arguments.of("/SecurityAnalysisResultV1.7.json")
         );
     }
 

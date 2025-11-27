@@ -58,7 +58,7 @@ public abstract class AbstractNoSpecificParametersLoadFlowProvider implements Lo
     }
 
     @Override
-    public List<Parameter> getSpecificParameters() {
+    public List<Parameter> getRawSpecificParameters() {
         return Collections.emptyList();
     }
 }
