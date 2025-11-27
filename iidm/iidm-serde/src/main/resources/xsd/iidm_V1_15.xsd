@@ -22,6 +22,10 @@
             <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="network" type="iidm:Network" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="dcNode" type="iidm:DcNode" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="dcSwitch" type="iidm:DcSwitch" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="dcGround" type="iidm:DcGround" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="dcLine" type="iidm:DcLine" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="voltageLevel" type="iidm:VoltageLevel" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -110,6 +114,8 @@
                         <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensator"/>
                         <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
                         <xs:element name="lccConverterStation" type="iidm:LccConverterStation"/>
+                        <xs:element name="voltageSourceConverter" type="iidm:VoltageSourceConverter"/>
+                        <xs:element name="lineCommutatedConverter" type="iidm:LineCommutatedConverter"/>
                         <xs:element name="ground" type="iidm:Ground"/>
                     </xs:choice>
                 </xs:sequence>
@@ -521,6 +527,86 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:simpleType name="AcDcConverterControlMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="P_PCC"/>
+            <xs:enumeration value="V_DC"/>
+            <xs:enumeration value="P_PCC_DROOP"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="DroopCurve">
+        <xs:sequence>
+            <xs:element name="segment" minOccurs="1" maxOccurs="unbounded" type="iidm:DroopCurveSegment"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="DroopCurveSegment">
+        <xs:attribute name="minV" use="required" type="xs:double"/>
+        <xs:attribute name="maxV" use="required" type="xs:double"/>
+        <xs:attribute name="k" use="required" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="AcDcConverter">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:sequence>
+                    <xs:element name="pccTerminal" type="iidm:TerminalRef"/>
+                    <xs:element name="droopCurve" minOccurs="0" maxOccurs="1" type="iidm:DroopCurve"/>
+                </xs:sequence>
+                <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="dcConnected1" use="required" type="xs:boolean"/>
+                <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="dcConnected2" use="required" type="xs:boolean"/>
+                <xs:attribute name="idleLoss" use="required" type="xs:double"/>
+                <xs:attribute name="switchingLoss" use="required" type="xs:double"/>
+                <xs:attribute name="resistiveLoss" use="required" type="xs:double"/>
+                <xs:attribute name="controlMode" use="required" type="iidm:AcDcConverterControlMode"/>
+                <xs:attribute name="targetP" use="optional" type="xs:double"/>
+                <xs:attribute name="targetVdc" use="optional" type="xs:double"/>
+                <xs:attribute name="node1" use="optional" type="xs:int"/>
+                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="node2" use="optional" type="xs:int"/>
+                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="p1" use="optional" type="xs:double"/>
+                <xs:attribute name="q1" use="optional" type="xs:double"/>
+                <xs:attribute name="p2" use="optional" type="xs:double"/>
+                <xs:attribute name="q2" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP2" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI2" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="LineCommutatedConverterReactiveModel">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="FIXED_POWER_FACTOR"/>
+            <xs:enumeration value="CALCULATED_POWER_FACTOR"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="LineCommutatedConverter">
+        <xs:complexContent>
+            <xs:extension base="iidm:AcDcConverter">
+                <xs:attribute name="reactiveModel" use="required" type="iidm:LineCommutatedConverterReactiveModel"/>
+                <xs:attribute name="powerFactor" use="required" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="VoltageSourceConverter">
+        <xs:complexContent>
+            <xs:extension base="iidm:AcDcConverter">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+                        <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
+                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
+                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     <xs:complexType name="Tripping">
         <xs:attribute name="key" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="name" use="optional" type="iidm:nonEmptyString"/>
@@ -557,9 +643,16 @@
             <xs:enumeration value="THREE"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="TerminalNumber">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ONE"/>
+            <xs:enumeration value="TWO"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="TerminalRef">
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="side" use="optional" type="iidm:Side"/>
+        <xs:attribute name="number" use="optional" type="iidm:TerminalNumber"/>
     </xs:complexType>
     <xs:complexType name="RatioTapChangerStep">
         <xs:attribute name="rho" use="required" type="xs:double"/>
@@ -727,6 +820,56 @@
                 </xs:sequence>
                 <xs:attribute name="areaType" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="interchangeTarget" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DcNode">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="nominalV" use="required" type="xs:double"/>
+                <xs:attribute name="v" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DcGround">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="dcNode" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="connected" use="required" type="xs:boolean"/>
+                <xs:attribute name="dcP" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DcLine">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="r" use="required" type="xs:double"/>
+                <xs:attribute name="connected1" use="required" type="xs:boolean"/>
+                <xs:attribute name="connected2" use="required" type="xs:boolean"/>
+                <xs:attribute name="dcP1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI1" use="optional" type="xs:double"/>
+                <xs:attribute name="dcP2" use="optional" type="xs:double"/>
+                <xs:attribute name="dcI2" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="DcSwitchKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BREAKER"/>
+            <xs:enumeration value="DISCONNECTOR"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="DcSwitch">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="dcNode1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="kind" use="required" type="iidm:DcSwitchKind"/>
+                <xs:attribute name="open" use="required" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
