@@ -10,18 +10,16 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getAttribute;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElement;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getResource;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -61,7 +59,7 @@ class FictitiousInjectionsExportTest extends AbstractSerDeTest {
         String terminalEq = getElement(eqXml, "Terminal", terminalId);
         assertNotNull(terminalEq);
         assertTrue(terminalEq.contains("<cim:Terminal.ConnectivityNode "));
-        assertTrue(terminalEq.contains("<cim:Terminal.ConductingEquipment rdf:resource=\"#_" + loadId + "\"/>"));
+        assertEquals(loadId, getResource(terminalEq, "Terminal.ConductingEquipment"));
 
         // TP: terminal of the fictitious load references a TopologicalNode
         String tpTerminal = getElement(tpXml, "Terminal", terminalId);
@@ -70,11 +68,11 @@ class FictitiousInjectionsExportTest extends AbstractSerDeTest {
         // SSH: values and terminal connected
         String sshLoad = getElement(sshXml, "NonConformLoad", loadId);
         assertNotNull(sshLoad);
-        assertTrue(sshLoad.contains("<cim:EnergyConsumer.p>1.1</cim:EnergyConsumer.p>"));
-        assertTrue(sshLoad.contains("<cim:EnergyConsumer.q>2.2</cim:EnergyConsumer.q>"));
+        assertEquals("1.1", getAttribute(sshLoad, "EnergyConsumer.p"));
+        assertEquals("2.2", getAttribute(sshLoad, "EnergyConsumer.q"));
         String sshTerminal = getElement(sshXml, "Terminal", terminalId);
         assertNotNull(sshTerminal);
-        assertTrue(sshTerminal.contains("<cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>"));
+        assertEquals("true", getAttribute(sshTerminal, "ACDCTerminal.connected"));
 
         // SV: SvPowerFlow is exported for the terminal of the fictitious load
         assertTrue(svXml.contains(terminalId));
@@ -97,6 +95,7 @@ class FictitiousInjectionsExportTest extends AbstractSerDeTest {
         String terminalEq = getElement(eqXml, "Terminal", terminalId);
         assertNotNull(terminalEq);
         assertFalse(terminalEq.contains("<cim:Terminal.ConnectivityNode"));
+        assertEquals(loadId, getResource(terminalEq, "Terminal.ConductingEquipment"));
 
         // TP: terminal of the fictitious load references a TopologicalNode
         String terminalTp = getElement(tpXml, "Terminal", terminalId);
@@ -105,11 +104,11 @@ class FictitiousInjectionsExportTest extends AbstractSerDeTest {
         // SSH: values and terminal connected
         String sshLoad = getElement(sshXml, "NonConformLoad", loadId);
         assertNotNull(sshLoad);
-        assertTrue(sshLoad.contains("<cim:EnergyConsumer.p>3.3</cim:EnergyConsumer.p>"));
-        assertTrue(sshLoad.contains("<cim:EnergyConsumer.q>4.4</cim:EnergyConsumer.q>"));
+        assertEquals("3.3", getAttribute(sshLoad, "EnergyConsumer.p"));
+        assertEquals("4.4", getAttribute(sshLoad, "EnergyConsumer.q"));
         String sshTerminal = getElement(sshXml, "Terminal", terminalId);
         assertNotNull(sshTerminal);
-        assertTrue(sshTerminal.contains("<cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>"));
+        assertEquals("true", getAttribute(sshTerminal, "ACDCTerminal.connected"));
 
         // SV: SvPowerFlow is exported for the terminal of the fictitious load
         assertTrue(svXml.contains(terminalId));
@@ -132,6 +131,7 @@ class FictitiousInjectionsExportTest extends AbstractSerDeTest {
         String terminalEq = getElement(eqXml, "Terminal", termId);
         assertNotNull(terminalEq);
         assertTrue(terminalEq.contains("<cim:Terminal.ConnectivityNode"));
+        assertEquals(loadId, getResource(terminalEq, "Terminal.ConductingEquipment"));
 
         // TP: terminal of the fictitious load references a TopologicalNode
         String terminalTp = getElement(tpXml, "Terminal", termId);
@@ -141,11 +141,11 @@ class FictitiousInjectionsExportTest extends AbstractSerDeTest {
         // SSH: values and terminal connected
         String sshLoad = getElement(sshXml, "NonConformLoad", loadId);
         assertNotNull(sshLoad);
-        assertTrue(sshLoad.contains("<cim:EnergyConsumer.p>3.3</cim:EnergyConsumer.p>"));
-        assertTrue(sshLoad.contains("<cim:EnergyConsumer.q>4.4</cim:EnergyConsumer.q>"));
+        assertEquals("3.3", getAttribute(sshLoad, "EnergyConsumer.p"));
+        assertEquals("4.4", getAttribute(sshLoad, "EnergyConsumer.q"));
         String sshTerminal = getElement(sshXml, "Terminal", termId);
         assertNotNull(sshTerminal);
-        assertTrue(sshTerminal.contains("<cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>"));
+        assertEquals("true", getAttribute(sshTerminal, "ACDCTerminal.connected"));
     }
 
     private static Network createBbNetworkWithFictitiousOnBus() {
