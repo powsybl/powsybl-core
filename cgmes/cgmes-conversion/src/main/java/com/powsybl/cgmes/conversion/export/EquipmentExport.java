@@ -8,7 +8,9 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.*;
@@ -31,7 +33,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.converterClassName;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
@@ -50,6 +54,7 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 public final class EquipmentExport {
 
     private static final String AC_DC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
+    private static final String MONOPOLAR_GROUND_RETURN = "monopolarGroundReturn";
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
@@ -99,6 +104,15 @@ public final class EquipmentExport {
 
             writeDanglingLines(network, mapTerminal2Id, cimNamespace, euNamespace, exportedLimitTypes, writer, context, exportedBaseVoltagesByNominalV);
             writeHvdcLines(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
+
+            Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = getAcDcConvertersUnit(network, context);
+            Map<DcNode, DCConverterUnit> dcNodesConverterUnit = getDcNodesConverterUnit(network, acDcConvertersUnit);
+            writeDcConverterUnits(network, dcNodesConverterUnit, cimNamespace, writer, context);
+            writeDcNodes(network, dcNodesConverterUnit, cimNamespace, writer, context);
+            writeDcSwitches(network, cimNamespace, writer, context);
+            writeDcGrounds(network, cimNamespace, writer, context);
+            writeDcLineSegments(network, cimNamespace, writer, context);
+            writeAcDcConverters(network, acDcConvertersUnit, mapTerminal2Id, cimNamespace, writer, context);
 
             writeControlAreas(loadAreaId, network, cimNamespace, euNamespace, writer, context);
 
@@ -660,7 +674,7 @@ public final class EquipmentExport {
             // In the rest of situations, we keep the same id under alias for tc1.
             adjustTapChangerAliases2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
             adjustTapChangerAliases2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
-            writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(), regulatingControlsWritten, cimNamespace, writer, context);
+            writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(), regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
             writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(), regulatingControlsWritten, cimNamespace, writer, context);
             writeBranchLimits(twt, exportedTerminalId(mapTerminal2Id, twt.getTerminal1()), exportedTerminalId(mapTerminal2Id, twt.getTerminal2()), cimNamespace, euNamespace, exportedLimitTypes, writer, context);
         }
@@ -832,12 +846,12 @@ public final class EquipmentExport {
         double b = leg.getB() / a02;
         BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(leg.getTerminal().getVoltageLevel().getNominalV());
         PowerTransformerEq.writeEnd(endId, twtName, twtId, endNumber, r, x, g, b, leg.getRatedS(), leg.getRatedU(), terminalId, baseVoltage.getId(), cimNamespace, writer, context);
-        writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, legNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, writer, context);
+        writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, legNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
         writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, legNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, writer, context);
         writeFlowsLimits(leg, terminalId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
     }
 
-    private static <C extends Connectable<C>> void writePhaseTapChanger(C eq, PhaseTapChanger ptc, String twtName, int endNumber, String endId, double neutralU, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static <C extends Connectable<C>> void writePhaseTapChanger(C eq, PhaseTapChanger ptc, String twtName, int endNumber, String endId, double neutralU, Set<String> regulatingControlsWritten, String cimNamespace, String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (ptc != null) {
             String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber;
             String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
@@ -848,11 +862,30 @@ public final class EquipmentExport {
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(ptc)) {
-                String mode = CgmesExportUtil.getPhaseTapChangerRegulationMode(ptc);
-                String controlName = twtName + "_PTC_RC";
-                String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
                 cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
                 if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
+                    String mode = RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
+                    String controlName = twtName + "_PTC_RC";
+                    String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
+                    if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER) {
+                        // Log not supported regulation mode
+                        CgmesReports.phaseTapChangerCurrentLimiterModeNotSupportedReport(context.getReportNode(), cgmesTapChangerId);
+
+                        // Add a CurrentLimit with the PhaseTapChanger current limiter regulation value to the regulated terminal.
+                        String operationalLimitSetId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(PhaseTapChanger.RegulationMode.CURRENT_LIMITER.name()), OPERATIONAL_LIMIT_SET);
+                        String operationalLimitSetName = twtName + "_PTC_" + PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
+                        OperationalLimitSetEq.write(operationalLimitSetId, operationalLimitSetName, terminalId, cimNamespace, writer, context);
+
+                        String className = "CurrentLimit";
+                        String operationalLimitId = context.getNamingStrategy().getCgmesId(ref(operationalLimitSetId), ref(className), PATL, OPERATIONAL_LIMIT_VALUE);
+                        String operationalLimitTypeId = context.getNamingStrategy().getCgmesId(PATL, OPERATIONAL_LIMIT_TYPE);
+                        LoadingLimitEq.write(operationalLimitId, className, "PATL", ptc.getRegulationValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
+
+                        if (!exportedLimitTypes.contains(operationalLimitTypeId)) {
+                            OperationalLimitTypeEq.writePatl(operationalLimitTypeId, cimNamespace, euNamespace, writer, context);
+                            exportedLimitTypes.add(operationalLimitTypeId);
+                        }
+                    }
                     TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, mode, terminalId, cimNamespace, writer, context);
                     regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }
@@ -1225,7 +1258,7 @@ public final class EquipmentExport {
         // Write the permanent limit
         String className = loadingLimitClassName(limits);
         String operationalLimitId = context.getNamingStrategy().getCgmesId(ref(operationalLimitSetId), ref(className), PATL, OPERATIONAL_LIMIT_VALUE);
-        LoadingLimitEq.write(operationalLimitId, limits, "PATL", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
+        LoadingLimitEq.write(operationalLimitId, className, "PATL", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
 
         if (!limits.getTemporaryLimits().isEmpty()) {
             for (LoadingLimits.TemporaryLimit temporaryLimit : limits.getTemporaryLimits()) {
@@ -1241,7 +1274,7 @@ public final class EquipmentExport {
                 // Write the temporary limit
                 operationalLimitId = context.getNamingStrategy().getCgmesId(ref(operationalLimitSetId), ref(className), TATL, ref(acceptableDuration), OPERATIONAL_LIMIT_VALUE);
                 String temporaryLimitName = temporaryLimit.getName().isEmpty() ? "TATL " + temporaryLimit.getAcceptableDuration() : temporaryLimit.getName(); // If the temporary limit name is empty, write TATL and the acceptable duration
-                LoadingLimitEq.write(operationalLimitId, limits, temporaryLimitName, temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
+                LoadingLimitEq.write(operationalLimitId, className, temporaryLimitName, temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer, context);
             }
         }
     }
@@ -1261,34 +1294,34 @@ public final class EquipmentExport {
             // - DCNode 1G is connected to a DCGround inside DCConverterUnit 1.
             // - DCNode 2G is connected to a DCGround inside DCConverterUnit 2.
             String dcConverterUnit1 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(1));
-            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", substation1Id, cimNamespace, writer, context);
+            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", MONOPOLAR_GROUND_RETURN, substation1Id, cimNamespace, writer, context);
             String dcNode1 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(1));
             writeDCNode(dcNode1, line.getNameOrId() + "_1", dcConverterUnit1, cimNamespace, writer, context);
             String dcNode1G = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref("1G"));
             writeDCNode(dcNode1G, line.getNameOrId() + "_1G", dcConverterUnit1, cimNamespace, writer, context);
 
             String dcConverterUnit2 = context.getNamingStrategy().getCgmesId(refTyped(line), DC_CONVERTER_UNIT, ref(2));
-            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_1", substation2Id, cimNamespace, writer, context);
+            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_2", MONOPOLAR_GROUND_RETURN, substation2Id, cimNamespace, writer, context);
             String dcNode2 = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(2));
             writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2, cimNamespace, writer, context);
             String dcNode2G = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref("2G"));
             writeDCNode(dcNode2G, line.getNameOrId() + "_2G", dcConverterUnit2, cimNamespace, writer, context);
 
             String ground1Id = context.getNamingStrategy().getCgmesId(refTyped(line), DC_GROUND, ref("1G"));
-            writeDCGround(ground1Id, line.getNameOrId() + "_1G", cimNamespace, writer, context);
+            writeDCGround(ground1Id, line.getNameOrId() + "_1G", 0.0, cimNamespace, writer, context);
 
             String ground2Id = context.getNamingStrategy().getCgmesId(refTyped(line), DC_GROUND, ref("2G"));
-            writeDCGround(ground2Id, line.getNameOrId() + "_2G", cimNamespace, writer, context);
+            writeDCGround(ground2Id, line.getNameOrId() + "_2G", 0.0, cimNamespace, writer, context);
 
             String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
-            writeDCTerminal(dcTerminal1, line.getNameOrId() + " 1", lineId, dcNode1, 1, cimNamespace, writer, context);
+            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal1, line.getNameOrId() + " 1", lineId, dcNode1, 1, cimNamespace, writer, context);
             String dcTerminal1G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("1G"));
-            writeDCTerminal(dcTerminal1G, line.getNameOrId() + " 1G", ground1Id, dcNode1G, 1, cimNamespace, writer, context);
+            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal1G, line.getNameOrId() + " 1G", ground1Id, dcNode1G, 1, cimNamespace, writer, context);
 
             String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
-            writeDCTerminal(dcTerminal2, line.getNameOrId() + " 2", lineId, dcNode2, 2, cimNamespace, writer, context);
+            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal2, line.getNameOrId() + " 2", lineId, dcNode2, 2, cimNamespace, writer, context);
             String dcTerminal2G = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref("2G"));
-            writeDCTerminal(dcTerminal2G, line.getNameOrId() + " 2G", ground2Id, dcNode2G, 1, cimNamespace, writer, context);
+            writeDcTerminal(CgmesNames.DC_TERMINAL, dcTerminal2G, line.getNameOrId() + " 2G", ground2Id, dcNode2G, 1, cimNamespace, writer, context);
 
             String terminalId;
 
@@ -1297,18 +1330,18 @@ public final class EquipmentExport {
             writeTerminal(converter.getTerminal(), mapTerminal2Id, terminalId, converter1Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal(), context), 1, cimNamespace, writer, context);
             String capabilityCurveId1 = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
             String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
-            writeAcdcConverterDCTerminal(acdcConverterDcTerminal1, converter.getNameOrId() + " 2", converter1Id, dcNode1, 2, cimNamespace, writer, context);
+            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal1, converter.getNameOrId() + " 2", converter1Id, dcNode1, 2, cimNamespace, writer, context);
             String acdcConverterDcTerminal1G = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
-            writeAcdcConverterDCTerminal(acdcConverterDcTerminal1G, converter.getNameOrId() + " 3", converter1Id, dcNode1G, 3, cimNamespace, writer, context);
+            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal1G, converter.getNameOrId() + " 3", converter1Id, dcNode1G, 3, cimNamespace, writer, context);
 
             converter = line.getConverterStation2();
             terminalId = context.getNamingStrategy().getCgmesId(refTyped(line), refTyped(converter), CONVERTER_STATION, ref(2));
             writeTerminal(converter.getTerminal(), mapTerminal2Id, terminalId, converter2Id, connectivityNodeId(mapNodeKey2NodeId, converter.getTerminal(), context), 1, cimNamespace, writer, context);
             String capabilityCurveId2 = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
             String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1).orElseThrow(PowsyblException::new);
-            writeAcdcConverterDCTerminal(acdcConverterDcTerminal2, converter.getNameOrId() + " 2", converter2Id, dcNode2, 2, cimNamespace, writer, context);
+            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2, converter.getNameOrId() + " 2", converter2Id, dcNode2, 2, cimNamespace, writer, context);
             String acdcConverterDcTerminal2G = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2).orElseThrow(PowsyblException::new);
-            writeAcdcConverterDCTerminal(acdcConverterDcTerminal2G, converter.getNameOrId() + " 3", converter2Id, dcNode2G, 3, cimNamespace, writer, context);
+            writeDcTerminal(AC_DC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal2G, converter.getNameOrId() + " 3", converter2Id, dcNode2G, 3, cimNamespace, writer, context);
 
             DCLineSegmentEq.write(lineId, line.getNameOrId(), line.getR(), cimNamespace, writer, context);
             writeHvdcConverterStation(line.getConverterStation1(), mapTerminal2Id, line.getNominalV(), dcConverterUnit1, capabilityCurveId1, cimNamespace, writer, context);
@@ -1316,44 +1349,46 @@ public final class EquipmentExport {
         }
     }
 
-    private static String writeVsCapabilityCurve(HvdcConverterStation<?> converter, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        if (converter instanceof LccConverterStation) {
+    private static String writeVsCapabilityCurve(Identifiable<?> identifiable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (!(identifiable instanceof ReactiveLimitsHolder limitsHolder)) {
             return null;
         }
-        VscConverterStation vscConverter = (VscConverterStation) converter;
-        if (vscConverter.getReactiveLimits() == null) {
+        ReactiveLimits reactiveLimits = limitsHolder.getReactiveLimits();
+        if (reactiveLimits == null) {
             return null;
         }
-        String reactiveLimitsId = context.getNamingStrategy().getCgmesId(refTyped(vscConverter), REACTIVE_CAPABILITY_CURVE);
-        switch (vscConverter.getReactiveLimits().getKind()) {
+        String reactiveLimitsId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), REACTIVE_CAPABILITY_CURVE);
+        switch (reactiveLimits.getKind()) {
             case CURVE -> {
-                ReactiveCapabilityCurve curve = vscConverter.getReactiveLimits(ReactiveCapabilityCurve.class);
+                ReactiveCapabilityCurve curve = limitsHolder.getReactiveLimits(ReactiveCapabilityCurve.class);
                 int pointIndex = 0;
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    String pointId = context.getNamingStrategy().getCgmesId(refTyped(vscConverter), ref(pointIndex), REACTIVE_CAPABIILITY_CURVE_POINT);
+                    String pointId = context.getNamingStrategy().getCgmesId(refTyped(identifiable), ref(pointIndex), REACTIVE_CAPABIILITY_CURVE_POINT);
                     CurveDataEq.write(pointId, point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context);
                     pointIndex++;
                 }
-                String reactiveCapabilityCurveName = "RCC_" + vscConverter.getNameOrId();
-                ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, vscConverter, cimNamespace, writer, context);
+                String reactiveCapabilityCurveName = "RCC_" + identifiable.getNameOrId();
+                ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, limitsHolder, cimNamespace, writer, context);
             }
             case MIN_MAX ->
                 //Do not have to export anything
                 reactiveLimitsId = null;
             default ->
-                    throw new PowsyblException("Unexpected type of ReactiveLimits on the VsConverter " + converter.getNameOrId());
+                    throw new PowsyblException("Unexpected type of ReactiveLimits on the VsConverter " + identifiable.getNameOrId());
         }
         return reactiveLimitsId;
     }
 
-    private static void writeDCConverterUnit(String id, String dcConverterUnitName, String substationId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        DCConverterUnitEq.write(id, dcConverterUnitName, substationId, cimNamespace, writer, context);
+    private static void writeDCConverterUnit(String id, String dcConverterUnitName, String operationMode, String substationId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        DCConverterUnitEq.write(id, dcConverterUnitName, operationMode, substationId, cimNamespace, writer, context);
     }
 
     private static void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, Map<Terminal, String> mapTerminal2Id, double ratedUdc, String dcEquipmentContainerId,
                                                   String capabilityCurveId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String pccTerminal = getConverterStationPccTerminal(converterStation, mapTerminal2Id);
-        HvdcConverterStationEq.write(context.getNamingStrategy().getCgmesId(converterStation), converterStation.getNameOrId(), converterStation.getHvdcType(), ratedUdc, dcEquipmentContainerId, pccTerminal, capabilityCurveId, cimNamespace, writer, context);
+        String className = converterClassName(converterStation);
+        AcDcConverterEq.write(context.getNamingStrategy().getCgmesId(converterStation), converterStation.getNameOrId(), className, ratedUdc,
+                0.0, 0.0, 0.0, dcEquipmentContainerId, pccTerminal, capabilityCurveId, cimNamespace, writer, context);
     }
 
     private static String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation, Map<Terminal, String> mapTerminal2Id) {
@@ -1367,16 +1402,154 @@ public final class EquipmentExport {
         DCNodeEq.write(id, dcNodeName, dcEquipmentContainerId, cimNamespace, writer, context);
     }
 
-    private static void writeDCGround(String id, String dcGroundName, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        DCGroundEq.write(id, dcGroundName, cimNamespace, writer, context);
+    private static void writeDCGround(String id, String dcGroundName, double resistance, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        DCGroundEq.write(id, dcGroundName, resistance, cimNamespace, writer, context);
     }
 
-    private static void writeDCTerminal(String id, String name, String conductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        DCTerminalEq.write("DCTerminal", id, name, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
+    private static void writeDcTerminal(DcTerminal dcTerminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        int sequenceNumber;
+        DcConnectable<?> dcConnectable = dcTerminal.getDcConnectable();
+        if (dcConnectable instanceof DcGround) {
+            sequenceNumber = 1;
+        } else if (dcConnectable instanceof AcDcConverter) {
+            sequenceNumber = dcTerminal.getTerminalNumber().getNum();
+        } else {
+            sequenceNumber = dcTerminal.getSide().getNum();
+        }
+        writeDcTerminal(dcTerminal.getDcConnectable(), dcTerminal.getDcNode(), sequenceNumber, cimNamespace, writer, context);
     }
 
-    private static void writeAcdcConverterDCTerminal(String id, String name, String conductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        DCTerminalEq.write(AC_DC_CONVERTER_DC_TERMINAL, id, name, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
+    private static void writeDcTerminal(Identifiable<?> dcIdentifiable, DcNode dcNode, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String dcIdentifiableId = context.getNamingStrategy().getCgmesId(dcIdentifiable);
+        String dcNodeId = null;
+        if (!context.isBusBranchExport()) {
+            // node-breaker export
+            dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
+        } else if (!context.isCim16BusBranchExport()) {
+            // CIM100 bus-branch export
+            dcNodeId = context.getNamingStrategy().getCgmesId(dcNode.getDcBus());
+        }
+        String dcTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dcIdentifiable, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + sequenceNumber);
+        String className = dcIdentifiable instanceof AcDcConverter<?> ? AC_DC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
+        writeDcTerminal(className, dcTerminalId, dcIdentifiable.getNameOrId() + " " + sequenceNumber, dcIdentifiableId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
+    }
+
+    private static void writeDcTerminal(String className, String id, String name, String conductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        DCTerminalEq.write(className, id, name, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
+    }
+
+    private static void writeDcConverterUnits(Network network, Map<DcNode, DCConverterUnit> dcNodesConverterUnit, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        // Build DCConverterUnit adjacency.
+        // In order to properly populate the DCConverterUnit.operationMode attribute, DCConverterUnit shall not be
+        // considered separately but with the possible presence of an adjacent one.
+        Map<DCConverterUnit, List<DcNode>> dcNodesByConverterUnit = dcNodesConverterUnit.entrySet().stream()
+                .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+        Map<DCConverterUnit, List<DCConverterUnit>> dcConverterUnitAdjacency = new HashMap<>();
+        List<DCEquipment> dcEquipments = new ArrayList<>();
+        dcEquipments.addAll(getDCEquipmentConverters(network));
+        dcEquipments.addAll(getDCEquipmentSwitches(network));
+        dcNodesByConverterUnit.forEach((converterUnit, dcNodes) ->
+            // Retrieve adjacent units by checking node adjacency.
+            dcConverterUnitAdjacency.put(converterUnit, dcNodes.stream()
+                    .flatMap(n -> getAdjacentNodes(dcEquipments, n.getId()).stream())
+                    .map(network::getDcNode)
+                    .map(dcNodesConverterUnit::get)
+                    .distinct()
+                    .toList()));
+
+        // Write DCConverterUnits
+        for (DCConverterUnit dcConverterUnit : dcNodesByConverterUnit.keySet()) {
+            Set<DcNode> adjacentNodes = dcConverterUnitAdjacency.get(dcConverterUnit).stream()
+                    .flatMap(unit -> dcNodesByConverterUnit.get(unit).stream())
+                    .collect(Collectors.toSet());
+            String operationMode = getDcUnitOperationMode(network, adjacentNodes);
+
+            writeDCConverterUnit(dcConverterUnit.id(), dcConverterUnit.name(), operationMode, dcConverterUnit.substation(), cimNamespace, writer, context);
+        }
+    }
+
+    private static String getDcUnitOperationMode(Network network, Set<DcNode> dcNodes) {
+        if (Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
+                .filter(c -> dcNodes.contains(c.getDcTerminal1().getDcNode()) || dcNodes.contains(c.getDcTerminal2().getDcNode()))
+                .count() > 1) {
+            return "bipolar";
+        } else if (network.getDcLineStream()
+                .filter(l -> dcNodes.contains(l.getDcTerminal1().getDcNode()) || dcNodes.contains(l.getDcTerminal2().getDcNode()))
+                .count() > 1) {
+            return "monopolarMetallicReturn";
+        }
+        return MONOPOLAR_GROUND_RETURN;
+    }
+
+    private static void writeDcNodes(Network network, Map<DcNode, DCConverterUnit> dcNodesConverters, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        // DCNodes are:
+        // - exported from DcNodes in case of a node-breaker export
+        // - exported from DcBuses in case of a CIM100 bus-branch export
+        // - never exported in case of a CIM16 bus-branch export
+        if (!context.isBusBranchExport()) {
+            for (DcNode dcNode : network.getDcNodes()) {
+                // node-breaker export
+                String dcNodeId = context.getNamingStrategy().getCgmesId(dcNode);
+                String dcConverterUnitId = dcNodesConverters.containsKey(dcNode) ? dcNodesConverters.get(dcNode).id() : null;
+                writeDCNode(dcNodeId, dcNode.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
+            }
+        } else if (!context.isCim16BusBranchExport()) {
+            for (DcBus dcBus : network.getDcBuses()) {
+                // CIM100 bus-branch export
+                String dcBusId = context.getNamingStrategy().getCgmesId(dcBus);
+                DcNode refDcNode = dcBus.getDcNodeStream().min(Comparator.comparing(DcNode::getId)).orElseThrow();
+                String dcConverterUnitId = dcNodesConverters.containsKey(refDcNode) ? dcNodesConverters.get(refDcNode).id() : null;
+                writeDCNode(dcBusId, dcBus.getNameOrId(), dcConverterUnitId, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeDcSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (!context.isBusBranchExport()) {
+            for (DcSwitch dcSwitch : network.getDcSwitches()) {
+                String className = dcSwitch.getKind() == DcSwitchKind.BREAKER ? "DCBreaker" : "DCDisconnector";
+                String dcSwitchId = context.getNamingStrategy().getCgmesId(dcSwitch);
+                DCSwitchEq.write(className, dcSwitchId, dcSwitch.getNameOrId(), cimNamespace, writer, context);
+
+                writeDcTerminal(dcSwitch, dcSwitch.getDcNode1(), 1, cimNamespace, writer, context);
+                writeDcTerminal(dcSwitch, dcSwitch.getDcNode2(), 2, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeDcGrounds(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (DcGround dcGround : network.getDcGrounds()) {
+            String dcGroundId = context.getNamingStrategy().getCgmesId(dcGround);
+            DCGroundEq.write(dcGroundId, dcGround.getNameOrId(), dcGround.getR(), cimNamespace, writer, context);
+
+            writeDcTerminal(dcGround.getDcTerminal(), cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeDcLineSegments(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (DcLine dcLine : network.getDcLines()) {
+            String dcLineId = context.getNamingStrategy().getCgmesId(dcLine);
+            DCLineSegmentEq.write(dcLineId, dcLine.getNameOrId(), dcLine.getR(), cimNamespace, writer, context);
+
+            writeDcTerminal(dcLine.getDcTerminal1(), cimNamespace, writer, context);
+            writeDcTerminal(dcLine.getDcTerminal2(), cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeAcDcConverters(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit, Map<Terminal, String> mapTerminal2Id, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (AcDcConverter<?> converter : Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream()).toList()) {
+            String dcConverterUnitId = acDcConvertersUnit.get(converter).id();
+            String converterId = context.getNamingStrategy().getCgmesId(converter);
+            String className = converterClassName(converter);
+            String pccTerminalId = exportedTerminalId(mapTerminal2Id, converter.getPccTerminal());
+            String capabilityCurveId = writeVsCapabilityCurve(converter, cimNamespace, writer, context);
+            AcDcConverterEq.write(converterId, converter.getNameOrId(), className, converter.getDcTerminal1().getDcNode().getNominalV(),
+                    converter.getIdleLoss(), converter.getSwitchingLoss(), converter.getResistiveLoss(), dcConverterUnitId,
+                    pccTerminalId, capabilityCurveId, cimNamespace, writer, context);
+
+            writeDcTerminal(converter.getDcTerminal1(), cimNamespace, writer, context);
+            writeDcTerminal(converter.getDcTerminal2(), cimNamespace, writer, context);
+        }
     }
 
     private static void writeControlAreas(String energyAreaId, Network network, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -1527,6 +1700,109 @@ public final class EquipmentExport {
         adjacencies.sort(Comparator.comparing(Collections::min));
 
         return adjacencies;
+    }
+
+    private record DCConverterUnit(String id, String name, String substation) { }
+
+    private static Map<AcDcConverter<?>, DCConverterUnit> getAcDcConvertersUnit(Network network, CgmesExportContext context) {
+        Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit = new HashMap<>();
+
+        Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
+                .forEach(converter -> {
+                    // Multiple ACDCConverter can be contained in the same DCConverterUnit if this property value is common.
+                    String unitId = converter.getProperty(Conversion.PROPERTY_CGMES_DC_CONVERTER_UNIT,
+                            context.getNamingStrategy().getCgmesId(refTyped(converter), DC_CONVERTER_UNIT));
+
+                    // Only create a new DCConverterUnit if it hasn't been created already for another AcDcConverter.
+                    DCConverterUnit dcConverterUnit = acDcConvertersUnit.values().stream()
+                            .filter(u -> u.id().equals(unitId))
+                            .findFirst()
+                            .orElseGet(() -> new DCConverterUnit(
+                                    unitId,
+                                    converter.getNameOrId() + " Unit",
+                                    context.getNamingStrategy().getCgmesId(converter.getTerminal1().getVoltageLevel().getNullableSubstation())
+                            ));
+
+                    acDcConvertersUnit.put(converter, dcConverterUnit);
+                });
+
+        return acDcConvertersUnit;
+    }
+
+    private static Map<DcNode, DCConverterUnit> getDcNodesConverterUnit(Network network, Map<AcDcConverter<?>, DCConverterUnit> acDcConvertersUnit) {
+        // Build the DcNode to AcDcConverter associations by traversing the dc network
+        // using breadth first search starting from ACDCConverter DCNodes.
+        List<DCEquipment> converters = getDCEquipmentConverters(network);
+        List<DCEquipment> dcSwitches = getDCEquipmentSwitches(network);
+        Map<String, String> dcNodesConverter = new HashMap<>();
+        Set<String> visitedDcNodes = new HashSet<>();
+        Queue<String> queue = new LinkedList<>();
+        converters.forEach(converter -> {
+            if (!dcNodesConverter.containsKey(converter.node1())) {
+                dcNodesConverter.put(converter.node1(), converter.id());
+                queue.add(converter.node1());
+            }
+            if (!dcNodesConverter.containsKey(converter.node2())) {
+                dcNodesConverter.put(converter.node2(), converter.id());
+                queue.add(converter.node2());
+            }
+        });
+        while (!queue.isEmpty()) {
+            String node = queue.poll();
+            String converter = dcNodesConverter.get(node);
+            List<String> adjacentNodes = getAdjacentNodes(dcSwitches, node);
+            for (String adjacentNode : adjacentNodes) {
+                if (!visitedDcNodes.contains(adjacentNode)) {
+                    visitedDcNodes.add(adjacentNode);
+                    dcNodesConverter.put(adjacentNode, converter);
+                    queue.add(adjacentNode);
+                }
+            }
+        }
+
+        // Build the DcNode to DCConverterUnit associations.
+        return dcNodesConverter.entrySet().stream()
+                .collect(Collectors.toMap(e -> network.getDcNode(e.getKey()),
+                        e -> acDcConvertersUnit.get(getAcDcConverter(network, e.getValue()))));
+    }
+
+    private static AcDcConverter<?> getAcDcConverter(Network network, String converterId) {
+        LineCommutatedConverter lcc = network.getLineCommutatedConverter(converterId);
+        if (lcc != null) {
+            return lcc;
+        }
+        return network.getVoltageSourceConverter(converterId);
+    }
+
+    private static List<DCEquipment> getDCEquipmentConverters(Network network) {
+        return Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
+                .sorted(Comparator.comparing(AcDcConverter::getId))
+                .map(c -> new DCEquipment(
+                        c.getId(),
+                        CgmesNames.ACDC_CONVERTER,
+                        c.getDcTerminal1().getDcNode().getId(),
+                        c.getDcTerminal2().getDcNode().getId()))
+                .toList();
+    }
+
+    private static List<DCEquipment> getDCEquipmentSwitches(Network network) {
+        return network.getDcSwitchStream()
+                .sorted(Comparator.comparing(DcSwitch::getId))
+                .map(s -> new DCEquipment(
+                        s.getId(),
+                        CgmesNames.DC_SWITCH,
+                        s.getDcNode1().getId(),
+                        s.getDcNode2().getId()))
+                .toList();
+    }
+
+    private static List<String> getAdjacentNodes(List<DCEquipment> dcEquipments, String node) {
+        // Get the list of nodes adjacent through the given dc equipments.
+        return dcEquipments.stream()
+                .filter(eq -> node.equals(eq.node1()) || node.equals(eq.node2()))
+                .map(eq -> node.equals(eq.node1()) ? eq.node2() : eq.node1())
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     private EquipmentExport() {

@@ -644,6 +644,22 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+    public void connectWithOnlyEq(AcDcConverterAdder<?, ?> adder) {
+        if (context.nodeBreaker()) {
+            adder.setNode1(iidmNode());
+        } else {
+            adder.setBus1(null).setConnectableBus1(busId());
+        }
+
+        if (numTerminals == 2) {
+            if (context.nodeBreaker()) {
+                adder.setNode2(iidmNode(2, false));
+            } else {
+                adder.setBus2(null).setConnectableBus2(busId(2));
+            }
+        }
+    }
+
     public void connectWithOnlyEq(BranchAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder
@@ -785,6 +801,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected static boolean isValidTargetDeadband(double targetDeadband) {
         return targetDeadband >= 0.0;
+    }
+
+    protected static boolean isValidPowerFactor(double powerFactor) {
+        return powerFactor > 0.0 && powerFactor <= 1.0;
     }
 
     /**

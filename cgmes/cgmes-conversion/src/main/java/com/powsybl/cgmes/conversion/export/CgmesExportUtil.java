@@ -296,6 +296,23 @@ public final class CgmesExportUtil {
                 return branch.getSide(t).getNum();
             } else if (c instanceof ThreeWindingsTransformer twt) {
                 return twt.getSide(t).getNum();
+            } else if (c instanceof AcDcConverter<?> converter) {
+                return converter.getTerminalNumber(t).getNum();
+            } else {
+                throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
+            }
+        }
+    }
+
+    public static int getDcTerminalSequenceNumber(DcTerminal t) {
+        DcConnectable<?> c = t.getDcConnectable();
+        if (c.getDcTerminals().size() == 1) {
+            return 1;
+        } else {
+            if (c instanceof DcLine dcl) {
+                return dcl.getSide(t).getNum();
+            } else if (c instanceof AcDcConverter<?> converter) {
+                return converter.getTerminalNumber(t).getNum();
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
             }
@@ -310,10 +327,10 @@ public final class CgmesExportUtil {
         }
     }
 
-    public static String converterClassName(HvdcConverterStation<?> converterStation) {
-        if (converterStation instanceof LccConverterStation) {
+    public static String converterClassName(Identifiable<?> converter) {
+        if (converter instanceof LccConverterStation || converter instanceof LineCommutatedConverter) {
             return "CsConverter";
-        } else if (converterStation instanceof VscConverterStation) {
+        } else if (converter instanceof VscConverterStation || converter instanceof VoltageSourceConverter) {
             return "VsConverter";
         } else {
             throw new PowsyblException("Invalid converter type");
@@ -556,13 +573,6 @@ public final class CgmesExportUtil {
         return switch (rtc.getRegulationMode()) {
             case VOLTAGE -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
             case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-        };
-    }
-
-    public static String getPhaseTapChangerRegulationMode(PhaseTapChanger ptc) {
-        return switch (ptc.getRegulationMode()) {
-            case CURRENT_LIMITER -> RegulatingControlEq.REGULATING_CONTROL_CURRENT_FLOW;
-            case ACTIVE_POWER_CONTROL -> RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
         };
     }
 

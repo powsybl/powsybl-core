@@ -229,6 +229,59 @@ Each dangling line will be exported as one `EquivalentInjection` and one `ACLine
 
 <span style="color: red">TODO details</span>
 
+### Detailed DC model
+
+#### DC node
+
+PowSyBl [`DC Node`](../../grid_model/network_subnetwork.md#dc-node) is exported as CGMES `DCNode`, with attribute:
+- EQ `DCEquipmentContainer` is a CGMES `DCConverterUnit`, which is the container of the closest converter.
+
+#### DC Line
+
+PowSyBl [`DC Line`](../../grid_model/network_subnetwork.md#dc-line) is exported as CGMES `DCLineSegment`, with attribute:
+- EQ `resistance` is copied from `R`.
+
+#### DC Switch
+
+PowSyBl [`DC Switch`](../../grid_model/network_subnetwork.md#dc-switch) is exported as:
+- CGMES `DCBreaker` if attribute `Kind` is `BREAKER`.
+- CGMES `DCDisconnector` if attribute `Kind` is `DISCONNECTOR`.
+
+#### DC Ground
+
+PowSyBl [`DC Ground`](../../grid_model/network_subnetwork.md#dc-ground) is exported as CGMES `DCGround`, with attribute:
+- EQ `r` is copied from `R`.
+
+#### AC/DC Converter (Line Commutated Converter, Voltage Source Converter)
+PowSyBl [`Line Commutated Converter`](../../grid_model/network_subnetwork.md#line-commutated-converter) is exported as CGMES `CsConverter`,
+and PowSyBl [`Voltage Source Converter`](../../grid_model/network_subnetwork.md#voltage-source-converter) as CGMES `VsConverter`.
+They share the following attributes:
+- EQ `idleLoss` is copied from `IdleLoss`.
+- EQ `switchingLoss` is copied from `SwitchingLoss`.
+- EQ `resistiveLoss` is copied from `ResistiveLoss`.
+- EQ `ratedUdc` is copied from the `NominalV` of the associated `DC Node`.
+- EQ `PccTerminal` is copied from `PccTerminal`.
+- SSH `targetPpcc` is copied from `TargetP`.
+- SSH `targetUdc` is copied from `TargetVdc`.
+- SSH `p` is the PCC terminal's `P` value.
+- SSH `q` is the PCC terminal's `Q` value.
+
+Specific `Line Commutated Converter` attributes:
+- SSH `pPccControl` is `CsPpccControlKind.activePower` if `ControlMode` is `P_PCC`, else it is `CsPpccControlKind.dcVoltage`.
+- SSH `operatingMode` is `CsOperatingModeKind.rectifier` if the `TargetP` is greater than 0, else it is `CsOperatingModeKind.inverter`.
+- SSH `targetAlpha` is defaulted to 0.
+- SSH `targetGamma` is defaulted to 0.
+- SSH `targetIdc` is defaulted to 0.
+
+Specific `Voltage Source Converter` attributes:
+- SSH `pPccControl` is `VsPpccControlKind.pPcc` if `ControlMode` is `P_PCC`, else it is `VsPpccControlKind.udc`.
+- SSH `qPccControl` is `VsQpccControlKind.voltagePcc` if `VoltageRegulatorOn` is set to `true`, else it is `VsQpccControlKind.reactivePcc`.
+- SSH `targetUpcc` is copied from `VoltageSetpoint`.
+- SSH `targetQpcc` is copied from `ReactivePowerSetpoint`.
+- SSH `droop` is defaulted to 0.
+- SSH `droopCompensation` is defaulted to 0.
+- SSH `qShare` is defaulted to 0.
+
 (cgmes-generator-export)=
 ### Generator
 
@@ -357,16 +410,16 @@ If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the 
 If the network comes from a CIM-CGMES model and the tap changer has initially a `TapChangerControl`, it always has at export
 too. Otherwise, a `TapChangerControl` is exported for the tap changer if it is considered as defined. A `RatioTapChanger`
 is considered as defined if it has a valid regulation value, a valid target deadband and a non-null regulating terminal.
-A `PhaseTapChanger` is considered as defined if it has a valid regulation value,
-a valid target deadband, and a non-null regulating terminal. By default its regulation mode is set to `CURRENT_LIMITER`.
+A `PhaseTapChanger` is considered as defined if it has a valid regulation value, a valid target deadband, and a non-null regulating terminal.
 
 In a `RatioTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
 `RatioTapChanger` `regulationMode` is set to `REACTIVE_POWER`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` when
 `RatioTapChanger` `regulationMode` is set to `VOLTAGE`.
 
-In a `PhaseTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.activePower` when
-`PhaseTapChanger` `regulationMode` is set to `ACTIVE_POWER_CONTROL`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.currentFlow`
-when `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
+In a `PhaseTapChanger`, the `TapChangerControl` is always exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.activePower`.
+If the original `PhaseTapChanger` `regulationMode` is `CURRENT_LIMITER`, the `TapChangerControl` regulation is disabled,
+the regulation target value and deadband are set to 0, and an `OperationalLimitSet` with a `CurrentLimit` is created
+at the regulated terminal with the regulation value.
 
 (cgmes-two-winding-transformer-export)=
 ### TwoWindingsTransformer
