@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
 import java.util.*;
@@ -24,6 +25,7 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
     private final BusFilter filter;
     private final boolean valid;
     private final Set<Identifiable> exportedEquipments;
+    private final Map<String, TopologyLevel> voltageLevelExportTopologyLevel;
 
     NetworkSerializerContext(Anonymizer anonymizer, TreeDataWriter writer, ExportOptions options, BusFilter filter, IidmVersion version, boolean valid) {
         super(anonymizer, version);
@@ -32,6 +34,7 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
         this.filter = filter;
         this.valid = valid;
         this.exportedEquipments = new HashSet<>();
+        this.voltageLevelExportTopologyLevel = new HashMap<>();
     }
 
     @Override
@@ -70,5 +73,15 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
 
     public String getNamespaceURI() {
         return getVersion().getNamespaceURI(valid);
+    }
+
+    public void addVoltageLevelExportTopologyLevel(String voltageLevelId, TopologyLevel topologyLevel) {
+        if (!voltageLevelId.isEmpty()) {
+            voltageLevelExportTopologyLevel.put(voltageLevelId, topologyLevel);
+        }
+    }
+
+    public TopologyLevel getVoltageLevelExportTopologyLevel(String voltageLevelId) {
+        return voltageLevelExportTopologyLevel.get(voltageLevelId);
     }
 }

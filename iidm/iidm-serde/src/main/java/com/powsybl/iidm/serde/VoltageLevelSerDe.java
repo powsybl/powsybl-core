@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-
 import static com.powsybl.iidm.serde.PropertiesSerDe.NAME;
 import static com.powsybl.iidm.serde.PropertiesSerDe.VALUE;
 
@@ -29,6 +28,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     static final String ROOT_ELEMENT_NAME = "voltageLevel";
     static final String ARRAY_ELEMENT_NAME = "voltageLevels";
+    private static final String TOPOLOGY_KIND_NAME = "topologyKind";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VoltageLevelSerDe.class);
 
@@ -50,12 +50,13 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeDoubleAttribute("highVoltageLimit", vl.getHighVoltageLimit());
 
         TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(vl, context);
-        context.getWriter().writeEnumAttribute("topologyKind", topologyLevel.getTopologyKind());
+        context.getWriter().writeEnumAttribute(TOPOLOGY_KIND_NAME, topologyLevel.getTopologyKind());
     }
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkSerializerContext context) {
         TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(vl, context);
+
         switch (topologyLevel) {
             case NODE_BREAKER -> writeNodeBreakerTopology(vl, context);
             case BUS_BREAKER -> writeBusBreakerTopology(vl, context);
@@ -324,7 +325,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         double nominalV = context.getReader().readDoubleAttribute("nominalV");
         double lowVoltageLimit = context.getReader().readDoubleAttribute("lowVoltageLimit");
         double highVoltageLimit = context.getReader().readDoubleAttribute("highVoltageLimit");
-        TopologyKind topologyKind = context.getReader().readEnumAttribute("topologyKind", TopologyKind.class);
+        TopologyKind topologyKind = context.getReader().readEnumAttribute(TOPOLOGY_KIND_NAME, TopologyKind.class);
         return adder
                 .setNominalV(nominalV)
                 .setLowVoltageLimit(lowVoltageLimit)
