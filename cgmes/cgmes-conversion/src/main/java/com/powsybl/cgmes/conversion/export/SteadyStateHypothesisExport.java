@@ -187,7 +187,7 @@ public final class SteadyStateHypothesisExport {
         for (int node : nb.getNodes()) {
             double p = nb.getFictitiousP0(node);
             double q = nb.getFictitiousQ0(node);
-            if (Math.abs(p) != 0.0 || Math.abs(q) != 0.0) {
+            if (p != 0.0 || q != 0.0) {
                 String loadId = context.getNamingStrategy().getCgmesId(refTyped(vl), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, ref("NCL"), ref(node));
                 String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL, ref(node));
                 writeFictitiousInjection(loadId, terminalId, p, q, cimNamespace, writer, context);
@@ -199,7 +199,7 @@ public final class SteadyStateHypothesisExport {
         for (Bus b : vl.getBusBreakerView().getBuses()) {
             double p = b.getFictitiousP0();
             double q = b.getFictitiousQ0();
-            if (Math.abs(p) != 0.0 || Math.abs(q) != 0.0) {
+            if (p != 0.0 || q != 0.0) {
                 String loadId = context.getNamingStrategy().getCgmesId(refTyped(b), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, ref("NCL"));
                 String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL);
                 writeFictitiousInjection(loadId, terminalId, p, q, cimNamespace, writer, context);

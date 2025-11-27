@@ -300,7 +300,7 @@ public final class EquipmentExport {
         for (int node : nb.getNodes()) {
             double p = nb.getFictitiousP0(node);
             double q = nb.getFictitiousQ0(node);
-            if (Math.abs(p) != 0.0 || Math.abs(q) != 0.0) {
+            if (p != 0.0 || q != 0.0) {
                 String loadId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, ref("NCL"), ref(node));
                 String loadName = vl.getNameOrId() + "_FICT_NCL_" + node;
                 String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, TERMINAL, ref(node));
@@ -316,7 +316,7 @@ public final class EquipmentExport {
         for (Bus b : vl.getBusBreakerView().getBuses()) {
             double p = b.getFictitiousP0();
             double q = b.getFictitiousQ0();
-            if (Math.abs(p) != 0.0 || Math.abs(q) != 0.0) {
+            if (p != 0.0 || q != 0.0) {
                 String loadId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, ref("NCL"));
                 String loadName = b.getNameOrId() + "_FICT_NCL";
                 String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, TERMINAL);

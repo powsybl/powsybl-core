@@ -94,7 +94,7 @@ public final class TopologyExport {
             double p = nodeBreakerView.getFictitiousP0(node);
             double q = nodeBreakerView.getFictitiousQ0(node);
 
-            if (Math.abs(p) != 0.0 || Math.abs(q) != 0.0) {
+            if (p != 0.0 || q != 0.0) {
                 String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, TERMINAL, ref(node));
                 Bus bus = getBusForBusBreakerViewBus(vl, node);
                 String topologicalNodeId = context.getNamingStrategy().getCgmesId(bus);
@@ -108,7 +108,7 @@ public final class TopologyExport {
             double p = bus.getFictitiousP0();
             double q = bus.getFictitiousQ0();
 
-            if (Math.abs(p) != 0.0 || Math.abs(q) != 0.0) {
+            if (p != 0.0 || q != 0.0) {
                 String terminalId = context.getNamingStrategy().getCgmesId(refTyped(bus), FICTITIOUS, TERMINAL);
                 String topologicalNodeId = context.getNamingStrategy().getCgmesId(bus);
                 writeTerminal(terminalId, topologicalNodeId, cimNamespace, writer, context);
