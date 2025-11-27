@@ -39,7 +39,11 @@ public final class ContingencyElementFactory {
             Map.entry(Battery.class, id -> new BatteryContingency(id.getId())),
             Map.entry(Bus.class, id -> new BusContingency(id.getId())),
             Map.entry(TieLine.class, id -> new TieLineContingency(id.getId())),
-            Map.entry(HvdcConverterStation.class, id -> new HvdcLineContingency(((HvdcConverterStation<?>) id).getHvdcLine().getId()))
+            Map.entry(HvdcConverterStation.class, id -> new HvdcLineContingency(((HvdcConverterStation<?>) id).getHvdcLine().getId())),
+            Map.entry(VoltageSourceConverter.class, id -> new VoltageSourceConverterContingency(id.getId())),
+            Map.entry(DcLine.class, id -> new DcLineContingency(id.getId())),
+            Map.entry(DcGround.class, id -> new DcGroundContingency(id.getId())),
+            Map.entry(DcNode.class, id -> new DcNodeContingency(id.getId()))
         );
 
     public static ContingencyElement create(Identifiable<?> identifiable) {

@@ -13,10 +13,14 @@ import java.util.Locale;
  * Empty template provider used when deserializing a report node
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class EmptyMessageTemplateProvider implements MessageTemplateProvider {
+public class EmptyMessageTemplateProvider extends AbstractMessageTemplateProvider {
+
+    EmptyMessageTemplateProvider(boolean strictMode) {
+        super(strictMode);
+    }
 
     @Override
     public String getTemplate(String key, Locale locale) {
-        return MessageTemplateProvider.getMissingKeyMessage(key, locale);
+        return MessageTemplateProvider.getMissingKeyMessage(key, locale, isStrictMode());
     }
 }
