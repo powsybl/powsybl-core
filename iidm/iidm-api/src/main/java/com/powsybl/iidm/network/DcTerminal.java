@@ -10,8 +10,6 @@ package com.powsybl.iidm.network;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
-import java.util.Set;
-
 /**
  * A DC equipment connection point in a DC system.
  *
@@ -104,14 +102,6 @@ public interface DcTerminal {
      * @param traversalType traversal type
      */
     void traverse(DcTerminal.TopologyTraverser traverser, TraversalType traversalType);
-
-    /**
-     * Traverse from this DC terminal using the given topology traverser, knowing that the DC terminals in the given
-     * set have already been visited.
-     * @return false if the traverser has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
-     * has been returned from the traverser, true otherwise
-     */
-    boolean traverse(TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType);
 
     interface TopologyTraverser {
 

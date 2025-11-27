@@ -200,7 +200,6 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         return "" + (side != null ? side.getNum() : "") + (terminalNumber != null ? terminalNumber.getNum() : "");
     }
 
-    @Override
     public boolean traverse(TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
         if (removed) {
             throw new PowsyblException(String.format("Associated equipment %s is removed", dcConnectable.getId()));

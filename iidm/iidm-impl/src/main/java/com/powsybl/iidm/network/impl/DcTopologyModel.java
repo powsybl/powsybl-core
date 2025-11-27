@@ -360,23 +360,23 @@ public class DcTopologyModel implements MultiVariantObject {
         return visitedDcTerminals.add(terminal) ? traverser.traverse(terminal, terminal.isConnected()) : TraverseResult.TERMINATE_PATH;
     }
 
-    protected static void addNextDcTerminals(DcTerminal otherDcTerminal, List<DcTerminal> nextDcTerminals) {
+    protected static void addNextDcTerminals(DcTerminal otherDcTerminal, List<DcTerminalImpl> nextDcTerminals) {
         Objects.requireNonNull(otherDcTerminal);
         Objects.requireNonNull(nextDcTerminals);
         DcConnectable<?> otherDcConnectable = otherDcTerminal.getDcConnectable();
         if (otherDcConnectable instanceof DcLine dcLine) {
             if (dcLine.getDcTerminal1() == otherDcTerminal) {
-                nextDcTerminals.add(dcLine.getDcTerminal2());
+                nextDcTerminals.add((DcTerminalImpl) dcLine.getDcTerminal2());
             } else if (dcLine.getDcTerminal2() == otherDcTerminal) {
-                nextDcTerminals.add(dcLine.getDcTerminal1());
+                nextDcTerminals.add((DcTerminalImpl) dcLine.getDcTerminal1());
             } else {
                 throw new IllegalStateException();
             }
         } else if (otherDcConnectable instanceof VoltageSourceConverter converter) {
             if (converter.getDcTerminal1() == otherDcTerminal) {
-                nextDcTerminals.add(converter.getDcTerminal2());
+                nextDcTerminals.add((DcTerminalImpl) converter.getDcTerminal2());
             } else if (converter.getDcTerminal2() == otherDcTerminal) {
-                nextDcTerminals.add(converter.getDcTerminal1());
+                nextDcTerminals.add((DcTerminalImpl) converter.getDcTerminal1());
             } else {
                 throw new IllegalStateException();
             }
@@ -397,7 +397,7 @@ public class DcTopologyModel implements MultiVariantObject {
         if (termTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
             return false;
         } else if (termTraverseResult == TraverseResult.CONTINUE) {
-            List<DcTerminal> nextDcTerminals = new ArrayList<>();
+            List<DcTerminalImpl> nextDcTerminals = new ArrayList<>();
             addNextDcTerminals(terminal, nextDcTerminals);
 
             // then check we can traverse terminals connected to same DC node
@@ -418,7 +418,7 @@ public class DcTopologyModel implements MultiVariantObject {
                 return false;
             }
 
-            for (DcTerminal t : nextDcTerminals) {
+            for (DcTerminalImpl t : nextDcTerminals) {
                 if (!t.traverse(traverser, visitedDcTerminals, traversalType)) {
                     return false;
                 }
@@ -428,14 +428,14 @@ public class DcTopologyModel implements MultiVariantObject {
         return true;
     }
 
-    private boolean traverseOtherDcNodes(int v, List<DcTerminal> nextDcTerminals,
+    private boolean traverseOtherDcNodes(int v, List<DcTerminalImpl> nextDcTerminals,
                                        DcTerminal.TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
         return !graph.traverse(v, traversalType, (v1, e, v2) -> {
             DcSwitchImpl aSwitch = graph.getEdgeObject(e);
             List<DcTerminal> otherBusDcTerminals = graph.getVertexObject(v2).getDcTerminals();
             TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
             if (switchTraverseResult == TraverseResult.CONTINUE && !otherBusDcTerminals.isEmpty()) {
-                DcTerminal otherDcTerminal = otherBusDcTerminals.get(0);
+                DcTerminal otherDcTerminal = otherBusDcTerminals.getFirst();
                 TraverseResult otherTermTraverseResult = getTraverserResult(visitedDcTerminals, otherDcTerminal, traverser);
                 if (otherTermTraverseResult == TraverseResult.CONTINUE) {
                     addNextDcTerminals(otherDcTerminal, nextDcTerminals);
