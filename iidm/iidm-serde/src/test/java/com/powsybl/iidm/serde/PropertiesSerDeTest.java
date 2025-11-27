@@ -268,6 +268,10 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
         ActivePowerLimits activePowerLimit = createLoadingLimits(operationalLimitsGroup::newActivePowerLimits);
         ApparentPowerLimits apparentPowerLimit = createLoadingLimits(operationalLimitsGroup::newApparentPowerLimits);
         CurrentLimits currentLimits = createLoadingLimits(operationalLimitsGroup::newCurrentLimits);
+        VoltageAngleLimit voltageAngleLimit = network.newVoltageAngleLimit()
+                .from(dl.getTerminal()).to(dl.getTerminal())
+                .setId("voltageAngleLimit").setHighLimit(100).setLowLimit(0).add();
+        voltageAngleLimit.setProperty(TEST_PROPERTY, "valueVoltageAngleLimit");
         activePowerLimit.setProperty(TEST_PROPERTY, "valueActivePowerLimits");
         apparentPowerLimit.setProperty(TEST_PROPERTY, "valueApparentPowerLimits");
         currentLimits.setProperty(TEST_PROPERTY, "valueCurrentLimits");
@@ -277,6 +281,7 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
         assertEquals("valueActivePowerLimits", dl2.getActivePowerLimits().orElseThrow().getProperty(TEST_PROPERTY));
         assertEquals("valueApparentPowerLimits", dl2.getApparentPowerLimits().orElseThrow().getProperty(TEST_PROPERTY));
         assertEquals("valueCurrentLimits", dl2.getCurrentLimits().orElseThrow().getProperty(TEST_PROPERTY));
+        assertEquals("valueVoltageAngleLimit", network2.getVoltageAngleLimit("voltageAngleLimit").getProperty(TEST_PROPERTY));
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> L createLoadingLimits(Supplier<A> limitsAdderSupplier) {
