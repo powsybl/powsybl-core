@@ -11,7 +11,7 @@ The `countries` property is an optional property that defines a list of [ISO-316
 The `minBaseVoltage` property is an optional property that defines a threshold value for the nominal voltage of the voltage levels. The default value of this property is `0`.
 
 **violationTypes**  
-The `violationTypes` property is an optional property that defines a list of `com.powsybl.security.LimitViolationType` used for violations filtering. a violation is displayed if its type is in the list. The available `LimitViolationType` values are:
+The `violationTypes` property is an optional property that defines a list of `com.powsybl.contingency.violations.LimitViolationType` used for violations filtering. a violation is displayed if its type is in the list. The available `LimitViolationType` values are:
 - CURRENT
 - LOW_VOLTAGE
 - HIGH_VOLTAGE
