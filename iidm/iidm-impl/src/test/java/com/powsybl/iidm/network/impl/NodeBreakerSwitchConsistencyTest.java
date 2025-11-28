@@ -25,11 +25,11 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Giovanni Ferrari {@literal <giovanni.ferrari at soft.it>}
  */
-public class NodeBreakerSwitchConsistencyTest {
+class NodeBreakerSwitchConsistencyTest {
     private Network network;
 
     @BeforeEach
-    private void setUp() {
+    void setUp() {
         network = Network.create("testSwitchConsistency", "test");
         Substation s = network.newSubstation()
                 .setId("S1")
@@ -65,7 +65,7 @@ public class NodeBreakerSwitchConsistencyTest {
     }
 
     @Test
-    public void testSwitchConsistencyWithoutInternalConnections() {
+    void testSwitchConsistencyWithoutInternalConnections() {
         VoltageLevel vl = network.getVoltageLevel("VL1");
         vl.getNodeBreakerView().newBreaker()
                 .setId("BREAKER2")
@@ -93,7 +93,7 @@ public class NodeBreakerSwitchConsistencyTest {
     }
 
     @Test
-    public void testSwitchConsistencyWithInternalConnections() {
+    void testSwitchConsistencyWithInternalConnections() {
         VoltageLevel vl = network.getVoltageLevel("VL1");
 
         // Add 3 internal connections
