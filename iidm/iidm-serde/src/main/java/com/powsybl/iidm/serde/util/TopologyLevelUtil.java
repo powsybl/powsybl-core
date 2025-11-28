@@ -8,7 +8,7 @@
 package com.powsybl.iidm.serde.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.ExportOptions;
@@ -57,13 +57,17 @@ public final class TopologyLevelUtil {
     private static TopologyLevel checkVoltageLevelExportTopology(VoltageLevel vl, NetworkSerializerContext context, TopologyLevel topologyLevel) {
 
         if (topologyLevel == TopologyLevel.BUS_BRANCH &&
-                vl.getSwitchCount() > 0 &&
-                vl.getSwitchCount() == StreamSupport
+                StreamSupport
+                        .stream(vl.getSwitches().spliterator(), false).anyMatch(sw -> sw.getKind().equals(SwitchKind.BREAKER)) &&
+                StreamSupport
                         .stream(vl.getSwitches().spliterator(), false)
-                        .filter(Switch::isOpen).count()) {
+                        .filter(sw -> sw.getKind().equals(SwitchKind.BREAKER)).count()
+                        == StreamSupport
+                        .stream(vl.getSwitches().spliterator(), false)
+                        .filter(sw -> sw.getKind().equals(SwitchKind.BREAKER) && sw.isOpen()).count()) {
             if (context.getOptions()
                     .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
-                throw new PowsyblException("Cannot export a voltage level with all its switches open in BUS_BRANCH topology");
+                throw new PowsyblException("Cannot export voltage level '" + vl.getId() + "' with all its BREAKER switches open in BUS_BRANCH topology");
             }
             return TopologyLevel.valueOf(vl.getTopologyKind().name());
         }

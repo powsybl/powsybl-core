@@ -36,12 +36,12 @@ class BusBranchExportTest extends AbstractSerDeTest {
         propertiesExport.put(XMLExporter.TOPOLOGY_LEVEL, BUS_BRANCH.name());
         Path transformFile = tmpDir.resolve("exportBusBranch.xiidm");
         PowsyblException e = assertThrows(PowsyblException.class, () -> networkNodeBreaker.write("XIIDM", propertiesExport, transformFile));
-        assertEquals("Cannot export a voltage level with all its switches open in BUS_BRANCH topology", e.getMessage());
+        assertEquals("Cannot export voltage level 'VL1' with all its BREAKER switches open in BUS_BRANCH topology", e.getMessage());
     }
 
     @Test
     void roundTripTestOK() {
-        // Read a NodeBreaker XIIDM with all switch open="true"
+        // Read a NodeBreaker XIIDM with all BREAKERS switch open="true"
         String filename = "/busBranchExportError.xiidm";
         Network networkNodeBreaker = Network.read(filename, getClass().getResourceAsStream(filename));
         assertNotNull(networkNodeBreaker);
