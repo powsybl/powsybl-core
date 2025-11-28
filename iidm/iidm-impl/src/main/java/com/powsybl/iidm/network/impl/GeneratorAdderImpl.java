@@ -8,12 +8,15 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdderImpl;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> implements GeneratorAdder {
+class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> implements GeneratorAdder, VoltageRegulationAdder<GeneratorAdder> {
 
     private EnergySource energySource = EnergySource.OTHER;
 
@@ -22,6 +25,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     private double maxP = Double.NaN;
 
     private TerminalExt regulatingTerminal;
+
+    private VoltageRegulation voltageRegulation;
 
     private Boolean voltageRegulatorOn;
 
@@ -115,6 +120,16 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
+    public VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(this);
+    }
+
+    @Override
+    public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
+        this.voltageRegulation = voltageRegulation;
+    }
+
+    @Override
     public GeneratorImpl add() {
         NetworkImpl network = getNetwork();
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
@@ -139,7 +154,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
-                                    voltageRegulatorOn, terminal,
+                                    voltageRegulatorOn, regulatingTerminal,
                                     targetP, targetQ, targetV, equivalentLocalTargetV,
                                     ratedS, isCondenser);
         generator.addTerminal(terminal);
@@ -149,4 +164,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         return generator;
     }
 
+    public VoltageRegulation getVoltageRegulation() {
+        return voltageRegulation;
+    }
 }

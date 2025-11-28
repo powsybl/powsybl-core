@@ -10,8 +10,9 @@ package com.powsybl.iidm.network.regulation;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public enum RegulationStatus {
-    REMOTE,
-    LOCAL,
-    OFF,
+public interface VoltageRegulationnable {
+
+    VoltageRegulation getVoltageRegulation();
+
+    void setVoltageRegulation(VoltageRegulation voltageRegulation);
 }
