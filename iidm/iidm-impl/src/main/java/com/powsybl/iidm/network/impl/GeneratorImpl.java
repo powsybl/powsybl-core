@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.RegulationStatus;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -32,6 +31,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
     private final RegulatingPoint regulatingPoint;
+
     private final VoltageRegulation voltageRegulation;
 
     // attributes depending on the variant
@@ -59,16 +59,14 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.maxP = maxP;
         this.voltageRegulation = VoltageRegulation.builder()
             .setTargetValue(targetV)
-            .setLocalTargetValue(targetV)
             .setTerminal(regulatingTerminal)
             .setMode(RegulationMode.VOLTAGE)
-            .setStatus(RegulationStatus.LOCAL)
             .build();
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.ratedS = ratedS;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, true);
-//        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
+        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         this.targetP = new TDoubleArrayList(variantArraySize);
         this.targetQ = new TDoubleArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
@@ -151,16 +149,17 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        return voltageRegulation.getTerminal();
+    public TerminalExt getRegulatingTerminal() {
+//        return voltageRegulation.getTerminal();
+        return regulatingPoint.getRegulatingTerminal();
     }
 
     @Override
     public GeneratorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        voltageRegulation.setTerminal(regulatingTerminal);
+//        voltageRegulation.setTerminal(regulatingTerminal);
         Terminal oldValue = regulatingPoint.getRegulatingTerminal();
-//        regulatingPoint.setRegulatingTerminal((TerminalExt) regulatingTerminal);
+        regulatingPoint.setRegulatingTerminal((TerminalExt) regulatingTerminal);
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
         return this;
     }

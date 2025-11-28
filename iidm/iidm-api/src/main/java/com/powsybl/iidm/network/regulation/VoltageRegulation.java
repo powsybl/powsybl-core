@@ -15,13 +15,22 @@ import com.powsybl.iidm.network.Terminal;
 public class VoltageRegulation {
 
     private Double targetValue;
-    private Double localTargetValue;
     private Double targetDeadband;
-    private Double localTargetDeadband;
     private Double slope;
     private Terminal terminal;
-    private final RegulationMode mode;
-    private final RegulationStatus status;
+    private RegulationMode mode;
+    private boolean regulating;
+
+    public VoltageRegulation() { }
+
+    public VoltageRegulation(Double targetValue, Double targetDeadband, Double slope, Terminal terminal, RegulationMode mode, boolean regulating) {
+        this.targetValue = targetValue;
+        this.targetDeadband = targetDeadband;
+        this.slope = slope;
+        this.terminal = terminal;
+        this.mode = mode;
+        this.regulating = regulating;
+    }
 
     public double getTargetValue() {
         return targetValue;
@@ -31,28 +40,12 @@ public class VoltageRegulation {
         this.targetValue = targetValue;
     }
 
-    public double getLocalTargetValue() {
-        return localTargetValue;
-    }
-
-    public void setLocalTargetValue(double localTargetValue) {
-        this.localTargetValue = localTargetValue;
-    }
-
     public double getTargetDeadband() {
         return targetDeadband;
     }
 
     public void setTargetDeadband(double targetDeadband) {
         this.targetDeadband = targetDeadband;
-    }
-
-    public double getLocalTargetDeadband() {
-        return localTargetDeadband;
-    }
-
-    public void setLocalTargetDeadband(double localTargetDeadband) {
-        this.localTargetDeadband = localTargetDeadband;
     }
 
     public double getSlope() {
@@ -75,48 +68,33 @@ public class VoltageRegulation {
         return mode;
     }
 
-    public RegulationStatus getStatus() {
-        return status;
+    public void setMode(RegulationMode mode) {
+        this.mode = mode;
     }
 
-    public VoltageRegulation(Double targetValue, Double localTargetValue, Double targetDeadband, Double localTargetDeadband, Double slope, Terminal terminal, RegulationMode mode, RegulationStatus status) {
-        this.targetValue = targetValue;
-        this.localTargetValue = localTargetValue;
-        this.targetDeadband = targetDeadband;
-        this.localTargetDeadband = localTargetDeadband;
-        this.slope = slope;
-        this.terminal = terminal;
-        this.mode = mode;
-        this.status = status;
+    public boolean isRegulating() {
+        return regulating;
+    }
+
+    public void setRegulating(boolean regulating) {
+        this.regulating = regulating;
     }
 
     public static class Builder {
-        private Double targetValue = null;
-        private Double localTargetValue = null;
-        private Double targetDeadband = null;
-        private Double localTargetDeadband = null;
-        private Double slope = null;
+        private Double targetValue = Double.NaN;
+        private Double targetDeadband = Double.NaN;
+        private Double slope = Double.NaN;
         private Terminal terminal = null;
         private RegulationMode mode = null;
-        private RegulationStatus status = null;
+        private boolean regulating = false;
 
         public Builder setTargetValue(Double targetValue) {
             this.targetValue = targetValue;
             return this;
         }
 
-        public Builder setLocalTargetValue(Double localTargetValue) {
-            this.localTargetValue = localTargetValue;
-            return this;
-        }
-
         public Builder setTargetDeadband(Double targetDeadband) {
             this.targetDeadband = targetDeadband;
-            return this;
-        }
-
-        public Builder setLocalTargetDeadband(Double localTargetDeadband) {
-            this.localTargetDeadband = localTargetDeadband;
             return this;
         }
 
@@ -135,22 +113,19 @@ public class VoltageRegulation {
             return this;
         }
 
-        public Builder setStatus(RegulationStatus status) {
-            this.status = status;
+        public Builder setRegulating(boolean regulating) {
+            this.regulating = regulating;
             return this;
         }
 
         public VoltageRegulation build() {
             if (mode == null) {
-                throw new IllegalArgumentException("Invalid VoltageRegulation: mode must be defined.");
-            }
-            if (status == null) {
-                throw new IllegalArgumentException("Invalid VoltageRegulation: status must be defined.");
+//                throw new IllegalArgumentException("Invalid VoltageRegulation: mode must be defined.");
             }
             if (terminal == null) {
-                throw new IllegalArgumentException("Invalid VoltageRegulation: terminal must be defined.");
+//                throw new IllegalArgumentException("Invalid VoltageRegulation: terminal must be defined.");
             }
-            return new VoltageRegulation(targetValue, localTargetValue, targetDeadband, localTargetDeadband, slope, terminal, mode, status);
+            return new VoltageRegulation(targetValue, targetDeadband, slope, terminal, mode, regulating);
         }
 
     }

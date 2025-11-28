@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+
 /**
  * To create a generator, from a <code>VoltageLevel</code> instance call
  * the {@link VoltageLevel#newGenerator()} method to get a generator builder
@@ -25,7 +27,7 @@ package com.powsybl.iidm.network;
  * @see Generator
  * @see VoltageLevel
  */
-public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder> {
+public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder>, VoltageRegulationAdder<GeneratorAdder> {
 
     GeneratorAdder setEnergySource(EnergySource energySource);
 
