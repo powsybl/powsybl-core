@@ -60,6 +60,25 @@ class BusbarSectionUpdateTest {
         assertEq(network);
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "busbarSection_EQ.xml", "busbarSection_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "busbarSection_EQ.xml", "busbarSection_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertTrue(network.getBusbarSectionStream().allMatch(busbarSection -> busbarSection.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getBusbarSectionStream().allMatch(busbarSection -> busbarSection.getAliases().isEmpty()));
+    }
+
     private static void assertEq(Network network) {
         BusbarSection busbarSection = network.getBusbarSection("BusbarSection");
         assertNotNull(busbarSection);

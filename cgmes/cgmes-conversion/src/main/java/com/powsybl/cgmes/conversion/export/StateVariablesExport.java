@@ -648,36 +648,57 @@ public final class StateVariablesExport {
 
     private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
-            CgmesExportUtil.writeStartAbout(CgmesExportUtil.converterClassName(converterStation), context.getNamingStrategy().getCgmesId(converterStation), cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, "ACDCConverter.poleLossP");
-            writer.writeCharacters(CgmesExportUtil.format(getPoleLossP(converterStation)));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "ACDCConverter.idc");
+            String className = CgmesExportUtil.converterClassName(converterStation);
+            String converterId = context.getNamingStrategy().getCgmesId(converterStation);
+            double poleLossP = getPoleLossP(converterStation);
+            writeConverter(className, converterId, poleLossP, 0, 0, cimNamespace, writer, context);
+        }
+        for (AcDcConverter<?> converter : Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream()).toList()) {
+            String className = CgmesExportUtil.converterClassName(converter);
+            String converterId = context.getNamingStrategy().getCgmesId(converter);
+            double idc = converter.getDcTerminal1().getI();
+            double udc = converter.getDcTerminal1().getDcNode().getV() - converter.getDcTerminal2().getDcNode().getV();
+            double poleLossP = getPoleLossP(converter, idc);
+            writeConverter(className, converterId, poleLossP, idc, udc, cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeConverter(String className, String converterId, double poleLossP, double idc, double udc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout(className, converterId, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "ACDCConverter.poleLossP");
+        writer.writeCharacters(CgmesExportUtil.format(poleLossP));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ACDCConverter.idc");
+        writer.writeCharacters(CgmesExportUtil.format(idc));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ACDCConverter.uc");
+        writer.writeCharacters(CgmesExportUtil.format(0));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ACDCConverter.udc");
+        writer.writeCharacters(CgmesExportUtil.format(udc));
+        writer.writeEndElement();
+        if (CgmesNames.CS_CONVERTER.equals(className)) {
+            writer.writeStartElement(cimNamespace, "CsConverter.alpha");
             writer.writeCharacters(CgmesExportUtil.format(0));
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "ACDCConverter.uc");
+            writer.writeStartElement(cimNamespace, "CsConverter.gamma");
             writer.writeCharacters(CgmesExportUtil.format(0));
             writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "ACDCConverter.udc");
+        } else if (CgmesNames.VS_CONVERTER.equals(className)) {
+            writer.writeStartElement(cimNamespace, "VsConverter.delta");
             writer.writeCharacters(CgmesExportUtil.format(0));
             writer.writeEndElement();
-            if (converterStation instanceof LccConverterStation) {
-                writer.writeStartElement(cimNamespace, "CsConverter.alpha");
-                writer.writeCharacters(CgmesExportUtil.format(0));
-                writer.writeEndElement();
-                writer.writeStartElement(cimNamespace, "CsConverter.gamma");
-                writer.writeCharacters(CgmesExportUtil.format(0));
-                writer.writeEndElement();
-            } else if (converterStation instanceof VscConverterStation) {
-                writer.writeStartElement(cimNamespace, "VsConverter.delta");
-                writer.writeCharacters(CgmesExportUtil.format(0));
-                writer.writeEndElement();
+            if (context.getCimVersion() == 16) {
                 writer.writeStartElement(cimNamespace, "VsConverter.uf");
                 writer.writeCharacters(CgmesExportUtil.format(0));
                 writer.writeEndElement();
+            } else if (context.getCimVersion() == 100) {
+                writer.writeStartElement(cimNamespace, "VsConverter.uv");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
             }
-            writer.writeEndElement();
         }
+        writer.writeEndElement();
     }
 
     private static double getPoleLossP(HvdcConverterStation<?> converterStation) {
@@ -702,6 +723,10 @@ public final class StateVariablesExport {
             }
         }
         return poleLoss;
+    }
+
+    private static double getPoleLossP(AcDcConverter<?> converter, double idc) {
+        return converter.getIdleLoss() + converter.getSwitchingLoss() * Math.abs(idc) + converter.getResistiveLoss() * idc * idc / 1e6;
     }
 
     private StateVariablesExport() {
