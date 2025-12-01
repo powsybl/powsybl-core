@@ -161,7 +161,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         NetworkImpl network = getNetwork();
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkAcDcConverterControl(this, controlMode, targetP, targetVdc,
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-        ValidationUtil.checkAcDcConverterPccTerminal(this, hasTwoAcTerminals(), pccTerminal, voltageLevel);
+        ValidationUtil.checkAcDcConverterPccTerminal(this, pccTerminal, voltageLevel);
     }
 
     private boolean hasTwoAcTerminals() {
