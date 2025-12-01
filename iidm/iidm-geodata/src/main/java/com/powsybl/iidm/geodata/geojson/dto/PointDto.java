@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class PointDto extends AbstractGeometryDto {
+public class PointDto implements GeometryDto {
 
     private final Coordinate coordinates;
 

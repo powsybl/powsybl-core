@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.powsybl.iidm.geodata.geojson.dto.AbstractGeometryDto;
+import com.powsybl.iidm.geodata.geojson.dto.GeometryDto;
 import com.powsybl.iidm.geodata.geojson.dto.LineStringDto;
 import com.powsybl.iidm.geodata.geojson.dto.PointDto;
 import com.powsybl.iidm.network.extensions.Coordinate;
@@ -220,13 +220,13 @@ public final class GeoJsonDataParser {
         }
     }
 
-    private static void logUnexpectedFeature(AbstractGeometryDto geometryDto) {
+    private static void logUnexpectedFeature(GeometryDto geometryDto) {
         LOGGER.warn("Unexpected feature type: {} - feature: {}", geometryDto.getClass().getSimpleName(), geometryDto);
     }
 
     @FunctionalInterface
     private interface FeatureProcessor {
-        void process(String id, AbstractGeometryDto feature);
+        void process(String id, GeometryDto feature);
     }
 
     private record GeometryParseResult(Coordinate point, List<Coordinate> coordinates) {

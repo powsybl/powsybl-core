@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class LineStringDto extends AbstractGeometryDto {
+public class LineStringDto implements GeometryDto {
 
     private List<Coordinate> coordinates;
 

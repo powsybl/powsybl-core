@@ -10,5 +10,6 @@ package com.powsybl.iidm.geodata.geojson.dto;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractGeometryDto {
+public interface GeometryDto {
+
 }
