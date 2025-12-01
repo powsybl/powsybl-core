@@ -18,10 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test to verify consistency between getSwitches(), getSwitchStream(), and
- * getSwitchCount() methods
- * in node-breaker topology. These methods should all exclude
- * InternalConnections and only return
- * real voltage level switches.
+ * getSwitchCount() methods in node-breaker topology. These methods should all exclude
+ * InternalConnections and only return real voltage level switches.
  *
  * @author Giovanni Ferrari {@literal <giovanni.ferrari at soft.it>}
  */
@@ -51,7 +49,7 @@ class NodeBreakerSwitchConsistencyTest {
                 .setNode(2)
                 .add();
 
-        // Create 3 switches
+        // Create 2 switches
         vl.getNodeBreakerView().newBreaker()
                 .setId("BREAKER1")
                 .setNode1(0)
