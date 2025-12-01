@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
 /**
@@ -26,6 +24,10 @@ public final class GeoJsonDataParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonDataParser.class);
     private static final ThreadLocal<double[]> POINT_BUFFER = ThreadLocal.withInitial(() -> new double[2]);
+    private static final JsonFactory JSON_FACTORY = new JsonFactoryBuilder()
+        .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, false)
+        .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false)
+        .build();
 
     private GeoJsonDataParser() {
     }
@@ -66,17 +68,10 @@ public final class GeoJsonDataParser {
     }
 
     private static void parseFeatures(Reader reader, FeatureProcessor featureHandler) throws IOException {
-        AtomicLong count = new AtomicLong(0L);
+        int count = 0;
         long start = System.nanoTime();
-        JsonFactory factory = new JsonFactoryBuilder()
-            .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, false)
-            .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false)
-            .build();
-        AtomicReference<List<Coordinate>> coordinates = new AtomicReference<>();
-        AtomicReference<Coordinate> point = new AtomicReference<>();
-        AtomicReference<String> id = new AtomicReference<>();
 
-        try (JsonParser parser = factory.createParser(reader)) {
+        try (JsonParser parser = JSON_FACTORY.createParser(reader)) {
             if (parser.nextToken() != JsonToken.START_OBJECT) {
                 throw new IOException("Expected start of GeoJSON object");
             }
@@ -87,7 +82,9 @@ public final class GeoJsonDataParser {
                     parser.nextToken(); // move to START_ARRAY
 
                     while (parser.nextToken() != JsonToken.END_ARRAY) {
-                        parseFeature(parser, featureHandler, count, coordinates, point, id);
+                        if (parseFeature(parser, featureHandler)) {
+                            count++;
+                        }
                     }
                 } else {
                     parser.nextToken();
@@ -98,13 +95,14 @@ public final class GeoJsonDataParser {
         POINT_BUFFER.remove();
 
         long durationMs = (System.nanoTime() - start) / 1_000_000;
-        LOGGER.info("{} features processed in {} ms", count.get(), durationMs);
+        LOGGER.info("{} features processed in {} ms", count, durationMs);
     }
 
-    private static void parseFeature(JsonParser parser, FeatureProcessor featureHandler, AtomicLong count,
-                                     AtomicReference<List<Coordinate>> coordinates,
-                                     AtomicReference<Coordinate> point,
-                                     AtomicReference<String> id) throws IOException {
+    private static boolean parseFeature(JsonParser parser, FeatureProcessor featureHandler) throws IOException {
+        // Initialize variables
+        List<Coordinate> coordinates = null;
+        String id = null;
+        Coordinate point = null;
 
         // Parse one feature
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -112,41 +110,48 @@ public final class GeoJsonDataParser {
             parser.nextToken(); // move to value
 
             switch (featureField) {
-                case "properties" -> parseId(parser, id);
-                case "geometry" -> parseGeometry(parser, coordinates, point);
+                case "properties" -> id = parseId(parser);
+                case "geometry" -> {
+                    GeometryParseResult parseResult = parseGeometry(parser);
+                    point = parseResult.point();
+                    coordinates = parseResult.coordinates();
+                }
                 default -> parser.skipChildren();
             }
         }
 
-        if (id.get() != null) {
-            if (point.get() != null) {
-                featureHandler.process(id.get(), new PointDto(point.get()));
-                point.set(null);
-            } else if (coordinates.get() != null && !coordinates.get().isEmpty()) {
-                featureHandler.process(id.get(), new LineStringDto(coordinates.get()));
-                coordinates.get().clear();
-            }
-            count.getAndIncrement();
+        if (id == null) {
+            return false;
         }
-        id.set(null);
+        if (point != null) {
+            featureHandler.process(id, new PointDto(point));
+            return true;
+        } else if (coordinates != null && !coordinates.isEmpty()) {
+            featureHandler.process(id, new LineStringDto(coordinates));
+            return true;
+        }
+        return false;
     }
 
-    private static void parseId(JsonParser parser, AtomicReference<String> id) throws IOException {
+    private static String parseId(JsonParser parser) throws IOException {
+        String id = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String propName = parser.currentName();
             parser.nextToken();
             if ("IDR".equals(propName)) {
-                id.set(parser.getText());
+                id = parser.getText();
             } else {
                 parser.skipChildren();
             }
         }
+        return id;
     }
 
-    private static void parseGeometry(JsonParser parser,
-                                      AtomicReference<List<Coordinate>> coordinates,
-                                      AtomicReference<Coordinate> point) throws IOException {
+    private static GeometryParseResult parseGeometry(JsonParser parser) throws IOException {
         String geometryType = null;
+        List<Coordinate> coordinates = null;
+        Coordinate point = null;
+
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String geomField = parser.currentName();
             parser.nextToken();
@@ -155,37 +160,42 @@ public final class GeoJsonDataParser {
                 geometryType = parser.getText();
             } else if ("coordinates".equals(geomField)) {
                 switch (geometryType) {
-                    case "Point" -> point.set(readPoint(parser));
-                    case "LineString" -> coordinates.set(readLineString(parser));
-                    case "MultiLineString" -> coordinates.set(readMultiLineString(parser));
+                    case "Point" -> point = readPoint(parser);
+                    case "LineString" -> coordinates = readLineString(parser);
+                    case "MultiLineString" -> coordinates = readMultiLineString(parser);
                     case null, default -> parser.skipChildren();
                 }
             } else {
                 parser.skipChildren();
             }
         }
+        return new GeometryParseResult(point, coordinates);
     }
 
     private static List<Coordinate> readMultiLineString(JsonParser parser) throws IOException {
-        List<Coordinate> list = new ArrayList<>();
+        List<Coordinate> list = new ArrayList<>(32);
         if (parser.currentToken() != JsonToken.START_ARRAY) {
             throw new IOException("Expected START_ARRAY for MultiLineString");
         }
         while (parser.nextToken() != JsonToken.END_ARRAY) {
-            list.addAll(readLineString(parser));
+            readLines(parser, list);
         }
         return list;
     }
 
     private static List<Coordinate> readLineString(JsonParser parser) throws IOException {
         List<Coordinate> list = new ArrayList<>();
+        readLines(parser, list);
+        return list;
+    }
+
+    private static void readLines(JsonParser parser, List<Coordinate> list) throws IOException {
         if (parser.currentToken() != JsonToken.START_ARRAY) {
             throw new IOException("Expected START_ARRAY for LineString");
         }
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             list.add(readPoint(parser));
         }
-        return list;
     }
 
     private static Coordinate readPoint(JsonParser parser) throws IOException {
@@ -204,8 +214,9 @@ public final class GeoJsonDataParser {
     }
 
     private static void consumeExtraData(JsonParser parser) throws IOException {
-        if (parser.nextToken() != JsonToken.END_ARRAY) {
-            consumeExtraData(parser);
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            // Just skip remaining coordinates or nested arrays
+            parser.skipChildren();
         }
     }
 
@@ -216,5 +227,8 @@ public final class GeoJsonDataParser {
     @FunctionalInterface
     private interface FeatureProcessor {
         void process(String id, AbstractGeometryDto feature);
+    }
+
+    private record GeometryParseResult(Coordinate point, List<Coordinate> coordinates) {
     }
 }
