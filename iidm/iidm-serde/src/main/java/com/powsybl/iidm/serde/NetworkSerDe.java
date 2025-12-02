@@ -527,6 +527,9 @@ public final class NetworkSerDe {
     }
 
     private static void write(Network network, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
+        if (context.getOptions().isFlatten()) {
+            network.flatten();
+        }
         // consider the network has been exported so its extensions will be written
         // (should be done before extensions are written)
         context.addExportedEquipment(network);
