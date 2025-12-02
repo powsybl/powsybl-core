@@ -160,19 +160,20 @@ A generator is a piece of equipment that injects or consumes active power, and i
 
 **Characteristics**
 
-| Attribute            | Unit | Description                                                 |
-|----------------------|------|-------------------------------------------------------------|
-| $MinP$               | MW   | Minimum generator active power output                       |
-| $MaxP$               | MW   | Maximum generator active power output                       |
-| $ReactiveLimits$     | MVar | Operational limits of the generator (P/Q/V diagram)         |
-| $RatedS$             | MVA  | The rated nominal power                                     |
-| $TargetP$            | MW   | The active power target                                     |
-| $TargetQ$            | MVAr | The reactive power target at local terminal                 |
-| $TargetV$            | kV   | The voltage target at regulating terminal                   |
-| $RegulatingTerminal$ |      | Associated node or bus for which voltage is to be regulated |
-| $VoltageRegulatorOn$ |      | True if the generator regulates voltage                     |
-| $EnergySource$       |      | The energy source harnessed to turn the generator           |
-| $IsCondenser$        |      | True if the generator may behave as a condenser             |
+| Attribute                | Unit | Description                                                                         |
+|--------------------------|------|-------------------------------------------------------------------------------------|
+| $MinP$                   | MW   | Minimum generator active power output                                               |
+| $MaxP$                   | MW   | Maximum generator active power output                                               |
+| $ReactiveLimits$         | MVar | Operational limits of the generator (P/Q/V diagram)                                 |
+| $RatedS$                 | MVA  | The rated nominal power                                                             |
+| $TargetP$                | MW   | The active power target                                                             |
+| $TargetQ$                | MVAr | The reactive power target at local terminal                                         |
+| $TargetV$                | kV   | The voltage target at regulating terminal which can be remote or local              |
+| $EquivalentLocalTargetV$ | kV   | The local voltage target consistent with the remote voltage target                  |
+| $RegulatingTerminal$     |      | Associated node or bus for which voltage is to be regulated, can be remote or local |
+| $VoltageRegulatorOn$     |      | True if the generator regulates voltage                                             |
+| $EnergySource$           |      | The energy source harnessed to turn the generator                                   |
+| $IsCondenser$            |      | True if the generator may behave as a condenser                                     |
 
 **Specifications**
 
@@ -184,6 +185,7 @@ Target values for generators (`TargetP` and `TargetQ`) follow the generator sign
 
 The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
 
+The optional `EquivalentLocalTargetV` value can be used by simulators that deactivate the remote voltage algorithms, or by dynamic simulators that use this voltage as a starting value.
 
 **Available extensions**
 
@@ -196,6 +198,7 @@ The `isCondenser` value corresponds for instance to generators which can control
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
+- [Manual Frequency Restoration Reserve](extensions.md#manual-frequency-restoration-reserve)
 
 (load)=
 ## Load
@@ -842,13 +845,9 @@ A VSC converter station is made with switching devices that can be turned both o
 
 - [Connectable position](extensions.md#connectable-position)
 
-### Detailed DC model (beta)
+### Detailed DC model
 
-```{warning}
-**The detailed DC model was introduced in IIDM v1.14 and is currently in beta.**
-
-Future IIDM v1.15 will add support for DC equipment serialization/deserialization.
-
+```{note}
 Currently, this model is only available in the IIDM representation.
 Support in exchange formats (CGMES, ...) as well as in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
 Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
@@ -856,6 +855,7 @@ Please consult the documentation of each project to verify support. In general, 
 If you’re unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html).
 ```
 
+(dc-node)=
 #### DC Node
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcNode.html)<br>
@@ -870,6 +870,7 @@ DC nodes are points where DC terminals of DC conducting equipment are connected 
 Although the nominal voltage of DC nodes must always be specified as a positive value,
 the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
 
+(dc-line)=
 #### DC Line
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcLine.html)<br>
@@ -884,6 +885,7 @@ A DC Line has two DC Terminals.
 | $R$       | $\Omega$ | The series resistance, always positive |
 
 
+(dc-switch)=
 #### DC Switch
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcSwitch.html)<br>
@@ -896,6 +898,7 @@ A DC Switch connects two DC Nodes and can be opened or closed.
 | $Kind$     | `DcSwitchKind` | Either DISCONNECTOR or BREAKER                                    |
 | $Open$     |                | True if the switch is opened                                      |
 
+(dc-ground)=
 #### DC Ground
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcGround.html)<br>
@@ -910,6 +913,7 @@ A DC Ground has a single DC Terminal.
 | $R$       | $\Omega$ | The grounding resistance, always positive |
 
 
+(acdc-converter)=
 #### AC/DC Converter
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/AcDcConverter.html)<br>
@@ -929,9 +933,10 @@ LCC and VSC share the following characteristics.
 | $SwitchingLoss$ | MW / A   | Switching losses                                                      |
 | $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
 | $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
-| $ControlMode$   |          | The converter's control mode: P_PCC or V_DC                           |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or V_DC_DROOP               |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
+| $DroopCurve$    |          | Droop curve for droop control mode                                    |
 
 Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
 With `i` being the DC current through the converter, the Converter losses are computed as follows:
@@ -959,6 +964,11 @@ It cannot be a Busbar Section Terminal since no active power can be measured on 
 ![Detailed DC Model PCC Terminal](img/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-light"}
 ![Detailed DC Model PCC Terminal](img/dark_mode/dc-detailed-pccTerminal.svg){width="100%" align=center class="only-dark"}
 
+For AC/DC converters modeled with two AC terminals, it is acceptable for the converter’s PCC terminal to be designated
+as one of the converter terminals. In this case, when the converter’s `ControlMode` is set to `P_PCC`, simulators
+shall interpret `TargetP` as the total active power flow to be achieved across both AC terminals, not just through the
+PCC Terminal.
+
 When the `ControlMode` of the converter is set to `V_DC`, the converter controls DC voltage at its DC Terminals.
 `TargetVdc` is the desired target DC voltage, and is the voltage difference between DC Node 1 and DC Node 2.
 `TargetVdc` may be either positive or negative. Negative value may be used to model reverse polarity operation in case of LCCs.
@@ -970,6 +980,24 @@ between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
 
+When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter controls active power as in the `P_PCC` control mode
+for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
+$P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
+Where:
+- $k$ is the droop coefficient of the actual droop segment. 
+- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint. 
+It represents the operating point before the security analysis starts.
+- $V_{REF}$ is the DC voltage which was calculated during the base loadflow. The droop control is only used for P controlled converters, so they should not have a targetVdc.
+- $P_{DC}$ is the actual power at DC side during the security analysis, which is determined by Newton Raphson.
+- $V_{DC}$ is the actual DC voltage during the security analysis, which is determined by Newton Raphson.
+
+Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual 
+droop segment should be the one which verifies:
+$V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
+
+
+
+(line-commutated-converter)=
 ##### Line Commutated Converter
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LineCommutatedConverter.html)<br>
@@ -985,6 +1013,7 @@ Line Commutated Converters always consume reactive power, the `PowerFactor` attr
 is consumed when the reactive model is set to `FIXED_POWER_FACTOR`. Typical characteristic for LCCs is $Q = 0.5 P$
 hence a PowerFactor of 0.89443.
 
+(voltage-source-converter)=
 ##### Voltage Source Converter
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageSourceConverter.html)<br>

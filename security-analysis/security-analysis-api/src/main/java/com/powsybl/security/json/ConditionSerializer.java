@@ -41,10 +41,36 @@ public class ConditionSerializer extends StdSerializer<Condition> {
             case AnyViolationCondition.NAME:
                 serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializerProvider);
                 break;
+            case InjectionThresholdCondition.NAME:
+                serializeThresholdCondition((AbstractThresholdCondition) condition, jsonGenerator);
+                break;
+            case BranchThresholdCondition.NAME:
+                BranchThresholdCondition branchCondition = (BranchThresholdCondition) condition;
+                serializeThresholdCondition(branchCondition, jsonGenerator);
+                jsonGenerator.writeStringField("side", branchCondition.getSide().name());
+                break;
+            case ThreeWindingsTransformerThresholdCondition.NAME:
+                ThreeWindingsTransformerThresholdCondition threeWtCondition = (ThreeWindingsTransformerThresholdCondition) condition;
+                serializeThresholdCondition(threeWtCondition, jsonGenerator);
+                jsonGenerator.writeStringField("side", threeWtCondition.getSide().name());
+                break;
+            case AcDcConverterThresholdCondition.NAME:
+                AcDcConverterThresholdCondition acDcConverterCondition = (AcDcConverterThresholdCondition) condition;
+                serializeThresholdCondition(acDcConverterCondition, jsonGenerator);
+                jsonGenerator.writeBooleanField("acSide", acDcConverterCondition.isAcSide());
+                jsonGenerator.writeNumberField("terminalNumber", acDcConverterCondition.getTerminalNumber().getNum());
+                break;
             default:
                 throw new IllegalArgumentException("condition type \'" + condition.getType() + "\' does not exist");
         }
         jsonGenerator.writeEndObject();
+    }
+
+    public void serializeThresholdCondition(AbstractThresholdCondition condition, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStringField("equipmentId", condition.getEquipmentId());
+        jsonGenerator.writeStringField("variable", condition.getVariable().name());
+        jsonGenerator.writeStringField("comparisonType", condition.getComparisonType().name());
+        jsonGenerator.writeNumberField("threshold", condition.getThreshold());
     }
 
     public void serializeFilters(AbstractFilteredCondition filteredCondition, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
