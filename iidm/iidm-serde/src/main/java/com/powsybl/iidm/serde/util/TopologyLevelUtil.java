@@ -56,19 +56,16 @@ public final class TopologyLevelUtil {
      * @throws PowsyblException When the topology to check is BUS_BRANCH, an export problem is detected, and the configured behavior is THROW_EXCEPTION.
      */
     private static TopologyLevel checkVoltageLevelExportTopology(VoltageLevel vl, NetworkSerializerContext context, TopologyLevel topologyLevel) {
-        if (topologyLevel == TopologyLevel.BUS_BRANCH) {
-            boolean hasConnectableOnNullBus = vl.getConnectableStream()
+        if (topologyLevel == TopologyLevel.BUS_BRANCH
+                && vl.getConnectableStream()
                     .map(Connectable::getTerminals)
                     .flatMap(List<Terminal>::stream)
-                    .anyMatch(t -> t.getBusView().getConnectableBus() == null);
-
-            if (hasConnectableOnNullBus) {
-                if (context.getOptions()
-                        .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
-                    throw new PowsyblException("Cannot export voltage level \"" + vl.getId() + "\" in BUS_BRANCH topology: this would lead to an invalid IIDM.");
-                }
-                return TopologyLevel.valueOf(vl.getTopologyKind().name());
+                    .anyMatch(t -> t.getBusView().getConnectableBus() == null)) {
+            if (context.getOptions()
+                    .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
+                throw new PowsyblException("Cannot export voltage level \"" + vl.getId() + "\" in BUS_BRANCH topology: this would lead to an invalid IIDM.");
             }
+            return TopologyLevel.valueOf(vl.getTopologyKind().name());
         }
         return topologyLevel;
     }
