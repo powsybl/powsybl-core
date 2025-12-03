@@ -36,7 +36,7 @@ class BusBranchExportTest extends AbstractSerDeTest {
         propertiesExport.put(XMLExporter.TOPOLOGY_LEVEL, BUS_BRANCH.name());
         Path transformFile = tmpDir.resolve("exportBusBranch.xiidm");
         PowsyblException e = assertThrows(PowsyblException.class, () -> networkNodeBreaker.write("XIIDM", propertiesExport, transformFile));
-        assertEquals("Cannot export a voltage level with all its switches open in BUS_BRANCH topology", e.getMessage());
+        assertEquals("Cannot export voltage level \"VL1\" in BUS_BRANCH topology: this would lead to an invalid IIDM.", e.getMessage());
     }
 
     @Test
