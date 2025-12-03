@@ -370,6 +370,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         ExportOptions options = new ExportOptions().setFlatten(true);
         NetworkSerDe.write(merged, options, xmlFile);
         Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
+        assertEquals(2, merged.getSubnetworks().size());
         assertEquals(0, readNetwork.getSubnetworks().size());
     }
 
@@ -384,6 +385,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         ExportOptions options = new ExportOptions();
         NetworkSerDe.write(merged, options, xmlFile);
         Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
+        assertEquals(2, merged.getSubnetworks().size());
         assertEquals(2, readNetwork.getSubnetworks().size());
     }
 }
