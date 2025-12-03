@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Terminal;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationAdderImpl<T extends VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T>, VoltageRegulationBuilder<T> {
+public class VoltageRegulationAdderImpl<T extends VoltageRegulationAdder<T>> implements VoltageRegulationBuilder<T> {
 
     private final VoltageRegulation voltageRegulation;
     private final T parent;
@@ -23,53 +23,43 @@ public class VoltageRegulationAdderImpl<T extends VoltageRegulationAdder<T>> imp
     }
 
     @Override
-    public VoltageRegulationAdderImpl<T> setTargetValue(Double targetValue) {
+    public VoltageRegulationBuilder<T> setTargetValue(Double targetValue) {
         voltageRegulation.setTargetValue(targetValue);
         return this;
     }
 
     @Override
-    public VoltageRegulationAdderImpl<T> setTargetDeadband(Double targetDeadband) {
+    public VoltageRegulationBuilder<T> setTargetDeadband(Double targetDeadband) {
         return this;
     }
 
     @Override
-    public VoltageRegulationAdderImpl<T> setSlope(Double slope) {
+    public VoltageRegulationBuilder<T> setSlope(Double slope) {
         voltageRegulation.setSlope(slope);
         return this;
     }
 
     @Override
-    public VoltageRegulationAdderImpl<T> setTerminal(Terminal terminal) {
+    public VoltageRegulationBuilder<T> setTerminal(Terminal terminal) {
         voltageRegulation.setTerminal(terminal);
         return this;
     }
 
     @Override
-    public VoltageRegulationAdderImpl<T> setMode(RegulationMode mode) {
+    public VoltageRegulationBuilder<T> setMode(RegulationMode mode) {
         voltageRegulation.setMode(mode);
         return this;
     }
 
     @Override
-    public VoltageRegulationAdderImpl<T> setRegulating(boolean regulating) {
+    public VoltageRegulationBuilder<T> setRegulating(boolean regulating) {
         voltageRegulation.setRegulating(regulating);
         return this;
-    }
-
-    @Override
-    public VoltageRegulationAdderImpl<T> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(parent);
     }
 
     @Override
     public T addVoltageRegulation() {
         parent.setVoltageRegulation(voltageRegulation);
         return parent;
-    }
-
-    @Override
-    public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
-        throw new UnsupportedOperationException("Cannot set voltage regulation");
     }
 }
