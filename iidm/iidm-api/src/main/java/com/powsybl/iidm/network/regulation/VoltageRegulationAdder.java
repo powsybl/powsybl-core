@@ -12,7 +12,7 @@ package com.powsybl.iidm.network.regulation;
  */
 public interface VoltageRegulationAdder<T extends VoltageRegulationAdder<T>> {
 
-    VoltageRegulationAdder<T> newVoltageRegulation();
+    VoltageRegulationBuilder<T> newVoltageRegulation();
 
     void setVoltageRegulation(VoltageRegulation voltageRegulation);
 

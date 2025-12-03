@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdderImpl;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 
 import java.util.Objects;
 
@@ -107,7 +108,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     }
 
     @Override
-    public VoltageRegulationAdderImpl<BatteryAdder> newVoltageRegulation() {
+    public VoltageRegulationBuilder<BatteryAdder> newVoltageRegulation() {
         return new VoltageRegulationAdderImpl<>(this);
     }
 
