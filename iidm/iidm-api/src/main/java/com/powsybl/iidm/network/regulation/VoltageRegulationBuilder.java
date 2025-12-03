@@ -14,17 +14,17 @@ import com.powsybl.iidm.network.Terminal;
  */
 public interface VoltageRegulationBuilder<T extends VoltageRegulationAdder<T>> {
 
-    VoltageRegulationAdder<T> setTargetValue(Double targetValue);
+    VoltageRegulationBuilder<T> setTargetValue(Double targetValue);
 
-    VoltageRegulationAdder<T> setTargetDeadband(Double targetDeadband);
+    VoltageRegulationBuilder<T> setTargetDeadband(Double targetDeadband);
 
-    VoltageRegulationAdder<T> setSlope(Double slope);
+    VoltageRegulationBuilder<T> setSlope(Double slope);
 
-    VoltageRegulationAdder<T> setTerminal(Terminal terminal);
+    VoltageRegulationBuilder<T> setTerminal(Terminal terminal);
 
-    VoltageRegulationAdder<T> setMode(RegulationMode mode);
+    VoltageRegulationBuilder<T> setMode(RegulationMode mode);
 
-    VoltageRegulationAdder<T> setRegulating(boolean regulating);
+    VoltageRegulationBuilder<T> setRegulating(boolean regulating);
 
     T addVoltageRegulation();
 }

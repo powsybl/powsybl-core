@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdderImpl;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 
 /**
  *
@@ -120,7 +121,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation() {
+    public VoltageRegulationBuilder<GeneratorAdder> newVoltageRegulation() {
         return new VoltageRegulationAdderImpl<>(this);
     }
 
