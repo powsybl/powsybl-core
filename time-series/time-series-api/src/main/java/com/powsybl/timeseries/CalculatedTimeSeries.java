@@ -227,7 +227,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     @Override
-    public Stream<DoublePoint> stream() {
+    public Stream<DoublePoint> uncompressedStream() {
         List<DoubleTimeSeries> timeSeriesList = loadData();
         NodeCalc resolvedNodeCalc = resolve(timeSeriesList);
         if (timeSeriesList.isEmpty()) {
@@ -238,7 +238,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     @Override
-    public Iterator<DoublePoint> iterator() {
+    public Iterator<DoublePoint> uncompressedIterator() {
         List<DoubleTimeSeries> timeSeriesList = loadData();
         NodeCalc resolvedNodeCalc = resolve(timeSeriesList);
         if (timeSeriesList.isEmpty()) {

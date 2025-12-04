@@ -38,13 +38,15 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final TDoubleArrayList targetV;
 
+    private final TDoubleArrayList equivalentLocalTargetV;
+
     private final boolean isCondenser;
 
     GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
                   boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
-                  double targetP, double targetQ, double targetV,
+                  double targetP, double targetQ, double targetV, double equivalentLocalTargetV,
                   double ratedS, boolean isCondenser) {
         super(network, id, name, fictitious);
         this.network = network;
@@ -59,10 +61,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.targetP = new TDoubleArrayList(variantArraySize);
         this.targetQ = new TDoubleArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
+        this.equivalentLocalTargetV = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.targetP.add(targetP);
             this.targetQ.add(targetQ);
             this.targetV.add(targetV);
+            this.equivalentLocalTargetV.add(equivalentLocalTargetV);
         }
         this.isCondenser = isCondenser;
     }
@@ -191,15 +195,29 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public GeneratorImpl setTargetV(double targetV) {
+        return this.setTargetV(targetV, Double.NaN);
+    }
+
+    @Override
+    public GeneratorImpl setTargetV(double targetV, double equivalentLocalTargetV) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex),
-                targetV, targetQ.get(variantIndex), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        double oldValue = this.targetV.set(variantIndex, targetV);
+            targetV, targetQ.get(variantIndex), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        double oldValueTargetV = this.targetV.set(variantIndex, targetV);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate("targetV", variantId, oldValue, targetV);
+        notifyUpdate("targetV", variantId, oldValueTargetV, targetV);
+
+        ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
+        double oldEquivalentLocalTargetV = this.equivalentLocalTargetV.set(variantIndex, equivalentLocalTargetV);
+        notifyUpdate("equivalentLocalTargetV", variantId, oldEquivalentLocalTargetV, equivalentLocalTargetV);
         return this;
+    }
+
+    @Override
+    public double getEquivalentLocalTargetV() {
+        return this.equivalentLocalTargetV.get(network.get().getVariantIndex());
     }
 
     @Override
@@ -258,10 +276,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         targetP.ensureCapacity(targetP.size() + number);
         targetQ.ensureCapacity(targetQ.size() + number);
         targetV.ensureCapacity(targetV.size() + number);
+        equivalentLocalTargetV.ensureCapacity(equivalentLocalTargetV.size() + number);
         for (int i = 0; i < number; i++) {
             targetP.add(targetP.get(sourceIndex));
             targetQ.add(targetQ.get(sourceIndex));
             targetV.add(targetV.get(sourceIndex));
+            equivalentLocalTargetV.add(equivalentLocalTargetV.get(sourceIndex));
         }
         regulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
@@ -272,6 +292,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         targetP.remove(targetP.size() - number, number);
         targetQ.remove(targetQ.size() - number, number);
         targetV.remove(targetV.size() - number, number);
+        equivalentLocalTargetV.remove(equivalentLocalTargetV.size() - number, number);
         regulatingPoint.reduceVariantArraySize(number);
     }
 
@@ -288,6 +309,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             targetP.set(index, targetP.get(sourceIndex));
             targetQ.set(index, targetQ.get(sourceIndex));
             targetV.set(index, targetV.get(sourceIndex));
+            equivalentLocalTargetV.set(index, equivalentLocalTargetV.get(sourceIndex));
         }
         regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
