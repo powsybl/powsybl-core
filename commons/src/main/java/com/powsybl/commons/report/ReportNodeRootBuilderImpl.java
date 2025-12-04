@@ -45,4 +45,5 @@ public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<
     public ReportNodeBuilder self() {
         return this;
     }
+
 }
