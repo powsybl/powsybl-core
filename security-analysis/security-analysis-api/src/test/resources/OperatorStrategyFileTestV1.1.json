@@ -4,33 +4,72 @@
     "id" : "id1",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
-    "conditionalActions" : [
-      {
-        "id" : "stage1",
-        "condition": {
-          "type": "TRUE_CONDITION"
-        },
-        "actionIds": [
-          "actionId1",
-          "actionId2",
-          "actionId3"
-        ]
-      }]
+    "conditionalActions" : [ {
+      "id" : "stage1",
+      "condition" : {
+        "type" : "TRUE_CONDITION"
+      },
+      "actionIds" : [ "actionId1", "actionId2", "actionId3" ]
+    } ]
   }, {
-    "id" : "id1",
+    "id" : "id2",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId2",
+    "conditionalActions" : [ {
+      "id" : "stage1",
+      "condition" : {
+        "type" : "ANY_VIOLATION_CONDITION"
+      },
+      "actionIds" : [ "actionId4" ]
+    } ]
+  }, {
+    "id" : "id3",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
-    "conditionalActions" : [
-      {
-        "id" : "stage1",
-        "condition": {
-          "type": "TRUE_CONDITION"
-        },
-        "actionIds": [
-          "actionId1",
-          "actionId2",
-          "actionId3"
-        ]
-      }]
+    "conditionalActions" : [ {
+      "id" : "stage1",
+      "condition" : {
+        "type" : "ANY_VIOLATION_CONDITION",
+        "filters" : [ "CURRENT" ]
+      },
+      "actionIds" : [ "actionId1", "actionId3" ]
+    } ]
+  }, {
+    "id" : "id4",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId3",
+    "conditionalActions" : [ {
+      "id" : "stage1",
+      "condition" : {
+        "type" : "ANY_VIOLATION_CONDITION",
+        "filters" : [ "LOW_VOLTAGE" ]
+      },
+      "actionIds" : [ "actionId1", "actionId2", "actionId4" ]
+    } ]
+  }, {
+    "id" : "id5",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId4",
+    "conditionalActions" : [ {
+      "id" : "stage1",
+      "condition" : {
+        "type" : "ALL_VIOLATION",
+        "filters" : [ "HIGH_VOLTAGE" ],
+        "violationIds" : [ "violation1", "violation2" ]
+      },
+      "actionIds" : [ "actionId1", "actionId5" ]
+    } ]
+  }, {
+    "id" : "id6",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId5",
+    "conditionalActions" : [ {
+      "id" : "stage1",
+      "condition" : {
+        "type" : "ALL_VIOLATION",
+        "violationIds" : [ "violation1", "violation2" ]
+      },
+      "actionIds" : [ "actionId3" ]
+    } ]
   } ]
 }

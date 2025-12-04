@@ -722,15 +722,20 @@ public abstract class AbstractAcDcConverterTest {
         AcDcConverter<?> vsc = createVscA(vla).setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP);
 
         assertEquals(DroopCurve.EMPTY, vsc.getDroopCurve());
+        assertEquals(0., vsc.getDroopCurve().getSegments().size());
+        assertEquals(0., vsc.getDroopCurve().getK(42.0));
 
         vsc.newDroopCurve()
                 .beginSegment().setK(-10.).setMinV(-500.).setMaxV(-100.).endSegment()
                 .beginSegment().setK(-5.).setMinV(-100.).setMaxV(100.).endSegment()
                 .beginSegment().setK(-1.).setMinV(100.).setMaxV(500.).endSegment()
                 .add();
+        assertEquals(3., vsc.getDroopCurve().getSegments().size());
+        assertEquals(-10., vsc.getDroopCurve().getK(-1000.));
         assertEquals(-10., vsc.getDroopCurve().getK(-250.));
         assertEquals(-5., vsc.getDroopCurve().getK(-100.));
         assertEquals(-1., vsc.getDroopCurve().getK(400.));
+        assertEquals(-1., vsc.getDroopCurve().getK(1000.));
 
         vsc.newDroopCurve()
                 .add();

@@ -298,6 +298,29 @@ generator has the extension [`RemoteReactivePowerControl`](../../grid_model/exte
 with the `enabled` activated and the generator attribute `voltageRegulatorOn` set to `false`. In all other cases, a
 `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
+#### SynchronousMachine type (EQ) and operatingMode (SSH)
+
+The `SynchronousMachine.type` is exported in the EQ profile depending on the [reactive limits](../../grid_model/additional.md#reactive-limits) of the 
+generator or battery and its capacity to behave like a condenser (a battery can behave like a condenser but does not have the flag `isCondenser` so we consider it as `true`):
+- if the flag `isCondenser` is `true`: 
+  - if the minimum and the maximum active power limit are positive, then the generator or battery will be exported as `generatorOrCondenser`,
+  - if the minimum and the maximum active power limit are negative, then the generator or battery will be exported as `motorOrCondenser`,
+  - if the minimum and the maximum active power limit are both equal to zero, then the generator or battery will be exported as `condenser`,
+  - otherwise, the generator or battery will be exported as `generatorOrCondenserOrMotor`.
+- if the flag `isCondenser` is `false`:
+  - if the minimum active power limit is positive, then the generator or battery will be exported as `generator`,
+  - if the maximum active power limit is negative, then the generator or battery will be exported as `motor`,
+  - otherwise, the generator will be exported as `generatorOrMotor`.
+
+The `SynchronousMachine.operatingMode` is exported in the SSH profile depending on the target active 
+power of the generator or battery and on fact that it is regulating or not:
+- if the target active power is positive, then the generator or battery will be exported as `generator`,
+- if the target active power is negative, then the generator or battery will be exported as `motor`,
+- if the target active power is zero and the generator or battery is regulating, then the operating mode will be `condenser`.
+- otherwise, the generator or battery will be exported as `generator` if is allowed by its `SynchronousMachine.type`,
+otherwise `motor` and otherwise `condenser`. 
+To know if the generator or battery is behaving as a condenser, its `targetV`, `targetQ` and `voltageRegulatorOn` attributes are used.
+
 (cgmes-hvdc-export)=
 ### HVDC line and HVDC converter stations
 
@@ -410,16 +433,16 @@ If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the 
 If the network comes from a CIM-CGMES model and the tap changer has initially a `TapChangerControl`, it always has at export
 too. Otherwise, a `TapChangerControl` is exported for the tap changer if it is considered as defined. A `RatioTapChanger`
 is considered as defined if it has a valid regulation value, a valid target deadband and a non-null regulating terminal.
-A `PhaseTapChanger` is considered as defined if it has a valid regulation value,
-a valid target deadband, and a non-null regulating terminal. By default its regulation mode is set to `CURRENT_LIMITER`.
+A `PhaseTapChanger` is considered as defined if it has a valid regulation value, a valid target deadband, and a non-null regulating terminal.
 
 In a `RatioTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
 `RatioTapChanger` `regulationMode` is set to `REACTIVE_POWER`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` when
 `RatioTapChanger` `regulationMode` is set to `VOLTAGE`.
 
-In a `PhaseTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.activePower` when
-`PhaseTapChanger` `regulationMode` is set to `ACTIVE_POWER_CONTROL`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.currentFlow`
-when `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
+In a `PhaseTapChanger`, the `TapChangerControl` is always exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.activePower`.
+If the original `PhaseTapChanger` `regulationMode` is `CURRENT_LIMITER`, the `TapChangerControl` regulation is disabled,
+the regulation target value and deadband are set to 0, and an `OperationalLimitSet` with a `CurrentLimit` is created
+at the regulated terminal with the regulation value.
 
 (cgmes-two-winding-transformer-export)=
 ### TwoWindingsTransformer

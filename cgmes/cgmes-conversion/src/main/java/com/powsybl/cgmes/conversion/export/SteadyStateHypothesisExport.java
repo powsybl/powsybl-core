@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,8 @@ import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainCalculatedSynchronousMachineKind;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainCurve;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_TERMINAL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -48,6 +51,9 @@ public final class SteadyStateHypothesisExport {
     private static final String ROTATING_MACHINE_Q = "RotatingMachine.q";
     private static final String REGULATING_COND_EQ_CONTROL_ENABLED = "RegulatingCondEq.controlEnabled";
     private static final String ACDC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
+    private static final String OPERATING_MODE_GENERATOR = "generator";
+    private static final String OPERATING_MODE_MOTOR = "motor";
+    private static final String OPERATING_MODE_CONDENSER = "condenser";
 
     private SteadyStateHypothesisExport() {
     }
@@ -358,20 +364,42 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
-        String kind = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
-        String operatingMode = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
-        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, CgmesExportUtil.obtainCurve(i), kind);
-        String calculatedOperatingMode = obtainOperatingMode(targetP);
-        return operatingMode != null && calculatedKind.contains(operatingMode) ? operatingMode : calculatedOperatingMode;
+        String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Generator gen && gen.isCondenser());
+        return obtainOperatingMode(targetP, i, calculatedKind);
     }
 
-    private static String obtainOperatingMode(double targetP) {
+    private static String obtainOperatingMode(double targetP, Injection<?> injection, String calculatedKind) {
         if (targetP < 0) {
-            return "motor";
+            return OPERATING_MODE_MOTOR;
         } else if (targetP > 0) {
-            return "generator";
+            return OPERATING_MODE_GENERATOR;
         } else {
-            return "condenser";
+            if (isOperatingAsACondenser(injection)) {
+                return OPERATING_MODE_CONDENSER;
+            } else {
+                if (calculatedKind.toLowerCase().contains(OPERATING_MODE_GENERATOR)) {
+                    return OPERATING_MODE_GENERATOR;
+                } else if (calculatedKind.toLowerCase().contains(OPERATING_MODE_MOTOR)) {
+                    return OPERATING_MODE_MOTOR;
+                } else {
+                    return OPERATING_MODE_CONDENSER;
+                }
+            }
+        }
+    }
+
+    private static boolean isOperatingAsACondenser(Injection<?> injection) {
+        switch (injection) {
+            case Generator generator -> {
+                return generator.isVoltageRegulatorOn() && !Double.isNaN(generator.getTargetV())
+                        || !Double.isNaN(generator.getTargetQ()) && generator.getTargetQ() != 0;
+            }
+            case Battery battery -> {
+                VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
+                return voltageRegulation != null && voltageRegulation.isVoltageRegulatorOn() && !Double.isNaN(voltageRegulation.getTargetV())
+                        || !Double.isNaN(battery.getTargetQ()) && battery.getTargetQ() != 0;
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + injection);
         }
     }
 
@@ -488,13 +516,13 @@ public final class SteadyStateHypothesisExport {
             } else if (tc instanceof PhaseTapChanger phaseTapChanger
                     && CgmesExportUtil.regulatingControlIsDefined(phaseTapChanger)) {
                 boolean valid;
-                String unitMultiplier = switch (CgmesExportUtil.getPhaseTapChangerRegulationMode(phaseTapChanger)) {
-                    case RegulatingControlEq.REGULATING_CONTROL_CURRENT_FLOW -> {
+                String unitMultiplier = switch (phaseTapChanger.getRegulationMode()) {
+                    case PhaseTapChanger.RegulationMode.CURRENT_LIMITER -> {
                         // Unit multiplier is none (multiply by 1), regulation value is a current in Amperes
                         valid = true;
                         yield "none";
                     }
-                    case RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER -> {
+                    case PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL -> {
                         // Unit multiplier is M, regulation value is an active power flow in MW
                         valid = true;
                         yield "M";
@@ -505,12 +533,13 @@ public final class SteadyStateHypothesisExport {
                     }
                 };
                 if (valid) {
+                    boolean isActivePowerControlMode = phaseTapChanger.getRegulationMode() == PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL;
                     rcv = new RegulatingControlView(controlId,
                             RegulatingControlType.TAP_CHANGER_CONTROL,
                             true,
-                            phaseTapChanger.isRegulating(),
-                            phaseTapChanger.getTargetDeadband(),
-                            phaseTapChanger.getRegulationValue(),
+                            isActivePowerControlMode && phaseTapChanger.isRegulating(),
+                            isActivePowerControlMode ? phaseTapChanger.getTargetDeadband() : 0.0,
+                            isActivePowerControlMode ? phaseTapChanger.getRegulationValue() : 0.0,
                             unitMultiplier);
                 }
             }
