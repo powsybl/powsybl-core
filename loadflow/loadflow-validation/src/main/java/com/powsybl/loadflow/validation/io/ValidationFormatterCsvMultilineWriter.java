@@ -15,6 +15,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.loadflow.validation.data.*;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.powsybl.commons.io.table.Column;
@@ -105,8 +106,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
 
     @Override
     protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-            boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
-            boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
+                         boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
+                         boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         write(generatorId, "p", found, -generatorData.p(), writeValues, -p);
         write(generatorId, "q", found, -generatorData.q(), writeValues, -q);
         write(generatorId, "v", found, generatorData.v(), writeValues, v);

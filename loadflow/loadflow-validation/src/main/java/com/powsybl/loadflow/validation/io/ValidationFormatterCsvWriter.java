@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.loadflow.validation.data.*;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.powsybl.commons.io.table.Column;

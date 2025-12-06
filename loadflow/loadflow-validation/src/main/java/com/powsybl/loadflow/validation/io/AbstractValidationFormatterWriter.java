@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
+import com.powsybl.loadflow.validation.data.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -307,11 +308,11 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeFlowsData() {
         flowsData.values().forEach(flowData -> {
             try {
-                write(flowData.branchId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                write(flowData.branchId(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                         Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                         Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false, flowData, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of branch {}: {}", flowData.branchId, e.getMessage());
+                LOGGER.error("Error writing data of branch {}: {}", flowData.branchId(), e.getMessage());
             }
         });
     }
@@ -319,11 +320,11 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeGeneratorsData() {
         generatorsData.values().forEach(generatorData -> {
             try {
-                write(generatorData.generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                write(generatorData.generatorId(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                         Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false,
                         generatorData, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of generator {}: {}", generatorData.generatorId, e.getMessage());
+                LOGGER.error("Error writing data of generator {}: {}", generatorData.generatorId(), e.getMessage());
             }
         });
     }
@@ -331,11 +332,11 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeBusesData() {
         busesData.values().forEach(busData -> {
             try {
-                write(busData.busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                write(busData.busId(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                         Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                         Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, busData, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of bus {}: {}", busData.busId, e.getMessage());
+                LOGGER.error("Error writing data of bus {}: {}", busData.busId(), e.getMessage());
             }
         });
     }
@@ -343,10 +344,10 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeSvcsData() {
         svcsData.values().forEach(svcData -> {
             try {
-                write(svcData.svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                        false, svcData.regulationMode, false, Double.NaN, Double.NaN, false, false, svcData, true, false);
+                write(svcData.svcId(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                        false, svcData.regulationMode(), false, Double.NaN, Double.NaN, false, false, svcData, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of svc {}: {}", svcData.svcId, e.getMessage());
+                LOGGER.error("Error writing data of svc {}: {}", svcData.svcId(), e.getMessage());
             }
         });
     }
@@ -354,10 +355,10 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeShuntsData() {
         shuntsData.values().forEach(shuntData -> {
             try {
-                write(shuntData.shuntId, Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN,
+                write(shuntData.shuntId(), Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN,
                         Double.NaN, false, Double.NaN, Double.NaN, false, false, shuntData, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of shunt {}: {}", shuntData.shuntId, e.getMessage());
+                LOGGER.error("Error writing data of shunt {}: {}", shuntData.shuntId(), e.getMessage());
             }
         });
     }
@@ -365,10 +366,10 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeTwtsData() {
         twtsData.values().forEach(twtData -> {
             try {
-                write(twtData.twtId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                write(twtData.twtId(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                         -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false, twtData, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of twt {}: {}", twtData.twtId, e.getMessage());
+                LOGGER.error("Error writing data of twt {}: {}", twtData.twtId(), e.getMessage());
             }
         });
     }
@@ -376,9 +377,9 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeTwts3wData() {
         twts3wData.values().forEach(twtData -> {
             try {
-                write(twtData.twtId, new Transformer3WData(twtData.twtId, null, false), twtData, true, false);
+                write(twtData.twtId(), new Transformer3WData(twtData.twtId(), null, false), twtData, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of t3wt {}: {}", twtData.twtId, e.getMessage());
+                LOGGER.error("Error writing data of t3wt {}: {}", twtData.twtId(), e.getMessage());
             }
         });
     }
@@ -386,68 +387,6 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     @Override
     public void close() throws IOException {
         formatter.close();
-    }
-
-    protected record FlowData(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2,
-                              double p2Calc, double q2, double q2Calc, double r, double x, double g1, double g2,
-                              double b1, double b2, double rho1, double rho2, double alpha1, double alpha2, double u1,
-                              double u2, double theta1, double theta2, double z, double y, double ksi,
-                              int phaseAngleClock, boolean connected1, boolean connected2, boolean mainComponent1,
-                              boolean mainComponent2, boolean validated) {
-        protected FlowData {
-            Objects.requireNonNull(branchId);
-        }
-    }
-
-    protected record GeneratorData(String generatorId, double p, double q, double v, double targetP, double targetQ,
-                                   double targetV, double expectedP, boolean connected, boolean voltageRegulatorOn,
-                                   double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
-                                   boolean validated) {
-        protected GeneratorData {
-            Objects.requireNonNull(generatorId);
-        }
-    }
-
-    protected record BusData(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP,
-                             double genQ, double batP, double batQ, double shuntP, double shuntQ, double svcP,
-                             double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                             double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP,
-                             double tltQ, boolean mainComponent, boolean validated) {
-        protected BusData {
-            Objects.requireNonNull(busId);
-        }
-    }
-
-    protected record SvcData(String svcId, double p, double q, double vControlled, double vController,
-                             double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                             boolean connected, RegulationMode regulationMode, boolean regulating, double bMin,
-                             double bMax, boolean mainComponent, boolean validated) {
-        protected SvcData {
-            Objects.requireNonNull(svcId);
-        }
-    }
-
-    protected record ShuntData(String shuntId, double q, double expectedQ, double p, int currentSectionCount,
-                               int maximumSectionCount, double bPerSection, double v, boolean connected, double qMax,
-                               double nominalV, boolean mainComponent, boolean validated) {
-        protected ShuntData {
-            Objects.requireNonNull(shuntId);
-        }
-    }
-
-    protected record TransformerData(String twtId, double error, double upIncrement, double downIncrement, double rho,
-                                     double rhoPreviousStep, double rhoNextStep, int tapPosition, int lowTapPosition,
-                                     int highTapPosition, double targetV, TwoSides regulatedSide, double v,
-                                     boolean connected, boolean mainComponent, boolean validated) {
-        protected TransformerData {
-            Objects.requireNonNull(twtId);
-        }
-    }
-
-    protected record Transformer3WData(String twtId, TwtData twtData, boolean validated) {
-        protected Transformer3WData {
-            Objects.requireNonNull(twtId);
-        }
     }
 
 }
