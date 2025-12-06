@@ -507,14 +507,14 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     protected void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                          double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
                          double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
-                         boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException {
+                         boolean mainComponent1, boolean mainComponent2, boolean validated, ValidatedFlowData validatedFlowData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(branchId);
         if (compareResults) {
             formatter = found ?
-                        write(found, flowData.p1(), flowData.p1Calc(), flowData.q1(), flowData.q1Calc(), flowData.p2(), flowData.p2Calc(), flowData.q2(), flowData.q2Calc(),
-                                flowData.r(), flowData.x(), flowData.g1(), flowData.g2(), flowData.b1(), flowData.b2(), flowData.rho1(), flowData.rho2(), flowData.alpha1(), flowData.alpha2(),
-                                flowData.u1(), flowData.u2(), flowData.theta1(), flowData.theta2(), flowData.z(), flowData.y(), flowData.ksi(), flowData.phaseAngleClock(), flowData.connected1(), flowData.connected2(),
-                                flowData.mainComponent1(), flowData.mainComponent2(), flowData.validated()) :
+                        write(found, validatedFlowData.p1(), validatedFlowData.p1Calc(), validatedFlowData.q1(), validatedFlowData.q1Calc(), validatedFlowData.p2(), validatedFlowData.p2Calc(), validatedFlowData.q2(), validatedFlowData.q2Calc(),
+                                validatedFlowData.r(), validatedFlowData.x(), validatedFlowData.g1(), validatedFlowData.g2(), validatedFlowData.b1(), validatedFlowData.b2(), validatedFlowData.rho1(), validatedFlowData.rho2(), validatedFlowData.alpha1(), validatedFlowData.alpha2(),
+                                validatedFlowData.u1(), validatedFlowData.u2(), validatedFlowData.theta1(), validatedFlowData.theta2(), validatedFlowData.z(), validatedFlowData.y(), validatedFlowData.ksi(), validatedFlowData.phaseAngleClock(), validatedFlowData.connected1(), validatedFlowData.connected2(),
+                                validatedFlowData.mainComponent1(), validatedFlowData.mainComponent2(), validatedFlowData.validated()) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                               Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                               Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false);
@@ -570,13 +570,13 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     @Override
     protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
                          boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
-                         boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
+                         boolean validated, ValidatedGeneratorData validatedGeneratorData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(generatorId);
         if (compareResults) {
             formatter = found ?
-                        write(found, generatorData.p(), generatorData.q(), generatorData.v(), generatorData.targetP(), generatorData.targetQ(), generatorData.targetV(),
-                                generatorData.expectedP(), generatorData.connected(), generatorData.voltageRegulatorOn(), generatorData.minP(), generatorData.maxP(), generatorData.minQ(),
-                                generatorData.maxQ(), generatorData.mainComponent(), generatorData.validated()) :
+                        write(found, validatedGeneratorData.p(), validatedGeneratorData.q(), validatedGeneratorData.v(), validatedGeneratorData.targetP(), validatedGeneratorData.targetQ(), validatedGeneratorData.targetV(),
+                                validatedGeneratorData.expectedP(), validatedGeneratorData.connected(), validatedGeneratorData.voltageRegulatorOn(), validatedGeneratorData.minP(), validatedGeneratorData.maxP(), validatedGeneratorData.minQ(),
+                                validatedGeneratorData.maxQ(), validatedGeneratorData.mainComponent(), validatedGeneratorData.validated()) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         }
         formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
@@ -646,15 +646,15 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     @Override
     protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP, double shuntQ,
                          double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-                         double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, boolean validated, BusData busData, boolean found,
+                         double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, boolean validated, ValidatedBusData validatedBusData, boolean found,
                          boolean writeValues) throws IOException {
         formatter.writeCell(busId);
         if (compareResults) {
             formatter = found ?
-                    write(found, busData.incomingP(), busData.incomingQ(), busData.loadP(), busData.loadQ(), busData.genP(), busData.genQ(),
-                            busData.shuntP(), busData.shuntQ(), busData.svcP(), busData.svcQ(), busData.vscCSP(), busData.vscCSQ(),
-                            busData.lineP(), busData.lineQ(), busData.danglingLineP(), busData.danglingLineQ(), busData.twtP(), busData.twtQ(),
-                            busData.tltP(), busData.tltQ(), busData.mainComponent(), busData.validated()) :
+                    write(found, validatedBusData.incomingP(), validatedBusData.incomingQ(), validatedBusData.loadP(), validatedBusData.loadQ(), validatedBusData.genP(), validatedBusData.genQ(),
+                            validatedBusData.shuntP(), validatedBusData.shuntQ(), validatedBusData.svcP(), validatedBusData.svcQ(), validatedBusData.vscCSP(), validatedBusData.vscCSQ(),
+                            validatedBusData.lineP(), validatedBusData.lineQ(), validatedBusData.danglingLineP(), validatedBusData.danglingLineQ(), validatedBusData.twtP(), validatedBusData.twtQ(),
+                            validatedBusData.tltP(), validatedBusData.tltQ(), validatedBusData.mainComponent(), validatedBusData.validated()) :
                     write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                             Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                             Double.NaN, false, false);
@@ -666,12 +666,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     @Override
     protected void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                          boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
-                         SvcData svcData, boolean found, boolean writeValues) throws IOException {
+                         ValidatedSvcData validatedSvcData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(svcId);
         if (compareResults) {
             formatter = found ?
-                        write(found, svcData.p(), svcData.q(), svcData.vControlled(), svcData.vController(), svcData.nominalVcontroller(), svcData.reactivePowerSetpoint(), svcData.voltageSetpoint(),
-                                svcData.connected(), svcData.regulationMode(), svcData.regulating(), svcData.bMin(), svcData.bMax(), svcData.mainComponent(), svcData.validated()) :
+                        write(found, validatedSvcData.p(), validatedSvcData.q(), validatedSvcData.vControlled(), validatedSvcData.vController(), validatedSvcData.nominalVcontroller(), validatedSvcData.reactivePowerSetpoint(), validatedSvcData.voltageSetpoint(),
+                                validatedSvcData.connected(), validatedSvcData.regulationMode(), validatedSvcData.regulating(), validatedSvcData.bMin(), validatedSvcData.bMax(), validatedSvcData.mainComponent(), validatedSvcData.validated()) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, false, Double.NaN, Double.NaN, false, false);
         }
         formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
@@ -704,12 +704,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     protected void write(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
                          double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
-                         boolean validated, ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
+                         boolean validated, ValidatedShuntData validatedShuntData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(shuntId);
         if (compareResults) {
             formatter = found ?
-                        write(found, shuntData.q(), shuntData.expectedQ(), shuntData.p(), shuntData.currentSectionCount(), shuntData.maximumSectionCount(),
-                                shuntData.bPerSection(), shuntData.v(), shuntData.connected(), shuntData.qMax(), shuntData.nominalV(), shuntData.mainComponent(), shuntData.validated()) :
+                        write(found, validatedShuntData.q(), validatedShuntData.expectedQ(), validatedShuntData.p(), validatedShuntData.currentSectionCount(), validatedShuntData.maximumSectionCount(),
+                                validatedShuntData.bPerSection(), validatedShuntData.v(), validatedShuntData.connected(), validatedShuntData.qMax(), validatedShuntData.nominalV(), validatedShuntData.mainComponent(), validatedShuntData.validated()) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN, Double.NaN, false, Double.NaN, Double.NaN, false, false);
         }
         write(writeValues, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
@@ -741,7 +741,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     @Override
     protected void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
                          int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
-                         boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException {
+                         boolean mainComponent, boolean validated, ValidatedTransformerData twtData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(twtId);
         if (compareResults) {
             formatter = found ?
@@ -782,12 +782,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void write(String twtId, Transformer3WData transformer3wData1, Transformer3WData transformer3wData2, boolean found, boolean writeValues) throws IOException {
+    protected void write(String twtId, ValidatedTransformer3WData validatedTransformer3WData1, ValidatedTransformer3WData validatedTransformer3WData2, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(twtId);
         if (compareResults) {
-            formatter = write(found, transformer3wData2.twtData(), transformer3wData2.validated());
+            formatter = write(found, validatedTransformer3WData2.twtData(), validatedTransformer3WData2.validated());
         }
-        write(writeValues, transformer3wData1.twtData(), transformer3wData1.validated());
+        write(writeValues, validatedTransformer3WData1.twtData(), validatedTransformer3WData1.validated());
     }
 
     private TableFormatter write(boolean writeValues, TwtData twtData, boolean validated) throws IOException {

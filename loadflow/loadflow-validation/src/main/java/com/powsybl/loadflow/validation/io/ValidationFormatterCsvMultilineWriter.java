@@ -68,62 +68,62 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     protected void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                          double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
                          double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
-                         boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException {
-        write(branchId, NETWORK_P1, found, flowData.p1(), writeValues, p1);
-        write(branchId, EXPECTED_P1, found, flowData.p1Calc(), writeValues, p1Calc);
-        write(branchId, NETWORK_Q1, found, flowData.q1(), writeValues, q1);
-        write(branchId, EXPECTED_Q1, found, flowData.q1Calc(), writeValues, q1Calc);
-        write(branchId, NETWORK_P2, found, flowData.p2(), writeValues, p2);
-        write(branchId, EXPECTED_P2, found, flowData.p2Calc(), writeValues, p2Calc);
-        write(branchId, NETWORK_Q2, found, flowData.q2(), writeValues, q2);
-        write(branchId, EXPECTED_Q2, found, flowData.q2Calc(), writeValues, q2Calc);
+                         boolean mainComponent1, boolean mainComponent2, boolean validated, ValidatedFlowData validatedFlowData, boolean found, boolean writeValues) throws IOException {
+        write(branchId, NETWORK_P1, found, validatedFlowData.p1(), writeValues, p1);
+        write(branchId, EXPECTED_P1, found, validatedFlowData.p1Calc(), writeValues, p1Calc);
+        write(branchId, NETWORK_Q1, found, validatedFlowData.q1(), writeValues, q1);
+        write(branchId, EXPECTED_Q1, found, validatedFlowData.q1Calc(), writeValues, q1Calc);
+        write(branchId, NETWORK_P2, found, validatedFlowData.p2(), writeValues, p2);
+        write(branchId, EXPECTED_P2, found, validatedFlowData.p2Calc(), writeValues, p2Calc);
+        write(branchId, NETWORK_Q2, found, validatedFlowData.q2(), writeValues, q2);
+        write(branchId, EXPECTED_Q2, found, validatedFlowData.q2Calc(), writeValues, q2Calc);
         if (verbose) {
-            write(branchId, "r", found, flowData.r(), writeValues, r);
-            write(branchId, "x", found, flowData.x(), writeValues, x);
-            write(branchId, "g1", found, flowData.g1(), writeValues, g1);
-            write(branchId, "g2", found, flowData.g2(), writeValues, g2);
-            write(branchId, "b1", found, flowData.b1(), writeValues, b1);
-            write(branchId, "b2", found, flowData.b2(), writeValues, b2);
-            write(branchId, "rho1", found, flowData.rho1(), writeValues, rho1);
-            write(branchId, "rho2", found, flowData.rho2(), writeValues, rho2);
-            write(branchId, "alpha1", found, flowData.alpha1(), writeValues, alpha1);
-            write(branchId, "alpha2", found, flowData.alpha2(), writeValues, alpha2);
-            write(branchId, "u1", found, flowData.u1(), writeValues, u1);
-            write(branchId, "u2", found, flowData.u2(), writeValues, u2);
-            write(branchId, THETA1, found, flowData.theta1(), writeValues, theta1);
-            write(branchId, THETA2, found, flowData.theta2(), writeValues, theta2);
-            write(branchId, "z", found, flowData.z(), writeValues, z);
-            write(branchId, "y", found, flowData.y(), writeValues, y);
-            write(branchId, "ksi", found, flowData.ksi(), writeValues, ksi);
-            write(branchId, "phaseAngleClock", found, flowData.phaseAngleClock(), writeValues, phaseAngleClock);
-            write(branchId, CONNECTED + "1", found, flowData.connected1(), writeValues, connected1);
-            write(branchId, CONNECTED + "2", found, flowData.connected2(), writeValues, connected2);
-            write(branchId, MAIN_COMPONENT + "1", found, flowData.mainComponent1(), writeValues, mainComponent1);
-            write(branchId, MAIN_COMPONENT + "2", found, flowData.mainComponent2(), writeValues, mainComponent2);
-            write(branchId, VALIDATION, found, getValidated(flowData.validated()), writeValues, getValidated(validated));
+            write(branchId, "r", found, validatedFlowData.r(), writeValues, r);
+            write(branchId, "x", found, validatedFlowData.x(), writeValues, x);
+            write(branchId, "g1", found, validatedFlowData.g1(), writeValues, g1);
+            write(branchId, "g2", found, validatedFlowData.g2(), writeValues, g2);
+            write(branchId, "b1", found, validatedFlowData.b1(), writeValues, b1);
+            write(branchId, "b2", found, validatedFlowData.b2(), writeValues, b2);
+            write(branchId, "rho1", found, validatedFlowData.rho1(), writeValues, rho1);
+            write(branchId, "rho2", found, validatedFlowData.rho2(), writeValues, rho2);
+            write(branchId, "alpha1", found, validatedFlowData.alpha1(), writeValues, alpha1);
+            write(branchId, "alpha2", found, validatedFlowData.alpha2(), writeValues, alpha2);
+            write(branchId, "u1", found, validatedFlowData.u1(), writeValues, u1);
+            write(branchId, "u2", found, validatedFlowData.u2(), writeValues, u2);
+            write(branchId, THETA1, found, validatedFlowData.theta1(), writeValues, theta1);
+            write(branchId, THETA2, found, validatedFlowData.theta2(), writeValues, theta2);
+            write(branchId, "z", found, validatedFlowData.z(), writeValues, z);
+            write(branchId, "y", found, validatedFlowData.y(), writeValues, y);
+            write(branchId, "ksi", found, validatedFlowData.ksi(), writeValues, ksi);
+            write(branchId, "phaseAngleClock", found, validatedFlowData.phaseAngleClock(), writeValues, phaseAngleClock);
+            write(branchId, CONNECTED + "1", found, validatedFlowData.connected1(), writeValues, connected1);
+            write(branchId, CONNECTED + "2", found, validatedFlowData.connected2(), writeValues, connected2);
+            write(branchId, MAIN_COMPONENT + "1", found, validatedFlowData.mainComponent1(), writeValues, mainComponent1);
+            write(branchId, MAIN_COMPONENT + "2", found, validatedFlowData.mainComponent2(), writeValues, mainComponent2);
+            write(branchId, VALIDATION, found, getValidated(validatedFlowData.validated()), writeValues, getValidated(validated));
         }
     }
 
     @Override
     protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
                          boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
-                         boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
-        write(generatorId, "p", found, -generatorData.p(), writeValues, -p);
-        write(generatorId, "q", found, -generatorData.q(), writeValues, -q);
-        write(generatorId, "v", found, generatorData.v(), writeValues, v);
-        write(generatorId, "targetP", found, generatorData.targetP(), writeValues, targetP);
-        write(generatorId, "targetQ", found, generatorData.targetQ(), writeValues, targetQ);
-        write(generatorId, "targetV", found, generatorData.targetV(), writeValues, targetV);
-        write(generatorId, "expectedP", found, generatorData.expectedP(), writeValues, expectedP);
+                         boolean validated, ValidatedGeneratorData validatedGeneratorData, boolean found, boolean writeValues) throws IOException {
+        write(generatorId, "p", found, -validatedGeneratorData.p(), writeValues, -p);
+        write(generatorId, "q", found, -validatedGeneratorData.q(), writeValues, -q);
+        write(generatorId, "v", found, validatedGeneratorData.v(), writeValues, v);
+        write(generatorId, "targetP", found, validatedGeneratorData.targetP(), writeValues, targetP);
+        write(generatorId, "targetQ", found, validatedGeneratorData.targetQ(), writeValues, targetQ);
+        write(generatorId, "targetV", found, validatedGeneratorData.targetV(), writeValues, targetV);
+        write(generatorId, "expectedP", found, validatedGeneratorData.expectedP(), writeValues, expectedP);
         if (verbose) {
-            write(generatorId, CONNECTED, found, generatorData.connected(), writeValues, connected);
-            write(generatorId, "voltageRegulatorOn", found, generatorData.voltageRegulatorOn(), writeValues, voltageRegulatorOn);
-            write(generatorId, "minP", found, generatorData.minP(), writeValues, minP);
-            write(generatorId, "maxP", found, generatorData.maxP(), writeValues, maxP);
-            write(generatorId, "minQ", found, generatorData.minQ(), writeValues, minQ);
-            write(generatorId, "maxQ", found, generatorData.maxQ(), writeValues, maxQ);
-            write(generatorId, MAIN_COMPONENT, found, generatorData.mainComponent(), writeValues, mainComponent);
-            write(generatorId, VALIDATION, found, getValidated(generatorData.validated()), writeValues, getValidated(validated));
+            write(generatorId, CONNECTED, found, validatedGeneratorData.connected(), writeValues, connected);
+            write(generatorId, "voltageRegulatorOn", found, validatedGeneratorData.voltageRegulatorOn(), writeValues, voltageRegulatorOn);
+            write(generatorId, "minP", found, validatedGeneratorData.minP(), writeValues, minP);
+            write(generatorId, "maxP", found, validatedGeneratorData.maxP(), writeValues, maxP);
+            write(generatorId, "minQ", found, validatedGeneratorData.minQ(), writeValues, minQ);
+            write(generatorId, "maxQ", found, validatedGeneratorData.maxQ(), writeValues, maxQ);
+            write(generatorId, MAIN_COMPONENT, found, validatedGeneratorData.mainComponent(), writeValues, mainComponent);
+            write(generatorId, VALIDATION, found, getValidated(validatedGeneratorData.validated()), writeValues, getValidated(validated));
         }
     }
 
@@ -131,80 +131,80 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
                          double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
                          double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean validated,
-                         boolean mainComponent, BusData busData, boolean found, boolean writeValues) throws IOException {
-        write(busId, "incomingP", found, busData.incomingP(), writeValues, incomingP);
-        write(busId, "incomingQ", found, busData.incomingQ(), writeValues, incomingQ);
-        write(busId, "loadP", found, busData.loadP(), writeValues, loadP);
-        write(busId, "loadQ", found, busData.loadQ(), writeValues, loadQ);
+                         boolean mainComponent, ValidatedBusData validatedBusData, boolean found, boolean writeValues) throws IOException {
+        write(busId, "incomingP", found, validatedBusData.incomingP(), writeValues, incomingP);
+        write(busId, "incomingQ", found, validatedBusData.incomingQ(), writeValues, incomingQ);
+        write(busId, "loadP", found, validatedBusData.loadP(), writeValues, loadP);
+        write(busId, "loadQ", found, validatedBusData.loadQ(), writeValues, loadQ);
         if (verbose) {
-            write(busId, "genP", found, busData.genP(), writeValues, genP);
-            write(busId, "genQ", found, busData.genQ(), writeValues, genQ);
-            write(busId, "batP", found, busData.batP(), writeValues, batP);
-            write(busId, "batQ", found, busData.batQ(), writeValues, batQ);
-            write(busId, "shuntP", found, busData.shuntP(), writeValues, shuntP);
-            write(busId, "shuntQ", found, busData.shuntQ(), writeValues, shuntQ);
-            write(busId, "svcP", found, busData.svcP(), writeValues, svcP);
-            write(busId, "svcQ", found, busData.svcQ(), writeValues, svcQ);
-            write(busId, "vscCSP", found, busData.vscCSP(), writeValues, vscCSP);
-            write(busId, "vscCSQ", found, busData.vscCSQ(), writeValues, vscCSQ);
-            write(busId, "lineP", found, busData.lineP(), writeValues, lineP);
-            write(busId, "lineQ", found, busData.lineQ(), writeValues, lineQ);
-            write(busId, "danglingLineP", found, busData.danglingLineP(), writeValues, danglingLineP);
-            write(busId, "danglingLineQ", found, busData.danglingLineQ(), writeValues, danglingLineQ);
-            write(busId, "twtP", found, busData.twtP(), writeValues, twtP);
-            write(busId, "twtQ", found, busData.twtQ(), writeValues, twtQ);
-            write(busId, "tltP", found, busData.tltP(), writeValues, tltP);
-            write(busId, "tltQ", found, busData.tltQ(), writeValues, tltQ);
-            write(busId, MAIN_COMPONENT, found, busData.mainComponent(), writeValues, mainComponent);
-            write(busId, VALIDATION, found, getValidated(busData.validated()), writeValues, getValidated(validated));
+            write(busId, "genP", found, validatedBusData.genP(), writeValues, genP);
+            write(busId, "genQ", found, validatedBusData.genQ(), writeValues, genQ);
+            write(busId, "batP", found, validatedBusData.batP(), writeValues, batP);
+            write(busId, "batQ", found, validatedBusData.batQ(), writeValues, batQ);
+            write(busId, "shuntP", found, validatedBusData.shuntP(), writeValues, shuntP);
+            write(busId, "shuntQ", found, validatedBusData.shuntQ(), writeValues, shuntQ);
+            write(busId, "svcP", found, validatedBusData.svcP(), writeValues, svcP);
+            write(busId, "svcQ", found, validatedBusData.svcQ(), writeValues, svcQ);
+            write(busId, "vscCSP", found, validatedBusData.vscCSP(), writeValues, vscCSP);
+            write(busId, "vscCSQ", found, validatedBusData.vscCSQ(), writeValues, vscCSQ);
+            write(busId, "lineP", found, validatedBusData.lineP(), writeValues, lineP);
+            write(busId, "lineQ", found, validatedBusData.lineQ(), writeValues, lineQ);
+            write(busId, "danglingLineP", found, validatedBusData.danglingLineP(), writeValues, danglingLineP);
+            write(busId, "danglingLineQ", found, validatedBusData.danglingLineQ(), writeValues, danglingLineQ);
+            write(busId, "twtP", found, validatedBusData.twtP(), writeValues, twtP);
+            write(busId, "twtQ", found, validatedBusData.twtQ(), writeValues, twtQ);
+            write(busId, "tltP", found, validatedBusData.tltP(), writeValues, tltP);
+            write(busId, "tltQ", found, validatedBusData.tltQ(), writeValues, tltQ);
+            write(busId, MAIN_COMPONENT, found, validatedBusData.mainComponent(), writeValues, mainComponent);
+            write(busId, VALIDATION, found, getValidated(validatedBusData.validated()), writeValues, getValidated(validated));
         }
     }
 
     @Override
     protected void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                          boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
-                         SvcData svcData, boolean found, boolean writeValues) throws IOException {
-        write(svcId, "p", found, -svcData.p(), writeValues, -p);
-        write(svcId, "q", found, -svcData.q(), writeValues, -q);
-        write(svcId, "vControlled", found, svcData.vControlled(), writeValues, vControlled);
-        write(svcId, "vController", found, svcData.vController(), writeValues, vController);
-        write(svcId, NOMINAL_V, found, svcData.nominalVcontroller(), writeValues, nominalVcontroller);
-        write(svcId, "reactivePowerSetpoint", found, svcData.reactivePowerSetpoint(), writeValues, reactivePowerSetpoint);
-        write(svcId, "voltageSetpoint", found, svcData.voltageSetpoint(), writeValues, voltageSetpoint);
+                         ValidatedSvcData validatedSvcData, boolean found, boolean writeValues) throws IOException {
+        write(svcId, "p", found, -validatedSvcData.p(), writeValues, -p);
+        write(svcId, "q", found, -validatedSvcData.q(), writeValues, -q);
+        write(svcId, "vControlled", found, validatedSvcData.vControlled(), writeValues, vControlled);
+        write(svcId, "vController", found, validatedSvcData.vController(), writeValues, vController);
+        write(svcId, NOMINAL_V, found, validatedSvcData.nominalVcontroller(), writeValues, nominalVcontroller);
+        write(svcId, "reactivePowerSetpoint", found, validatedSvcData.reactivePowerSetpoint(), writeValues, reactivePowerSetpoint);
+        write(svcId, "voltageSetpoint", found, validatedSvcData.voltageSetpoint(), writeValues, voltageSetpoint);
         if (verbose) {
-            write(svcId, CONNECTED, found, svcData.connected(), writeValues, connected);
-            write(svcId, "regulationMode", found, svcData.regulationMode().name(), writeValues, regulationMode != null ? regulationMode.name() : "");
-            write(svcId, "regulating", found, svcData.regulating(), writeValues, regulating);
-            write(svcId, "bMin", found, svcData.bMin(), writeValues, bMin);
-            write(svcId, "bMax", found, svcData.bMax(), writeValues, bMax);
-            write(svcId, MAIN_COMPONENT, found, svcData.mainComponent(), writeValues, mainComponent);
-            write(svcId, VALIDATION, found, getValidated(svcData.validated()), writeValues, getValidated(validated));
+            write(svcId, CONNECTED, found, validatedSvcData.connected(), writeValues, connected);
+            write(svcId, "regulationMode", found, validatedSvcData.regulationMode().name(), writeValues, regulationMode != null ? regulationMode.name() : "");
+            write(svcId, "regulating", found, validatedSvcData.regulating(), writeValues, regulating);
+            write(svcId, "bMin", found, validatedSvcData.bMin(), writeValues, bMin);
+            write(svcId, "bMax", found, validatedSvcData.bMax(), writeValues, bMax);
+            write(svcId, MAIN_COMPONENT, found, validatedSvcData.mainComponent(), writeValues, mainComponent);
+            write(svcId, VALIDATION, found, getValidated(validatedSvcData.validated()), writeValues, getValidated(validated));
         }
     }
 
     protected void write(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
                          double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
-                         boolean validated, ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
-        write(shuntId, "q", found, shuntData.q(), writeValues, q);
-        write(shuntId, "expectedQ", found, shuntData.expectedQ(), writeValues, expectedQ);
+                         boolean validated, ValidatedShuntData validatedShuntData, boolean found, boolean writeValues) throws IOException {
+        write(shuntId, "q", found, validatedShuntData.q(), writeValues, q);
+        write(shuntId, "expectedQ", found, validatedShuntData.expectedQ(), writeValues, expectedQ);
         if (verbose) {
-            write(shuntId, "p", found, shuntData.p(), writeValues, p);
-            write(shuntId, "currentSectionCount", found, shuntData.currentSectionCount(), writeValues, currentSectionCount);
-            write(shuntId, "maximumSectionCount", found, shuntData.maximumSectionCount(), writeValues, maximumSectionCount);
-            write(shuntId, "bPerSection", found, shuntData.bPerSection(), writeValues, bPerSection);
-            write(shuntId, "v", found, shuntData.v(), writeValues, v);
-            write(shuntId, CONNECTED, found, shuntData.connected(), writeValues, connected);
-            write(shuntId, "qMax", found, shuntData.qMax(), writeValues, qMax);
-            write(shuntId, NOMINAL_V, found, shuntData.nominalV(), writeValues, nominalV);
-            write(shuntId, MAIN_COMPONENT, found, shuntData.mainComponent(), writeValues, mainComponent);
-            write(shuntId, VALIDATION, found, getValidated(shuntData.validated()), writeValues, getValidated(validated));
+            write(shuntId, "p", found, validatedShuntData.p(), writeValues, p);
+            write(shuntId, "currentSectionCount", found, validatedShuntData.currentSectionCount(), writeValues, currentSectionCount);
+            write(shuntId, "maximumSectionCount", found, validatedShuntData.maximumSectionCount(), writeValues, maximumSectionCount);
+            write(shuntId, "bPerSection", found, validatedShuntData.bPerSection(), writeValues, bPerSection);
+            write(shuntId, "v", found, validatedShuntData.v(), writeValues, v);
+            write(shuntId, CONNECTED, found, validatedShuntData.connected(), writeValues, connected);
+            write(shuntId, "qMax", found, validatedShuntData.qMax(), writeValues, qMax);
+            write(shuntId, NOMINAL_V, found, validatedShuntData.nominalV(), writeValues, nominalV);
+            write(shuntId, MAIN_COMPONENT, found, validatedShuntData.mainComponent(), writeValues, mainComponent);
+            write(shuntId, VALIDATION, found, getValidated(validatedShuntData.validated()), writeValues, getValidated(validated));
         }
     }
 
     @Override
     protected void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
                          int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
-                         boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException {
+                         boolean mainComponent, boolean validated, ValidatedTransformerData twtData, boolean found, boolean writeValues) throws IOException {
         write(twtId, "error", found, twtData.error(), writeValues, error);
         write(twtId, "upIncrement", found, twtData.upIncrement(), writeValues, upIncrement);
         write(twtId, "downIncrement", found, twtData.downIncrement(), writeValues, downIncrement);
@@ -237,9 +237,9 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String twtId, Transformer3WData transformer3WData1, Transformer3WData transformer3WData2, boolean found, boolean writeValues) throws IOException {
-        TwtData twtData1 = transformer3WData1.twtData();
-        TwtData twtData2 = transformer3WData2.twtData();
+    protected void write(String twtId, ValidatedTransformer3WData validatedTransformer3WData1, ValidatedTransformer3WData validatedTransformer3WData2, boolean found, boolean writeValues) throws IOException {
+        TwtData twtData1 = validatedTransformer3WData1.twtData();
+        TwtData twtData2 = validatedTransformer3WData2.twtData();
         write(twtId, NETWORK_P1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getP), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getP));
         write(twtId, EXPECTED_P1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getComputedP), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getComputedP));
         write(twtId, NETWORK_Q1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getQ), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getQ));
@@ -291,7 +291,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(twtId, MAIN_COMPONENT + "1", found, found && twtData2.isMainComponent(ThreeSides.ONE), writeValues, writeValues && twtData1.isMainComponent(ThreeSides.ONE));
             write(twtId, MAIN_COMPONENT + "2", found, found && twtData2.isMainComponent(ThreeSides.TWO), writeValues, writeValues && twtData1.isMainComponent(ThreeSides.TWO));
             write(twtId, MAIN_COMPONENT + "3", found, found && twtData2.isMainComponent(ThreeSides.THREE), writeValues, writeValues && twtData1.isMainComponent(ThreeSides.THREE));
-            write(twtId, VALIDATION, found, getValidated(transformer3WData2.validated()), writeValues, getValidated(transformer3WData1.validated()));
+            write(twtId, VALIDATION, found, getValidated(validatedTransformer3WData2.validated()), writeValues, getValidated(validatedTransformer3WData1.validated()));
         }
     }
 
