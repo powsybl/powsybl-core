@@ -50,6 +50,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
     private Terminal svcTerminal;
     private StaticVarCompensator svc;
 
+    @Override
     @BeforeEach
     void setUp() throws IOException {
         super.setUp();
@@ -96,7 +97,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         assertFalse(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
 
         regulating = true;
-        //  if regulationMode = REACTIVE_POWER if the setpoint is in [Qmin=bMin*V*V, Qmax=bMax*V*V] then then reactive power should be equal to setpoint
+        //  if regulationMode = REACTIVE_POWER if the setpoint is in [Qmin=bMin*V*V, Qmax=bMax*V*V] then reactive power should be equal to setpoint
         regulationMode = RegulationMode.REACTIVE_POWER;
         assertTrue(StaticVarCompensatorsValidation.checkSVCs("test", p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
         q = 3.7;

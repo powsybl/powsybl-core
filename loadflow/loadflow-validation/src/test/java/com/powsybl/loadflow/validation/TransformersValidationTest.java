@@ -51,6 +51,7 @@ class TransformersValidationTest extends AbstractValidationTest {
     private TwoWindingsTransformer transformer;
     private Bus bus;
 
+    @Override
     @BeforeEach
     void setUp() throws IOException {
         super.setUp();

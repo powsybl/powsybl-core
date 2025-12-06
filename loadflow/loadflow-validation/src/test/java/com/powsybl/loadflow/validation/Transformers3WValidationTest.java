@@ -29,6 +29,7 @@ class Transformers3WValidationTest extends AbstractValidationTest {
 
     private TwtTestData twtValidationData;
 
+    @Override
     @BeforeEach
     void setUp() throws IOException {
         super.setUp();

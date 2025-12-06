@@ -54,6 +54,7 @@ class BusesValidationTest extends AbstractValidationTest {
     private Bus bus;
     private DanglingLine danglingLine;
 
+    @Override
     @BeforeEach
     void setUp() throws IOException {
         super.setUp();

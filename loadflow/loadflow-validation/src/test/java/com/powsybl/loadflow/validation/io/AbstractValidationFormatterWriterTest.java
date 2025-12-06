@@ -334,28 +334,28 @@ abstract class AbstractValidationFormatterWriterTest {
     protected abstract String getSvcsVerboseContent();
 
     @Test
-    void testSvcsConpare() throws Exception {
+    void testSvcsCompare() throws Exception {
         testSvcs(getSvcsCompareContent(), false, true, svcId, svcId);
     }
 
     protected abstract String getSvcsCompareContent();
 
     @Test
-    void testSvcsConpareDifferentIds() throws Exception {
+    void testSvcsCompareDifferentIds() throws Exception {
         testSvcs(getSvcsCompareDifferentIdsContent(), false, true, svcId, otherSvcId);
     }
 
     protected abstract String getSvcsCompareDifferentIdsContent();
 
     @Test
-    void testSvcsConpareVerbose() throws Exception {
+    void testSvcsCompareVerbose() throws Exception {
         testSvcs(getSvcsCompareVerboseContent(), true, true, svcId, svcId);
     }
 
     protected abstract String getSvcsCompareVerboseContent();
 
     @Test
-    void testSvcsConpareDifferentIdsVerbose() throws Exception {
+    void testSvcsCompareDifferentIdsVerbose() throws Exception {
         testSvcs(getSvcsCompareDifferentIdsVerboseContent(), true, true, svcId, otherSvcId);
     }
 

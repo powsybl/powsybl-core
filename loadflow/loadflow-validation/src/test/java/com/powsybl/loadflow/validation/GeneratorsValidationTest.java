@@ -50,6 +50,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
     private Terminal genTerminal;
     private Generator generator;
 
+    @Override
     @BeforeEach
     void setUp() throws IOException {
         super.setUp();

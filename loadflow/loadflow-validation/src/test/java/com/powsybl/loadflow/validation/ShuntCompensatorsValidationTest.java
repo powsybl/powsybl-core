@@ -43,6 +43,7 @@ class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     private Terminal shuntTerminal;
     private BusView shuntBusView;
 
+    @Override
     @BeforeEach
     void setUp() throws IOException {
         super.setUp();
