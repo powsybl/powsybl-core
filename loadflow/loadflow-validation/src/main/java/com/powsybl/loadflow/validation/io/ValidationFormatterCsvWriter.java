@@ -510,10 +510,10 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         formatter.writeCell(branchId);
         if (compareResults) {
             formatter = found ?
-                        write(found, flowData.p1, flowData.p1Calc, flowData.q1, flowData.q1Calc, flowData.p2, flowData.p2Calc, flowData.q2, flowData.q2Calc,
-                              flowData.r, flowData.x, flowData.g1, flowData.g2, flowData.b1, flowData.b2, flowData.rho1, flowData.rho2, flowData.alpha1, flowData.alpha2,
-                              flowData.u1, flowData.u2, flowData.theta1, flowData.theta2, flowData.z, flowData.y, flowData.ksi, flowData.phaseAngleClock, flowData.connected1, flowData.connected2,
-                              flowData.mainComponent1, flowData.mainComponent2, flowData.validated) :
+                        write(found, flowData.p1(), flowData.p1Calc(), flowData.q1(), flowData.q1Calc(), flowData.p2(), flowData.p2Calc(), flowData.q2(), flowData.q2Calc(),
+                                flowData.r(), flowData.x(), flowData.g1(), flowData.g2(), flowData.b1(), flowData.b2(), flowData.rho1(), flowData.rho2(), flowData.alpha1(), flowData.alpha2(),
+                                flowData.u1(), flowData.u2(), flowData.theta1(), flowData.theta2(), flowData.z(), flowData.y(), flowData.ksi(), flowData.phaseAngleClock(), flowData.connected1(), flowData.connected2(),
+                                flowData.mainComponent1(), flowData.mainComponent2(), flowData.validated()) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                               Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                               Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false);
@@ -573,9 +573,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         formatter.writeCell(generatorId);
         if (compareResults) {
             formatter = found ?
-                        write(found, generatorData.p, generatorData.q, generatorData.v, generatorData.targetP, generatorData.targetQ, generatorData.targetV,
-                              generatorData.expectedP, generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minP, generatorData.maxP, generatorData.minQ,
-                              generatorData.maxQ, generatorData.mainComponent, generatorData.validated) :
+                        write(found, generatorData.p(), generatorData.q(), generatorData.v(), generatorData.targetP(), generatorData.targetQ(), generatorData.targetV(),
+                                generatorData.expectedP(), generatorData.connected(), generatorData.voltageRegulatorOn(), generatorData.minP(), generatorData.maxP(), generatorData.minQ(),
+                                generatorData.maxQ(), generatorData.mainComponent(), generatorData.validated()) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         }
         formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
@@ -650,10 +650,10 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         formatter.writeCell(busId);
         if (compareResults) {
             formatter = found ?
-                    write(found, busData.incomingP, busData.incomingQ, busData.loadP, busData.loadQ, busData.genP, busData.genQ,
-                            busData.shuntP, busData.shuntQ, busData.svcP, busData.svcQ, busData.vscCSP, busData.vscCSQ,
-                            busData.lineP, busData.lineQ, busData.danglingLineP, busData.danglingLineQ, busData.twtP, busData.twtQ,
-                            busData.tltP, busData.tltQ, busData.mainComponent, busData.validated) :
+                    write(found, busData.incomingP(), busData.incomingQ(), busData.loadP(), busData.loadQ(), busData.genP(), busData.genQ(),
+                            busData.shuntP(), busData.shuntQ(), busData.svcP(), busData.svcQ(), busData.vscCSP(), busData.vscCSQ(),
+                            busData.lineP(), busData.lineQ(), busData.danglingLineP(), busData.danglingLineQ(), busData.twtP(), busData.twtQ(),
+                            busData.tltP(), busData.tltQ(), busData.mainComponent(), busData.validated()) :
                     write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                             Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                             Double.NaN, false, false);
@@ -669,8 +669,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         formatter.writeCell(svcId);
         if (compareResults) {
             formatter = found ?
-                        write(found, svcData.p, svcData.q, svcData.vControlled, svcData.vController, svcData.nominalVcontroller, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
-                              svcData.connected, svcData.regulationMode, svcData.regulating, svcData.bMin, svcData.bMax, svcData.mainComponent, svcData.validated) :
+                        write(found, svcData.p(), svcData.q(), svcData.vControlled(), svcData.vController(), svcData.nominalVcontroller(), svcData.reactivePowerSetpoint(), svcData.voltageSetpoint(),
+                                svcData.connected(), svcData.regulationMode(), svcData.regulating(), svcData.bMin(), svcData.bMax(), svcData.mainComponent(), svcData.validated()) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, false, Double.NaN, Double.NaN, false, false);
         }
         formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
@@ -707,8 +707,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         formatter.writeCell(shuntId);
         if (compareResults) {
             formatter = found ?
-                        write(found, shuntData.q, shuntData.expectedQ, shuntData.p, shuntData.currentSectionCount, shuntData.maximumSectionCount,
-                              shuntData.bPerSection, shuntData.v, shuntData.connected, shuntData.qMax, shuntData.nominalV, shuntData.mainComponent, shuntData.validated) :
+                        write(found, shuntData.q(), shuntData.expectedQ(), shuntData.p(), shuntData.currentSectionCount(), shuntData.maximumSectionCount(),
+                                shuntData.bPerSection(), shuntData.v(), shuntData.connected(), shuntData.qMax(), shuntData.nominalV(), shuntData.mainComponent(), shuntData.validated()) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN, Double.NaN, false, Double.NaN, Double.NaN, false, false);
         }
         write(writeValues, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
@@ -744,9 +744,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         formatter.writeCell(twtId);
         if (compareResults) {
             formatter = found ?
-                        write(found, twtData.error, twtData.upIncrement, twtData.downIncrement, twtData.rho, twtData.rhoPreviousStep, twtData.rhoNextStep,
-                              twtData.tapPosition, twtData.lowTapPosition, twtData.highTapPosition, twtData.targetV, twtData.regulatedSide, twtData.v,
-                              twtData.connected, twtData.mainComponent, twtData.validated) :
+                        write(found, twtData.error(), twtData.upIncrement(), twtData.downIncrement(), twtData.rho(), twtData.rhoPreviousStep(), twtData.rhoNextStep(),
+                                twtData.tapPosition(), twtData.lowTapPosition(), twtData.highTapPosition(), twtData.targetV(), twtData.regulatedSide(), twtData.v(),
+                                twtData.connected(), twtData.mainComponent(), twtData.validated()) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false);
         }
         write(writeValues, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV,
@@ -784,9 +784,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     protected void write(String twtId, Transformer3WData transformer3wData1, Transformer3WData transformer3wData2, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(twtId);
         if (compareResults) {
-            formatter = write(found, transformer3wData2.twtData, transformer3wData2.validated);
+            formatter = write(found, transformer3wData2.twtData(), transformer3wData2.validated());
         }
-        write(writeValues, transformer3wData1.twtData, transformer3wData1.validated);
+        write(writeValues, transformer3wData1.twtData(), transformer3wData1.validated());
     }
 
     private TableFormatter write(boolean writeValues, TwtData twtData, boolean validated) throws IOException {
