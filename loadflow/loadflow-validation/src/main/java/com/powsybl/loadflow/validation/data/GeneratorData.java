@@ -1,0 +1,11 @@
+package com.powsybl.loadflow.validation.data;
+
+import java.util.Objects;
+
+public record GeneratorData(String generatorId, double p, double q, double v, double targetP, double targetQ,
+                            double targetV, double expectedP, boolean connected, boolean voltageRegulatorOn,
+                            double minP, double maxP, double minQ, double maxQ, boolean mainComponent) implements ValidationData {
+    public GeneratorData {
+        Objects.requireNonNull(generatorId);
+    }
+}
