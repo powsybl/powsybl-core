@@ -112,7 +112,7 @@ public final class BusesValidation {
         return Double.isNaN(value) ? 0.0 : value;
     }
 
-    private static Terminal getBranchTerminal(Branch branch, Bus bus) {
+    private static Terminal getBranchTerminal(Branch<?> branch, Bus bus) {
         if (branch.getTerminal1().isConnected() && bus.getId().equals(branch.getTerminal1().getBusView().getBus().getId())) {
             return branch.getTerminal1();
         } else {

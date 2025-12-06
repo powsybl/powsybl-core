@@ -33,54 +33,34 @@ public enum ValidationType {
         this.file = Objects.requireNonNull(file);
     }
 
-    private static final String UNEXPECTED_VALIDATION_TYPE_VALUE = "Unexpected ValidationType value: ";
-
     public boolean check(Network network, ValidationConfig config, Path folder) throws IOException {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(folder);
-        switch (this) {
-            case FLOWS:
-                return FlowsValidation.checkFlows(network, config, folder.resolve(file));
-            case GENERATORS:
-                return GeneratorsValidation.checkGenerators(network, config, folder.resolve(file));
-            case BUSES:
-                return BusesValidation.checkBuses(network, config, folder.resolve(file));
-            case SVCS:
-                return StaticVarCompensatorsValidation.checkSVCs(network, config, folder.resolve(file));
-            case SHUNTS:
-                return ShuntCompensatorsValidation.checkShunts(network, config, folder.resolve(file));
-            case TWTS:
-                return TransformersValidation.checkTransformers(network, config, folder.resolve(file));
-            case TWTS3W:
-                return Transformers3WValidation.checkTransformers(network, config, folder.resolve(file));
-            default:
-                throw new IllegalStateException(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
-        }
+        return switch (this) {
+            case FLOWS -> FlowsValidation.checkFlows(network, config, folder.resolve(file));
+            case GENERATORS -> GeneratorsValidation.checkGenerators(network, config, folder.resolve(file));
+            case BUSES -> BusesValidation.checkBuses(network, config, folder.resolve(file));
+            case SVCS -> StaticVarCompensatorsValidation.checkSVCs(network, config, folder.resolve(file));
+            case SHUNTS -> ShuntCompensatorsValidation.checkShunts(network, config, folder.resolve(file));
+            case TWTS -> TransformersValidation.checkTransformers(network, config, folder.resolve(file));
+            case TWTS3W -> Transformers3WValidation.checkTransformers(network, config, folder.resolve(file));
+        };
     }
 
     public boolean check(Network network, ValidationConfig config, ValidationWriter validationWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(validationWriter);
-        switch (this) {
-            case FLOWS:
-                return FlowsValidation.checkFlows(network, config, validationWriter);
-            case GENERATORS:
-                return GeneratorsValidation.checkGenerators(network, config, validationWriter);
-            case BUSES:
-                return BusesValidation.checkBuses(network, config, validationWriter);
-            case SVCS:
-                return StaticVarCompensatorsValidation.checkSVCs(network, config, validationWriter);
-            case SHUNTS:
-                return ShuntCompensatorsValidation.checkShunts(network, config, validationWriter);
-            case TWTS:
-                return TransformersValidation.checkTransformers(network, config, validationWriter);
-            case TWTS3W:
-                return Transformers3WValidation.checkTransformers(network, config, validationWriter);
-            default:
-                throw new IllegalStateException(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
-        }
+        return switch (this) {
+            case FLOWS -> FlowsValidation.checkFlows(network, config, validationWriter);
+            case GENERATORS -> GeneratorsValidation.checkGenerators(network, config, validationWriter);
+            case BUSES -> BusesValidation.checkBuses(network, config, validationWriter);
+            case SVCS -> StaticVarCompensatorsValidation.checkSVCs(network, config, validationWriter);
+            case SHUNTS -> ShuntCompensatorsValidation.checkShunts(network, config, validationWriter);
+            case TWTS -> TransformersValidation.checkTransformers(network, config, validationWriter);
+            case TWTS3W -> Transformers3WValidation.checkTransformers(network, config, validationWriter);
+        };
     }
 
     public Path getOutputFile(Path folder) {

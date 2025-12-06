@@ -25,8 +25,8 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
- * Tries to validate that transformers regulating voltage have been correclty simulated.
- *
+ * Tries to validate that transformers regulating voltage have been correctly simulated.
+ * <br>
  * We check that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
  * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
  *
@@ -195,7 +195,7 @@ public final class TransformersValidation {
             LOGGER.warn("{} {}: {} side {}: error {}", ValidationType.TWTS, ValidationUtils.VALIDATION_ERROR, id, side, error);
             return false;
         }
-        // if error is negative, i.e if voltage is lower than target, and an increase is possible,
+        // if error is negative, i.e. if voltage is lower than target, and an increase is possible,
         // check that voltage is inside the downward deadband, taken equal to the possible increase
         if (error < 0 && !Double.isNaN(maxIncrease)) {
             double downDeadband = maxIncrease;
@@ -207,7 +207,7 @@ public final class TransformersValidation {
             }
         }
 
-        // if error is positive, i.e if voltage is higher than target, and a voltage decrease is possible,
+        // if error is positive, i.e. if voltage is higher than target, and a voltage decrease is possible,
         // check that voltage is inside the upward deadband, taken equal to the possible decrease
         if (error > 0 && !Double.isNaN(maxDecrease)) {
             double upDeadband = -maxDecrease;

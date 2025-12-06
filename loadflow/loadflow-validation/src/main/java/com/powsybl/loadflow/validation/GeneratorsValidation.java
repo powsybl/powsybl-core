@@ -152,18 +152,15 @@ public final class GeneratorsValidation {
         if (Math.abs(p + targetP) <= threshold) {
             return targetP;
         }
-        switch (guesser.getBalanceType()) {
-            case NONE:
-                return id.equals(guesser.getSlack()) ? -p : targetP;
-            case PROPORTIONAL_TO_GENERATION_P_MAX:
-                return Math.max(Math.max(0, minP), Math.min(maxP, targetP + maxP * guesser.getKMax()));
-            case PROPORTIONAL_TO_GENERATION_P:
-                return Math.max(Math.max(0, minP), Math.min(maxP, targetP + targetP * guesser.getKTarget()));
-            case PROPORTIONAL_TO_GENERATION_HEADROOM:
-                return Math.max(Math.max(0, minP), Math.min(maxP, targetP + (maxP - targetP) * guesser.getKHeadroom()));
-            default:
-                throw new IllegalStateException("Unhandled Balance Type: " + guesser.getBalanceType());
-        }
+        return switch (guesser.getBalanceType()) {
+            case NONE -> id.equals(guesser.getSlack()) ? -p : targetP;
+            case PROPORTIONAL_TO_GENERATION_P_MAX ->
+                Math.max(Math.max(0, minP), Math.min(maxP, targetP + maxP * guesser.getKMax()));
+            case PROPORTIONAL_TO_GENERATION_P ->
+                Math.max(Math.max(0, minP), Math.min(maxP, targetP + targetP * guesser.getKTarget()));
+            case PROPORTIONAL_TO_GENERATION_HEADROOM ->
+                Math.max(Math.max(0, minP), Math.min(maxP, targetP + (maxP - targetP) * guesser.getKHeadroom()));
+        };
     }
 
     private static boolean checkGeneratorsNaNValues(String id, double p, double q, double targetP, double targetQ) {
@@ -206,11 +203,11 @@ public final class GeneratorsValidation {
     }
 
     private static double getMaxQ(double minQ, double maxQ) {
-        return maxQ < minQ ? minQ : maxQ;
+        return Math.max(maxQ, minQ);
     }
 
     private static double getMinQ(double minQ, double maxQ) {
-        return maxQ < minQ ? maxQ : minQ;
+        return Math.min(maxQ, minQ);
     }
 
     private static boolean checkReactiveBoundInversion(double minQ, double maxQ, ValidationConfig config) {
