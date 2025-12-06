@@ -31,12 +31,10 @@ public final class ShuntCompensatorsValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShuntCompensatorsValidation.class);
 
-    public static final ShuntCompensatorsValidation INSTANCE = new ShuntCompensatorsValidation();
-
     private ShuntCompensatorsValidation() {
     }
 
-    public boolean checkShunts(Network network, ValidationConfig config, Path file) throws IOException {
+    public static boolean checkShunts(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(file);
         Objects.requireNonNull(config);
         Objects.requireNonNull(file);
@@ -45,7 +43,7 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public boolean checkShunts(Network network, ValidationConfig config, Writer writer) {
+    public static boolean checkShunts(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -56,7 +54,7 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public boolean checkShunts(Network network, ValidationConfig config, ValidationWriter shuntsWriter) {
+    public static boolean checkShunts(Network network, ValidationConfig config, ValidationWriter shuntsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
@@ -68,7 +66,7 @@ public final class ShuntCompensatorsValidation {
                 .orElse(true);
     }
 
-    public boolean checkShunts(ShuntCompensator shunt, ValidationConfig config, Writer writer) {
+    public static boolean checkShunts(ShuntCompensator shunt, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(shunt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -80,7 +78,7 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public boolean checkShunts(ShuntCompensator shunt, ValidationConfig config, ValidationWriter shuntsWriter) {
+    public static boolean checkShunts(ShuntCompensator shunt, ValidationConfig config, ValidationWriter shuntsWriter) {
         Objects.requireNonNull(shunt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
@@ -105,7 +103,7 @@ public final class ShuntCompensatorsValidation {
         return checkShunts(shunt.getId(), p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, config, shuntsWriter);
     }
 
-    public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
+    public static boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
                                double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
                                Writer writer) {
         Objects.requireNonNull(id);
@@ -119,7 +117,7 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
+    public static boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
                                double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
                                ValidationWriter shuntsWriter) {
         boolean validated = true;

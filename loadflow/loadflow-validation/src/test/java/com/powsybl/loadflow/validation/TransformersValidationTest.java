@@ -92,30 +92,30 @@ class TransformersValidationTest extends AbstractValidationTest {
 
     @Test
     void checkTwtsValues() {
-        assertTrue(TransformersValidation.INSTANCE.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+        assertTrue(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
                                                             targetV, regulatedSide, v, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
         // Error >= -Max(UpIncrement, DownIncrement)
-        assertFalse(TransformersValidation.INSTANCE.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+        assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
                                                              targetV, regulatedSide, lowV, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertFalse(TransformersValidation.INSTANCE.checkTransformer("test", rho, Float.NaN, rhoNextStep, lowTapPosition, lowTapPosition, highTapPosition,
+        assertFalse(TransformersValidation.checkTransformer("test", rho, Float.NaN, rhoNextStep, lowTapPosition, lowTapPosition, highTapPosition,
                                                              targetV, regulatedSide, lowV, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
         // Error <= -Min(UpIncrement, DownIncrement)
-        assertFalse(TransformersValidation.INSTANCE.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+        assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
                                                              targetV, regulatedSide, highV, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertFalse(TransformersValidation.INSTANCE.checkTransformer("test", rho, rhoPreviousStep, Float.NaN, highTapPosition, lowTapPosition, highTapPosition,
+        assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, Float.NaN, highTapPosition, lowTapPosition, highTapPosition,
                                                              targetV, regulatedSide, highV, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
         // check NaN vales
-        assertFalse(TransformersValidation.INSTANCE.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+        assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
                                                              Float.NaN, regulatedSide, v, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertFalse(TransformersValidation.INSTANCE.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+        assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
                                                              targetV, regulatedSide, Float.NaN, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
     void checkTwts() {
-        assertTrue(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
+        assertTrue(TransformersValidation.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
         Mockito.when(bus.getV()).thenReturn(highV);
-        assertFalse(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
+        assertFalse(TransformersValidation.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
@@ -123,7 +123,7 @@ class TransformersValidationTest extends AbstractValidationTest {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
-        assertTrue(TransformersValidation.INSTANCE.checkTransformers(network, strictConfig, data));
+        assertTrue(TransformersValidation.checkTransformers(network, strictConfig, data));
 
         assertTrue(ValidationType.TWTS.check(network, strictConfig, tmpDir));
 

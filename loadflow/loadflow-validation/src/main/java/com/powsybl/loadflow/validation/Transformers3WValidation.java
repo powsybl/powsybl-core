@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -28,17 +31,36 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
-public final class Transformers3WValidation extends AbstractTransformersValidation {
+public final class Transformers3WValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Transformers3WValidation.class);
-
-    public static final Transformers3WValidation INSTANCE = new Transformers3WValidation();
 
     private Transformers3WValidation() {
     }
 
-    @Override
-    public boolean checkTransformers(Network network, ValidationConfig config, ValidationWriter twtsWriter) {
+    public static boolean checkTransformers(Network network, ValidationConfig config, Path file) throws IOException {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(config);
+        Objects.requireNonNull(file);
+
+        try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            return checkTransformers(network, config, writer);
+        }
+    }
+
+    public static boolean checkTransformers(Network network, ValidationConfig config, Writer writer) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(config);
+        Objects.requireNonNull(writer);
+
+        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(network.getId(), config, writer, ValidationType.TWTS3W)) {
+            return checkTransformers(network, config, twtsWriter);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static boolean checkTransformers(Network network, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
@@ -51,7 +73,7 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
                 .orElse(true);
     }
 
-    public boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig config, Writer writer) {
+    public static boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -63,7 +85,7 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
         }
     }
 
-    public boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig config, ValidationWriter twtsWriter) {
+    public static boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);

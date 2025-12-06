@@ -30,12 +30,10 @@ public final class BusesValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusesValidation.class);
 
-    public static final BusesValidation INSTANCE = new BusesValidation();
-
     private BusesValidation() {
     }
 
-    public boolean checkBuses(Network network, ValidationConfig config, Path file) throws IOException {
+    public static boolean checkBuses(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(file);
@@ -44,7 +42,7 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(Network network, ValidationConfig config, Writer writer) {
+    public static boolean checkBuses(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -55,7 +53,7 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(Network network, ValidationConfig config, ValidationWriter busesWriter) {
+    public static boolean checkBuses(Network network, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(busesWriter);
@@ -68,7 +66,7 @@ public final class BusesValidation {
                       .orElse(true);
     }
 
-    public boolean checkBuses(Bus bus, ValidationConfig config, Writer writer) {
+    public static boolean checkBuses(Bus bus, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -80,7 +78,7 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(Bus bus, ValidationConfig config, ValidationWriter busesWriter) {
+    public static boolean checkBuses(Bus bus, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(config);
         Objects.requireNonNull(busesWriter);
@@ -132,7 +130,7 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
+    public static boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
                                      double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ,
                                      double lineP, double lineQ, double danglingLineP, double danglingLineQ,
                                      double t2wtP, double t2wtQ, double t3wtP, double t3wtQ, boolean mainComponent, ValidationConfig config, Writer writer) {
@@ -148,7 +146,7 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP,
+    public static boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP,
                                      double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
                                      double danglingLineP, double danglingLineQ, double t2wtP, double t2wtQ, double t3wtP, double t3wtQ,
                                      boolean mainComponent, ValidationConfig config, ValidationWriter busesWriter) {

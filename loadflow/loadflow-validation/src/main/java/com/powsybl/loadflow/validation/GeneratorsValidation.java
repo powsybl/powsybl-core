@@ -32,12 +32,10 @@ public final class GeneratorsValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorsValidation.class);
 
-    public static final GeneratorsValidation INSTANCE = new GeneratorsValidation();
-
     private GeneratorsValidation() {
     }
 
-    public boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
+    public static boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(file);
@@ -46,7 +44,7 @@ public final class GeneratorsValidation {
         }
     }
 
-    public boolean checkGenerators(Network network, ValidationConfig config, Writer writer) {
+    public static boolean checkGenerators(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -57,7 +55,7 @@ public final class GeneratorsValidation {
         }
     }
 
-    public boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
+    public static boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
@@ -71,7 +69,7 @@ public final class GeneratorsValidation {
                       .orElse(true);
     }
 
-    public boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
+    public static boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(gen);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -83,7 +81,7 @@ public final class GeneratorsValidation {
         }
     }
 
-    public boolean checkGenerators(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
+    public static boolean checkGenerators(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
         Objects.requireNonNull(gen);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
@@ -107,7 +105,7 @@ public final class GeneratorsValidation {
                                mainComponent, config, generatorsWriter, guesser);
     }
 
-    public boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
+    public static boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
                                           boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
                                           boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
@@ -122,7 +120,7 @@ public final class GeneratorsValidation {
         }
     }
 
-    public boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
+    public static boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
                                           boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
                                           boolean mainComponent, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
         Objects.requireNonNull(id);

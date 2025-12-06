@@ -35,12 +35,10 @@ public final class FlowsValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowsValidation.class);
 
-    public static final FlowsValidation INSTANCE = new FlowsValidation();
-
     private FlowsValidation() {
     }
 
-    public boolean checkFlows(BranchData branch, ValidationConfig config, Writer writer) {
+    public static boolean checkFlows(BranchData branch, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(branch.getId());
         Objects.requireNonNull(config);
@@ -53,7 +51,7 @@ public final class FlowsValidation {
         }
     }
 
-    public boolean checkFlows(BranchData branch, ValidationConfig config, ValidationWriter flowsWriter) {
+    public static boolean checkFlows(BranchData branch, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(branch.getId());
         Objects.requireNonNull(config);
@@ -116,7 +114,7 @@ public final class FlowsValidation {
         return validated;
     }
 
-    public boolean checkFlows(Line l, ValidationConfig config, Writer writer) {
+    public static boolean checkFlows(Line l, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(l);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -128,7 +126,7 @@ public final class FlowsValidation {
         }
     }
 
-    public boolean checkFlows(Line l, ValidationConfig config, ValidationWriter flowsWriter) {
+    public static boolean checkFlows(Line l, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(l);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
@@ -137,7 +135,7 @@ public final class FlowsValidation {
         return checkFlows(branch, config, flowsWriter);
     }
 
-    public boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
+    public static boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -149,7 +147,7 @@ public final class FlowsValidation {
         }
     }
 
-    public boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter flowsWriter) {
+    public static boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
@@ -163,7 +161,7 @@ public final class FlowsValidation {
         return checkFlows(branch, config, flowsWriter);
     }
 
-    public boolean checkFlows(TieLine tl, ValidationConfig config, Writer writer) {
+    public static boolean checkFlows(TieLine tl, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(tl);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -175,7 +173,7 @@ public final class FlowsValidation {
         }
     }
 
-    public boolean checkFlows(TieLine tl, ValidationConfig config, ValidationWriter flowsWriter) {
+    public static boolean checkFlows(TieLine tl, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(tl);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
@@ -184,7 +182,7 @@ public final class FlowsValidation {
         return checkFlows(branch, config, flowsWriter);
     }
 
-    public boolean checkFlows(Network network, ValidationConfig config, Writer writer) {
+    public static boolean checkFlows(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -196,7 +194,7 @@ public final class FlowsValidation {
         }
     }
 
-    public boolean checkFlows(Network network, ValidationConfig config, Path file) throws IOException {
+    public static boolean checkFlows(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(file);
@@ -205,7 +203,7 @@ public final class FlowsValidation {
         }
     }
 
-    public boolean checkFlows(Network network, ValidationConfig config, ValidationWriter flowsWriter) {
+    public static boolean checkFlows(Network network, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
