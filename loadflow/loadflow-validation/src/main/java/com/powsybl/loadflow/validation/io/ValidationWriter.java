@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.TwoSides;
 
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.loadflow.validation.data.BusData;
+import com.powsybl.loadflow.validation.data.Validated;
 
 /**
  *
@@ -28,10 +30,7 @@ public interface ValidationWriter extends AutoCloseable {
     void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
                boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException;
 
-    void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
-               double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-               double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
-               boolean validated) throws IOException;
+    void writeBus(Validated<BusData> validatedBusData) throws IOException;
 
     void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException;

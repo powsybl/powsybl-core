@@ -62,7 +62,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected TableFormatter formatter;
     protected String invalidString;
     protected boolean preLoadflowValidationCompleted = false;
-    protected Map<String, ValidatedBus> busesData = new HashMap<>();
+    protected Map<String, Validated<BusData>> busesData = new HashMap<>();
     protected Map<String, ValidatedGenerator> generatorsData = new HashMap<>();
     protected Map<String, ValidatedSvc> svcsData = new HashMap<>();
     protected Map<String, ValidatedShunt> shuntsData = new HashMap<>();
@@ -146,35 +146,25 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                   boolean validated, ValidatedGenerator validatedGenerator, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
-                      double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                      double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
-                      boolean validated) throws IOException {
-        Objects.requireNonNull(busId);
-        ValidatedBus emptyValidatedBus = new ValidatedBus(busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                Double.NaN, Double.NaN, false, false);
+    public void writeBus(Validated<BusData> v) throws IOException {
+        Objects.requireNonNull(v);
+        String busId = v.data().busId();
+        Validated<BusData> emptyValidatedBus = BusData.createEmptyValidated(busId);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = busesData.containsKey(busId);
-                ValidatedBus validatedBus = found ? busesData.get(busId) : emptyValidatedBus;
-                write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                        lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated, validatedBus, found, true);
+                Validated<BusData> validatedBus = found ? busesData.get(busId) : emptyValidatedBus;
+                writeBus(v, validatedBus, found, true);
                 busesData.remove(busId);
             } else {
-                busesData.put(busId, new ValidatedBus(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                        lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated));
+                busesData.put(busId, v);
             }
         } else {
-            write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
-                    danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated, emptyValidatedBus, false, true);
+            writeBus(v, emptyValidatedBus, false, true);
         }
     }
 
-    protected abstract void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
-                                  double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                                  double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
-                                  boolean validated, ValidatedBus validatedBus, boolean found, boolean writeValues) throws IOException;
+    protected abstract void writeBus(Validated<BusData> v, Validated<BusData> validatedBus, boolean found, boolean writeValues) throws IOException;
 
     @Override
     public void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
@@ -332,11 +322,9 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeBusesData() {
         busesData.values().forEach(validatedBus -> {
             try {
-                write(validatedBus.busId(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                        Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                        Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, validatedBus, true, false);
+                writeBus(BusData.createEmptyValidated(validatedBus.data().busId()), validatedBus, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of bus {}: {}", validatedBus.busId(), e.getMessage());
+                LOGGER.error("Error writing data of bus {}: {}", validatedBus.data().busId(), e.getMessage());
             }
         });
     }

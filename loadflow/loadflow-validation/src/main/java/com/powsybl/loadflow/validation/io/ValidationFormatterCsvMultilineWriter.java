@@ -128,35 +128,33 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
-                         double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                         double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean validated,
-                         boolean mainComponent, ValidatedBus validatedBus, boolean found, boolean writeValues) throws IOException {
-        write(busId, "incomingP", found, validatedBus.incomingP(), writeValues, incomingP);
-        write(busId, "incomingQ", found, validatedBus.incomingQ(), writeValues, incomingQ);
-        write(busId, "loadP", found, validatedBus.loadP(), writeValues, loadP);
-        write(busId, "loadQ", found, validatedBus.loadQ(), writeValues, loadQ);
+    protected void writeBus(Validated<BusData> v, Validated<BusData> validatedBus, boolean found, boolean writeValues) throws IOException {
+        String busId = v.data().busId();
+        write(busId, "incomingP", found, validatedBus.data().incomingP(), writeValues, v.data().incomingP());
+        write(busId, "incomingQ", found, validatedBus.data().incomingQ(), writeValues, v.data().incomingQ());
+        write(busId, "loadP", found, validatedBus.data().loadP(), writeValues, v.data().loadP());
+        write(busId, "loadQ", found, validatedBus.data().loadQ(), writeValues, v.data().loadQ());
         if (verbose) {
-            write(busId, "genP", found, validatedBus.genP(), writeValues, genP);
-            write(busId, "genQ", found, validatedBus.genQ(), writeValues, genQ);
-            write(busId, "batP", found, validatedBus.batP(), writeValues, batP);
-            write(busId, "batQ", found, validatedBus.batQ(), writeValues, batQ);
-            write(busId, "shuntP", found, validatedBus.shuntP(), writeValues, shuntP);
-            write(busId, "shuntQ", found, validatedBus.shuntQ(), writeValues, shuntQ);
-            write(busId, "svcP", found, validatedBus.svcP(), writeValues, svcP);
-            write(busId, "svcQ", found, validatedBus.svcQ(), writeValues, svcQ);
-            write(busId, "vscCSP", found, validatedBus.vscCSP(), writeValues, vscCSP);
-            write(busId, "vscCSQ", found, validatedBus.vscCSQ(), writeValues, vscCSQ);
-            write(busId, "lineP", found, validatedBus.lineP(), writeValues, lineP);
-            write(busId, "lineQ", found, validatedBus.lineQ(), writeValues, lineQ);
-            write(busId, "danglingLineP", found, validatedBus.danglingLineP(), writeValues, danglingLineP);
-            write(busId, "danglingLineQ", found, validatedBus.danglingLineQ(), writeValues, danglingLineQ);
-            write(busId, "twtP", found, validatedBus.twtP(), writeValues, twtP);
-            write(busId, "twtQ", found, validatedBus.twtQ(), writeValues, twtQ);
-            write(busId, "tltP", found, validatedBus.tltP(), writeValues, tltP);
-            write(busId, "tltQ", found, validatedBus.tltQ(), writeValues, tltQ);
-            write(busId, MAIN_COMPONENT, found, validatedBus.mainComponent(), writeValues, mainComponent);
-            write(busId, VALIDATION, found, getValidated(validatedBus.validated()), writeValues, getValidated(validated));
+            write(busId, "genP", found, validatedBus.data().genP(), writeValues, v.data().genP());
+            write(busId, "genQ", found, validatedBus.data().genQ(), writeValues, v.data().genQ());
+            write(busId, "batP", found, validatedBus.data().batP(), writeValues, v.data().batP());
+            write(busId, "batQ", found, validatedBus.data().batQ(), writeValues, v.data().batQ());
+            write(busId, "shuntP", found, validatedBus.data().shuntP(), writeValues, v.data().shuntP());
+            write(busId, "shuntQ", found, validatedBus.data().shuntQ(), writeValues, v.data().shuntQ());
+            write(busId, "svcP", found, validatedBus.data().svcP(), writeValues, v.data().svcP());
+            write(busId, "svcQ", found, validatedBus.data().svcQ(), writeValues, v.data().svcQ());
+            write(busId, "vscCSP", found, validatedBus.data().vscCSP(), writeValues, v.data().vscCSP());
+            write(busId, "vscCSQ", found, validatedBus.data().vscCSQ(), writeValues, v.data().vscCSQ());
+            write(busId, "lineP", found, validatedBus.data().lineP(), writeValues, v.data().lineP());
+            write(busId, "lineQ", found, validatedBus.data().lineQ(), writeValues, v.data().lineQ());
+            write(busId, "danglingLineP", found, validatedBus.data().danglingLineP(), writeValues, v.data().danglingLineP());
+            write(busId, "danglingLineQ", found, validatedBus.data().danglingLineQ(), writeValues, v.data().danglingLineQ());
+            write(busId, "twtP", found, validatedBus.data().twtP(), writeValues, v.data().twtP());
+            write(busId, "twtQ", found, validatedBus.data().twtQ(), writeValues, v.data().twtQ());
+            write(busId, "tltP", found, validatedBus.data().tltP(), writeValues, v.data().tltP());
+            write(busId, "tltQ", found, validatedBus.data().tltQ(), writeValues, v.data().tltQ());
+            write(busId, MAIN_COMPONENT, found, validatedBus.data().mainComponent(), writeValues, v.data().mainComponent());
+            write(busId, VALIDATION, found, getValidated(validatedBus.validated()), writeValues, getValidated(v.validated()));
         }
     }
 

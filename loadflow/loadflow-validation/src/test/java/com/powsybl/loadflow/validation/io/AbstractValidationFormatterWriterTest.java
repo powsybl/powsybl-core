@@ -11,6 +11,8 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.loadflow.validation.data.BusData;
+import com.powsybl.loadflow.validation.data.Validated;
 import com.powsybl.loadflow.validation.util.TwtTestData;
 import org.junit.jupiter.api.Test;
 
@@ -79,8 +81,8 @@ abstract class AbstractValidationFormatterWriterTest {
 
     protected final String busId = "busId";
     protected final String otherBusId = "otherBusId";
-    protected final double incomingP = -37.2287;
-    protected final double incomingQ = -174.383;
+    protected final double incomingP = -2056.23;
+    protected final double incomingQ = -81.8425;
     protected final double loadP = 37.2286;
     protected final double loadQ = 174.38244;
     protected final double genP = -2020;
@@ -305,12 +307,12 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter busesWriter = getBusesValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            busesWriter.write(busId1, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
+            busesWriter.writeBus(new Validated<>(new BusData(busId1, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent), validated));
             busesWriter.setValidationCompleted();
             if (compareResults) {
-                busesWriter.write(busId2, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                  lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
+                busesWriter.writeBus(new Validated<>(new BusData(busId2, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                  lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent), validated));
                 busesWriter.setValidationCompleted();
             }
             assertEquals(busesContent, writer.toString().trim());

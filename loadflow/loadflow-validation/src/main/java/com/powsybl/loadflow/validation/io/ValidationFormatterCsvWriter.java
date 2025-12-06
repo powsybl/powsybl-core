@@ -608,59 +608,50 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         return formatter;
     }
 
-    private TableFormatter write(boolean writeValues, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-                                 double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                                 double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
-                                 boolean validated) throws IOException {
+    private TableFormatter write(boolean writeValues, Validated<BusData> v) throws IOException {
+        BusData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(incomingP)
-                             .writeCell(incomingQ)
-                             .writeCell(loadP)
-                             .writeCell(loadQ) :
+                    formatter.writeCell(d.incomingP())
+                             .writeCell(d.incomingQ())
+                             .writeCell(d.loadP())
+                             .writeCell(d.loadQ()) :
                     formatter.writeEmptyCells(4);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(genP)
-                                 .writeCell(genQ)
-                                 .writeCell(shuntP)
-                                 .writeCell(shuntQ)
-                                 .writeCell(svcP)
-                                 .writeCell(svcQ)
-                                 .writeCell(vscCSP)
-                                 .writeCell(vscCSQ)
-                                 .writeCell(lineP)
-                                 .writeCell(lineQ)
-                                 .writeCell(danglingLineP)
-                                 .writeCell(danglingLineQ)
-                                 .writeCell(twtP)
-                                 .writeCell(twtQ)
-                                 .writeCell(tltP)
-                                 .writeCell(tltQ)
-                                 .writeCell(mainComponent)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.genP())
+                                 .writeCell(d.genQ())
+                                 .writeCell(d.shuntP())
+                                 .writeCell(d.shuntQ())
+                                 .writeCell(d.svcP())
+                                 .writeCell(d.svcQ())
+                                 .writeCell(d.vscCSP())
+                                 .writeCell(d.vscCSQ())
+                                 .writeCell(d.lineP())
+                                 .writeCell(d.lineQ())
+                                 .writeCell(d.danglingLineP())
+                                 .writeCell(d.danglingLineQ())
+                                 .writeCell(d.twtP())
+                                 .writeCell(d.twtQ())
+                                 .writeCell(d.tltP())
+                                 .writeCell(d.tltQ())
+                                 .writeCell(d.mainComponent())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(18);
         }
         return formatter;
     }
 
     @Override
-    protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP, double shuntQ,
-                         double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-                         double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, boolean validated, ValidatedBus validatedBus, boolean found,
-                         boolean writeValues) throws IOException {
+    protected void writeBus(Validated<BusData> v, Validated<BusData> validatedBus, boolean found,
+                            boolean writeValues) throws IOException {
+        String busId = v.data().busId();
         formatter.writeCell(busId);
         if (compareResults) {
             formatter = found ?
-                    write(found, validatedBus.incomingP(), validatedBus.incomingQ(), validatedBus.loadP(), validatedBus.loadQ(), validatedBus.genP(), validatedBus.genQ(),
-                            validatedBus.shuntP(), validatedBus.shuntQ(), validatedBus.svcP(), validatedBus.svcQ(), validatedBus.vscCSP(), validatedBus.vscCSQ(),
-                            validatedBus.lineP(), validatedBus.lineQ(), validatedBus.danglingLineP(), validatedBus.danglingLineQ(), validatedBus.twtP(), validatedBus.twtQ(),
-                            validatedBus.tltP(), validatedBus.tltQ(), validatedBus.mainComponent(), validatedBus.validated()) :
-                    write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                            Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                            Double.NaN, false, false);
+                    write(found, validatedBus) :
+                    write(found, BusData.createEmptyValidated(busId));
         }
-        formatter = write(writeValues, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
+        formatter = write(writeValues, v);
     }
 
     @Override

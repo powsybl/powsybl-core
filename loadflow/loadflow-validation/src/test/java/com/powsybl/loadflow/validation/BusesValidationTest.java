@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.validation.data.BusData;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -151,29 +152,29 @@ class BusesValidationTest extends AbstractValidationTest {
 
     @Test
     void checkBusesValues() {
-        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                              lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
-        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertFalse(BusesValidation.checkBuses("test", loadP, 174.4932, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
+        assertTrue(BusesValidation.checkBuses(new BusData("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                              lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent), looseConfig, NullWriter.INSTANCE));
+        assertFalse(BusesValidation.checkBuses(new BusData("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent), strictConfig, NullWriter.INSTANCE));
+        assertFalse(BusesValidation.checkBuses(new BusData("test", loadP, 174.4932, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent), looseConfig, NullWriter.INSTANCE));
         // check NaN values
-        assertFalse(BusesValidation.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
-        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, Double.NaN, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
+        assertFalse(BusesValidation.checkBuses(new BusData("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent), looseConfig, NullWriter.INSTANCE));
+        assertFalse(BusesValidation.checkBuses(new BusData("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                               lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, Double.NaN, t3wtP, t3wtQ, mainComponent), looseConfig, NullWriter.INSTANCE));
         looseConfig.setOkMissingValues(true);
-        assertTrue(BusesValidation.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                              lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
-        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                              lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, Double.NaN, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
+        assertTrue(BusesValidation.checkBuses(new BusData("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                              lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent), looseConfig, NullWriter.INSTANCE));
+        assertTrue(BusesValidation.checkBuses(new BusData("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                              lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, Double.NaN, t3wtP, t3wtQ, mainComponent), looseConfig, NullWriter.INSTANCE));
         looseConfig.setOkMissingValues(false);
         // check main component
-        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
-                                               danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(BusesValidation.checkBuses(new BusData("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
+                                               danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent), strictConfig, NullWriter.INSTANCE));
         mainComponent = false;
-        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
-                                              danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(BusesValidation.checkBuses(new BusData("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
+                                              danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent), strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
