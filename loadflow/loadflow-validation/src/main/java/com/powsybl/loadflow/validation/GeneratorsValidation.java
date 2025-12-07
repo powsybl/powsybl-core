@@ -141,7 +141,7 @@ public final class GeneratorsValidation {
             }
         }
         try {
-            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.writeGenerator(id, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

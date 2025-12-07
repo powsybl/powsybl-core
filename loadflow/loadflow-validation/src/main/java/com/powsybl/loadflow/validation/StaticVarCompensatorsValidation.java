@@ -139,7 +139,7 @@ public final class StaticVarCompensatorsValidation {
             }
         }
         try {
-            svcsWriter.write(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
+            svcsWriter.writeSvc(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

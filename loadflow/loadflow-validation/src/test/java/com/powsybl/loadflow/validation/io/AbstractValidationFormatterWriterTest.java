@@ -187,12 +187,12 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter flowsWriter = getFlowsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            flowsWriter.write(branchId1, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
+            flowsWriter.writeBranch(branchId1, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
                               alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1,
                               mainComponent2, validated);
             flowsWriter.setValidationCompleted();
             if (compareResults) {
-                flowsWriter.write(branchId2, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
+                flowsWriter.writeBranch(branchId2, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
                                   alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1,
                                   mainComponent2, validated);
                 flowsWriter.setValidationCompleted();
@@ -249,10 +249,10 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.writeGenerator(generatorId1, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
             generatorsWriter.setValidationCompleted();
             if (compareResults) {
-                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+                generatorsWriter.writeGenerator(generatorId2, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
                 generatorsWriter.setValidationCompleted();
             }
             assertEquals(generatorsContent, writer.toString().trim());
@@ -367,10 +367,10 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter svcsWriter = getSvcsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            svcsWriter.write(svcId1, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, regulating, bMin, bMax, mainComponent, validated);
+            svcsWriter.writeSvc(svcId1, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, regulating, bMin, bMax, mainComponent, validated);
             svcsWriter.setValidationCompleted();
             if (compareResults) {
-                svcsWriter.write(svcId2, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, regulating, bMin, bMax, mainComponent, validated);
+                svcsWriter.writeSvc(svcId2, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, regulating, bMin, bMax, mainComponent, validated);
                 svcsWriter.setValidationCompleted();
             }
             assertEquals(svcsContent, writer.toString().trim());
@@ -425,10 +425,10 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter shuntsWriter = getShuntsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            shuntsWriter.write(shuntId1, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
+            shuntsWriter.writeShunt(shuntId1, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
             shuntsWriter.setValidationCompleted();
             if (compareResults) {
-                shuntsWriter.write(shuntId2, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
+                shuntsWriter.writeShunt(shuntId2, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
                 shuntsWriter.setValidationCompleted();
             }
             assertEquals(shuntsContent, writer.toString().trim());
@@ -483,11 +483,11 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter twtsWriter = getTwtsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            twtsWriter.write(twtId1, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition,
+            twtsWriter.writeT2wt(twtId1, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition,
                              lowTapPosition, highTapPosition, twtTargetV, regulatedSide, twtV, connected, mainComponent, validated);
             twtsWriter.setValidationCompleted();
             if (compareResults) {
-                twtsWriter.write(twtId2, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition,
+                twtsWriter.writeT2wt(twtId2, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition,
                                  lowTapPosition, highTapPosition, twtTargetV, regulatedSide, twtV, connected, mainComponent, validated);
                 twtsWriter.setValidationCompleted();
             }
@@ -502,7 +502,7 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter twtsWriter = getTwtsValidationFormatterCsvWriter(config, writer, true, false)) {
-            twtsWriter.write(twtId, Float.NaN, Float.NaN, Float.NaN, rho, rhoPreviousStep, rhoNextStep, tapPosition,
+            twtsWriter.writeT2wt(twtId, Float.NaN, Float.NaN, Float.NaN, rho, rhoPreviousStep, rhoNextStep, tapPosition,
                              lowTapPosition, highTapPosition, twtTargetV, null, Float.NaN, false, false, true);
             assertEquals(getTwtsMissingSideContent(), writer.toString().trim());
         }
@@ -557,10 +557,10 @@ abstract class AbstractValidationFormatterWriterTest {
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false, false);
         try (ValidationWriter twts3wWriter = getTwts3wValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            twts3wWriter.write(twt3wId1, twtData, validated);
+            twts3wWriter.writeT3wt(twt3wId1, twtData, validated);
             twts3wWriter.setValidationCompleted();
             if (compareResults) {
-                twts3wWriter.write(twt3wId2, twtData, validated);
+                twts3wWriter.writeT3wt(twt3wId2, twtData, validated);
                 twts3wWriter.setValidationCompleted();
             }
             assertEquals(twts3wContent, writer.toString().trim());

@@ -112,7 +112,7 @@ public final class TransformersValidation {
             LOGGER.warn("{} {}: {}: Unexpected regulation terminal (side 1 or 2 of transformer is expected), skipping validation",
                         ValidationType.TWTS, ValidationUtils.VALIDATION_WARNING, twt.getId());
             try {
-                twtsWriter.write(twt.getId(), Float.NaN, Float.NaN, Float.NaN, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
+                twtsWriter.writeT2wt(twt.getId(), Float.NaN, Float.NaN, Float.NaN, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
                                  highTapPosition, targetV, null, Float.NaN, false, false, true);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -159,7 +159,7 @@ public final class TransformersValidation {
             validated = checkTransformerSide(id, regulatedSide, error, upIncrement, downIncrement, config);
         }
         try {
-            twtsWriter.write(id, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
+            twtsWriter.writeT2wt(id, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
                              highTapPosition, targetV, regulatedSide, v, connected, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

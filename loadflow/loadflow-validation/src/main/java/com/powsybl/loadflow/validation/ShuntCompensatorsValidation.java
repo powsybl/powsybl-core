@@ -140,7 +140,7 @@ public final class ShuntCompensatorsValidation {
             }
         }
         try {
-            shuntsWriter.write(id, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
+            shuntsWriter.writeShunt(id, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

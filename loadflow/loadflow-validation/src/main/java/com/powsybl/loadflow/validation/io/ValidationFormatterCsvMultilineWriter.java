@@ -65,10 +65,10 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
-                         double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                         double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
-                         boolean mainComponent1, boolean mainComponent2, boolean validated, ValidatedFlow validatedFlow, boolean found, boolean writeValues) throws IOException {
+    protected void writeBranch(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
+                               double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
+                               double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
+                               boolean mainComponent1, boolean mainComponent2, boolean validated, ValidatedFlow validatedFlow, boolean found, boolean writeValues) throws IOException {
         write(branchId, NETWORK_P1, found, validatedFlow.p1(), writeValues, p1);
         write(branchId, EXPECTED_P1, found, validatedFlow.p1Calc(), writeValues, p1Calc);
         write(branchId, NETWORK_Q1, found, validatedFlow.q1(), writeValues, q1);
@@ -105,9 +105,9 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-                         boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
-                         boolean validated, ValidatedGenerator validatedGenerator, boolean found, boolean writeValues) throws IOException {
+    protected void writeGenerator(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
+                                  boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
+                                  boolean validated, ValidatedGenerator validatedGenerator, boolean found, boolean writeValues) throws IOException {
         write(generatorId, "p", found, -validatedGenerator.p(), writeValues, -p);
         write(generatorId, "q", found, -validatedGenerator.q(), writeValues, -q);
         write(generatorId, "v", found, validatedGenerator.v(), writeValues, v);
@@ -159,9 +159,9 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                         boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
-                         ValidatedSvc validatedSvc, boolean found, boolean writeValues) throws IOException {
+    protected void writeSvc(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
+                            boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
+                            ValidatedSvc validatedSvc, boolean found, boolean writeValues) throws IOException {
         write(svcId, "p", found, -validatedSvc.p(), writeValues, -p);
         write(svcId, "q", found, -validatedSvc.q(), writeValues, -q);
         write(svcId, "vControlled", found, validatedSvc.vControlled(), writeValues, vControlled);
@@ -180,9 +180,9 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         }
     }
 
-    protected void write(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
-                         double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
-                         boolean validated, ValidatedShunt validatedShunt, boolean found, boolean writeValues) throws IOException {
+    protected void writeShunt(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
+                              double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
+                              boolean validated, ValidatedShunt validatedShunt, boolean found, boolean writeValues) throws IOException {
         write(shuntId, "q", found, validatedShunt.q(), writeValues, q);
         write(shuntId, "expectedQ", found, validatedShunt.expectedQ(), writeValues, expectedQ);
         if (verbose) {
@@ -200,9 +200,9 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                         int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
-                         boolean mainComponent, boolean validated, ValidatedTransformer twtData, boolean found, boolean writeValues) throws IOException {
+    protected void writeT2wt(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
+                             int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
+                             boolean mainComponent, boolean validated, ValidatedTransformer twtData, boolean found, boolean writeValues) throws IOException {
         write(twtId, "error", found, twtData.error(), writeValues, error);
         write(twtId, "upIncrement", found, twtData.upIncrement(), writeValues, upIncrement);
         write(twtId, "downIncrement", found, twtData.downIncrement(), writeValues, downIncrement);
@@ -235,7 +235,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String twtId, ValidatedTransformer3W validatedTransformer3W1, ValidatedTransformer3W validatedTransformer3W2, boolean found, boolean writeValues) throws IOException {
+    protected void writeT3wt(String twtId, ValidatedTransformer3W validatedTransformer3W1, ValidatedTransformer3W validatedTransformer3W2, boolean found, boolean writeValues) throws IOException {
         TwtData twtData1 = validatedTransformer3W1.twtData();
         TwtData twtData2 = validatedTransformer3W2.twtData();
         write(twtId, NETWORK_P1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getP), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getP));

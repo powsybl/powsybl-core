@@ -106,7 +106,7 @@ public final class Transformers3WValidation {
         validated &= checkLeg(twtData, ThreeSides.THREE, config);
 
         try {
-            twtsWriter.write(twt.getId(), twtData, validated);
+            twtsWriter.writeT3wt(twt.getId(), twtData, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

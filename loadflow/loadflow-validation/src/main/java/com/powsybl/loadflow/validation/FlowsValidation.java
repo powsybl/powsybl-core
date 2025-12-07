@@ -71,7 +71,7 @@ public final class FlowsValidation {
             validated &= checkConnectedTerminal(branch.getId(), "2", branch.getP2(), branch.getComputedP2(), branch.getQ2(), branch.getComputedQ2(), config);
         }
         try {
-            flowsWriter.write(branch.getId(),
+            flowsWriter.writeBranch(branch.getId(),
                     branch.getP1(), branch.getComputedP1(), branch.getQ1(), branch.getComputedQ1(),
                     branch.getP2(), branch.getComputedP2(), branch.getQ2(), branch.getComputedQ2(),
                     branch.getR(), branch.getX(),
