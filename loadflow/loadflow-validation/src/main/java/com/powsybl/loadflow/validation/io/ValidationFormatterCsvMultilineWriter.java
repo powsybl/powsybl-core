@@ -22,7 +22,6 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
@@ -158,24 +157,23 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void writeSvc(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                            boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
-                            ValidatedSvc validatedSvc, boolean found, boolean writeValues) throws IOException {
-        write(svcId, "p", found, -validatedSvc.p(), writeValues, -p);
-        write(svcId, "q", found, -validatedSvc.q(), writeValues, -q);
-        write(svcId, "vControlled", found, validatedSvc.vControlled(), writeValues, vControlled);
-        write(svcId, "vController", found, validatedSvc.vController(), writeValues, vController);
-        write(svcId, NOMINAL_V, found, validatedSvc.nominalVcontroller(), writeValues, nominalVcontroller);
-        write(svcId, "reactivePowerSetpoint", found, validatedSvc.reactivePowerSetpoint(), writeValues, reactivePowerSetpoint);
-        write(svcId, "voltageSetpoint", found, validatedSvc.voltageSetpoint(), writeValues, voltageSetpoint);
+    protected void writeSvc(Validated<SvcData> v, Validated<SvcData> validatedSvc, boolean found, boolean writeValues) throws IOException {
+        String svcId = v.data().svcId();
+        write(svcId, "p", found, -validatedSvc.data().p(), writeValues, -v.data().p());
+        write(svcId, "q", found, -validatedSvc.data().q(), writeValues, -v.data().q());
+        write(svcId, "vControlled", found, validatedSvc.data().vControlled(), writeValues, v.data().vControlled());
+        write(svcId, "vController", found, validatedSvc.data().vController(), writeValues, v.data().vController());
+        write(svcId, NOMINAL_V, found, validatedSvc.data().nominalVcontroller(), writeValues, v.data().nominalVcontroller());
+        write(svcId, "reactivePowerSetpoint", found, validatedSvc.data().reactivePowerSetpoint(), writeValues, v.data().reactivePowerSetpoint());
+        write(svcId, "voltageSetpoint", found, validatedSvc.data().voltageSetpoint(), writeValues, v.data().voltageSetpoint());
         if (verbose) {
-            write(svcId, CONNECTED, found, validatedSvc.connected(), writeValues, connected);
-            write(svcId, "regulationMode", found, validatedSvc.regulationMode().name(), writeValues, regulationMode != null ? regulationMode.name() : "");
-            write(svcId, "regulating", found, validatedSvc.regulating(), writeValues, regulating);
-            write(svcId, "bMin", found, validatedSvc.bMin(), writeValues, bMin);
-            write(svcId, "bMax", found, validatedSvc.bMax(), writeValues, bMax);
-            write(svcId, MAIN_COMPONENT, found, validatedSvc.mainComponent(), writeValues, mainComponent);
-            write(svcId, VALIDATION, found, getValidated(validatedSvc.validated()), writeValues, getValidated(validated));
+            write(svcId, CONNECTED, found, validatedSvc.data().connected(), writeValues, v.data().connected());
+            write(svcId, "regulationMode", found, validatedSvc.data().regulationMode() != null ? validatedSvc.data().regulationMode().name() : "", writeValues, v.data().regulationMode() != null ? v.data().regulationMode().name() : "");
+            write(svcId, "regulating", found, validatedSvc.data().regulating(), writeValues, v.data().regulating());
+            write(svcId, "bMin", found, validatedSvc.data().bMin(), writeValues, v.data().bMin());
+            write(svcId, "bMax", found, validatedSvc.data().bMax(), writeValues, v.data().bMax());
+            write(svcId, MAIN_COMPONENT, found, validatedSvc.data().mainComponent(), writeValues, v.data().mainComponent());
+            write(svcId, VALIDATION, found, getValidated(validatedSvc.validated()), writeValues, getValidated(v.validated()));
         }
     }
 

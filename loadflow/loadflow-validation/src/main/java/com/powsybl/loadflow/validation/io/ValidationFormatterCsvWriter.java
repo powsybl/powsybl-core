@@ -20,7 +20,6 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
@@ -651,39 +650,37 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void writeSvc(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                            boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
-                            ValidatedSvc validatedSvc, boolean found, boolean writeValues) throws IOException {
+    protected void writeSvc(Validated<SvcData> v, Validated<SvcData> validatedSvc, boolean found, boolean writeValues) throws IOException {
+        String svcId = v.data().svcId();
         formatter.writeCell(svcId);
         if (compareResults) {
             formatter = found ?
-                        write(found, validatedSvc.p(), validatedSvc.q(), validatedSvc.vControlled(), validatedSvc.vController(), validatedSvc.nominalVcontroller(), validatedSvc.reactivePowerSetpoint(), validatedSvc.voltageSetpoint(),
-                                validatedSvc.connected(), validatedSvc.regulationMode(), validatedSvc.regulating(), validatedSvc.bMin(), validatedSvc.bMax(), validatedSvc.mainComponent(), validatedSvc.validated()) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, false, Double.NaN, Double.NaN, false, false);
+                    writeSvc(found, validatedSvc) :
+                    writeSvc(found, SvcData.createEmptyValidated(svcId));
         }
-        formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
+        formatter = writeSvc(writeValues, v);
     }
 
-    private TableFormatter write(boolean writeValues, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                                 boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter writeSvc(boolean writeValues, Validated<SvcData> v) throws IOException {
+        SvcData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(-p)
-                             .writeCell(-q)
-                             .writeCell(vControlled)
-                             .writeCell(vController)
-                             .writeCell(nominalVcontroller)
-                             .writeCell(reactivePowerSetpoint)
-                             .writeCell(voltageSetpoint) :
+                    formatter.writeCell(-d.p())
+                             .writeCell(-d.q())
+                             .writeCell(d.vControlled())
+                             .writeCell(d.vController())
+                             .writeCell(d.nominalVcontroller())
+                             .writeCell(d.reactivePowerSetpoint())
+                             .writeCell(d.voltageSetpoint()) :
                     formatter.writeEmptyCells(7);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(connected)
-                                 .writeCell(regulationMode.name())
-                                 .writeCell(regulating)
-                                 .writeCell(bMin)
-                                 .writeCell(bMax)
-                                 .writeCell(mainComponent)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.connected())
+                                 .writeCell(d.regulationMode().name())
+                                 .writeCell(d.regulating())
+                                 .writeCell(d.bMin())
+                                 .writeCell(d.bMax())
+                                 .writeCell(d.mainComponent())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(7);
         }
         return formatter;
@@ -748,6 +745,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                              .writeCell(downIncrement) :
                     formatter.writeEmptyCells(3);
         if (verbose) {
+            String regSideString = regulatedSide != null ? regulatedSide.name() : invalidString;
             formatter = writeValues ?
                         formatter.writeCell(rho)
                                  .writeCell(rhoPreviousStep)
@@ -756,7 +754,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(lowTapPosition)
                                  .writeCell(highTapPosition)
                                  .writeCell(targetV)
-                                 .writeCell(regulatedSide != null ? regulatedSide.name() : invalidString)
+                                 .writeCell(regSideString)
                                  .writeCell(v)
                                  .writeCell(connected)
                                  .writeCell(mainComponent)

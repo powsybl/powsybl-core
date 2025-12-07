@@ -16,6 +16,8 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
+import com.powsybl.loadflow.validation.data.SvcData;
+import com.powsybl.loadflow.validation.data.Validated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,40 +108,46 @@ public final class StaticVarCompensatorsValidation {
         Bus connectableBus = svc.getTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
         boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
-        return checkSVCs(svc.getId(), p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent, config, svcsWriter);
+        SvcData d = new SvcData(svc.getId(),
+                p, q,
+                vControlled, vController,
+                nominalVcontroller,
+                reactivePowerSetpoint, voltageSetpoint,
+                regulationMode, regulating,
+                bMin, bMax,
+                connected, mainComponent);
+        return checkSVCs(d, config, svcsWriter);
     }
 
-    public static boolean checkSVCs(String id, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                                    RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean connected, boolean mainComponent,
+    public static boolean checkSVCs(SvcData d,
                                     ValidationConfig config, Writer writer) {
-        Objects.requireNonNull(id);
+        Objects.requireNonNull(d);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.SVCS)) {
-            return checkSVCs(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent, config, svcsWriter);
+        try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(d.svcId(), config, writer, ValidationType.SVCS)) {
+            return checkSVCs(d, config, svcsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkSVCs(String id, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                                    RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean connected, boolean mainComponent,
+    public static boolean checkSVCs(SvcData d,
                                     ValidationConfig config, ValidationWriter svcsWriter) {
-        Objects.requireNonNull(id);
+        Objects.requireNonNull(d);
         Objects.requireNonNull(config);
         Objects.requireNonNull(svcsWriter);
         boolean validated = true;
-
-        if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
-            if (Double.isNaN(p) || Double.isNaN(q)) {
-                validated = checkSVCsNaNValues(id, p, q, reactivePowerSetpoint);
+        String id = d.svcId();
+        if (d.connected() && ValidationUtils.isMainComponent(config, d.mainComponent())) {
+            if (Double.isNaN(d.p()) || Double.isNaN(d.q())) {
+                validated = checkSVCsNaNValues(id, d.p(), d.q(), d.reactivePowerSetpoint());
             } else {
-                validated = checkSVCsValues(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, config);
+                validated = checkSVCsValues(d, config);
             }
         }
         try {
-            svcsWriter.writeSvc(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
+            svcsWriter.writeSvc(new Validated<>(d, validated));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -155,42 +163,41 @@ public final class StaticVarCompensatorsValidation {
         return true;
     }
 
-    private static boolean checkSVCsValues(String id, double p, double q, double vControlled, double vController,
-        double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-        RegulationMode regulationMode, boolean regulating, double bMin, double bMax, ValidationConfig config) {
+    private static boolean checkSVCsValues(SvcData d, ValidationConfig config) {
         boolean validated = true;
+        String id = d.svcId();
         // active power should be equal to 0
-        if (Math.abs(p) > config.getThreshold()) {
-            LOGGER.warn("{} {}: {}: P={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p);
+        if (Math.abs(d.p()) > config.getThreshold()) {
+            LOGGER.warn("{} {}: {}: P={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, d.p());
             validated = false;
         }
 
-        double vAux = vController;
+        double vAux = d.vController();
         if (vAux == 0 || Double.isNaN(vAux)) {
-            vAux = nominalVcontroller;
+            vAux = d.nominalVcontroller();
         }
-        double qMin = -bMax * vAux * vAux;
-        double qMax = -bMin * vAux * vAux;
+        double qMin = -d.bMax() * vAux * vAux;
+        double qMax = -d.bMin() * vAux * vAux;
 
-        if (reactivePowerRegulationModeKo(regulationMode, q, qMin, qMax, reactivePowerSetpoint, config)) {
+        if (reactivePowerRegulationModeKo(d.regulationMode(), d.q(), qMin, qMax, d.reactivePowerSetpoint(), config)) {
             LOGGER.warn(
                 "{} {}: {}: regulator mode={} - Q={} qMin={} qMax={} bMin={} bMax={} Vcontroller={} nominalV={} reactivePowerSetpoint={}",
-                ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, qMin, qMax, bMin, bMax,
-                vController, nominalVcontroller, reactivePowerSetpoint);
+                ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, d.regulationMode(), d.q(), qMin, qMax, d.bMin(), d.bMax(),
+                d.vController(), d.nominalVcontroller(), d.reactivePowerSetpoint());
             validated = false;
         }
 
-        if (voltageRegulationModeKo(regulationMode, q, qMin, qMax, vControlled, voltageSetpoint, config)) {
+        if (voltageRegulationModeKo(d.regulationMode(), d.q(), qMin, qMax, d.vControlled(), d.voltageSetpoint(), config)) {
             LOGGER.warn(
                 "{} {}: {}: regulator mode={} - Q={} qMin={} qMax={} bMin={} bMax={} Vcontroller={} Vcontrolled={} targetV={}",
-                ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, qMin, qMax, bMin, bMax,
-                vController, vControlled, voltageSetpoint);
+                ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, d.regulationMode(), d.q(), qMin, qMax, d.bMin(), d.bMax(),
+                    d.vController(), d.vControlled(), d.voltageSetpoint());
             validated = false;
         }
 
-        if (notRegulatingKo(regulating, q, config)) {
+        if (notRegulatingKo(d.regulating(), d.q(), config)) {
             LOGGER.warn("{} {}: {}: regulator mode={} - Q={} ", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR,
-                id, regulationMode, q);
+                id, d.regulationMode(), d.q());
             validated = false;
         }
         return validated;

@@ -11,7 +11,6 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
@@ -64,7 +63,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected boolean preLoadflowValidationCompleted = false;
     protected Map<String, Validated<BusData>> busesData = new HashMap<>();
     protected Map<String, Validated<GeneratorData>> generatorsData = new HashMap<>();
-    protected Map<String, ValidatedSvc> svcsData = new HashMap<>();
+    protected Map<String, Validated<SvcData>> svcsData = new HashMap<>();
     protected Map<String, Validated<ShuntData>> shuntsData = new HashMap<>();
     protected Map<String, ValidatedFlow> flowsData = new HashMap<>();
     protected Map<String, ValidatedTransformer> twtsData = new HashMap<>();
@@ -161,27 +160,26 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected abstract void writeBus(Validated<BusData> v, Validated<BusData> validatedBus, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void writeSvc(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                         boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
-        Objects.requireNonNull(svcId);
-        ValidatedSvc emptyValidatedSvc = new ValidatedSvc(svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, RegulationMode.VOLTAGE, false, Double.NaN, Double.NaN, false, false);
+    public void writeSvc(Validated<SvcData> validatedSvcData) throws IOException {
+        Objects.requireNonNull(validatedSvcData);
+        String svcId = validatedSvcData.data().svcId();
+        Validated<SvcData> emptyValidatedSvc = SvcData.createEmptyValidated(svcId);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = svcsData.containsKey(svcId);
-                ValidatedSvc validatedSvc = found ? svcsData.get(svcId) : emptyValidatedSvc;
-                writeSvc(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated, validatedSvc, found, true);
+                Validated<SvcData> validatedSvc = found ? svcsData.get(svcId) : emptyValidatedSvc;
+                writeSvc(validatedSvcData, validatedSvc, found, true);
                 svcsData.remove(svcId);
             } else {
-                svcsData.put(svcId, new ValidatedSvc(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated));
+                svcsData.put(svcId, validatedSvcData);
             }
         } else {
-            writeSvc(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated, emptyValidatedSvc, false, true);
+            writeSvc(validatedSvcData, emptyValidatedSvc, false, true);
         }
     }
 
-    protected abstract void writeSvc(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                                     boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
-                                     ValidatedSvc validatedSvc, boolean found, boolean writeValues) throws IOException;
+    protected abstract void writeSvc(Validated<SvcData> v,
+                                     Validated<SvcData> validatedSvc, boolean found, boolean writeValues) throws IOException;
 
     @Override
     public void writeShunt(Validated<ShuntData> validatedShuntData) throws IOException {
@@ -321,10 +319,10 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeSvcsData() {
         svcsData.values().forEach(validatedSvc -> {
             try {
-                writeSvc(validatedSvc.svcId(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                        false, validatedSvc.regulationMode(), false, Double.NaN, Double.NaN, false, false, validatedSvc, true, false);
+                writeSvc(SvcData.createEmptyValidated(validatedSvc.data().svcId()),
+                        validatedSvc, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of svc {}: {}", validatedSvc.svcId(), e.getMessage());
+                LOGGER.error("Error writing data of svc {}: {}", validatedSvc.data().svcId(), e.getMessage());
             }
         });
     }

@@ -11,12 +11,8 @@ import java.io.IOException;
 
 import com.powsybl.iidm.network.TwoSides;
 
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
-import com.powsybl.loadflow.validation.data.BusData;
-import com.powsybl.loadflow.validation.data.GeneratorData;
-import com.powsybl.loadflow.validation.data.ShuntData;
-import com.powsybl.loadflow.validation.data.Validated;
+import com.powsybl.loadflow.validation.data.*;
 
 /**
  *
@@ -33,8 +29,7 @@ public interface ValidationWriter extends AutoCloseable {
 
     void writeBus(Validated<BusData> validatedBusData) throws IOException;
 
-    void writeSvc(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                  boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException;
+    void writeSvc(Validated<SvcData> validatedSvcData) throws IOException;
 
     void writeShunt(Validated<ShuntData> validatedShuntData) throws IOException;
 

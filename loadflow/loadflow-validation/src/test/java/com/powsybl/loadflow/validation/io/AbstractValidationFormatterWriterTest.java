@@ -12,10 +12,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.BalanceTypeGuesser;
-import com.powsybl.loadflow.validation.data.BusData;
-import com.powsybl.loadflow.validation.data.GeneratorData;
-import com.powsybl.loadflow.validation.data.ShuntData;
-import com.powsybl.loadflow.validation.data.Validated;
+import com.powsybl.loadflow.validation.data.*;
 import com.powsybl.loadflow.validation.util.TwtTestData;
 import org.junit.jupiter.api.Test;
 
@@ -373,10 +370,10 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter svcsWriter = getSvcsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            svcsWriter.writeSvc(svcId1, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, regulating, bMin, bMax, mainComponent, validated);
+            svcsWriter.writeSvc(new Validated<>(new SvcData(svcId1, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent), validated));
             svcsWriter.setValidationCompleted();
             if (compareResults) {
-                svcsWriter.writeSvc(svcId2, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, regulating, bMin, bMax, mainComponent, validated);
+                svcsWriter.writeSvc(new Validated<>(new SvcData(svcId2, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent), validated));
                 svcsWriter.setValidationCompleted();
             }
             assertEquals(svcsContent, writer.toString().trim());
