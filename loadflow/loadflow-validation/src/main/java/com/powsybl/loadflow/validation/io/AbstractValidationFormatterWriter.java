@@ -63,7 +63,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected String invalidString;
     protected boolean preLoadflowValidationCompleted = false;
     protected Map<String, Validated<BusData>> busesData = new HashMap<>();
-    protected Map<String, ValidatedGenerator> generatorsData = new HashMap<>();
+    protected Map<String, Validated<GeneratorData>> generatorsData = new HashMap<>();
     protected Map<String, ValidatedSvc> svcsData = new HashMap<>();
     protected Map<String, Validated<ShuntData>> shuntsData = new HashMap<>();
     protected Map<String, ValidatedFlow> flowsData = new HashMap<>();
@@ -119,31 +119,25 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                         boolean mainComponent1, boolean mainComponent2, boolean validated, ValidatedFlow validatedFlow, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void writeGenerator(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
-                               boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
-        Objects.requireNonNull(generatorId);
-        ValidatedGenerator emptyValidatedGenerator = new ValidatedGenerator(generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
+    public void writeGenerator(Validated<GeneratorData> validatedGeneratorData) throws IOException {
+        Objects.requireNonNull(validatedGeneratorData);
+        String generatorId = validatedGeneratorData.data().generatorId();
+        Validated<GeneratorData> emptyValidatedGenerator = GeneratorData.createEmptyValidated(generatorId);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = generatorsData.containsKey(generatorId);
-                ValidatedGenerator validatedGenerator = found ? generatorsData.get(generatorId) : emptyValidatedGenerator;
-                writeGenerator(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn,
-                        minP, maxP, minQ, maxQ, mainComponent, validated, validatedGenerator, found, true);
+                Validated<GeneratorData> validatedGenerator = found ? generatorsData.get(generatorId) : emptyValidatedGenerator;
+                writeGenerator(validatedGeneratorData, validatedGenerator, found, true);
                 generatorsData.remove(generatorId);
             } else {
-                generatorsData.put(generatorId, new ValidatedGenerator(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected,
-                        voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated));
+                generatorsData.put(generatorId, validatedGeneratorData);
             }
         } else {
-            writeGenerator(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn,
-                    minP, maxP, minQ, maxQ, mainComponent, validated, emptyValidatedGenerator, false, true);
+            writeGenerator(validatedGeneratorData, emptyValidatedGenerator, false, true);
         }
     }
 
-    protected abstract void writeGenerator(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-                                           boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
-                                           boolean validated, ValidatedGenerator validatedGenerator, boolean found, boolean writeValues) throws IOException;
+    protected abstract void writeGenerator(Validated<GeneratorData> v, Validated<GeneratorData> validatedGenerator, boolean found, boolean writeValues) throws IOException;
 
     @Override
     public void writeBus(Validated<BusData> v) throws IOException {
@@ -306,11 +300,10 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeGeneratorsData() {
         generatorsData.values().forEach(validatedGenerator -> {
             try {
-                writeGenerator(validatedGenerator.generatorId(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                        Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false,
+                writeGenerator(GeneratorData.createEmptyValidated(validatedGenerator.data().generatorId()),
                         validatedGenerator, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of generator {}: {}", validatedGenerator.generatorId(), e.getMessage());
+                LOGGER.error("Error writing data of generator {}: {}", validatedGenerator.data().generatorId(), e.getMessage());
             }
         });
     }

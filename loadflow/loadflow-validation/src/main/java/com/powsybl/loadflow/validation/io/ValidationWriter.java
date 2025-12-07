@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.data.BusData;
+import com.powsybl.loadflow.validation.data.GeneratorData;
 import com.powsybl.loadflow.validation.data.ShuntData;
 import com.powsybl.loadflow.validation.data.Validated;
 
@@ -28,8 +29,7 @@ public interface ValidationWriter extends AutoCloseable {
                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
                      boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException;
 
-    void writeGenerator(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
-                        boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException;
+    void writeGenerator(Validated<GeneratorData> validatedGeneratorData) throws IOException;
 
     void writeBus(Validated<BusData> validatedBusData) throws IOException;
 

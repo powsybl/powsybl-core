@@ -11,7 +11,9 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.loadflow.validation.BalanceTypeGuesser;
 import com.powsybl.loadflow.validation.data.BusData;
+import com.powsybl.loadflow.validation.data.GeneratorData;
 import com.powsybl.loadflow.validation.data.ShuntData;
 import com.powsybl.loadflow.validation.data.Validated;
 import com.powsybl.loadflow.validation.util.TwtTestData;
@@ -253,10 +255,10 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            generatorsWriter.writeGenerator(generatorId1, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.writeGenerator(new Validated<>(new GeneratorData(generatorId1, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, BalanceTypeGuesser.NO_BALANCING_GUESSER), validated));
             generatorsWriter.setValidationCompleted();
             if (compareResults) {
-                generatorsWriter.writeGenerator(generatorId2, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+                generatorsWriter.writeGenerator(new Validated<>(new GeneratorData(generatorId2, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, BalanceTypeGuesser.NO_BALANCING_GUESSER), validated));
                 generatorsWriter.setValidationCompleted();
             }
             assertEquals(generatorsContent, writer.toString().trim());

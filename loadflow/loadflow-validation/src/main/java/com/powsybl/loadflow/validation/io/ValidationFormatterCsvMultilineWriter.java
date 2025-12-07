@@ -105,25 +105,24 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void writeGenerator(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-                                  boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
-                                  boolean validated, ValidatedGenerator validatedGenerator, boolean found, boolean writeValues) throws IOException {
-        write(generatorId, "p", found, -validatedGenerator.p(), writeValues, -p);
-        write(generatorId, "q", found, -validatedGenerator.q(), writeValues, -q);
-        write(generatorId, "v", found, validatedGenerator.v(), writeValues, v);
-        write(generatorId, "targetP", found, validatedGenerator.targetP(), writeValues, targetP);
-        write(generatorId, "targetQ", found, validatedGenerator.targetQ(), writeValues, targetQ);
-        write(generatorId, "targetV", found, validatedGenerator.targetV(), writeValues, targetV);
-        write(generatorId, "expectedP", found, validatedGenerator.expectedP(), writeValues, expectedP);
+    protected void writeGenerator(Validated<GeneratorData> v, Validated<GeneratorData> validatedGenerator, boolean found, boolean writeValues) throws IOException {
+        String generatorId = v.data().generatorId();
+        write(generatorId, "p", found, -validatedGenerator.data().p(), writeValues, -v.data().p());
+        write(generatorId, "q", found, -validatedGenerator.data().q(), writeValues, -v.data().q());
+        write(generatorId, "v", found, validatedGenerator.data().v(), writeValues, v.data().v());
+        write(generatorId, "targetP", found, validatedGenerator.data().targetP(), writeValues, v.data().targetP());
+        write(generatorId, "targetQ", found, validatedGenerator.data().targetQ(), writeValues, v.data().targetQ());
+        write(generatorId, "targetV", found, validatedGenerator.data().targetV(), writeValues, v.data().targetV());
+        write(generatorId, "expectedP", found, validatedGenerator.data().expectedP(), writeValues, v.data().expectedP());
         if (verbose) {
-            write(generatorId, CONNECTED, found, validatedGenerator.connected(), writeValues, connected);
-            write(generatorId, "voltageRegulatorOn", found, validatedGenerator.voltageRegulatorOn(), writeValues, voltageRegulatorOn);
-            write(generatorId, "minP", found, validatedGenerator.minP(), writeValues, minP);
-            write(generatorId, "maxP", found, validatedGenerator.maxP(), writeValues, maxP);
-            write(generatorId, "minQ", found, validatedGenerator.minQ(), writeValues, minQ);
-            write(generatorId, "maxQ", found, validatedGenerator.maxQ(), writeValues, maxQ);
-            write(generatorId, MAIN_COMPONENT, found, validatedGenerator.mainComponent(), writeValues, mainComponent);
-            write(generatorId, VALIDATION, found, getValidated(validatedGenerator.validated()), writeValues, getValidated(validated));
+            write(generatorId, CONNECTED, found, validatedGenerator.data().connected(), writeValues, v.data().connected());
+            write(generatorId, "voltageRegulatorOn", found, validatedGenerator.data().voltageRegulatorOn(), writeValues, v.data().voltageRegulatorOn());
+            write(generatorId, "minP", found, validatedGenerator.data().minP(), writeValues, v.data().minP());
+            write(generatorId, "maxP", found, validatedGenerator.data().maxP(), writeValues, v.data().maxP());
+            write(generatorId, "minQ", found, validatedGenerator.data().minQ(), writeValues, v.data().minQ());
+            write(generatorId, "maxQ", found, validatedGenerator.data().maxQ(), writeValues, v.data().maxQ());
+            write(generatorId, MAIN_COMPONENT, found, validatedGenerator.data().mainComponent(), writeValues, v.data().mainComponent());
+            write(generatorId, VALIDATION, found, getValidated(validatedGenerator.validated()), writeValues, getValidated(v.validated()));
         }
     }
 

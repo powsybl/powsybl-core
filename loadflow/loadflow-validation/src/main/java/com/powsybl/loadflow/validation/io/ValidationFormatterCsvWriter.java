@@ -568,41 +568,37 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void writeGenerator(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-                                  boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
-                                  boolean validated, ValidatedGenerator validatedGenerator, boolean found, boolean writeValues) throws IOException {
-        formatter.writeCell(generatorId);
+    protected void writeGenerator(Validated<GeneratorData> v, Validated<GeneratorData> validatedGenerator, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(v.data().generatorId());
         if (compareResults) {
             formatter = found ?
-                        write(found, validatedGenerator.p(), validatedGenerator.q(), validatedGenerator.v(), validatedGenerator.targetP(), validatedGenerator.targetQ(), validatedGenerator.targetV(),
-                                validatedGenerator.expectedP(), validatedGenerator.connected(), validatedGenerator.voltageRegulatorOn(), validatedGenerator.minP(), validatedGenerator.maxP(), validatedGenerator.minQ(),
-                                validatedGenerator.maxQ(), validatedGenerator.mainComponent(), validatedGenerator.validated()) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
+                    writeGenerator(found, validatedGenerator) :
+                    writeGenerator(found, GeneratorData.createEmptyValidated(v.data().generatorId()));
         }
-        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+        formatter = writeGenerator(writeValues, v);
     }
 
-    private TableFormatter write(boolean writeValues, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
-                                 boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter writeGenerator(boolean writeValues, Validated<GeneratorData> v) throws IOException {
+        GeneratorData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(-p)
-                             .writeCell(-q)
-                             .writeCell(v)
-                             .writeCell(targetP)
-                             .writeCell(targetQ)
-                             .writeCell(targetV)
-                             .writeCell(expectedP) :
+                    formatter.writeCell(-d.p())
+                             .writeCell(-d.q())
+                             .writeCell(d.v())
+                             .writeCell(d.targetP())
+                             .writeCell(d.targetQ())
+                             .writeCell(d.targetV())
+                             .writeCell(d.expectedP()) :
                     formatter.writeEmptyCells(7);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(connected)
-                                 .writeCell(voltageRegulatorOn)
-                                 .writeCell(minP)
-                                 .writeCell(maxP)
-                                 .writeCell(minQ)
-                                 .writeCell(maxQ)
-                                 .writeCell(mainComponent)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.connected())
+                                 .writeCell(d.voltageRegulatorOn())
+                                 .writeCell(d.minP())
+                                 .writeCell(d.maxP())
+                                 .writeCell(d.minQ())
+                                 .writeCell(d.maxQ())
+                                 .writeCell(d.mainComponent())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(8);
         }
         return formatter;
