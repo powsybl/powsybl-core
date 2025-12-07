@@ -693,37 +693,35 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         return formatter;
     }
 
-    protected void writeShunt(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
-                              double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
-                              boolean validated, ValidatedShunt validatedShunt, boolean found, boolean writeValues) throws IOException {
-        formatter.writeCell(shuntId);
+    protected void writeShunt(Validated<ShuntData> v,
+                              Validated<ShuntData> validatedShunt, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(v.data().shuntId());
         if (compareResults) {
             formatter = found ?
-                        write(found, validatedShunt.q(), validatedShunt.expectedQ(), validatedShunt.p(), validatedShunt.currentSectionCount(), validatedShunt.maximumSectionCount(),
-                                validatedShunt.bPerSection(), validatedShunt.v(), validatedShunt.connected(), validatedShunt.qMax(), validatedShunt.nominalV(), validatedShunt.mainComponent(), validatedShunt.validated()) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN, Double.NaN, false, Double.NaN, Double.NaN, false, false);
+                        writeShunt(found, validatedShunt) :
+                        writeShunt(found, ShuntData.createEmptyValidated(v.data().shuntId()));
         }
-        write(writeValues, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
+        writeShunt(writeValues, v);
     }
 
-    private TableFormatter write(boolean writeValues, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
-                                 double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter writeShunt(boolean writeValues, Validated<ShuntData> v) throws IOException {
+        ShuntData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(q)
-                             .writeCell(expectedQ) :
+                    formatter.writeCell(d.q())
+                             .writeCell(d.expectedQ()) :
                     formatter.writeEmptyCells(2);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(p)
-                                 .writeCell(currentSectionCount)
-                                 .writeCell(maximumSectionCount)
-                                 .writeCell(bPerSection)
-                                 .writeCell(v)
-                                 .writeCell(connected)
-                                 .writeCell(qMax)
-                                 .writeCell(nominalV)
-                                 .writeCell(mainComponent)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.p())
+                                 .writeCell(d.currentSectionCount())
+                                 .writeCell(d.maximumSectionCount())
+                                 .writeCell(d.bPerSection())
+                                 .writeCell(d.v())
+                                 .writeCell(d.connected())
+                                 .writeCell(d.qMax())
+                                 .writeCell(d.nominalV())
+                                 .writeCell(d.mainComponent())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(10);
         }
         return formatter;

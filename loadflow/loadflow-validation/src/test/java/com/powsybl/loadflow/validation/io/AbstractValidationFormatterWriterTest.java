@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.data.BusData;
+import com.powsybl.loadflow.validation.data.ShuntData;
 import com.powsybl.loadflow.validation.data.Validated;
 import com.powsybl.loadflow.validation.util.TwtTestData;
 import org.junit.jupiter.api.Test;
@@ -115,11 +116,14 @@ abstract class AbstractValidationFormatterWriterTest {
 
     protected final String shuntId = "shuntId";
     protected final String otherShuntId = "otherShuntId";
-    protected final double expectedQ = 3.724;
-    protected int currentSectionCount = 0;
-    protected int maximumSectionCount = 1;
-    protected double bPerSection = -0.16;
-    protected double qMax = -144.4;
+    protected final double pShunt = 1.0;
+    protected final double qShunt = 170.50537;
+    protected final double vShunt = 405.14175;
+    protected final double expectedQ = 170.50537;
+    protected int currentSectionCount = 1;
+    protected int maximumSectionCount = 2;
+    protected double bPerSection = -0.0010387811;
+    protected double qMax = -150.0;
     protected final double nominalV = 380;
 
     protected final String twtId = "twtId";
@@ -425,10 +429,10 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter shuntsWriter = getShuntsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            shuntsWriter.writeShunt(shuntId1, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
+            shuntsWriter.writeShunt(new Validated<>(new ShuntData(shuntId1, pShunt, qShunt, currentSectionCount, maximumSectionCount, bPerSection, qMax, vShunt, connected, nominalV, mainComponent), validated));
             shuntsWriter.setValidationCompleted();
             if (compareResults) {
-                shuntsWriter.writeShunt(shuntId2, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
+                shuntsWriter.writeShunt(new Validated<>(new ShuntData(shuntId2, pShunt, qShunt, currentSectionCount, maximumSectionCount, bPerSection, qMax, vShunt, connected, nominalV, mainComponent), validated));
                 shuntsWriter.setValidationCompleted();
             }
             assertEquals(shuntsContent, writer.toString().trim());

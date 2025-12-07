@@ -180,22 +180,22 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         }
     }
 
-    protected void writeShunt(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
-                              double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
-                              boolean validated, ValidatedShunt validatedShunt, boolean found, boolean writeValues) throws IOException {
-        write(shuntId, "q", found, validatedShunt.q(), writeValues, q);
-        write(shuntId, "expectedQ", found, validatedShunt.expectedQ(), writeValues, expectedQ);
+    protected void writeShunt(Validated<ShuntData> v,
+                              Validated<ShuntData> validatedShunt, boolean found, boolean writeValues) throws IOException {
+        String shuntId = v.data().shuntId();
+        write(shuntId, "q", found, validatedShunt.data().q(), writeValues, v.data().q());
+        write(shuntId, "expectedQ", found, validatedShunt.data().expectedQ(), writeValues, v.data().expectedQ());
         if (verbose) {
-            write(shuntId, "p", found, validatedShunt.p(), writeValues, p);
-            write(shuntId, "currentSectionCount", found, validatedShunt.currentSectionCount(), writeValues, currentSectionCount);
-            write(shuntId, "maximumSectionCount", found, validatedShunt.maximumSectionCount(), writeValues, maximumSectionCount);
-            write(shuntId, "bPerSection", found, validatedShunt.bPerSection(), writeValues, bPerSection);
-            write(shuntId, "v", found, validatedShunt.v(), writeValues, v);
-            write(shuntId, CONNECTED, found, validatedShunt.connected(), writeValues, connected);
-            write(shuntId, "qMax", found, validatedShunt.qMax(), writeValues, qMax);
-            write(shuntId, NOMINAL_V, found, validatedShunt.nominalV(), writeValues, nominalV);
-            write(shuntId, MAIN_COMPONENT, found, validatedShunt.mainComponent(), writeValues, mainComponent);
-            write(shuntId, VALIDATION, found, getValidated(validatedShunt.validated()), writeValues, getValidated(validated));
+            write(shuntId, "p", found, validatedShunt.data().p(), writeValues, v.data().p());
+            write(shuntId, "currentSectionCount", found, validatedShunt.data().currentSectionCount(), writeValues, v.data().currentSectionCount());
+            write(shuntId, "maximumSectionCount", found, validatedShunt.data().maximumSectionCount(), writeValues, v.data().maximumSectionCount());
+            write(shuntId, "bPerSection", found, validatedShunt.data().bPerSection(), writeValues, v.data().bPerSection());
+            write(shuntId, "v", found, validatedShunt.data().v(), writeValues, v.data().v());
+            write(shuntId, CONNECTED, found, validatedShunt.data().connected(), writeValues, v.data().connected());
+            write(shuntId, "qMax", found, validatedShunt.data().qMax(), writeValues, v.data().qMax());
+            write(shuntId, NOMINAL_V, found, validatedShunt.data().nominalV(), writeValues, v.data().nominalV());
+            write(shuntId, MAIN_COMPONENT, found, validatedShunt.data().mainComponent(), writeValues, v.data().mainComponent());
+            write(shuntId, VALIDATION, found, getValidated(validatedShunt.validated()), writeValues, getValidated(v.validated()));
         }
     }
 

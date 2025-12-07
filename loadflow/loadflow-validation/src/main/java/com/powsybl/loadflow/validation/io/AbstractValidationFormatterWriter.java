@@ -65,7 +65,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected Map<String, Validated<BusData>> busesData = new HashMap<>();
     protected Map<String, ValidatedGenerator> generatorsData = new HashMap<>();
     protected Map<String, ValidatedSvc> svcsData = new HashMap<>();
-    protected Map<String, ValidatedShunt> shuntsData = new HashMap<>();
+    protected Map<String, Validated<ShuntData>> shuntsData = new HashMap<>();
     protected Map<String, ValidatedFlow> flowsData = new HashMap<>();
     protected Map<String, ValidatedTransformer> twtsData = new HashMap<>();
     protected Map<String, ValidatedTransformer3W> twts3wData = new HashMap<>();
@@ -190,29 +190,25 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                      ValidatedSvc validatedSvc, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void writeShunt(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
-                           double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent, boolean validated) throws IOException {
-        Objects.requireNonNull(shuntId);
-        ValidatedShunt emptyValidatedShunt = new ValidatedShunt(shuntId, Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN, Double.NaN, false, Double.NaN, Double.NaN, false, false);
+    public void writeShunt(Validated<ShuntData> validatedShuntData) throws IOException {
+        Objects.requireNonNull(validatedShuntData);
+        String shuntId = validatedShuntData.data().shuntId();
+        Validated<ShuntData> emptyValidatedShunt = ShuntData.createEmptyValidated(shuntId);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = shuntsData.containsKey(shuntId);
-                ValidatedShunt validatedShunt = found ? shuntsData.get(shuntId) : emptyValidatedShunt;
-                writeShunt(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount,
-                        bPerSection, v, connected, qMax, nominalV, mainComponent, validated, validatedShunt, found, true);
+                Validated<ShuntData> validatedShunt = found ? shuntsData.get(shuntId) : emptyValidatedShunt;
+                writeShunt(validatedShuntData, validatedShunt, found, true);
                 shuntsData.remove(shuntId);
             } else {
-                shuntsData.put(shuntId, new ValidatedShunt(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount,
-                        bPerSection, v, connected, qMax, nominalV, mainComponent, validated));
+                shuntsData.put(shuntId, validatedShuntData);
             }
         } else {
-            writeShunt(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated, emptyValidatedShunt, false, true);
+            writeShunt(validatedShuntData, emptyValidatedShunt, false, true);
         }
     }
 
-    protected abstract void writeShunt(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
-                                       double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
-                                       boolean validated, ValidatedShunt validatedShunt, boolean found, boolean writeValues) throws IOException;
+    protected abstract void writeShunt(Validated<ShuntData> v, Validated<ShuntData> validatedShunt, boolean found, boolean writeValues) throws IOException;
 
     @Override
     public void writeT2wt(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
@@ -343,10 +339,10 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeShuntsData() {
         shuntsData.values().forEach(validatedShunt -> {
             try {
-                writeShunt(validatedShunt.shuntId(), Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN,
-                        Double.NaN, false, Double.NaN, Double.NaN, false, false, validatedShunt, true, false);
+                writeShunt(ShuntData.createEmptyValidated(validatedShunt.data().shuntId()),
+                        validatedShunt, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of shunt {}: {}", validatedShunt.shuntId(), e.getMessage());
+                LOGGER.error("Error writing data of shunt {}: {}", validatedShunt.data().shuntId(), e.getMessage());
             }
         });
     }
