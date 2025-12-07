@@ -12,6 +12,7 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 import com.powsybl.loadflow.validation.data.*;
@@ -65,7 +66,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected Map<String, Validated<GeneratorData>> generatorsData = new HashMap<>();
     protected Map<String, Validated<SvcData>> svcsData = new HashMap<>();
     protected Map<String, Validated<ShuntData>> shuntsData = new HashMap<>();
-    protected Map<String, ValidatedFlow> flowsData = new HashMap<>();
+    protected Map<String, Validated<BranchData>> flowsData = new HashMap<>();
     protected Map<String, ValidatedTransformer> twtsData = new HashMap<>();
     protected Map<String, ValidatedTransformer3W> twts3wData = new HashMap<>();
 
@@ -86,36 +87,40 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         return validated ? SUCCESS : FAIL;
     }
 
+    protected static BranchData createEmptyBranchData(String id) {
+        return new BranchData(id,
+                Double.NaN, Double.NaN,
+                Double.NaN, Double.NaN,
+                Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                Double.NaN, Double.NaN,
+                Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                false, false,
+                false, false,
+                0,
+                Double.NaN, false);
+    }
+
     @Override
-    public void writeBranch(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
-                            double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                            double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
-                            boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
-        Objects.requireNonNull(branchId);
-        ValidatedFlow emptyValidatedFlow = new ValidatedFlow(branchId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false);
+    public void writeBranch(Validated<BranchData> validatedBranchData) throws IOException {
+        Objects.requireNonNull(validatedBranchData);
+        String branchId = validatedBranchData.data().getId();
+        Validated<BranchData> emptyValidatedFlow = new Validated<>(createEmptyBranchData(branchId), false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = flowsData.containsKey(branchId);
-                ValidatedFlow validatedFlow = found ? flowsData.get(branchId) : emptyValidatedFlow;
-                writeBranch(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2,
-                        theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated, validatedFlow, found, true);
+                Validated<BranchData> validatedFlow = found ? flowsData.get(branchId) : emptyValidatedFlow;
+                writeBranch(validatedBranchData, validatedFlow, found, true);
                 flowsData.remove(branchId);
             } else {
-                flowsData.put(branchId, new ValidatedFlow(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2,
-                        u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated));
+                flowsData.put(branchId, validatedBranchData);
             }
         } else {
-            writeBranch(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2,
-                    theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated, emptyValidatedFlow, false, true);
+            writeBranch(validatedBranchData, emptyValidatedFlow, false, true);
         }
     }
 
-    protected abstract void writeBranch(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
-                                        double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                                        double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
-                                        boolean mainComponent1, boolean mainComponent2, boolean validated, ValidatedFlow validatedFlow, boolean found, boolean writeValues) throws IOException;
+    protected abstract void writeBranch(Validated<BranchData> v, Validated<BranchData> validatedFlow, boolean found, boolean writeValues) throws IOException;
 
     @Override
     public void writeGenerator(Validated<GeneratorData> validatedGeneratorData) throws IOException {
@@ -286,11 +291,9 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeFlowsData() {
         flowsData.values().forEach(validatedFlow -> {
             try {
-                writeBranch(validatedFlow.branchId(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                        Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                        Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false, validatedFlow, true, false);
+                writeBranch(new Validated<>(createEmptyBranchData(validatedFlow.data().getId()), false), validatedFlow, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of branch {}: {}", validatedFlow.branchId(), e.getMessage());
+                LOGGER.error("Error writing data of branch {}: {}", validatedFlow.data().getId(), e.getMessage());
             }
         });
     }

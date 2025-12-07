@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.loadflow.validation.data.*;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -503,64 +504,53 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void writeBranch(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
-                               double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                               double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
-                               boolean mainComponent1, boolean mainComponent2, boolean validated, ValidatedFlow validatedFlow, boolean found, boolean writeValues) throws IOException {
-        formatter.writeCell(branchId);
+    protected void writeBranch(Validated<BranchData> v, Validated<BranchData> validatedFlow, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(v.data().getId());
         if (compareResults) {
             formatter = found ?
-                        write(found, validatedFlow.p1(), validatedFlow.p1Calc(), validatedFlow.q1(), validatedFlow.q1Calc(), validatedFlow.p2(), validatedFlow.p2Calc(), validatedFlow.q2(), validatedFlow.q2Calc(),
-                                validatedFlow.r(), validatedFlow.x(), validatedFlow.g1(), validatedFlow.g2(), validatedFlow.b1(), validatedFlow.b2(), validatedFlow.rho1(), validatedFlow.rho2(), validatedFlow.alpha1(), validatedFlow.alpha2(),
-                                validatedFlow.u1(), validatedFlow.u2(), validatedFlow.theta1(), validatedFlow.theta2(), validatedFlow.z(), validatedFlow.y(), validatedFlow.ksi(), validatedFlow.phaseAngleClock(), validatedFlow.connected1(), validatedFlow.connected2(),
-                                validatedFlow.mainComponent1(), validatedFlow.mainComponent2(), validatedFlow.validated()) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false);
+                    writeBranch(found, validatedFlow) :
+                    writeBranch(found, new Validated<>(createEmptyBranchData(v.data().getId()), false));
         }
-        formatter = write(writeValues, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2,
-                          u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated);
+        formatter = writeBranch(writeValues, v);
     }
 
-    private TableFormatter write(boolean writeValues, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
-                                 double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                                 double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
-                                 boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
+    private TableFormatter writeBranch(boolean writeValues, Validated<BranchData> v) throws IOException {
+        BranchData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(p1)
-                             .writeCell(p1Calc)
-                             .writeCell(q1)
-                             .writeCell(q1Calc)
-                             .writeCell(p2)
-                             .writeCell(p2Calc)
-                             .writeCell(q2)
-                             .writeCell(q2Calc) :
+                    formatter.writeCell(d.getP1())
+                             .writeCell(d.getComputedP1())
+                             .writeCell(d.getQ1())
+                             .writeCell(d.getComputedQ1())
+                             .writeCell(d.getP2())
+                             .writeCell(d.getComputedP2())
+                             .writeCell(d.getQ2())
+                             .writeCell(d.getComputedQ2()) :
                     formatter.writeEmptyCells(8);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(r)
-                                 .writeCell(x)
-                                 .writeCell(g1)
-                                 .writeCell(g2)
-                                 .writeCell(b1)
-                                 .writeCell(b2)
-                                 .writeCell(rho1)
-                                 .writeCell(rho2)
-                                 .writeCell(alpha1)
-                                 .writeCell(alpha2)
-                                 .writeCell(u1)
-                                 .writeCell(u2)
-                                 .writeCell(theta1)
-                                 .writeCell(theta2)
-                                 .writeCell(z)
-                                 .writeCell(y)
-                                 .writeCell(ksi)
-                                 .writeCell(phaseAngleClock)
-                                 .writeCell(connected1)
-                                 .writeCell(connected2)
-                                 .writeCell(mainComponent1)
-                                 .writeCell(mainComponent2)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.getR())
+                                 .writeCell(d.getX())
+                                 .writeCell(d.getG1())
+                                 .writeCell(d.getG2())
+                                 .writeCell(d.getB1())
+                                 .writeCell(d.getB2())
+                                 .writeCell(d.getRho1())
+                                 .writeCell(d.getRho2())
+                                 .writeCell(d.getAlpha1())
+                                 .writeCell(d.getAlpha2())
+                                 .writeCell(d.getU1())
+                                 .writeCell(d.getU2())
+                                 .writeCell(d.getTheta1())
+                                 .writeCell(d.getTheta2())
+                                 .writeCell(d.getZ())
+                                 .writeCell(d.getY())
+                                 .writeCell(d.getKsi())
+                                 .writeCell(d.getPhaseAngleClock())
+                                 .writeCell(d.isConnected1())
+                                 .writeCell(d.isConnected2())
+                                 .writeCell(d.isMainComponent1())
+                                 .writeCell(d.isMainComponent2())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(23);
         }
         return formatter;

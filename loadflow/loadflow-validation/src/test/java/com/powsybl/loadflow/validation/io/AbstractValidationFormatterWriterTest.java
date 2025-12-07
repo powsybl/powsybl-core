@@ -10,6 +10,7 @@ package com.powsybl.loadflow.validation.io;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.BalanceTypeGuesser;
 import com.powsybl.loadflow.validation.data.*;
@@ -32,13 +33,13 @@ abstract class AbstractValidationFormatterWriterTest {
     protected final String branchId = "branchId";
     protected final String otherBranchId = "otherBranchId";
     protected final double p1 = 39.5056;
-    protected final double p1Calc = 39.5058;
+    protected final double p1Calc = 40.0756;
     protected final double q1 = -3.72344;
-    protected final double q1Calc = -3.72348;
+    protected final double q1Calc = 2.32396;
     protected final double p2 = -39.5122;
-    protected final double p2Calc = -39.5128;
+    protected final double p2Calc = -40.0744;
     protected final double q2 = 3.7746;
-    protected final double q2Calc = 3.7742;
+    protected final double q2Calc = -2.31181;
     protected final double r = 0.04;
     protected final double x = 0.423;
     protected final double g1 = 0.0;
@@ -190,14 +191,24 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter flowsWriter = getFlowsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            flowsWriter.writeBranch(branchId1, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
-                              alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1,
-                              mainComponent2, validated);
+            flowsWriter.writeBranch(new Validated<>(new BranchData(branchId1,
+                    r, x,
+                    rho1, rho2, u1, u2,
+                    theta1, theta2, alpha1, alpha2,
+                    g1, g2, b1, b2,
+                    p1, q1, p2, q2,
+                    connected1, connected2, mainComponent1, mainComponent2,
+                    phaseAngleClock, 0, false), validated));
             flowsWriter.setValidationCompleted();
             if (compareResults) {
-                flowsWriter.writeBranch(branchId2, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2,
-                                  alpha1, alpha2, u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1,
-                                  mainComponent2, validated);
+                flowsWriter.writeBranch(new Validated<>(new BranchData(branchId2,
+                        r, x,
+                        rho1, rho2, u1, u2,
+                        theta1, theta2, alpha1, alpha2,
+                        g1, g2, b1, b2,
+                        p1, q1, p2, q2,
+                        connected1, connected2, mainComponent1, mainComponent2,
+                        phaseAngleClock, 0, false), validated));
                 flowsWriter.setValidationCompleted();
             }
             assertEquals(flowsContent, writer.toString().trim());

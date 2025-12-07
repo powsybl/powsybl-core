@@ -15,6 +15,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.loadflow.validation.data.*;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -64,42 +65,40 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void writeBranch(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
-                               double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                               double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
-                               boolean mainComponent1, boolean mainComponent2, boolean validated, ValidatedFlow validatedFlow, boolean found, boolean writeValues) throws IOException {
-        write(branchId, NETWORK_P1, found, validatedFlow.p1(), writeValues, p1);
-        write(branchId, EXPECTED_P1, found, validatedFlow.p1Calc(), writeValues, p1Calc);
-        write(branchId, NETWORK_Q1, found, validatedFlow.q1(), writeValues, q1);
-        write(branchId, EXPECTED_Q1, found, validatedFlow.q1Calc(), writeValues, q1Calc);
-        write(branchId, NETWORK_P2, found, validatedFlow.p2(), writeValues, p2);
-        write(branchId, EXPECTED_P2, found, validatedFlow.p2Calc(), writeValues, p2Calc);
-        write(branchId, NETWORK_Q2, found, validatedFlow.q2(), writeValues, q2);
-        write(branchId, EXPECTED_Q2, found, validatedFlow.q2Calc(), writeValues, q2Calc);
+    protected void writeBranch(Validated<BranchData> v, Validated<BranchData> validatedFlow, boolean found, boolean writeValues) throws IOException {
+        String branchId = v.data().getId();
+        write(branchId, NETWORK_P1, found, validatedFlow.data().getP1(), writeValues, v.data().getP1());
+        write(branchId, EXPECTED_P1, found, validatedFlow.data().getComputedP1(), writeValues, v.data().getComputedP1());
+        write(branchId, NETWORK_Q1, found, validatedFlow.data().getQ1(), writeValues, v.data().getQ1());
+        write(branchId, EXPECTED_Q1, found, validatedFlow.data().getComputedQ1(), writeValues, v.data().getComputedQ1());
+        write(branchId, NETWORK_P2, found, validatedFlow.data().getP2(), writeValues, v.data().getP2());
+        write(branchId, EXPECTED_P2, found, validatedFlow.data().getComputedP2(), writeValues, v.data().getComputedP2());
+        write(branchId, NETWORK_Q2, found, validatedFlow.data().getQ2(), writeValues, v.data().getQ2());
+        write(branchId, EXPECTED_Q2, found, validatedFlow.data().getComputedQ2(), writeValues, v.data().getComputedQ2());
         if (verbose) {
-            write(branchId, "r", found, validatedFlow.r(), writeValues, r);
-            write(branchId, "x", found, validatedFlow.x(), writeValues, x);
-            write(branchId, "g1", found, validatedFlow.g1(), writeValues, g1);
-            write(branchId, "g2", found, validatedFlow.g2(), writeValues, g2);
-            write(branchId, "b1", found, validatedFlow.b1(), writeValues, b1);
-            write(branchId, "b2", found, validatedFlow.b2(), writeValues, b2);
-            write(branchId, "rho1", found, validatedFlow.rho1(), writeValues, rho1);
-            write(branchId, "rho2", found, validatedFlow.rho2(), writeValues, rho2);
-            write(branchId, "alpha1", found, validatedFlow.alpha1(), writeValues, alpha1);
-            write(branchId, "alpha2", found, validatedFlow.alpha2(), writeValues, alpha2);
-            write(branchId, "u1", found, validatedFlow.u1(), writeValues, u1);
-            write(branchId, "u2", found, validatedFlow.u2(), writeValues, u2);
-            write(branchId, THETA1, found, validatedFlow.theta1(), writeValues, theta1);
-            write(branchId, THETA2, found, validatedFlow.theta2(), writeValues, theta2);
-            write(branchId, "z", found, validatedFlow.z(), writeValues, z);
-            write(branchId, "y", found, validatedFlow.y(), writeValues, y);
-            write(branchId, "ksi", found, validatedFlow.ksi(), writeValues, ksi);
-            write(branchId, "phaseAngleClock", found, validatedFlow.phaseAngleClock(), writeValues, phaseAngleClock);
-            write(branchId, CONNECTED + "1", found, validatedFlow.connected1(), writeValues, connected1);
-            write(branchId, CONNECTED + "2", found, validatedFlow.connected2(), writeValues, connected2);
-            write(branchId, MAIN_COMPONENT + "1", found, validatedFlow.mainComponent1(), writeValues, mainComponent1);
-            write(branchId, MAIN_COMPONENT + "2", found, validatedFlow.mainComponent2(), writeValues, mainComponent2);
-            write(branchId, VALIDATION, found, getValidated(validatedFlow.validated()), writeValues, getValidated(validated));
+            write(branchId, "r", found, validatedFlow.data().getR(), writeValues, v.data().getR());
+            write(branchId, "x", found, validatedFlow.data().getX(), writeValues, v.data().getX());
+            write(branchId, "g1", found, validatedFlow.data().getG1(), writeValues, v.data().getG1());
+            write(branchId, "g2", found, validatedFlow.data().getG2(), writeValues, v.data().getG2());
+            write(branchId, "b1", found, validatedFlow.data().getB1(), writeValues, v.data().getB1());
+            write(branchId, "b2", found, validatedFlow.data().getB2(), writeValues, v.data().getB2());
+            write(branchId, "rho1", found, validatedFlow.data().getRho1(), writeValues, v.data().getRho1());
+            write(branchId, "rho2", found, validatedFlow.data().getRho2(), writeValues, v.data().getRho2());
+            write(branchId, "alpha1", found, validatedFlow.data().getAlpha1(), writeValues, v.data().getAlpha1());
+            write(branchId, "alpha2", found, validatedFlow.data().getAlpha2(), writeValues, v.data().getAlpha2());
+            write(branchId, "u1", found, validatedFlow.data().getU1(), writeValues, v.data().getU1());
+            write(branchId, "u2", found, validatedFlow.data().getU2(), writeValues, v.data().getU2());
+            write(branchId, THETA1, found, validatedFlow.data().getTheta1(), writeValues, v.data().getTheta1());
+            write(branchId, THETA2, found, validatedFlow.data().getTheta2(), writeValues, v.data().getTheta2());
+            write(branchId, "z", found, validatedFlow.data().getZ(), writeValues, v.data().getZ());
+            write(branchId, "y", found, validatedFlow.data().getY(), writeValues, v.data().getY());
+            write(branchId, "ksi", found, validatedFlow.data().getKsi(), writeValues, v.data().getKsi());
+            write(branchId, "phaseAngleClock", found, validatedFlow.data().getPhaseAngleClock(), writeValues, v.data().getPhaseAngleClock());
+            write(branchId, CONNECTED + "1", found, validatedFlow.data().isConnected1(), writeValues, v.data().isConnected1());
+            write(branchId, CONNECTED + "2", found, validatedFlow.data().isConnected2(), writeValues, v.data().isConnected2());
+            write(branchId, MAIN_COMPONENT + "1", found, validatedFlow.data().isMainComponent1(), writeValues, v.data().isMainComponent1());
+            write(branchId, MAIN_COMPONENT + "2", found, validatedFlow.data().isMainComponent2(), writeValues, v.data().isMainComponent2());
+            write(branchId, VALIDATION, found, getValidated(validatedFlow.validated()), writeValues, getValidated(v.validated()));
         }
     }
 

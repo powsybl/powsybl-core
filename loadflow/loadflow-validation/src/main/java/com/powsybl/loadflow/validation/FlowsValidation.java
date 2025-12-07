@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
+import com.powsybl.loadflow.validation.data.Validated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,17 +72,7 @@ public final class FlowsValidation {
             validated &= checkConnectedTerminal(branch.getId(), "2", branch.getP2(), branch.getComputedP2(), branch.getQ2(), branch.getComputedQ2(), config);
         }
         try {
-            flowsWriter.writeBranch(branch.getId(),
-                    branch.getP1(), branch.getComputedP1(), branch.getQ1(), branch.getComputedQ1(),
-                    branch.getP2(), branch.getComputedP2(), branch.getQ2(), branch.getComputedQ2(),
-                    branch.getR(), branch.getX(),
-                    branch.getG1(), branch.getG2(), branch.getB1(), branch.getB2(),
-                    branch.getRho1(), branch.getRho2(), branch.getAlpha1(), branch.getAlpha2(),
-                    branch.getU1(), branch.getU2(), branch.getTheta1(), branch.getTheta2(),
-                    branch.getZ(), branch.getY(), branch.getKsi(), branch.getPhaseAngleClock(),
-                    branch.isConnected1(), branch.isConnected2(),
-                    branch.isMainComponent1(), branch.isMainComponent2(),
-                    validated);
+            flowsWriter.writeBranch(new Validated<>(branch, validated));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
