@@ -784,5 +784,3 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
         assertThrows(ValidationException.class, () -> limits.setTemporaryLimitValue(5 * 60, -6.0));
     }
 }
-
-

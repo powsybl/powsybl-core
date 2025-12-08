@@ -351,12 +351,7 @@ public abstract class AbstractGeneratorTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            generator.getTargetP();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, generator::getTargetP);
     }
 
     @Test

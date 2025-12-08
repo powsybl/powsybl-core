@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -93,12 +94,7 @@ public abstract class AbstractNetworkRemoveTest {
     @Test
     public void removeBusFailure() {
         VoltageLevel vl = network.getVoltageLevel(VLLOAD);
-        try {
-            vl.getBusBreakerView().removeBus(NLOAD);
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, () -> vl.getBusBreakerView().removeBus(NLOAD));
     }
 
     @Test
@@ -116,24 +112,14 @@ public abstract class AbstractNetworkRemoveTest {
         network.getLoad("LOAD").remove();
         network.getTwoWindingsTransformer(NHV2_NLOAD).remove();
         VoltageLevel vl = network.getVoltageLevel(VLLOAD);
-        try {
-            vl.getBusBreakerView().removeBus(NLOAD);
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, () -> vl.getBusBreakerView().removeBus(NLOAD));
     }
 
     @Test
     public void removeSwitchFailure() {
         extend(network);
         VoltageLevel vl = network.getVoltageLevel(VLLOAD);
-        try {
-            vl.getBusBreakerView().removeSwitch("XXX");
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, () -> vl.getBusBreakerView().removeSwitch("XXX"));
     }
 
     @Test

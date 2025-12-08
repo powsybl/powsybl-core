@@ -170,12 +170,7 @@ public abstract class AbstractAreaTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            controlAreaA.getInterchangeTarget();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, controlAreaA::getInterchangeTarget);
 
         // Remove observer changes
         network.removeListener(mockedListener);

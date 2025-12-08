@@ -8,8 +8,8 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -181,6 +181,11 @@ public abstract class AbstractConnectableTest {
             .add()
             .add();
 
+        createBreakersAndDisconnectors(vl1);
+        return network;
+    }
+
+    private static void createBreakersAndDisconnectors(VoltageLevel vl1) {
         // Breakers
         vl1.getNodeBreakerView().newBreaker()
             .setId("B_L1_1")
@@ -286,7 +291,7 @@ public abstract class AbstractConnectableTest {
             .setNode2(12)
             .setOpen(true)
             .add();
-        return network;
+
     }
 
     @Test

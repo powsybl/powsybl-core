@@ -242,12 +242,7 @@ public abstract class AbstractDanglingLineTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            danglingLine.getQ0();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, danglingLine::getQ0);
     }
 
     @Test
