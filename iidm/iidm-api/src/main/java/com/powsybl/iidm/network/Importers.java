@@ -55,7 +55,9 @@ public final class Importers {
      * @param reportNode the reportNode used for functional logs
      * @return the model
      */
-    public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config, ReportNode reportNode) {
+    public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource,
+                                     Properties parameters, ComputationManager computationManager, ImportConfig config,
+                                     ReportNode reportNode) {
         Importer importer = Importer.find(loader, format, computationManager, config);
         if (importer == null) {
             throw new PowsyblException("Import format " + format + " not supported");
@@ -63,7 +65,8 @@ public final class Importers {
         return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reportNode);
     }
 
-    public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config) {
+    public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource,
+                                     Properties parameters, ComputationManager computationManager, ImportConfig config) {
         return importData(loader, format, dataSource, parameters, computationManager, config, ReportNode.NO_OP);
     }
 
@@ -96,7 +99,9 @@ public final class Importers {
         return importData(format, new DirectoryDataSource(Paths.get(directory), baseName), parameters);
     }
 
-    private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) {
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters, Consumer<Network> consumer,
+                                 Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) {
         Objects.requireNonNull(consumer);
         try {
             if (listener != null) {
@@ -140,11 +145,13 @@ public final class Importers {
         }
     }
 
-    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
+    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer,
+                                 Consumer<ReadOnlyDataSource> listener, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
         importAll(dir, importer, parallel, parameters, consumer, listener, NetworkFactory.findDefault(), reportNode);
     }
 
-    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
+    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer,
+                                 Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
         List<ReadOnlyDataSource> dataSources = new ArrayList<>();
         importAll(dir, importer, dataSources);
         if (parallel) {
@@ -166,7 +173,8 @@ public final class Importers {
         }
     }
 
-    public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+    public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer,
+                                 Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         importAll(dir, importer, parallel, null, consumer, listener, ReportNode.NO_OP);
     }
 

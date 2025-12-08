@@ -206,7 +206,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      *     </tbody>
      * </table>
      */
-    public interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder, FlowsLimitsHolder {
+    interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder, FlowsLimitsHolder {
 
         /**
          * Get the terminal the leg is connected to.

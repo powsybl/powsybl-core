@@ -43,7 +43,7 @@ public final class ComparisonUtils {
 
     public static void assertTxtEquals(Path expected, Path actual) {
         try (InputStream expectedStream = Files.newInputStream(expected);
-            InputStream actualStream = Files.newInputStream(actual)) {
+             InputStream actualStream = Files.newInputStream(actual)) {
             assertTxtEquals(expectedStream, actualStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

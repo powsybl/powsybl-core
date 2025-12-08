@@ -73,22 +73,25 @@ public abstract class AbstractTaskInterruptionTest {
     }
 
     private CompletableFuture<Object> createTask(Supplier<?> methodCalledInTask) {
-        return CompletableFutureTask.runAsync(() -> {
-            LOGGER.info("createTask - START - {}", ZonedDateTime.now());
-            waitForStart.countDown();
-            try {
-                LOGGER.info("createTask - TRY - {}", ZonedDateTime.now());
-                methodCalledInTask.get();
-                LOGGER.info("createTask - FINISHED - {}", ZonedDateTime.now());
-                config.set(true);
-            } catch (Exception e) { // Thread interrupted => good
-                LOGGER.info("createTask - INTERRUPTED - {}", ZonedDateTime.now());
-                interrupted.set(true);
-            } finally {
-                waitForEnd.countDown();
-            }
-            return Boolean.TRUE;
-        }, Executors.newSingleThreadExecutor());
+        return CompletableFutureTask.runAsync(() -> runAsyncTask(methodCalledInTask), Executors.newSingleThreadExecutor());
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private boolean runAsyncTask(Supplier<?> methodCalledInTask) {
+        LOGGER.info("createTask - START - {}", ZonedDateTime.now());
+        waitForStart.countDown();
+        try {
+            LOGGER.info("createTask - TRY - {}", ZonedDateTime.now());
+            methodCalledInTask.get();
+            LOGGER.info("createTask - FINISHED - {}", ZonedDateTime.now());
+            config.set(true);
+        } catch (Exception e) { // Thread interrupted => good
+            LOGGER.info("createTask - INTERRUPTED - {}", ZonedDateTime.now());
+            interrupted.set(true);
+        } finally {
+            waitForEnd.countDown();
+        }
+        return Boolean.TRUE;
     }
 
     /**

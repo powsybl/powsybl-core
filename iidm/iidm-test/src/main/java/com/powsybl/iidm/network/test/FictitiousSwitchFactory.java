@@ -8,8 +8,8 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import java.time.ZonedDateTime;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
@@ -35,189 +35,9 @@ public final class FictitiousSwitchFactory {
                 .setId("A")
                 .setCountry(Country.FR)
                 .add();
-        VoltageLevel vlC = s.newVoltageLevel()
-                .setId("C")
-                .setNominalV(225.0)
-                .setLowVoltageLimit(0.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        BusbarSection busbarSectionD = vlC.getNodeBreakerView().newBusbarSection()
-                .setId("D")
-                .setName("E")
-                .setNode(0)
-                .add();
-        createSwitch(vlC, "F", "G", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
-        createSwitch(vlC, "H", "I", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
-        createSwitch(vlC, "J", "K", SwitchKind.BREAKER, true, false, true, 1, 2);
-        createSwitch(vlC, "L", "M", SwitchKind.BREAKER, true, false, true, 3, 4);
 
-        VoltageLevel vlN = s.newVoltageLevel()
-                .setId("N")
-                .setNominalV(225.0)
-                .setLowVoltageLimit(220.0)
-                .setHighVoltageLimit(245.00002)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        BusbarSection busbarSectionO = vlN.getNodeBreakerView().newBusbarSection()
-                .setId("O")
-                .setName("E")
-                .setNode(0)
-                .add();
-        BusbarSection busbarSectionP = vlN.getNodeBreakerView().newBusbarSection()
-                .setId("P")
-                .setName("Q")
-                .setNode(1)
-                .add();
-        createSwitch(vlN, "R", "S", SwitchKind.DISCONNECTOR, false, true, false, 0, 19);
-        createSwitch(vlN, "T", "U", SwitchKind.DISCONNECTOR, false, true, false, 0, 17);
-        createSwitch(vlN, "V", "W", SwitchKind.DISCONNECTOR, false, true, false, 0, 21);
-        createSwitch(vlN, "X", "Y", SwitchKind.DISCONNECTOR, false, true, false, 0, 11);
-        createSwitch(vlN, "Z", "AA", SwitchKind.DISCONNECTOR, false, true, false, 0, 13);
-        createSwitch(vlN, "AB", "AC", SwitchKind.DISCONNECTOR, false, false, false, 0, 15);
-        createSwitch(vlN, "AD", "AE", SwitchKind.DISCONNECTOR, false, true, false, 0, 8);
-        createSwitch(vlN, "AF", "AG", SwitchKind.DISCONNECTOR, false, true, true, 0, 2);
-        createSwitch(vlN, "AH", "AI", SwitchKind.DISCONNECTOR, false, false, false, 7, 0);
-        createSwitch(vlN, "AJ", "AK", SwitchKind.DISCONNECTOR, false, false, false, 1, 6);
-        createSwitch(vlN, "AL", "AM", SwitchKind.DISCONNECTOR, false, false, false, 1, 19);
-        createSwitch(vlN, "AN", "AO", SwitchKind.DISCONNECTOR, false, false, false, 1, 17);
-        createSwitch(vlN, "AP", "AQ", SwitchKind.DISCONNECTOR, false, false, false, 1, 21);
-        createSwitch(vlN, "AR", "AS", SwitchKind.DISCONNECTOR, false, true, false, 1, 11);
-        createSwitch(vlN, "AT", "AU", SwitchKind.DISCONNECTOR, false, true, false, 1, 13);
-        createSwitch(vlN, "AV", "AW", SwitchKind.DISCONNECTOR, false, true, false, 1, 15);
-        createSwitch(vlN, "AX", "AY", SwitchKind.DISCONNECTOR, false, false, false, 1, 8);
-        createSwitch(vlN, "AZ", "BA", SwitchKind.DISCONNECTOR, false, true, true, 1, 2);
-        createSwitch(vlN, "BB", "BC", SwitchKind.BREAKER, true, true, true, 2, 3);
-        createSwitch(vlN, "BD", "BE", SwitchKind.BREAKER, true, false, false, 3, 4);
-        createSwitch(vlN, "BF", "BG", SwitchKind.DISCONNECTOR, false, false, false, 3, 5);
-        createSwitch(vlN, "BH", "BI", SwitchKind.DISCONNECTOR, false, true, false, 9, 3);
-        createSwitch(vlN, "BJ", "BK", SwitchKind.BREAKER, true, false, false, 6, 7);
-        createSwitch(vlN, "BL", "BM", SwitchKind.BREAKER, true, false, false, 8, 9);
-        createSwitch(vlN, "BN", "BO", SwitchKind.DISCONNECTOR, false, false, false, 9, 10);
-        createSwitch(vlN, "BP", "BQ", SwitchKind.BREAKER, true, true, false, 11, 12);
-        createSwitch(vlN, "BR", "BS", SwitchKind.BREAKER, true, true, false, 13, 14);
-        createSwitch(vlN, "BT", "BU", SwitchKind.BREAKER, true, false, false, 15, 16);
-        createSwitch(vlN, "BV", "BW", SwitchKind.BREAKER, true, false, false, 17, 18);
-        createSwitch(vlN, "BX", "BY", SwitchKind.BREAKER, true, false, false, 19, 20);
-        createSwitch(vlN, "BZ", "CA", SwitchKind.BREAKER, true, false, false, 21, 22);
-
-        Generator generatorCB = vlN.newGenerator()
-                .setId("CB")
-                .setEnergySource(EnergySource.HYDRO)
-                .setMinP(0.0)
-                .setMaxP(70.0)
-                .setVoltageRegulatorOn(false)
-                .setTargetP(0.0)
-                .setTargetV(0.0)
-                .setTargetQ(0.0)
-                .setNode(12)
-                .add();
-        generatorCB.newReactiveCapabilityCurve()
-                .beginPoint()
-                    .setP(0.0)
-                    .setMinQ(-59.3)
-                    .setMaxQ(60.0)
-                .endPoint()
-                .beginPoint()
-                    .setP(70.0)
-                    .setMinQ(-54.55)
-                    .setMaxQ(46.25)
-                .endPoint()
-                .add();
-
-        Generator generatorCC = vlN.newGenerator()
-                .setId("CC")
-                .setEnergySource(EnergySource.HYDRO)
-                .setMinP(0.0)
-                .setMaxP(80.0)
-                .setVoltageRegulatorOn(false)
-                .setTargetP(0.0)
-                .setTargetV(0.0)
-                .setTargetQ(0.0)
-                .setNode(14)
-                .add();
-        generatorCC.newReactiveCapabilityCurve()
-                .beginPoint()
-                    .setP(0.0)
-                    .setMinQ(-56.8)
-                    .setMaxQ(57.4)
-                .endPoint()
-                .beginPoint()
-                    .setP(80.0)
-                    .setMinQ(-53.514)
-                    .setMaxQ(36.4)
-                .endPoint()
-                .add();
-
-        Generator generatorCD = vlN.newGenerator()
-                .setId("CD")
-                .setEnergySource(EnergySource.HYDRO)
-                .setMinP(0.0)
-                .setMaxP(35.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetP(21.789589)
-                .setTargetV(236.44736)
-                .setTargetQ(-20.701546)
-                .setNode(16)
-                .add();
-        generatorCD.getTerminal()
-                .setP(-21.789589)
-                .setQ(20.693394);
-        generatorCD.newReactiveCapabilityCurve()
-                .beginPoint()
-                    .setP(0.0)
-                    .setMinQ(-20.6)
-                    .setMaxQ(18.1)
-                .endPoint()
-                .beginPoint()
-                    .setP(35.0)
-                    .setMinQ(-21.725)
-                    .setMaxQ(6.3500004)
-                .endPoint()
-                .add();
-
-        Load loadCE = vlN.newLoad()
-                .setId("CE")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(-72.18689)
-                .setQ0(50.168945)
-                .setNode(4)
-                .add();
-        loadCE.getTerminal()
-                .setP(-72.18689)
-                .setQ(50.168945);
-
-        Load loadCF = vlN.newLoad()
-                .setId("CF")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(8.455854)
-                .setQ0(-23.695925)
-                .setNode(18)
-                .add();
-        loadCF.getTerminal()
-                .setP(8.455854)
-                .setQ(-23.695925);
-
-        Load loadCG = vlN.newLoad()
-                .setId("CG")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(90.39911)
-                .setQ0(-51.96869)
-                .setNode(20)
-                .add();
-        loadCG.getTerminal()
-                .setP(90.39911)
-                .setQ(-51.96869);
-
-        Load loadCH = vlN.newLoad()
-                .setId("CH")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(-5.102249)
-                .setQ0(4.9081216)
-                .setNode(22)
-                .add();
-        loadCH.getTerminal()
-                .setP(-5.102249)
-                .setQ(4.9081216);
+        createVoltageLevelC(s);
+        createVoltageLevelN(s);
 
         TwoWindingsTransformer twtCI = s.newTwoWindingsTransformer()
                 .setId("CI")
@@ -311,17 +131,206 @@ public final class FictitiousSwitchFactory {
                 .endTemporaryLimit()
                 .add();
 
-        busbarSectionD.getTerminal().getBusView().getBus()
-                .setV(234.40912)
-                .setAngle(0.0);
-        busbarSectionO.getTerminal().getBusView().getBus()
-                .setV(236.44736)
-                .setAngle(15250391);
-        busbarSectionP.getTerminal().getBusView().getBus()
-                .setV(236.44736)
-                .setAngle(15.250391);
-
         return network;
+    }
+
+    private static void createVoltageLevelC(Substation s) {
+        VoltageLevel vlC = s.newVoltageLevel()
+            .setId("C")
+            .setNominalV(225.0)
+            .setLowVoltageLimit(0.0)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+        BusbarSection busbarSectionD = vlC.getNodeBreakerView().newBusbarSection()
+            .setId("D")
+            .setName("E")
+            .setNode(0)
+            .add();
+        createSwitch(vlC, "F", "G", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
+        createSwitch(vlC, "H", "I", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
+        createSwitch(vlC, "J", "K", SwitchKind.BREAKER, true, false, true, 1, 2);
+        createSwitch(vlC, "L", "M", SwitchKind.BREAKER, true, false, true, 3, 4);
+
+        busbarSectionD.getTerminal().getBusView().getBus()
+            .setV(234.40912)
+            .setAngle(0.0);
+    }
+
+    private static void createVoltageLevelN(Substation s) {
+        VoltageLevel vlN = s.newVoltageLevel()
+            .setId("N")
+            .setNominalV(225.0)
+            .setLowVoltageLimit(220.0)
+            .setHighVoltageLimit(245.00002)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+        BusbarSection busbarSectionO = vlN.getNodeBreakerView().newBusbarSection()
+            .setId("O")
+            .setName("E")
+            .setNode(0)
+            .add();
+        BusbarSection busbarSectionP = vlN.getNodeBreakerView().newBusbarSection()
+            .setId("P")
+            .setName("Q")
+            .setNode(1)
+            .add();
+        createSwitch(vlN, "R", "S", SwitchKind.DISCONNECTOR, false, true, false, 0, 19);
+        createSwitch(vlN, "T", "U", SwitchKind.DISCONNECTOR, false, true, false, 0, 17);
+        createSwitch(vlN, "V", "W", SwitchKind.DISCONNECTOR, false, true, false, 0, 21);
+        createSwitch(vlN, "X", "Y", SwitchKind.DISCONNECTOR, false, true, false, 0, 11);
+        createSwitch(vlN, "Z", "AA", SwitchKind.DISCONNECTOR, false, true, false, 0, 13);
+        createSwitch(vlN, "AB", "AC", SwitchKind.DISCONNECTOR, false, false, false, 0, 15);
+        createSwitch(vlN, "AD", "AE", SwitchKind.DISCONNECTOR, false, true, false, 0, 8);
+        createSwitch(vlN, "AF", "AG", SwitchKind.DISCONNECTOR, false, true, true, 0, 2);
+        createSwitch(vlN, "AH", "AI", SwitchKind.DISCONNECTOR, false, false, false, 7, 0);
+        createSwitch(vlN, "AJ", "AK", SwitchKind.DISCONNECTOR, false, false, false, 1, 6);
+        createSwitch(vlN, "AL", "AM", SwitchKind.DISCONNECTOR, false, false, false, 1, 19);
+        createSwitch(vlN, "AN", "AO", SwitchKind.DISCONNECTOR, false, false, false, 1, 17);
+        createSwitch(vlN, "AP", "AQ", SwitchKind.DISCONNECTOR, false, false, false, 1, 21);
+        createSwitch(vlN, "AR", "AS", SwitchKind.DISCONNECTOR, false, true, false, 1, 11);
+        createSwitch(vlN, "AT", "AU", SwitchKind.DISCONNECTOR, false, true, false, 1, 13);
+        createSwitch(vlN, "AV", "AW", SwitchKind.DISCONNECTOR, false, true, false, 1, 15);
+        createSwitch(vlN, "AX", "AY", SwitchKind.DISCONNECTOR, false, false, false, 1, 8);
+        createSwitch(vlN, "AZ", "BA", SwitchKind.DISCONNECTOR, false, true, true, 1, 2);
+        createSwitch(vlN, "BB", "BC", SwitchKind.BREAKER, true, true, true, 2, 3);
+        createSwitch(vlN, "BD", "BE", SwitchKind.BREAKER, true, false, false, 3, 4);
+        createSwitch(vlN, "BF", "BG", SwitchKind.DISCONNECTOR, false, false, false, 3, 5);
+        createSwitch(vlN, "BH", "BI", SwitchKind.DISCONNECTOR, false, true, false, 9, 3);
+        createSwitch(vlN, "BJ", "BK", SwitchKind.BREAKER, true, false, false, 6, 7);
+        createSwitch(vlN, "BL", "BM", SwitchKind.BREAKER, true, false, false, 8, 9);
+        createSwitch(vlN, "BN", "BO", SwitchKind.DISCONNECTOR, false, false, false, 9, 10);
+        createSwitch(vlN, "BP", "BQ", SwitchKind.BREAKER, true, true, false, 11, 12);
+        createSwitch(vlN, "BR", "BS", SwitchKind.BREAKER, true, true, false, 13, 14);
+        createSwitch(vlN, "BT", "BU", SwitchKind.BREAKER, true, false, false, 15, 16);
+        createSwitch(vlN, "BV", "BW", SwitchKind.BREAKER, true, false, false, 17, 18);
+        createSwitch(vlN, "BX", "BY", SwitchKind.BREAKER, true, false, false, 19, 20);
+        createSwitch(vlN, "BZ", "CA", SwitchKind.BREAKER, true, false, false, 21, 22);
+
+        Generator generatorCB = vlN.newGenerator()
+            .setId("CB")
+            .setEnergySource(EnergySource.HYDRO)
+            .setMinP(0.0)
+            .setMaxP(70.0)
+            .setVoltageRegulatorOn(false)
+            .setTargetP(0.0)
+            .setTargetV(0.0)
+            .setTargetQ(0.0)
+            .setNode(12)
+            .add();
+        generatorCB.newReactiveCapabilityCurve()
+            .beginPoint()
+            .setP(0.0)
+            .setMinQ(-59.3)
+            .setMaxQ(60.0)
+            .endPoint()
+            .beginPoint()
+            .setP(70.0)
+            .setMinQ(-54.55)
+            .setMaxQ(46.25)
+            .endPoint()
+            .add();
+
+        Generator generatorCC = vlN.newGenerator()
+            .setId("CC")
+            .setEnergySource(EnergySource.HYDRO)
+            .setMinP(0.0)
+            .setMaxP(80.0)
+            .setVoltageRegulatorOn(false)
+            .setTargetP(0.0)
+            .setTargetV(0.0)
+            .setTargetQ(0.0)
+            .setNode(14)
+            .add();
+        generatorCC.newReactiveCapabilityCurve()
+            .beginPoint()
+            .setP(0.0)
+            .setMinQ(-56.8)
+            .setMaxQ(57.4)
+            .endPoint()
+            .beginPoint()
+            .setP(80.0)
+            .setMinQ(-53.514)
+            .setMaxQ(36.4)
+            .endPoint()
+            .add();
+
+        Generator generatorCD = vlN.newGenerator()
+            .setId("CD")
+            .setEnergySource(EnergySource.HYDRO)
+            .setMinP(0.0)
+            .setMaxP(35.0)
+            .setVoltageRegulatorOn(true)
+            .setTargetP(21.789589)
+            .setTargetV(236.44736)
+            .setTargetQ(-20.701546)
+            .setNode(16)
+            .add();
+        generatorCD.getTerminal()
+            .setP(-21.789589)
+            .setQ(20.693394);
+        generatorCD.newReactiveCapabilityCurve()
+            .beginPoint()
+            .setP(0.0)
+            .setMinQ(-20.6)
+            .setMaxQ(18.1)
+            .endPoint()
+            .beginPoint()
+            .setP(35.0)
+            .setMinQ(-21.725)
+            .setMaxQ(6.3500004)
+            .endPoint()
+            .add();
+
+        Load loadCE = vlN.newLoad()
+            .setId("CE")
+            .setLoadType(LoadType.UNDEFINED)
+            .setP0(-72.18689)
+            .setQ0(50.168945)
+            .setNode(4)
+            .add();
+        loadCE.getTerminal()
+            .setP(-72.18689)
+            .setQ(50.168945);
+
+        Load loadCF = vlN.newLoad()
+            .setId("CF")
+            .setLoadType(LoadType.UNDEFINED)
+            .setP0(8.455854)
+            .setQ0(-23.695925)
+            .setNode(18)
+            .add();
+        loadCF.getTerminal()
+            .setP(8.455854)
+            .setQ(-23.695925);
+
+        Load loadCG = vlN.newLoad()
+            .setId("CG")
+            .setLoadType(LoadType.UNDEFINED)
+            .setP0(90.39911)
+            .setQ0(-51.96869)
+            .setNode(20)
+            .add();
+        loadCG.getTerminal()
+            .setP(90.39911)
+            .setQ(-51.96869);
+
+        Load loadCH = vlN.newLoad()
+            .setId("CH")
+            .setLoadType(LoadType.UNDEFINED)
+            .setP0(-5.102249)
+            .setQ0(4.9081216)
+            .setNode(22)
+            .add();
+        loadCH.getTerminal()
+            .setP(-5.102249)
+            .setQ(4.9081216);
+
+        busbarSectionO.getTerminal().getBusView().getBus()
+            .setV(236.44736)
+            .setAngle(15250391);
+        busbarSectionP.getTerminal().getBusView().getBus()
+            .setV(236.44736)
+            .setAngle(15.250391);
     }
 
     private static void createSwitch(VoltageLevel vl, String id, String name, SwitchKind kind, boolean retained, boolean open, boolean fictitious, int node1, int node2) {

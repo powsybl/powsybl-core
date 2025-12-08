@@ -73,7 +73,6 @@ public interface TapChanger<
      * <p>
      * Depends on the working variant.
      * @see VariantManager
-     * </p>
      */
     Integer getSolvedTapPosition();
 

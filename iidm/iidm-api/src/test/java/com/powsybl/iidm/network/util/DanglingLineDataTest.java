@@ -7,13 +7,12 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import com.powsybl.iidm.network.DanglingLine;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.DanglingLine;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *

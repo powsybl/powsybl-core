@@ -41,14 +41,8 @@ class ComputationParametersTest {
 
     @Test
     void testInvalid() {
-        try {
-            ComputationParameters opts = new ComputationParametersBuilder()
-                    .setTimeout("inv", 0)
-                    .build();
-            fail();
-        } catch (Exception e) {
-            // ignore
-        }
+        ComputationParametersBuilder opts = new ComputationParametersBuilder();
+        assertThrows(IllegalArgumentException.class, () -> opts.setTimeout("inv", 0));
     }
 
     @Test

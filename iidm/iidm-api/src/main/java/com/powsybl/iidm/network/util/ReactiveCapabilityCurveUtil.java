@@ -33,7 +33,9 @@ public final class ReactiveCapabilityCurveUtil {
      * @param ownerDescription                Description of the ReactiveCapabilityCurve's owner (for logging purpose)
      * @return A ReactiveCapabilityCurve.Point of the extrapolated limits at the requested value of p
      */
-    public static ReactiveCapabilityCurve.Point extrapolateReactiveLimitsSlope(double p, TreeMap<Double, ReactiveCapabilityCurve.Point> points, TriFunction<Double, Double, Double, ReactiveCapabilityCurve.Point> valuesToReactiveCapabilityPoint, String ownerDescription) {
+    public static ReactiveCapabilityCurve.Point extrapolateReactiveLimitsSlope(double p, TreeMap<Double, ReactiveCapabilityCurve.Point> points,
+                                                                               TriFunction<Double, Double, Double, ReactiveCapabilityCurve.Point> valuesToReactiveCapabilityPoint,
+                                                                               String ownerDescription) {
         double minQ;
         double maxQ;
         ReactiveCapabilityCurve.Point pBound;
@@ -59,7 +61,8 @@ public final class ReactiveCapabilityCurveUtil {
             return valuesToReactiveCapabilityPoint.apply(p, minQ, maxQ);
         } else { // Corner case of intersecting reactive limits when extrapolated
             double limitQ = (minQ + maxQ) / 2;
-            LOGGER.warn("Extrapolation of reactive capability curve for {} leads to minQ > maxQ, correcting to minQ = maxQ", ownerDescription); // This log message can be over flowing (if called at each iteration), apply filters in logback to avoid it
+            // This log message can be over flowing (if called at each iteration), apply filters in logback to avoid it
+            LOGGER.warn("Extrapolation of reactive capability curve for {} leads to minQ > maxQ, correcting to minQ = maxQ", ownerDescription);
             return valuesToReactiveCapabilityPoint.apply(p, limitQ, limitQ); // Returning the mean as limits minQ and maxQ
         }
     }

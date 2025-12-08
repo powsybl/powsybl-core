@@ -101,7 +101,8 @@ public abstract class AbstractSerDeTest {
         return roundTripTest(data, (t, p) -> t, write, read, compare, ref);
     }
 
-    protected <T> T roundTripTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> write, Function<Path, T> read, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
+    protected <T> T roundTripTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> write, Function<Path, T> read,
+                                  BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
         // Transform the data (used for cascading round trips)
         Path transformFile = tmpDir.resolve("data");
         T transformedData = transformer.apply(data, transformFile);

@@ -17,7 +17,7 @@ public record VariantNetworkEvent(String sourceVariantId, String targetVariantId
     public enum VariantEventType {
         CREATED,
         OVERWRITTEN,
-        REMOVED;
+        REMOVED
     }
 
     public VariantNetworkEvent {
