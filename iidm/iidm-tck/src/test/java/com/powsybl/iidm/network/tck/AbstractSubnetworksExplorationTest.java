@@ -210,10 +210,12 @@ public abstract class AbstractSubnetworksExplorationTest {
         voltageLevel1.newDanglingLine()
                 .setId(id("danglingLine1", networkId))
                 .setNode(15)
+                .setPairingKey("pairingKey")
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .add();
         voltageLevel2.newDanglingLine()
                 .setId(id("danglingLine2", networkId))
+                .setPairingKey("pairingKey")
                 .setNode(16)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .add();
