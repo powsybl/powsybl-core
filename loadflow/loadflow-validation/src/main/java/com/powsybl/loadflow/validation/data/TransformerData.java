@@ -40,6 +40,11 @@ public record TransformerData(String twtId,
         return Double.isNaN(rhoPreviousStep) ? Double.NaN : evaluateVoltage(regulatedSide, v, rho, rhoPreviousStep) - v;
     }
 
+    /**
+     *  Evaluates the voltage value for a transformation ratio different from the current ratio,
+     *  assuming "nothing else changes": voltage on the other side is kept constant,
+     *  voltage decrease through the impedance is kept constant (perfect transformer approximation).
+     */
     private static double evaluateVoltage(TwoSides regulatedSide, double voltage, double ratio, double nextRatio) {
         if (regulatedSide == null) {
             return Double.NaN;

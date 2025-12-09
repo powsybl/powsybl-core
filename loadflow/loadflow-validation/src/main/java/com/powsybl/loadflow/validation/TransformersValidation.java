@@ -162,22 +162,6 @@ public final class TransformersValidation {
     }
 
     /**
-     *  Evaluates the voltage value for a transformation ratio different from the current ratio,
-     *  assuming "nothing else changes": voltage on the other side is kept constant,
-     *  voltage decrease through the impedance is kept constant (perfect transformer approximation).
-     */
-    private static double evaluateVoltage(TwoSides regulatedSide, double voltage, double ratio, double nextRatio) {
-        switch (regulatedSide) {
-            case ONE:
-                return voltage * ratio / nextRatio;
-            case TWO:
-                return voltage * nextRatio / ratio;
-            default:
-                throw new IllegalStateException("Unexpected Side value: " + regulatedSide);
-        }
-    }
-
-    /**
      * Checks that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
      * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
      */

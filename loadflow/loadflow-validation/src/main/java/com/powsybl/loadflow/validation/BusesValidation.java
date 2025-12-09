@@ -107,7 +107,7 @@ public final class BusesValidation {
         double t3wtQ = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
 
         boolean mainComponent = bus.isInMainConnectedComponent();
-        BusData d = new BusData(bus.getId(), loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent);
+        BusData d = new BusData(bus.getId(), loadP, loadQ, getValue(genP), getValue(genQ), batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent);
         return checkBuses(d, config, busesWriter);
     }
 
