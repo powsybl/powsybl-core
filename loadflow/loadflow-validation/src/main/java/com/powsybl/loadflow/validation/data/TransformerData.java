@@ -9,7 +9,7 @@ public record TransformerData(String twtId,
                               int tapPosition, int lowTapPosition, int highTapPosition,
                               double targetV, TwoSides regulatedSide,
                               double v,
-                              boolean connected, boolean mainComponent) implements ValidationData {
+                              boolean connected, boolean mainComponent) {
     public TransformerData {
         Objects.requireNonNull(twtId);
     }

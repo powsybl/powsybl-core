@@ -10,7 +10,7 @@ public record GeneratorData(String generatorId,
                             boolean voltageRegulatorOn,
                             double minP, double maxP, double minQ, double maxQ,
                             boolean connected, boolean mainComponent,
-                            BalanceTypeGuesser guesser) implements ValidationData {
+                            BalanceTypeGuesser guesser) {
 
     public GeneratorData {
         Objects.requireNonNull(generatorId);

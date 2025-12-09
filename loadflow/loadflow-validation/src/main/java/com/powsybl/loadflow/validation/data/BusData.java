@@ -13,7 +13,7 @@ public record BusData(String busId,
                       double danglingLineP, double danglingLineQ,
                       double twtP, double twtQ,
                       double tltP, double tltQ,
-                      boolean mainComponent) implements ValidationData {
+                      boolean mainComponent) {
     public BusData {
         Objects.requireNonNull(busId);
     }

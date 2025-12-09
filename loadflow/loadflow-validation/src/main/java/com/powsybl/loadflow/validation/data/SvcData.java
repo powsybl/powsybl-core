@@ -11,7 +11,7 @@ public record SvcData(String svcId,
                       double reactivePowerSetpoint, double voltageSetpoint,
                       StaticVarCompensator.RegulationMode regulationMode, boolean regulating,
                       double bMin, double bMax,
-                      boolean connected, boolean mainComponent) implements ValidationData {
+                      boolean connected, boolean mainComponent) {
     public SvcData {
         Objects.requireNonNull(svcId);
     }

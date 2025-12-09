@@ -9,7 +9,7 @@ public record ShuntData(String shuntId,
                         double qMax,
                         double v, boolean connected,
                         double nominalV,
-                        boolean mainComponent) implements ValidationData {
+                        boolean mainComponent) {
     public ShuntData {
         Objects.requireNonNull(shuntId);
     }
