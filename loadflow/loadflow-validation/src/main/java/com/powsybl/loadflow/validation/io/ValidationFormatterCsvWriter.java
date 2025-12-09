@@ -20,7 +20,6 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
@@ -51,24 +50,15 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     protected Column[] getColumns() {
-        switch (validationType) {
-            case FLOWS:
-                return getFlowColumns();
-            case GENERATORS:
-                return getGeneratorColumns();
-            case BUSES:
-                return getBusColumns();
-            case SVCS:
-                return getSvcColumns();
-            case SHUNTS:
-                return getShuntColumns();
-            case TWTS:
-                return getTwtColumns();
-            case TWTS3W:
-                return getTwt3wColumns();
-            default:
-                throw new IllegalStateException("Unexpected ValidationType value: " + validationType);
-        }
+        return switch (validationType) {
+            case FLOWS -> getFlowColumns();
+            case GENERATORS -> getGeneratorColumns();
+            case BUSES -> getBusColumns();
+            case SVCS -> getSvcColumns();
+            case SHUNTS -> getShuntColumns();
+            case TWTS -> getTwtColumns();
+            case TWTS3W -> getTwt3wColumns();
+        };
     }
 
     private Column[] getFlowColumns() {
@@ -711,44 +701,38 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void writeT2wt(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                             int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
-                             boolean mainComponent, boolean validated, ValidatedTransformer twtData, boolean found, boolean writeValues) throws IOException {
-        formatter.writeCell(twtId);
+    protected void writeT2wt(Validated<TransformerData> v, Validated<TransformerData> twtData, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(v.data().twtId());
         if (compareResults) {
             formatter = found ?
-                        write(found, twtData.error(), twtData.upIncrement(), twtData.downIncrement(), twtData.rho(), twtData.rhoPreviousStep(), twtData.rhoNextStep(),
-                                twtData.tapPosition(), twtData.lowTapPosition(), twtData.highTapPosition(), twtData.targetV(), twtData.regulatedSide(), twtData.v(),
-                                twtData.connected(), twtData.mainComponent(), twtData.validated()) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false);
+                    writeT2wt(found, twtData) :
+                    writeT2wt(found, TransformerData.createEmptyValidated(v.data().twtId()));
         }
-        write(writeValues, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV,
-              regulatedSide, v, connected, mainComponent, validated);
+        writeT2wt(writeValues, v);
     }
 
-    private TableFormatter write(boolean writeValues, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                                 int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
-                                 boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter writeT2wt(boolean writeValues, Validated<TransformerData> v) throws IOException {
+        TransformerData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(error)
-                             .writeCell(upIncrement)
-                             .writeCell(downIncrement) :
+                    formatter.writeCell(d.error())
+                             .writeCell(d.upIncrement())
+                             .writeCell(d.downIncrement()) :
                     formatter.writeEmptyCells(3);
         if (verbose) {
-            String regSideString = regulatedSide != null ? regulatedSide.name() : invalidString;
+            String regSideString = d.regulatedSide() != null ? d.regulatedSide().name() : invalidString;
             formatter = writeValues ?
-                        formatter.writeCell(rho)
-                                 .writeCell(rhoPreviousStep)
-                                 .writeCell(rhoNextStep)
-                                 .writeCell(tapPosition)
-                                 .writeCell(lowTapPosition)
-                                 .writeCell(highTapPosition)
-                                 .writeCell(targetV)
+                        formatter.writeCell(d.rho())
+                                 .writeCell(d.rhoPreviousStep())
+                                 .writeCell(d.rhoNextStep())
+                                 .writeCell(d.tapPosition())
+                                 .writeCell(d.lowTapPosition())
+                                 .writeCell(d.highTapPosition())
+                                 .writeCell(d.targetV())
                                  .writeCell(regSideString)
-                                 .writeCell(v)
-                                 .writeCell(connected)
-                                 .writeCell(mainComponent)
-                                 .writeCell(getValidated(validated)) :
+                                 .writeCell(d.v())
+                                 .writeCell(d.connected())
+                                 .writeCell(d.mainComponent())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(12);
         }
         return formatter;

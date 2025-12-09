@@ -18,6 +18,8 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.validation.data.TransformerData;
+import com.powsybl.loadflow.validation.data.Validated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,8 +114,8 @@ public final class TransformersValidation {
             LOGGER.warn("{} {}: {}: Unexpected regulation terminal (side 1 or 2 of transformer is expected), skipping validation",
                         ValidationType.TWTS, ValidationUtils.VALIDATION_WARNING, twt.getId());
             try {
-                twtsWriter.writeT2wt(twt.getId(), Float.NaN, Float.NaN, Float.NaN, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
-                                 highTapPosition, targetV, null, Float.NaN, false, false, true);
+                twtsWriter.writeT2wt(new Validated<>(new TransformerData(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
+                                 highTapPosition, targetV, null, Float.NaN, false, false), true));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -125,42 +127,34 @@ public final class TransformersValidation {
         Bus connectableBus = ratioTapChanger.getRegulationTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
         boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
-        return checkTransformer(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                 targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
+        TransformerData transformerData = new TransformerData(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV, regulatedSide, v, connected, mainComponent);
+        return checkTransformer(transformerData, config, twtsWriter);
     }
 
-    public static boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
-                                    int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v,
-                                    boolean connected, boolean mainComponent, ValidationConfig config, Writer writer) {
-        Objects.requireNonNull(id);
+    public static boolean checkTransformer(TransformerData transformerData, ValidationConfig config, Writer writer) {
+        Objects.requireNonNull(transformerData);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.TWTS)) {
-            return checkTransformer(id, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                    targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
+        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(transformerData.twtId(), config, writer, ValidationType.TWTS)) {
+            return checkTransformer(transformerData, config, twtsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
-                                    int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v,
-                                    boolean connected, boolean mainComponent, ValidationConfig config, ValidationWriter twtsWriter) {
-        Objects.requireNonNull(id);
+    public static boolean checkTransformer(TransformerData transformerData, ValidationConfig config, ValidationWriter twtsWriter) {
+        Objects.requireNonNull(transformerData);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
 
         boolean validated = true;
-        double error = v - targetV;
-        double upIncrement = Double.isNaN(rhoNextStep) ? Double.NaN : evaluateVoltage(regulatedSide, v, rho, rhoNextStep) - v;
-        double downIncrement = Double.isNaN(rhoPreviousStep) ? Double.NaN : evaluateVoltage(regulatedSide, v, rho, rhoPreviousStep) - v;
-        if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
-            validated = checkTransformerSide(id, regulatedSide, error, upIncrement, downIncrement, config);
+
+        if (transformerData.connected() && ValidationUtils.isMainComponent(config, transformerData.mainComponent())) {
+            validated = checkTransformerSide(transformerData, config);
         }
         try {
-            twtsWriter.writeT2wt(id, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
-                             highTapPosition, targetV, regulatedSide, v, connected, mainComponent, validated);
+            twtsWriter.writeT2wt(new Validated<>(transformerData, validated));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -187,8 +181,13 @@ public final class TransformersValidation {
      * Checks that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
      * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
      */
-    private static boolean checkTransformerSide(String id, TwoSides side, double error, double upIncrement, double downIncrement, ValidationConfig config) {
+    private static boolean checkTransformerSide(TransformerData transformerData, ValidationConfig config) {
         boolean validated = true;
+        String id = transformerData.twtId();
+        TwoSides side = transformerData.regulatedSide();
+        double error = transformerData.error();
+        double upIncrement = transformerData.upIncrement();
+        double downIncrement = transformerData.downIncrement();
         double maxIncrease = getMaxVoltageIncrease(upIncrement, downIncrement);
         double maxDecrease = getMaxVoltageDecrease(upIncrement, downIncrement);
         if (ValidationUtils.areNaN(config, error)) {

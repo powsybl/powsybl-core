@@ -11,7 +11,6 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
@@ -67,7 +66,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected Map<String, Validated<SvcData>> svcsData = new HashMap<>();
     protected Map<String, Validated<ShuntData>> shuntsData = new HashMap<>();
     protected Map<String, Validated<BranchData>> flowsData = new HashMap<>();
-    protected Map<String, ValidatedTransformer> twtsData = new HashMap<>();
+    protected Map<String, Validated<TransformerData>> twtsData = new HashMap<>();
     protected Map<String, ValidatedTransformer3W> twts3wData = new HashMap<>();
 
     protected TableFormatter createTableFormatter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
@@ -208,32 +207,25 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected abstract void writeShunt(Validated<ShuntData> v, Validated<ShuntData> validatedShunt, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void writeT2wt(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                          int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
-                          boolean mainComponent, boolean validated) throws IOException {
-        Objects.requireNonNull(twtId);
-        ValidatedTransformer emptyTwtData = new ValidatedTransformer(twtId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                Double.NaN, -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false);
+    public void writeT2wt(Validated<TransformerData> validatedT2wtData) throws IOException {
+        Objects.requireNonNull(validatedT2wtData);
+        String twtId = validatedT2wtData.data().twtId();
+        Validated<TransformerData> emptyTwtData = TransformerData.createEmptyValidated(twtId);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = twtsData.containsKey(twtId);
-                ValidatedTransformer twtData = found ? twtsData.get(twtId) : emptyTwtData;
-                writeT2wt(twtId, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
-                        highTapPosition, targetV, regulatedSide, v, connected, mainComponent, validated, twtData, found, true);
+                Validated<TransformerData> twtData = found ? twtsData.get(twtId) : emptyTwtData;
+                writeT2wt(validatedT2wtData, twtData, found, true);
                 twtsData.remove(twtId);
             } else {
-                twtsData.put(twtId, new ValidatedTransformer(twtId, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition,
-                        lowTapPosition, highTapPosition, targetV, regulatedSide, v, connected, mainComponent, validated));
+                twtsData.put(twtId, validatedT2wtData);
             }
         } else {
-            writeT2wt(twtId, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
-                    highTapPosition, targetV, regulatedSide, v, connected, mainComponent, validated, emptyTwtData, false, true);
+            writeT2wt(validatedT2wtData, emptyTwtData, false, true);
         }
     }
 
-    protected abstract void writeT2wt(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                                      int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
-                                      boolean mainComponent, boolean validated, ValidatedTransformer twtData, boolean found, boolean writeValues) throws IOException;
+    protected abstract void writeT2wt(Validated<TransformerData> v, Validated<TransformerData> twtData, boolean found, boolean writeValues) throws IOException;
 
     @Override
     public void writeT3wt(String twtId, TwtData twtData, boolean validated) throws IOException {
@@ -344,10 +336,9 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeTwtsData() {
         twtsData.values().forEach(twtData -> {
             try {
-                writeT2wt(twtData.twtId(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                        -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false, twtData, true, false);
+                writeT2wt(TransformerData.createEmptyValidated(twtData.data().twtId()), twtData, true, false);
             } catch (IOException e) {
-                LOGGER.error("Error writing data of twt {}: {}", twtData.twtId(), e.getMessage());
+                LOGGER.error("Error writing data of twt {}: {}", twtData.data().twtId(), e.getMessage());
             }
         });
     }

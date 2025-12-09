@@ -128,9 +128,9 @@ abstract class AbstractValidationFormatterWriterTest {
 
     protected final String twtId = "twtId";
     protected final String otherTwtId = "otherTwtId";
-    protected final double error = 0.000243738;
-    protected final double upIncrement = 0.00944448;
-    protected final double downIncrement = -0.00834519;
+    protected final double error = 0.0226000;
+    protected final double upIncrement = 0.906257;
+    protected final double downIncrement = -0.800773;
     protected final double rho = 1.034;
     protected final double rhoPreviousStep = 1.043;
     protected final double rhoNextStep = 1.024;
@@ -497,12 +497,12 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter twtsWriter = getTwtsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            twtsWriter.writeT2wt(twtId1, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition,
-                             lowTapPosition, highTapPosition, twtTargetV, regulatedSide, twtV, connected, mainComponent, validated);
+            twtsWriter.writeT2wt(new Validated<>(new TransformerData(twtId1, rho, rhoPreviousStep, rhoNextStep, tapPosition,
+                             lowTapPosition, highTapPosition, twtTargetV, regulatedSide, twtV, connected, mainComponent), validated));
             twtsWriter.setValidationCompleted();
             if (compareResults) {
-                twtsWriter.writeT2wt(twtId2, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition,
-                                 lowTapPosition, highTapPosition, twtTargetV, regulatedSide, twtV, connected, mainComponent, validated);
+                twtsWriter.writeT2wt(new Validated<>(new TransformerData(twtId2, rho, rhoPreviousStep, rhoNextStep, tapPosition,
+                                 lowTapPosition, highTapPosition, twtTargetV, regulatedSide, twtV, connected, mainComponent), validated));
                 twtsWriter.setValidationCompleted();
             }
             assertEquals(twtsContent, writer.toString().trim());
@@ -516,8 +516,8 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter twtsWriter = getTwtsValidationFormatterCsvWriter(config, writer, true, false)) {
-            twtsWriter.writeT2wt(twtId, Float.NaN, Float.NaN, Float.NaN, rho, rhoPreviousStep, rhoNextStep, tapPosition,
-                             lowTapPosition, highTapPosition, twtTargetV, null, Float.NaN, false, false, true);
+            twtsWriter.writeT2wt(new Validated<>(new TransformerData(twtId, rho, rhoPreviousStep, rhoNextStep, tapPosition,
+                             lowTapPosition, highTapPosition, twtTargetV, null, Float.NaN, false, false), true));
             assertEquals(getTwtsMissingSideContent(), writer.toString().trim());
         }
     }

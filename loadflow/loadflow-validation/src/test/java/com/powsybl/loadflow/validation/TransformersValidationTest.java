@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import com.powsybl.loadflow.validation.data.TransformerData;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,23 +94,23 @@ class TransformersValidationTest extends AbstractValidationTest {
 
     @Test
     void checkTwtsValues() {
-        assertTrue(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                                            targetV, regulatedSide, v, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertTrue(TransformersValidation.checkTransformer(new TransformerData("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+                                                            targetV, regulatedSide, v, connected, mainComponent), strictConfig, NullWriter.INSTANCE));
         // Error >= -Max(UpIncrement, DownIncrement)
-        assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                                             targetV, regulatedSide, lowV, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertFalse(TransformersValidation.checkTransformer("test", rho, Float.NaN, rhoNextStep, lowTapPosition, lowTapPosition, highTapPosition,
-                                                             targetV, regulatedSide, lowV, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(TransformersValidation.checkTransformer(new TransformerData("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+                                                             targetV, regulatedSide, lowV, connected, mainComponent), strictConfig, NullWriter.INSTANCE));
+        assertFalse(TransformersValidation.checkTransformer(new TransformerData("test", rho, Float.NaN, rhoNextStep, lowTapPosition, lowTapPosition, highTapPosition,
+                                                             targetV, regulatedSide, lowV, connected, mainComponent), strictConfig, NullWriter.INSTANCE));
         // Error <= -Min(UpIncrement, DownIncrement)
-        assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                                             targetV, regulatedSide, highV, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, Float.NaN, highTapPosition, lowTapPosition, highTapPosition,
-                                                             targetV, regulatedSide, highV, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(TransformersValidation.checkTransformer(new TransformerData("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+                                                             targetV, regulatedSide, highV, connected, mainComponent), strictConfig, NullWriter.INSTANCE));
+        assertFalse(TransformersValidation.checkTransformer(new TransformerData("test", rho, rhoPreviousStep, Float.NaN, highTapPosition, lowTapPosition, highTapPosition,
+                                                             targetV, regulatedSide, highV, connected, mainComponent), strictConfig, NullWriter.INSTANCE));
         // check NaN vales
-        assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                                             Float.NaN, regulatedSide, v, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                                             targetV, regulatedSide, Float.NaN, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
+        assertFalse(TransformersValidation.checkTransformer(new TransformerData("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+                                                             Float.NaN, regulatedSide, v, connected, mainComponent), strictConfig, NullWriter.INSTANCE));
+        assertFalse(TransformersValidation.checkTransformer(new TransformerData("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
+                                                             targetV, regulatedSide, Float.NaN, connected, mainComponent), strictConfig, NullWriter.INSTANCE));
     }
 
     @Test

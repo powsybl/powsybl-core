@@ -22,7 +22,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
@@ -196,25 +195,24 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void writeT2wt(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                             int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
-                             boolean mainComponent, boolean validated, ValidatedTransformer twtData, boolean found, boolean writeValues) throws IOException {
-        write(twtId, "error", found, twtData.error(), writeValues, error);
-        write(twtId, "upIncrement", found, twtData.upIncrement(), writeValues, upIncrement);
-        write(twtId, "downIncrement", found, twtData.downIncrement(), writeValues, downIncrement);
+    protected void writeT2wt(Validated<TransformerData> v, Validated<TransformerData> twtData, boolean found, boolean writeValues) throws IOException {
+        String twtId = v.data().twtId();
+        write(twtId, "error", found, twtData.data().error(), writeValues, v.data().error());
+        write(twtId, "upIncrement", found, twtData.data().upIncrement(), writeValues, v.data().upIncrement());
+        write(twtId, "downIncrement", found, twtData.data().downIncrement(), writeValues, v.data().downIncrement());
         if (verbose) {
-            write(twtId, "rho", found, twtData.rho(), writeValues, rho);
-            write(twtId, "rhoPreviousStep", found, twtData.rhoPreviousStep(), writeValues, rhoPreviousStep);
-            write(twtId, "rhoNextStep", found, twtData.rhoNextStep(), writeValues, rhoNextStep);
-            write(twtId, "tapPosition", found, twtData.tapPosition(), writeValues, tapPosition);
-            write(twtId, "lowTapPosition", found, twtData.lowTapPosition(), writeValues, lowTapPosition);
-            write(twtId, "highTapPosition", found, twtData.highTapPosition(), writeValues, highTapPosition);
-            write(twtId, "tapChangerTargetV", found, twtData.targetV(), writeValues, targetV);
-            write(twtId, "regulatedSide", found, twtData.regulatedSide() != null ? twtData.regulatedSide().name() : invalidString, writeValues, regulatedSide != null ? regulatedSide.name() : invalidString);
-            write(twtId, "v", found, twtData.v(), writeValues, v);
-            write(twtId, CONNECTED, found, twtData.connected(), writeValues, connected);
-            write(twtId, MAIN_COMPONENT, found, twtData.mainComponent(), writeValues, mainComponent);
-            write(twtId, VALIDATION, found, getValidated(twtData.validated()), writeValues, getValidated(validated));
+            write(twtId, "rho", found, twtData.data().rho(), writeValues, v.data().rho());
+            write(twtId, "rhoPreviousStep", found, twtData.data().rhoPreviousStep(), writeValues, v.data().rhoPreviousStep());
+            write(twtId, "rhoNextStep", found, twtData.data().rhoNextStep(), writeValues, v.data().rhoNextStep());
+            write(twtId, "tapPosition", found, twtData.data().tapPosition(), writeValues, v.data().tapPosition());
+            write(twtId, "lowTapPosition", found, twtData.data().lowTapPosition(), writeValues, v.data().lowTapPosition());
+            write(twtId, "highTapPosition", found, twtData.data().highTapPosition(), writeValues, v.data().highTapPosition());
+            write(twtId, "tapChangerTargetV", found, twtData.data().targetV(), writeValues, v.data().targetV());
+            write(twtId, "regulatedSide", found, twtData.data().regulatedSide() != null ? twtData.data().regulatedSide().name() : invalidString, writeValues, v.data().regulatedSide() != null ? v.data().regulatedSide().name() : invalidString);
+            write(twtId, "v", found, twtData.data().v(), writeValues, v.data().v());
+            write(twtId, CONNECTED, found, twtData.data().connected(), writeValues, v.data().connected());
+            write(twtId, MAIN_COMPONENT, found, twtData.data().mainComponent(), writeValues, v.data().mainComponent());
+            write(twtId, VALIDATION, found, getValidated(twtData.validated()), writeValues, getValidated(v.validated()));
         }
     }
 
