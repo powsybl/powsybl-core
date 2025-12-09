@@ -27,6 +27,11 @@ final class TrippingTopologyTraverser {
                 aSwitch.getKind() == SwitchKind.BREAKER;
     }
 
+    private static boolean isOpenable(DcSwitch aSwitch) {
+        return !aSwitch.isOpen() &&
+                !aSwitch.isFictitious();
+    }
+
     static void traverse(Terminal terminal, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(switchesToOpen);
@@ -57,6 +62,34 @@ final class TrippingTopologyTraverser {
                 if (isOpenable(aSwitch)) {
                     // Traverser stops on current path as contingency opens the openable switch
                     switchesToOpen.add(aSwitch);
+                    return TraverseResult.TERMINATE_PATH;
+                }
+                return aSwitch.isOpen() ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
+            }
+        });
+    }
+
+    static void traverse(DcTerminal terminal, Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect, Set<DcTerminal> traversedDcTerminals) {
+        Objects.requireNonNull(terminal);
+        Objects.requireNonNull(dcTerminalsToDisconnect);
+
+        terminal.traverse(new DcTerminal.TopologyTraverser() {
+            @Override
+            public TraverseResult traverse(DcTerminal terminal, boolean connected) {
+                if (connected) {
+                    dcTerminalsToDisconnect.add(terminal);
+                    if (traversedDcTerminals != null) {
+                        traversedDcTerminals.add(terminal);
+                    }
+                }
+                return TraverseResult.TERMINATE_PATH;
+            }
+
+            @Override
+            public TraverseResult traverse(DcSwitch aSwitch) {
+                if (isOpenable(aSwitch)) {
+                    // Traverser stops on current path as contingency opens the openable switch
+                    dcSwitchesToOpen.add(aSwitch);
                     return TraverseResult.TERMINATE_PATH;
                 }
                 return aSwitch.isOpen() ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
