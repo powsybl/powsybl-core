@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" id="dcNodeTest" caseDate="2025-01-02T03:04:05.000+01:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:dcNode id="dcNodeWithoutSolvedV" name="A DC Node without solved V" fictitious="true" nominalV="500.0">
+        <iidm:alias>someAlias</iidm:alias>
+        <iidm:property name="prop name" value="prop value"/>
+    </iidm:dcNode>
+    <iidm:dcNode id="dcNodeWithSolvedV" name="A DC Node with solved V" nominalV="500.0" v="498.0"/>
+</iidm:network>
