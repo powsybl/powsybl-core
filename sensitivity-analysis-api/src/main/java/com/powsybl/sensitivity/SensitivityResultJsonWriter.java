@@ -9,6 +9,7 @@ package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.strategy.OperatorStrategy;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -26,11 +27,15 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
 
     private final List<Contingency> contingencies;
 
+    private final List<OperatorStrategy> operatorStrategies;
+
     private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatusBuffer;
 
-    public SensitivityResultJsonWriter(JsonGenerator jsonGenerator, List<Contingency> contingencies) {
+    public SensitivityResultJsonWriter(JsonGenerator jsonGenerator, List<Contingency> contingencies,
+                                       List<OperatorStrategy> operatorStrategies) {
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
         this.contingencies = Objects.requireNonNull(contingencies);
+        this.operatorStrategies = Objects.requireNonNull(operatorStrategies);
         this.contingencyStatusBuffer = new ArrayList<>(Collections.nCopies(contingencies.size(), null));
         try {
             jsonGenerator.writeStartArray();
@@ -41,13 +46,18 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
     }
 
     @Override
-    public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
-        SensitivityValue.writeJson(jsonGenerator, factorIndex, contingencyIndex, value, functionReference);
+    public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
+        SensitivityValue.writeJson(jsonGenerator, factorIndex, contingencyIndex, operatorStrategyIndex, value, functionReference);
     }
 
     @Override
     public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
         contingencyStatusBuffer.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status));
+    }
+
+    @Override
+    public void writeOperatorStrategyStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+        // TODO
     }
 
     @Override

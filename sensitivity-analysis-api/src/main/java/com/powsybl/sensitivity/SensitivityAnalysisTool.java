@@ -22,6 +22,8 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.contingency.json.ContingencyJsonModule;
+import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.contingency.strategy.OperatorStrategyList;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
@@ -56,6 +58,7 @@ public class SensitivityAnalysisTool implements Tool {
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String FACTORS_FILE_OPTION = "factors-file";
     private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
+    private static final String OPERATOR_STRATEGIES_FILE_OPTION = "operator_strategies-file";
     private static final String VARIABLE_SETS_FILE_OPTION = "variable-sets-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_CONTINGENCY_STATUS_FILE_OPTION = "output-contingency-file";
@@ -99,6 +102,11 @@ public class SensitivityAnalysisTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
+                options.addOption(Option.builder().longOpt(CONTINGENCIES_FILE_OPTION)
+                        .desc("operator strategies input file path")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 options.addOption(Option.builder().longOpt(VARIABLE_SETS_FILE_OPTION)
                     .desc("variable sets input file path")
                     .hasArg()
@@ -196,6 +204,10 @@ public class SensitivityAnalysisTool implements Tool {
             ? ContingencyList.load(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION))).getContingencies(network)
             : Collections.emptyList();
 
+        List<OperatorStrategy> operatorStrategies = line.hasOption(OPERATOR_STRATEGIES_FILE_OPTION)
+                ? OperatorStrategyList.read(context.getFileSystem().getPath(line.getOptionValue(OPERATOR_STRATEGIES_FILE_OPTION))).getOperatorStrategies()
+                : Collections.emptyList();
+
         List<SensitivityVariableSet> variableSets = Collections.emptyList();
         if (line.hasOption(VARIABLE_SETS_FILE_OPTION)) {
             try (Reader reader = Files.newBufferedReader(context.getFileSystem().getPath(line.getOptionValue(VARIABLE_SETS_FILE_OPTION)), StandardCharsets.UTF_8)) {
@@ -210,7 +222,7 @@ public class SensitivityAnalysisTool implements Tool {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (ComputationManager computationManager = DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager()) {
             SensitivityAnalysisParametersRecord parametersRecord = new SensitivityAnalysisParametersRecord(factorsReader, params, network, contingencies,
-                variableSets, computationManager, outputFile, outputFileStatus, csv);
+                operatorStrategies, variableSets, computationManager, outputFile, outputFileStatus, csv);
             run(line, parametersRecord);
         }
         context.getOutputStream().println("Analysis done in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
@@ -220,6 +232,7 @@ public class SensitivityAnalysisTool implements Tool {
                                                        SensitivityAnalysisParameters params,
                                                        Network network,
                                                        List<Contingency> contingencies,
+                                                       List<OperatorStrategy> operatorStrategies,
                                                        List<SensitivityVariableSet> variableSets,
                                                        ComputationManager computationManager,
                                                        Path outputFile,
@@ -246,7 +259,7 @@ public class SensitivityAnalysisTool implements Tool {
                      Writer writerStatuses = Files.newBufferedWriter(parametersRecord.outputFileStatus, StandardCharsets.UTF_8);
                      TableFormatter formatter = SensitivityResultCsvWriter.createTableFormatter(writer);
                      TableFormatter formatterStatus = SensitivityResultCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
-                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, parametersRecord.contingencies);
+                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, parametersRecord.contingencies, parametersRecord.operatorStrategies);
                     SensitivityAnalysis.run(parametersRecord.network, parametersRecord.network.getVariantManager().getWorkingVariantId(),
                         parametersRecord.factorsReader, valuesWriter, parametersRecord.contingencies, parametersRecord.variableSets, parametersRecord.params,
                         parametersRecord.computationManager, ReportNode.NO_OP);
@@ -257,7 +270,7 @@ public class SensitivityAnalysisTool implements Tool {
                 JsonFactory factory = JsonUtil.createJsonFactory();
                 try (BufferedWriter writer = Files.newBufferedWriter(parametersRecord.outputFile, StandardCharsets.UTF_8);
                      JsonGenerator generator = factory.createGenerator(writer);
-                     SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, parametersRecord.contingencies)) {
+                     SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, parametersRecord.contingencies, parametersRecord.operatorStrategies)) {
                     generator.useDefaultPrettyPrinter();
                     SensitivityAnalysis.run(parametersRecord.network, parametersRecord.network.getVariantManager().getWorkingVariantId(),
                         parametersRecord.factorsReader, valuesWriter, parametersRecord.contingencies, parametersRecord.variableSets, parametersRecord.params,

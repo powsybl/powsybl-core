@@ -12,7 +12,9 @@ package com.powsybl.sensitivity;
  */
 public interface SensitivityResultWriter {
 
-    void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference);
+    void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference);
 
     void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status);
+
+    void writeOperatorStrategyStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status);
 }

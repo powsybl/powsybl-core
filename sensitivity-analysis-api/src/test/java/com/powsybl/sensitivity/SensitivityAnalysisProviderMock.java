@@ -41,12 +41,12 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             switch (contingencyContext.getContextType()) {
                 case NONE:
-                    resultWriter.writeSensitivityValue(factorIndex[0]++, -1, 0.0, 0.0);
+                    resultWriter.writeSensitivityValue(factorIndex[0]++, -1, -1, 0.0, 0.0);
                     break;
 
                 case ALL:
                     for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
-                        resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
+                        resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, -1, 0.0, 0.0);
                     }
                     break;
 
@@ -55,7 +55,7 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
                             .filter(i -> contingencies.get(i).getId().equals(contingencyContext.getContingencyId()))
                             .findFirst()
                             .orElseThrow();
-                    resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
+                    resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, -1, 0.0, 0.0);
                     break;
             }
             if (reportNode != null) {

@@ -39,12 +39,17 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
-        values.add(new SensitivityValue(factorIndex, contingencyIndex, value, functionReference));
+    public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
+        values.add(new SensitivityValue(factorIndex, contingencyIndex, operatorStrategyIndex, value, functionReference));
     }
 
     @Override
     public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
         contingencyStatuses.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status));
+    }
+
+    @Override
+    public void writeOperatorStrategyStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+        // TODO
     }
 }

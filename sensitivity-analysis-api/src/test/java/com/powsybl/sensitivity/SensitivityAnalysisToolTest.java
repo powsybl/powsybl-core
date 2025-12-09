@@ -154,9 +154,9 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertTrue(Files.exists(outputCsvFile));
         String outputCsvRef = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
                "Sensitivity analysis result",
-               "Contingency ID;Factor index;Function ref value;Sensitivity value",
-               "NHV1_NHV2_2;0;0.00000;0.00000",
-               "NHV1_NHV2_2;1;0.00000;0.00000")
+               "Contingency ID;Operator strategy ID;Factor index;Function ref value;Sensitivity value",
+               "NHV1_NHV2_2;;0;0.00000;0.00000",
+               "NHV1_NHV2_2;;1;0.00000;0.00000")
                 + System.lineSeparator());
         assertEquals(outputCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputCsvFile)));
 
