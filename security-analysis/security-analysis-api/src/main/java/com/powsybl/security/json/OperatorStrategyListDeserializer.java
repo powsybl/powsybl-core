@@ -18,6 +18,8 @@ import com.powsybl.security.strategy.OperatorStrategyList;
 import java.io.IOException;
 import java.util.List;
 
+import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
+
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
@@ -27,7 +29,7 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
         super(OperatorStrategyList.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         String version;
         List<OperatorStrategy> operatorStrategies;
     }
@@ -39,6 +41,20 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
             switch (parser.currentName()) {
                 case "version":
                     context.version = parser.nextTextValue();
+                    // Operator strategy retro compatibility is linked to SecurityAnalysisResult version
+                    // So swap list version with matching SecurityAnalysisResult version
+                    // 1.0 -> version <= 1.4
+                    // 1.1 -> version between 1.5 and 1.7
+                    // 1.2 and above -> current
+                    String securityAnalysisResultVersion;
+                    if (context.version.compareTo("1.0") == 0) {
+                        securityAnalysisResultVersion = "1.4";
+                    } else if (context.version.compareTo("1.1") == 0) {
+                        securityAnalysisResultVersion = "1.7";
+                    } else {
+                        securityAnalysisResultVersion = SecurityAnalysisResultSerializer.VERSION;
+                    }
+                    JsonUtil.setSourceVersion(deserializationContext, securityAnalysisResultVersion, SOURCE_VERSION_ATTRIBUTE);
                     return true;
                 case "operatorStrategies":
                     parser.nextToken(); // skip

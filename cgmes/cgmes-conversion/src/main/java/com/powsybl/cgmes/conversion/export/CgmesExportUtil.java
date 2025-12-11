@@ -296,6 +296,23 @@ public final class CgmesExportUtil {
                 return branch.getSide(t).getNum();
             } else if (c instanceof ThreeWindingsTransformer twt) {
                 return twt.getSide(t).getNum();
+            } else if (c instanceof AcDcConverter<?> converter) {
+                return converter.getTerminalNumber(t).getNum();
+            } else {
+                throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
+            }
+        }
+    }
+
+    public static int getDcTerminalSequenceNumber(DcTerminal t) {
+        DcConnectable<?> c = t.getDcConnectable();
+        if (c.getDcTerminals().size() == 1) {
+            return 1;
+        } else {
+            if (c instanceof DcLine dcl) {
+                return dcl.getSide(t).getNum();
+            } else if (c instanceof AcDcConverter<?> converter) {
+                return converter.getTerminalNumber(t).getNum();
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
             }
@@ -310,10 +327,10 @@ public final class CgmesExportUtil {
         }
     }
 
-    public static String converterClassName(HvdcConverterStation<?> converterStation) {
-        if (converterStation instanceof LccConverterStation) {
+    public static String converterClassName(Identifiable<?> converter) {
+        if (converter instanceof LccConverterStation || converter instanceof LineCommutatedConverter) {
             return "CsConverter";
-        } else if (converterStation instanceof VscConverterStation) {
+        } else if (converter instanceof VscConverterStation || converter instanceof VoltageSourceConverter) {
             return "VsConverter";
         } else {
             throw new PowsyblException("Invalid converter type");
@@ -343,19 +360,19 @@ public final class CgmesExportUtil {
 
     // tap changer is exported as it is modelled in IIDM, always at end 1
     static void addUpdateCgmesTapChangerExtension(TwoWindingsTransformer twt, CgmesExportContext context) {
-        twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, context), regulatingControlIsDefined(rtc), context));
-        twt.getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, context), regulatingControlIsDefined(ptc), context));
+        twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
+        twt.getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
     }
 
     static void addUpdateCgmesTapChangerExtension(ThreeWindingsTransformer twt, CgmesExportContext context) {
-        twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 1, context), regulatingControlIsDefined(rtc), context));
-        twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 1, context), regulatingControlIsDefined(ptc), context));
+        twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 1, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
+        twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 1, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
 
-        twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 2, context), regulatingControlIsDefined(rtc), context));
-        twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 2, context), regulatingControlIsDefined(ptc), context));
+        twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 2, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
+        twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 2, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
 
-        twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 3, context), regulatingControlIsDefined(rtc), context));
-        twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 3, context), regulatingControlIsDefined(ptc), context));
+        twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 3, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
+        twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 3, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
     }
 
     // If we had alias only for tc1, it will be at end 1
@@ -396,7 +413,6 @@ public final class CgmesExportUtil {
 
     static boolean regulatingControlIsDefined(RatioTapChanger rtc) {
         return !Double.isNaN(rtc.getRegulationValue())
-                && !Double.isNaN(rtc.getTargetDeadband())
                 && rtc.getRegulationTerminal() != null;
     }
 
@@ -406,25 +422,28 @@ public final class CgmesExportUtil {
                 && ptc.getRegulationTerminal() != null;
     }
 
-    private static <C extends Connectable<C>> void addTapChangerExtension(C twt, String cgmesTapChangerTag, String tapChangerId, boolean regulatingControlIsDefined, CgmesExportContext context) {
-        if (!regulatingControlIsDefined) {
-            return;
-        }
+    static boolean targetDeadbandIsDefined(double targetDeadband) {
+        return !Double.isNaN(targetDeadband) && targetDeadband >= 0.0;
+    }
+
+    private static <C extends Connectable<C>> void addTapChangerExtension(C twt, String cgmesTapChangerTag, String tapChangerId, int tapPosition, boolean regulatingControlIsDefined, CgmesExportContext context) {
+
         CgmesTapChangers<C> cgmesTapChangers = twt.getExtension(CgmesTapChangers.class);
         if (cgmesTapChangers == null) {
             twt.newExtension(CgmesTapChangersAdder.class).add();
             cgmesTapChangers = twt.getExtension(CgmesTapChangers.class);
         }
-        CgmesTapChanger cgmesTapChanger = cgmesTapChangers.getTapChanger(tapChangerId);
 
         Part refTapChanger = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
+
+        CgmesTapChanger cgmesTapChanger = cgmesTapChangers.getTapChanger(tapChangerId);
         if (cgmesTapChanger == null) {
             cgmesTapChanger = cgmesTapChangers.newTapChanger()
                     .setId(tapChangerId)
-                    .setControlId(context.getNamingStrategy().getCgmesId(ref(twt), refTapChanger, Part.REGULATING_CONTROL))
+                    .setStep(tapPosition)
                     .add();
         }
-        if (cgmesTapChanger.getControlId() == null) {
+        if (regulatingControlIsDefined && cgmesTapChanger.getControlId() == null) {
             cgmesTapChanger.setControlId(context.getNamingStrategy().getCgmesId(ref(twt), refTapChanger, Part.REGULATING_CONTROL));
         }
     }
@@ -467,9 +486,9 @@ public final class CgmesExportUtil {
 
     // Original synchronous machine kind it is only preserved if it is compatible with the calculated synchronous machine kind
     // calculated synchronous machine kind is based on the present limits
-    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve) {
+    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
         String kind = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
-        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, kind);
+        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, isCondenser);
         if (kind == null) {
             return calculatedKind;
         } else if (calculatedKind.contains(kind)) {
@@ -480,27 +499,37 @@ public final class CgmesExportUtil {
         }
     }
 
-    // we cannot discriminate between generatorOrMotor and generatorOrCondenserOrMotor so,
-    // we preserve the original kind if it is available
-    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, String originalKind) {
+    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
         double min = curve != null ? curve.getMinP() : minP;
         double max = curve != null ? curve.getMaxP() : maxP;
 
         String kind;
-        if (min > 0) {
-            kind = "generator";
-        } else if (max < 0) {
-            kind = "motor";
-        } else if (min == 0 && max == 0) {
-            kind = "condenser";
-        } else if (min == 0) {
-            kind = "generatorOrCondenser";
-        } else if (max == 0) {
-            kind = "motorOrCondenser";
+        if (!isCondenser) {
+            kind = getKindNotCondenser(min, max);
         } else {
-            kind = originalKind != null && (originalKind.equals(GENERATOR_OR_MOTOR) || originalKind.equals("generatorOrCondenserOrMotor")) ? originalKind : "generatorOrCondenserOrMotor";
+            kind = getKindCondenser(min, max);
         }
         return kind;
+    }
+
+    private static String getKindCondenser(double min, double max) {
+        if (min >= 0 && max > 0) {
+            return "generatorOrCondenser";
+        } else if (max <= 0 && min < 0) {
+            return "motorOrCondenser";
+        } else if (min == 0 && max == 0) {
+            return "condenser";
+        }
+        return "generatorOrCondenserOrMotor";
+    }
+
+    private static String getKindNotCondenser(double min, double max) {
+        if (min >= 0) {
+            return "generator";
+        } else if (max <= 0) {
+            return "motor";
+        }
+        return "generatorOrMotor";
     }
 
     public static boolean isValidVoltageSetpoint(double v) {
@@ -554,14 +583,6 @@ public final class CgmesExportUtil {
         return switch (rtc.getRegulationMode()) {
             case VOLTAGE -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
             case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-        };
-    }
-
-    public static String getPhaseTapChangerRegulationMode(PhaseTapChanger ptc) {
-        return switch (ptc.getRegulationMode()) {
-            case CURRENT_LIMITER -> RegulatingControlEq.REGULATING_CONTROL_CURRENT_FLOW;
-            case ACTIVE_POWER_CONTROL -> RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
-            default -> throw new PowsyblException("Unexpected regulation mode: " + ptc.getRegulationMode());
         };
     }
 

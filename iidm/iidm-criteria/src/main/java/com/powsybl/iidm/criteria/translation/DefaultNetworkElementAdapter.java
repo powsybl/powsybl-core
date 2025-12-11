@@ -73,7 +73,7 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
             case HVDC_LINE -> side != ThreeSides.THREE ?
                     getCountryFromTerminal(((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal()) : Optional.empty();
             case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
-                    side != ThreeSides.ONE ? Optional.empty() : getCountryFromTerminal(((Injection<?>) identifiable).getTerminal());
+                side != ThreeSides.ONE ? Optional.empty() : getCountryFromTerminal(((Injection<?>) identifiable).getTerminal());
             case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
             case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
             default -> Optional.empty();
@@ -109,16 +109,16 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
     public Optional<Double> getNominalVoltage(ThreeSides side) {
         return switch (identifiable.getType()) {
             case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
-                    side != ThreeSides.ONE ? Optional.empty() :
-                            Optional.of(((Injection<?>) identifiable).getTerminal().getVoltageLevel().getNominalV());
+                side != ThreeSides.ONE ? Optional.empty() :
+                        Optional.of(((Injection<?>) identifiable).getTerminal().getVoltageLevel().getNominalV());
             case LINE, TIE_LINE, TWO_WINDINGS_TRANSFORMER ->
-                    side == ThreeSides.THREE ? Optional.empty() :
-                            Optional.of(((Branch<?>) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV());
+                side == ThreeSides.THREE ? Optional.empty() :
+                        Optional.of(((Branch<?>) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV());
             case HVDC_LINE ->
-                    side == ThreeSides.THREE ? Optional.empty() :
-                            Optional.of(((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel().getNominalV());
+                side == ThreeSides.THREE ? Optional.empty() :
+                        Optional.of(((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel().getNominalV());
             case THREE_WINDINGS_TRANSFORMER ->
-                    Optional.of(((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV());
+                Optional.of(((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV());
             default -> Optional.empty();
         };
     }

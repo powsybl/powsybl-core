@@ -15,16 +15,13 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummyExtension;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummySerializer;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -33,16 +30,43 @@ import java.util.concurrent.CompletableFuture;
 public class LoadFlowProviderMock implements LoadFlowProvider {
 
     public static final String DOUBLE_PARAMETER_NAME = "parameterDouble";
+    public static final String INTEGER_PARAMETER_NAME = "parameterInteger";
     public static final String BOOLEAN_PARAMETER_NAME = "parameterBoolean";
     public static final String STRING_PARAMETER_NAME = "parameterString";
+    public static final String NULLABLE_STRING_PARAMETER_NAME = "parameterNullableString";
+    public static final String STRING_LIST_PARAMETER_NAME = "parameterStringList";
 
-    public static final List<Parameter> PARAMETERS = List.of(new Parameter(DOUBLE_PARAMETER_NAME, ParameterType.DOUBLE, "a double parameter", 6.4),
-                                                             new Parameter(BOOLEAN_PARAMETER_NAME, ParameterType.BOOLEAN, "a boolean parameter", false),
-                                                             new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", "yes", List.of("yes", "no")));
+    public static final List<Parameter> PARAMETERS = List.of(new Parameter(DOUBLE_PARAMETER_NAME, ParameterType.DOUBLE, "a double parameter", DummyExtension.PARAMETER_DOUBLE_DEFAULT_VALUE),
+                                                             new Parameter(INTEGER_PARAMETER_NAME, ParameterType.INTEGER, "an integer parameter", DummyExtension.PARAMETER_INTEGER_DEFAULT_VALUE),
+                                                             new Parameter(BOOLEAN_PARAMETER_NAME, ParameterType.BOOLEAN, "a boolean parameter", DummyExtension.PARAMETER_BOOLEAN_DEFAULT_VALUE),
+                                                             new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", DummyExtension.PARAMETER_STRING_DEFAULT_VALUE, List.of("yes", "no")),
+                                                             new Parameter(NULLABLE_STRING_PARAMETER_NAME, ParameterType.STRING, "a nullable string parameter", DummyExtension.PARAMETER_NULLABLE_STRING_DEFAULT_VALUE),
+                                                             new Parameter(STRING_LIST_PARAMETER_NAME, ParameterType.STRING_LIST, " a string list paramter", DummyExtension.PARAMETER_STRING_LIST_DEFAULT_VALUE));
 
     @Override
-    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, ReportNode reportNode) {
-        return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
+    public CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
+        Executor executor = runParameters.getComputationManager().getExecutor();
+        if (executor != null) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // Simulate some processing
+                }
+            });
+        }
+        ReportNode reportNode = runParameters.getReportNode();
+        if (reportNode != null) {
+            reportNode.newReportNode()
+                .withMessageTemplate("testLoadflow")
+                .withUntypedValue("variantId", workingStateId)
+                .add();
+        }
+        String logs = "";
+        LoadFlowParameters parameters = runParameters.getLoadFlowParameters();
+        if (parameters != null) {
+            logs = "Loadflow parameters: " + parameters;
+        }
+        return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), logs));
     }
 
     @Override
@@ -81,19 +105,39 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
 
     @Override
     public Map<String, String> createMapFromSpecificParameters(Extension<LoadFlowParameters> extension) {
-        return Map.of(DOUBLE_PARAMETER_NAME, Double.toString(((DummyExtension) extension).getParameterDouble()),
-                      BOOLEAN_PARAMETER_NAME, Boolean.toString(((DummyExtension) extension).isParameterBoolean()),
-                      STRING_PARAMETER_NAME, ((DummyExtension) extension).getParameterString());
+        HashMap result = new HashMap();
+        DummyExtension ext = (DummyExtension) extension;
+
+        result.put(DOUBLE_PARAMETER_NAME, Objects.toString(ext.getParameterDouble()));
+        result.put(INTEGER_PARAMETER_NAME, Objects.toString(ext.getParameterInteger()));
+        result.put(BOOLEAN_PARAMETER_NAME, Objects.toString(ext.isParameterBoolean()));
+        if (ext.getParameterString() != null) {
+            result.put(STRING_PARAMETER_NAME, ext.getParameterString());
+        }
+        if (ext.getParameterNullableString() != null) {
+            result.put(NULLABLE_STRING_PARAMETER_NAME, ext.getParameterNullableString());
+        }
+        if (ext.getParameterStringList() != null) {
+            result.put(STRING_LIST_PARAMETER_NAME, String.join(",", (ext.getParameterStringList()).stream().map(Object::toString).toList()));
+        }
+
+        return result;
     }
 
     @Override
     public void updateSpecificParameters(Extension<LoadFlowParameters> extension, Map<String, String> properties) {
         Optional.ofNullable(properties.get(DOUBLE_PARAMETER_NAME))
                 .ifPresent(prop -> ((DummyExtension) extension).setParameterDouble(Double.parseDouble(prop)));
+        Optional.ofNullable(properties.get(INTEGER_PARAMETER_NAME))
+                .ifPresent(prop -> ((DummyExtension) extension).setParameterInteger(Integer.parseInt(prop)));
         Optional.ofNullable(properties.get(BOOLEAN_PARAMETER_NAME))
                 .ifPresent(prop -> ((DummyExtension) extension).setParameterBoolean(Boolean.parseBoolean(prop)));
         Optional.ofNullable(properties.get(STRING_PARAMETER_NAME))
                 .ifPresent(prop -> ((DummyExtension) extension).setParameterString(prop));
+        Optional.ofNullable(properties.get(NULLABLE_STRING_PARAMETER_NAME))
+                .ifPresent(prop -> ((DummyExtension) extension).setParameterNullableString(prop));
+        Optional.ofNullable(properties.get(STRING_LIST_PARAMETER_NAME))
+                .ifPresent(prop -> ((DummyExtension) extension).setParameterStringList(Arrays.asList(prop.split("[:,]"))));
     }
 
     @Override
@@ -101,15 +145,21 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
         config.getOptionalModuleConfig("dummy-extension").ifPresent(moduleConfig -> {
             moduleConfig.getOptionalDoubleProperty(DOUBLE_PARAMETER_NAME)
                     .ifPresent(((DummyExtension) extension)::setParameterDouble);
+            moduleConfig.getOptionalIntProperty(INTEGER_PARAMETER_NAME)
+                    .ifPresent(((DummyExtension) extension)::setParameterInteger);
             moduleConfig.getOptionalBooleanProperty(BOOLEAN_PARAMETER_NAME)
                     .ifPresent(((DummyExtension) extension)::setParameterBoolean);
             moduleConfig.getOptionalStringProperty(STRING_PARAMETER_NAME)
                     .ifPresent(((DummyExtension) extension)::setParameterString);
+            moduleConfig.getOptionalStringProperty(NULLABLE_STRING_PARAMETER_NAME)
+                    .ifPresent(((DummyExtension) extension)::setParameterNullableString);
+            moduleConfig.getOptionalStringListProperty(STRING_LIST_PARAMETER_NAME)
+                    .ifPresent(((DummyExtension) extension)::setParameterStringList);
         });
     }
 
     @Override
-    public List<Parameter> getSpecificParameters() {
+    public List<Parameter> getRawSpecificParameters() {
         return PARAMETERS;
     }
 

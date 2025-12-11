@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
+import static com.powsybl.iidm.serde.AbstractTreeDataExporter.EXTENSIONS_INCLUDED_LIST;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -108,7 +109,7 @@ class SlackTerminalXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testExtensionFiltering() {
+    void testExtensionExclusion() {
         Network network = EurostagTutorialExample1Factory.create();
 
         VoltageLevel vl = network.getVoltageLevel("VLHV2");
@@ -116,7 +117,7 @@ class SlackTerminalXmlTest extends AbstractIidmSerDeTest {
         vl.newExtension(SlackTerminalAdder.class).withTerminal(terminal).add();
 
         Properties properties = new Properties();
-        properties.put("iidm.export.xml.extensions", "");
+        properties.put(EXTENSIONS_INCLUDED_LIST, "");
 
         MemDataSource ds = new MemDataSource();
 

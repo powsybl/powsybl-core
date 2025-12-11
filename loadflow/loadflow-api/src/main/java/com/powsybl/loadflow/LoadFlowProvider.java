@@ -52,6 +52,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * {@code computationManager} if necessary and using loadflow execution {@code parameters}. This method is expected
      * to be stateless so that it can be call simultaneously with different arguments (a different network for instance)
      * without any concurrency issue.
+     * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
      *
      * @param network            the network
      * @param computationManager a computation manager to external program execution
@@ -60,7 +61,27 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @param reportNode           the reportNode used for functional logs
      * @return a {@link CompletableFuture} on {@link LoadFlowResult]
      */
-    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode);
+    @Deprecated(since = "7.0.0", forRemoval = true)
+    default CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
+        return run(network, workingVariantId, new LoadFlowRunParameters()
+            .setComputationManager(computationManager)
+            .setParameters(parameters)
+            .setReportNode(reportNode));
+    }
+
+    /**
+     * Run a loadflow on variant {@code workingVariantId} of {@code network} delegating external program execution to
+     * {@code computationManager} if necessary and using loadflow execution {@code parameters}, with
+     * {@code computationManager} and {@code parameters} both defined in the load flow {@code runParameters}. This
+     * method is expected to be stateless so that it can be called simultaneously with different arguments (different
+     * networks, for instance) without any concurrency issue.
+     *
+     * @param network            the network
+     * @param workingVariantId   variant id of the network
+     * @param runParameters         load flow run parameters
+     * @return a {@link CompletableFuture} on {@link LoadFlowResult]
+     */
+    CompletableFuture<LoadFlowResult> run(Network network, String workingVariantId, LoadFlowRunParameters runParameters);
 
     /**
      * Get specific parameters class.
@@ -116,20 +137,35 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig config);
 
     /**
-     * Get the parameters of the parameters extension associated with this provider.
+     * Returns the parameters of the parameters extension associated with this provider, as defined by the provider
+     * without any override.
      *
      * @return the parameters of the parameters extension associated with this provider.
      */
-    List<Parameter> getSpecificParameters();
+    List<Parameter> getRawSpecificParameters();
+
+    /**
+     * Returns the parameters of the parameters extension associated with this provider. If a LoadFlowDefaultParameterLoader
+     * is available, the parameters should reflect the default values.
+     *
+     * @return the parameters of the parameters extension associated with this provider.
+     */
+    default List<Parameter> getSpecificParameters() {
+        return LoadFlowProviderUtil.getSpecificParameters(this, PlatformConfig.defaultConfig());
+    }
 
     /**
      * Retrieves the parameters of the extension associated with this provider,
-     * incorporating any overrides from the PlatformConfig.
+     * incorporating any overrides from the PlatformConfig and from the loadFlowDefaultParameterLoader
+     * if available.
      *
      * @return The parameters of the associated extension with overrides applied from PlatformConfig.
      */
     default List<Parameter> getSpecificParameters(PlatformConfig platformConfigConfig) {
-        return ConfiguredParameter.load(getSpecificParameters(), getModuleConfig(platformConfigConfig).orElse(null));
+        return ConfiguredParameter.load(
+                LoadFlowProviderUtil.getSpecificParameters(this, platformConfigConfig),
+                getModuleConfig(platformConfigConfig).orElse(null)
+        );
     }
 
     /**

@@ -89,7 +89,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
     }
 
     protected TerminalExt checkAndGetTerminal1() {
-        return new TerminalBuilder(voltageLevel.getNetworkRef(), this, ThreeSides.ONE)
+        return new TerminalBuilder(voltageLevel.getNetworkRef(), this, null, TerminalNumber.ONE)
                 .setNode(node1)
                 .setBus(bus1)
                 .setConnectableBus(connectableBus1)
@@ -113,7 +113,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
 
     protected Optional<TerminalExt> checkAndGetTerminal2() {
         if (hasTwoAcTerminals()) {
-            return Optional.of(new TerminalBuilder(voltageLevel.getNetworkRef(), this, ThreeSides.TWO)
+            return Optional.of(new TerminalBuilder(voltageLevel.getNetworkRef(), this, null, TerminalNumber.TWO)
                     .setNode(node2)
                     .setBus(bus2)
                     .setConnectableBus(connectableBus2)
@@ -161,7 +161,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         NetworkImpl network = getNetwork();
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkAcDcConverterControl(this, controlMode, targetP, targetVdc,
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-        ValidationUtil.checkAcDcConverterPccTerminal(this, hasTwoAcTerminals(), pccTerminal, voltageLevel);
+        ValidationUtil.checkAcDcConverterPccTerminal(this, pccTerminal, voltageLevel);
     }
 
     private boolean hasTwoAcTerminals() {
@@ -176,18 +176,21 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         Optional<TerminalExt> terminal2 = checkAndGetTerminal2();
         dcConverter.addTerminal(terminal1);
         voltageLevel.getTopologyModel().attach(terminal1, false);
-        if (pccTerminal == null && terminal2.isEmpty()) {
-            // default to use terminal1 as pccTerminal, only if converter has only 1 AC Terminal
+        if (pccTerminal == null) {
+            // default to use terminal1 as pccTerminal
             dcConverter.setPccTerminal(terminal1);
         }
         terminal2.ifPresent(terminal -> {
             dcConverter.addTerminal(terminal);
             voltageLevel.getTopologyModel().attach(terminal, false);
         });
-        DcTerminalImpl dcTerminal1 = new DcTerminalImpl(voltageLevel.getNetworkRef(), TwoSides.ONE, dcNode1, dcConnected1);
-        DcTerminalImpl dcTerminal2 = new DcTerminalImpl(voltageLevel.getNetworkRef(), TwoSides.TWO, dcNode2, dcConnected2);
+        DcTerminalImpl dcTerminal1 = new DcTerminalImpl(voltageLevel.getNetworkRef(), null, TerminalNumber.ONE, dcNode1, dcConnected1);
+        DcTerminalImpl dcTerminal2 = new DcTerminalImpl(voltageLevel.getNetworkRef(), null, TerminalNumber.TWO, dcNode2, dcConnected2);
         dcConverter.addDcTerminal(dcTerminal1);
         dcConverter.addDcTerminal(dcTerminal2);
+        DcTopologyModel dcTopologyModel = ((AbstractNetwork) voltageLevel.getParentNetwork()).getDcTopologyModel();
+        dcTopologyModel.attach(dcTerminal1);
+        dcTopologyModel.attach(dcTerminal2);
         getNetwork().getIndex().checkAndAdd(dcConverter);
         getNetwork().getListeners().notifyCreation(dcConverter);
     }

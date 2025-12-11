@@ -72,7 +72,7 @@ public class NetworkStateComparator {
         }
     };
 
-    private static class BranchP1ColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchP1ColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -87,7 +87,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class BranchQ1ColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchQ1ColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -102,7 +102,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class BranchP2ColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchP2ColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -117,7 +117,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class BranchQ2ColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchQ2ColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -132,7 +132,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class BranchRatioColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchRatioColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -153,7 +153,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class BranchDephaColumnMapper<T extends Branch> implements ColumnMapper<T> {
+    private static final class BranchDephaColumnMapper<T extends Branch> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -299,7 +299,7 @@ public class NetworkStateComparator {
         }
     };
 
-    private static class InjectionPColumnMapper<T extends Injection> implements ColumnMapper<T> {
+    private static final class InjectionPColumnMapper<T extends Injection> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -314,7 +314,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class InjectionQColumnMapper<T extends Injection> implements ColumnMapper<T> {
+    private static final class InjectionQColumnMapper<T extends Injection> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {
@@ -329,7 +329,7 @@ public class NetworkStateComparator {
         }
     }
 
-    private static class InjectionVColumnMapper<T extends Injection> implements ColumnMapper<T> {
+    private static final class InjectionVColumnMapper<T extends Injection> implements ColumnMapper<T> {
 
         @Override
         public String getTitle() {

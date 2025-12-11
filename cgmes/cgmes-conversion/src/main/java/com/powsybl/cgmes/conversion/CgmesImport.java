@@ -193,6 +193,21 @@ public class CgmesImport implements Importer {
         return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
     }
 
+    @Override
+    public void update(Network network, ReadOnlyDataSource ds, Properties p, ReportNode reportNode) {
+        TripleStoreOptions tripleStoreOptions = new TripleStoreOptions();
+        tripleStoreOptions.setQueryCatalog(Conversion.QUERY_CATALOG_NAME_UPDATE);
+        ReadOnlyDataSource alternativeDataSourceForBoundary = null;
+        CgmesModel cgmes = CgmesModelFactory.create(
+                ds,
+                alternativeDataSourceForBoundary,
+                TripleStoreFactory.DEFAULT_IMPLEMENTATION,
+                reportNode,
+                tripleStoreOptions);
+        Conversion conversion = new Conversion(cgmes, config(p));
+        conversion.update(network, reportNode);
+    }
+
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
         private final ReadOnlyDataSource ds;
         private final Predicate<String> filter;
@@ -266,13 +281,18 @@ public class CgmesImport implements Importer {
             };
         }
 
+        private static boolean isEquipmentCore(String profile) {
+            return profile.contains("/EquipmentCore/") || profile.contains("/CIM/CoreEquipment");
+        }
+
         private Set<ReadOnlyDataSource> separateByModelingAuthority() {
             xmlInputFactory = getXMLInputFactory();
             Map<String, List<String>> igmNames = new CgmesOnDataSource(dataSource).names().stream()
                     // We consider IGMs only the modeling authorities that have an EQ file
                     // The CGM SV should have the MA of the merging agent
-                    .filter(CgmesSubset.EQUIPMENT::isValidName)
-                    .map(name -> readModelingAuthority(name).map(ma -> Map.entry(ma, name)))
+                    .map(name ->
+                            readModelingAuthority(name, MultipleGridModelChecker::isEquipmentCore)
+                            .map(ma -> Map.entry(ma, name)))
                     .flatMap(Optional::stream)
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(List.of(e.getValue()))));
             if (!igmNames.isEmpty()) {
@@ -284,10 +304,11 @@ public class CgmesImport implements Importer {
                 return Set.of(dataSource);
             }
             Set<String> shared = new HashSet<>();
+            Set<String> processed = igmNames.values().stream().flatMap(List::stream).collect(Collectors.toSet());
             new CgmesOnDataSource(dataSource).names().stream()
                     // We read the modeling authorities present in the rest of instance files
                     // and mark the instance name as linked to an IGM or as shared
-                    .filter(not(CgmesSubset.EQUIPMENT::isValidName))
+                    .filter(not(processed::contains))
                     .filter(not(MultipleGridModelChecker::isBoundary))
                     .forEach(name -> {
                         Optional<String> ma = readModelingAuthority(name);
@@ -319,37 +340,64 @@ public class CgmesImport implements Importer {
         }
 
         private Optional<String> readModelingAuthority(String name) {
-            String modellingAuthority = null;
+            return readModelingAuthority(name, profile -> true);
+        }
+
+        private Optional<String> readModelingAuthority(String name, Predicate<String> profileChecker) {
+            String modelingAuthority = null;
             try (InputStream in = dataSource.newInputStream(name)) {
                 String fileExtension = name.substring(name.lastIndexOf('.') + 1);
                 if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
                     try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 1, 1024000L)) {
                         zis.getNextEntry();
-                        modellingAuthority = readModelingAuthority(zis);
+                        modelingAuthority = readModelingAuthority(zis, profileChecker);
                     }
                 } else {
-                    modellingAuthority = readModelingAuthority(in);
+                    modelingAuthority = readModelingAuthority(in, profileChecker);
                 }
             } catch (IOException | XMLStreamException e) {
                 throw new PowsyblException(e);
             }
-            return Optional.ofNullable(modellingAuthority);
+            return Optional.ofNullable(modelingAuthority);
         }
 
-        private String readModelingAuthority(InputStream is) throws XMLStreamException {
-            String modellingAuthority = null;
+        private boolean isStartModelingAuthority(XMLStreamReader reader, int token) {
+            return token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.MODELING_AUTHORITY_SET);
+        }
+
+        private boolean isStartProfile(XMLStreamReader reader, int token) {
+            return token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.PROFILE);
+        }
+
+        private boolean isEndModel(XMLStreamReader reader, int token) {
+            return token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.FULL_MODEL);
+        }
+
+        private String readModelingAuthority(InputStream is, Predicate<String> profileChecker) throws XMLStreamException {
+            String modelingAuthority = null;
+            boolean profileChecked = false;
             XMLStreamReader reader = null;
             try {
                 reader = xmlInputFactory.createXMLStreamReader(is);
                 boolean stopReading = false;
                 while (reader.hasNext() && !stopReading) {
                     int token = reader.next();
-                    if (token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.MODELING_AUTHORITY_SET)) {
-                        modellingAuthority = reader.getElementText();
-                        stopReading = true;
-                    } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.FULL_MODEL)) {
+                    if (isStartModelingAuthority(reader, token)) {
+                        modelingAuthority = reader.getElementText();
+                        if (profileChecked) {
+                            stopReading = true;
+                        }
+                    } else if (isStartProfile(reader, token)) {
+                        String profile = reader.getElementText();
+                        // We may encounter multiple profiles,
+                        // Equipment core and short-circuits for example.
+                        // If at least one of the profiles checks ok it is enough to accept the modeling authority
+                        if (!profileChecked) {
+                            profileChecked = profileChecker.test(profile);
+                        }
+                    } else if (isEndModel(reader, token)) {
                         // Try to finish parsing the input file as soon as we can
-                        // If we do not have found a modelling authority set inside the FullModel object, exit with unknown
+                        // If we do not have found a modeling authority set inside the FullModel object, exit with unknown
                         stopReading = true;
                     }
                 }
@@ -358,7 +406,12 @@ public class CgmesImport implements Importer {
                     reader.close();
                 }
             }
-            return modellingAuthority;
+            // We may have read a modeling authority,
+            // but if we haven't been able to check that one of the profiles checks ok we discard it
+            if (!profileChecked) {
+                modelingAuthority = null;
+            }
+            return modelingAuthority;
         }
 
         private Set<ReadOnlyDataSource> separateByIgmName() {
@@ -549,6 +602,24 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
+                                defaultValueConfig))
+                .setUsePreviousValuesDuringUpdate(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER,
+                                defaultValueConfig))
+                .setRemovePropertiesAndAliasesAfterImport(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER,
+                                defaultValueConfig))
+                .setUseDetailedDcModel(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                USE_DETAILED_DC_MODEL_PARAMETER,
                                 defaultValueConfig));
 
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
@@ -624,6 +695,9 @@ public class CgmesImport implements Importer {
     public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
     public static final String CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE = "iidm.import.cgmes.create-fictitious-voltage-level-for-every-node";
+    public static final String USE_PREVIOUS_VALUES_DURING_UPDATE = "iidm.import.cgmes.use-previous-values-during-update";
+    public static final String REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT = "iidm.import.cgmes.remove-properties-and-aliases-after-import";
+    public static final String USE_DETAILED_DC_MODEL = "iidm.import.cgmes.use-detailed-dc-model";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -737,6 +811,24 @@ public class CgmesImport implements Importer {
             Boolean.TRUE)
             .addAdditionalNames("createFictitiousVoltageLevelForEveryNode");
 
+    private static final Parameter USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER = new Parameter(
+            USE_PREVIOUS_VALUES_DURING_UPDATE,
+            ParameterType.BOOLEAN,
+            "Use previous values (from a previous update) during the current update",
+            Boolean.FALSE);
+
+    private static final Parameter REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER = new Parameter(
+            REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT,
+            ParameterType.BOOLEAN,
+            "Remove all properties and aliases after CGMES import",
+            Boolean.FALSE);
+
+    private static final Parameter USE_DETAILED_DC_MODEL_PARAMETER = new Parameter(
+            USE_DETAILED_DC_MODEL,
+            ParameterType.BOOLEAN,
+            "Use detailed DC model",
+            Boolean.FALSE);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
@@ -756,7 +848,10 @@ public class CgmesImport implements Importer {
             IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER,
             MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
-            CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER);
+            CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
+            USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER,
+            REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER,
+            USE_DETAILED_DC_MODEL_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;

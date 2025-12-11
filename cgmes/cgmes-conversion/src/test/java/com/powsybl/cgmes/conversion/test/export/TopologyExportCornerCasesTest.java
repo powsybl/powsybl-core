@@ -2,8 +2,8 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ZipArchiveDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Disabled;

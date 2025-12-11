@@ -31,10 +31,11 @@ load-flow-default-parameters:
     phaseShifterRegulationOn: false
     transformerVoltageControlOn: false
     shuntCompensatorVoltageControlOn: false
-    connectedComponentMode: MAIN
+    componentMode: MAIN_CONNECTED
     twtSplitShuntAdmittance: false
     dcUseTransformerRatio: true
     dcPowerFactor: 1.0
+    hvdcAcEmulation: true
 ```
 
 The parameters may also be overridden with a JSON file, in which case the configuration will look like:
@@ -52,10 +53,11 @@ The parameters may also be overridden with a JSON file, in which case the config
   "phaseShifterRegulationOn": false,
   "transformerVoltageControlOn": false,
   "shuntCompensatorVoltageControlOn": false,
-  "connectedComponentMode": "MAIN",
+  "componentMode": "MAIN_CONNECTED",
   "twtSplitShuntAdmittance": false,
   "dcUseTransformerRatio": true,
-  "dcPowerFactor": 1.0
+  "dcPowerFactor": 1.0,
+  "hvdcAcEmulation": true
 }
 ```
 
@@ -96,11 +98,11 @@ country which participating elements are used for slack distribution. If the sla
 
 **readSlackBus**  
 The `readSlackBus` is an optional property that defines if the slack bus has to be selected in the network through the [slack terminal extension](../../grid_model/extensions.md#slack-terminal).  
-The default value is `false`.
+The default value is `true`.
 
 **writeSlackBus**   
 The `writeSlackBus` is an optional property that says if the slack bus has to be written in the network using the [slack terminal extension](../../grid_model/extensions.md#slack-terminal) after a load flow computation.  
-The default value is `false`.
+The default value is `true`.
 
 **useReactiveLimits**  
 The `useReactiveLimits` property is an optional property that defines whether the load flow should take into account equipment's reactive limits. Applies to generators, batteries, static VAR compensators, dangling lines, and HVDC VSCs.  
@@ -118,10 +120,13 @@ The default value is `false`.
 The `shuntCompensatorVoltageControlOn` property is an optional property that defines whether shunt compensator voltage regulating controls should be simulated in the load flow.  
 The default value is `false`.
 
-**connectedComponentMode**  
-The `connectedComponentMode` property is an optional property that defines if the power flow has to be computed over all connected components (choose `ALL` mode) or just on the main connected component (choose `MAIN` mode).  
-The default value of this parameter is `MAIN`.
-
+**componentMode**  
+The `componentMode` property is an optional property that defines 3 possibles modes to run power flow. These modes can be :  
+- `ALL_CONNECTED`: the power flow is computed over all synchronous components of all connected components  
+- `MAIN_CONNECTED` : the power flow is computed over all synchronous components of the main (largest) connected component  
+- `MAIN_SYNCHRONOUS` : the power flow is computed on the main (largest) synchronous component  
+The default value is `MAIN_CONNECTED`.
+- 
 **twtSplitShuntAdmittance**  
 The `twtSplitShuntAdmittance` property is an optional property that defines whether the shunt admittance is split at each side of the series impedance for transformers.  
 The default value is `false`.
@@ -134,6 +139,10 @@ The default value of this parameter is `true`.
 **dcPowerFactor**  
 The `dcPowerFactor` property is an optional property that defines the power factor used to convert current limits into active power limits in DC calculations.  
 The default value is `1.0`.
+
+**hvdcAcEmulation**  
+The `hvdcAcEmulation` property is an optional property that defines whether AC emulation for HVDC should be simulated in the load flow or not (HVDC that are in AC emulation mode should have the hvdc-angle-droop-active-power-control extension).  
+The default value is `true`.
 
 ### Specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:

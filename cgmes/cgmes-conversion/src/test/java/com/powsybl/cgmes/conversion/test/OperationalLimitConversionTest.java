@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
 import com.google.re2j.Pattern;
@@ -285,6 +286,26 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertTrue(line.getApparentPowerLimits1().isPresent());
         assertEquals(102.0, line.getApparentPowerLimits1().get().getPermanentLimit());
         assertEquals(202.0, line.getApparentPowerLimits1().get().getTemporaryLimit(600).getValue());
+    }
+
+    @Test
+    void missingTatlName() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        Line line = network.getLine("NHV1_NHV2_1");
+
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(500).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .add();
+
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        String currentLimits = getElement(eqFile, "CurrentLimit", "NHV1_NHV2_1_ACLS_T_2_DEFAULT_OLS_CurrentLimit_TATL_600_OLV");
+        assertTrue(currentLimits.contains("<cim:IdentifiedObject.name>TATL 600</cim:IdentifiedObject.name>"));
     }
 
 }

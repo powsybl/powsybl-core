@@ -104,6 +104,16 @@ public final class ConversionUtil {
         return Network.read(ds, properties);
     }
 
+    public static void readCgmesResources(Network network, String dir, String... files) {
+        ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
+        network.update(ds);
+    }
+
+    public static void readCgmesResources(Network network, Properties properties, String dir, String... files) {
+        ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
+        network.update(ds, properties);
+    }
+
     public static Network readCgmesResources(ReportNode reportNode, String dir, String... files) {
         return readCgmesResources(new Properties(), reportNode, dir, files);
     }
@@ -144,6 +154,18 @@ public final class ConversionUtil {
         String regex = "(<cim:" + className + " (rdf:ID=\"_|rdf:about=\"#_)" + rdfId + "\">.*?</cim:" + className + ">)";
         Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
         return getFirstMatch(xmlFile, pattern);
+    }
+
+    public static String getAttribute(String element, String attributeName) {
+        String regex = "<cim:" + attributeName + ">(.*?)</cim:" + attributeName + ">";
+        Pattern pattern = Pattern.compile(regex);
+        return getFirstMatch(element, pattern);
+    }
+
+    public static String getResource(String element, String attributeName) {
+        String regex = "<cim:" + attributeName + " rdf:resource=\"(?:#_)?(.*?)\"/>";
+        Pattern pattern = Pattern.compile(regex);
+        return getFirstMatch(element, pattern);
     }
 
     public static long getElementCount(String xmlFile, String className) {

@@ -233,23 +233,29 @@ public abstract class AbstractAcDcConverterTest {
     private void checkBaseCommonLccVsc() {
         assertEquals("converterA", acDcConverterA.getId());
 
-        assertSame(TwoSides.ONE, acDcConverterA.getDcTerminal1().getSide());
-        assertSame(TwoSides.TWO, acDcConverterA.getDcTerminal2().getSide());
-        assertSame(TwoSides.ONE, acDcConverterA.getSide(acDcConverterA.getDcTerminal1()));
-        assertSame(TwoSides.TWO, acDcConverterA.getSide(acDcConverterA.getDcTerminal2()));
-        assertSame(acDcConverterA.getDcTerminal1(), acDcConverterA.getDcTerminal(TwoSides.ONE));
-        assertSame(acDcConverterA.getDcTerminal2(), acDcConverterA.getDcTerminal(TwoSides.TWO));
+        assertSame(TerminalNumber.ONE, acDcConverterA.getDcTerminal1().getTerminalNumber());
+        assertSame(TerminalNumber.TWO, acDcConverterA.getDcTerminal2().getTerminalNumber());
+        assertNull(acDcConverterA.getDcTerminal1().getSide());
+        assertNull(acDcConverterA.getDcTerminal2().getSide());
+        assertSame(TerminalNumber.ONE, acDcConverterA.getTerminalNumber(acDcConverterA.getDcTerminal1()));
+        assertSame(TerminalNumber.TWO, acDcConverterA.getTerminalNumber(acDcConverterA.getDcTerminal2()));
+        assertSame(acDcConverterA.getDcTerminal1(), acDcConverterA.getDcTerminal(TerminalNumber.ONE));
+        assertSame(acDcConverterA.getDcTerminal2(), acDcConverterA.getDcTerminal(TerminalNumber.TWO));
 
-        assertSame(ThreeSides.ONE, acDcConverterA.getTerminal1().getSide());
-        assertSame(ThreeSides.TWO, acDcConverterA.getTerminal2().orElseThrow().getSide());
-        assertSame(TwoSides.ONE, acDcConverterA.getSide(acDcConverterA.getTerminal1()));
-        assertSame(TwoSides.TWO, acDcConverterA.getSide(acDcConverterA.getTerminal2().orElseThrow()));
-        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getTerminal(TwoSides.ONE));
-        assertSame(acDcConverterA.getTerminal2().orElseThrow(), acDcConverterA.getTerminal(TwoSides.TWO));
-        assertSame(ThreeSides.ONE, Terminal.getConnectableSide(acDcConverterA.getTerminal1()).orElseThrow());
-        assertSame(ThreeSides.TWO, Terminal.getConnectableSide(acDcConverterA.getTerminal2().orElseThrow()).orElseThrow());
-        assertSame(acDcConverterA.getTerminal1(), Terminal.getTerminal(acDcConverterA, ThreeSides.ONE));
-        assertSame(acDcConverterA.getTerminal2().orElseThrow(), Terminal.getTerminal(acDcConverterA, ThreeSides.TWO));
+        assertSame(TerminalNumber.ONE, acDcConverterA.getTerminal1().getTerminalNumber());
+        assertSame(TerminalNumber.TWO, acDcConverterA.getTerminal2().orElseThrow().getTerminalNumber());
+        assertFalse(Terminal.getConnectableSide(acDcConverterA.getTerminal1()).isPresent());
+        assertFalse(Terminal.getConnectableSide(acDcConverterA.getTerminal2().orElseThrow()).isPresent());
+        assertFalse(Terminal.getConnectableTerminalNumber(lineax.getTerminal1()).isPresent());
+        assertFalse(Terminal.getConnectableTerminalNumber(lineax.getTerminal2()).isPresent());
+        assertSame(TerminalNumber.ONE, acDcConverterA.getTerminalNumber(acDcConverterA.getTerminal1()));
+        assertSame(TerminalNumber.TWO, acDcConverterA.getTerminalNumber(acDcConverterA.getTerminal2().orElseThrow()));
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getTerminal(TerminalNumber.ONE).orElseThrow());
+        assertSame(acDcConverterA.getTerminal2().orElseThrow(), acDcConverterA.getTerminal(TerminalNumber.TWO).orElseThrow());
+        assertSame(TerminalNumber.ONE, Terminal.getConnectableTerminalNumber(acDcConverterA.getTerminal1()).orElseThrow());
+        assertSame(TerminalNumber.TWO, Terminal.getConnectableTerminalNumber(acDcConverterA.getTerminal2().orElseThrow()).orElseThrow());
+        assertSame(acDcConverterA.getTerminal1(), Terminal.getTerminal(acDcConverterA, TerminalNumber.ONE));
+        assertSame(acDcConverterA.getTerminal2().orElseThrow(), Terminal.getTerminal(acDcConverterA, TerminalNumber.TWO));
 
         assertSame(b1a, acDcConverterA.getTerminal1().getBusBreakerView().getBus());
         assertTrue(acDcConverterA.getTerminal2().isPresent());
@@ -712,11 +718,39 @@ public abstract class AbstractAcDcConverterTest {
     }
 
     @Test
+    public void testDroopCurve() {
+        AcDcConverter<?> vsc = createVscA(vla).setControlMode(AcDcConverter.ControlMode.P_PCC_DROOP);
+
+        assertEquals(DroopCurve.EMPTY, vsc.getDroopCurve());
+        assertEquals(0., vsc.getDroopCurve().getSegments().size());
+        assertEquals(0., vsc.getDroopCurve().getK(42.0));
+
+        vsc.newDroopCurve()
+                .beginSegment().setK(-10.).setMinV(-500.).setMaxV(-100.).endSegment()
+                .beginSegment().setK(-5.).setMinV(-100.).setMaxV(100.).endSegment()
+                .beginSegment().setK(-1.).setMinV(100.).setMaxV(500.).endSegment()
+                .add();
+        assertEquals(3., vsc.getDroopCurve().getSegments().size());
+        assertEquals(-10., vsc.getDroopCurve().getK(-1000.));
+        assertEquals(-10., vsc.getDroopCurve().getK(-250.));
+        assertEquals(-5., vsc.getDroopCurve().getK(-100.));
+        assertEquals(-1., vsc.getDroopCurve().getK(400.));
+        assertEquals(-1., vsc.getDroopCurve().getK(1000.));
+
+        vsc.newDroopCurve()
+                .add();
+
+        assertEquals(0., vsc.getDroopCurve().getK(400.));
+    }
+
+    @Test
     public void testCreationError() {
         LineCommutatedConverterAdder adder = vla.newLineCommutatedConverter()
                 .setId("converterA")
                 .setBus1(b1a.getId())
                 .setBus2(b2a.getId());
+
+        acDcConverterB = createLccB(vlb);
 
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("AC/DC Line Commutated Converter 'converterA': controlMode is not set", e1.getMessage());
@@ -730,24 +764,21 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals("AC/DC Line Commutated Converter 'converterA': targetP is invalid", e3.getMessage());
 
         adder.setTargetP(200.);
-        PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': converter has two AC terminals and pccTerminal is not set", e4.getMessage());
-
         adder.setPccTerminal(lax.getTerminal());
-        PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': converter has two AC terminals and pccTerminal is not a line or transformer terminal", e5.getMessage());
+        PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not a line or transformer or converter terminal", e4.getMessage());
 
-        adder.setBus2(null);
-        PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not a line or transformer or the converter terminal", e6.getMessage());
+        adder.setPccTerminal(acDcConverterB.getTerminal1());
+        PowsyblException e5 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal cannot be the terminal of another converter", e5.getMessage());
 
         adder.setPccTerminal(lineax.getTerminal1());
-        PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode1 is not set", e7.getMessage());
+        PowsyblException e6 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode1 is not set", e6.getMessage());
 
         adder.setDcNode1(dcNode1a.getId());
-        PowsyblException e8 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode2 is not set", e8.getMessage());
+        PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("AC/DC Line Commutated Converter 'converterA': dcNode2 is not set", e7.getMessage());
 
         adder.setDcNode2(dcNode2a.getId());
         Network subnet = network.createSubnetwork("subNet", "subNetName", "code");
@@ -761,8 +792,8 @@ public abstract class AbstractAcDcConverterTest {
                 .add();
 
         adder.setPccTerminal(subNetLine.getTerminal1());
-        PowsyblException e9 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not in the same parent network as the voltage level", e9.getMessage());
+        PowsyblException e8 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not in the same parent network as the voltage level", e8.getMessage());
     }
 
     @Test
@@ -780,8 +811,42 @@ public abstract class AbstractAcDcConverterTest {
                 .add();
         assertTrue(acDcConverterA.getTerminal2().isEmpty());
         assertSame(acDcConverterA.getPccTerminal(), acDcConverterA.getTerminal1());
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> acDcConverterA.getTerminal(TwoSides.TWO));
-        assertEquals("This AC/DC converter does not have a second AC Terminal", e.getMessage());
+        assertFalse(acDcConverterA.getTerminal(TerminalNumber.TWO).isPresent());
+    }
+
+    @Test
+    public void testTwoAcTerminals() {
+        acDcConverterA = vla.newVoltageSourceConverter()
+                .setId("converterA")
+                .setBus1(b1a.getId())
+                .setBus2(b2a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
+                .add();
+        assertTrue(acDcConverterA.getTerminal2().isPresent());
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal()); // defaults to AC Terminal 1
+        assertTrue(acDcConverterA.getTerminal(TerminalNumber.TWO).isPresent());
+
+        // change PCC Terminal to line terminal
+        acDcConverterA.setPccTerminal(lineax.getTerminal1());
+        assertSame(lineax.getTerminal1(), acDcConverterA.getPccTerminal());
+
+        // check we can set again to converter's AC terminal
+        acDcConverterA.setPccTerminal(acDcConverterA.getTerminal1());
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal());
+
+        // change again PCC Terminal to line terminal
+        acDcConverterA.setPccTerminal(lineax.getTerminal1());
+        assertSame(lineax.getTerminal1(), acDcConverterA.getPccTerminal());
+
+        // remove the line, check PCC Terminal automatically fixed to be the converter terminal 1
+        lineax.remove();
+        assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal());
     }
 
     @Test

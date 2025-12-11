@@ -7,6 +7,9 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.math.graph.TraversalType;
+import com.powsybl.math.graph.TraverseResult;
+
 /**
  * A DC equipment connection point in a DC system.
  *
@@ -23,6 +26,11 @@ public interface DcTerminal {
      * @return the DC equipment side
      */
     TwoSides getSide();
+
+    /**
+     * @return the DC equipment terminal number
+     */
+    TerminalNumber getTerminalNumber();
 
     /**
      * @return the DC node the DC terminal connects to
@@ -43,6 +51,14 @@ public interface DcTerminal {
      * @see VariantManager
      */
     DcTerminal setConnected(boolean connected);
+
+    /**
+     * Get the DC connection bus of this DC terminal.
+     * <p>Depends on the working variant.
+     * @return the DC connection bus or null if not connected
+     * @see VariantManager
+     */
+    DcBus getDcBus();
 
     /**
      * @return the active power in MW injected at the DC terminal.<br/>
@@ -73,4 +89,47 @@ public interface DcTerminal {
      * @see VariantManager
      */
     DcTerminal setI(double i);
+
+    /**
+     * Traverse the full network topology graph.
+     * @param traverser traversal handler
+     */
+    void traverse(TopologyTraverser traverser);
+
+    /**
+     * Traverse the full network topology graph.
+     * @param traverser traversal handler
+     * @param traversalType traversal type
+     */
+    void traverse(DcTerminal.TopologyTraverser traverser, TraversalType traversalType);
+
+    interface TopologyTraverser {
+
+        /**
+         * Called when a DC terminal is encountered.
+         *
+         * @param terminal  the encountered DC terminal
+         * @param connected in bus/breaker topology, give the DC terminal connection status
+         * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+         * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+         */
+        TraverseResult traverse(DcTerminal terminal, boolean connected);
+
+        /**
+         * Called when a DC switch is encountered
+         *
+         * @param aSwitch the encountered switch
+         * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+         * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+         */
+        TraverseResult traverse(DcSwitch aSwitch);
+    }
+
+    /**
+     * Disconnect the DC terminal.<br/>
+     * Depends on the working variant.
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    boolean disconnect();
 }

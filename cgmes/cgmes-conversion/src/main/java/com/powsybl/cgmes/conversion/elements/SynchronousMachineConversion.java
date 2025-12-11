@@ -13,12 +13,16 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
-
 import com.powsybl.triplestore.api.PropertyBag;
+
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -30,7 +34,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
         super(CgmesNames.SYNCHRONOUS_MACHINE, sm, context);
         String type = p.getLocal("type");
-        isCondenser = "SynchronousMachineKind.condenser".equals(type);
+        isCondenser = type.toLowerCase().contains("condenser");
     }
 
     @Override
@@ -41,38 +45,20 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         double maxP = p.asDouble("maxP", isCondenser ? 0 : Double.MAX_VALUE);
         double ratedS = p.asDouble("ratedS");
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
-        PowerFlow f = powerFlow();
-
-        // Default targetP from initial P defined in EQ GeneratingUnit. Removed since CGMES 3.0
-        double targetP = p.asDouble("initialP", 0);
-        double targetQ = 0;
-        // Flow values may come from Terminal or Equipment (SSH RotatingMachine)
-        if (f.defined()) {
-            targetP = -f.p();
-            targetQ = -f.q();
-        }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
         RegulatingControlMappingForGenerators.initialize(adder);
         setMinPMaxP(adder, minP, maxP);
-        adder.setTargetP(targetP)
-                .setTargetQ(targetQ)
-                .setEnergySource(energySourceFromGeneratingUnitType())
+        adder.setEnergySource(energySourceFromGeneratingUnitType())
                 .setRatedS(ratedS);
         identify(adder);
-        connect(adder);
+        connectWithOnlyEq(adder);
         adder.setCondenser(isCondenser);
         Generator g = adder.add();
         addAliasesAndProperties(g);
-        convertedTerminals(g.getTerminal());
+        convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
-        int referencePriority = p.asInt("referencePriority", 0);
-        if (referencePriority > 0) {
-            ReferencePriority.set(g, referencePriority);
-        }
-        if (!isCondenser) {
-            convertGenerator(g);
-        }
+        convertGenerator(g);
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
         addSpecificProperties(g, p);
@@ -84,33 +70,22 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (type != null) {
             generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
         }
-        String operatingMode = p.getLocal("operatingMode");
-        if (operatingMode != null) {
-            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
-        }
     }
 
     private void convertGenerator(Generator g) {
-        double normalPF = p.asDouble("normalPF");
-        if (!Double.isNaN(normalPF)) {
-            if (context.config().createActivePowerControlExtension()) {
-                g.newExtension(ActivePowerControlAdder.class)
-                        .withParticipate(true)
-                        .withParticipationFactor(normalPF)
-                        .add();
-            } else {
-                g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF", String.valueOf(normalPF));
-            }
-        }
-        String generatingUnit = p.getId("GeneratingUnit");
+        String generatingUnit = p.getId(CgmesNames.GENERATING_UNIT);
         if (generatingUnit != null) {
-            g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit", generatingUnit);
+            g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.GENERATING_UNIT, generatingUnit);
         }
-
-        addSpecificGeneratingUnitProperties(g, p);
+        addGeneratingUnitProperties(g, p);
     }
 
-    private static void addSpecificGeneratingUnitProperties(Generator generator, PropertyBag p) {
+    private static void addGeneratingUnitProperties(Generator generator, PropertyBag p) {
+        // Default targetP from initial P defined in EQ GeneratingUnit. Removed since CGMES 3.0
+        String initialP = p.getLocal(CgmesNames.INITIAL_P);
+        if (initialP != null) {
+            generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.INITIAL_P, initialP);
+        }
         String hydroPlantStorageType = p.getLocal("hydroPlantStorageType");
         if (hydroPlantStorageType != null) {
             generator.setProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE, hydroPlantStorageType.replace("HydroPlantStorageKind.", ""));
@@ -145,5 +120,63 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             }
         }
         return es;
+    }
+
+    public static void update(Generator generator, PropertyBag cgmesData, Context context) {
+        updateTerminals(generator, context, generator.getTerminal());
+
+        int referencePriority = cgmesData.asInt("referencePriority", 0);
+        if (referencePriority > 0) {
+            ReferencePriority.set(generator, referencePriority);
+        }
+
+        double targetP = getDefaultValue(getInitialP(generator), generator.getTargetP(), 0.0, 0.0, context);
+        double targetQ = getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
+        PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
+        if (updatedPowerFlow.defined()) {
+            targetP = -updatedPowerFlow.p();
+            targetQ = -updatedPowerFlow.q();
+        }
+        generator.setTargetP(targetP).setTargetQ(targetQ);
+
+        String generatingUnitId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.GENERATING_UNIT);
+        if (generatingUnitId != null) {
+            updateGeneratingUnit(generator, generatingUnitId, context);
+        }
+
+        Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
+        updateRegulatingControl(generator, controlEnabled, context);
+    }
+
+    private static double getInitialP(Generator generator) {
+        String initialP = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.INITIAL_P);
+        return initialP != null ? Double.parseDouble(initialP) : 0.0;
+    }
+
+    private static void updateGeneratingUnit(Generator generator, String generatingUnitId, Context context) {
+        findCgmesGeneratingUnit(generatingUnitId, context).ifPresent(generatingUnit -> {
+            double normalPF = generatingUnit.asDouble(CgmesNames.NORMAL_PF);
+            if (!Double.isNaN(normalPF)) {
+                updateNormalPF(generator, normalPF, context);
+            }
+        });
+    }
+
+    private static Optional<PropertyBag> findCgmesGeneratingUnit(String generatingUnitId, Context context) {
+        return generatingUnitId != null ? Optional.ofNullable(context.generatingUnit(generatingUnitId)) : Optional.empty();
+    }
+
+    private static void updateNormalPF(Generator generator, double normalPF, Context context) {
+        ActivePowerControl<Generator> activePowerControl = generator.getExtension(ActivePowerControl.class);
+        if (activePowerControl != null) {
+            activePowerControl.setParticipationFactor(normalPF);
+        } else if (context.config().createActivePowerControlExtension()) {
+            generator.newExtension(ActivePowerControlAdder.class)
+                    .withParticipate(true)
+                    .withParticipationFactor(normalPF)
+                    .add();
+        } else {
+            generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_PF, String.valueOf(normalPF));
+        }
     }
 }

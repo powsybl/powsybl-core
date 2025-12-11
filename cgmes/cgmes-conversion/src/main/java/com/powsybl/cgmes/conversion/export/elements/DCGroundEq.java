@@ -18,8 +18,11 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class DCGroundEq {
 
-    public static void write(String dcGroundId, String dcGroundName, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void write(String dcGroundId, String dcGroundName, double resistance, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("DCGround", dcGroundId, dcGroundName, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "DCGround.r");
+        writer.writeCharacters(CgmesExportUtil.format(resistance));
+        writer.writeEndElement();
         writer.writeEndElement();
     }
 

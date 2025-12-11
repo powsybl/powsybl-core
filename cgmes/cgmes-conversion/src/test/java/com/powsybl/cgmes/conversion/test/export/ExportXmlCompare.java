@@ -143,9 +143,9 @@ final class ExportXmlCompare {
                 // ratedS is optional for generators,
                 // but we always export it to keep up with the quality of datasets rules.
                 // So we do not enforce this attribute to be equal in the original and exported network
-                ignored = attr.getLocalName().equals("ratedS");
+                ignored = attr.getLocalName().equals("ratedS") || attr.getLocalName().equals("bus");
             } else if (elementName.startsWith("shunt")) {
-                ignored = attr.getLocalName().equals("solvedSectionCount");
+                ignored = attr.getLocalName().equals("solvedSectionCount") || attr.getLocalName().equals("bus");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
@@ -365,6 +365,8 @@ final class ExportXmlCompare {
                     return ComparisonResult.EQUAL;
                 } else if (control != null && control.getLocalName().equals("targetQ")) {
                     return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().equals("tapPosition")) {
+                    return ComparisonResult.EQUAL;
                 } else if (comparison.getControlDetails().getXPath().contains("temporaryLimit")) {
                     // If the control node is a temporary limit, the order depends on the name attribute,
                     // this attribute is generated as a unique identifier in the EQ export to avoid duplicates in CGMES
@@ -540,6 +542,16 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringChildLookupNull(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
             if (comparison.getControlDetails().getXPath() == null) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSshOperatingMode(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ATTR_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("SynchronousMachine.operatingMode")) {
                 return ComparisonResult.EQUAL;
             }
         }

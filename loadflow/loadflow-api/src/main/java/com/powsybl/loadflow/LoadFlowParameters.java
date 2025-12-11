@@ -7,6 +7,7 @@
  */
 package com.powsybl.loadflow;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
@@ -68,9 +69,22 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         PROPORTIONAL_TO_CONFORM_LOAD,
     }
 
-    public enum ConnectedComponentMode {
-        MAIN,
-        ALL,
+    public enum ComponentMode {
+        MAIN_CONNECTED,
+        ALL_CONNECTED,
+        MAIN_SYNCHRONOUS;
+
+        @JsonCreator
+        public static ComponentMode fromString(String value) {
+            return switch (value) {
+                case "MAIN" -> MAIN_CONNECTED;
+                case "ALL" -> ALL_CONNECTED;
+                case "MAIN_CONNECTED" -> MAIN_CONNECTED;
+                case "ALL_CONNECTED" -> ALL_CONNECTED;
+                case "MAIN_SYNCHRONOUS" -> MAIN_SYNCHRONOUS;
+                default -> throw new IllegalArgumentException("ComponentMode unknown value: " + value);
+            };
+        }
     }
 
     public static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowParameters.class);
@@ -85,7 +99,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     // VERSION = 1.7 hvdcAcEmulation
     // VERSION = 1.8 noGeneratorReactiveLimits -> useReactiveLimits
     // VERSION = 1.9 dcPowerFactor
-    public static final String VERSION = "1.9";
+    // VERSION = 1.10 componentMode instead of connectedComponentMode
+    public static final String VERSION = "1.10";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
@@ -100,7 +115,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final BalanceType DEFAULT_BALANCE_TYPE = BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX;
     public static final boolean DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT = true;
     public static final Set<Country> DEFAULT_COUNTRIES_TO_BALANCE = Collections.unmodifiableSet(EnumSet.noneOf(Country.class));
-    public static final ConnectedComponentMode DEFAULT_CONNECTED_COMPONENT_MODE = ConnectedComponentMode.MAIN;
+    public static final ComponentMode DEFAULT_COMPONENT_MODE = ComponentMode.MAIN_CONNECTED;
     public static final boolean DEFAULT_HVDC_AC_EMULATION_ON = true;
     public static final double DEFAULT_DC_POWER_FACTOR = 1d;
 
@@ -153,7 +168,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                     config.getOptionalEnumProperty("balanceType", BalanceType.class).ifPresent(parameters::setBalanceType);
                     config.getOptionalBooleanProperty("dcUseTransformerRatio").ifPresent(parameters::setDcUseTransformerRatio);
                     config.getOptionalEnumSetProperty("countriesToBalance", Country.class).ifPresent(parameters::setCountriesToBalance);
-                    config.getOptionalEnumProperty("connectedComponentMode", ConnectedComponentMode.class).ifPresent(parameters::setConnectedComponentMode);
+                    config.getOptionalEnumProperty("componentMode", ComponentMode.class).ifPresentOrElse(parameters::setComponentMode,
+                            () -> config.getOptionalEnumProperty("connectedComponentMode", ComponentMode.class).ifPresent(parameters::setComponentMode));
                     config.getOptionalBooleanProperty("hvdcAcEmulation").ifPresent(parameters::setHvdcAcEmulation);
                     config.getOptionalDoubleProperty("dcPowerFactor").ifPresent(parameters::setDcPowerFactor);
                 });
@@ -185,7 +201,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private Set<Country> countriesToBalance = DEFAULT_COUNTRIES_TO_BALANCE;
 
-    private ConnectedComponentMode connectedComponentMode = DEFAULT_CONNECTED_COMPONENT_MODE;
+    private ComponentMode componentMode = DEFAULT_COMPONENT_MODE;
 
     private boolean hvdcAcEmulation = DEFAULT_HVDC_AC_EMULATION_ON;
 
@@ -196,18 +212,25 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     protected LoadFlowParameters(PlatformConfig config) {
-        this(ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
-                .stream()
-                .map(ServiceLoader.Provider::get)
-                .toList(), config);
+        this(getDefaultParemtersLoaders(), config);
     }
 
     public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders) {
         this(defaultParametersLoaders, PlatformConfig.defaultConfig());
     }
 
-    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
-        // Check default-parameters-loader config parameter
+    public static Optional<LoadFlowDefaultParametersLoader> getDefaultLoadFlowParameterLoader(PlatformConfig config) {
+        return getDefaultLoadFlowParameterLoader(getDefaultParemtersLoaders(), config);
+    }
+
+    private static List<LoadFlowDefaultParametersLoader> getDefaultParemtersLoaders() {
+        return ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList();
+    }
+
+    public static Optional<LoadFlowDefaultParametersLoader> getDefaultLoadFlowParameterLoader(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
         String selectedLoaderName;
         Optional<LoadFlowDefaultParametersLoader> selectedLoader = Optional.empty();
         selectedLoaderName = config.getOptionalModuleConfig("load-flow")
@@ -227,14 +250,19 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 List<String> names = defaultParametersLoaders.stream()
                         .map(LoadFlowDefaultParametersLoader::getSourceName).toList();
                 String message = String.format("Multiple default loadflow parameter loader classes have been found in the class path : %s." +
-                                " Specify which one to use with the 'default-parameters-loader' parameter of 'load-flow' module " +
-                                "of Powsybl configuration.", names);
+                        " Specify which one to use with the 'default-parameters-loader' parameter of 'load-flow' module " +
+                        "of Powsybl configuration.", names);
                 throw new PowsyblException(message);
             } else if (numberOfLoadersFound == 1) {
                 selectedLoader = defaultParametersLoaders.stream().findFirst();
             }
         }
+        return selectedLoader;
+    }
 
+    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
+        // Check default-parameters-loader config parameter
+        Optional<LoadFlowDefaultParametersLoader> selectedLoader = getDefaultLoadFlowParameterLoader(defaultParametersLoaders, config);
         if (selectedLoader.isPresent()) {
             JsonLoadFlowParameters.update(this, selectedLoader.get().loadDefaultParametersFromFile());
             LOGGER.debug("Default loadflow configuration has been updated using the reference from parameters loader '{}'",
@@ -257,7 +285,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         balanceType = other.balanceType;
         dcUseTransformerRatio = other.dcUseTransformerRatio;
         countriesToBalance = other.countriesToBalance;
-        connectedComponentMode = other.connectedComponentMode;
+        componentMode = other.componentMode;
         hvdcAcEmulation = other.hvdcAcEmulation;
         dcPowerFactor = other.dcPowerFactor;
     }
@@ -289,23 +317,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #isUseReactiveLimits} instead.
-     */
-    @Deprecated(since = "5.1.0")
-    public boolean isNoGeneratorReactiveLimits() {
-        return !useReactiveLimits;
-    }
-
-    /**
-     * @deprecated Use {@link #setNoGeneratorReactiveLimits} instead.
-     */
-    @Deprecated(since = "5.1.0")
-    public LoadFlowParameters setNoGeneratorReactiveLimits(boolean noGeneratorReactiveLimits) {
-        this.useReactiveLimits = !noGeneratorReactiveLimits;
-        return this;
-    }
-
     public boolean isPhaseShifterRegulationOn() {
         return phaseShifterRegulationOn;
     }
@@ -324,24 +335,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #isShuntCompensatorVoltageControlOn()} instead.
-     */
-    @Deprecated(since = "4.7.0")
-    public boolean isSimulShunt() {
-        return isShuntCompensatorVoltageControlOn();
-    }
-
     public boolean isShuntCompensatorVoltageControlOn() {
         return shuntCompensatorVoltageControlOn;
-    }
-
-    /**
-     * @deprecated Use {@link #setShuntCompensatorVoltageControlOn(boolean)} instead.
-     */
-    @Deprecated(since = "4.7.0")
-    public LoadFlowParameters setSimulShunt(boolean simulShunt) {
-        return setShuntCompensatorVoltageControlOn(simulShunt);
     }
 
     public LoadFlowParameters setShuntCompensatorVoltageControlOn(boolean shuntCompensatorVoltageControlOn) {
@@ -412,12 +407,12 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return Collections.unmodifiableSet(countriesToBalance);
     }
 
-    public ConnectedComponentMode getConnectedComponentMode() {
-        return connectedComponentMode;
+    public ComponentMode getComponentMode() {
+        return componentMode;
     }
 
-    public LoadFlowParameters setConnectedComponentMode(ConnectedComponentMode connectedComponentMode) {
-        this.connectedComponentMode = connectedComponentMode;
+    public LoadFlowParameters setComponentMode(ComponentMode componentMode) {
+        this.componentMode = componentMode;
         return this;
     }
 
@@ -457,7 +452,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("balanceType", balanceType)
                 .put("dcUseTransformerRatio", dcUseTransformerRatio)
                 .put("countriesToBalance", countriesToBalance)
-                .put("computedConnectedComponentScope", connectedComponentMode)
+                .put("computedComponentMode", componentMode)
                 .put("hvdcAcEmulation", hvdcAcEmulation)
                 .put("dcPowerFactor", dcPowerFactor)
                 .build();
