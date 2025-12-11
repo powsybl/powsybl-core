@@ -223,6 +223,12 @@ public final class ValidationUtil {
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
+    public static void checkEquivalentLocalTargetV(Validable validable, double equivalentLocalTargetV) {
+        if (!Double.isNaN(equivalentLocalTargetV) && equivalentLocalTargetV < 0) {
+            throw createInvalidValueException(validable, equivalentLocalTargetV, "equivalentLocalTargetV", "must be positive");
+        }
+    }
+
     public static void checkRatedS(Validable validable, double ratedS) {
         if (!Double.isNaN(ratedS) && ratedS <= 0) {
             throw new ValidationException(validable, "Invalid value of rated S " + ratedS);
@@ -675,18 +681,13 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    public static void checkAcDcConverterPccTerminal(Validable validable, boolean twoAcTerminals, Terminal pccTerminal, VoltageLevel voltageLevel) {
-        if (twoAcTerminals && pccTerminal == null) {
-            throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not set");
-        }
+    public static void checkAcDcConverterPccTerminal(Validable validable, Terminal pccTerminal, VoltageLevel voltageLevel) {
         if (pccTerminal != null) {
             var c = pccTerminal.getConnectable();
-            if (twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer)) {
-                throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not a line or transformer terminal");
-            } else if (!twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof AcDcConverter<?>)) {
-                throw new ValidationException(validable, "pccTerminal is not a line or transformer or the converter terminal");
+            if (!(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof AcDcConverter<?>)) {
+                throw new ValidationException(validable, "pccTerminal is not a line or transformer or converter terminal");
             }
-            if (!twoAcTerminals && c instanceof AcDcConverter<?> && c != validable) {
+            if (c instanceof AcDcConverter<?> && c != validable) {
                 throw new ValidationException(validable, "pccTerminal cannot be the terminal of another converter");
             }
             if (c.getParentNetwork() != voltageLevel.getParentNetwork()) {

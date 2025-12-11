@@ -7,7 +7,7 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.contingency.list.*;
+import com.powsybl.contingency.list.*;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;

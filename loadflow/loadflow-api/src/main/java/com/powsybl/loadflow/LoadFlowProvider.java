@@ -137,20 +137,35 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig config);
 
     /**
-     * Get the parameters of the parameters extension associated with this provider.
+     * Returns the parameters of the parameters extension associated with this provider, as defined by the provider
+     * without any override.
      *
      * @return the parameters of the parameters extension associated with this provider.
      */
-    List<Parameter> getSpecificParameters();
+    List<Parameter> getRawSpecificParameters();
+
+    /**
+     * Returns the parameters of the parameters extension associated with this provider. If a LoadFlowDefaultParameterLoader
+     * is available, the parameters should reflect the default values.
+     *
+     * @return the parameters of the parameters extension associated with this provider.
+     */
+    default List<Parameter> getSpecificParameters() {
+        return LoadFlowProviderUtil.getSpecificParameters(this, PlatformConfig.defaultConfig());
+    }
 
     /**
      * Retrieves the parameters of the extension associated with this provider,
-     * incorporating any overrides from the PlatformConfig.
+     * incorporating any overrides from the PlatformConfig and from the loadFlowDefaultParameterLoader
+     * if available.
      *
      * @return The parameters of the associated extension with overrides applied from PlatformConfig.
      */
     default List<Parameter> getSpecificParameters(PlatformConfig platformConfigConfig) {
-        return ConfiguredParameter.load(getSpecificParameters(), getModuleConfig(platformConfigConfig).orElse(null));
+        return ConfiguredParameter.load(
+                LoadFlowProviderUtil.getSpecificParameters(this, platformConfigConfig),
+                getModuleConfig(platformConfigConfig).orElse(null)
+        );
     }
 
     /**
