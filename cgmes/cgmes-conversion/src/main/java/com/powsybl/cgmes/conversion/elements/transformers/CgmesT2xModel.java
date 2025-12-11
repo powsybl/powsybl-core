@@ -35,8 +35,12 @@ public class CgmesT2xModel {
 
         this.r = bagEnd1.asDouble(CgmesNames.R) + bagEnd2.asDouble(CgmesNames.R);
         this.x = x1 + x2;
+
+        double ratedu1 = bagEnd1.asDouble("ratedU");
+        double ratedu2 = bagEnd2.asDouble("ratedU");
+        double xend2 = x * Math.pow(ratedu2 / ratedu1, 2);
         this.end1 = new CgmesPartialEnd(bagEnd1, x, context);
-        this.end2 = new CgmesPartialEnd(bagEnd2, x, context);
+        this.end2 = new CgmesPartialEnd(bagEnd2, xend2, context);
         this.x1IsZero = x1 == 0.0;
 
         this.ratedS = getRatedS(bagEnd1, bagEnd2);
