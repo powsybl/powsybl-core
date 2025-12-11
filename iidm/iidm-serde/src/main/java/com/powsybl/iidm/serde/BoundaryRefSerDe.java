@@ -8,7 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Network;
 
 import java.util.function.Consumer;
@@ -18,7 +18,6 @@ import java.util.function.Consumer;
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
 
-//TODO : rename DanglingLine to BoundaryLine
 public final class BoundaryRefSerDe {
 
     private static final String ID = "id";
@@ -29,13 +28,13 @@ public final class BoundaryRefSerDe {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         context.getReader().readEndNode();
         context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
-            DanglingLine danglingLine = network.getDanglingLine(id);
-            endTaskTerminalConsumer.accept(danglingLine.getBoundary());
+            BoundaryLine boundaryLine = network.getBoundaryLine(id);
+            endTaskTerminalConsumer.accept(boundaryLine.getBoundary());
         });
     }
 
     public static void writeBoundaryRefAttributes(Boundary boundary, NetworkSerializerContext context) {
-        context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(boundary.getDanglingLine().getId()));
+        context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(boundary.getBoundaryLine().getId()));
     }
 
     private BoundaryRefSerDe() {

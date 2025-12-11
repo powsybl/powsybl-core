@@ -19,7 +19,7 @@
                 <iidm:bus id="N2"/>
             </iidm:busBreakerTopology>
             <iidm:load id="L1" loadType="UNDEFINED" p0="0.0" q0="0.0" bus="N1" connectableBus="N1"/>
-            <iidm:danglingLine id="DL1" p0="0.0" q0="0.0" r="0.0" x="0.0" g="0.0" b="0.0" bus="N2" connectableBus="N2"/>
+            <iidm:boundaryLine id="DL1" p0="0.0" q0="0.0" r="0.0" x="0.0" g="0.0" b="0.0" bus="N2" connectableBus="N2"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="sub2"/>

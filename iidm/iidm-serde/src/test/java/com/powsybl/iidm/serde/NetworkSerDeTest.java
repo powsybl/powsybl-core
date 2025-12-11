@@ -296,7 +296,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         vl1.getBusBreakerView().newBus()
                 .setId(busId)
                 .add();
-        network.getVoltageLevel(voltageLevelId).newDanglingLine()
+        network.getVoltageLevel(voltageLevelId).newBoundaryLine()
                 .setId(dlId)
                 .setName(dlId + "_name")
                 .setConnectableBus(busId)
@@ -316,6 +316,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
         if (num == 1) {
             Generator generator = vl1.newGenerator()
+                    .setId("GEN")
                     .setId("GEN")
                     .setBus(busId)
                     .setConnectableBus(busId)

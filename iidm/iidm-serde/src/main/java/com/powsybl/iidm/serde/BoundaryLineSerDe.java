@@ -25,7 +25,7 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 
-class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, BoundaryLineAdder, VoltageLevel> {
+class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, BoundaryLineAdder, VoltageLevel> {
     private static final String GENERATION = "generation";
     private static final String GENERATION_MAX_P = "generationMaxP";
     private static final String GENERATION_MIN_P = "generationMinP";
@@ -33,10 +33,10 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
     private static final String GENERATION_TARGET_Q = "generationTargetQ";
     private static final String GENERATION_TARGET_V = "generationTargetV";
 
-    static final DanglingLineSerDe INSTANCE = new DanglingLineSerDe();
+    static final BoundaryLineSerDe INSTANCE = new BoundaryLineSerDe();
 
-    static final String ROOT_ELEMENT_NAME = "danglingLine";
-    static final String ARRAY_ELEMENT_NAME = "danglingLines";
+    static final String ROOT_ELEMENT_NAME = "boundaryLine";
+    static final String ARRAY_ELEMENT_NAME = "boundaryLines";
 
     @Override
     protected String getRootElementName() {
@@ -55,7 +55,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         p0[0] = dl.getP0();
         q0[0] = dl.getQ0();
         if (generation != null) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_3, context);
+            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_15, context);
             IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_2, context, () -> {
                 if (!Double.isNaN(generation.getTargetP())) {
                     p0[0] -= generation.getTargetP();
@@ -82,10 +82,10 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         Terminal t = terminalGetter.get();
         writeNodeOrBus(null, t, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context,
-                () -> context.getWriter().writeStringAttribute("ucteXnodeCode", dl.getPairingKey())
+            () -> context.getWriter().writeStringAttribute("ucteXnodeCode", dl.getPairingKey())
         );
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context,
-                () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
+            () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
         );
         writePQ(null, t, context.getWriter());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->

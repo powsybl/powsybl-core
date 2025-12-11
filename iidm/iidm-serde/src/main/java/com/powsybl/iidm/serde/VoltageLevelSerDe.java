@@ -68,7 +68,8 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         writeBatteries(vl, context);
         writeLoads(vl, context);
         writeShuntCompensators(vl, context);
-        writeDanglingLines(vl, context);
+        writeBoundaryLines(vl, context);
+
         writeStaticVarCompensators(vl, context);
         writeVscConverterStations(vl, context);
         writeLccConverterStations(vl, context);
@@ -228,13 +229,17 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeEndNodes();
     }
 
-    private void writeDanglingLines(VoltageLevel vl, NetworkSerializerContext context) {
+    private void writeBoundaryLines(VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (DanglingLine dl : IidmSerDeUtil.sorted(vl.getDanglingLines(DanglingLineFilter.ALL), context.getOptions())) {
+        for (BoundaryLine dl : IidmSerDeUtil.sorted(vl.getBoundaryLines(BoundaryLineFilter.ALL), context.getOptions())) {
             if (!context.getFilter().test(dl) || context.getVersion().compareTo(IidmVersion.V_1_10) < 0 && dl.isPaired()) {
                 continue;
             }
-            DanglingLineSerDe.INSTANCE.write(dl, vl, context);
+            if (context.getVersion().compareTo(IidmVersion.V_1_14) <= 0) {
+                DanglingLineSerDe.INSTANCE.write(dl, vl, context);
+            } else {
+                BoundaryLineSerDe.INSTANCE.write(dl, vl, context);
+            }
         }
         context.getWriter().writeEndNodes();
     }
@@ -344,6 +349,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 case BatterySerDe.ROOT_ELEMENT_NAME -> BatterySerDe.INSTANCE.read(vl, context);
                 case LoadSerDe.ROOT_ELEMENT_NAME -> LoadSerDe.INSTANCE.read(vl, context);
                 case ShuntSerDe.ROOT_ELEMENT_NAME -> ShuntSerDe.INSTANCE.read(vl, context);
+                case BoundaryLineSerDe.ROOT_ELEMENT_NAME -> BoundaryLineSerDe.INSTANCE.read(vl, context);
                 case DanglingLineSerDe.ROOT_ELEMENT_NAME -> DanglingLineSerDe.INSTANCE.read(vl, context);
                 case StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME -> StaticVarCompensatorSerDe.INSTANCE.read(vl, context);
                 case VscConverterStationSerDe.ROOT_ELEMENT_NAME -> VscConverterStationSerDe.INSTANCE.read(vl, context);
