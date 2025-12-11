@@ -27,20 +27,20 @@ class UpdateUseCasesTest {
 
     @Test
     void incrementalUpdateUsingOneVariantTest() {
-        Network network = readCgmesResources(INCREMENTAL_DIR, "incremental_update_EQ.xml", "incremental_update_SSH_00.xml");
+        Network network = readCgmesResources(INCREMENTAL_DIR, "incremental_update_EQ.xml", "incremental_update_00_SSH.xml");
         assertEquals(3, network.getLoadCount());
         assertIncrementalEq(network);
         assertIncrementalSsh(network, 10.1, 5.1, 10.2, 5.2, 10.3, 5.3);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
-        readCgmesResources(network, properties, INCREMENTAL_DIR, "incremental_update_SSH_08.xml");
+        readCgmesResources(network, properties, INCREMENTAL_DIR, "incremental_update_08_SSH.xml");
         assertIncrementalSsh(network, 20.1, 10.1, 10.2, 5.2, 10.3, 5.3);
 
-        readCgmesResources(network, properties, INCREMENTAL_DIR, "incremental_update_SSH_16.xml");
+        readCgmesResources(network, properties, INCREMENTAL_DIR, "incremental_update_16_SSH.xml");
         assertIncrementalSsh(network, 20.1, 10.1, 20.2, 10.2, 10.3, 5.3);
 
-        readCgmesResources(network, properties, INCREMENTAL_DIR, "incremental_update_SSH_24.xml");
+        readCgmesResources(network, properties, INCREMENTAL_DIR, "incremental_update_24_SSH.xml");
         assertIncrementalSsh(network, 20.1, 10.1, 20.2, 10.2, 20.3, 10.3);
     }
 
@@ -64,21 +64,21 @@ class UpdateUseCasesTest {
 
     @Test
     void completeUpdateUsingDifferentVariantsTest() {
-        Network network = readCgmesResources(COMPLETE_DIR, "complete_update_EQ.xml", "complete_update_SSH_00.xml");
+        Network network = readCgmesResources(COMPLETE_DIR, "complete_update_EQ.xml", "complete_update_00_SSH.xml");
         assertEquals(3, network.getLoadCount());
         assertCompleteEq(network);
 
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "update-08");
         network.getVariantManager().setWorkingVariant("update-08");
-        readCgmesResources(network, COMPLETE_DIR, "complete_update_SSH_08.xml");
+        readCgmesResources(network, COMPLETE_DIR, "complete_update_08_SSH.xml");
 
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "update-16");
         network.getVariantManager().setWorkingVariant("update-16");
-        readCgmesResources(network, COMPLETE_DIR, "complete_update_SSH_16.xml");
+        readCgmesResources(network, COMPLETE_DIR, "complete_update_16_SSH.xml");
 
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "update-24");
         network.getVariantManager().setWorkingVariant("update-24");
-        readCgmesResources(network, COMPLETE_DIR, "complete_update_SSH_24.xml");
+        readCgmesResources(network, COMPLETE_DIR, "complete_update_24_SSH.xml");
 
         network.getVariantManager().setWorkingVariant("InitialState");
         assertCompleteSsh(network, 20.1, 10.1, 20.2, 10.2, 20.3, 10.3);

@@ -11,7 +11,43 @@ The CIM-CGMES importer supports reading CIM/XML profile files from one of the fo
 - a folder containing the zipped profile files, each one being in a separate zip file
 - a zipped file containing all profile files
 
-To describe the conversion from CGMES to PowSyBl, we first introduce some generic considerations about the level of detail of the model (node/breaker or bus/branch), the identity of the equipments and equipment containment in substations and voltage levels. After that, the conversion for every CGMES relevant class is explained. Consistency checks and validations performed during the conversion are mentioned in the corresponding sections.
+To describe the conversion from CGMES to PowSyBl, we first introduce several ways of using the importer. We then present some generic considerations about the level of detail of the model (node/breaker or bus/branch), the identity of the equipments and equipment containment in substations and voltage levels. After that, the conversion for every CGMES relevant class is explained. Consistency checks and validations performed during the conversion are mentioned in the corresponding sections.
+
+(cgmes-import-update)=
+## Import / Update
+
+In CGMES, the power system model is described using data organized into different profiles. 
+This structure allows the equipment in the network and its physical characteristics to be defined in one profile (EQ), while operational data is provided in other profiles (SSH, TP and SV). 
+As a result, it is common to have a single EQ file and multiple SSH files, for example, one for each of the 24 hours of the day.
+
+To handle these cases properly, the importer supports subsequent updates to the initially imported model. 
+You can use the `Network.read` method to perform the initial import, and then apply further updates with `network.update`, where network refers to the originally imported model.
+Next, we present four use cases to illustrate how both methods can be applied:
+
+**Import the entire model in a single step** 
+You need to use the `Network.read` method, providing all the CGMES profiles.
+
+**Import the complete model in two steps**
+In the first step, only the EQ profile is imported using the `Network.read` method. 
+Then, the operational data is imported using the `network.update` method, providing all or part of the following profiles: SSH, TP, and SV. 
+The `network.update` method cannot be used with EQ profiles.
+
+**Import one EQ file and 24 incremental SSH files**
+In this case, the 00 SSH file is the only complete file and contains data for all equipment. 
+The remaining SSH files are incremental, including only the changes relative to the preceding SSH file.
+In the first step, we can import the EQ and 00 SSH files using the `Network.read` method. 
+Then, we can perform one update for each of the remaining SSH files using the `network.update` method. 
+Before performing the updates, the property `iidm.import.cgmes.use-previous-values-during-update` must be set to `true` to fill in any missing data in the incremental SSH files using the values previously recorded in the model.
+
+PowSyBl uses variants to record operational data. In this case, we are performing the update on the same variant, so at the end, PowSyBl will only contain the operational data corresponding to the last hour.
+
+**Import one EQ file and 24 SSH files, using a different variant for each SSH file**
+In this case, all the SSH files contain data for all the equipment, but we want to record each SSH file on a different variant.
+To do that, we first import the EQ and 00 SSH files using the `Network.read` method, recording the data in the default initial variant. 
+Then, we perform an update for each of the remaining SSH files using the `network.update` method. 
+However, before each update, we must create a new variant by cloning the initial one and set it as the working variant.
+At the end, PowSyBl will contain the operational data for all 24 hours, with each hour recorded in a different variant.
+
 
 (cgmes-import-level-of-detail)=
 ## Levels of detail: node/breaker and bus/branch
