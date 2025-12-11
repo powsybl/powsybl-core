@@ -21,7 +21,6 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
  *
  */
 
-//TODO : rename DanglingLine to BoundaryLine
 class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder, Network> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TieLineSerDe.class);
@@ -38,41 +37,40 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
         return ROOT_ELEMENT_NAME;
     }
 
-    private static void writeDanglingLine(DanglingLine danglingLine, NetworkSerializerContext context, int side) {
-        Boundary boundary = danglingLine.getBoundary();
-        context.getWriter().writeStringAttribute("id_" + side, context.getAnonymizer().anonymizeString(danglingLine.getId()));
-        context.getWriter().writeStringAttribute("name_" + side, danglingLine.getOptionalName().map(n -> context.getAnonymizer().anonymizeString(n)).orElse(null));
-        context.getWriter().writeDoubleAttribute("r_" + side, danglingLine.getR());
-        context.getWriter().writeDoubleAttribute("x_" + side, danglingLine.getX());
-        // TODO change serialization
-        context.getWriter().writeDoubleAttribute("g1_" + side, danglingLine.getG() / 2);
-        context.getWriter().writeDoubleAttribute("b1_" + side, danglingLine.getB() / 2);
-        context.getWriter().writeDoubleAttribute("g2_" + side, danglingLine.getG() / 2);
-        context.getWriter().writeDoubleAttribute("b2_" + side, danglingLine.getB() / 2);
+    private static void writeBoundaryLine(BoundaryLine boundaryLine, NetworkSerializerContext context, int side) {
+        Boundary boundary = boundaryLine.getBoundary();
+        context.getWriter().writeStringAttribute("id_" + side, context.getAnonymizer().anonymizeString(boundaryLine.getId()));
+        context.getWriter().writeStringAttribute("name_" + side, boundaryLine.getOptionalName().map(n -> context.getAnonymizer().anonymizeString(n)).orElse(null));
+        context.getWriter().writeDoubleAttribute("r_" + side, boundaryLine.getR());
+        context.getWriter().writeDoubleAttribute("x_" + side, boundaryLine.getX());
+        context.getWriter().writeDoubleAttribute("g1_" + side, boundaryLine.getG() / 2);
+        context.getWriter().writeDoubleAttribute("b1_" + side, boundaryLine.getB() / 2);
+        context.getWriter().writeDoubleAttribute("g2_" + side, boundaryLine.getG() / 2);
+        context.getWriter().writeDoubleAttribute("b2_" + side, boundaryLine.getB() / 2);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_4, context, () -> {
             context.getWriter().writeDoubleAttribute(X_NODE_P + side, boundary.getP());
             context.getWriter().writeDoubleAttribute(X_NODE_Q + side, boundary.getQ());
         });
 
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> context.getWriter().writeBooleanAttribute("fictitious_" + side, danglingLine.isFictitious(), false));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> context.getWriter().writeBooleanAttribute("fictitious_" + side, boundaryLine.isFictitious(), false));
     }
 
     @Override
     protected void writeRootElementAttributes(TieLine tl, Network n, NetworkSerializerContext context) {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_10, context, () -> {
-            context.getWriter().writeStringAttribute("danglingLineId1", context.getAnonymizer().anonymizeString(tl.getDanglingLine1().getId()));
-            context.getWriter().writeStringAttribute("danglingLineId2", context.getAnonymizer().anonymizeString(tl.getDanglingLine2().getId()));
+            context.getWriter().writeStringAttribute("danglingLineId1", context.getAnonymizer().anonymizeString(tl.getBoundaryLine1().getId()));
+            context.getWriter().writeStringAttribute("danglingLineId2", context.getAnonymizer().anonymizeString(tl.getBoundaryLine2().getId()));
         });
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_9, context, () -> {
             if (tl.getPairingKey() != null) {
                 context.getWriter().writeStringAttribute("ucteXnodeCode", tl.getPairingKey());
             }
-            writeNodeOrBus(1, tl.getDanglingLine1().getTerminal(), context);
-            writeNodeOrBus(2, tl.getDanglingLine2().getTerminal(), context);
-            writeOptionalPQ(1, tl.getDanglingLine1().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
-            writeOptionalPQ(2, tl.getDanglingLine2().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
-            writeDanglingLine(tl.getDanglingLine1(), context, 1);
-            writeDanglingLine(tl.getDanglingLine2(), context, 2);
+            writeNodeOrBus(1, tl.getBoundaryLine1().getTerminal(), context);
+            writeNodeOrBus(2, tl.getBoundaryLine2().getTerminal(), context);
+            writeOptionalPQ(1, tl.getBoundaryLine1().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
+            writeOptionalPQ(2, tl.getBoundaryLine2().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
+            writeBoundaryLine(tl.getBoundaryLine1(), context, 1);
+            writeBoundaryLine(tl.getBoundaryLine2(), context, 2);
         });
     }
 
@@ -89,7 +87,7 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
         return n.newTieLine();
     }
 
-    private static DanglingLine readDanglingLine(DanglingLineAdder adder, String pairingKey, NetworkDeserializerContext context, int side) {
+    private static BoundaryLine readBoundaryLine(BoundaryLineAdder adder, String pairingKey, NetworkDeserializerContext context, int side) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id_" + side));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("name_" + side));
         double r = context.getReader().readDoubleAttribute("r_" + side);
@@ -120,7 +118,7 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
             adder.setFictitious(fictitious);
         });
 
-        DanglingLine dl = adder.add();
+        BoundaryLine dl = adder.add();
 
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_4, context, () -> {
             checkBoundaryValue(halfBoundaryP[0], dl.getBoundary().getP(), X_NODE_P + side, pairingKey);
@@ -134,32 +132,37 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
     protected TieLine readRootElementAttributes(TieLineAdder adder, Network network, NetworkDeserializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_9, context, () -> {
             String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
-            DanglingLineAdder adderDl1 = readVlAndNodeOrBus(context, network, 1);
-            DanglingLineAdder adderDl2 = readVlAndNodeOrBus(context, network, 2);
+            BoundaryLineAdder adderDl1 = readVlAndNodeOrBus(context, network, 1);
+            BoundaryLineAdder adderDl2 = readVlAndNodeOrBus(context, network, 2);
             OptionalDouble p1 = context.getReader().readOptionalDoubleAttribute("p1");
             OptionalDouble q1 = context.getReader().readOptionalDoubleAttribute("q1");
             OptionalDouble p2 = context.getReader().readOptionalDoubleAttribute("p2");
             OptionalDouble q2 = context.getReader().readOptionalDoubleAttribute("q2");
-            DanglingLine dl1 = readDanglingLine(adderDl1, pairingKey, context, 1);
-            DanglingLine dl2 = readDanglingLine(adderDl2, pairingKey, context, 2);
+            BoundaryLine dl1 = readBoundaryLine(adderDl1, pairingKey, context, 1);
+            BoundaryLine dl2 = readBoundaryLine(adderDl2, pairingKey, context, 2);
             p1.ifPresent(dl1.getTerminal()::setP);
             q1.ifPresent(dl1.getTerminal()::setQ);
             p2.ifPresent(dl2.getTerminal()::setP);
             q2.ifPresent(dl2.getTerminal()::setQ);
-            adder.setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId());
+            adder.setBoundaryLine1(dl1.getId()).setBoundaryLine2(dl2.getId());
         });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_10, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_10, IidmVersion.V_1_14, context, () -> {
             String dl1Id = context.getReader().readStringAttribute("danglingLineId1");
             String dl2Id = context.getReader().readStringAttribute("danglingLineId2");
-            adder.setDanglingLine1(dl1Id).setDanglingLine2(dl2Id);
+            adder.setBoundaryLine1(dl1Id).setBoundaryLine2(dl2Id);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> {
+            String dl1Id = context.getReader().readStringAttribute("boundaryLineId1");
+            String dl2Id = context.getReader().readStringAttribute("boundaryLineId2");
+            adder.setBoundaryLine1(dl1Id).setBoundaryLine2(dl2Id);
         });
         return adder.add();
     }
 
-    private static DanglingLineAdder readVlAndNodeOrBus(NetworkDeserializerContext context, Network network, int side) {
+    private static BoundaryLineAdder readVlAndNodeOrBus(NetworkDeserializerContext context, Network network, int side) {
         String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + side));
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-        DanglingLineAdder adderDl1 = voltageLevel.newDanglingLine();
+        BoundaryLineAdder adderDl1 = voltageLevel.newBoundaryLine();
         readNodeOrBus(adderDl1, String.valueOf(side), context, voltageLevel.getTopologyKind());
         return adderDl1;
     }
@@ -170,39 +173,39 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
             switch (elementName) {
                 case LIMITS_GROUP_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tl.getDanglingLine1(), LIMITS_GROUP_1, context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tl.getBoundaryLine1(), LIMITS_GROUP_1, context));
                 }
                 case ACTIVE_POWER_LIMITS_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tl.getDanglingLine1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tl.getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
                 }
                 case APPARENT_POWER_LIMITS_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tl.getDanglingLine1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tl.getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
                 }
                 case "currentLimits1" -> {
                     IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    readCurrentLimits(tl.getDanglingLine1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
+                    readCurrentLimits(tl.getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
                 }
                 case LIMITS_GROUP_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tl.getDanglingLine2(), LIMITS_GROUP_2, context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tl.getBoundaryLine2(), LIMITS_GROUP_2, context));
                 }
                 case ACTIVE_POWER_LIMITS_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tl.getDanglingLine2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tl.getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
                 }
                 case APPARENT_POWER_LIMITS_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tl.getDanglingLine2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tl.getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
                 }
                 case "currentLimits2" -> {
                     IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    readCurrentLimits(tl.getDanglingLine2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
+                    readCurrentLimits(tl.getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
                 }
                 default -> readSubElement(elementName, tl, context);
             }

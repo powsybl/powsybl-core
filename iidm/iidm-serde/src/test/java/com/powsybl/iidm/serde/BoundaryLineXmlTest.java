@@ -10,7 +10,7 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-class DanglingLineXmlTest extends AbstractIidmSerDeTest {
+class BoundaryLineXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -32,9 +32,9 @@ class DanglingLineXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void testWithGeneration() throws IOException {
-        Network network = DanglingLineNetworkFactory.createWithGeneration();
+        Network network = BoundaryLineNetworkFactory.createWithGeneration();
         network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
-        network.getDanglingLine("DL").setProperty("test", "test");
+        network.getBoundaryLine("DL").setProperty("test", "test");
         allFormatsRoundTripTest(network, "danglingLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         // backward compatibility checks from version 1.3
