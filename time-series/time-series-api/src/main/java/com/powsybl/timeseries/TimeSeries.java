@@ -20,6 +20,7 @@ import com.univocity.parsers.common.ResultIterator;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +73,56 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     void synchronize(TimeSeriesIndex newIndex);
 
-    Stream<P> stream();
+    /**
+     * Get a point stream. Defaults to {@link #uncompressedStream()}
+     *
+     * @return a point stream
+     */
+    default Stream<P> stream() {
+        return uncompressedStream();
+    }
 
-    Iterator<P> iterator();
+    /**
+     * Get an uncompressed point stream (i.e., there will be as many elements in the stream as in the TimeSeriesIndex).
+     *
+     * @return a point stream
+     */
+    Stream<P> uncompressedStream();
+
+    /**
+     * Get a compressed point stream. The compression depends on the implementation. By default, there is no compression.
+     *
+     * @return a point stream
+     */
+    default Stream<P> compressedStream() {
+        return uncompressedStream();
+    }
+
+    /**
+     * Get a point iterator. Defaults to {@link #uncompressedIterator()}
+     *
+     * @return a point iterator
+     */
+    @NonNull
+    default Iterator<P> iterator() {
+        return uncompressedIterator();
+    }
+
+    /**
+     * Get an uncompressed point iterator (i.e., there will be as many elements in the iterator as in the TimeSeriesIndex).
+     *
+     * @return a point iterator
+     */
+    Iterator<P> uncompressedIterator();
+
+    /**
+     * Get a compressed point iterator. The compression depends on the implementation. By default, there is no compression.
+     *
+     * @return a point iterator
+     */
+    default Iterator<P> compressedIterator() {
+        return uncompressedIterator();
+    }
 
     List<T> split(int newChunkSize);
 

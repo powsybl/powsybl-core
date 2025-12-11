@@ -44,7 +44,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
     static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES = {"i", "ni", "type", "j", "k", "id"};
     static final String[] FIELD_NAMES_SUBSTATION_RAWX = {"isub", "name", "lati", "long", "srg"};
     static final String[] FIELD_NAMES_SUBSTATION_NODE_RAWX = {"isub", STR_I_NODE, "name", "ibus", "stat", "vm", "va"};
-    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX = {"isub", STR_I_NODE, "jnode", "swdid", "name", "type", "stat", "nstat", "xpu", "rsetnam"};
+    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX = {"isub", STR_I_NODE, "jnode", "swdid", "name", "type", "stat", "nstat", "xpu", "rate1", "rate2", "rate3"};
     static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_RAWX = {"isub", STR_I_NODE, "type", "eqid", "ibus", "jbus", "kbus"};
 
     SubstationData() {
@@ -339,5 +339,5 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
     }
 
     private static final String[] QUOTED_FIELDS = {"name", "type", "id", "ckt", "eqid"};
-    private static final String[] QUOTED_FIELDS_SWITCHING_DEVICES = {"name", "ckt"};
+    private static final String[] QUOTED_FIELDS_SWITCHING_DEVICES = {"name", "ckt", "swdid"};
 }

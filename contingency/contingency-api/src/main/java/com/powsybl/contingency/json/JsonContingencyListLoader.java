@@ -11,8 +11,8 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.contingency.ContingencyListLoader;
+import com.powsybl.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.ContingencyListLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
