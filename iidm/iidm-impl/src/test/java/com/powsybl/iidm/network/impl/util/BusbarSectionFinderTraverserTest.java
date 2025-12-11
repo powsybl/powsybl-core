@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
 
-public class BusbarSectionFinderTraverserTest {
+class BusbarSectionFinderTraverserTest {
 
     private Network network;
 
