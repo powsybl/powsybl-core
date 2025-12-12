@@ -191,7 +191,7 @@ public final class TopologyExport {
         }
         context.putTopologicalNode(tn, bus);
         writeTopologicalNode(tn, tname, context.getNamingStrategy().getCgmesId(voltageLevel),
-            context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()).getId(), cimNamespace, writer, context);
+            context.getBaseVoltageIdFromNominalV(voltageLevel.getNominalV()), cimNamespace, writer, context);
     }
 
     private static void writeSwitchTerminal(String tn, String cgmesTerminal, String cimNamespace,
@@ -312,7 +312,7 @@ public final class TopologyExport {
             if (topologicalNodeId == null) {
                 // If no information about original boundary has been preserved in the IIDM model,
                 // we will create a new TopologicalNode
-                String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
+                String baseVoltageId = context.getBaseVoltageIdFromNominalV(dl.getTerminal().getVoltageLevel().getNominalV());
                 // If the EQ has also been exported, a fictitious container should have been created
                 String containerId = context.getFictitiousContainerFor(dl);
                 if (containerId == null) {
@@ -324,7 +324,7 @@ public final class TopologyExport {
                 }
                 String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(refTyped(dl), TOPOLOGICAL_NODE);
                 dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, fictTopologicalNodeId);
-                writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
+                writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltageId, cimNamespace, writer, context);
             }
         }
     }
