@@ -686,8 +686,32 @@ CgmesTopologyKind topologyKind = cimCharacteristics.getTopologyKind();
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
+(cgmes-base-voltage-mapping-import)=
+### Base voltage mapping
+
+This extension is attached to a network and is used to store information about BaseVoltage of the imported CGMES dataset.
+The extension consists of a collection of `BaseVoltageSource` objects, indexed by nominal voltage, with the following attributes:
+
+| Attribute | Type   | Unit | Required | Default value      | Description                                                                    |
+|-----------|--------|------|----------|--------------------|--------------------------------------------------------------------------------|
+| id        | String | -    | yes      | -                  | The rdf:ID of the CGMES BaseVoltage                                            |
+| nominalV  | double | kV   | yes      | -                  | The CGMES BaseVoltage's nominal voltage                                        |
+| source    | Source | -    | yes      | -                  | The kind of grid model containing the BaseVoltage definition (IGM or BOUNDARY) |
+
+Example of code to read the extension and retrieve the source of the 400kV base voltage assuming the network has been imported from a CGMES datasource:
+
+```java
+BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
+BaseVoltageMapping.BaseVoltageSource bvSource = bvMapping.getBaseVoltages().get(400.0);
+Source source = bvSource.getSource();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
+
 (cgmes-model-import)=
 ### CGMES model
+
+<span style="color: red">TODO</span>
 
 (cgmes-import-options)=
 ## Options
