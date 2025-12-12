@@ -11,12 +11,12 @@ package com.powsybl.cgmes.conversion.elements.dc;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.model.CgmesNames.*;
 
@@ -27,43 +27,49 @@ public class DCConversion {
 
     private final Context context;
 
-    private PropertyBags cgmesDcTerminalNodes;
     private PropertyBags cgmesAcDcConverters;
     private PropertyBags cgmesDcLineSegments;
     private PropertyBags cgmesDcSwitches;
     private PropertyBags cgmesDcGrounds;
 
-    private final Map<String, String> dcTerminalNodes = new HashMap<>();
     private final Set<DCEquipment> dcEquipments = new HashSet<>();
     private final Set<DCIslandEnd> dcIslandEnds = new HashSet<>();
     private final Set<DCIsland> dcIslands = new HashSet<>();
+    private final Set<DCPole> dcPoles = new HashSet<>();
+    private final Set<DCLink> dcLinks = new HashSet<>();
 
-    public DCConversion(CgmesModel cgmesModel, Context context) {
+    public DCConversion(Context context) {
         this.context = Objects.requireNonNull(context);
-        cacheCgmesData(cgmesModel);
-        computeDcData();
+        cacheCgmesData(context.cgmes());
         convert();
     }
 
     private void cacheCgmesData(CgmesModel cgmesModel) {
-        cgmesDcTerminalNodes = cgmesModel.dcTerminals();
         cgmesAcDcConverters = cgmesModel.acDcConverters();
         cgmesDcLineSegments = cgmesModel.dcLineSegments();
         cgmesDcSwitches = cgmesModel.dcSwitches();
         cgmesDcGrounds = cgmesModel.dcGrounds();
     }
 
-    private void computeDcData() {
-        computeDcEquipments();
-        computeDcIslandEnds();
-        computeDcIslands();
+    private void convert() {
+        if (!context.config().getUseDetailedDcModel()) {
+            computeDcEquipments();
+            computeDcIslandEnds();
+            computeDcIslands();
+            computeDcPoles();
+            computeDcLinks();
+
+            convertDcLinks();
+        } else {
+            convertDcNodes();
+            convertDcSwitches();
+            convertDcGrounds();
+            convertDcLines();
+            convertAcDcConverters();
+        }
     }
 
     private void computeDcEquipments() {
-        // Store the CGMES terminal to CGMES node association.
-        String node = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
-        cgmesDcTerminalNodes.forEach(t -> dcTerminalNodes.put(t.getId(DC_TERMINAL), t.getId(node)));
-
         // Store the CGMES DCEquipment base data: id, type, node1, node2
         cgmesAcDcConverters.forEach(c -> addDcEquipment(c, ACDC_CONVERTER));
         cgmesDcLineSegments.forEach(l -> addDcEquipment(l, DC_LINE_SEGMENT));
@@ -72,20 +78,15 @@ public class DCConversion {
     }
 
     private void addDcEquipment(PropertyBag propertyBag, String type) {
-        dcEquipments.add(new DCEquipment(
-                propertyBag.getId(type),
-                ACDC_CONVERTER.equals(type) ? propertyBag.getLocal("type") : type,
-                terminalNode(propertyBag.getId(DC_TERMINAL1)),
-                DC_GROUND.equals(type) ? null : terminalNode(propertyBag.getId(DC_TERMINAL2))
-        ));
-    }
-
-    private String terminalNode(String terminalId) {
-        // Get the CGMES node of a CGMES terminal.
-        if (!dcTerminalNodes.containsKey(terminalId)) {
-            throw new PowsyblException("DCTerminal not found");
+        String eqId = propertyBag.getId(type);
+        String eqType = ACDC_CONVERTER.equals(type) ? propertyBag.getLocal("type") : type;
+        String node1 = context.dcMapping().getDcNode(propertyBag.getId(DC_TERMINAL1));
+        String node2 = DC_GROUND.equals(type) ? null : context.dcMapping().getDcNode(propertyBag.getId(DC_TERMINAL2));
+        if (node1 != null
+                && (node2 != null || DC_GROUND.equals(type))
+                && !(node1.equals(node2) && DC_SWITCH.equals(type))) {
+            dcEquipments.add(new DCEquipment(eqId, eqType, node1, node2));
         }
-        return dcTerminalNodes.get(terminalId);
     }
 
     private void computeDcIslandEnds() {
@@ -93,7 +94,8 @@ public class DCConversion {
         // This comprises DCLineSegment, so a specific DCLineSegment shall be present in 2 DCIslandEnds.
         // The exploration starts with ACDCConverters, this ensures that an island end has at least one converter.
         Set<DCEquipment> visitedDcEquipments = new HashSet<>();
-        dcEquipments.stream().filter(DCEquipment::isConverter)
+        dcEquipments.stream()
+                .filter(DCEquipment::isConverter)
                 .forEach(acDcConverter -> {
                     if (!visitedDcEquipments.contains(acDcConverter)) {
                         Set<DCEquipment> dcIslandEnd = new HashSet<>();
@@ -146,18 +148,97 @@ public class DCConversion {
         }
     }
 
-    private void convert() {
-        for (DCIsland dcIsland : dcIslands) {
-            if (dcIsland.valid(context)) {
-                convertDcLinks(dcIsland);
-            }
-        }
+    private void computeDcPoles() {
+        dcIslands.stream()
+                .filter(dcIsland -> dcIsland.valid(context))
+                .forEach(dcIsland -> {
+                    // Sort island ends.
+                    // The first island end is the one that has the more dc line segments node 1.
+                    // In case of equality, it is the one with the lowest converter id.
+                    List<DCIslandEnd> islandEnds = dcIsland.dcIslandEnds().stream()
+                            .sorted(Comparator.<DCIslandEnd>comparingLong(e -> e.getDcLineSegments().stream()
+                                            .filter(l -> e.dcEquipments().stream()
+                                                    .anyMatch(eq -> !eq.equals(l) && eq.isConnectedTo(l.node1())))
+                                            .count())
+                                    .reversed()
+                                    .thenComparing(e -> e.getAcDcConverters().stream()
+                                            .map(DCEquipment::id)
+                                            .min(Comparator.naturalOrder())
+                                            .orElseThrow()))
+                            .toList();
+
+                    // Retrieve ACDCConverter and DCLineSegment.
+                    List<DCEquipment> converters1 = islandEnds.get(0).getAcDcConverters();
+                    List<DCEquipment> dcLineSegments = islandEnds.get(0).getDcLineSegments();
+                    boolean isBipole = converters1.size() > 1 && dcLineSegments.size() > 1;
+
+                    // Get energized lines and DMR line (if any).
+                    DCEquipment dMRLine = null;
+                    List<DCEquipment> energizedLines = new ArrayList<>(dcLineSegments);
+                    if (hasDMRLine(converters1.size(), dcLineSegments.size())) {
+                        dMRLine = getDMRLine(dcIsland, dcLineSegments);
+                        energizedLines.remove(dMRLine);
+                    }
+
+                    // For each energized line, find the nearest converter on each side.
+                    List<DCPole> dcIslandPoles = new ArrayList<>();
+                    Set<DCEquipment> usedConverters1 = new HashSet<>();
+                    Set<DCEquipment> usedConverters2 = new HashSet<>();
+                    for (DCEquipment dcLineSegment : energizedLines) {
+                        Predicate<DCEquipment> eligibleConverter1 = e -> e.isConverter() && !usedConverters1.contains(e);
+                        DCEquipment converter1 = islandEnds.get(0).getNearestConverter(dcLineSegment, eligibleConverter1);
+                        usedConverters1.add(converter1);
+
+                        Predicate<DCEquipment> eligibleConverter2 = e -> e.type().equals(converter1.type()) && !usedConverters2.contains(e);
+                        DCEquipment converter2 = islandEnds.get(1).getNearestConverter(dcLineSegment, eligibleConverter2);
+                        usedConverters2.add(converter2);
+
+                        dcIslandPoles.add(new DCPole(converter1, converter2, dcLineSegment, isBipole));
+                    }
+
+                    // In case of multiple converters (bridges) per pole, add the second converter pair to an existing pole.
+                    Set<DCEquipment> unmappedConverters1 = new HashSet<>(converters1);
+                    Set<DCEquipment> eligibleConverters1A = new HashSet<>(usedConverters1);
+                    unmappedConverters1.removeAll(usedConverters1);
+                    for (DCEquipment converter1B : unmappedConverters1) {
+                        Predicate<DCEquipment> eligibleConverter1A = e -> e.type().equals(converter1B.type()) && eligibleConverters1A.contains(e);
+                        DCEquipment converter1A = islandEnds.get(0).getNearestConverter(converter1B, eligibleConverter1A);
+                        eligibleConverters1A.remove(converter1A);
+
+                        DCPole dcPole = dcIslandPoles.stream().filter(p -> p.getConverter1A().equals(converter1A)).findFirst().orElseThrow();
+                        DCEquipment converter2A = dcPole.getConverter2A();
+
+                        Predicate<DCEquipment> eligibleConverter2B = e -> e.type().equals(converter1B.type()) && !usedConverters2.contains(e);
+                        DCEquipment converter2B = islandEnds.get(1).getNearestConverter(converter2A, eligibleConverter2B);
+                        usedConverters2.add(converter2B);
+
+                        dcPole.addSecondBridge(converter1B, converter2B);
+                    }
+
+                    // Add DMR line to the first pole.
+                    dcIslandPoles.get(0).addMetallicReturnLine(dMRLine);
+
+                    dcPoles.addAll(dcIslandPoles);
+                });
     }
 
-    private void convertDcLinks(DCIsland dcIsland) {
-        // Get island poles.
-        List<DCPole> dcPoles = getDcPoles(dcIsland);
-        List<DCLink> dcLinks = new ArrayList<>();
+    private boolean hasDMRLine(int numberOfConverters, int numberOfLines) {
+        return numberOfConverters == 1 && numberOfLines > 1 || numberOfLines > 2;
+    }
+
+    private DCEquipment getDMRLine(DCIsland dcIsland, List<DCEquipment> dcLineSegments) {
+        // Either the DMR line is clearly identifiable since it's the only grounded line of the island.
+        // Or it's not, and the most central line (the last one since they are sorted) is considered to be the DMR.
+        List<DCEquipment> groundedLines = dcLineSegments.stream()
+                .filter(dcIsland::isGrounded)
+                .toList();
+        if (groundedLines.size() == 1) {
+            return groundedLines.get(0);
+        }
+        return dcLineSegments.get(dcLineSegments.size() - 1);
+    }
+
+    private void computeDcLinks() {
         for (DCPole dcPole : dcPoles) {
             // Create 1 or 2 DCLink per pole, depending on the number of bridges per pole.
             PropertyBag converter1 = getConverterBag(dcPole.getConverter1A());
@@ -182,112 +263,6 @@ public class DCConversion {
                 dcLinks.add(new DCLink(converter1B, converter2B, dcLine1B, null));
             }
         }
-
-        // Convert DCLink.
-        dcLinks.forEach(dcLink -> {
-            new HvdcConverterConversion(dcLink.getConverter1(), context).convert();
-            new HvdcConverterConversion(dcLink.getConverter2(), context).convert();
-            new HvdcLineConversion(dcLink, context).convert();
-        });
-    }
-
-    private List<DCPole> getDcPoles(DCIsland dcIsland) {
-        // Sort island ends.
-        // The first island end is the one that has the more dc line segments node 1.
-        // In case of equality, it is the one with the lowest converter id.
-        List<DCIslandEnd> islandEnds = dcIsland.dcIslandEnds().stream()
-                .sorted(Comparator.<DCIslandEnd>comparingLong(e -> e.getDcLineSegments().stream()
-                                .filter(l -> e.dcEquipments().stream()
-                                        .anyMatch(eq -> !eq.equals(l) && eq.isConnectedTo(l.node1())))
-                                .count())
-                        .reversed()
-                        .thenComparing(e -> e.getAcDcConverters().stream()
-                                .map(DCEquipment::id)
-                                .min(Comparator.naturalOrder())
-                                .orElseThrow()))
-                .toList();
-
-        // Retrieve ACDCConverter and DCLineSegment.
-        List<DCEquipment> converters1 = islandEnds.get(0).getAcDcConverters();
-        List<DCEquipment> dcLineSegments = islandEnds.get(0).getDcLineSegments();
-        boolean isBipole = converters1.size() > 1 && dcLineSegments.size() > 1;
-
-        // Get energized lines and DMR line (if any).
-        DCEquipment dMRLine = null;
-        List<DCEquipment> energizedLines = new ArrayList<>(dcLineSegments);
-        if (hasDMRLine(converters1.size(), dcLineSegments.size())) {
-            dMRLine = getDMRLine(dcIsland, dcLineSegments);
-            energizedLines.remove(dMRLine);
-        }
-
-        // For each energized line, find the nearest converter on each side.
-        List<DCPole> dcPoles = new ArrayList<>();
-        Set<DCEquipment> usedConverters1 = new HashSet<>();
-        Set<DCEquipment> usedConverters2 = new HashSet<>();
-        for (DCEquipment dcLineSegment : energizedLines) {
-            Predicate<DCEquipment> eligibleConverter1 = e -> e.isConverter() && !usedConverters1.contains(e);
-            DCEquipment converter1 = islandEnds.get(0).getNearestConverter(dcLineSegment, eligibleConverter1);
-            usedConverters1.add(converter1);
-
-            Predicate<DCEquipment> eligibleConverter2 = e -> e.type().equals(converter1.type()) && !usedConverters2.contains(e);
-            DCEquipment converter2 = islandEnds.get(1).getNearestConverter(dcLineSegment, eligibleConverter2);
-            usedConverters2.add(converter2);
-
-            dcPoles.add(new DCPole(converter1, converter2, dcLineSegment, isBipole));
-        }
-
-        // In case of multiple converters (bridges) per pole, add the second converter pair to an existing pole.
-        Set<DCEquipment> unmappedConverters1 = new HashSet<>(converters1);
-        Set<DCEquipment> eligibleConverters1A = new HashSet<>(usedConverters1);
-        unmappedConverters1.removeAll(usedConverters1);
-        for (DCEquipment converter1B : unmappedConverters1) {
-            Predicate<DCEquipment> eligibleConverter1A = e -> e.type().equals(converter1B.type()) && eligibleConverters1A.contains(e);
-            DCEquipment converter1A = islandEnds.get(0).getNearestConverter(converter1B, eligibleConverter1A);
-            eligibleConverters1A.remove(converter1A);
-
-            DCPole dcPole = dcPoles.stream().filter(p -> p.getConverter1A().equals(converter1A)).findFirst().orElseThrow();
-            DCEquipment converter2A = dcPole.getConverter2A();
-
-            Predicate<DCEquipment> eligibleConverter2B = e -> e.type().equals(converter1B.type()) && !usedConverters2.contains(e);
-            DCEquipment converter2B = islandEnds.get(1).getNearestConverter(converter2A, eligibleConverter2B);
-            usedConverters2.add(converter2B);
-
-            dcPole.addSecondBridge(converter1B, converter2B);
-        }
-
-        // Add DMR line to the first pole.
-        dcPoles.get(0).addMetallicReturnLine(dMRLine);
-
-        return dcPoles;
-    }
-
-    private boolean hasDMRLine(int numberOfConverters, int numberOfLines) {
-        return numberOfConverters == 1 && numberOfLines > 1 || numberOfLines > 2;
-    }
-
-    private DCEquipment getDMRLine(DCIsland dcIsland, List<DCEquipment> dcLineSegments) {
-        // Either the DMR line is clearly identifiable since it's the only grounded line of the island.
-        // Or it's not, and the most central line (the last one since they are sorted) is considered to be the DMR.
-        List<DCEquipment> groundedLines = dcLineSegments.stream()
-                .filter(dcIsland::isGrounded)
-                .toList();
-        if (groundedLines.size() == 1) {
-            return groundedLines.get(0);
-        }
-        return dcLineSegments.get(dcLineSegments.size() - 1);
-    }
-
-    private PropertyBag splitDcLineSegmentBag(PropertyBag dcLineSegment) {
-        // Divide the original resistance by 2, and make the identifiers of the copy unique.
-        double r = dcLineSegment.asDouble("r");
-        r = Double.isNaN(r) ? 0.1 : r / 2;
-        dcLineSegment.put("r", Double.toString(r));
-        PropertyBag otherDcLineSegment = (PropertyBag) dcLineSegment.clone();
-        otherDcLineSegment.put(DC_LINE_SEGMENT, otherDcLineSegment.get(DC_LINE_SEGMENT) + "-1");
-        otherDcLineSegment.put(DC_TERMINAL1, otherDcLineSegment.get(DC_TERMINAL1) + "-1");
-        otherDcLineSegment.put(DC_TERMINAL2, otherDcLineSegment.get(DC_TERMINAL2) + "-1");
-        otherDcLineSegment.put("name", otherDcLineSegment.get("name") + "-1");
-        return otherDcLineSegment;
     }
 
     private PropertyBag getConverterBag(DCEquipment acDcConverter) {
@@ -303,6 +278,89 @@ public class DCConversion {
                 .filter(b -> b.getId(propertyKey).equals(dcEquipment.id()))
                 .findFirst()
                 .orElseThrow();
+    }
+
+    private PropertyBag splitDcLineSegmentBag(PropertyBag dcLineSegment) {
+        // Divide the original resistance by 2, and make the identifiers of the copy unique.
+        double r = dcLineSegment.asDouble("r");
+        r = Double.isNaN(r) ? 0.1 : r / 2;
+        dcLineSegment.put("r", Double.toString(r));
+        PropertyBag otherDcLineSegment = (PropertyBag) dcLineSegment.clone();
+        otherDcLineSegment.put(DC_LINE_SEGMENT, otherDcLineSegment.get(DC_LINE_SEGMENT) + "-1");
+        otherDcLineSegment.put(DC_TERMINAL1, otherDcLineSegment.get(DC_TERMINAL1) + "-1");
+        otherDcLineSegment.put(DC_TERMINAL2, otherDcLineSegment.get(DC_TERMINAL2) + "-1");
+        otherDcLineSegment.put("name", otherDcLineSegment.get("name") + "-1");
+        return otherDcLineSegment;
+    }
+
+    private void convertDcLinks() {
+        dcLinks.stream()
+                .sorted(Comparator.comparing(l -> l.getDcLine1().getId(DC_LINE_SEGMENT)))
+                .forEach(dcLink -> {
+                    new HvdcConverterConversion(dcLink.getConverter1(), context).convert();
+                    new HvdcConverterConversion(dcLink.getConverter2(), context).convert();
+                    new HvdcLineConversion(dcLink, context).convert();
+                });
+    }
+
+    private void convertDcNodes() {
+        // From CGM BUILDING PROCESS IMPLEMENTATION GUIDE_v2.0:
+        // In CGMES v2.4 the attribute ACDCConverter.ratedUdc is assumed to be the same for all
+        // DC equipment in the cim:DCConverterUnit which means that it is sufficient to locate the
+        // cim:CsConverter or cim:VsConverter in the cim:DCConverterUnit to obtain the
+        // information on rated DC voltage.
+        Map<String, Double> unitRatedUdc = cgmesAcDcConverters.stream()
+                .collect(Collectors.toMap(p -> p.getId("DCConverterUnit"), p -> p.asDouble(RATED_UDC), Math::max));
+
+        String nodeClass = context.nodeBreaker() ? DC_NODE : DC_TOPOLOGICAL_NODE;
+        context.cgmes().dcNodes().stream()
+                .filter(p -> p.containsKey(nodeClass))
+                .forEach(p -> {
+                    double nominalV = unitRatedUdc.getOrDefault(p.getId("DCConverterUnit"), 1.0);
+                    DCNodeConversion c = new DCNodeConversion(p, nodeClass, nominalV, context);
+                    c.convert();
+                });
+    }
+
+    private void convertDcSwitches() {
+        cgmesDcSwitches.forEach(p -> {
+            DCSwitchConversion c = new DCSwitchConversion(p, context);
+            if (c.valid()) {
+                c.convert();
+            }
+        });
+    }
+
+    private void convertDcGrounds() {
+        cgmesDcGrounds.forEach(p -> {
+            DCGroundConversion c = new DCGroundConversion(p, context);
+            if (c.valid()) {
+                c.convert();
+            }
+        });
+    }
+
+    private void convertDcLines() {
+        cgmesDcLineSegments.forEach(p -> {
+            DCLineSegmentConversion c = new DCLineSegmentConversion(p, context);
+            if (c.valid()) {
+                c.convert();
+            }
+        });
+    }
+
+    private void convertAcDcConverters() {
+        cgmesAcDcConverters.forEach(p -> {
+            AcDcConverterConversion c;
+            if (p.containsKey(TERMINAL)) {
+                c = new AcDcConverterConversion(p, context);
+            } else {
+                c = new AcDcConverterConversion(p, context, 2);
+            }
+            if (c.valid()) {
+                c.convert();
+            }
+        });
     }
 
 }
