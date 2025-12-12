@@ -92,7 +92,7 @@ public class CgmesExportContext {
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
-    private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
+    private final Map<Double, String> baseVoltageMapping = new HashMap<>();
 
     record Region(String id, String name) { }
     protected record SubRegion(String id, String name, String regionId) { }
@@ -252,12 +252,7 @@ public class CgmesExportContext {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
         // TODO add option to skip this part (if from CGMES)
         addIidmMappingsSubstations(network);
-        BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
-        if (bvMapping == null) {
-            network.newExtension(BaseVoltageMappingAdder.class).add();
-            bvMapping = network.getExtension(BaseVoltageMapping.class);
-        }
-        addIidmMappingsBaseVoltages(bvMapping, network);
+        addIidmMappingsBaseVoltages(network);
         addIidmMappingsTerminals(network);
         addIidmMappingsDcTerminals(network);
         addIidmMappingsGenerators(network);
@@ -312,31 +307,39 @@ public class CgmesExportContext {
         return subRegionId;
     }
 
-    private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network) {
+    private void addIidmMappingsBaseVoltages(Network network) {
         DecimalFormat noTrailingZerosFormat = new DecimalFormat("0.##");
-        if (mapping.isBaseVoltageEmpty()) {
-            // Here we do not have previous information about base voltages
-            // (The mapping is filled when the Network has been imported from CGMES)
-            // Now that we want to export, we may find some base voltages are defined in the reference data
-            for (VoltageLevel vl : network.getVoltageLevels()) {
-                double nominalV = vl.getNominalV();
-                // Only create a new unique id if no reference data exists
-                String baseVoltageId = null;
-                if (referenceDataProvider != null) {
-                    baseVoltageId = referenceDataProvider.getBaseVoltage(nominalV);
-                    if (baseVoltageId != null) {
-                        mapping.addBaseVoltage(nominalV, baseVoltageId, Source.BOUNDARY);
+
+        // Retrieve BaseVoltageMapping extension content (nominalV/id).
+        BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
+        Map<Double, String> bvMappingFromExtension = bvMapping == null ?
+            new HashMap<>() :
+            bvMapping.getBaseVoltages().values()
+                .stream()
+                .collect(Collectors.toMap(BaseVoltageMapping.BaseVoltageSource::getNominalV, BaseVoltageMapping.BaseVoltageSource::getId));
+
+        // Make sure each nominalV is mapped to a CGMES id.
+        network.getVoltageLevelStream()
+            .map(VoltageLevel::getNominalV)
+            .distinct()
+            .forEach(nominalV -> {
+                // Try to retrieve BaseVoltage id from extension.
+                if (bvMappingFromExtension.containsKey(nominalV)) {
+                    baseVoltageMapping.put(nominalV, bvMappingFromExtension.get(nominalV));
+                } else {
+                    // If not in the extension, try to retrieve the BaseVoltage id from reference data.
+                    String baseVoltageId = null;
+                    if (referenceDataProvider != null) {
+                        baseVoltageId = referenceDataProvider.getBaseVoltage(nominalV);
                     }
+                    if (baseVoltageId == null) {
+                        // If not in the reference data, create a new unique id.
+                        CgmesObjectReference vref = ref(noTrailingZerosFormat.format(nominalV));
+                        baseVoltageId = namingStrategy.getCgmesId(vref, BASE_VOLTAGE);
+                    }
+                    baseVoltageMapping.put(nominalV, baseVoltageId);
                 }
-                if (baseVoltageId == null && mapping.getBaseVoltage(nominalV) == null) {
-                    CgmesObjectReference vref = ref(noTrailingZerosFormat.format(nominalV));
-                    baseVoltageId = namingStrategy.getCgmesId(vref, BASE_VOLTAGE);
-                    mapping.addBaseVoltage(nominalV, baseVoltageId, Source.IGM);
-                }
-            }
-        }
-        Map<Double, BaseVoltageMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
-        baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
+            });
     }
 
     private void addIidmMappingsTerminals(Network network) {
@@ -745,8 +748,12 @@ public class CgmesExportContext {
         return this;
     }
 
-    public BaseVoltageMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
-        return baseVoltageByNominalVoltageMapping.get(nominalV);
+    public Map<Double, String> getBaseVoltageMapping() {
+        return new HashMap<>(baseVoltageMapping);
+    }
+
+    public String getBaseVoltageIdFromNominalV(double nominalV) {
+        return baseVoltageMapping.get(nominalV);
     }
 
     protected Map<String, String> getRegions() {
