@@ -65,7 +65,7 @@ public class BoundaryLineModification extends AbstractLoadModification {
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
         impact = DEFAULT_IMPACT;
-        BoundaryLine boundaryLine = network.getDanglingLine(getDanglingLineId());
+        BoundaryLine boundaryLine = network.getBoundaryLine(getBoundaryLineId());
         if (boundaryLine == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else if (areValuesEqual(p0, boundaryLine.getP0(), isRelativeValue()) && areValuesEqual(q0, boundaryLine.getQ0(), isRelativeValue())) {

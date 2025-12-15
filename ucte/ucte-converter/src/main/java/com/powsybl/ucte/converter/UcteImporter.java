@@ -947,11 +947,11 @@ public class UcteImporter implements Importer {
 
     private static void mergeDanglingLines(UcteNetwork ucteNetwork, Network network) {
         Map<String, List<BoundaryLine>> danglingLinesByPairingKey = new HashMap<>();
-        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.ALL)) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             danglingLinesByPairingKey.computeIfAbsent(dl.getPairingKey(), code -> new ArrayList<>()).add(dl);
         }
 
-        Set<BoundaryLine> boundaryLinesToProcesses = Sets.newHashSet(network.getDanglingLines(BoundaryLineFilter.ALL));
+        Set<BoundaryLine> boundaryLinesToProcesses = Sets.newHashSet(network.getBoundaryLines(BoundaryLineFilter.ALL));
         while (!boundaryLinesToProcesses.isEmpty()) {
             BoundaryLine dlToProcess = boundaryLinesToProcesses.iterator().next();
             BoundaryLine dlMatchingDlToProcess = getMatchingDanglingLine(dlToProcess, danglingLinesByPairingKey);
@@ -976,8 +976,8 @@ public class UcteImporter implements Importer {
 
         TieLine mergeLine = network.newTieLine()
                 .setId(mergeLineId)
-                .setDanglingLine1(dlAtSideOne.getId())
-                .setDanglingLine2(dlAtSideTwo.getId())
+                .setBoundaryLine1(dlAtSideOne.getId())
+                .setBoundaryLine2(dlAtSideTwo.getId())
                 .add();
 
         Map<String, String> properties = new HashMap<>();
@@ -1052,7 +1052,7 @@ public class UcteImporter implements Importer {
             Area area = countryArea.computeIfAbsent(country, k -> network.newArea().setAreaType("ControlArea").setId(country.toString()).add());
             substation.getVoltageLevelStream().forEach(vl -> {
                 area.addVoltageLevel(vl);
-                vl.getDanglingLines().forEach(dl -> area.newAreaBoundary().setBoundary(dl.getBoundary()).setAc(!areaDcXnodes.contains(dl.getPairingKey())).add());
+                vl.getBoundaryLines().forEach(dl -> area.newAreaBoundary().setBoundary(dl.getBoundary()).setAc(!areaDcXnodes.contains(dl.getPairingKey())).add());
             });
         });
     }

@@ -580,7 +580,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
-        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             String branchId = dl.getId();
             Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
             if (currentLimits.isPresent()) {
@@ -708,8 +708,8 @@ public class BasicAmplExporter implements AmplColumnsExporter {
                                                         int middleCcNum) throws IOException {
         Terminal t = dl.getTerminal();
         Bus b = AmplUtil.getBus(dl.getTerminal());
-        String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
-        String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
+        String middleBusId = AmplUtil.getBoundaryLineMiddleBusId(dl);
+        String middleVlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
         int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
         int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
         SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN,
@@ -983,8 +983,8 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         VoltageLevel vl = t.getVoltageLevel();
         Bus bus = AmplUtil.getBus(t);
         int busNum = getBusNum(bus);
-        String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
-        String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
+        String middleBusId = AmplUtil.getBoundaryLineMiddleBusId(dl);
+        String middleVlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
         int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
         int num = mapper.getInt(AmplSubset.BRANCH, id);
         int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
@@ -1215,11 +1215,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
     @Override
     public void writeDanglingLineLoadToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
-        String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
+        String middleBusId = AmplUtil.getBoundaryLineMiddleBusId(dl);
         String id = dl.getId();
         int num = mapper.getInt(AmplSubset.LOAD, id);
         int busNum = mapper.getInt(AmplSubset.BUS, middleBusId);
-        String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
+        String middleVlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
         int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
         formatter.writeCell(variantIndex)
             .writeCell(num)
@@ -1438,7 +1438,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     @Override
     public void writeDanglingLineVoltageLevelToFormatter(TableFormatter formatter,
                                                          BoundaryLine dl) throws IOException {
-        String vlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
+        String vlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
         int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
         VoltageLevel vl = dl.getTerminal().getVoltageLevel();
         double nomV = vl.getNominalV();

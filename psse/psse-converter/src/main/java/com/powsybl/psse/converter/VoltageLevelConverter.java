@@ -263,7 +263,7 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static void createBusBranchContextExportForFullExport(VoltageLevel voltageLevel, ContextExport contextExport) {
         voltageLevel.getBusView().getBuses().forEach(bus -> contextExport.getFullExport().addBusIBusView(contextExport.getFullExport().getNewPsseBusI(), bus));
-        voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
+        voltageLevel.getBoundaryLineStream().filter(danglingLine -> !danglingLine.isPaired())
                 .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
     }
 
@@ -342,7 +342,7 @@ class VoltageLevelConverter extends AbstractConverter {
             contextExport.getFullExport().addBusIBusView(busI, selectedBus);
         });
 
-        voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
+        voltageLevel.getBoundaryLineStream().filter(danglingLine -> !danglingLine.isPaired())
                 .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
 
         // add isolated nodes, associated with terminals not previously considered

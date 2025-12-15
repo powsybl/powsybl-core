@@ -289,7 +289,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 boundaryLine.getTerminal().setP(boundaryLine.getP0() - generation.map(BoundaryLine.Generation::getTargetP).orElse(0.0));
                 boundaryLine.getTerminal().setQ(boundaryLine.getQ0() - generation.map(BoundaryLine.Generation::getTargetQ).orElse(0.0));
             } else {
-                setDanglingLineModelSideFlow(boundaryLine, context);
+                setBoundaryLineModelSideFlow(boundaryLine, context);
             }
         }
     }
@@ -355,7 +355,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return dl.getR() == 0.0 && dl.getX() == 0.0 && dl.getG() == 0.0 && dl.getB() == 0.0;
     }
 
-    private static void setDanglingLineModelSideFlow(BoundaryLine dl, Context context) {
+    private static void setBoundaryLineModelSideFlow(BoundaryLine dl, Context context) {
         Optional<PropertyBag> svVoltage = getCgmesSvVoltageOnBoundarySide(dl, context);
         if (svVoltage.isEmpty()) {
             return;

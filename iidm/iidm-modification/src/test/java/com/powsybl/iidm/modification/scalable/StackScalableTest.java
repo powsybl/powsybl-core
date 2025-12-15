@@ -208,7 +208,7 @@ class StackScalableTest {
                 .build();
         List<Injection<?>> injectionsList = Arrays.asList(
             network.getGenerator("g1"), network.getGenerator("g2"),
-            network.getDanglingLine("dl1"),
+            network.getBoundaryLine("dl1"),
             network.getLoad("l1"), network.getLoad("l2"));
         StackScalable stackScalable;
         double variationDone;
@@ -228,7 +228,7 @@ class StackScalableTest {
         assertEquals(volumeAsked, variationDone, 1e-5);
         assertEquals(80.0, network.getGenerator("g1").getTargetP(), 1e-5); //skipped, initial P
         assertEquals(100., network.getGenerator("g2").getTargetP(), 1e-5); //saturated, Pmax
-        assertEquals(50.0, network.getDanglingLine("dl1").getP0(), 1e-5); //skipped, initial P
+        assertEquals(50.0, network.getBoundaryLine("dl1").getP0(), 1e-5); //skipped, initial P
         assertEquals(100.0, network.getLoad("l1").getP0(), 1e-5); //skipped, initial P
         assertEquals(80. - 50., network.getLoad("l2").getP0(), 1e-5); //remaining P on this scalable
         reset();

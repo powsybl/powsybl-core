@@ -74,7 +74,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     }
 
     @Override
-    public Optional<BoundaryLine> getDanglingLine() {
+    public Optional<BoundaryLine> getBoundaryLine() {
         return Optional.ofNullable(boundaryLine);
     }
 

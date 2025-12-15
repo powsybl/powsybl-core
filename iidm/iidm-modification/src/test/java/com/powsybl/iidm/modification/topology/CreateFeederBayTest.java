@@ -233,7 +233,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .build();
         addBatteryModification.apply(network);
         BoundaryLineAdder boundaryLineAdder = network.getVoltageLevel("vl2").newBoundaryLine()
-                        .setId("newBoundaryLine")
+                        .setId("newDanglingLine")
                         .setR(10)
                         .setX(20)
                         .setG(30)

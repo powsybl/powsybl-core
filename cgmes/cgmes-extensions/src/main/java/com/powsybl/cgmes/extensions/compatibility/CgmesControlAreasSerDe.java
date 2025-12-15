@@ -109,7 +109,7 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
                         TwoSides side = reader.readEnumAttribute("side", TwoSides.class);
                         area.newAreaBoundary()
                                 .setAc(isAc)
-                                .setBoundary(tl.getDanglingLine(side).getBoundary())
+                                .setBoundary(tl.getBoundaryLine(side).getBoundary())
                                 .add();
                     } else {
                         throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());

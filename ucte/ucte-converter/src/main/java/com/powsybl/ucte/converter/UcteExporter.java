@@ -159,7 +159,7 @@ public class UcteExporter implements Exporter {
             });
             voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, context));
         }));
-        network.getDanglingLines(BoundaryLineFilter.UNPAIRED).forEach(danglingLine -> convertDanglingLine(ucteNetwork, danglingLine, context));
+        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(danglingLine -> convertDanglingLine(ucteNetwork, danglingLine, context));
         network.getLines().forEach(line -> convertLine(ucteNetwork, line, context));
         network.getTieLines().forEach(tieLine -> convertTieLine(ucteNetwork, tieLine, context));
         network.getTwoWindingsTransformers().forEach(transformer -> convertTwoWindingsTransformer(ucteNetwork, transformer, context));
@@ -576,14 +576,14 @@ public class UcteExporter implements Exporter {
     }
 
     private static UcteElementStatus getStatusHalf(TieLine tieLine, TwoSides side) {
-        if (tieLine.getDanglingLine(side).isFictitious()) {
-            if (tieLine.getDanglingLine(side).getTerminal().isConnected()) {
+        if (tieLine.getBoundaryLine(side).isFictitious()) {
+            if (tieLine.getBoundaryLine(side).getTerminal().isConnected()) {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
             }
         } else {
-            if (tieLine.getDanglingLine(side).getTerminal().isConnected()) {
+            if (tieLine.getBoundaryLine(side).getTerminal().isConnected()) {
                 return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;

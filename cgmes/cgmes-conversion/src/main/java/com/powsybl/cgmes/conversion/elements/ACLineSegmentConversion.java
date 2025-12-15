@@ -60,7 +60,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     }
 
     @Override
-    public Optional<BoundaryLine> getDanglingLine() {
+    public Optional<BoundaryLine> getBoundaryLine() {
         return Optional.ofNullable(boundaryLine);
     }
 

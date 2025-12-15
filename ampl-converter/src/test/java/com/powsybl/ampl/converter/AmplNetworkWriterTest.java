@@ -184,8 +184,8 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
 
         TieLineAdder adder = network.newTieLine().setId("testTie")
                 .setName("testNameTie")
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId());
+                .setBoundaryLine1(dl1.getId())
+                .setBoundaryLine2(dl2.getId());
         TieLine incorrectTieLine = adder.add();
 
         AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, true, AmplExportConfig.ExportActionType.CURATIVE,
@@ -350,7 +350,7 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
     @Test
     void writeTieLine() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        for (BoundaryLine boundaryLine : network.getDanglingLines()) {
+        for (BoundaryLine boundaryLine : network.getBoundaryLines()) {
             boundaryLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()

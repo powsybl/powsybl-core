@@ -241,7 +241,7 @@ class CgmesExportTest {
         // we will have to rely on some external boundaries definition
 
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine expected = network.getDanglingLine("DL");
+        BoundaryLine expected = network.getBoundaryLine("DL");
         Network merged = Network.merge(network, BatteryNetworkFactory.create()); // add battery
         Battery battery = merged.getBattery("BAT");
 
@@ -270,7 +270,7 @@ class CgmesExportTest {
             }
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
-            BoundaryLine actual = networkFromCgmes.getDanglingLine("DL");
+            BoundaryLine actual = networkFromCgmes.getBoundaryLine("DL");
             assertNotNull(actual);
             checkDanglingLineParams(expected, actual);
             Generator generator = networkFromCgmes.getGenerator("BAT");
@@ -290,7 +290,7 @@ class CgmesExportTest {
         // we will re-import it as a regular line
 
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine expected = network.getDanglingLine("DL");
+        BoundaryLine expected = network.getBoundaryLine("DL");
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
@@ -314,7 +314,7 @@ class CgmesExportTest {
         // we will have to rely on some external boundaries definition
 
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine expected = network.getDanglingLine("DL");
+        BoundaryLine expected = network.getBoundaryLine("DL");
 
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this dangling line
@@ -340,7 +340,7 @@ class CgmesExportTest {
             }
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
-            BoundaryLine actual = networkFromCgmes.getDanglingLine("DL");
+            BoundaryLine actual = networkFromCgmes.getBoundaryLine("DL");
             assertNotNull(actual);
             checkDanglingLineParams(expected, actual);
         }
@@ -356,7 +356,7 @@ class CgmesExportTest {
         // but as a regular transmission line
 
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine expected = network.getDanglingLine("DL");
+        BoundaryLine expected = network.getBoundaryLine("DL");
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
@@ -365,7 +365,7 @@ class CgmesExportTest {
             network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
-            BoundaryLine actualBoundaryLine = networkFromCgmes.getDanglingLine("DL");
+            BoundaryLine actualBoundaryLine = networkFromCgmes.getBoundaryLine("DL");
             assertNull(actualBoundaryLine);
             Line actual = networkFromCgmes.getLine("DL");
             checkDanglingLineParams(expected, actual);
@@ -659,7 +659,7 @@ class CgmesExportTest {
             assertEquals(-50, defaultControlArea.getInterchangeTarget().orElse(Double.NaN));
             assertEquals("DL", defaultControlArea.getAreaBoundaryStream().findFirst()
                     .flatMap(AreaBoundary::getBoundary)
-                    .map(Boundary::getDanglingLine)
+                    .map(Boundary::getBoundaryLine)
                     .map(BoundaryLine::getId)
                     .orElse(null));
 

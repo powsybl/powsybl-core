@@ -31,9 +31,9 @@ public final class TieLineConversion {
 
     public static void create(String node, EquipmentAtBoundaryConversion conversion1, EquipmentAtBoundaryConversion conversion2, Context context) {
         conversion1.convertAtBoundary();
-        Optional<BoundaryLine> dl1 = conversion1.getDanglingLine();
+        Optional<BoundaryLine> dl1 = conversion1.getBoundaryLine();
         conversion2.convertAtBoundary();
-        Optional<BoundaryLine> dl2 = conversion2.getDanglingLine();
+        Optional<BoundaryLine> dl2 = conversion2.getBoundaryLine();
 
         if (dl1.isPresent() && dl2.isPresent()) {
             // there can be several dangling lines linked to same x-node in one IGM for planning purposes
@@ -63,15 +63,15 @@ public final class TieLineConversion {
 
     private static void convertToTieLine(Context context, BoundaryLine dl1, BoundaryLine dl2) {
         TieLineAdder adder = context.network().newTieLine()
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId());
+                .setBoundaryLine1(dl1.getId())
+                .setBoundaryLine2(dl2.getId());
         identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(dl1.getId(), dl2.getId())),
                 TieLineUtil.buildMergedName(dl1.getId(), dl2.getId(), dl1.getNameOrId(), dl2.getNameOrId()));
         adder.add();
     }
 
     public static void createDuringUpdate(Network network, Context context) {
-        network.getDanglingLineStream()
+        network.getBoundaryLineStream()
                 .filter(danglingLine -> !danglingLine.isPaired())
                 .collect(Collectors.groupingBy(BoundaryLine::getPairingKey))
                 .values().forEach(danglingLinesList -> {

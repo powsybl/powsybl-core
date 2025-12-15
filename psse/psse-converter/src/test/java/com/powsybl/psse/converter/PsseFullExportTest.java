@@ -375,8 +375,8 @@ class PsseFullExportTest extends AbstractSerDeTest {
         network.newTieLine()
                 .setId("TieLine-Vl1-Sub2-Vl1-Sub6")
                 .setName("TieLine-Vl1-Sub2-Vl1-Sub6")
-                .setDanglingLine1(dlVl1S2.getId())
-                .setDanglingLine2(dlVl1S6.getId())
+                .setBoundaryLine1(dlVl1S2.getId())
+                .setBoundaryLine2(dlVl1S6.getId())
                 .add();
 
         return network;

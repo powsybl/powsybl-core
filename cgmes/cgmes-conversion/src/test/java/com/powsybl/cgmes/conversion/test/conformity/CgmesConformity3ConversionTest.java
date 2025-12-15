@@ -41,11 +41,11 @@ class CgmesConformity3ConversionTest {
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
         assertNotEquals("unknown", be.getId());
         int nSubBE = be.getSubstationCount();
-        int nDlBE = be.getDanglingLineCount();
+        int nDlBE = be.getBoundaryLineCount();
         Network nl = Network.read(CgmesConformity3Catalog.microGridBaseCaseNL().dataSource(), importParams);
         assertNotEquals("unknown", nl.getId());
         int nSubNL = nl.getSubstationCount();
-        int nDlNL = nl.getDanglingLineCount();
+        int nDlNL = nl.getBoundaryLineCount();
         // Both networks have the same number of dangling lines
         assertEquals(nDlBE, nDlNL);
 
@@ -59,10 +59,10 @@ class CgmesConformity3ConversionTest {
         for (TieLine tl : merge.getTieLines()) {
             // The danglingLine1 and danglingLine1.boundary.dl must be the same object
             // Both should correspond to objects at my level of merging
-            assertEquals(tl.getBoundaryLine1(), tl.getBoundaryLine1().getBoundary().getDanglingLine());
-            assertEquals(tl.getBoundaryLine2(), tl.getBoundaryLine2().getBoundary().getDanglingLine());
+            assertEquals(tl.getBoundaryLine1(), tl.getBoundaryLine1().getBoundary().getBoundaryLine());
+            assertEquals(tl.getBoundaryLine2(), tl.getBoundaryLine2().getBoundary().getBoundaryLine());
         }
-        assertEquals(10, merge.getDanglingLineCount());
+        assertEquals(10, merge.getBoundaryLineCount());
 
         // Check SV export contains tie line terminals
         checkExportSvTerminals(merge);

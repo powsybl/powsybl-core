@@ -190,7 +190,7 @@ public class CgmesExport implements Exporter {
     }
 
     private boolean isAcBoundary(BoundaryLine boundaryLine, Set<String> boundaryDcNodes) {
-        String dlBoundaryNode = Conversion.getDanglingLineBoundaryNode(boundaryLine);
+        String dlBoundaryNode = Conversion.getBoundaryLineBoundaryNode(boundaryLine);
         if (dlBoundaryNode != null) {
             return !boundaryDcNodes.contains(dlBoundaryNode);
         }
