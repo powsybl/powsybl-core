@@ -214,7 +214,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
     }
 
     private static boolean checkDanglingLineContingency(Contingency contingency, BoundaryLineContingency element, Network network) {
-        if (network.getDanglingLine(element.getId()) == null) {
+        if (network.getBoundaryLine(element.getId()) == null) {
             LOGGER.warn("Dangling line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }

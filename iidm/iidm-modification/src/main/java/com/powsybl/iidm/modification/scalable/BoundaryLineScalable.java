@@ -92,7 +92,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(injections);
 
-        BoundaryLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getBoundaryLine(id);
         if (dl != null) {
             injections.add(dl);
         } else if (notFoundInjections != null) {
@@ -117,7 +117,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
             return 0;
         }
 
-        BoundaryLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getBoundaryLine(id);
 
         double done = 0;
         if (dl == null) {
@@ -173,7 +173,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
 
     @Override
     public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
-        BoundaryLine line = network.getDanglingLine(id);
+        BoundaryLine line = network.getBoundaryLine(id);
         if (line == null) {
             LOGGER.warn("DanglingLine {} not found", id);
             return 0.0;

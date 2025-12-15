@@ -124,8 +124,8 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
                 "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
         // OperationalLimitSet on dangling line terminal is imported smoothly.
-        assertNotNull(network.getDanglingLine("DL"));
-        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+        assertNotNull(network.getBoundaryLine("DL"));
+        assertTrue(network.getBoundaryLine("DL").getCurrentLimits().isPresent());
 
         // OperationalLimitSet on ACLineSegment terminals are imported smoothly.
         assertNotNull(network.getLine("ACL"));
@@ -157,8 +157,8 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
                 "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
         // OperationalLimitSet on dangling line is imported on its single extremity.
-        assertNotNull(network.getDanglingLine("DL"));
-        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+        assertNotNull(network.getBoundaryLine("DL"));
+        assertTrue(network.getBoundaryLine("DL").getCurrentLimits().isPresent());
 
         // OperationalLimitSet on ACLineSegment is imported on its two extremities.
         assertNotNull(network.getLine("ACL"));

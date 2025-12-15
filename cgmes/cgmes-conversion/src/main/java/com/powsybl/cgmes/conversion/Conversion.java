@@ -412,7 +412,7 @@ public class Conversion {
         });
 
         // Set selected limits group for Dangling lines
-        context.network().getDanglingLineStream().forEach(dl -> {
+        context.network().getBoundaryLineStream().forEach(dl -> {
             Collection<OperationalLimitsGroup> limitsHolder = dl.getOperationalLimitsGroups();
             if (limitsHolder.size() == 1) {
                 dl.setSelectedOperationalLimitsGroup(limitsHolder.iterator().next().getId());
@@ -430,7 +430,7 @@ public class Conversion {
 
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
         if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
-            for (BoundaryLine dl : network.getDanglingLines()) {
+            for (BoundaryLine dl : network.getBoundaryLines()) {
                 if (!isBoundaryTerminalConnected(dl, context) && dl.getTerminal().isConnected()) {
                     LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
                     CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
@@ -441,9 +441,9 @@ public class Conversion {
     }
 
     private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(Network network, Context context) {
-        network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED)
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED)
                 .filter(dl -> dl.getTerminal().isConnected())
-                .collect(groupingBy(Conversion::getDanglingLineBoundaryNode))
+                .collect(groupingBy(Conversion::getBoundaryLineBoundaryNode))
                 .values().stream()
                 // Only perform adjustment for the groups with more than one connected dangling line
                 .filter(dls -> dls.size() > 1)
@@ -467,7 +467,7 @@ public class Conversion {
         });
     }
 
-    public static String getDanglingLineBoundaryNode(BoundaryLine dl) {
+    public static String getBoundaryLineBoundaryNode(BoundaryLine dl) {
         String node;
         node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
         if (node == null) {

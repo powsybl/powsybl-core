@@ -24,6 +24,6 @@ public class DanglingLineActionSerializer extends AbstractLoadActionSerializer<B
 
     @Override
     protected String getElementId(BoundaryLineAction action) {
-        return action.getDanglingLineId();
+        return action.getBoundaryLineId();
     }
 }

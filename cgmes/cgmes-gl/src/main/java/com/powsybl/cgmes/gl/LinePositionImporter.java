@@ -67,6 +67,6 @@ public class LinePositionImporter {
         if (line != null) {
             return line;
         }
-        return network.getDanglingLine(lineId);
+        return network.getBoundaryLine(lineId);
     }
 }

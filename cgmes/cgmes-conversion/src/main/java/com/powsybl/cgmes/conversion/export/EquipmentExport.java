@@ -961,15 +961,15 @@ public final class EquipmentExport {
                                            Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
 
-        for (BoundaryLine boundaryLine : network.getDanglingLines(BoundaryLineFilter.UNPAIRED)) {
+        for (BoundaryLine boundaryLine : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             writeUnpairedOrPairedDanglingLines(Collections.singletonList(boundaryLine), mapTerminal2Id, cimNamespace, euNamespace,
                     exportedLimitTypes, writer,
                     context, exportedBaseVoltagesByNominalV, exported);
         }
 
-        Set<String> pairingKeys = network.getDanglingLineStream(BoundaryLineFilter.PAIRED).map(BoundaryLine::getPairingKey).collect(Collectors.toSet());
+        Set<String> pairingKeys = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).map(BoundaryLine::getPairingKey).collect(Collectors.toSet());
         for (String pairingKey : pairingKeys) {
-            List<BoundaryLine> boundaryLineList = network.getDanglingLineStream(BoundaryLineFilter.PAIRED).filter(danglingLine -> pairingKey.equals(danglingLine.getPairingKey())).toList();
+            List<BoundaryLine> boundaryLineList = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).filter(danglingLine -> pairingKey.equals(danglingLine.getPairingKey())).toList();
             writeUnpairedOrPairedDanglingLines(boundaryLineList, mapTerminal2Id, cimNamespace, euNamespace,
                     exportedLimitTypes, writer,
                     context, exportedBaseVoltagesByNominalV, exported);
@@ -1074,7 +1074,7 @@ public final class EquipmentExport {
             throw new PowsyblException("Paired danglingLines with different connectivityNode on the boundarySide. ParingKey: " + boundaryLineList.get(0).getPairingKey());
         } else if (connectevityNodeIdSet.size() == 1) {
             connectivityNodeId = connectevityNodeIdSet.iterator().next();
-            setDanglingLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
+            setBoundaryLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
         } else {
             // If no information about original boundary has been preserved in the IIDM model,
             // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
@@ -1087,7 +1087,7 @@ public final class EquipmentExport {
 
             String connectivityNodeContainerId = createFictitiousContainerFor(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
             ConnectivityNodeEq.write(connectivityNodeId, boundaryLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
-            setDanglingLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
+            setBoundaryLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
         }
         return connectivityNodeId;
     }
@@ -1098,7 +1098,7 @@ public final class EquipmentExport {
                 : Optional.empty();
     }
 
-    private static void setDanglingLinesProperty(List<BoundaryLine> boundaryLineList, String propertyKey, String connectivityNodeId) {
+    private static void setBoundaryLinesProperty(List<BoundaryLine> boundaryLineList, String propertyKey, String connectivityNodeId) {
         boundaryLineList.forEach(danglingLine -> {
             if (!danglingLine.hasProperty(propertyKey)) {
                 danglingLine.setProperty(propertyKey, connectivityNodeId);
@@ -1118,7 +1118,7 @@ public final class EquipmentExport {
             throw new PowsyblException("Paired danglingLines with different topologicalNode on the boundarySide. ParingKey: " + boundaryLineList.get(0).getPairingKey());
         } else if (topologicalNodeIdSet.size() == 1) {
             String topologicalNodeId = topologicalNodeIdSet.iterator().next();
-            setDanglingLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, topologicalNodeId);
+            setBoundaryLinesProperty(boundaryLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, topologicalNodeId);
         } else {
             // Also create a container if we will have to create a Topological Node for the boundary
             if (LOG.isInfoEnabled()) {
@@ -1607,7 +1607,7 @@ public final class EquipmentExport {
     }
 
     private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
-        BoundaryLine dl = boundary.getDanglingLine();
+        BoundaryLine dl = boundary.getBoundaryLine();
         return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
     }
 

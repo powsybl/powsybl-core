@@ -108,7 +108,7 @@ Three examples are provided below, with their corresponding limits scheme, to sh
 ##### First example
 This first example creates a `CurrentLimits` instance containing one permanent limit and two temporary limits.
 ```java
-CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
+CurrentLimits currentLimits = network.getBoundaryLine("DL").newCurrentLimits()
     .setPermanentLimit(100.0)
     .beginTemporaryLimit()
         .setName("TL1")
@@ -128,7 +128,7 @@ CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
 ##### Second example
 This second example creates a `CurrentLimits` instance containing one permanent limit and three temporary limits, one of them having an infinite limit value.
 ```java
-CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
+CurrentLimits currentLimits = network.getBoundaryLine("DL").newCurrentLimits()
     .setPermanentLimit(700.0)
     .beginTemporaryLimit()
         .setName("IT20")

@@ -77,11 +77,11 @@ public final class AmplUtil {
         return twt.getId(); // same id as the transformer
     }
 
-    public static String getDanglingLineMiddleBusId(BoundaryLine dl) {
+    public static String getBoundaryLineMiddleBusId(BoundaryLine dl) {
         return dl.getId(); // same id as the dangling line
     }
 
-    public static String getDanglingLineMiddleVoltageLevelId(BoundaryLine dl) {
+    public static String getBoundaryLineMiddleVoltageLevelId(BoundaryLine dl) {
         return dl.getId(); // same id as the dangling line
     }
 
@@ -220,7 +220,7 @@ public final class AmplUtil {
     }
 
     private static void fillDanglingLines(StringToIntMapper<AmplSubset> mapper, Network network) {
-        for (BoundaryLine dl : network.getDanglingLines(BoundaryLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, dl.getId());
             mapper.newInt(AmplSubset.BUS, dl.getId());
             mapper.newInt(AmplSubset.BRANCH, dl.getId());

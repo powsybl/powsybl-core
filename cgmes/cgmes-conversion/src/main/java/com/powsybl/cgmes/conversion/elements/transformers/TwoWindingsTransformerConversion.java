@@ -111,7 +111,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     }
 
     @Override
-    public Optional <BoundaryLine> getDanglingLine() {
+    public Optional <BoundaryLine> getBoundaryLine() {
         return Optional.ofNullable(boundaryLine);
     }
 

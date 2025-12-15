@@ -27,7 +27,7 @@ class BoundaryLineModificationTest {
     @BeforeEach
     public void setUp() {
         network = EurostagTutorialExample1Factory.createWithTieLine();
-        boundaryLine = network.getDanglingLine("NHV1_XNODE1");
+        boundaryLine = network.getBoundaryLine("NHV1_XNODE1");
         boundaryLine.setP0(10.0);
         boundaryLine.setQ0(4.0);
     }

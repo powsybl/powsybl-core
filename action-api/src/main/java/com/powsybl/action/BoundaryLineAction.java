@@ -39,7 +39,7 @@ public class BoundaryLineAction extends AbstractLoadAction {
         this.danglingLineId = Objects.requireNonNull(danglingLineId);
     }
 
-    public String getDanglingLineId() {
+    public String getBoundaryLineId() {
         return danglingLineId;
     }
 
@@ -51,7 +51,7 @@ public class BoundaryLineAction extends AbstractLoadAction {
     @Override
     public NetworkModification toModification() {
         return new BoundaryLineModification(
-                getDanglingLineId(),
+                getBoundaryLineId(),
                 isRelativeValue(),
                 getActivePowerValue().stream().boxed().findFirst().orElse(null),
                 getReactivePowerValue().stream().boxed().findFirst().orElse(null)

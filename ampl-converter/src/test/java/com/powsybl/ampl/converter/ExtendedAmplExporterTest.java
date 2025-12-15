@@ -117,7 +117,7 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
                 "inputs/extended_exporter/dangling-line-buses.txt");
 
         // Check that middle bus in different sc if dangling line bus is disconnected
-        network.getDanglingLine("DL").getTerminal().disconnect();
+        network.getBoundaryLine("DL").getTerminal().disconnect();
         exporter.export(network, properties, dataSource);
         assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/dangling-line-disconnected-buses.txt");
     }
@@ -125,7 +125,7 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     @Test
     void testTieLineExport() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        for (BoundaryLine boundaryLine : network.getDanglingLines()) {
+        for (BoundaryLine boundaryLine : network.getBoundaryLines()) {
             boundaryLine.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                     .setPermanentLimit(100.0)
                     .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()

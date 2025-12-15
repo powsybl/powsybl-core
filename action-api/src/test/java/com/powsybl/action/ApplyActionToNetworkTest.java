@@ -92,7 +92,7 @@ class ApplyActionToNetworkTest {
     @Test
     void dangingLineAction() {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        BoundaryLine boundaryLine = network.getDanglingLine("NHV1_XNODE1");
+        BoundaryLine boundaryLine = network.getBoundaryLine("NHV1_XNODE1");
         boundaryLine.setP0(10.0);
         boundaryLine.setQ0(4.0);
 

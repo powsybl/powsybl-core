@@ -37,7 +37,7 @@ public class CounterNamingStrategy extends AbstractNamingStrategy {
                 .forEach(this::processVoltageLevel);
 
         network.getBranchStream().forEach(this::generateUcteElementId);
-        network.getDanglingLineStream().forEach(this::generateUcteElementId);
+        network.getBoundaryLineStream().forEach(this::generateUcteElementId);
     }
 
     private void processVoltageLevel(VoltageLevel voltageLevel) {

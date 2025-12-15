@@ -127,7 +127,7 @@ public class AmplNetworkWriter {
         return middleCcNum;
     }
 
-    private static int getDanglingLineMiddleBusComponentNum(AmplExportContext context, BoundaryLine dl) {
+    private static int getBoundaryLineMiddleBusComponentNum(AmplExportContext context, BoundaryLine dl) {
         Bus b = AmplUtil.getBus(dl.getTerminal());
         int middleCcNum;
         // if the connection bus of the dangling line is null or not in the main cc, the middle bus is
@@ -186,9 +186,9 @@ public class AmplNetworkWriter {
                     AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt)), twt);
             }
             // voltage level associated to dangling lines middle bus
-            for (BoundaryLine dl : getSortedIdentifiables(network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED))) {
+            for (BoundaryLine dl : getSortedIdentifiables(network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED))) {
                 columnsExporter.writeDanglingLineVoltageLevelToFormatter(formatter, dl);
-                addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getDanglingLineMiddleVoltageLevelId(dl)),
+                addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl)),
                     dl);
             }
             if (config.isExportXNodes()) {
@@ -282,10 +282,10 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (BoundaryLine dl : getSortedIdentifiables(network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED))) {
-            int middleCcNum = getDanglingLineMiddleBusComponentNum(context, dl);
+        for (BoundaryLine dl : getSortedIdentifiables(network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED))) {
+            int middleCcNum = getBoundaryLineMiddleBusComponentNum(context, dl);
             if (connectedComponentToExport(middleCcNum)) {
-                context.busIdsToExport.add(AmplUtil.getDanglingLineMiddleBusId(dl));
+                context.busIdsToExport.add(AmplUtil.getBoundaryLineMiddleBusId(dl));
                 columnsExporter.writeDanglingLineMiddleBusesToFormatter(formatter, dl, middleCcNum);
             }
         }
@@ -429,14 +429,14 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLines(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (BoundaryLine dl : getSortedIdentifiables(network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED))) {
+        for (BoundaryLine dl : getSortedIdentifiables(network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED))) {
             Terminal t = dl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
             String bus1Id = AmplUtil.getBusId(bus1);
-            String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
+            String middleBusId = AmplUtil.getBoundaryLineMiddleBusId(dl);
             if (!isOnlyMainCc() || isBusExported(context, bus1Id) || isBusExported(context, middleBusId)) {
                 VoltageLevel vl = t.getVoltageLevel();
-                String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
+                String middleVlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
                 context.voltageLevelIdsToExport.add(vl.getId());
                 context.voltageLevelIdsToExport.add(middleVlId);
                 columnsExporter.writeDanglingLineToFormatter(formatter, dl);
@@ -531,8 +531,8 @@ public class AmplNetworkWriter {
                     addExtensions(mapper.getInt(AmplSubset.LOAD, l.getId()), l);
                 }
             }
-            for (BoundaryLine dl : getSortedIdentifiables(network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED))) {
-                String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
+            for (BoundaryLine dl : getSortedIdentifiables(network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED))) {
+                String middleBusId = AmplUtil.getBoundaryLineMiddleBusId(dl);
                 if (!exportLoad(context, middleBusId)) {
                     skipped.add(dl.getId());
                 } else {

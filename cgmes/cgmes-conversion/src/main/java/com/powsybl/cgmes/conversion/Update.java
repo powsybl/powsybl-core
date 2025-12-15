@@ -133,7 +133,7 @@ public final class Update {
 
     static void updateDanglingLines(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.DANGLING_LINE.name()));
-        network.getDanglingLines().forEach(danglingLine -> updateDanglingLine(danglingLine, context));
+        network.getBoundaryLines().forEach(danglingLine -> updateDanglingLine(danglingLine, context));
         context.popReportNode();
     }
 
@@ -276,7 +276,7 @@ public final class Update {
         network.getBusView().getBuses().forEach(bus -> NodeConversion.update(bus, context));
 
         // Voltage and angle in boundary buses
-        network.getDanglingLineStream(BoundaryLineFilter.UNPAIRED)
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED)
                 .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
 
         // Now in tieLines

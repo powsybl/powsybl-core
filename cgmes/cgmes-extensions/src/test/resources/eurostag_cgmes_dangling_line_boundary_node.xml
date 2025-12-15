@@ -41,7 +41,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:tieLine id="NHV1_NHV2_2" danglingLineId1="NHV1_XNODE2" danglingLineId2="XNODE2_NHV2"/>
+    <iidm:tieLine id="NHV1_NHV2_2" boundaryLineId1="NHV1_XNODE2" boundaryLineId2="XNODE2_NHV2"/>
     <iidm:extension id="XNODE1_NHV2">
         <cdlbn:cgmesDanglingLineBoundaryNode isHvdc="false"/>
     </iidm:extension>

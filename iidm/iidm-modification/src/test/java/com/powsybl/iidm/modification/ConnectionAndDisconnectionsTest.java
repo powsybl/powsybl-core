@@ -493,8 +493,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .add();
         TieLine tieLine = network.newTieLine()
             .setId("NHV1_NHV2_1")
-            .setDanglingLine1(nhv1xnode1.getId())
-            .setDanglingLine2(xnode1nhv2.getId())
+            .setBoundaryLine1(nhv1xnode1.getId())
+            .setBoundaryLine2(xnode1nhv2.getId())
             .add();
 
         // Disconnection
@@ -1017,8 +1017,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .add();
         network.newTieLine()
             .setId("NHV1_NHV2_1")
-            .setDanglingLine1(nhv1xnode1.getId())
-            .setDanglingLine2(xnode1nhv2.getId())
+            .setBoundaryLine1(nhv1xnode1.getId())
+            .setBoundaryLine2(xnode1nhv2.getId())
             .add();
     }
 }

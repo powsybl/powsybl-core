@@ -57,7 +57,11 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
 
     @Override
     protected void writeRootElementAttributes(TieLine tl, Network n, NetworkSerializerContext context) {
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_10, context, () -> {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> {
+            context.getWriter().writeStringAttribute("boundaryLineId1", context.getAnonymizer().anonymizeString(tl.getBoundaryLine1().getId()));
+            context.getWriter().writeStringAttribute("boundaryLineId2", context.getAnonymizer().anonymizeString(tl.getBoundaryLine2().getId()));
+        });
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_10, IidmVersion.V_1_14, context, () -> {
             context.getWriter().writeStringAttribute("danglingLineId1", context.getAnonymizer().anonymizeString(tl.getBoundaryLine1().getId()));
             context.getWriter().writeStringAttribute("danglingLineId2", context.getAnonymizer().anonymizeString(tl.getBoundaryLine2().getId()));
         });

@@ -31,8 +31,8 @@ class TieLineUpdateTest {
     // In the tests, only the characteristics of the permanent TieLine are verified.
     private static void assertEqCount(Network network, int tieLines, int pairedDanglingLines) {
         assertEquals(tieLines, network.getTieLineCount());
-        assertEquals(5, network.getDanglingLineCount());
-        assertEquals(pairedDanglingLines, network.getDanglingLineStream().filter(BoundaryLine::isPaired).count());
+        assertEquals(5, network.getBoundaryLineCount());
+        assertEquals(pairedDanglingLines, network.getBoundaryLineStream().filter(BoundaryLine::isPaired).count());
     }
 
     @Test
