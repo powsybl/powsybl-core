@@ -90,7 +90,7 @@ public final class FourSubstationsNodeBreakerFactory {
     private static void createLineBetweenSubstations2And3(Network network) {
         // The substations 2 and 3 are connected through a line
         VoltageLevel s2vl1 = network.getVoltageLevel(S2VL1);
-        VoltageLevel s3vl1 = network.getVoltageLevel(S2VL1);
+        VoltageLevel s3vl1 = network.getVoltageLevel(S3VL1);
         createSwitch(s2vl1, "S2VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 5);
         createSwitch(s2vl1, "S2VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, false, 5, 6);
         createSwitch(s3vl1, "S3VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
@@ -114,7 +114,7 @@ public final class FourSubstationsNodeBreakerFactory {
 
     private static void createLineBetweenSubstations3And4(Network network) {
         // The stations 3 and 4 are linked by a line
-        VoltageLevel s3vl1 = network.getVoltageLevel(S2VL1);
+        VoltageLevel s3vl1 = network.getVoltageLevel(S3VL1);
         VoltageLevel s4vl1 = network.getVoltageLevel(S4VL1);
         createSwitch(s3vl1, "S3VL1_BBS_LINES3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 7);
         createSwitch(s3vl1, "S3VL1_LINES3S4_BREAKER", SwitchKind.BREAKER, false, 7, 8);
@@ -155,7 +155,7 @@ public final class FourSubstationsNodeBreakerFactory {
     }
 
     private static void createHvdcBetweenSubstations1And3(Network network) {
-        VoltageLevel s3vl1 = network.getVoltageLevel(S2VL1);
+        VoltageLevel s3vl1 = network.getVoltageLevel(S3VL1);
 
         // Connect an LCC station to the third substation
         createSwitch(s3vl1, "S3VL1_BBS_LCC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 9);
