@@ -110,7 +110,8 @@ class BranchObservabilityXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void invalidTest() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_VERSION))));
+        PowsyblException e = assertThrows(PowsyblException.class,
+            () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_VERSION))));
         assertEquals("Unknown element name 'qualityV' in 'branchObservability'", e.getMessage());
     }
 }

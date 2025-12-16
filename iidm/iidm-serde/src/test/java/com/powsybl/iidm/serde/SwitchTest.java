@@ -10,7 +10,6 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 

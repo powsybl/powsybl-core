@@ -156,13 +156,18 @@ public final class ConnectableSerDeUtil {
         }
     }
 
-    private static void readVoltageLevelAndNodeOrBus(String suffix, Consumer<String> voltageLevelSetter, IntConsumer nodeSetter, Consumer<String> busSetter, Consumer<String> connectableBusSetter, Network network, NetworkDeserializerContext context) {
+    private static void readVoltageLevelAndNodeOrBus(String suffix, Consumer<String> voltageLevelSetter,
+                                                     IntConsumer nodeSetter, Consumer<String> busSetter,
+                                                     Consumer<String> connectableBusSetter, Network network,
+                                                     NetworkDeserializerContext context) {
         String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + suffix));
         voltageLevelSetter.accept(voltageLevelId);
         readNodeOrBus(suffix, getTopologKind(voltageLevelId, network), nodeSetter, busSetter, connectableBusSetter, context);
     }
 
-    private static void readNodeOrBus(String suffix, TopologyKind topologyKind, IntConsumer nodeSetter, Consumer<String> busSetter, Consumer<String> connectableBusSetter, NetworkDeserializerContext context) {
+    private static void readNodeOrBus(String suffix, TopologyKind topologyKind, IntConsumer nodeSetter,
+                                      Consumer<String> busSetter, Consumer<String> connectableBusSetter,
+                                      NetworkDeserializerContext context) {
         switch (topologyKind) {
             case NODE_BREAKER -> readNode(nodeSetter, suffix, context);
             case BUS_BREAKER -> {

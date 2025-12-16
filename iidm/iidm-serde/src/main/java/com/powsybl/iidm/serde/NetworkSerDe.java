@@ -82,7 +82,7 @@ public final class NetworkSerDe {
     private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
 
     /** Magic number for binary iidm files ("Binary IIDM" in ASCII) */
-    static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4d};
+    static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6E, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4D};
 
     private static final Supplier<Schema> DEFAULT_SCHEMA_SUPPLIER = Suppliers.memoize(() -> NetworkSerDe.createSchema(DefaultExtensionsSupplier.getInstance()));
     private static final int MAX_NAMESPACE_PREFIX_NUM = 100;
@@ -328,7 +328,7 @@ public final class NetworkSerDe {
     }
 
     private static Map<String, String> getExtensionVersions(Network n, ExportOptions options, ExtensionsSupplier extensionsSupplier) {
-        Map <String, String> extensionVersionsMap = new LinkedHashMap<>();
+        Map<String, String> extensionVersionsMap = new LinkedHashMap<>();
         for (ExtensionSerDe<?, ?> extensionSerDe : getExtensionSerializers(n, options, extensionsSupplier)) {
             String version = getExtensionVersion(extensionSerDe, options);
             extensionVersionsMap.put(extensionSerDe.getExtensionName(), version);
@@ -848,7 +848,8 @@ public final class NetworkSerDe {
             ValidationLevel[] fileMinValidationLevel = new ValidationLevel[1];
             fileMinValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_7, context, () -> fileMinValidationLevel[0] = reader.readEnumAttribute(MINIMUM_VALIDATION_LEVEL, ValidationLevel.class));
-            IidmSerDeUtil.assertMinimumVersionIfNotDefault(fileMinValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_7, context);
+            IidmSerDeUtil.assertMinimumVersionIfNotDefault(fileMinValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS,
+                NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_7, context);
             minValidationLevel = fileMinValidationLevel[0];
             context.setNetworkValidationLevel(minValidationLevel);
         }
@@ -960,27 +961,8 @@ public final class NetworkSerDe {
                                        Set<String> extensionNamesImported, Set<String> extensionNamesNotFound,
                                        ExtensionsSupplier extensionsSupplier) {
 
-        context.getReader().readChildNodes(extensionSerializationName -> {
-            // extensions root elements are nested directly in 'extension' element, so there is no need
-            // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
-            // missing extension serializer, we must not check for an extension in sub elements.
-            ExtensionSerDe extensionSerde = extensionsSupplier.get().findProvider(extensionSerializationName);
-            String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
-            if (!context.isIgnoredEquipment(id) &&
-                    (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
-                if (extensionSerde != null) {
-                    extensionSerde.checkReadingCompatibility(context);
-                    Identifiable identifiable = getIdentifiable(network, id);
-                    extensionSerde.read(identifiable, context);
-                    extensionNamesImported.add(extensionName);
-                } else {
-                    extensionNamesNotFound.add(extensionName);
-                    context.getReader().skipNode();
-                }
-            } else {
-                context.getReader().skipNode();
-            }
-        });
+        context.getReader().readChildNodes(extensionSerializationName -> readChildNode(network, id, context,
+            extensionNamesImported, extensionNamesNotFound, extensionsSupplier, extensionSerializationName));
     }
 
     private static Identifiable<?> getIdentifiable(Network network, String id) {
@@ -1057,6 +1039,7 @@ public final class NetworkSerDe {
         return copy(network, networkFactory, ForkJoinPool.commonPool(), format);
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);
@@ -1079,6 +1062,30 @@ public final class NetworkSerDe {
             return read(is, new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private static void readChildNode(Network network, String id, NetworkDeserializerContext context,
+                               Set<String> extensionNamesImported, Set<String> extensionNamesNotFound,
+                               ExtensionsSupplier extensionsSupplier, String extensionSerializationName) {
+        // extensions root elements are nested directly in 'extension' element, so there is no need
+        // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
+        // missing extension serializer, we must not check for an extension in sub elements.
+        ExtensionSerDe extensionSerde = extensionsSupplier.get().findProvider(extensionSerializationName);
+        String extensionName = extensionSerde != null ? extensionSerde.getExtensionName() : extensionSerializationName;
+        if (!context.isIgnoredEquipment(id) &&
+            (context.getOptions().withExtension(extensionName) || context.getOptions().withExtension(extensionSerializationName))) {
+            if (extensionSerde != null) {
+                extensionSerde.checkReadingCompatibility(context);
+                Identifiable identifiable = getIdentifiable(network, id);
+                extensionSerde.read(identifiable, context);
+                extensionNamesImported.add(extensionName);
+            } else {
+                extensionNamesNotFound.add(extensionName);
+                context.getReader().skipNode();
+            }
+        } else {
+            context.getReader().skipNode();
         }
     }
 }

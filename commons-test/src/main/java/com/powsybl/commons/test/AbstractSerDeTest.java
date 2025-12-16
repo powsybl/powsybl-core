@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-
 public abstract class AbstractSerDeTest {
 
     protected FileSystem fileSystem;
