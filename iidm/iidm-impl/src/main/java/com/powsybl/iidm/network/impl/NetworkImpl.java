@@ -13,13 +13,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.ref.RefChain;
+import com.powsybl.commons.ref.RefObj;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractDcComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
-import com.powsybl.commons.ref.RefChain;
-import com.powsybl.commons.ref.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.NetworkReports;
 import com.powsybl.iidm.network.util.Networks;
@@ -1481,7 +1481,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
         ReportNode readReportNode = NetworkReports.runIidmNetworkValidationCHecks(reportNode, id);
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
-                true, throwsException ? ValidationUtil.ActionOnError.THROW_EXCEPTION : ValidationUtil.ActionOnError.LOG_ERROR, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
+            true,
+            throwsException ? ValidationUtil.ActionOnError.THROW_EXCEPTION : ValidationUtil.ActionOnError.LOG_ERROR,
+            validationLevel != null ? validationLevel : minValidationLevel,
+            readReportNode);
         return validationLevel;
     }
 

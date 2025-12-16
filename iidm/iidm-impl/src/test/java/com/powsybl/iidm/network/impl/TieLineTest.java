@@ -9,18 +9,16 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import java.time.ZonedDateTime;
-
+import com.powsybl.iidm.network.util.LinkData;
+import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
+import com.powsybl.iidm.network.util.SV;
 import com.powsybl.iidm.network.util.TieLineUtil;
+import org.apache.commons.math3.complex.Complex;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.iidm.network.util.LinkData;
-import com.powsybl.iidm.network.util.SV;
-import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -513,7 +511,10 @@ class TieLineTest {
         // AcLinesegment 1 must be reoriented if boundary side is at end 1
         // Current model does not allow shunt admittances at both ends, so it does not make sense to reorient it
 
-        // The initial parameters for AcLineSegment 2 are R = 3.1513680000000006, X = 14.928011999999999, G1 = 0.008044414674299755, B1 = -0.03791520949675112, G2 = -0.005046041932060755, B2 = 0.023978278075869598
+        // The initial parameters for AcLineSegment 2 are
+        // R = 3.1513680000000006, X = 14.928011999999999,
+        // G1 = 0.008044414674299755, B1 = -0.03791520949675112,
+        // G2 = -0.005046041932060755, B2 = 0.023978278075869598
         // AcLinesegment 2 must be reoriented if boundary side is at end 2
         // Current model does not allow shunt admittances at both ends, so it does not make sense to reorient it
         DanglingLine dl1 = s1vl1.newDanglingLine()

@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.Test;
@@ -24,11 +25,7 @@ class VscReactiveLimitsTest {
                 .setMaxQ(100.0)
             .add();
         assertEquals(100.0, cs1.getReactiveLimits().getMaxQ(2.0), 0.0);
-        try {
-            cs1.getReactiveLimits(ReactiveCapabilityCurveImpl.class);
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> cs1.getReactiveLimits(ReactiveCapabilityCurveImpl.class));
         cs1.getReactiveLimits(MinMaxReactiveLimitsImpl.class);
     }
 

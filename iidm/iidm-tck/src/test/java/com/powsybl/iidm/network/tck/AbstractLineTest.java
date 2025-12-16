@@ -399,7 +399,7 @@ public abstract class AbstractLineTest {
         String calculatedBusCId = fictitiousSwitchNetwork.getVoltageLevel("C").getNodeBreakerView().getTerminal(0).getBusBreakerView().getBus().getId();
         Terminal.BusBreakerView tBbv1 = line.getTerminal2().getBusBreakerView();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> tBbv1.moveConnectable(calculatedBusCId, true));
-        assertEquals("Trying to move connectable CJ to bus C_0 of voltage level C, which is a node breaker voltage level", e.getMessage());
+        assertEquals("Trying to move connectable CJ to bus C_0 of voltage level C, which is a node breaker voltage level", e2.getMessage());
     }
 
     @Test

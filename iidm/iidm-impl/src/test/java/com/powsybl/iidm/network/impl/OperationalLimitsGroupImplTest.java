@@ -56,7 +56,7 @@ class OperationalLimitsGroupImplTest {
     }
 
     static class CustomOperationalLimitsGroup extends OperationalLimitsGroupImpl {
-        public CustomOperationalLimitsGroup(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
+        CustomOperationalLimitsGroup(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
                                             Validable validable, String attributeName, String selectedGroupId) {
             super(id, identifiable, listeners, validable, attributeName, selectedGroupId);
         }

@@ -7,11 +7,6 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.ZonedDateTime;
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Line;
@@ -25,6 +20,11 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.SwitchesFlow;
+import org.junit.jupiter.api.Test;
+
+import java.time.ZonedDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *

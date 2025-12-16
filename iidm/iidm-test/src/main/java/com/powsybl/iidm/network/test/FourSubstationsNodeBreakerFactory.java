@@ -25,9 +25,17 @@ import java.util.Objects;
 
 public final class FourSubstationsNodeBreakerFactory {
 
+    public static final String S1VL1 = "S1VL1";
+    public static final String S1VL2 = "S1VL2";
     public static final String S2VL1 = "S2VL1";
     public static final String S3VL1 = "S3VL1";
     public static final String S4VL1 = "S4VL1";
+    public static final String S1VL1_BBS = "S1VL1_BBS";
+    public static final String S1VL2_BBS1 = "S1VL2_BBS1";
+    public static final String S1VL2_BBS2 = "S1VL2_BBS2";
+    public static final String S2VL1_BBS = "S2VL1_BBS";
+    public static final String S3VL1_BBS = "S3VL1_BBS";
+    public static final String S4VL1_BBS = "S4VL1_BBS";
 
     private FourSubstationsNodeBreakerFactory() {
     }
@@ -43,101 +51,136 @@ public final class FourSubstationsNodeBreakerFactory {
         network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
+        // Create the substations
         createSubstation1(network);
         createSubstation2(network);
         createSubstation3(network);
         createSubstation4(network);
 
-        VoltageLevel s2vl1 = network.getVoltageLevel(S2VL1);
-        VoltageLevel s3vl1 = network.getVoltageLevel(S2VL1);
-        VoltageLevel s4vl1 = network.getVoltageLevel(S4VL1);
+        // Create the elements in and between the substations
+        createElementsInSubstation1(network);
+        createElementsInSubstation2(network);
+        createHvdcBetweenSubstations1And2(network);
+        createLineBetweenSubstations2And3(network);
+        createElementsInSubstation3(network);
+        createLineBetweenSubstations3And4(network);
+        createHvdcBetweenSubstations1And3(network);
+        createElementsInSubstation4(network);
 
+        setAngleAndV(network);
+
+        return network;
+    }
+
+    private static void createHvdcBetweenSubstations1And2(Network network) {
         // The substations 1 and 2 are linked through an HVDC line
         network.newHvdcLine()
-                .setId("HVDC1")
-                .setName("HVDC1")
-                .setConverterStationId1("VSC1")
-                .setConverterStationId2("VSC2")
-                .setR(1)
-                .setNominalV(400)
-                .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
-                .setMaxP(300.0)
-                .setActivePowerSetpoint(10)
-                .add();
+            .setId("HVDC1")
+            .setName("HVDC1")
+            .setConverterStationId1("VSC1")
+            .setConverterStationId2("VSC2")
+            .setR(1)
+            .setNominalV(400)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+            .setMaxP(300.0)
+            .setActivePowerSetpoint(10)
+            .add();
+    }
 
+    private static void createLineBetweenSubstations2And3(Network network) {
         // The substations 2 and 3 are connected through a line
+        VoltageLevel s2vl1 = network.getVoltageLevel(S2VL1);
+        VoltageLevel s3vl1 = network.getVoltageLevel(S2VL1);
         createSwitch(s2vl1, "S2VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 5);
         createSwitch(s2vl1, "S2VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, false, 5, 6);
         createSwitch(s3vl1, "S3VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
         createSwitch(s3vl1, "S3VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, false, 1, 2);
         Line lineS2S3 = network.newLine()
-                .setId("LINE_S2S3")
-                .setR(0.009999999)
-                .setX(19.100000024)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .setNode1(6)
-                .setVoltageLevel1(S2VL1)
-                .setNode2(2)
-                .setVoltageLevel2(S3VL1)
-                .add();
+            .setId("LINE_S2S3")
+            .setR(0.009999999)
+            .setX(19.100000024)
+            .setG1(0.0)
+            .setB1(0.0)
+            .setG2(0.0)
+            .setB2(0.0)
+            .setNode1(6)
+            .setVoltageLevel1(S2VL1)
+            .setNode2(2)
+            .setVoltageLevel2(S3VL1)
+            .add();
         lineS2S3.getTerminal1().setP(109.8893).setQ(190.0229);
         lineS2S3.getTerminal2().setP(-109.8864).setQ(-184.5171);
+    }
 
+    private static void createLineBetweenSubstations3And4(Network network) {
         // The stations 3 and 4 are linked by a line
+        VoltageLevel s3vl1 = network.getVoltageLevel(S2VL1);
+        VoltageLevel s4vl1 = network.getVoltageLevel(S4VL1);
         createSwitch(s3vl1, "S3VL1_BBS_LINES3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 7);
         createSwitch(s3vl1, "S3VL1_LINES3S4_BREAKER", SwitchKind.BREAKER, false, 7, 8);
         createSwitch(s4vl1, "S4VL1_BBS_LINES3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 5);
         createSwitch(s4vl1, "S4VL1_LINES3S4_BREAKER", SwitchKind.BREAKER, false, 5, 6);
         Line lineS3S4 = network.newLine()
-                .setId("LINE_S3S4")
-                .setR(0.009999999)
-                .setX(13.100000024)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .setNode1(8)
-                .setVoltageLevel1(S3VL1)
-                .setNode2(6)
-                .setVoltageLevel2(S4VL1)
-                .add();
+            .setId("LINE_S3S4")
+            .setR(0.009999999)
+            .setX(13.100000024)
+            .setG1(0.0)
+            .setB1(0.0)
+            .setG2(0.0)
+            .setB2(0.0)
+            .setNode1(8)
+            .setVoltageLevel1(S3VL1)
+            .setNode2(6)
+            .setVoltageLevel2(S4VL1)
+            .add();
         lineS3S4.getTerminal1().setP(240.0036).setQ(2.1751);
         lineS3S4.getTerminal2().setP(-240.0).setQ(2.5415);
         lineS3S4.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
-                .setPermanentLimit(931.0)
-                .add();
+            .setPermanentLimit(931.0)
+            .add();
         lineS3S4.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
-                .setPermanentLimit(931.0)
-                .beginTemporaryLimit()
-                .setName("IST")
-                .setValue(1640.0)
-                .setFictitious(true)
-                .setAcceptableDuration(Integer.MAX_VALUE)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                .setName("LD71")
-                .setValue(Double.MAX_VALUE)
-                .setAcceptableDuration(60)
-                .endTemporaryLimit()
-                .add();
+            .setPermanentLimit(931.0)
+            .beginTemporaryLimit()
+            .setName("IST")
+            .setValue(1640.0)
+            .setFictitious(true)
+            .setAcceptableDuration(Integer.MAX_VALUE)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName("LD71")
+            .setValue(Double.MAX_VALUE)
+            .setAcceptableDuration(60)
+            .endTemporaryLimit()
+            .add();
+    }
+
+    private static void createHvdcBetweenSubstations1And3(Network network) {
+        VoltageLevel s3vl1 = network.getVoltageLevel(S2VL1);
+
+        // Connect an LCC station to the third substation
+        createSwitch(s3vl1, "S3VL1_BBS_LCC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 9);
+        createSwitch(s3vl1, "S3VL1_LCC2_BREAKER", SwitchKind.BREAKER, false, 9, 10);
+        LccConverterStation lcc2 = s3vl1.newLccConverterStation()
+            .setId("LCC2")
+            .setName("LCC2")
+            .setNode(10)
+            .setLossFactor(1.1f)
+            .setPowerFactor(0.6f)
+            .add();
+        lcc2.getTerminal().setP(-79.1200);
 
         // The substations 1 and 3 are linked by an HVDC line
         network.newHvdcLine()
-                .setId("HVDC2")
-                .setName("HVDC2")
-                .setConverterStationId1("LCC1")
-                .setConverterStationId2("LCC2")
-                .setR(1)
-                .setNominalV(400)
-                .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
-                .setMaxP(300.0)
-                .setActivePowerSetpoint(80)
-                .add();
-
-        return network;
+            .setId("HVDC2")
+            .setName("HVDC2")
+            .setConverterStationId1("LCC1")
+            .setConverterStationId2("LCC2")
+            .setR(1)
+            .setNominalV(400)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+            .setMaxP(300.0)
+            .setActivePowerSetpoint(80)
+            .add();
     }
 
     private static void createSubstation1(Network network) {
@@ -148,34 +191,41 @@ public final class FourSubstationsNodeBreakerFactory {
             .setId("S1")
             .add();
         VoltageLevel s1vl1 = s1.newVoltageLevel()
-            .setId("S1VL1")
+            .setId(S1VL1)
             .setNominalV(225.0)
             .setLowVoltageLimit(220.0)
             .setHighVoltageLimit(240.0)
             .setTopologyKind(TopologyKind.NODE_BREAKER)
             .add();
-        BusbarSection busbarSectionS1VL1 = s1vl1.getNodeBreakerView().newBusbarSection()
-            .setId("S1VL1_BBS")
-            .setName("S1VL1_BBS")
+        s1vl1.getNodeBreakerView().newBusbarSection()
+            .setId(S1VL1_BBS)
+            .setName(S1VL1_BBS)
             .setNode(0)
             .add();
         VoltageLevel s1vl2 = s1.newVoltageLevel()
-            .setId("S1VL2")
+            .setId(S1VL2)
             .setNominalV(400.0)
             .setLowVoltageLimit(390.0)
             .setHighVoltageLimit(440.0)
             .setTopologyKind(TopologyKind.NODE_BREAKER)
             .add();
-        BusbarSection busbarSectionS1VL21 = s1vl2.getNodeBreakerView().newBusbarSection()
-            .setId("S1VL2_BBS1")
-            .setName("S1VL2_BBS1")
+        s1vl2.getNodeBreakerView().newBusbarSection()
+            .setId(S1VL2_BBS1)
+            .setName(S1VL2_BBS1)
             .setNode(0)
             .add();
-        BusbarSection busbarSectionS1VL22 = s1vl2.getNodeBreakerView().newBusbarSection()
-            .setId("S1VL2_BBS2")
-            .setName("S1VL2_BBS2")
+        s1vl2.getNodeBreakerView().newBusbarSection()
+            .setId(S1VL2_BBS2)
+            .setName(S1VL2_BBS2)
             .setNode(1)
             .add();
+    }
+
+    private static void createElementsInSubstation1(Network network) {
+        // Substation and voltage levels
+        Substation s1 = network.getSubstation("S1");
+        VoltageLevel s1vl1 = network.getVoltageLevel(S1VL1);
+        VoltageLevel s1vl2 = network.getVoltageLevel(S1VL2);
 
         // Connect a load on the first voltage level of substation 1
         createSwitch(s1vl1, "S1VL1_BBS_LD1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
@@ -190,35 +240,9 @@ public final class FourSubstationsNodeBreakerFactory {
         load1.getTerminal().setP(80.0).setQ(10.0);
 
         createTwoWindingsTransformerInSubstation1(s1, s1vl1, s1vl2);
+        createVscInSubstation1(s1vl2);
         createGeneratorsInSubstation1(s1vl2);
         createLoadsInSubstation1(s1vl2);
-
-        // Connect a VSC station to BBS2 of the second voltage level of substation 1, with a possibility to connect it to BBS1
-        createSwitch(s1vl2, "S1VL2_BBS1_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 0, 4);
-        createSwitch(s1vl2, "S1VL2_BBS2_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 1, 4);
-        createSwitch(s1vl2, "S1VL2_VSC1_BREAKER", SwitchKind.BREAKER, false, 4, 5);
-        VscConverterStation vsc1 = s1vl2.newVscConverterStation()
-            .setId("VSC1")
-            .setName("VSC1")
-            .setNode(5)
-            .setLossFactor(1.1f)
-            .setReactivePowerSetpoint(500)
-            .setVoltageSetpoint(400)
-            .setVoltageRegulatorOn(true)
-            .add();
-        vsc1.newReactiveCapabilityCurve()
-            .beginPoint()
-            .setP(-100.0)
-            .setMinQ(-550.0)
-            .setMaxQ(570.0)
-            .endPoint()
-            .beginPoint()
-            .setP(100.0)
-            .setMinQ(-550.0)
-            .setMaxQ(570.0)
-            .endPoint()
-            .add();
-        vsc1.getTerminal().setP(10.1100).setQ(-512.0814);
 
         // Connect a shunt on the BBS1, with a possibility to connect it to BBS2
         createSwitch(s1vl2, "S1VL2_BBS1_SHUNT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 18);
@@ -250,16 +274,6 @@ public final class FourSubstationsNodeBreakerFactory {
         createSwitch(s1vl2, "S1VL2_BBS1_COUPLER_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 22);
         createSwitch(s1vl2, "S1VL2_BBS2_COUPLER_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 1, 23);
         createSwitch(s1vl2, "S1VL2_COUPLER", SwitchKind.BREAKER, false, 22, 23);
-
-        busbarSectionS1VL1.getTerminal().getBusView().getBus()
-            .setV(224.6139)
-            .setAngle(2.2822);
-        busbarSectionS1VL21.getTerminal().getBusView().getBus()
-            .setV(400.0)
-            .setAngle(0.0);
-        busbarSectionS1VL22.getTerminal().getBusView().getBus()
-            .setV(400.0)
-            .setAngle(0.0);
     }
 
     private static void createLoadsInSubstation1(VoltageLevel s1vl2) {
@@ -300,6 +314,35 @@ public final class FourSubstationsNodeBreakerFactory {
             .setNode(17)
             .add();
         load4.getTerminal().setP(40.0).setQ(5.0);
+    }
+
+    private static void createVscInSubstation1(VoltageLevel s1vl2) {
+        // Connect a VSC station to BBS2 of the second voltage level of substation 1, with a possibility to connect it to BBS1
+        createSwitch(s1vl2, "S1VL2_BBS1_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 0, 4);
+        createSwitch(s1vl2, "S1VL2_BBS2_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 1, 4);
+        createSwitch(s1vl2, "S1VL2_VSC1_BREAKER", SwitchKind.BREAKER, false, 4, 5);
+        VscConverterStation vsc1 = s1vl2.newVscConverterStation()
+            .setId("VSC1")
+            .setName("VSC1")
+            .setNode(5)
+            .setLossFactor(1.1f)
+            .setReactivePowerSetpoint(500)
+            .setVoltageSetpoint(400)
+            .setVoltageRegulatorOn(true)
+            .add();
+        vsc1.newReactiveCapabilityCurve()
+            .beginPoint()
+            .setP(-100.0)
+            .setMinQ(-550.0)
+            .setMaxQ(570.0)
+            .endPoint()
+            .beginPoint()
+            .setP(100.0)
+            .setMinQ(-550.0)
+            .setMaxQ(570.0)
+            .endPoint()
+            .add();
+        vsc1.getTerminal().setP(10.1100).setQ(-512.0814);
     }
 
     private static void createGeneratorsInSubstation1(VoltageLevel s1vl2) {
@@ -409,9 +452,9 @@ public final class FourSubstationsNodeBreakerFactory {
             .setRatedU1(225.0)
             .setRatedU2(400.0)
             .setNode1(4)
-            .setVoltageLevel1("S1VL1")
+            .setVoltageLevel1(S1VL1)
             .setNode2(3)
-            .setVoltageLevel2("S1VL2")
+            .setVoltageLevel2(S1VL2)
             .add();
         twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
             .setPermanentLimit(1031.0)
@@ -488,11 +531,16 @@ public final class FourSubstationsNodeBreakerFactory {
             .setHighVoltageLimit(440.0)
             .setTopologyKind(TopologyKind.NODE_BREAKER)
             .add();
-        BusbarSection busbarSectionS2VL1 = s2vl1.getNodeBreakerView().newBusbarSection()
-            .setId("S2VL1_BBS")
-            .setName("S2VL1_BBS")
+        s2vl1.getNodeBreakerView().newBusbarSection()
+            .setId(S2VL1_BBS)
+            .setName(S2VL1_BBS)
             .setNode(0)
             .add();
+    }
+
+    private static void createElementsInSubstation2(Network network) {
+        // Voltage level
+        VoltageLevel s2vl1 = network.getVoltageLevel(S2VL1);
 
         // Connect a thermal generator on the second substation
         createSwitch(s2vl1, "S2VL1_BBS_GTH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
@@ -539,10 +587,6 @@ public final class FourSubstationsNodeBreakerFactory {
             .setMaxQ(500.0)
             .add();
         vsc2.getTerminal().setP(-9.8900).setQ(-120.0);
-
-        busbarSectionS2VL1.getTerminal().getBusView().getBus()
-            .setV(408.8470)
-            .setAngle(0.7347);
     }
 
     private static void createSubstation3(Network network) {
@@ -557,11 +601,16 @@ public final class FourSubstationsNodeBreakerFactory {
             .setHighVoltageLimit(440.0)
             .setTopologyKind(TopologyKind.NODE_BREAKER)
             .add();
-        BusbarSection busbarSectionS3VL1 = s3vl1.getNodeBreakerView().newBusbarSection()
-            .setId("S3VL1_BBS")
-            .setName("S3VL1_BBS")
+        s3vl1.getNodeBreakerView().newBusbarSection()
+            .setId(S3VL1_BBS)
+            .setName(S3VL1_BBS)
             .setNode(0)
             .add();
+    }
+
+    private static void createElementsInSubstation3(Network network) {
+        // Voltage level
+        VoltageLevel s3vl1 = network.getVoltageLevel("S3VL1");
 
         // Connect a load onto the third substation
         createSwitch(s3vl1, "S3VL1_BBS_LD5_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
@@ -602,22 +651,6 @@ public final class FourSubstationsNodeBreakerFactory {
             .endPoint()
             .add();
         generatorThermal2.getTerminal().setP(-250.9944).setQ(71.8487);
-
-        // Connect an LCC station to the third substation
-        createSwitch(s3vl1, "S3VL1_BBS_LCC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 9);
-        createSwitch(s3vl1, "S3VL1_LCC2_BREAKER", SwitchKind.BREAKER, false, 9, 10);
-        LccConverterStation lcc2 = s3vl1.newLccConverterStation()
-            .setId("LCC2")
-            .setName("LCC2")
-            .setNode(10)
-            .setLossFactor(1.1f)
-            .setPowerFactor(0.6f)
-            .add();
-        lcc2.getTerminal().setP(-79.1200);
-
-        busbarSectionS3VL1.getTerminal().getBusView().getBus()
-            .setV(400.0)
-            .setAngle(0.0);
     }
 
     private static void createSubstation4(Network network) {
@@ -632,11 +665,16 @@ public final class FourSubstationsNodeBreakerFactory {
             .setHighVoltageLimit(440.0)
             .setTopologyKind(TopologyKind.NODE_BREAKER)
             .add();
-        BusbarSection busbarSectionS4VL1 = s4vl1.getNodeBreakerView().newBusbarSection()
-            .setId("S4VL1_BBS")
-            .setName("S4VL1_BBS")
+        s4vl1.getNodeBreakerView().newBusbarSection()
+            .setId(S4VL1_BBS)
+            .setName(S4VL1_BBS)
             .setNode(0)
             .add();
+    }
+
+    private static void createElementsInSubstation4(Network network) {
+        // Voltage level
+        VoltageLevel s4vl1 = network.getVoltageLevel(S4VL1);
 
         // Connect a load to the fourth substation
         createSwitch(s4vl1, "S4VL1_BBS_LD6_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
@@ -663,8 +701,26 @@ public final class FourSubstationsNodeBreakerFactory {
             .setVoltageSetpoint(400)
             .add();
         svc.getTerminal().setQ(-12.5415);
+    }
 
-        busbarSectionS4VL1.getTerminal().getBusView().getBus()
+    private static void setAngleAndV(Network network) {
+
+        network.getBusbarSection(S1VL1_BBS).getTerminal().getBusView().getBus()
+            .setV(224.6139)
+            .setAngle(2.2822);
+        network.getBusbarSection(S1VL2_BBS1).getTerminal().getBusView().getBus()
+            .setV(400.0)
+            .setAngle(0.0);
+        network.getBusbarSection(S1VL2_BBS2).getTerminal().getBusView().getBus()
+            .setV(400.0)
+            .setAngle(0.0);
+        network.getBusbarSection(S2VL1_BBS).getTerminal().getBusView().getBus()
+            .setV(408.8470)
+            .setAngle(0.7347);
+        network.getBusbarSection(S3VL1_BBS).getTerminal().getBusView().getBus()
+            .setV(400.0)
+            .setAngle(0.0);
+        network.getBusbarSection(S4VL1_BBS).getTerminal().getBusView().getBus()
             .setV(400.0)
             .setAngle(-1.1259);
     }

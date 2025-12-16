@@ -131,7 +131,22 @@ public final class FictitiousSwitchFactory {
                 .endTemporaryLimit()
                 .add();
 
+        setAngleAndV(network);
+
         return network;
+    }
+
+    private static void setAngleAndV(Network network) {
+
+        network.getBusbarSection("D").getTerminal().getBusView().getBus()
+            .setV(234.40912)
+            .setAngle(0.0);
+        network.getBusbarSection("O").getTerminal().getBusView().getBus()
+            .setV(236.44736)
+            .setAngle(15250391);
+        network.getBusbarSection("P").getTerminal().getBusView().getBus()
+            .setV(236.44736)
+            .setAngle(15.250391);
     }
 
     private static void createVoltageLevelC(Substation s) {
@@ -141,7 +156,7 @@ public final class FictitiousSwitchFactory {
             .setLowVoltageLimit(0.0)
             .setTopologyKind(TopologyKind.NODE_BREAKER)
             .add();
-        BusbarSection busbarSectionD = vlC.getNodeBreakerView().newBusbarSection()
+        vlC.getNodeBreakerView().newBusbarSection()
             .setId("D")
             .setName("E")
             .setNode(0)
@@ -150,10 +165,6 @@ public final class FictitiousSwitchFactory {
         createSwitch(vlC, "H", "I", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
         createSwitch(vlC, "J", "K", SwitchKind.BREAKER, true, false, true, 1, 2);
         createSwitch(vlC, "L", "M", SwitchKind.BREAKER, true, false, true, 3, 4);
-
-        busbarSectionD.getTerminal().getBusView().getBus()
-            .setV(234.40912)
-            .setAngle(0.0);
     }
 
     private static void createVoltageLevelN(Substation s) {
@@ -164,12 +175,12 @@ public final class FictitiousSwitchFactory {
             .setHighVoltageLimit(245.00002)
             .setTopologyKind(TopologyKind.NODE_BREAKER)
             .add();
-        BusbarSection busbarSectionO = vlN.getNodeBreakerView().newBusbarSection()
+        vlN.getNodeBreakerView().newBusbarSection()
             .setId("O")
             .setName("E")
             .setNode(0)
             .add();
-        BusbarSection busbarSectionP = vlN.getNodeBreakerView().newBusbarSection()
+        vlN.getNodeBreakerView().newBusbarSection()
             .setId("P")
             .setName("Q")
             .setNode(1)
@@ -324,13 +335,6 @@ public final class FictitiousSwitchFactory {
         loadCH.getTerminal()
             .setP(-5.102249)
             .setQ(4.9081216);
-
-        busbarSectionO.getTerminal().getBusView().getBus()
-            .setV(236.44736)
-            .setAngle(15250391);
-        busbarSectionP.getTerminal().getBusView().getBus()
-            .setV(236.44736)
-            .setAngle(15.250391);
     }
 
     private static void createSwitch(VoltageLevel vl, String id, String name, SwitchKind kind, boolean retained, boolean open, boolean fictitious, int node1, int node2) {
