@@ -803,7 +803,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
     }
 
     @Test
-    void exportIidmWithoutPropertiesToCgmesTest() throws IOException, XMLStreamException {
+    void exportIidmWithoutPropertiesToCgmesTest() throws IOException {
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
         ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
