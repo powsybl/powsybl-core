@@ -24,7 +24,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -66,16 +66,9 @@ class LimitViolationFilterTest {
         assertEquals(LimitViolationType.values().length, filter.getViolationTypes().size());
         filter.setCountries(null);
         assertEquals(Country.values().length, filter.getCountries().size());
-        try {
-            filter.setViolationTypes(EnumSet.noneOf(LimitViolationType.class));
-            fail();
-        } catch (Exception ignored) {
-        }
-        try {
-            filter.setMinBaseVoltage(-3.0);
-            fail();
-        } catch (Exception ignored) {
-        }
+        EnumSet<LimitViolationType> set = EnumSet.noneOf(LimitViolationType.class);
+        assertThrows(IllegalArgumentException.class, () -> filter.setViolationTypes(set));
+        assertThrows(IllegalArgumentException.class, () -> filter.setMinBaseVoltage(-3.0));
     }
 
     @Test

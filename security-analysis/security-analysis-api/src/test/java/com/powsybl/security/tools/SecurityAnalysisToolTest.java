@@ -26,10 +26,10 @@ import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.results.PreContingencyResult;
-import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
+import com.powsybl.tools.test.AbstractToolTest;
 import org.apache.commons.cli.CommandLine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -182,7 +182,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
             CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
             Network network = SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
             assertNotNull(network);
-        } catch (Exception e) {
+        } catch (PowsyblException | IOException e) {
             fail(e);
         }
     }

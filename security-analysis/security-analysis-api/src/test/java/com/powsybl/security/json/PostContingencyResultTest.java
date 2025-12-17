@@ -8,8 +8,8 @@
 package com.powsybl.security.json;
 
 import com.powsybl.action.json.ActionJsonModule;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.*;
 import com.powsybl.security.results.*;
@@ -41,8 +41,9 @@ class PostContingencyResultTest extends AbstractSerDeTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults,
-                new ConnectivityResult(1, 2, 5.0, 10.0, Set.of("Id1", "Id2")));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency,
+            PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults,
+            new ConnectivityResult(1, 2, 5.0, 10.0, Set.of("Id1", "Id2")));
         assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getBranchResult("branchId"));
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
@@ -71,8 +72,9 @@ class PostContingencyResultTest extends AbstractSerDeTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults,
-                new ConnectivityResult(1, 1, 5.0, 10.0, Collections.emptySet()));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency,
+            PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults,
+            new ConnectivityResult(1, 1, 5.0, 10.0, Collections.emptySet()));
         roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
 

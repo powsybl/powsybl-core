@@ -26,16 +26,21 @@ public class PostContingencyResult extends AbstractContingencyResult {
 
     private final ConnectivityResult connectivityResult;
 
-    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult) {
+    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status,
+                                 LimitViolationsResult limitViolationsResult) {
         this(contingency, status, limitViolationsResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()));
     }
 
-    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, List<BranchResult> branchResults,
-                                 List<BusResult> busResults, List<ThreeWindingsTransformerResult> threeWindingsTransformerResults, ConnectivityResult connectivityResult) {
+    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status,
+                                 LimitViolationsResult limitViolationsResult, List<BranchResult> branchResults,
+                                 List<BusResult> busResults, List<ThreeWindingsTransformerResult> threeWindingsTransformerResults,
+                                 ConnectivityResult connectivityResult) {
         this(contingency, status, limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), connectivityResult);
     }
 
-    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, ConnectivityResult connectivityResult) {
+    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status,
+                                 LimitViolationsResult limitViolationsResult, NetworkResult networkResult,
+                                 ConnectivityResult connectivityResult) {
         super(limitViolationsResult, networkResult);
         this.contingency = Objects.requireNonNull(contingency);
         this.status = Objects.requireNonNull(status);

@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
-import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
+import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.io.IOException;
 import java.util.List;

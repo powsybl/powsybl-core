@@ -280,7 +280,7 @@ public final class LimitViolationDetection {
                         .map(Identifiable::getId)
                         .sorted().toList();
                 return new BusBreakerViolationLocation(configuredBusIds);
-            } catch (Exception e) {
+            } catch (PowsyblException e) { // TODO: Check this change
                 LOGGER.error("Error generating ViolationLocation", e);
                 return null;
             }

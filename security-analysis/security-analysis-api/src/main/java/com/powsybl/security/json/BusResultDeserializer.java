@@ -49,33 +49,35 @@ public class BusResultDeserializer extends StdDeserializer<BusResult> {
     @Override
     public BusResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        JsonUtil.parseObject(jsonParser, name -> {
-            switch (name) {
-                case "voltageLevelId":
-                    context.voltageLevelId = jsonParser.nextTextValue();
-                    return true;
-                case "busId":
-                    context.busId = jsonParser.nextTextValue();
-                    return true;
-                case "v":
-                    jsonParser.nextToken();
-                    context.v = jsonParser.getValueAsDouble();
-                    return true;
-                case "angle":
-                    jsonParser.nextToken();
-                    context.angle = jsonParser.getValueAsDouble();
-                    return true;
-                case "extensions":
-                    jsonParser.nextToken();
-                    context.extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, SUPPLIER.get());
-                    break;
-                default:
-                    return false;
-            }
-            return false;
-        });
+        JsonUtil.parseObject(jsonParser, name -> parseBusResult(jsonParser, deserializationContext, context, name));
         BusResult busResult = new BusResult(context.voltageLevelId, context.busId, context.v, context.angle);
         SUPPLIER.get().addExtensions(busResult, context.extensions);
         return busResult;
+    }
+
+    private boolean parseBusResult(JsonParser jsonParser, DeserializationContext deserializationContext, ParsingContext context, String name) throws IOException {
+        switch (name) {
+            case "voltageLevelId":
+                context.voltageLevelId = jsonParser.nextTextValue();
+                return true;
+            case "busId":
+                context.busId = jsonParser.nextTextValue();
+                return true;
+            case "v":
+                jsonParser.nextToken();
+                context.v = jsonParser.getValueAsDouble();
+                return true;
+            case "angle":
+                jsonParser.nextToken();
+                context.angle = jsonParser.getValueAsDouble();
+                return true;
+            case "extensions":
+                jsonParser.nextToken();
+                context.extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, SUPPLIER.get());
+                break;
+            default:
+                return false;
+        }
+        return false;
     }
 }
