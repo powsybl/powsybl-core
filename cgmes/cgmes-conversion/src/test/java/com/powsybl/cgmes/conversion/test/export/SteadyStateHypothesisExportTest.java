@@ -43,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
@@ -800,5 +801,27 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 Files.copy(is, outputFolder.resolve(baseName + "_EQ_BD.xml"));
             }
         }
+    }
+
+    @Test
+    void exportIidmWithoutPropertiesToCgmesTest() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
+
+        assertEquals(2, network.getAreaStream().count());
+        network.write("CGMES", null, Paths.get(String.format("/work/tmp/%s", "controlAreas")));
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridCgmesExportPreservingOriginalClassesOfLoads";
+        Properties exportParams = new Properties();
+        new CgmesExport().export(network, exportParams, new DirectoryDataSource(outputPath, baseName));
+
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        assertEquals(2, actual.getAreaStream().count());
     }
 }
