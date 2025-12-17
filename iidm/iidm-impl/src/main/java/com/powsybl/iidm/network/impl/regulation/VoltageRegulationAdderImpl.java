@@ -5,26 +5,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.regulation;
+package com.powsybl.iidm.network.impl.regulation;
 
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.impl.NetworkImpl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public class VoltageRegulationAdderImpl<T extends VoltageRegulationAdder<T>> implements VoltageRegulationBuilder<T> {
 
-    private final VoltageRegulation voltageRegulation;
+    private final VoltageRegulationImpl.Builder voltageRegulationBuilder;
     private final T parent;
+    private final NetworkImpl network;
 
-    public VoltageRegulationAdderImpl(T parent) {
+    public VoltageRegulationAdderImpl(T parent, NetworkImpl network) {
         this.parent = parent;
-        this.voltageRegulation = new VoltageRegulation();
+        this.network = network;
+        this.voltageRegulationBuilder = VoltageRegulationImpl.builder();
     }
 
     @Override
     public VoltageRegulationBuilder<T> setTargetValue(Double targetValue) {
-        voltageRegulation.setTargetValue(targetValue);
+        voltageRegulationBuilder.setTargetValue(targetValue);
         return this;
     }
 
@@ -35,30 +41,34 @@ public class VoltageRegulationAdderImpl<T extends VoltageRegulationAdder<T>> imp
 
     @Override
     public VoltageRegulationBuilder<T> setSlope(Double slope) {
-        voltageRegulation.setSlope(slope);
+        voltageRegulationBuilder.setSlope(slope);
         return this;
     }
 
     @Override
     public VoltageRegulationBuilder<T> setTerminal(Terminal terminal) {
-        voltageRegulation.setTerminal(terminal);
+        voltageRegulationBuilder.setTerminal(terminal);
         return this;
     }
 
     @Override
     public VoltageRegulationBuilder<T> setMode(RegulationMode mode) {
-        voltageRegulation.setMode(mode);
+        voltageRegulationBuilder.setMode(mode);
         return this;
     }
 
     @Override
     public VoltageRegulationBuilder<T> setRegulating(boolean regulating) {
-        voltageRegulation.setRegulating(regulating);
+        voltageRegulationBuilder.setRegulating(regulating);
         return this;
     }
 
     @Override
     public T addVoltageRegulation() {
+        // TODO MSA Add check
+        VoltageRegulationImpl voltageRegulation = voltageRegulationBuilder
+            .setVariantArraySize(this.network.getVariantManager().getVariantArraySize())
+            .build();
         parent.setVoltageRegulation(voltageRegulation);
         return parent;
     }
