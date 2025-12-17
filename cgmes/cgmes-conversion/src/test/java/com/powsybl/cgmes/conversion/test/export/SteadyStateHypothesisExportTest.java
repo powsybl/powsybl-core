@@ -43,7 +43,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
@@ -809,9 +808,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
         ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
-
         assertEquals(2, network.getAreaStream().count());
-        network.write("CGMES", null, Paths.get(String.format("/work/tmp/%s", "controlAreas")));
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
