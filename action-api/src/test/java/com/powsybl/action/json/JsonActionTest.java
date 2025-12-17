@@ -94,6 +94,7 @@ public class JsonActionTest extends AbstractSerDeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"/ActionFileTestV1.0.json", "/ActionFileTestV1.1.json"})
+    @SuppressWarnings("checkstyle:IllegalCatch")
     void actionsReadOldVersion(String path) {
         ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream(path));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -107,13 +108,14 @@ public class JsonActionTest extends AbstractSerDeTest {
 
     @Test
     void wrongActions() throws IOException {
-        try (final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json")) {
+        try (InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json")) {
+            UncheckedIOException exception = assertThrows(UncheckedIOException.class, () -> ActionList.readJsonInputStream(inputStream));
             assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action relative value field can't be null\n" +
-                " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
-                ActionList.readJsonInputStream(inputStream)).getMessage());
+                " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])",
+                exception.getMessage());
         }
 
-        try (final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json")) {
+        try (InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json")) {
             assertTrue(assertThrows(UncheckedIOException.class, () -> ActionList
                 .readJsonInputStream(inputStream3))
                 .getMessage()

@@ -106,5 +106,3 @@ public class TwoWindingsTransformerCriterionTest {
         return new DefaultNetworkElementAdapter(twt);
     }
 }
-
-

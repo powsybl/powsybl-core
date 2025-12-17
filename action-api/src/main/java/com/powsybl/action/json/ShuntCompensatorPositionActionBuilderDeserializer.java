@@ -11,9 +11,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.action.ShuntCompensatorPositionActionBuilder;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
@@ -29,26 +29,24 @@ public class ShuntCompensatorPositionActionBuilderDeserializer extends StdDeseri
     @Override
     public ShuntCompensatorPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ShuntCompensatorPositionActionBuilder builder = new ShuntCompensatorPositionActionBuilder();
-        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            switch (name) {
-                case "type":
-                    if (!ShuntCompensatorPositionAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + ShuntCompensatorPositionAction.NAME);
-                    }
-                    return true;
-                case "id":
-                    builder.withId(jsonParser.nextTextValue());
-                    return true;
-                case "shuntCompensatorId":
-                    builder.withShuntCompensatorId(jsonParser.nextTextValue());
-                    return true;
-                case "sectionCount":
-                    jsonParser.nextToken();
-                    builder.withSectionCount(jsonParser.getValueAsInt());
-                    return true;
-                default:
-                    return false;
-            }
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> switch (name) {
+            case "type":
+                if (!ShuntCompensatorPositionAction.NAME.equals(jsonParser.nextTextValue())) {
+                    throw JsonMappingException.from(jsonParser, "Expected type " + ShuntCompensatorPositionAction.NAME);
+                }
+                yield true;
+            case "id":
+                builder.withId(jsonParser.nextTextValue());
+                yield true;
+            case "shuntCompensatorId":
+                builder.withShuntCompensatorId(jsonParser.nextTextValue());
+                yield true;
+            case "sectionCount":
+                jsonParser.nextToken();
+                builder.withSectionCount(jsonParser.getValueAsInt());
+                yield true;
+            default:
+                yield false;
         });
         return builder;
     }

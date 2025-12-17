@@ -47,12 +47,12 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
                         return lineCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
                     }
                     case "twoWindingsTransformerCriterion" -> {
-                        TwoWindingsTransformerCriterionContingencyListDeserializer twoWindingsTransformerCriterionContingencyListDeserializer = new TwoWindingsTransformerCriterionContingencyListDeserializer();
-                        return twoWindingsTransformerCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                        TwoWindingsTransformerCriterionContingencyListDeserializer twtCriterionContingencyListDeserializer = new TwoWindingsTransformerCriterionContingencyListDeserializer();
+                        return twtCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
                     }
                     case "threeWindingsTransformerCriterion" -> {
-                        ThreeWindingsTransformerCriterionContingencyListDeserializer threeWindingsTransformerCriterionContingencyListDeserializer = new ThreeWindingsTransformerCriterionContingencyListDeserializer();
-                        return threeWindingsTransformerCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                        ThreeWindingsTransformerCriterionContingencyListDeserializer t3tCriterionContingencyListDeserializer = new ThreeWindingsTransformerCriterionContingencyListDeserializer();
+                        return t3tCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
                     }
                     case "tieLineCriterion" -> {
                         TieLineCriterionContingencyListDeserializer tieLineCriterionContingencyListDeserializer = new TieLineCriterionContingencyListDeserializer();

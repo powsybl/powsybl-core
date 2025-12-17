@@ -69,6 +69,7 @@ public class RunScriptTool implements Tool {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void run(CommandLine line, ToolRunningContext context) {
         Path file = context.getFileSystem().getPath(line.getOptionValue(FILE));
         if (file.getFileName().toString().endsWith(".groovy")) {
