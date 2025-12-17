@@ -9,8 +9,8 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.AbstractModificationTest;
@@ -128,6 +128,12 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setOpen(false)
             .add();
 
+        addLineAndTransformer(network, s1, vl1);
+
+        return network;
+    }
+
+    private void addLineAndTransformer(Network network, Substation s1, VoltageLevel vl1) {
         // Line and transformer
         network.newLine()
             .setId("L1")
@@ -301,7 +307,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setNode2(12)
             .setOpen(true)
             .add();
-        return network;
+
     }
 
     @Test

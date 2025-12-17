@@ -149,12 +149,20 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
         TwoSides tpLine2OtherVlSide = tpLine2.getTerminal1().getVoltageLevel() == teePoint ? TwoSides.TWO : TwoSides.ONE;
 
         // Set parameters of the new lines newLine1 and newLine2
-        LineAdder newLine1Adder = createLineAdder(newLine1Id, newLine1Name, tpLine1.getTerminal(tpLine1OtherVlSide).getVoltageLevel().getId(), tappedVoltageLevel.getId(), network, tpLine1, tpLineToRemove);
-        LineAdder newLine2Adder = createLineAdder(newLine2Id, newLine2Name, tappedVoltageLevel.getId(), tpLine2.getTerminal(tpLine2OtherVlSide).getVoltageLevel().getId(), network, tpLine2, tpLineToRemove);
+        LineAdder newLine1Adder = createLineAdder(newLine1Id, newLine1Name, tpLine1.getTerminal(tpLine1OtherVlSide).getVoltageLevel().getId(),
+            tappedVoltageLevel.getId(), network, tpLine1, tpLineToRemove);
+        LineAdder newLine2Adder = createLineAdder(newLine2Id, newLine2Name, tappedVoltageLevel.getId(),
+            tpLine2.getTerminal(tpLine2OtherVlSide).getVoltageLevel().getId(), network, tpLine2, tpLineToRemove);
 
         // Create the topology inside the existing tapped voltage level and attach lines newLine1 and newLine2
-        attachLine(tpLine1.getTerminal(tpLine1OtherVlSide), newLine1Adder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
-        attachLine(tpLine2.getTerminal(tpLine2OtherVlSide), newLine2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+        attachLine(tpLine1.getTerminal(tpLine1OtherVlSide), newLine1Adder,
+            (bus, adder) -> adder.setConnectableBus1(bus.getId()),
+            (bus, adder) -> adder.setBus1(bus.getId()),
+            (node, adder) -> adder.setNode1(node));
+        attachLine(tpLine2.getTerminal(tpLine2OtherVlSide), newLine2Adder,
+            (bus, adder) -> adder.setConnectableBus2(bus.getId()),
+            (bus, adder) -> adder.setBus2(bus.getId()),
+            (node, adder) -> adder.setNode2(node));
 
         // Create the breaker topology
         if (!createTopology(newLine1Adder, newLine2Adder, tappedVoltageLevel, namingStrategy, reportNode, throwException)) {

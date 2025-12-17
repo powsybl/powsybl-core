@@ -10,8 +10,8 @@ package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -64,8 +64,6 @@ class ProportionalScalableTest {
         unknownLoad = Scalable.onLoad("unknown");
         unknownDanglingLine = Scalable.onDanglingLine("unknown");
         dl1 = Scalable.onDanglingLine("dl1", 20, 80);
-
-//        reset();
     }
 
     private void reset() {

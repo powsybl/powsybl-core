@@ -354,14 +354,16 @@ public final class TopologyModificationUtils {
     /**
      * Creates a breaker and a disconnector between the connectable and the specified busbar
      */
-    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, BusbarSection bbs) {
+    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode,
+                                                  NamingStrategy namingStrategy, String baseId, BusbarSection bbs) {
         createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, List.of(bbs), bbs);
     }
 
     /**
      * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
      */
-    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
+    static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode,
+                                                  NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
         // Closed breaker
         createNBBreaker(connectableNode, forkNode, namingStrategy.getBreakerId(baseId), namingStrategy.getBreakerName(baseId), voltageLevel.getNodeBreakerView(), false);
 
@@ -372,14 +374,16 @@ public final class TopologyModificationUtils {
     /**
      * Creates disconnectors between the fork node and every busbar section of the list in a voltage level. Each disconnector will be closed if it is connected to the given bar, else opened
      */
-    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
+    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode,
+                                           NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
         createDisconnectorTopology(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs, 0);
     }
 
     /**
      * Creates disconnectors between the fork node and every busbar section of the list in a voltage level. Each disconnector will be closed if it is connected to the given bar, else opened
      */
-    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs, int side) {
+    static void createDisconnectorTopology(VoltageLevel voltageLevel, int forkNode,
+                                           NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs, int side) {
         // Disconnectors - only the one on the chosen busbarsection is closed
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
@@ -706,7 +710,9 @@ public final class TopologyModificationUtils {
     /**
      * Create topology and generate new connectable node and return it.
      */
-    public static int createTopologyAndGetConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+    public static int createTopologyAndGetConnectableNode(int side, String busOrBusbarSectionId, Network network,
+                                                          VoltageLevel voltageLevel, Connectable<?> connectable,
+                                                          NamingStrategy namingStrategy, ReportNode reportNode) {
         int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int connectableNode = forkNode + 1;
         buildTopology(side, busOrBusbarSectionId, network, voltageLevel, forkNode, connectableNode, connectable, namingStrategy, reportNode);
@@ -716,12 +722,16 @@ public final class TopologyModificationUtils {
     /**
      * Create topology by using the provided connectable node (pre-determined connectable node)
      */
-    public static void createTopologyWithConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+    public static void createTopologyWithConnectableNode(int side, String busOrBusbarSectionId, Network network,
+                                                         VoltageLevel voltageLevel, int connectableNode, Connectable<?> connectable,
+                                                         NamingStrategy namingStrategy, ReportNode reportNode) {
         int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         buildTopology(side, busOrBusbarSectionId, network, voltageLevel, forkNode, connectableNode, connectable, namingStrategy, reportNode);
     }
 
-    private static void buildTopology(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int forkNode, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+    private static void buildTopology(int side, String busOrBusbarSectionId, Network network,
+                                      VoltageLevel voltageLevel, int forkNode, int connectableNode, Connectable<?> connectable,
+                                      NamingStrategy namingStrategy, ReportNode reportNode) {
         // Information gathering
         String baseId = namingStrategy.getSwitchBaseId(connectable, side);
         BusbarSection bbs = network.getBusbarSection(busOrBusbarSectionId);
