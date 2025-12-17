@@ -182,8 +182,10 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Get the terminal used for regulation.
      * @return the terminal used for regulation
      */
+    @Deprecated(forRemoval = true)
     Terminal getRegulatingTerminal();
 
+    @Deprecated(forRemoval = true)
     Generator setRegulatingTerminal(Terminal regulatingTerminal);
 
     /**
@@ -192,6 +194,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working variant.
      * @see VariantManager
      */
+    @Deprecated(forRemoval = true)
     double getTargetV();
 
     /**
@@ -205,6 +208,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * <p>Depends on the working variant.</p>
      * @see VariantManager
      */
+    @Deprecated(forRemoval = true)
     Generator setTargetV(double targetV);
 
     /**
@@ -230,6 +234,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * @param equivalentLocalTargetV the local target in kV (see {@link Generator#getEquivalentLocalTargetV()}).
      * @see VariantManager
      */
+    @Deprecated(forRemoval = true)
     Generator setTargetV(double targetV, double equivalentLocalTargetV);
 
     /**
