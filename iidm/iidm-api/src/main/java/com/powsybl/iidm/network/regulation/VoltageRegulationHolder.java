@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.regulation;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public interface VoltageRegulationnable {
+public interface VoltageRegulationHolder {
 
     VoltageRegulation getVoltageRegulation();
 
