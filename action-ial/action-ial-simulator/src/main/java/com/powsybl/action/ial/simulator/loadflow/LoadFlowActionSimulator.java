@@ -294,6 +294,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private boolean next(ActionDb actionDb, RunningContext context) {
         observers.forEach(o -> o.roundBegin(context));
 
@@ -390,6 +391,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private LoadFlowResult runTest(RunningContext context, Network networkForTry, Action action) {
         String actionId = action.getId();
         LOGGER.info("Test action '{}'", actionId);

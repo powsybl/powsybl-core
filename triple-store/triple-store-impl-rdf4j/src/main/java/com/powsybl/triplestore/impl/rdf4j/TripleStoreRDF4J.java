@@ -92,8 +92,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             // When we write we want to keep data split by graph
             conn.add(is, baseName, guessFormatFromName(contextName), context);
             addNamespaceForBase(conn, baseName);
-        } catch (IOException x) {
-            throw new TripleStoreException(String.format("Reading %s %s", baseName, contextName), x);
+        } catch (IOException e) {
+            throw new TripleStoreException(String.format("Reading %s %s", baseName, contextName), e);
         }
     }
 
@@ -209,13 +209,13 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                         }
                     }
                 }
-            } catch (MalformedQueryException x) {
+            } catch (MalformedQueryException e) {
                 int line = 1;
                 for (String s : query1.split("\n")) {
                     LOGGER.error(String.format("%3d  %s", line, s));
                     line++;
                 }
-                throw x;
+                throw e;
             }
         }
         return results;
@@ -305,30 +305,33 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     private static void createStatements(RepositoryConnection cnx, String objNs, String objType,
         PropertyBag statement, Resource context, IRI resource) {
         List<String> names = statement.propertyNames();
-        names.forEach(name -> {
-            String property = statement.isClassProperty(name) ? name : objType + "." + name;
-            String value = statement.get(name);
-            IRI predicate = cnx.getValueFactory().createIRI(objNs + property);
-            if (statement.isResource(name)) {
-                IRI object;
-                if (statement.isMultivaluedProperty(name)) {
-                    addMultivaluedProperty(cnx, value, resource, predicate, context);
-                } else {
-                    if (URIUtil.isValidURIReference(value)) { // the value already contains the namespace
-                        object = cnx.getValueFactory().createIRI(value);
-                    } else { // the value is an id, add the base namespace
-                        String namespace = cnx.getNamespace(statement.namespacePrefix(name));
-                        object = cnx.getValueFactory().createIRI(namespace, value);
-                    }
-                    Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
-                    cnx.add(st, context);
-                }
+        names.forEach(name -> createStatement(cnx, objNs, objType, statement, context, resource, name));
+    }
+
+    private static void createStatement(RepositoryConnection cnx, String objNs, String objType,
+                                        PropertyBag statement, Resource context, IRI resource, String name) {
+        String property = statement.isClassProperty(name) ? name : objType + "." + name;
+        String value = statement.get(name);
+        IRI predicate = cnx.getValueFactory().createIRI(objNs + property);
+        if (statement.isResource(name)) {
+            IRI object;
+            if (statement.isMultivaluedProperty(name)) {
+                addMultivaluedProperty(cnx, value, resource, predicate, context);
             } else {
-                Literal object = cnx.getValueFactory().createLiteral(value);
+                if (URIUtil.isValidURIReference(value)) { // the value already contains the namespace
+                    object = cnx.getValueFactory().createIRI(value);
+                } else { // the value is an id, add the base namespace
+                    String namespace = cnx.getNamespace(statement.namespacePrefix(name));
+                    object = cnx.getValueFactory().createIRI(namespace, value);
+                }
                 Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
                 cnx.add(st, context);
             }
-        });
+        } else {
+            Literal object = cnx.getValueFactory().createLiteral(value);
+            Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
+            cnx.add(st, context);
+        }
     }
 
     private static void addMultivaluedProperty(RepositoryConnection cnx, String value, IRI resource, IRI predicate, Resource context) {
