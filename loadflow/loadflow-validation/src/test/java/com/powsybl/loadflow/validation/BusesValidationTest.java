@@ -7,21 +7,20 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.stream.Stream;
-
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Terminal.BusView;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
-import com.powsybl.loadflow.validation.io.ValidationWriter;
+import java.io.IOException;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *

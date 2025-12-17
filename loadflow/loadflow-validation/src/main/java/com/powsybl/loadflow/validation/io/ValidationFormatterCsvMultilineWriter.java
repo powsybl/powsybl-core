@@ -7,23 +7,22 @@
  */
 package com.powsybl.loadflow.validation.io;
 
+import com.powsybl.commons.io.table.Column;
+import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.commons.io.table.TableFormatterFactory;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.loadflow.validation.ValidationType;
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
-
-import com.powsybl.iidm.network.ThreeSides;
-import org.apache.commons.lang3.ArrayUtils;
-
-import com.powsybl.commons.io.table.Column;
-import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.util.TwtData;
-import com.powsybl.loadflow.validation.ValidationType;
 
 /**
  *
@@ -215,7 +214,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(twtId, "lowTapPosition", found, twtData.lowTapPosition, writeValues, lowTapPosition);
             write(twtId, "highTapPosition", found, twtData.highTapPosition, writeValues, highTapPosition);
             write(twtId, "tapChangerTargetV", found, twtData.targetV, writeValues, targetV);
-            write(twtId, "regulatedSide", found, twtData.regulatedSide != null ? twtData.regulatedSide.name() : invalidString, writeValues, regulatedSide != null ? regulatedSide.name() : invalidString);
+            write(twtId, "regulatedSide", found, twtData.regulatedSide != null ? twtData.regulatedSide.name() : invalidString,
+                writeValues, regulatedSide != null ? regulatedSide.name() : invalidString);
             write(twtId, "v", found, twtData.v, writeValues, v);
             write(twtId, CONNECTED, found, twtData.connected, writeValues, connected);
             write(twtId, MAIN_COMPONENT, found, twtData.mainComponent, writeValues, mainComponent);
@@ -239,57 +239,107 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     protected void write(String twtId, Transformer3WData transformer3WData1, Transformer3WData transformer3WData2, boolean found, boolean writeValues) throws IOException {
         TwtData twtData1 = transformer3WData1.twtData;
         TwtData twtData2 = transformer3WData2.twtData;
-        write(twtId, NETWORK_P1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getP), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getP));
-        write(twtId, EXPECTED_P1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getComputedP), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getComputedP));
-        write(twtId, NETWORK_Q1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getQ), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getQ));
-        write(twtId, EXPECTED_Q1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getComputedQ), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getComputedQ));
-        write(twtId, NETWORK_P2, found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getP), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getP));
-        write(twtId, EXPECTED_P2, found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getComputedP), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getComputedP));
-        write(twtId, NETWORK_Q2, found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getQ), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getQ));
-        write(twtId, EXPECTED_Q2, found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getComputedQ), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getComputedQ));
-        write(twtId, NETWORK_P3, found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getP), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getP));
-        write(twtId, EXPECTED_P3, found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getComputedP), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getComputedP));
-        write(twtId, NETWORK_Q3, found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getQ), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getQ));
-        write(twtId, EXPECTED_Q3, found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getComputedQ), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getComputedQ));
+        write(twtId, NETWORK_P1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getP),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getP));
+        write(twtId, EXPECTED_P1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getComputedP),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getComputedP));
+        write(twtId, NETWORK_Q1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getQ),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getQ));
+        write(twtId, EXPECTED_Q1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getComputedQ),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getComputedQ));
+        write(twtId, NETWORK_P2, found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getP),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getP));
+        write(twtId, EXPECTED_P2, found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getComputedP),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getComputedP));
+        write(twtId, NETWORK_Q2, found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getQ),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getQ));
+        write(twtId, EXPECTED_Q2, found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getComputedQ),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getComputedQ));
+        write(twtId, NETWORK_P3, found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getP),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getP));
+        write(twtId, EXPECTED_P3, found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getComputedP),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getComputedP));
+        write(twtId, NETWORK_Q3, found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getQ),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getQ));
+        write(twtId, EXPECTED_Q3, found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getComputedQ),
+            writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getComputedQ));
         if (verbose) {
-            write(twtId, "u1", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getU), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getU));
-            write(twtId, "u2", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getU), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getU));
-            write(twtId, "u3", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getU), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getU));
-            write(twtId, "starU", found, getTwtValue(found, twtData2, TwtData::getStarU), writeValues, getTwtValue(writeValues, twtData1, TwtData::getStarU));
-            write(twtId, THETA1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getTheta), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getTheta));
-            write(twtId, THETA2, found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getTheta), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getTheta));
-            write(twtId, THETA3, found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getTheta), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getTheta));
-            write(twtId, "starTheta", found, getTwtValue(found, twtData2, TwtData::getStarTheta), writeValues, getTwtValue(writeValues, twtData1, TwtData::getStarTheta));
-            write(twtId, "g11", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getG1), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getG1));
-            write(twtId, "b11", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getB1), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getB1));
-            write(twtId, "g12", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getG2), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getG2));
-            write(twtId, "b12", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getB2), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getB2));
-            write(twtId, "g21", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getG1), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getG1));
-            write(twtId, "b21", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getB1), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getB1));
-            write(twtId, "g22", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getG2), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getG2));
-            write(twtId, "b22", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getB2), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getB2));
-            write(twtId, "g31", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getG1), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getG1));
-            write(twtId, "b31", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getB1), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getB1));
-            write(twtId, "g32", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getG2), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getG2));
-            write(twtId, "b32", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getB2), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getB2));
-            write(twtId, "r1", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getR), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getR));
-            write(twtId, "r2", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getR), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getR));
-            write(twtId, "r3", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getR), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getR));
-            write(twtId, "x1", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getX), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getX));
-            write(twtId, "x2", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getX), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getX));
-            write(twtId, "x3", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getX), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getX));
-            write(twtId, "ratedU1", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getRatedU), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getRatedU));
-            write(twtId, "ratedU2", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getRatedU), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getRatedU));
-            write(twtId, "ratedU3", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getRatedU), writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getRatedU));
-            write(twtId, "phaseAngleClock2", found, getTwtValue(found, twtData2, TwtData::getPhaseAngleClock2), writeValues, getTwtValue(writeValues, twtData1, TwtData::getPhaseAngleClock2));
-            write(twtId, "phaseAngleClock3", found, getTwtValue(found, twtData2, TwtData::getPhaseAngleClock3), writeValues, getTwtValue(writeValues, twtData1, TwtData::getPhaseAngleClock3));
-            write(twtId, "ratedU0", found, getTwtValue(found, twtData2, TwtData::getRatedU0), writeValues, getTwtValue(writeValues, twtData1, TwtData::getRatedU0));
-            write(twtId, CONNECTED + "1", found, found && twtData2.isConnected(ThreeSides.ONE), writeValues, writeValues && twtData1.isConnected(ThreeSides.ONE));
-            write(twtId, CONNECTED + "2", found, found && twtData2.isConnected(ThreeSides.TWO), writeValues, writeValues && twtData1.isConnected(ThreeSides.TWO));
-            write(twtId, CONNECTED + "3", found, found && twtData2.isConnected(ThreeSides.THREE), writeValues, writeValues && twtData1.isConnected(ThreeSides.THREE));
-            write(twtId, MAIN_COMPONENT + "1", found, found && twtData2.isMainComponent(ThreeSides.ONE), writeValues, writeValues && twtData1.isMainComponent(ThreeSides.ONE));
-            write(twtId, MAIN_COMPONENT + "2", found, found && twtData2.isMainComponent(ThreeSides.TWO), writeValues, writeValues && twtData1.isMainComponent(ThreeSides.TWO));
-            write(twtId, MAIN_COMPONENT + "3", found, found && twtData2.isMainComponent(ThreeSides.THREE), writeValues, writeValues && twtData1.isMainComponent(ThreeSides.THREE));
+            write(twtId, "u1", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getU),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getU));
+            write(twtId, "u2", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getU),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getU));
+            write(twtId, "u3", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getU),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getU));
+            write(twtId, "starU", found, getTwtValue(found, twtData2, TwtData::getStarU),
+                writeValues, getTwtValue(writeValues, twtData1, TwtData::getStarU));
+            write(twtId, THETA1, found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getTheta),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getTheta));
+            write(twtId, THETA2, found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getTheta),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getTheta));
+            write(twtId, THETA3, found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getTheta),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getTheta));
+            write(twtId, "starTheta", found, getTwtValue(found, twtData2, TwtData::getStarTheta),
+                writeValues, getTwtValue(writeValues, twtData1, TwtData::getStarTheta));
+            write(twtId, "g11", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getG1),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getG1));
+            write(twtId, "b11", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getB1),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getB1));
+            write(twtId, "g12", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getG2),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getG2));
+            write(twtId, "b12", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getB2),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getB2));
+            write(twtId, "g21", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getG1),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getG1));
+            write(twtId, "b21", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getB1),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getB1));
+            write(twtId, "g22", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getG2),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getG2));
+            write(twtId, "b22", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getB2),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getB2));
+            write(twtId, "g31", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getG1),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getG1));
+            write(twtId, "b31", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getB1),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getB1));
+            write(twtId, "g32", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getG2),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getG2));
+            write(twtId, "b32", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getB2),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getB2));
+            write(twtId, "r1", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getR),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getR));
+            write(twtId, "r2", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getR),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getR));
+            write(twtId, "r3", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getR),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getR));
+            write(twtId, "x1", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getX),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getX));
+            write(twtId, "x2", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getX),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getX));
+            write(twtId, "x3", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getX),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getX));
+            write(twtId, "ratedU1", found, getTwtSideValue(found, twtData2, ThreeSides.ONE, TwtData::getRatedU),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.ONE, TwtData::getRatedU));
+            write(twtId, "ratedU2", found, getTwtSideValue(found, twtData2, ThreeSides.TWO, TwtData::getRatedU),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.TWO, TwtData::getRatedU));
+            write(twtId, "ratedU3", found, getTwtSideValue(found, twtData2, ThreeSides.THREE, TwtData::getRatedU),
+                writeValues, getTwtSideValue(writeValues, twtData1, ThreeSides.THREE, TwtData::getRatedU));
+            write(twtId, "phaseAngleClock2", found, getTwtValue(found, twtData2, TwtData::getPhaseAngleClock2),
+                writeValues, getTwtValue(writeValues, twtData1, TwtData::getPhaseAngleClock2));
+            write(twtId, "phaseAngleClock3", found, getTwtValue(found, twtData2, TwtData::getPhaseAngleClock3),
+                writeValues, getTwtValue(writeValues, twtData1, TwtData::getPhaseAngleClock3));
+            write(twtId, "ratedU0", found, getTwtValue(found, twtData2, TwtData::getRatedU0),
+                writeValues, getTwtValue(writeValues, twtData1, TwtData::getRatedU0));
+            write(twtId, CONNECTED + "1", found, found && twtData2.isConnected(ThreeSides.ONE),
+                writeValues, writeValues && twtData1.isConnected(ThreeSides.ONE));
+            write(twtId, CONNECTED + "2", found, found && twtData2.isConnected(ThreeSides.TWO),
+                writeValues, writeValues && twtData1.isConnected(ThreeSides.TWO));
+            write(twtId, CONNECTED + "3", found, found && twtData2.isConnected(ThreeSides.THREE),
+                writeValues, writeValues && twtData1.isConnected(ThreeSides.THREE));
+            write(twtId, MAIN_COMPONENT + "1", found, found && twtData2.isMainComponent(ThreeSides.ONE),
+                writeValues, writeValues && twtData1.isMainComponent(ThreeSides.ONE));
+            write(twtId, MAIN_COMPONENT + "2", found, found && twtData2.isMainComponent(ThreeSides.TWO),
+                writeValues, writeValues && twtData1.isMainComponent(ThreeSides.TWO));
+            write(twtId, MAIN_COMPONENT + "3", found, found && twtData2.isMainComponent(ThreeSides.THREE),
+                writeValues, writeValues && twtData1.isMainComponent(ThreeSides.THREE));
             write(twtId, VALIDATION, found, getValidated(transformer3WData2.validated), writeValues, getValidated(transformer3WData1.validated));
         }
     }
