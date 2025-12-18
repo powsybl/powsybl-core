@@ -88,7 +88,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
             double bch = p.asDouble("bch");
 
             String eqInstance = p.get("graph");
-            boundaryLine = convertToDanglingLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.AC_LINE_SEGMENT);
+            boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.AC_LINE_SEGMENT);
         }
     }
 
@@ -101,6 +101,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     }
 
     public static void update(BoundaryLine boundaryLine, Context context) {
-        updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 }
