@@ -57,6 +57,8 @@ import java.util.*;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerAliasType;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getRatioTapChangerAliasType;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
 import static org.junit.jupiter.api.Assertions.*;
@@ -349,37 +351,23 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Network network = createThreeWindingTransformerNetwork();
         String t3id = "threeWindingsTransformer1";
 
-        // Export an IIDM Network created from scratch, identifiers for tap changers will be created and stored in aliases
+        // Export an IIDM Network created from scratch
         exportToCgmesEQ(network);
-        ThreeWindingsTransformer expected = network.getThreeWindingsTransformer(t3id);
-
-        // The 3-winding transformer has a ratio and phase tap changer at every end
-        Network network1 = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
-        ThreeWindingsTransformer actual1 = network1.getThreeWindingsTransformer(t3id);
-        for (int k = 1; k <= 3; k++) {
-            String aliasType;
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + k;
-            assertEquals(
-                    expected.getAliasFromType(aliasType).get(),
-                    actual1.getAliasFromType(aliasType).get());
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + k;
-            assertEquals(
-                    expected.getAliasFromType(aliasType).get(),
-                    actual1.getAliasFromType(aliasType).get());
-        }
 
         // Export an IIDM Network that has been imported from CGMES,
         // identifiers for tap changers must be preserved
+        Network network1 = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        ThreeWindingsTransformer expected = network1.getThreeWindingsTransformer(t3id);
         exportToCgmesEQ(network1);
         Network network2 = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
         ThreeWindingsTransformer actual2 = network2.getThreeWindingsTransformer(t3id);
         for (int k = 1; k <= 3; k++) {
             String aliasType;
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + k;
+            aliasType = getRatioTapChangerAliasType(Integer.toString(k));
             assertEquals(
                     expected.getAliasFromType(aliasType).get(),
                     actual2.getAliasFromType(aliasType).get());
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + k;
+            aliasType = getPhaseTapChangerAliasType(Integer.toString(k));
             assertEquals(
                     expected.getAliasFromType(aliasType).get(),
                     actual2.getAliasFromType(aliasType).get());
@@ -424,6 +412,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         busS400.setV(400.0).setAngle(0.0);
         Bus busS225 = twtSorted.getTerminal2().getBusView().getBus();
         busS225.setV(264.38396259257394).setAngle(2.4025237265837864);
+
+        // Set the same tap position (since the SSH isn't exported, the tap position resets to the neutral step).
+        twtSorted.getRatioTapChanger().setTapPosition(twt.getRatioTapChanger().getTapPosition());
+        twtSorted.getPhaseTapChanger().setTapPosition(twt.getPhaseTapChanger().getTapPosition());
 
         BranchData twtDataSorted = new BranchData(twtSorted, 0.0, false, false);
 
@@ -470,6 +462,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         busS400.setV(400.0).setAngle(0.0);
         Bus busS225 = twtSorted.getTerminal2().getBusView().getBus();
         busS225.setV(264.38396259257394).setAngle(2.4025237265837864);
+
+        // Set the same tap position (since the SSH isn't exported, the tap position resets to the neutral step).
+        twtSorted.getRatioTapChanger().setTapPosition(twt.getRatioTapChanger().getTapPosition());
+        twtSorted.getPhaseTapChanger().setTapPosition(twt.getPhaseTapChanger().getTapPosition());
 
         BranchData twtDataSorted = new BranchData(twtSorted, 0.0, false, false);
 
@@ -525,6 +521,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         busS33.setV(28.884977348881097).setAngle(-0.7602433704291399);
         Bus busS11 = twtSorted.getLeg3().getTerminal().getBusView().getBus();
         busS11.setV(11.777636198340568).setAngle(-0.78975650100671);
+
+        // Set the same tap position (since the SSH isn't exported, the tap position resets to the neutral step).
+        twtSorted.getLeg3().getRatioTapChanger().setTapPosition(twt.getLeg1().getRatioTapChanger().getTapPosition());
+        twtSorted.getLeg2().getRatioTapChanger().setTapPosition(twt.getLeg3().getRatioTapChanger().getTapPosition());
 
         TwtData twtDataSorted = new TwtData(twtSorted, 0.0, false);
 
@@ -1021,28 +1021,28 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = PhaseShifterTestCaseFactory.createRegulatingWithoutMode();
             assertTrue(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+            testTcTccWithAttribute(eq, "_PS1_PTC_1_RC", "_PS1_PT_T_2", "activePower");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+            testTcTccWithAttribute(eq, "_PS1_PTC_1_RC", "_PS1_PT_T_2", "activePower");
 
             // PST local with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
             assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+            testTcTccWithAttribute(eq, "_PS1_PTC_1_RC", "_PS1_PT_T_2", "activePower");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+            testTcTccWithAttribute(eq, "_PS1_PTC_1_RC", "_PS1_PT_T_2", "activePower");
 
             // PST remote with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
             assertFalse(network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().isRegulating());
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "activePower");
+            testTcTccWithAttribute(eq, "_PS1_PTC_1_RC", "_LD2_EC_T_1", "activePower");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "activePower");
+            testTcTccWithAttribute(eq, "_PS1_PTC_1_RC", "_LD2_EC_T_1", "activePower");
         }
     }
 
@@ -1065,68 +1065,68 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // RTC local with VOLTAGE
             network = EurostagTutorialExample1Factory.create();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
 
             // RTC local with REACTIVE_POWER
             network = EurostagTutorialExample1Factory.createWithReactiveTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_NHV2_NLOAD_PT_T_2", "reactivePower");
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "reactivePower");
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_NHV2_NLOAD_PT_T_2", "reactivePower");
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_NHV2_NLOAD_PT_T_2", "reactivePower");
 
             // RTC remote with VOLTAGE
             network = EurostagTutorialExample1Factory.createRemoteVoltageTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "voltage");
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_GEN_SM_T_1", "voltage");
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "voltage");
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_GEN_SM_T_1", "voltage");
 
             // RTC remote with REACTIVE_POWER
             network = EurostagTutorialExample1Factory.createRemoteReactiveTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "reactivePower");
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_GEN_SM_T_1", "reactivePower");
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "reactivePower");
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_1_RC", "_GEN_SM_T_1", "reactivePower");
 
             // 3w without control
             network = EurostagTutorialExample1Factory.createWith3wWithoutControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithoutAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "", "dummy");
+            testTcTccWithoutAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "", "dummy");
 
             // 3w with local voltage control
             network = EurostagTutorialExample1Factory.createWith3wWithVoltageControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_NGEN_V2_NHV1_PT_T_1", "voltage");
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_NGEN_V2_NHV1_PT_T_1", "voltage");
 
             // 3w with local reactive control
             network = EurostagTutorialExample1Factory.create3wWithReactiveTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_NGEN_V2_NHV1_PT_T_1", "reactivePower");
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_NGEN_V2_NHV1_PT_T_1", "reactivePower");
             network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_NGEN_V2_NHV1_PT_T_1", "reactivePower");
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_NGEN_V2_NHV1_PT_T_1", "reactivePower");
 
             // 3w with remote voltage
             network = EurostagTutorialExample1Factory.create3wRemoteVoltageTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "voltage");
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_GEN_SM_T_1", "voltage");
             network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "voltage");
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_GEN_SM_T_1", "voltage");
 
             // 3w with remote reactive
             network = EurostagTutorialExample1Factory.create3wRemoteReactiveTcc();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "reactivePower");
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_GEN_SM_T_1", "reactivePower");
             network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "reactivePower");
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_1_RC", "_GEN_SM_T_1", "reactivePower");
         }
     }
 

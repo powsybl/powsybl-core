@@ -8,9 +8,13 @@
 
 package com.powsybl.cgmes.conversion.naming;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Identifiable;
+
+import static com.powsybl.cgmes.conversion.Conversion.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -26,7 +30,7 @@ public interface NamingStrategy {
     String getCgmesId(Identifiable<?> identifiable);
 
     default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
-        return identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+        return identifiable.getAliasFromType(aliasType).orElseGet(() -> getCgmesId(getCgmesObjectReferences(identifiable, aliasType)));
     }
 
     default String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
@@ -40,6 +44,21 @@ public interface NamingStrategy {
     void debug(String baseName, DataSource ds);
 
     String getCgmesId(CgmesObjectReference... refs);
+
+    default CgmesObjectReference[] getCgmesObjectReferences(Identifiable<?> identifiable, String aliasOrProperty) {
+        return switch (aliasOrProperty) {
+            case ALIAS_PHASE_TAP_CHANGER1 -> new CgmesObjectReference[] {refTyped(identifiable), PHASE_TAP_CHANGER, ref(1)};
+            case ALIAS_PHASE_TAP_CHANGER2 -> new CgmesObjectReference[] {refTyped(identifiable), PHASE_TAP_CHANGER, ref(2)};
+            case ALIAS_PHASE_TAP_CHANGER3 -> new CgmesObjectReference[] {refTyped(identifiable), PHASE_TAP_CHANGER, ref(3)};
+            case ALIAS_RATIO_TAP_CHANGER1 -> new CgmesObjectReference[] {refTyped(identifiable), RATIO_TAP_CHANGER, ref(1)};
+            case ALIAS_RATIO_TAP_CHANGER2 -> new CgmesObjectReference[] {refTyped(identifiable), RATIO_TAP_CHANGER, ref(2)};
+            case ALIAS_RATIO_TAP_CHANGER3 -> new CgmesObjectReference[] {refTyped(identifiable), RATIO_TAP_CHANGER, ref(3)};
+            case ALIAS_TRANSFORMER_END1 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(1))};
+            case ALIAS_TRANSFORMER_END2 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(2))};
+            case ALIAS_TRANSFORMER_END3 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(3))};
+            default -> throw new IllegalStateException("Unexpected value: " + aliasOrProperty);
+        };
+    }
 
     final class Identity implements NamingStrategy {
 

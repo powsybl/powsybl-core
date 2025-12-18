@@ -48,6 +48,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.matcherCount;
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
@@ -324,7 +325,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         // This is not mandatory, but it simplifies comparing the data in the network and the exported SV file
         // If we do not add it in advance, a proper CGMES ID for the new PTC would have been generated during export
         String t2ptcId = "ptc2w";
-        t2wt.addAlias(t2ptcId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
+        t2wt.addAlias(t2ptcId, ALIAS_PHASE_TAP_CHANGER1);
 
         // Also, change the RTC tap position and add a PTC to a three-winding transformer
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
@@ -351,7 +352,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .endStep()
                 .add();
         String t3ptcId = "ptc3w";
-        t3wt.addAlias(t3ptcId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
+        t3wt.addAlias(t3ptcId, ALIAS_PHASE_TAP_CHANGER1);
 
         String expected = buildNetworkSvTapStepsString(network);
         String sv = exportSvAsString(network);
@@ -457,33 +458,30 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     private static String buildNetworkSvTapStepsString(Network network) {
         SvTapSteps svTapSteps = new SvTapSteps();
         network.getTwoWindingsTransformers().forEach(twt -> {
-            twt.getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER), rtc.getTapPosition()));
-            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER), ptc.getTapPosition()));
+            twt.getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER1, ALIAS_RATIO_TAP_CHANGER2), rtc.getTapPosition()));
+            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER1, ALIAS_PHASE_TAP_CHANGER2), ptc.getTapPosition()));
         });
         network.getThreeWindingsTransformers().forEach(twt -> {
-            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 1), rtc.getTapPosition()));
-            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 1), ptc.getTapPosition()));
-            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 2), rtc.getTapPosition()));
-            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 2), ptc.getTapPosition()));
-            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 3), rtc.getTapPosition()));
-            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 3), ptc.getTapPosition()));
+            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER1), rtc.getTapPosition()));
+            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER1), ptc.getTapPosition()));
+            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER2), rtc.getTapPosition()));
+            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER2), ptc.getTapPosition()));
+            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER3), rtc.getTapPosition()));
+            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER3), ptc.getTapPosition()));
         });
         return svTapSteps.toSortedString();
     }
 
-    private static String getTapChangerId(TwoWindingsTransformer twt, String baseAliasType) {
+    private static String getTapChangerId(TwoWindingsTransformer twt, String aliasType1, String aliasType2) {
         // For two winding transformers the CGMES tap changer id may be stored with suffix 1 or 2,
         // depending on its original location in CGMES model
-        String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + baseAliasType + 1;
-        String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + baseAliasType + 2;
         return twt.getAliasFromType(aliasType1)
                 .or(() -> twt.getAliasFromType(aliasType2))
                 .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType1 + " or " + aliasType2));
     }
 
-    private static String getTapChangerId(ThreeWindingsTransformer twt, String baseAliasType, int leg) {
+    private static String getTapChangerId(ThreeWindingsTransformer twt, String aliasType) {
         // For three winding transformers, the tap changer id has to be stored in the alias number corresponding to the leg
-        String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + baseAliasType + leg;
         return twt.getAliasFromType(aliasType)
                 .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType));
     }
