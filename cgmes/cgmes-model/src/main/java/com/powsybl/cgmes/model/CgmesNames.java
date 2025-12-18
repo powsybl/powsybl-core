@@ -49,6 +49,9 @@ public final class CgmesNames {
 
     public static final String TRANSFORMER_WINDING_RATED_U = "transformerWindingRatedU";
     public static final String TRANSFORMER_END = "TransformerEnd";
+    public static final String TRANSFORMER_END1 = "TransformerEnd1";
+    public static final String TRANSFORMER_END2 = "TransformerEnd2";
+    public static final String TRANSFORMER_END3 = "TransformerEnd3";
     public static final String TAP_CHANGER = "TapChanger";
     public static final String CONTINUOUS_POSITION = "continuousPosition";
     public static final String POSITION = "position";
@@ -83,7 +86,13 @@ public final class CgmesNames {
     public static final String R = "r";
     public static final String X = "x";
     public static final String RATIO_TAP_CHANGER = "RatioTapChanger";
+    public static final String RATIO_TAP_CHANGER1 = "RatioTapChanger1";
+    public static final String RATIO_TAP_CHANGER2 = "RatioTapChanger2";
+    public static final String RATIO_TAP_CHANGER3 = "RatioTapChanger3";
     public static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
+    public static final String PHASE_TAP_CHANGER1 = "PhaseTapChanger1";
+    public static final String PHASE_TAP_CHANGER2 = "PhaseTapChanger2";
+    public static final String PHASE_TAP_CHANGER3 = "PhaseTapChanger3";
     public static final String RATEDU = "ratedU";
     public static final String RATEDS = "ratedS";
     public static final String G = "g";

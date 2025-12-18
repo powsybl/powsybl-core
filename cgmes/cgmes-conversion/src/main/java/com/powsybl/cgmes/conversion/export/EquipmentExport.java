@@ -13,7 +13,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.export.elements.*;
-import com.powsybl.cgmes.extensions.*;
+import com.powsybl.cgmes.extensions.Source;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -35,10 +35,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.converterClassName;
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getClosestNeutralStep;
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
-import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.*;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
 import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
 import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL2;
@@ -648,10 +648,8 @@ public final class EquipmentExport {
     private static void writeTwoWindingsTransformers(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace,
                                                     String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            CgmesExportUtil.addUpdateCgmesTapChangerExtension(twt, context);
-
             PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(), twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), cimNamespace, writer, context);
-            String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 1);
+            String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END1);
 
             // High voltage could be assigned to endNumber = 1 if parameterized.
             EndNumberAssignerForTwoWindingsTransformer endNumberAssigner = new EndNumberAssignerForTwoWindingsTransformer(twt, context.exportTransformersWithHighestVoltageAtEnd1());
@@ -660,7 +658,7 @@ public final class EquipmentExport {
             String baseVoltage1Id = context.getBaseVoltageIdFromNominalV(twt.getTerminal1().getVoltageLevel().getNominalV());
             PowerTransformerEq.writeEnd(end1Id, twt.getNameOrId() + "_1", context.getNamingStrategy().getCgmesId(twt), endNumberAssigner.getEndNumberForSide1(), p.getEnd1R(), p.getEnd1X(), p.getEnd1G(), p.getEnd1B(),
                     twt.getRatedS(), twt.getRatedU1(), exportedTerminalId(mapTerminal2Id, twt.getTerminal1()), baseVoltage1Id, cimNamespace, writer, context);
-            String end2Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 2);
+            String end2Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END2);
             String baseVoltage2Id = context.getBaseVoltageIdFromNominalV(twt.getTerminal2().getVoltageLevel().getNominalV());
             PowerTransformerEq.writeEnd(end2Id, twt.getNameOrId() + "_2", context.getNamingStrategy().getCgmesId(twt), endNumberAssigner.getEndNumberForSide2(), p.getEnd2R(), p.getEnd2X(), p.getEnd2G(), p.getEnd2B(),
                     twt.getRatedS(), twt.getRatedU2(), exportedTerminalId(mapTerminal2Id, twt.getTerminal2()), baseVoltage2Id, cimNamespace, writer, context);
@@ -668,56 +666,25 @@ public final class EquipmentExport {
             // Export tap changers:
             // We are exporting the tap changer as it is modelled in IIDM, always at end 1
             int endNumber = 1;
-            // IIDM model always has tap changers (ratio and/or phase) at end 1, and only at end 1.
-            // We have to adjust the aliases for potential original tap changers coming from end 1 or end 2.
-            // Potential tc2 is always converted to a tc at end 1.
-            // If both tc1 and tc2 were present, tc2 was combined during import (fixed at current step) with tc1. Steps from tc1 were kept.
-            // If we only had tc2, it was moved to end 1.
-            //
-            // When we had only tc2, the alias for tc1 if we do EQ export should contain the identifier of original tc2.
-            // In the rest of situations, we keep the same id under alias for tc1.
-            adjustTapChangerAliases2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
-            adjustTapChangerAliases2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
             writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(), regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
             writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(), regulatingControlsWritten, cimNamespace, writer, context);
             writeBranchLimits(twt, exportedTerminalId(mapTerminal2Id, twt.getTerminal1()), exportedTerminalId(mapTerminal2Id, twt.getTerminal2()), cimNamespace, euNamespace, exportedLimitTypes, writer, context);
         }
     }
 
-    private static void adjustTapChangerAliases2wt(TwoWindingsTransformer transformer, TapChanger<?, ?, ?, ?> tc, String tapChangerKind) {
-        // If we had alias only for tc1, is ok, we will export only tc1 at end 1
-        // If we had alias for tc1 and tc2, is ok, tc2 has been moved to end 1 and combined with tc1, but we preserve id for tc1
-        // Only if we had tc at end 2 has been moved to end 1 and its identifier must be preserved
-        if (tc != null) {
-            String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tapChangerKind + 1;
-            if (transformer.getAliasFromType(aliasType1).isEmpty()) {
-                // At this point, if we have a tap changer,
-                // the alias for type 2 should be non-empty, but we check it anyway
-                String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tapChangerKind + 2;
-                Optional<String> tc2id = transformer.getAliasFromType(aliasType2);
-                if (tc2id.isPresent()) {
-                    transformer.removeAlias(tc2id.get());
-                    transformer.addAlias(tc2id.get(), aliasType1);
-                }
-            }
-        }
-    }
-
     private static void writeThreeWindingsTransformers(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace,
                                                       String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            CgmesExportUtil.addUpdateCgmesTapChangerExtension(twt, context);
-
             PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(), twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), cimNamespace, writer, context);
             double ratedU0 = twt.getRatedU0();
 
             EndNumberAssignerForThreeWindingsTransformer endNumberAssigner = new EndNumberAssignerForThreeWindingsTransformer(twt, context.exportTransformersWithHighestVoltageAtEnd1());
 
-            String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 1);
+            String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END1);
             writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_1", end1Id, endNumberAssigner.getEndNumberForLeg1(), 1, twt.getLeg1(), ratedU0, exportedTerminalId(mapTerminal2Id, twt.getLeg1().getTerminal()), regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-            String end2Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 2);
+            String end2Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END2);
             writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_2", end2Id, endNumberAssigner.getEndNumberForLeg2(), 2, twt.getLeg2(), ratedU0, exportedTerminalId(mapTerminal2Id, twt.getLeg2().getTerminal()), regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-            String end3Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 3);
+            String end3Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, ALIAS_TRANSFORMER_END3);
             writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_3", end3Id, endNumberAssigner.getEndNumberForLeg3(), 3, twt.getLeg3(), ratedU0, exportedTerminalId(mapTerminal2Id, twt.getLeg3().getTerminal()), regulatingControlsWritten, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
         }
     }
@@ -857,23 +824,37 @@ public final class EquipmentExport {
 
     private static <C extends Connectable<C>> void writePhaseTapChanger(C eq, PhaseTapChanger ptc, String twtName, int endNumber, String endId, double neutralU, Set<String> regulatingControlsWritten, String cimNamespace, String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (ptc != null) {
-            String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber;
-            String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
-            String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
-
+            String aliasType = switch (endNumber) {
+                case 1 -> ALIAS_PHASE_TAP_CHANGER1;
+                case 2 -> ALIAS_PHASE_TAP_CHANGER2;
+                case 3 -> ALIAS_PHASE_TAP_CHANGER3;
+                default -> throw new IllegalStateException("Unexpected end number: " + endNumber);
+            };
+            if (eq instanceof TwoWindingsTransformer
+                && eq.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty()
+                && eq.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent()) {
+                // IIDM TwoWindingTransformer model has phase tap changer at end 1, and only at end 1.
+                // whereas CGMES 2-winding PowerTransformer can have phase tap changer at one, the other or both ends.
+                // - If the original CGMES contained only a tap changer at end 1, no issue, it is exported back with the same id.
+                // - If the original CGMES contained both a tap changer at end 1 and at end 2, they have been combined,
+                // and we only export back one tap changer with the id of the original one from end 1.
+                // - If the original CGMES contained only a tap changer at end 2, it has been moved to end 1 during import
+                // and is exported back at end 1, but with its original id.
+                aliasType = ALIAS_PHASE_TAP_CHANGER2;
+            }
+            String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
             int neutralStep = getClosestNeutralStep(ptc);
             int normalStep = getNormalStep(eq, tapChangerId).orElse(neutralStep);
-            Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
-            String cgmesRegulatingControlId = null;
-            if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(ptc)) {
-                cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
-                if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
+            String regulatingControlId = null;
+            if (CgmesExportUtil.tapChangerControlIsDefined(ptc)) {
+                regulatingControlId = getCgmesTapChangerControlId(eq, tapChangerId).orElseGet(() -> context.getNamingStrategy().getCgmesId(ref(eq), PHASE_TAP_CHANGER, REGULATING_CONTROL));
+                if (!regulatingControlsWritten.contains(regulatingControlId)) {
                     String mode = RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
                     String controlName = twtName + "_PTC_RC";
                     String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
                     if (ptc.getRegulationMode() == PhaseTapChanger.RegulationMode.CURRENT_LIMITER) {
                         // Log not supported regulation mode
-                        CgmesReports.phaseTapChangerCurrentLimiterModeNotSupportedReport(context.getReportNode(), cgmesTapChangerId);
+                        CgmesReports.phaseTapChangerCurrentLimiterModeNotSupportedReport(context.getReportNode(), tapChangerId);
 
                         // Add a CurrentLimit with the PhaseTapChanger current limiter regulation value to the regulated terminal.
                         String operationalLimitSetId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(PhaseTapChanger.RegulationMode.CURRENT_LIMITER.name()), OPERATIONAL_LIMIT_SET);
@@ -890,8 +871,8 @@ public final class EquipmentExport {
                             exportedLimitTypes.add(operationalLimitTypeId);
                         }
                     }
-                    TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, mode, terminalId, cimNamespace, writer, context);
-                    regulatingControlsWritten.add(cgmesRegulatingControlId);
+                    TapChangerEq.writeControl(regulatingControlId, controlName, mode, terminalId, cimNamespace, writer, context);
+                    regulatingControlsWritten.add(regulatingControlId);
                 }
             }
             String phaseTapChangerTableId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), PHASE_TAP_CHANGER_TABLE);
@@ -899,7 +880,7 @@ public final class EquipmentExport {
             // We reset the phase tap changer type stored in the extensions
             String typeTabular = CgmesNames.PHASE_TAP_CHANGER_TABULAR;
             CgmesExportUtil.setCgmesTapChangerType(eq, tapChangerId, typeTabular);
-            TapChangerEq.writePhase(typeTabular, cgmesTapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, normalStep, neutralU, ptc.hasLoadTapChangingCapabilities(), phaseTapChangerTableId, cgmesRegulatingControlId, cimNamespace, writer, context);
+            TapChangerEq.writePhase(typeTabular, tapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, normalStep, neutralU, ptc.hasLoadTapChangingCapabilities(), phaseTapChangerTableId, regulatingControlId, cimNamespace, writer, context);
             TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
                 String stepId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), ref(step.getKey()), PHASE_TAP_CHANGER_STEP);
@@ -908,22 +889,27 @@ public final class EquipmentExport {
         }
     }
 
-    private static <C extends Connectable<C>> Optional<String> getTapChangerControlId(C eq, String tcId) {
-        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
-        if (cgmesTcs != null) {
-            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tcId);
-            if (cgmesTc != null) {
-                return Optional.ofNullable(cgmesTc.getControlId());
-            }
-        }
-        return Optional.empty();
-    }
-
     private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber, String endId, double neutralU, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (rtc != null) {
-            String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber;
-            String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
-            String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
+            String aliasType = switch (endNumber) {
+                case 1 -> ALIAS_RATIO_TAP_CHANGER1;
+                case 2 -> ALIAS_RATIO_TAP_CHANGER2;
+                case 3 -> ALIAS_RATIO_TAP_CHANGER3;
+                default -> throw new IllegalStateException("Unexpected end number: " + endNumber);
+            };
+            if (eq instanceof TwoWindingsTransformer
+                && eq.getAliasFromType(ALIAS_RATIO_TAP_CHANGER1).isEmpty()
+                && eq.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).isPresent()) {
+                // IIDM TwoWindingTransformer model has ratio tap changer at end 1, and only at end 1.
+                // whereas CGMES 2-winding PowerTransformer can have ratio tap changer at one, the other or both ends.
+                // - If the original CGMES contained only a tap changer at end 1, no issue, it is exported back with the same id.
+                // - If the original CGMES contained both a tap changer at end 1 and at end 2, they have been combined,
+                // and we only export back one tap changer with the id of the original one from end 1.
+                // - If the original CGMES contained only a tap changer at end 2, it has been moved to end 1 during import
+                // and is exported back at end 1, but with its original id.
+                aliasType = ALIAS_RATIO_TAP_CHANGER2;
+            }
+            String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
             int neutralStep = getClosestNeutralStep(rtc);
             int normalStep = getNormalStep(eq, tapChangerId).orElse(neutralStep);
@@ -934,24 +920,23 @@ public final class EquipmentExport {
                 stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0 / rtc.getStep(rtc.getHighTapPosition()).getRho()) / (rtc.getLowTapPosition() - rtc.getHighTapPosition());
             }
             String ratioTapChangerTableId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), RATIO_TAP_CHANGER_TABLE);
-            Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
-            String cgmesRegulatingControlId = null;
             String controlMode = "volt";
-            if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(rtc)) {
+            String regulatingControlId = null;
+            if (CgmesExportUtil.tapChangerControlIsDefined(rtc)) {
                 String controlName = twtName + "_RTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
-                cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
-                if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
+                regulatingControlId = getCgmesTapChangerControlId(eq, tapChangerId).orElseGet(() -> context.getNamingStrategy().getCgmesId(ref(eq), RATIO_TAP_CHANGER, REGULATING_CONTROL));
+                if (!regulatingControlsWritten.contains(regulatingControlId)) {
                     String tccMode = CgmesExportUtil.getTcMode(rtc);
                     if (tccMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
                         controlMode = "reactive";
                     }
-                    TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, tccMode, terminalId, cimNamespace, writer, context);
-                    regulatingControlsWritten.add(cgmesRegulatingControlId);
+                    TapChangerEq.writeControl(regulatingControlId, controlName, tccMode, terminalId, cimNamespace, writer, context);
+                    regulatingControlsWritten.add(regulatingControlId);
                 }
             }
-            TapChangerEq.writeRatio(cgmesTapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, normalStep, neutralU, rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement,
-                    ratioTapChangerTableId, cgmesRegulatingControlId, controlMode, cimNamespace, writer, context);
+            TapChangerEq.writeRatio(tapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, normalStep, neutralU, rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement,
+                    ratioTapChangerTableId, regulatingControlId, controlMode, cimNamespace, writer, context);
             TapChangerEq.writeRatioTable(ratioTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
                 String stepId = context.getNamingStrategy().getCgmesId(refTyped(eq), ref(endNumber), ref(step.getKey()), RATIO_TAP_CHANGER_STEP);

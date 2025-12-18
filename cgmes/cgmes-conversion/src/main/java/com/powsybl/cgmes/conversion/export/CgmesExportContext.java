@@ -258,7 +258,6 @@ public class CgmesExportContext {
         addIidmMappingsBatteries(network);
         addIidmMappingsShuntCompensators(network);
         addIidmMappingsStaticVarCompensators(network);
-        addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
     }
 
@@ -539,63 +538,6 @@ public class CgmesExportContext {
                                                 || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(svc), Part.REGULATING_CONTROL);
                 svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
-            }
-        }
-    }
-
-    private void addIidmMappingsEndsAndTapChangers(Network network) {
-        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            addIidmTransformerEnd(twt, 1);
-            addIidmTransformerEnd(twt, 2);
-            //  For two winding transformers we cannot check-and-add based on endNumber
-            //  The resulting IIDM tap changer is always at end1
-            //  But the original position of tap changer could be 1 or 2
-            addIidmTapChanger2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
-            addIidmTapChanger2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
-        }
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            addIidmTransformerEnd(twt, 1);
-            addIidmTransformerEnd(twt, 2);
-            addIidmTransformerEnd(twt, 3);
-            addIidmTapChanger(twt, twt.getLeg1().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 1);
-            addIidmTapChanger(twt, twt.getLeg1().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 1);
-            addIidmTapChanger(twt, twt.getLeg2().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 2);
-            addIidmTapChanger(twt, twt.getLeg2().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 2);
-            addIidmTapChanger(twt, twt.getLeg3().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 3);
-            addIidmTapChanger(twt, twt.getLeg3().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 3);
-        }
-    }
-
-    private void addIidmTransformerEnd(Identifiable<?> eq, int end) {
-        String endId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end).orElse(null);
-        if (endId == null) {
-            endId = namingStrategy.getCgmesId(ref(eq), combo(TRANSFORMER_END, ref(end)));
-            eq.addAlias(endId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end);
-        }
-    }
-
-    private void addIidmTapChanger(Identifiable<?> eq, TapChanger<?, ?, ?, ?> tc, String typeChangerTypeName, int endNumber) {
-        if (tc != null) {
-            String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + endNumber;
-            if (eq.getAliasFromType(aliasType).isEmpty()) {
-                Part ratioPhasePart = Objects.equals(typeChangerTypeName, CgmesNames.PHASE_TAP_CHANGER) ? PHASE_TAP_CHANGER : RATIO_TAP_CHANGER;
-                String newTapChangerId = namingStrategy.getCgmesId(refTyped(eq), ratioPhasePart, ref(endNumber));
-                eq.addAlias(newTapChangerId, aliasType);
-            }
-        }
-    }
-
-    private void addIidmTapChanger2wt(Identifiable<?> eq, TapChanger<?, ?, ?, ?> tc, String typeChangerTypeName) {
-        if (tc != null) {
-            String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 1;
-            String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 2;
-            // Only create a new identifier, always at end 1,
-            // If no previous identifiers were found
-            // Neither at end 1 nor at end 2
-            if (eq.getAliasFromType(aliasType1).isEmpty() && eq.getAliasFromType(aliasType2).isEmpty()) {
-                Part ratioPhasePart = Objects.equals(typeChangerTypeName, CgmesNames.PHASE_TAP_CHANGER) ? PHASE_TAP_CHANGER : RATIO_TAP_CHANGER;
-                String newTapChangerId = namingStrategy.getCgmesId(refTyped(eq), ratioPhasePart, ref(1));
-                eq.addAlias(newTapChangerId, aliasType1);
             }
         }
     }

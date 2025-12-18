@@ -12,7 +12,6 @@ import com.fasterxml.uuid.impl.NameBasedGenerator;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
@@ -71,13 +70,14 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         // Equivalent injections of dangling lines
         // Transformer ends of power transformers
         // Tap changers of power transformers
-        String id;
+        Optional<String> alias;
         if (identifiable instanceof DanglingLine dl) {
-            id = identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+            alias = identifiable.getAliasFromType(aliasType)
+                .or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType)));
         } else {
-            id = identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+            alias = identifiable.getAliasFromType(aliasType);
         }
-        return getCgmesId(id);
+        return alias.isPresent() ? getCgmesId(alias.get()) : getCgmesId(getCgmesObjectReferences(identifiable, aliasType));
     }
 
     @Override
@@ -96,7 +96,6 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     @Override
     public String getCgmesId(String identifier) {
         // This is a hack to save in the naming strategy an identifier for something that has no related IIDM object
-        // Control Area identifiers
         if (idByUuid.containsValue(identifier)) {
             return idByUuid.inverse().get(identifier);
         }
