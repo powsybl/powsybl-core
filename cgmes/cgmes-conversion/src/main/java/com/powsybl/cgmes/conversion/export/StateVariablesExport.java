@@ -31,6 +31,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerAliasType;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getRatioTapChangerAliasType;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TOPOLOGICAL_ISLAND;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 
@@ -551,37 +554,36 @@ public final class StateVariablesExport {
      */
     private static void writeTapStepsTwoWindingsTransformer(TwoWindingsTransformer twt, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (twt.hasPhaseTapChanger()) {
-            PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
-            int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).isPresent() ? 1 : 2;
-            String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
-            writeSvTapStep(ptcId, phaseTapChanger.findSolvedTapPosition().orElse(phaseTapChanger.getTapPosition()), cimNamespace, writer, context);
+            String aliasType = twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty() ?
+                ALIAS_PHASE_TAP_CHANGER2 : ALIAS_PHASE_TAP_CHANGER1;
+            String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
+            writeSvTapStep(ptcId, twt.getPhaseTapChanger().findSolvedTapPosition().orElse(twt.getPhaseTapChanger().getTapPosition()), cimNamespace, writer, context);
             writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
         }
         if (twt.hasRatioTapChanger()) {
-            RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
-            int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).isPresent() ? 1 : 2;
-            String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
-            writeSvTapStep(rtcId, ratioTapChanger.findSolvedTapPosition().orElse(ratioTapChanger.getTapPosition()), cimNamespace, writer, context);
+            String aliasType = twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER1).isEmpty() ?
+                ALIAS_RATIO_TAP_CHANGER2 : ALIAS_RATIO_TAP_CHANGER1;
+            String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
+            writeSvTapStep(rtcId, twt.getRatioTapChanger().findSolvedTapPosition().orElse(twt.getRatioTapChanger().getTapPosition()), cimNamespace, writer, context);
             writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
         }
     }
 
     private static void writeTapStepsThreeWindingsTransformer(ThreeWindingsTransformer twt, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        int endNumber = 1;
         for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
+            String endNumber = Integer.toString(leg.getSide().getNum());
             if (leg.hasPhaseTapChanger()) {
-                String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
+                String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, getPhaseTapChangerAliasType(endNumber));
                 PhaseTapChanger phaseTapChanger = leg.getPhaseTapChanger();
                 writeSvTapStep(ptcId, phaseTapChanger.findSolvedTapPosition().orElse(phaseTapChanger.getTapPosition()), cimNamespace, writer, context);
                 writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
             }
             if (leg.hasRatioTapChanger()) {
-                String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
+                String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, getRatioTapChangerAliasType(endNumber));
                 RatioTapChanger ratioTapChanger = leg.getRatioTapChanger();
                 writeSvTapStep(rtcId, ratioTapChanger.findTapPosition().orElse(ratioTapChanger.getTapPosition()), cimNamespace, writer, context);
                 writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
             }
-            endNumber++;
         }
     }
 

@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
-import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -358,97 +357,60 @@ public final class CgmesExportUtil {
         }
     }
 
-    // tap changer is exported as it is modelled in IIDM, always at end 1
-    static void addUpdateCgmesTapChangerExtension(TwoWindingsTransformer twt, CgmesExportContext context) {
-        twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
-        twt.getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
-    }
-
-    static void addUpdateCgmesTapChangerExtension(ThreeWindingsTransformer twt, CgmesExportContext context) {
-        twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 1, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
-        twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 1, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
-
-        twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 2, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
-        twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 2, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
-
-        twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 3, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
-        twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 3, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
-    }
-
-    // If we had alias only for tc1, it will be at end 1
-    // If we had alias for tc1 and tc2, tc2 has been moved to end 1 and combined with tc1, tc1 id will be used
-    // If we only had tc at end 2, it has been moved to end 1 but the id is recorded at end2, tc2 id will be used
-    private static <C extends Connectable<C>> String getTapChangerId(C twt, String cgmesTapChangerTag, CgmesExportContext context) {
-        String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + 1;
-        Optional<String> optionalTapChangerId1 = twt.getAliasFromType(aliasType1);
-        if (optionalTapChangerId1.isPresent()) {
-            return optionalTapChangerId1.get();
-        } else {
-            String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + 2;
-            Optional<String> optionalTapChangerId2 = twt.getAliasFromType(aliasType2);
-            if (optionalTapChangerId2.isEmpty()) {
-                // We create a new id always at end 1
-                Part ratioPhasePart = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
-                String newTapChangerId = context.getNamingStrategy().getCgmesId(refTyped(twt), ratioPhasePart);
-                twt.addAlias(newTapChangerId, aliasType1);
-                return newTapChangerId;
-            } else {
-                return optionalTapChangerId2.get();
-            }
-        }
-    }
-
-    private static <C extends Connectable<C>> String getTapChangerId(C twt, String cgmesTapChangerTag, int endNumber, CgmesExportContext context) {
-        String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + cgmesTapChangerTag + endNumber;
-        Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType);
-        if (optionalTapChangerId.isEmpty()) {
-            Part ratioPhasePart = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
-            String newTapChangerId = context.getNamingStrategy().getCgmesId(refTyped(twt), ratioPhasePart);
-            twt.addAlias(newTapChangerId, aliasType);
-            return newTapChangerId;
-        } else {
-            return optionalTapChangerId.get();
-        }
-    }
-
-    static boolean regulatingControlIsDefined(RatioTapChanger rtc) {
+    static boolean tapChangerControlIsDefined(RatioTapChanger rtc) {
         return !Double.isNaN(rtc.getRegulationValue())
                 && rtc.getRegulationTerminal() != null;
     }
 
-    static boolean regulatingControlIsDefined(PhaseTapChanger ptc) {
+    static boolean tapChangerControlIsDefined(PhaseTapChanger ptc) {
         return !Double.isNaN(ptc.getRegulationValue())
                 && !Double.isNaN(ptc.getTargetDeadband())
                 && ptc.getRegulationTerminal() != null;
+    }
+
+    static <C extends Connectable<C>> Optional<String> getCgmesTapChangerControlId(C eq, String tcId) {
+        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+        if (cgmesTcs != null) {
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tcId);
+            if (cgmesTc != null) {
+                return Optional.ofNullable(cgmesTc.getControlId());
+            }
+        }
+        return Optional.empty();
     }
 
     static boolean targetDeadbandIsDefined(double targetDeadband) {
         return !Double.isNaN(targetDeadband) && targetDeadband >= 0.0;
     }
 
-    private static <C extends Connectable<C>> void addTapChangerExtension(C twt, String cgmesTapChangerTag, String tapChangerId, int tapPosition, boolean regulatingControlIsDefined, CgmesExportContext context) {
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
 
-        CgmesTapChangers<C> cgmesTapChangers = twt.getExtension(CgmesTapChangers.class);
-        if (cgmesTapChangers == null) {
-            twt.newExtension(CgmesTapChangersAdder.class).add();
-            cgmesTapChangers = twt.getExtension(CgmesTapChangers.class);
-        }
-
-        Part refTapChanger = Objects.equals(cgmesTapChangerTag, RATIO_TAP_CHANGER) ? Part.RATIO_TAP_CHANGER : Part.PHASE_TAP_CHANGER;
-
-        CgmesTapChanger cgmesTapChanger = cgmesTapChangers.getTapChanger(tapChangerId);
-        if (cgmesTapChanger == null) {
-            cgmesTapChanger = cgmesTapChangers.newTapChanger()
-                    .setId(tapChangerId)
-                    .setStep(tapPosition)
-                    .add();
-        }
-        if (regulatingControlIsDefined && cgmesTapChanger.getControlId() == null) {
-            cgmesTapChanger.setControlId(context.getNamingStrategy().getCgmesId(ref(twt), refTapChanger, Part.REGULATING_CONTROL));
-        }
+    public static String getPhaseTapChangerAliasType(String endNumber) {
+        return switch (endNumber) {
+            case "1" -> ALIAS_PHASE_TAP_CHANGER1;
+            case "2" -> ALIAS_PHASE_TAP_CHANGER2;
+            case "3" -> ALIAS_PHASE_TAP_CHANGER3;
+            default -> throw new IllegalStateException("Unexpected phase tap changer end number: " + endNumber);
+        };
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
+    public static String getRatioTapChangerAliasType(String endNumber) {
+        return switch (endNumber) {
+            case "1" -> ALIAS_RATIO_TAP_CHANGER1;
+            case "2" -> ALIAS_RATIO_TAP_CHANGER2;
+            case "3" -> ALIAS_RATIO_TAP_CHANGER3;
+            default -> throw new IllegalStateException("Unexpected ratio tap changer end number: " + endNumber);
+        };
+    }
+
+    public static String getTransformerEndAliasType(String endNumber) {
+        return switch (endNumber) {
+            case "1" -> ALIAS_TRANSFORMER_END1;
+            case "2" -> ALIAS_TRANSFORMER_END2;
+            case "3" -> ALIAS_TRANSFORMER_END3;
+            default -> throw new IllegalStateException("Unexpected transformer end number: " + endNumber);
+        };
+    }
 
     public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
