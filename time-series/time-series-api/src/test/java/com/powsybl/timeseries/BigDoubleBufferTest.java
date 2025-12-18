@@ -7,14 +7,14 @@
  */
 package com.powsybl.timeseries;
 
+import com.powsybl.timeseries.BigDoubleBuffer.IntIntBiConsumer;
+import com.powsybl.timeseries.BigDoubleBuffer.IntIntToDoubleBiFunction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.ByteBuffer;
 import java.util.function.IntConsumer;
-import com.powsybl.timeseries.BigDoubleBuffer.IntIntBiConsumer;
-import com.powsybl.timeseries.BigDoubleBuffer.IntIntToDoubleBiFunction;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -28,6 +28,7 @@ class BigDoubleBufferTest {
 
     private int allocatorCount;
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private ByteBuffer testDoubleAllocator(int capacity) {
         try {
             ByteBuffer bytebuffer = ByteBuffer.allocate(capacity);

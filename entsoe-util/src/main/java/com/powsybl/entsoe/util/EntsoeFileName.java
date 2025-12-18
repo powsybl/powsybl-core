@@ -51,7 +51,7 @@ public class EntsoeFileName {
         if (str.length() >= 20) {
             try {
                 geographicalCode = EntsoeGeographicalCode.valueOf(str.substring(18, 20));
-            } catch (IllegalArgumentException x) {
+            } catch (IllegalArgumentException e) {
                 geographicalCode = null;
             }
         }

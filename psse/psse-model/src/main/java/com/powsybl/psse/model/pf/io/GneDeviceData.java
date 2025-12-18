@@ -7,17 +7,16 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
+import com.powsybl.psse.model.io.*;
+import com.powsybl.psse.model.pf.PsseGneDevice;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.powsybl.psse.model.io.*;
-import org.apache.commons.lang3.ArrayUtils;
-
-import com.powsybl.psse.model.pf.PsseGneDevice;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
 
 /**
  *
@@ -91,7 +90,6 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
 
             gneDeviceList.forEach(gneDevice -> {
                 List<String> records = new ArrayList<>();
-
                 String[] mainHeaders = context.getFieldNames(GNE_DEVICE);
                 records.add(super.recordGroup.buildRecord(gneDevice, mainHeaders, super.recordGroup.quotedFields(), context));
 
@@ -107,7 +105,6 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
                     String[] headers = ArrayUtils.subarray(FIELD_NAMES[3], 0, gneDevice.getNchar());
                     records.add(super.recordGroup.buildRecord(gneDevice, headers, super.recordGroup.quotedFields(), context));
                 }
-
                 write(records, outputStream);
             });
             writeEnd(outputStream);

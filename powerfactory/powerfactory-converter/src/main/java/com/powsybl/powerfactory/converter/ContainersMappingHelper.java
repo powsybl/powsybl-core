@@ -150,12 +150,12 @@ final class ContainersMappingHelper {
             return false;
         }
         String dataClassName = connectedObj.getDataClassName();
-        return dataClassName.equals("ElmTr2")
-                || dataClassName.equals("ElmTr3")
-                || dataClassName.equals("ElmLne")
-                || dataClassName.equals("ElmCoup")
-                || dataClassName.equals("ElmZpu")
-                || dataClassName.equals("ElmVsc");
+        return "ElmTr2".equals(dataClassName)
+                || "ElmTr3".equals(dataClassName)
+                || "ElmLne".equals(dataClassName)
+                || "ElmCoup".equals(dataClassName)
+                || "ElmZpu".equals(dataClassName)
+                || "ElmVsc".equals(dataClassName);
     }
 
     private static void createNodes(List<DataObject> elmTerms, List<DataObject> nodes,

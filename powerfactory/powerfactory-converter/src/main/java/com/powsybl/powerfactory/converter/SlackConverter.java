@@ -7,13 +7,13 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.List;
-
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
+
+import java.util.List;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

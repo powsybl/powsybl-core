@@ -7,15 +7,12 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import org.junit.jupiter.api.Test;
-
-import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Properties;
+
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -37,7 +37,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
         Path file = fileSystem.getPath(pathName + fileName);
 
         Properties properties = null;
-        if (extensionName.equals("rawx")) {
+        if ("rawx".equals(extensionName)) {
             properties = new Properties();
             properties.put("psse.export.raw-format", false);
         }
@@ -86,212 +86,12 @@ class PsseFullExportTest extends AbstractSerDeTest {
         createSwitch(vl1S2, "Sw-DanglingLine-Vl1-Sub2", 1, 6, false);
         DanglingLine dlVl1S2 = createDanglingLine(vl1S2, "DanglingLine-Vl1-Sub2", 6, 5.0, 2.0, "TieLine");
 
-        Substation sub3 = createSubstation(network, "Sub3");
-        VoltageLevel vl1S3 = createVoltageLevel(sub3, "Vl1-Sub3", 400.0, TopologyKind.NODE_BREAKER);
-        createSwitch(vl1S3, "Sw-Line-Vl1-Sub3-Sub2", 1, 2, false);
-        createSwitch(vl1S3, "Sw-Load-Vl1-Sub3", 1, 3, false);
-        createSwitch(vl1S3, "Sw-T2w-Vl1-Sub3", 1, 4, false);
-        createSwitch(vl1S3, "Sw-DanglingLine-Vl1-Sub3", 1, 5, false);
-        createLoad(vl1S3, "Load-Vl1-Sub3", 3, 25.0, 5.0);
-        DanglingLine dlVl1S3 = vl1S3.newDanglingLine()
-                .setId("DanglingLine-Vl1-S3")
-                .setName("DanglingLine-Vl1-S3")
-                .setNode(5)
-                .setR(5.0)
-                .setX(85.0)
-                .setG(0.0)
-                .setB(0.0)
-                .setP0(0.0)
-                .setQ0(0.0)
-                .setPairingKey("-")
-                .newGeneration()
-                .setTargetV(405.0)
-                .setTargetP(10.5)
-                .setTargetQ(2.5)
-                .setVoltageRegulationOn(true)
-                .setMaxP(100.0)
-                .setMinP(0.0)
-                .add()
-                .add();
-        dlVl1S3.getGeneration().newMinMaxReactiveLimits().setMinQ(-25.0).setMaxQ(35.0).add();
-
-        VoltageLevel vl2S3 = createVoltageLevel(sub3, "Vl2-Sub3", 25.0, TopologyKind.BUS_BREAKER);
-        Bus busVl2S3 = createBus(vl2S3, "Bus-Vl2-Sub3");
-        createLoad(vl2S3, "Load-Vl2-Sub3", busVl2S3.getId(), 10.0, 2.0);
-
-        TwoWindingsTransformer t2w = sub3.newTwoWindingsTransformer()
-                .setId("T2w-Vl1-Vl2-Sub3")
-                .setName("T2w-Vl1-Vl2-Sub3")
-                .setVoltageLevel1(vl1S3.getId())
-                .setVoltageLevel2(vl2S3.getId())
-                .setNode1(4)
-                .setBus2(busVl2S3.getId())
-                .setConnectableBus2(busVl2S3.getId())
-                .setR(0.001)
-                .setX(0.01)
-                .setG(0.0001)
-                .setB(-0.0002)
-                .setRatedU1(vl1S3.getNominalV())
-                .setRatedU2(vl2S3.getNominalV() * 1.01)
-                .setRatedS(100.0)
-                .add();
-        t2w.newRatioTapChanger()
-                .setLowTapPosition(0)
-                .setTapPosition(2)
-                .beginStep().setRho(1.05).endStep()
-                .beginStep().setRho(1.0).endStep()
-                .beginStep().setRho(0.95).endStep()
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setTargetV(vl2S3.getNominalV() * 1.02)
-                .setRegulationTerminal(t2w.getTerminal2());
-        t2w.newOperationalLimitsGroup1("ApparentPowerLimits")
-                .newApparentPowerLimits()
-                .setPermanentLimit(95.0)
-                .beginTemporaryLimit()
-                .setName("TemporaryApparentPowerLimit")
-                .setAcceptableDuration(60)
-                .setValue(115.0)
-                .endTemporaryLimit()
-                .add();
-
-        Substation sub4 = createSubstation(network, "Sub4");
-        VoltageLevel vl1S4 = createVoltageLevel(sub4, "Vl1-Sub4", 400.0, TopologyKind.NODE_BREAKER);
-        createSwitch(vl1S4, "Sw-Vsc-Vl1-Sub4-Sub2", 1, 2, false);
-        createSwitch(vl1S4, "Sw-FixedShunt-Vl1-Sub4", 1, 3, false);
-        createSwitch(vl1S4, "Sw-T3w-Vl1-Sub4", 1, 4, false);
-        createSwitch(vl1S4, "Sw-Line-Vl1-Sub4-sub1", 1, 5, false);
-        ShuntCompensator shunt = vl1S4.newShuntCompensator()
-                .setId("FixedShunt-Vl1-Sub4")
-                .setName("FixedShunt-Vl1-Sub4")
-                .setNode(3)
-                .setSectionCount(1)
-                .newLinearModel()
-                .setMaximumSectionCount(1)
-                .setGPerSection(0.001)
-                .setBPerSection(0.1)
-                .add()
-                .setVoltageRegulatorOn(false)
-                .add();
-
-        VoltageLevel vl2S4 = createVoltageLevel(sub4, "Vl2-Sub4", 110.0, TopologyKind.NODE_BREAKER);
-        createSwitch(vl2S4, "Sw-T3w-Vl2-Sub4", 1, 2, false);
-        createSwitch(vl2S4, "Sw-SwitchedShunt-Vl2-Sub4", 1, 3, false);
-        createSwitch(vl2S4, "Sw-Load-Vl2-Sub4", 1, 4, false);
-        vl2S4.newShuntCompensator()
-                .setId("SwitchedShunt-Vl2-Sub4")
-                .setName("SwitchedShunt-Vl2-Sub4")
-                .setNode(3)
-                .setSectionCount(1)
-                .newLinearModel()
-                .setMaximumSectionCount(2)
-                .setGPerSection(0.001)
-                .setBPerSection(0.1)
-                .add()
-                .setTargetV(vl2S4.getNominalV() * 1.01)
-                .setTargetDeadband(0.5)
-                .setVoltageRegulatorOn(true)
-                .add();
-        createLoad(vl2S4, "Load-Vl2-Sub4", 4, 12.0, 4.0);
-
-        VoltageLevel vl3S4 = createVoltageLevel(sub4, "Vl3-Sub4", 25.0, TopologyKind.NODE_BREAKER);
-        createSwitch(vl3S4, "Sw-T3w-Vl3-Sub4", 1, 2, false);
-        createSwitch(vl3S4, "Sw-Gen-Vl3-Sub4", 1, 3, false);
-        createSwitch(vl3S4, "Sw-StaticVar-Vl3-Sub4", 1, 4, false);
-        createGenerator(vl3S4, "Gen-Vl3-Sub4", 3, 0.5, 5.5, 25.0, false);
-        vl3S4.newStaticVarCompensator()
-                .setId("StaticVar-Vl3-Sub4")
-                .setName("StaticVar-Vl3-Sub4")
-                .setNode(4)
-                .setBmin(0.0)
-                .setBmax(10.0)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setRegulatingTerminal(shunt.getTerminal())
-                .setVoltageSetpoint(vl1S4.getNominalV() * 1.02)
-                .setReactivePowerSetpoint(0.0)
-                .setRegulating(true)
-                .add();
-
-        ThreeWindingsTransformer t3w = sub4.newThreeWindingsTransformer()
-                .setId("T3w-Vl1-Vl2-Vl3-Sub4")
-                .setName("T3w-Vl1-Vl2-Vl3-Sub4")
-                .setRatedU0(vl1S4.getNominalV())
-                .newLeg1()
-                .setVoltageLevel(vl1S4.getId())
-                .setNode(4)
-                .setR(0.0)
-                .setX(0.1)
-                .setG(0.0001)
-                .setB(-0.002)
-                .setRatedU(vl1S4.getNominalV() * 1.03)
-                .setRatedS(200.0)
-                .add()
-                .newLeg2()
-                .setVoltageLevel(vl2S4.getId())
-                .setNode(2)
-                .setR(0.001)
-                .setX(0.2)
-                .setG(0.0)
-                .setB(0.0)
-                .setRatedU(vl2S4.getNominalV())
-                .setRatedS(150.0)
-                .add()
-                .newLeg3()
-                .setVoltageLevel(vl3S4.getId())
-                .setNode(2)
-                .setR(0.002)
-                .setX(0.25)
-                .setG(0.0)
-                .setB(-0.0025)
-                .setRatedU(vl3S4.getNominalV())
-                .setRatedS(50)
-                .add()
-                .add();
-        t3w.getLeg1().newRatioTapChanger()
-                .setTapPosition(0)
-                .setLowTapPosition(0)
-                .beginStep()
-                .setRho(1.02)
-                .endStep()
-                .beginStep()
-                .setRho(1.0)
-                .endStep()
-                .beginStep()
-                .setRho(0.98)
-                .endStep()
-                .setRegulationTerminal(t3w.getLeg2().getTerminal())
-                .setTargetV(vl2S4.getNominalV() * 0.99)
-                .setTargetDeadband(0.5)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
-        t3w.getLeg1().newOperationalLimitsGroup("ActivePowerLimits")
-                .newActivePowerLimits()
-                .setPermanentLimit(210.0)
-                .beginTemporaryLimit()
-                .setName("TemporaryActivePowerLimit")
-                .setAcceptableDuration(120)
-                .setValue(225.0)
-                .endTemporaryLimit()
-                .add();
-
-        Substation sub5 = createSubstation(network, "Sub5");
-        VoltageLevel vl1S5 = createVoltageLevel(sub5, "Vl1-Sub5", 400.0, TopologyKind.NODE_BREAKER);
-        createSwitch(vl1S5, "Sw-Lcc-Vl1-Sub5-Sub2", 1, 2, false);
-        createSwitch(vl1S5, "Sw-DanglingLine-Vl1-Sub5", 1, 3, false);
-        createSwitch(vl1S5, "Sw-Gen-Vl1-Sub5", 1, 4, true);
-        createSwitch(vl1S5, "Sw-Load-Vl1-Sub5", 1, 5, false);
-        createSwitch(vl1S5, "Sw-Battery-Vl1-Sub5", 1, 6, false);
-        createSwitch(vl1S5, "Sw-Line-Vl1-Sub5-Sub1", 1, 7, false);
-        createDanglingLine(vl1S5, "DanglingLine-Vl1-Sub5", 3, 7.0, 1.25, "");
-        createGenerator(vl1S5, "Gen-Vl1-Sub5", 4, 2.0, 2.0, vl1S5.getNominalV(), false);
-        createLoad(vl1S5, "Load-Vl1-Sub5", 5, 2.0, 0.25);
-        vl1S5.newBattery()
-                .setId("Battery-Vl1-Sub5")
-                .setName("Battery-Vl1-Sub5")
-                .setNode(6)
-                .setMinP(0.0)
-                .setMaxP(50.0)
-                .setTargetP(14.0)
-                .setTargetQ(3.5)
-                .add();
+        createSubstation3(network);
+        VoltageLevel vl1S3 = network.getVoltageLevel("Vl1-Sub3");
+        createSubstation4(network);
+        VoltageLevel vl1S4 = network.getVoltageLevel("Vl1-Sub4");
+        createSubstation5(network);
+        VoltageLevel vl1S5 = network.getVoltageLevel("Vl1-Sub5");
 
         Substation sub6 = createSubstation(network, "Sub6");
         VoltageLevel vl1S6 = createVoltageLevel(sub6, "Vl1-Sub6", 400.0, TopologyKind.NODE_BREAKER);
@@ -380,6 +180,219 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .add();
 
         return network;
+    }
+
+    private static void createSubstation3(Network network) {
+        Substation sub3 = createSubstation(network, "Sub3");
+        VoltageLevel vl1S3 = createVoltageLevel(sub3, "Vl1-Sub3", 400.0, TopologyKind.NODE_BREAKER);
+        createSwitch(vl1S3, "Sw-Line-Vl1-Sub3-Sub2", 1, 2, false);
+        createSwitch(vl1S3, "Sw-Load-Vl1-Sub3", 1, 3, false);
+        createSwitch(vl1S3, "Sw-T2w-Vl1-Sub3", 1, 4, false);
+        createSwitch(vl1S3, "Sw-DanglingLine-Vl1-Sub3", 1, 5, false);
+        createLoad(vl1S3, "Load-Vl1-Sub3", 3, 25.0, 5.0);
+        DanglingLine dlVl1S3 = vl1S3.newDanglingLine()
+            .setId("DanglingLine-Vl1-S3")
+            .setName("DanglingLine-Vl1-S3")
+            .setNode(5)
+            .setR(5.0)
+            .setX(85.0)
+            .setG(0.0)
+            .setB(0.0)
+            .setP0(0.0)
+            .setQ0(0.0)
+            .setPairingKey("-")
+            .newGeneration()
+            .setTargetV(405.0)
+            .setTargetP(10.5)
+            .setTargetQ(2.5)
+            .setVoltageRegulationOn(true)
+            .setMaxP(100.0)
+            .setMinP(0.0)
+            .add()
+            .add();
+        dlVl1S3.getGeneration().newMinMaxReactiveLimits().setMinQ(-25.0).setMaxQ(35.0).add();
+
+        VoltageLevel vl2S3 = createVoltageLevel(sub3, "Vl2-Sub3", 25.0, TopologyKind.BUS_BREAKER);
+        Bus busVl2S3 = createBus(vl2S3, "Bus-Vl2-Sub3");
+        createLoad(vl2S3, "Load-Vl2-Sub3", busVl2S3.getId(), 10.0, 2.0);
+
+        TwoWindingsTransformer t2w = sub3.newTwoWindingsTransformer()
+            .setId("T2w-Vl1-Vl2-Sub3")
+            .setName("T2w-Vl1-Vl2-Sub3")
+            .setVoltageLevel1(vl1S3.getId())
+            .setVoltageLevel2(vl2S3.getId())
+            .setNode1(4)
+            .setBus2(busVl2S3.getId())
+            .setConnectableBus2(busVl2S3.getId())
+            .setR(0.001)
+            .setX(0.01)
+            .setG(0.0001)
+            .setB(-0.0002)
+            .setRatedU1(vl1S3.getNominalV())
+            .setRatedU2(vl2S3.getNominalV() * 1.01)
+            .setRatedS(100.0)
+            .add();
+        t2w.newRatioTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(2)
+            .beginStep().setRho(1.05).endStep()
+            .beginStep().setRho(1.0).endStep()
+            .beginStep().setRho(0.95).endStep()
+            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+            .setTargetV(vl2S3.getNominalV() * 1.02)
+            .setRegulationTerminal(t2w.getTerminal2());
+        t2w.newOperationalLimitsGroup1("ApparentPowerLimits")
+            .newApparentPowerLimits()
+            .setPermanentLimit(95.0)
+            .beginTemporaryLimit()
+            .setName("TemporaryApparentPowerLimit")
+            .setAcceptableDuration(60)
+            .setValue(115.0)
+            .endTemporaryLimit()
+            .add();
+    }
+
+    private static void createSubstation4(Network network) {
+        Substation sub4 = createSubstation(network, "Sub4");
+        VoltageLevel vl1S4 = createVoltageLevel(sub4, "Vl1-Sub4", 400.0, TopologyKind.NODE_BREAKER);
+        createSwitch(vl1S4, "Sw-Vsc-Vl1-Sub4-Sub2", 1, 2, false);
+        createSwitch(vl1S4, "Sw-FixedShunt-Vl1-Sub4", 1, 3, false);
+        createSwitch(vl1S4, "Sw-T3w-Vl1-Sub4", 1, 4, false);
+        createSwitch(vl1S4, "Sw-Line-Vl1-Sub4-sub1", 1, 5, false);
+        ShuntCompensator shunt = vl1S4.newShuntCompensator()
+            .setId("FixedShunt-Vl1-Sub4")
+            .setName("FixedShunt-Vl1-Sub4")
+            .setNode(3)
+            .setSectionCount(1)
+            .newLinearModel()
+            .setMaximumSectionCount(1)
+            .setGPerSection(0.001)
+            .setBPerSection(0.1)
+            .add()
+            .setVoltageRegulatorOn(false)
+            .add();
+
+        VoltageLevel vl2S4 = createVoltageLevel(sub4, "Vl2-Sub4", 110.0, TopologyKind.NODE_BREAKER);
+        createSwitch(vl2S4, "Sw-T3w-Vl2-Sub4", 1, 2, false);
+        createSwitch(vl2S4, "Sw-SwitchedShunt-Vl2-Sub4", 1, 3, false);
+        createSwitch(vl2S4, "Sw-Load-Vl2-Sub4", 1, 4, false);
+        vl2S4.newShuntCompensator()
+            .setId("SwitchedShunt-Vl2-Sub4")
+            .setName("SwitchedShunt-Vl2-Sub4")
+            .setNode(3)
+            .setSectionCount(1)
+            .newLinearModel()
+            .setMaximumSectionCount(2)
+            .setGPerSection(0.001)
+            .setBPerSection(0.1)
+            .add()
+            .setTargetV(vl2S4.getNominalV() * 1.01)
+            .setTargetDeadband(0.5)
+            .setVoltageRegulatorOn(true)
+            .add();
+        createLoad(vl2S4, "Load-Vl2-Sub4", 4, 12.0, 4.0);
+
+        VoltageLevel vl3S4 = createVoltageLevel(sub4, "Vl3-Sub4", 25.0, TopologyKind.NODE_BREAKER);
+        createSwitch(vl3S4, "Sw-T3w-Vl3-Sub4", 1, 2, false);
+        createSwitch(vl3S4, "Sw-Gen-Vl3-Sub4", 1, 3, false);
+        createSwitch(vl3S4, "Sw-StaticVar-Vl3-Sub4", 1, 4, false);
+        createGenerator(vl3S4, "Gen-Vl3-Sub4", 3, 0.5, 5.5, 25.0, false);
+        vl3S4.newStaticVarCompensator()
+            .setId("StaticVar-Vl3-Sub4")
+            .setName("StaticVar-Vl3-Sub4")
+            .setNode(4)
+            .setBmin(0.0)
+            .setBmax(10.0)
+            .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .setRegulatingTerminal(shunt.getTerminal())
+            .setVoltageSetpoint(vl1S4.getNominalV() * 1.02)
+            .setReactivePowerSetpoint(0.0)
+            .setRegulating(true)
+            .add();
+
+        ThreeWindingsTransformer t3w = sub4.newThreeWindingsTransformer()
+            .setId("T3w-Vl1-Vl2-Vl3-Sub4")
+            .setName("T3w-Vl1-Vl2-Vl3-Sub4")
+            .setRatedU0(vl1S4.getNominalV())
+            .newLeg1()
+            .setVoltageLevel(vl1S4.getId())
+            .setNode(4)
+            .setR(0.0)
+            .setX(0.1)
+            .setG(0.0001)
+            .setB(-0.002)
+            .setRatedU(vl1S4.getNominalV() * 1.03)
+            .setRatedS(200.0)
+            .add()
+            .newLeg2()
+            .setVoltageLevel(vl2S4.getId())
+            .setNode(2)
+            .setR(0.001)
+            .setX(0.2)
+            .setG(0.0)
+            .setB(0.0)
+            .setRatedU(vl2S4.getNominalV())
+            .setRatedS(150.0)
+            .add()
+            .newLeg3()
+            .setVoltageLevel(vl3S4.getId())
+            .setNode(2)
+            .setR(0.002)
+            .setX(0.25)
+            .setG(0.0)
+            .setB(-0.0025)
+            .setRatedU(vl3S4.getNominalV())
+            .setRatedS(50)
+            .add()
+            .add();
+        t3w.getLeg1().newRatioTapChanger()
+            .setTapPosition(0)
+            .setLowTapPosition(0)
+            .beginStep()
+            .setRho(1.02)
+            .endStep()
+            .beginStep()
+            .setRho(1.0)
+            .endStep()
+            .beginStep()
+            .setRho(0.98)
+            .endStep()
+            .setRegulationTerminal(t3w.getLeg2().getTerminal())
+            .setTargetV(vl2S4.getNominalV() * 0.99)
+            .setTargetDeadband(0.5)
+            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+        t3w.getLeg1().newOperationalLimitsGroup("ActivePowerLimits")
+            .newActivePowerLimits()
+            .setPermanentLimit(210.0)
+            .beginTemporaryLimit()
+            .setName("TemporaryActivePowerLimit")
+            .setAcceptableDuration(120)
+            .setValue(225.0)
+            .endTemporaryLimit()
+            .add();
+    }
+
+    private static void createSubstation5(Network network) {
+        Substation sub5 = createSubstation(network, "Sub5");
+        VoltageLevel vl1S5 = createVoltageLevel(sub5, "Vl1-Sub5", 400.0, TopologyKind.NODE_BREAKER);
+        createSwitch(vl1S5, "Sw-Lcc-Vl1-Sub5-Sub2", 1, 2, false);
+        createSwitch(vl1S5, "Sw-DanglingLine-Vl1-Sub5", 1, 3, false);
+        createSwitch(vl1S5, "Sw-Gen-Vl1-Sub5", 1, 4, true);
+        createSwitch(vl1S5, "Sw-Load-Vl1-Sub5", 1, 5, false);
+        createSwitch(vl1S5, "Sw-Battery-Vl1-Sub5", 1, 6, false);
+        createSwitch(vl1S5, "Sw-Line-Vl1-Sub5-Sub1", 1, 7, false);
+        createDanglingLine(vl1S5, "DanglingLine-Vl1-Sub5", 3, 7.0, 1.25, "");
+        createGenerator(vl1S5, "Gen-Vl1-Sub5", 4, 2.0, 2.0, vl1S5.getNominalV(), false);
+        createLoad(vl1S5, "Load-Vl1-Sub5", 5, 2.0, 0.25);
+        vl1S5.newBattery()
+            .setId("Battery-Vl1-Sub5")
+            .setName("Battery-Vl1-Sub5")
+            .setNode(6)
+            .setMinP(0.0)
+            .setMaxP(50.0)
+            .setTargetP(14.0)
+            .setTargetQ(3.5)
+            .add();
     }
 
     private static Substation createSubstation(Network network, String substationId) {

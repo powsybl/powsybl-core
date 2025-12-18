@@ -75,7 +75,7 @@ public class DgsParser {
                     float v = Float.parseFloat(value.replace(',', '.'));
                     decimalSeparatorIsComma = true;
                     return v;
-                } catch (NumberFormatException ex2) {
+                } catch (NumberFormatException exception) {
                     throw new PowerFactoryException("Invalid real value [" + value + "]");
                 }
             }
@@ -279,7 +279,7 @@ public class DgsParser {
         String descr = fields[1];
         String val = fields[2];
         if (descr.equals(VERSION)) {
-            if (val.equals("5.0")) {
+            if ("5.0".equals(val)) {
                 context.version = DgsVersion.V5;
             } else {
                 throw new PowerFactoryException("Unsupported DGS ASCII version: " + val);

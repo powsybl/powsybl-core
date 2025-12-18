@@ -7,6 +7,10 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,10 +20,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.psse.model.PsseVersion;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
@@ -202,7 +202,8 @@ public class PsseValidation {
                 continue;
             }
             if (nonTransformerBranch.getX() == 0.0) {
-                validationErrors.add(String.format(Locale.US, "NonTransformerBranch: %d %d %s Unexpected X: %.5f", nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt(), nonTransformerBranch.getX()));
+                validationErrors.add(String.format(Locale.US, "NonTransformerBranch: %d %d %s Unexpected X: %.5f",
+                    nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt(), nonTransformerBranch.getX()));
                 validCase = false;
             }
             addBusesMap(busesNonTransformerBranches, nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt());
@@ -213,11 +214,13 @@ public class PsseValidation {
 
     private boolean isNonTransformedBranchBadlyConnected(PsseNonTransformerBranch nonTransformerBranch, Map<Integer, List<Integer>> buses) {
         if (!buses.containsKey(nonTransformerBranch.getI())) {
-            validationWarnings.add(String.format("NonTransformerBranch: bus not found I: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored", nonTransformerBranch.getI(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
+            validationWarnings.add(String.format("NonTransformerBranch: bus not found I: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored",
+                nonTransformerBranch.getI(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
             return true;
         }
         if (!buses.containsKey(nonTransformerBranch.getJ())) {
-            validationWarnings.add(String.format("NonTransformerBranch: bus not found J: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored", nonTransformerBranch.getJ(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
+            validationWarnings.add(String.format("NonTransformerBranch: bus not found J: %d, NonTransformerBranch record %d, %d, %s, ... will be ignored",
+                nonTransformerBranch.getJ(), nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt()));
             return true;
         }
         return false;
@@ -257,11 +260,13 @@ public class PsseValidation {
 
     private boolean isT2wTransformerBadlyConnected(PsseTransformer transformer, Map<Integer, List<Integer>> buses) {
         if (!buses.containsKey(transformer.getI())) {
-            validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %s, ... will be ignored", transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
+            validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %s, ... will be ignored",
+                transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
             return true;
         }
         if (!buses.containsKey(transformer.getJ())) {
-            validationWarnings.add(String.format("Transformer: bus not found J: %d, Transformer record %d, %d, %s, ... will be ignored", transformer.getJ(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
+            validationWarnings.add(String.format("Transformer: bus not found J: %d, Transformer record %d, %d, %s, ... will be ignored",
+                transformer.getJ(), transformer.getI(), transformer.getJ(), transformer.getCkt()));
             return true;
         }
         return false;
@@ -315,15 +320,18 @@ public class PsseValidation {
 
     private boolean isT3wTransformerBadlyConnected(PsseTransformer transformer, Map<Integer, List<Integer>> buses) {
         if (!buses.containsKey(transformer.getI())) {
-            validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
+            validationWarnings.add(String.format("Transformer: bus not found I: %d, Transformer record %d, %d, %d, %s, ... will be ignored",
+                transformer.getI(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
             return true;
         }
         if (!buses.containsKey(transformer.getJ())) {
-            validationWarnings.add(String.format("Transformer: bus not found J: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getJ(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
+            validationWarnings.add(String.format("Transformer: bus not found J: %d, Transformer record %d, %d, %d, %s, ... will be ignored",
+                transformer.getJ(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
             return true;
         }
         if (!buses.containsKey(transformer.getK())) {
-            validationWarnings.add(String.format("Transformer: bus not found K: %d, Transformer record %d, %d, %d, %s, ... will be ignored", transformer.getK(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
+            validationWarnings.add(String.format("Transformer: bus not found K: %d, Transformer record %d, %d, %d, %s, ... will be ignored",
+                transformer.getK(), transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt()));
             return true;
         }
         return false;
@@ -396,11 +404,13 @@ public class PsseValidation {
 
     private boolean isTwoTerminalDcTransmissionLineBadlyConnected(PsseTwoTerminalDcTransmissionLine twoTerminalDc, Map<Integer, List<Integer>> buses) {
         if (!buses.containsKey(twoTerminalDc.getRectifier().getIp())) {
-            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: rectifier bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getRectifier().getIp(), twoTerminalDc.getName()));
+            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: rectifier bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored",
+                twoTerminalDc.getRectifier().getIp(), twoTerminalDc.getName()));
             return true;
         }
         if (!buses.containsKey(twoTerminalDc.getInverter().getIp())) {
-            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: inverter bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored", twoTerminalDc.getInverter().getIp(), twoTerminalDc.getName()));
+            validationWarnings.add(String.format("TwoTerminalDcTransmissionLine: inverter bus not found Ip: %d, TwoTerminalDcTransmissionLine record %s, ... will be ignored",
+                twoTerminalDc.getInverter().getIp(), twoTerminalDc.getName()));
             return true;
         }
         return false;
@@ -412,12 +422,16 @@ public class PsseValidation {
             if (isVscDcTransmissionLineBadlyConnected(vscDcTransmissionLine, buses)) {
                 continue;
             }
-            if (vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion) != 0 && !buses.containsKey(vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion))) {
-                validationErrors.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter1 Vsreg bus: %d", vscDcTransmissionLine.getName(), vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion)));
+            if (vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion) != 0
+                && !buses.containsKey(vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion))) {
+                validationErrors.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter1 Vsreg bus: %d",
+                    vscDcTransmissionLine.getName(), vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion)));
                 validCase = false;
             }
-            if (vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion) != 0 && !buses.containsKey(vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion))) {
-                validationErrors.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter2 Vsreg bus: %d", vscDcTransmissionLine.getName(), vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion)));
+            if (vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion) != 0
+                && !buses.containsKey(vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion))) {
+                validationErrors.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter2 Vsreg bus: %d",
+                    vscDcTransmissionLine.getName(), vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion)));
                 validCase = false;
             }
             vscDcTransmissionLinesNames.put(vscDcTransmissionLine.getName(), vscDcTransmissionLinesNames.getOrDefault(vscDcTransmissionLine.getName(), 0) + 1);
@@ -429,13 +443,18 @@ public class PsseValidation {
         }
     }
 
-    private boolean isVscDcTransmissionLineBadlyConnected(PsseVoltageSourceConverterDcTransmissionLine vscDcTransmissionLine, Map<Integer, List<Integer>> buses) {
+    private boolean isVscDcTransmissionLineBadlyConnected(PsseVoltageSourceConverterDcTransmissionLine vscDcTransmissionLine,
+                                                          Map<Integer, List<Integer>> buses) {
         if (!buses.containsKey(vscDcTransmissionLine.getConverter1().getIbus())) {
-            validationWarnings.add(String.format("VoltageSourceConverterDcTransmissionLine: converter1 bus not found Ibus: %d, VoltageSourceConverterDcTransmissionLine record %s, ... will be ignored", vscDcTransmissionLine.getConverter1().getIbus(), vscDcTransmissionLine.getName()));
+            validationWarnings.add(String.format("VoltageSourceConverterDcTransmissionLine: converter1 bus not found Ibus: %d, " +
+                "VoltageSourceConverterDcTransmissionLine record %s, ... will be ignored",
+                vscDcTransmissionLine.getConverter1().getIbus(), vscDcTransmissionLine.getName()));
             return true;
         }
         if (!buses.containsKey(vscDcTransmissionLine.getConverter2().getIbus())) {
-            validationWarnings.add(String.format("VoltageSourceConverterDcTransmissionLine: converter2 bus not found Ibus: %d, VoltageSourceConverterDcTransmissionLine record %s, ... will be ignored", vscDcTransmissionLine.getConverter2().getIbus(), vscDcTransmissionLine.getName()));
+            validationWarnings.add(String.format("VoltageSourceConverterDcTransmissionLine: converter2 bus not found Ibus: %d," +
+                " VoltageSourceConverterDcTransmissionLine record %s, ... will be ignored",
+                vscDcTransmissionLine.getConverter2().getIbus(), vscDcTransmissionLine.getName()));
             return true;
         }
         return false;
@@ -486,7 +505,8 @@ public class PsseValidation {
 
         for (PsseSwitchedShunt switchedShunt : switchedShunts) {
             if (!buses.containsKey(switchedShunt.getI())) {
-                validationWarnings.add(String.format("SwitchedShunt: bus not found I: %d, SwitchedShunt record %s, ... will be ignored", switchedShunt.getI(), switchedShuntId(switchedShunt, psseVersion)));
+                validationWarnings.add(String.format("SwitchedShunt: bus not found I: %d, SwitchedShunt record %s, ... will be ignored",
+                    switchedShunt.getI(), switchedShuntId(switchedShunt, psseVersion)));
                 continue;
             }
             String id = switchedShuntId(switchedShunt, psseVersion);

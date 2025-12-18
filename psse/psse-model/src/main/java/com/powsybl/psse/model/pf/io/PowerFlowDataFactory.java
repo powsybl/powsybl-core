@@ -25,7 +25,7 @@ public final class PowerFlowDataFactory {
         // When only extension is given,
         // We create PowerFlowData objects that are able to read the case identification
         // To determine if the file is valid and get its version
-        if (extension.equalsIgnoreCase("rawx")) {
+        if ("rawx".equalsIgnoreCase(extension)) {
             return new PowerFlowRawxDataAllVersions();
         } else {
             return new PowerFlowRawDataAllVersions();
@@ -33,7 +33,7 @@ public final class PowerFlowDataFactory {
     }
 
     public static PowerFlowData create(String extension, PsseVersion version) {
-        if (extension.equalsIgnoreCase("rawx")) {
+        if ("rawx".equalsIgnoreCase(extension)) {
             switch (version.major()) {
                 case V35 -> {
                     return new PowerFlowRawxData35();

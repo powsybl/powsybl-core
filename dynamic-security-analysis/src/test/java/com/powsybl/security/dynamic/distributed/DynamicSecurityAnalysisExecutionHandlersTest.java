@@ -329,15 +329,11 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
                 .setWithLogs(true);
         ExecutionHandler<SecurityAnalysisReport> handler2 = DynamicSecurityAnalysisExecutionHandlers.distributed(input, 2);
         ExecutionReport executionReport = new DefaultExecutionReport(workingDir);
-        try {
-            handler2.after(workingDir, executionReport);
-            fail();
-        } catch (ComputationException ce) {
-            assertEquals("logs", ce.getErrLogs().get("dynamic-security-analysis-task_0.err"));
-            assertEquals("logs", ce.getErrLogs().get("dynamic-security-analysis-task_1.err"));
-            assertEquals("logs", ce.getOutLogs().get("dynamic-security-analysis-task_0.out"));
-            assertEquals("logs", ce.getOutLogs().get("dynamic-security-analysis-task_1.out"));
-        }
+        ComputationException computationException = assertThrows(ComputationException.class, () -> handler2.after(workingDir, executionReport));
+        assertEquals("logs", computationException.getErrLogs().get("dynamic-security-analysis-task_0.err"));
+        assertEquals("logs", computationException.getErrLogs().get("dynamic-security-analysis-task_1.err"));
+        assertEquals("logs", computationException.getOutLogs().get("dynamic-security-analysis-task_0.out"));
+        assertEquals("logs", computationException.getOutLogs().get("dynamic-security-analysis-task_1.out"));
 
         ExecutionReport executionReport2 = new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(Mockito.mock(Command.class), 0, 42)));
         assertThatExceptionOfType(ComputationException.class).isThrownBy(() -> handler2.after(workingDir, executionReport2));

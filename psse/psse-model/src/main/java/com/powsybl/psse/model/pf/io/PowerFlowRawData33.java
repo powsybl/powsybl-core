@@ -9,8 +9,8 @@ package com.powsybl.psse.model.pf.io;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.LegacyTextReader;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
@@ -76,7 +76,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
         if (context.getVersion().major() != V33) {
             throw new PsseException("Unexpected version " + context.getVersion().getMajorNumber());
         }
-        try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "raw", false));) {
+        try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "raw", false))) {
             write(model, context, outputStream);
         }
     }

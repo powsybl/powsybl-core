@@ -7,12 +7,9 @@
  */
 package com.powsybl.config.classic;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.ModuleConfigRepository;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +22,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Jon Harper {@literal <jon.harper at rte-france.com>}

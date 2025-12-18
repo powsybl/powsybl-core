@@ -7,11 +7,11 @@
  */
 package com.powsybl.cgmes.shortcircuit;
 
-import java.util.Objects;
-
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
+
+import java.util.Objects;
 
 import static com.powsybl.triplestore.api.TripleStoreUtils.queryTripleStore;
 

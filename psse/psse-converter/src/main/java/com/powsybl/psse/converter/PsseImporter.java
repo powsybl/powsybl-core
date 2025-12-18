@@ -246,7 +246,8 @@ public class PsseImporter implements Importer {
             new GeneratorConverter(psseGen, containersMapping, network, nodeBreakerImport).addControl(busNumToPsseBus.get(psseGen.getI()));
         }
         for (PsseTransformer psseTransformer : psseModel.getTransformers()) {
-            new TransformerConverter(psseTransformer, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase(), version, nodeBreakerImport).addControl();
+            new TransformerConverter(psseTransformer, containersMapping, perUnitContext, network, busNumToPsseBus,
+                psseModel.getCaseIdentification().getSbase(), version, nodeBreakerImport).addControl();
         }
         for (PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine : psseModel.getVoltageSourceConverterDcTransmissionLines()) {
             new VscDcTransmissionLineConverter(psseVscDcTransmissionLine, containersMapping, network, version, nodeBreakerImport).addControl();

@@ -9,8 +9,8 @@ package com.powsybl.powerfactory.dgs;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.Files;
-import com.powsybl.powerfactory.model.StudyCase;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
+import com.powsybl.powerfactory.model.StudyCase;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
