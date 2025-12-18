@@ -1039,7 +1039,7 @@ public final class NetworkSerDe {
         return copy(network, networkFactory, ForkJoinPool.commonPool(), format);
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);

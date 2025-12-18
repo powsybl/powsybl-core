@@ -89,7 +89,7 @@ public interface Importer {
             throw new PowsyblException("Post processor " + name + " not found");
         }
 
-        @SuppressWarnings("checkstyle:IllegalCatch")
+        @SuppressWarnings("checkstyle:IllegalCatchWarning")
         @Override
         public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
             Network network = importer.importData(dataSource, networkFactory, parameters, reportNode);

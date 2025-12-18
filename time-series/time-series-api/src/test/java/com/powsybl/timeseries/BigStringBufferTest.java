@@ -28,7 +28,7 @@ class BigStringBufferTest {
 
     private int allocatorCount;
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     private ByteBuffer testStringAllocator(int capacity) {
         try {
             ByteBuffer bytebuffer = ByteBuffer.allocate(capacity);

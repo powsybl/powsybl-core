@@ -137,7 +137,7 @@ public class CommandLineTools {
         return null;
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     public int run(String[] args, ToolInitializationContext initContext) {
         Objects.requireNonNull(args);
         Objects.requireNonNull(initContext);

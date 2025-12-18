@@ -99,7 +99,7 @@ public final class Importers {
         return importData(format, new DirectoryDataSource(Paths.get(directory), baseName), parameters);
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters, Consumer<Network> consumer,
                                  Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) {
         Objects.requireNonNull(consumer);

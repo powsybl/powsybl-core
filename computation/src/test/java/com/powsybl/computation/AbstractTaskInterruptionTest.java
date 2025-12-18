@@ -76,7 +76,7 @@ public abstract class AbstractTaskInterruptionTest {
         return CompletableFutureTask.runAsync(() -> runAsyncTask(methodCalledInTask), Executors.newSingleThreadExecutor());
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     private boolean runAsyncTask(Supplier<?> methodCalledInTask) {
         LOGGER.info("createTask - START - {}", ZonedDateTime.now());
         waitForStart.countDown();

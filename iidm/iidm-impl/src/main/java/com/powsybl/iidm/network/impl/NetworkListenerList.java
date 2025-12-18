@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-@SuppressWarnings("checkstyle:IllegalCatch")
+@SuppressWarnings("checkstyle:IllegalCatchWarning")
 public class NetworkListenerList {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkListenerList.class);

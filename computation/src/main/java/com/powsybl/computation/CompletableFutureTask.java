@@ -40,7 +40,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
      * Executes the wrapped callable. On execution end, this future will complete with the callable result,
      * or complete exceptionally in case of exception.
      */
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     @Override
     public void run() {
         future.run();

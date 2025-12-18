@@ -28,7 +28,7 @@ class BigDoubleBufferTest {
 
     private int allocatorCount;
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     private ByteBuffer testDoubleAllocator(int capacity) {
         try {
             ByteBuffer bytebuffer = ByteBuffer.allocate(capacity);

@@ -116,7 +116,7 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
      * Reads result from the working directory, as defined by the specified reader.
      */
     @Override
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     public R after(Path workingDir, ExecutionReport report) throws IOException {
         try {
             super.after(workingDir, report);

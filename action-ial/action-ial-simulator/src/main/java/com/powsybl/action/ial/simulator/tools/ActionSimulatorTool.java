@@ -231,7 +231,7 @@ public class ActionSimulatorTool implements Tool {
     }
 
     @Override
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
         Path dslFile = context.getFileSystem().getPath(line.getOptionValue(DSL_FILE));
