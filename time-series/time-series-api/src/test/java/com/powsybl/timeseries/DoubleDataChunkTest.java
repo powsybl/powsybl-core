@@ -115,7 +115,7 @@ class DoubleDataChunkTest {
         assertEquals(List.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z"), 1d),
                                       new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z"), 2d),
                                       new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z"), 3d)),
-                     compressedChunk.stream(index).toList());
+                     compressedChunk.compressedStream(index).toList());
     }
 
     @Test

@@ -24,7 +24,7 @@ public class ImportConfig {
 
     public static final Supplier<ImportConfig> CACHE = Suppliers.memoize(ImportConfig::load);
 
-    private static final List<String> DEFAULT_POST_PROCESSORS = new ArrayList<>();
+    private static final List<String> DEFAULT_POST_PROCESSORS = Collections.emptyList();
 
     private final List<String> postProcessors;
 
@@ -49,7 +49,7 @@ public class ImportConfig {
     }
 
     public ImportConfig(List<String> postProcessors) {
-        this.postProcessors = Objects.requireNonNull(postProcessors);
+        this.postProcessors = new ArrayList<>(Objects.requireNonNull(postProcessors));
     }
 
     /**

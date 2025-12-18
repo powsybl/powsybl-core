@@ -1,5 +1,5 @@
 {
-  "version" : "1.7",
+  "version" : "1.8",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -177,6 +177,70 @@
     },
     "conditionalActionsResults" : [ {
       "conditionalActionsId" : "strategyId",
+      "status" : "CONVERGED",
+      "limitViolationsResult" : {
+        "limitViolations" : [ ],
+        "actionsTaken" : [ ]
+      },
+      "networkResult" : {
+        "branchResults" : [ ],
+        "busResults" : [ ],
+        "threeWindingsTransformerResults" : [ ]
+      }
+    } ]
+  }, {
+    "operatorStrategy" : {
+      "id" : "strategyId2",
+      "contingencyContextType" : "SPECIFIC",
+      "contingencyId" : "contingency1",
+      "conditionalActions" : [ {
+        "id" : "stage1",
+        "condition" : {
+          "type" : "BRANCH_THRESHOLD_CONDITION",
+          "equipmentId" : "Line1",
+          "variable" : "CURRENT",
+          "comparisonType" : "GREATER_THAN",
+          "threshold" : 2.0,
+          "side" : "ONE"
+        },
+        "actionIds" : [ "actionId3" ]
+      }, {
+        "id" : "stage1",
+        "condition" : {
+          "type" : "THREE_WINDINGS_TRANSFORMER_THRESHOLD_CONDITION",
+          "equipmentId" : "3WTransformer1",
+          "variable" : "REACTIVE_POWER",
+          "comparisonType" : "NOT_EQUAL",
+          "threshold" : 52.0,
+          "side" : "THREE"
+        },
+        "actionIds" : [ "actionId3" ]
+      }, {
+        "id" : "stage2",
+        "condition" : {
+          "type" : "INJECTION_THRESHOLD_CONDITION",
+          "equipmentId" : "Gen2",
+          "variable" : "ACTIVE_POWER",
+          "comparisonType" : "GREATER_THAN_OR_EQUALS",
+          "threshold" : 2.0
+        },
+        "actionIds" : [ "actionId3", "actionId4" ]
+      }, {
+        "id" : "stage3",
+        "condition" : {
+          "type" : "AC_DC_CONVERTER_THRESHOLD_CONDITION",
+          "equipmentId" : "Converter1",
+          "variable" : "CURRENT",
+          "comparisonType" : "LESS_THAN_OR_EQUALS",
+          "threshold" : 3.0,
+          "acSide" : true,
+          "terminalNumber" : 2
+        },
+        "actionIds" : [ "actionId3", "actionId4", "actionId5" ]
+      } ]
+    },
+    "conditionalActionsResults" : [ {
+      "conditionalActionsId" : "strategyId2",
       "status" : "CONVERGED",
       "limitViolationsResult" : {
         "limitViolations" : [ ],

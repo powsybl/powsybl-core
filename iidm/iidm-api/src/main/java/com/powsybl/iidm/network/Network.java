@@ -603,6 +603,10 @@ public interface Network extends Container<Network> {
      */
     int getForecastDistance();
 
+    /**
+     * Set the forecast distance in minutes.
+     * <p>Example: 0 for a snapshot, 6*60 to 30*60 for a DACF.
+     */
     Network setForecastDistance(int forecastDistance);
 
     /**

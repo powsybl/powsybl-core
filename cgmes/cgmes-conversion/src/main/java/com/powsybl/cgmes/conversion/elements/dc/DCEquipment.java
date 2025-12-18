@@ -17,7 +17,7 @@ public record DCEquipment(String id, String type, String node1, String node2) {
 
     public boolean isAdjacentTo(DCEquipment otherDcEquipment) {
         // Two DCEquipment are adjacent if they share a node.
-        return node1.equals(otherDcEquipment.node1) || node1.equals(otherDcEquipment.node2)
+        return node1 != null && (node1.equals(otherDcEquipment.node1) || node1.equals(otherDcEquipment.node2))
                 || node2 != null && (node2.equals(otherDcEquipment.node1) || node2.equals(otherDcEquipment.node2));
     }
 

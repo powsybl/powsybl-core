@@ -52,8 +52,8 @@ class StoredDoubleTimeSeriesTest {
                                    new DoublePoint(4, Instant.parse("2015-01-01T01:00:00Z"), Double.NaN),
                                    new DoublePoint(5, Instant.parse("2015-01-01T01:15:00Z"), 3d),
                                    new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z"), 4d)};
-        assertArrayEquals(pointsRef, timeSeries.stream().toArray());
-        assertArrayEquals(pointsRef, Iterators.toArray(timeSeries.iterator(), DoublePoint.class));
+        assertArrayEquals(pointsRef, timeSeries.compressedStream().toArray());
+        assertArrayEquals(pointsRef, Iterators.toArray(timeSeries.compressedIterator(), DoublePoint.class));
 
         // json test
         String jsonRef = String.join(System.lineSeparator(),

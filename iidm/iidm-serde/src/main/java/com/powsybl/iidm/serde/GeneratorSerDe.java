@@ -39,6 +39,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
                 context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () ->
+            context.getWriter().writeDoubleAttribute("equivalentLocalTargetV", g.getEquivalentLocalTargetV(), Double.NaN));
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
     }
@@ -68,15 +70,20 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
                 adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
-        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder.setEnergySource(energySource)
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setRatedS(ratedS)
                 .setTargetP(targetP)
-                .setTargetV(targetV)
                 .setTargetQ(targetQ)
                 .setVoltageRegulatorOn(voltageRegulatorOn);
+        // Since V_1_15 -> use 'setTargetV(targetV, equivalentLocalTargetV)' instead of 'setTargetV(targetV)'
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_14, context, () ->
+            adder.setTargetV(targetV));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () ->
+            adder.setTargetV(targetV, context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN)));
+
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         Generator g = adder.add();
         readPQ(null, g.getTerminal(), context.getReader());
         return g;

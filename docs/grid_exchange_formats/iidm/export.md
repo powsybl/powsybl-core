@@ -68,6 +68,13 @@ There are two possible behaviors:
 - `THROW_EXCEPTION`: an exception is thrown when there is a version incompatibility
   By default, this behavior is set as `THROW_EXCEPTION`
 
+**iidm.export.xml.bus-branch.voltage-level.incompatibility-behavior**
+The `iidm.export.xml.bus-branch.voltage-level.incompatibility-behavior` property is an optional property that defines the behavior of the XIIDM exporter when exporting a network in BUS_BRANCH topology with a voltage level that will be invalid due to a reference to a non-exported bus.
+There are two possible behaviors:
+- `KEEP_ORIGINAL_TOPOLOGY`: the problematic voltage level is exported keeping the original topology and a warning is logged
+- `THROW_EXCEPTION`: an exception is thrown when trying to export a network in BUS_BRANCH topology, and a problematic voltage level is detected.
+  By default, this behavior is set as `THROW_EXCEPTION`
+
 ### Removed properties
 
 **iidm.export.xml.export-mode**  

@@ -333,24 +333,66 @@ class ReportNodeTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testMissingKey() {
+    void testMissingKeyStrictMode() {
         // Default locale for this test class is Locale.US
         ReportNode report1 = ReportNode.newRootReportNode()
                 .withResourceBundles(TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("unknown.key")
+                .withMessageTemplate("unknown.key 1")
                 .build();
         // translation should fall back to the default powsybl core reports.properties 'core.commons.missingKey' template because no reports_en.properties or reports_en_US.properties exist
-        assertEquals("Cannot find message template with key: 'unknown.key'", report1.getMessage());
+        assertEquals("Cannot find message template with key: 'unknown.key 1'", report1.getMessage());
 
         // With Locale.FRENCH
         ReportNode report2 = ReportNode.newRootReportNode()
                 .withResourceBundles(TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withLocale(Locale.FRENCH)
-                .withResourceBundles(TEST_BASE_NAME)
-                .withMessageTemplate("unknown.key")
+                .withMessageTemplate("unknown.key 2")
                 .build();
         // translation should fall back to the powsybl core reports_fr.properties 'core.commons.missingKey' template because it exists and the report node root locale is FRENCH
-        assertEquals("Template de message non trouvé pour la clé 'unknown.key'.", report2.getMessage());
+        assertEquals("Template de message non trouvé pour la clé 'unknown.key 2'.", report2.getMessage());
+
+        // No bundle
+        ReportNode report3 = ReportNode.newRootReportNode()
+                .withMessageTemplate("unknown.key 3")
+                .build();
+        assertEquals("Cannot find message template with key: 'unknown.key 3'", report3.getMessage());
+
+        // No bundle (switch to loose mode then back to strict mode
+        ReportNode report4 = ReportNode.newRootReportNode()
+                .withStrictMode(false)
+                .withStrictMode(true)
+                .withMessageTemplate("unknown.key 4")
+                .build();
+        assertEquals("Cannot find message template with key: 'unknown.key 4'", report4.getMessage());
+    }
+
+    @Test
+    void testMissingKeyLoseMode() {
+        // Loose mode: setting the option BEFORE setting the resource bundles
+        ReportNode report1 = ReportNode.newRootReportNode()
+                .withStrictMode(false)
+                .withResourceBundles(TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("Non-internationalized message ${messageNum}")
+                .withUntypedValue("messageNum", 1)
+                .build();
+        assertEquals("Non-internationalized message 1", report1.getMessage());
+
+        // Loose mode: setting the option AFTER setting the resource bundles
+        ReportNode report2 = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withStrictMode(false)
+                .withMessageTemplate("Non-internationalized message ${messageNum}")
+                .withUntypedValue("messageNum", 2)
+                .build();
+        assertEquals("Non-internationalized message 2", report2.getMessage());
+
+        // Loose mode: No bundle
+        ReportNode report3 = ReportNode.newRootReportNode()
+                .withStrictMode(false)
+                .withMessageTemplate("Non-internationalized message ${messageNum}")
+                .withUntypedValue("messageNum", 3)
+                .build();
+        assertEquals("Non-internationalized message 3", report3.getMessage());
     }
 
     @Test

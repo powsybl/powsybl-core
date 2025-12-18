@@ -10,6 +10,7 @@ package com.powsybl.commons.report;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 /**
  * Context attached to a {@link ReportNode} tree.
@@ -43,4 +44,13 @@ public interface TreeContext {
     void merge(TreeContext treeContext);
 
     void addDictionaryEntry(String messageKey, MessageTemplateProvider messageTemplateProvider);
+
+    default void addDictionaryEntry(String messageKey, BiFunction<String, Locale, String> messageTemplateProviderFunction) {
+        addDictionaryEntry(messageKey, new AbstractMessageTemplateProvider(true) {
+            @Override
+            public String getTemplate(String key, Locale locale) {
+                return messageTemplateProviderFunction.apply(key, locale);
+            }
+        });
+    }
 }

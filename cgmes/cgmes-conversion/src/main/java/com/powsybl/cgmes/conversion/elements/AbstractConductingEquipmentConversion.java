@@ -184,11 +184,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return voltageLevel(n).isEmpty() || context.boundary().containsNode(nodeId(n));
     }
 
-    public BoundaryLine convertToDanglingLine(String eqInstance, int boundarySide, String originalClass) {
-        return convertToDanglingLine(eqInstance, boundarySide, 0.0, 0.0, 0.0, 0.0, originalClass);
+    public BoundaryLine convertToBoundaryLine(String eqInstance, int boundarySide, String originalClass) {
+        return convertToBoundaryLine(eqInstance, boundarySide, 0.0, 0.0, 0.0, 0.0, originalClass);
     }
 
-    public BoundaryLine convertToDanglingLine(String eqInstance, int boundarySide, double r, double x, double gch, double bch, String originalClass) {
+    public BoundaryLine convertToBoundaryLine(String eqInstance, int boundarySide, double r, double x, double gch, double bch, String originalClass) {
         // Non-boundary side (other side) of the line
         int modelSide = 3 - boundarySide;
         String boundaryNode = nodeId(boundarySide);
@@ -198,6 +198,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             throw new PowsyblException(String.format("Unexpected boundarySide and modelSide at boundaryNode: %s", boundaryNode));
         }
 
+        // When the IIDM Boundary line comes from a CGMES switch (this happens when the switch is at the boundary),
+        // its terminals haven't been added to the mapping. They need to, so that the Boundary line gets its own IIDM node.
+        if (CgmesNames.SWITCH_TYPES.contains(originalClass)) {
+            CgmesTerminal t = terminals[modelSide - 1].t;
+            context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t);
+        }
+
         BoundaryLineAdder dlAdder = voltageLevel(modelSide).map(vl -> vl.newBoundaryLine()
                         .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                         .setR(r)
@@ -205,13 +212,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                         .setG(gch)
                         .setB(bch)
                         .setPairingKey(findPairingKey(boundaryNode)))
-                .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
+                .orElseThrow(() -> new CgmesModelException("Boundary line " + id + " has no container"));
         identify(dlAdder);
         connectWithOnlyEq(dlAdder, modelSide);
-        Optional<EquivalentInjectionConversion> equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(context, boundaryNode, eqInstance);
+        Optional<EquivalentInjectionConversion> equivalentInjectionConversion = getEquivalentInjectionConversionForBoundaryLine(context, boundaryNode, eqInstance);
         BoundaryLine dl;
         if (equivalentInjectionConversion.isPresent()) {
-            dl = equivalentInjectionConversion.get().convertOverDanglingLine(dlAdder);
+            dl = equivalentInjectionConversion.get().convertOverBoundaryLine(dlAdder);
             Optional.ofNullable(dl.getGeneration()).ifPresent(equivalentInjectionConversion.get()::convertReactiveLimits);
         } else {
             dl = dlAdder
@@ -233,8 +240,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
         Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn));
         setBoundaryNodeInfo(boundaryNode, dl);
-        // In a Dangling Line the CGMES side and the IIDM side may not be the same
-        // Dangling lines in IIDM only have one terminal, one side
+        // In a Boundary Line the CGMES side and the IIDM side may not be the same
+        // Boundary lines in IIDM only have one terminal, one side
         context.convertedTerminalWithOnlyEq(terminalId(modelSide), dl.getTerminal(), 1);
 
         dl.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
@@ -249,7 +256,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return context.boundary().containsNode(topologicalNode) || connectivityNodeId(boundarySide) == null;
     }
 
-    protected static void updateDanglingLine(BoundaryLine boundaryLine, boolean isBoundaryTerminalConnected, Context context) {
+    protected static void updateBoundaryLine(BoundaryLine boundaryLine, boolean isBoundaryTerminalConnected, Context context) {
         updateTerminals(boundaryLine, context, boundaryLine.getTerminal());
         updateTargetsAndRegulationAndOperationalLimits(boundaryLine, isBoundaryTerminalConnected, context);
         computeFlowsOnModelSide(boundaryLine, context);
@@ -274,12 +281,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return cgmesTerminalId != null ? Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)) : Optional.empty();
     }
 
-    // In a Dangling Line the CGMES side and the IIDM side may not be the same
-    // Dangling lines in IIDM only have one terminal, one side
+    // In a Boundary Line the CGMES side and the IIDM side may not be the same
+    // Boundary lines in IIDM only have one terminal, one side
     // We do not have SSH values at the model side, it is a line flow. We take directly SV values
 
     protected static void computeFlowsOnModelSide(BoundaryLine boundaryLine, Context context) {
-        if (context.config().computeFlowsAtBoundaryDanglingLines()
+        if (context.config().computeFlowsAtBoundaryBoundaryLines()
                 && boundaryLine.getTerminal().isConnected()
                 && !isFlowOnModelSideDefined(boundaryLine)) {
 
@@ -304,6 +311,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
         if (isVoltageDefined(v, angle)) {
             setVoltageProperties(dl, v, angle);
+        } else {
+            removeVoltageProperties(dl);
         }
     }
 
@@ -322,6 +331,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (isVoltageDefined(v, angle)) {
             setVoltageProperties(dl1, v, angle);
             setVoltageProperties(dl2, v, angle);
+        } else {
+            removeVoltageProperties(dl1);
+            removeVoltageProperties(dl2);
         }
     }
 
@@ -332,6 +344,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     private static void setVoltageProperties(BoundaryLine dl, double v, double angle) {
         dl.setProperty("v", Double.toString(v));
         dl.setProperty("angle", Double.toString(angle));
+    }
+
+    private static void removeVoltageProperties(Line dl) {
+        dl.removeProperty("v");
+        dl.removeProperty("angle");
     }
 
     private void setBoundaryNodeInfo(String boundaryNode, BoundaryLine dl) {
@@ -358,11 +375,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     private static void setBoundaryLineModelSideFlow(BoundaryLine dl, Context context) {
         Optional<PropertyBag> svVoltage = getCgmesSvVoltageOnBoundarySide(dl, context);
         if (svVoltage.isEmpty()) {
+            dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
             return;
         }
         double v = svVoltage.get().asDouble(CgmesNames.VOLTAGE, Double.NaN);
         double angle = svVoltage.get().asDouble(CgmesNames.ANGLE, Double.NaN);
         if (!isVoltageDefined(v, angle)) {
+            dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
             return;
         }
         // The net sum of power flow "entering" at boundary is "exiting"
@@ -405,7 +424,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return null;
     }
 
-    private static Optional<EquivalentInjectionConversion> getEquivalentInjectionConversionForDanglingLine(Context context, String boundaryNode, String eqInstance) {
+    private static Optional<EquivalentInjectionConversion> getEquivalentInjectionConversionForBoundaryLine(Context context, String boundaryNode, String eqInstance) {
         List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
         if (eis.isEmpty()) {
             return Optional.empty();
@@ -427,16 +446,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     int iidmNode() {
-        return iidmNode(1);
+        return iidmNode(1, false);
     }
 
-    int iidmNode(int n) {
+    int iidmNode(int n, boolean isSwitchEnd) {
         if (!context.nodeBreaker()) {
             throw new ConversionException("Can't request an iidmNode if conversion context is not node-breaker");
         }
         VoltageLevel vl = terminals[n - 1].voltageLevel;
         CgmesTerminal t = terminals[n - 1].t;
-        return context.nodeMapping().iidmNodeForTerminal(t, vl);
+        return context.nodeMapping().iidmNodeForTerminal(t, isSwitchEnd, vl);
     }
 
     String busId() {
@@ -518,8 +537,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (setPQAllowed(terminal)) {
             PowerFlow f = new PowerFlow(cgmesTerminal, "p", "q");
             if (f.defined()) {
-                terminal.setP(f.p());
-                terminal.setQ(f.q());
+                terminal.setP(f.p()).setQ(f.q());
+            } else {
+                terminal.setP(Double.NaN).setQ(Double.NaN);
             }
         }
     }
@@ -534,10 +554,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private static boolean setPQAllowed(Terminal t) {
         return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
-    }
-
-    private static PropertyBag getCgmesTerminal(Connectable<?> connectable, Context context) {
-        return getCgmesTerminals(connectable, context, 1).get(0);
     }
 
     private static PropertyBags getCgmesTerminals(Connectable<?> connectable, Context context, int numTerminals) {
@@ -622,9 +638,25 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     public void connectWithOnlyEq(InjectionAdder<?, ?> adder, int terminal) {
         if (context.nodeBreaker()) {
-            adder.setNode(iidmNode(terminal));
+            adder.setNode(iidmNode(terminal, false));
         } else {
             adder.setBus(null).setConnectableBus(busId(terminal));
+        }
+    }
+
+    public void connectWithOnlyEq(AcDcConverterAdder<?, ?> adder) {
+        if (context.nodeBreaker()) {
+            adder.setNode1(iidmNode());
+        } else {
+            adder.setBus1(null).setConnectableBus1(busId());
+        }
+
+        if (numTerminals == 2) {
+            if (context.nodeBreaker()) {
+                adder.setNode2(iidmNode(2, false));
+            } else {
+                adder.setBus2(null).setConnectableBus2(busId(2));
+            }
         }
     }
 
@@ -633,8 +665,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             adder
                     .setVoltageLevel1(iidmVoltageLevelId(1))
                     .setVoltageLevel2(iidmVoltageLevelId(2))
-                    .setNode1(iidmNode(1))
-                    .setNode2(iidmNode(2));
+                    .setNode1(iidmNode(1, false))
+                    .setNode2(iidmNode(2, false));
         } else {
             String busId1 = busId(1);
             String busId2 = busId(2);
@@ -653,8 +685,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             throw new ConversionException("Not in node breaker context");
         }
         adder
-                .setNode1(iidmNode(1))
-                .setNode2(iidmNode(2));
+                .setNode1(iidmNode(1, true))
+                .setNode2(iidmNode(2, true));
     }
 
     public void connectWithOnlyEq(VoltageLevel.BusBreakerView.SwitchAdder adder) {
@@ -667,7 +699,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
-                .setNode(iidmNode(terminal));
+                .setNode(iidmNode(terminal, false));
         } else {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
@@ -687,15 +719,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected static PowerFlow updatedPowerFlow(Connectable<?> connectable, PropertyBag cgmesData, Context context) {
+    protected static PowerFlow updatedPowerFlow(PropertyBag cgmesData) {
         PowerFlow steadyStateHypothesisPowerFlow = new PowerFlow(cgmesData, "p", "q");
         if (steadyStateHypothesisPowerFlow.defined()) {
             return steadyStateHypothesisPowerFlow;
-        }
-        PropertyBag cgmesTerminal = getCgmesTerminal(connectable, context);
-        PowerFlow stateVariablesPowerFlow = new PowerFlow(cgmesTerminal, "p", "q");
-        if (stateVariablesPowerFlow.defined()) {
-            return stateVariablesPowerFlow;
         }
         return PowerFlow.UNDEFINED;
     }
@@ -774,6 +801,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected static boolean isValidTargetDeadband(double targetDeadband) {
         return targetDeadband >= 0.0;
+    }
+
+    protected static boolean isValidPowerFactor(double powerFactor) {
+        return powerFactor > 0.0 && powerFactor <= 1.0;
     }
 
     /**
