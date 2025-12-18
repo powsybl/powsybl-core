@@ -1,6 +1,15 @@
-package com.powsybl.iidm.network;
+/**
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.ReactiveCapabilityShapePlane;
+import com.powsybl.iidm.network.ReactiveLimitsHolder;
 import org.apache.commons.math3.optim.MaxIter;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.*;
@@ -16,13 +25,21 @@ import java.util.List;
 /**
  * Defines a P,Q,V convex polyhedron as the intersection of multiple half-spaces (Hyperplanes).
  * It provides the core logic to check if a point is within this operational envelope.
- * It provides computation method for Minimal or maximal value of reactive power Q inside the polytope
+ * It provides computation methods for Minimal or maximal value of reactive power Q inside the polytope
+ *
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 public final class ReactiveCapabilityShapePolyhedron {
     /**
      * Logger
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityShapePolyhedron.class);
+    /**
+     * Variables indexes
+     */
+    private static final int IDX_Q = 0;
+    private static final int IDX_P = 1;
+    private static final int IDX_U = 2;
     /**
      * The convex polyhedron hyperplanes
      */
@@ -46,17 +63,22 @@ public final class ReactiveCapabilityShapePolyhedron {
     /**
      * Lower bound for voltage in KV (default to Double.NaN for inactive)
      */
-    private double minV = Double.NaN;
+    private double minU = Double.NaN;
     /**
      * Upper bound for voltage in KV (default to Double.NaN for inactive)
      */
-    private double maxV = Double.NaN;
+    private double maxU = Double.NaN;
+    /**
+     * Reference to the reactive limits holder
+     */
+    private ReactiveLimitsHolder reactiveLimitsHolder;
 
     /**
      * Constructor
      */
     private ReactiveCapabilityShapePolyhedron(final List<ReactiveCapabilityShapePlane> planes) {
-        this.listOfPlanes = planes;
+        this.listOfPlanes = new ArrayList<>(planes.size());
+        this.listOfPlanes.addAll(planes);
     }
 
     /**
@@ -71,7 +93,7 @@ public final class ReactiveCapabilityShapePolyhedron {
     /**
      * Add lower and upper bound for reactive power
      * @param minQ the lower bound for the reactive power in MVaR (can be set to Double.NaN for disabling)
-     * @param maxQ the upper bound for the reactive power n MVaR (can be set to Double.NaN for disabling)
+     * @param maxQ the upper bound for the reactive power in MVaR (can be set to Double.NaN for disabling)
      * @return this
      */
     public ReactiveCapabilityShapePolyhedron withReactivePowerBounds(final double minQ, final double maxQ) {
@@ -94,13 +116,13 @@ public final class ReactiveCapabilityShapePolyhedron {
 
     /**
      * Add lower and upper bound for voltage
-     * @param minV the lower bound for the voltage in KV (can be set to Double.NaN for disabling)
-     * @param maxV the upper bound for the voltage in KV (can be set to Double.NaN for disabling)
+     * @param minU the lower bound for the voltage in KV (can be set to Double.NaN for disabling)
+     * @param maxU the upper bound for the voltage in KV (can be set to Double.NaN for disabling)
      * @return this
      */
-    public ReactiveCapabilityShapePolyhedron withVoltageBounds(final double minV, final double maxV) {
-        this.minV = minV;
-        this.maxV = maxV;
+    public ReactiveCapabilityShapePolyhedron withVoltageBounds(final double minU, final double maxU) {
+        this.minU = minU;
+        this.maxU = maxU;
         return this;
     }
 
@@ -113,7 +135,9 @@ public final class ReactiveCapabilityShapePolyhedron {
      */
     public boolean isInside(final double p, final double q, final double u) {
         boolean insideBounds = isInsideBounds(p, q, u);
-        if (insideBounds) {
+        if (!insideBounds) {
+            return false;
+        } else {
             // Iterate through all bounding planes
             for (ReactiveCapabilityShapePlane plane : listOfPlanes) {
 
@@ -138,23 +162,21 @@ public final class ReactiveCapabilityShapePolyhedron {
 
             // If the point satisfies ALL constraints, it is inside the convex polyhedron.
             return true;
-        } else {
-            return false;
         }
     }
 
     /**
-     * Return true if the p, q, u point is inside the polytope and respects the bounds constraints
-     * @param p the active power  in MW
+     * Return true if the p, q, u point is inside the polytope and respects the bound constraints
+     * @param p the active power in MW
      * @param q the reactive power in MVaR
      * @param u the tension in KV
-     * @return true iff the p, q, u point is inside the polytope and respects the bounds constraints
+     * @return true iff the p, q, u point is inside the polytope and respects the bound constraints
      */
     private boolean isInsideBounds(final double p, final double q, final double u) {
         return (p <= maxP || Double.isNaN(maxP))
                 && (p >= minP || Double.isNaN(minP))
-                && (u <= maxV || Double.isNaN(maxV))
-                && (u >= minV || Double.isNaN(minV))
+                && (u <= maxU || Double.isNaN(maxU))
+                && (u >= minU || Double.isNaN(minU))
                 && (q <= maxQ || Double.isNaN(maxQ))
                 && (q >= minQ || Double.isNaN(minQ));
     }
@@ -179,7 +201,7 @@ public final class ReactiveCapabilityShapePolyhedron {
      * Utility method using a linear program solver to compute minimal or maximal possible values for reactive power Q
      * @param p The fixed active power in KW
      * @param goalType Either GoalType.MINIMIZE for minimization of Q or GoalType.MAXIMIZE for maximization of Q
-     * @param additionalConstraints Optional set of additional constrains
+     * @param additionalConstraints Optional set of additional constraints
      * @return the optimal value for the reactive power Q in MVaR
      */
     public double getOptimalQ(final double p, final GoalType goalType, final List<LinearConstraint> additionalConstraints) {
@@ -234,24 +256,19 @@ public final class ReactiveCapabilityShapePolyhedron {
      * @param constraints a collection to fill with linear constraints corresponding to upper / lower bounds for Q, P and V
      */
     private void addBoundsConstraints(final Collection<LinearConstraint> constraints) {
-        // Check the bounds activities before adding them to the linear program
-        if (!Double.isNaN(this.minQ)) {
-            constraints.add(new LinearConstraint(new double[]{1.0, 0.0, 0.0}, Relationship.GEQ, this.minQ));
-        }
-        if (!Double.isNaN(this.maxQ)) {
-            constraints.add(new LinearConstraint(new double[]{1.0, 0.0, 0.0}, Relationship.LEQ, this.maxQ));
-        }
-        if (!Double.isNaN(this.minP)) {
-            constraints.add(new LinearConstraint(new double[]{0.0, 0.0, 1.0}, Relationship.GEQ, this.minP));
-        }
-        if (!Double.isNaN(this.maxP)) {
-            constraints.add(new LinearConstraint(new double[]{0.0, 0.0, 1.0}, Relationship.LEQ, this.maxP));
-        }
-        if (!Double.isNaN(this.minV)) {
-            constraints.add(new LinearConstraint(new double[]{0.0, 1.0, 0.0}, Relationship.GEQ, this.minV));
-        }
-        if (!Double.isNaN(this.maxV)) {
-            constraints.add(new LinearConstraint(new double[]{0.0, 1.0, 0.0}, Relationship.LEQ, this.maxV));
+        addBoundConstraint(constraints, IDX_Q, this.minQ, Relationship.GEQ);
+        addBoundConstraint(constraints, IDX_Q, this.maxQ, Relationship.LEQ);
+        addBoundConstraint(constraints, IDX_P, this.minP, Relationship.GEQ);
+        addBoundConstraint(constraints, IDX_P, this.maxP, Relationship.LEQ);
+        addBoundConstraint(constraints, IDX_U, this.minU, Relationship.GEQ);
+        addBoundConstraint(constraints, IDX_U, this.maxU, Relationship.LEQ);
+    }
+
+    private void addBoundConstraint(Collection<LinearConstraint> constraints, int variableIndex, double boundValue, Relationship relationship) {
+        if (!Double.isNaN(boundValue)) {
+            double[] coefficients = new double[3];
+            coefficients[variableIndex] = 1.0;
+            constraints.add(new LinearConstraint(coefficients, relationship, boundValue));
         }
     }
 
@@ -291,11 +308,11 @@ public final class ReactiveCapabilityShapePolyhedron {
         if (!Double.isNaN(this.maxP)) {
             sb.append(" P ≤ ").append(this.maxP).append(" MW");
         }
-        if (!Double.isNaN(this.minV)) {
-            sb.append(" U ≥ ").append(this.minV).append(" KV");
+        if (!Double.isNaN(this.minU)) {
+            sb.append(" U ≥ ").append(this.minU).append(" KV");
         }
-        if (!Double.isNaN(this.maxV)) {
-            sb.append(" U ≤ ").append(this.maxV).append(" KV");
+        if (!Double.isNaN(this.maxU)) {
+            sb.append(" U ≤ ").append(this.maxU).append(" KV");
         }
         if (listOfPlanes.isEmpty()) {
             sb.append("\nThe Polyhedron is unbounded and undefined (no constraints).");
@@ -317,7 +334,7 @@ public final class ReactiveCapabilityShapePolyhedron {
      * @return the list of Reactive capability shape planes composing this polyhedron
      */
     public Collection<ReactiveCapabilityShapePlane> getPlanes() {
-        return this.listOfPlanes;
+        return Collections.unmodifiableList(this.listOfPlanes);
     }
 
     /**
@@ -329,10 +346,17 @@ public final class ReactiveCapabilityShapePolyhedron {
     }
 
     /**
-     * Return true iff the polyhedron contains no plane
-     * @return
+     * @return true iff the polyhedron contains no plane
      */
     public boolean isEmpty() {
         return listOfPlanes.isEmpty();
+    }
+
+    /**
+     * TODO
+     * @param holder
+     */
+    public void setReactiveLimitsHolder(ReactiveLimitsHolder holder) {
+        this.reactiveLimitsHolder = holder;
     }
 }

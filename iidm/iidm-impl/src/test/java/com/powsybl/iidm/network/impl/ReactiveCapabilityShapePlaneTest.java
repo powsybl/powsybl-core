@@ -1,16 +1,26 @@
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ReactiveCapabilityShapePlane;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
+ */
 class ReactiveCapabilityShapePlaneTest {
 
     private static final double DELTA = 1e-9;
 
     @Test
     void testBuildCreatesInstanceWithAlphaAndBeta() {
-        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlane.build(1.5, -2.5);
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(1.5, -2.5);
 
         assertEquals(1.5, plane.getAlpha(), DELTA);
         assertEquals(-2.5, plane.getBeta(), DELTA);
@@ -18,7 +28,7 @@ class ReactiveCapabilityShapePlaneTest {
 
     @Test
     void testLessOrEqualSetsGammaAndInequalityType() {
-        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlane.build(0.5, 0.8)
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(0.5, 0.8)
                 .lessOrEqual(10.0);
 
         assertEquals(10.0, plane.getGamma(), DELTA);
@@ -28,7 +38,7 @@ class ReactiveCapabilityShapePlaneTest {
 
     @Test
     void testGreaterOrEqualSetsGammaAndInequalityType() {
-        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlane.build(1.0, 2.0)
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(1.0, 2.0)
                 .greaterOrEqual(5.0);
 
         assertEquals(5.0, plane.getGamma(), DELTA);
@@ -38,7 +48,7 @@ class ReactiveCapabilityShapePlaneTest {
 
     @Test
     void testToStringWithPositiveAlphaAndBetaLessOrEqual() {
-        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlane.build(1.23, 4.56)
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(1.23, 4.56)
                 .lessOrEqual(7.89);
 
         String expected = "Q + 1.230 * U + 4.560 * P ≤ 7.890";
@@ -47,7 +57,7 @@ class ReactiveCapabilityShapePlaneTest {
 
     @Test
     void testToStringWithNegativeAlphaAndBetaGreaterOrEqual() {
-        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlane.build(-2.5, -3.75)
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(-2.5, -3.75)
                 .greaterOrEqual(1.0);
 
         String expected = "Q - 2.500 * U - 3.750 * P ≥ 1.000";
@@ -57,7 +67,7 @@ class ReactiveCapabilityShapePlaneTest {
     @Test
     void testToStringWithZeroAlphaAndBeta() {
         // EPSILON not defined in the class, assuming small threshold (no effect)
-        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlane.build(0.0, 0.0)
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(0.0, 0.0)
                 .lessOrEqual(2.0);
 
         String expected = "Q ≤ 2.000";
@@ -66,7 +76,7 @@ class ReactiveCapabilityShapePlaneTest {
 
     @Test
     void testIsLessOrEqualAndIsGreaterOrEqualMutuallyExclusive() {
-        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlane.build(1.0, 1.0);
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(1.0, 1.0);
         plane.lessOrEqual(2.0);
         assertTrue(plane.isLessOrEqual());
         assertFalse(plane.isGreaterOrEqual());
@@ -78,7 +88,7 @@ class ReactiveCapabilityShapePlaneTest {
 
     @Test
     void testGettersReturnCorrectValues() {
-        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlane.build(0.9, -0.7)
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(0.9, -0.7)
                 .greaterOrEqual(4.2);
 
         assertEquals(0.9, plane.getAlpha(), DELTA);

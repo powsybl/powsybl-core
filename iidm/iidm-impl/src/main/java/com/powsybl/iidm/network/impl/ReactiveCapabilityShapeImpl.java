@@ -1,42 +1,20 @@
-/**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network;
+package com.powsybl.iidm.network.impl;
+
+import com.powsybl.iidm.network.ReactiveCapabilityShape;
+import com.powsybl.iidm.network.ReactiveCapabilityShapePlane;
+import com.powsybl.iidm.network.ReactiveLimitsKind;
+
+import java.util.Collection;
 
 /**
- * Base interface for <code>Generator</code> reactive capabilities shape limits.
- * <pre>
- *           U (kV) ^
- *                     |
- *                     |      +------------------+
- *                     |     /|                 /|
- *                     |    / |                / |
- *                     *---*--+---------------* |
- *                     | / |  |               |  |
- *                     |/  |  . (P, Q, U)     |  |
- *                     +---|--|---------------|--+
- *                     |   |  +---------------|--+
- *                     |   | /                | /
- *                     |   |/                 |/
- *                     +---|------------------+
- *                     |
- * <-------------------*--------------------------------> P (MW)
- *                    /
- *                   /
- *                  / Q (MVaR)
- *
- * - P (MW): Active Power (Horizontal Axis)
- * - Q (MVaR): Reactive Power (Depth Axis)
- * - U (kV): Voltage (Vertical Axis)
- * </pre>
- * The bounding box represents the operational limits—the single convex
- * polyhedron defined by your constraints(the listOfPlanes).
- * The point (P, Q, U) represents a specific operating point that the
- * isInside function is checking.
+ * Implementation of ReactiveCapabilityShape Interface
  *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
@@ -75,6 +53,7 @@ public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShap
         return polyhedron.getMaxQ(p, v);
     }
 
+
     /**
      * Return the minimum reactive power q for a specific active power p
      * @param p the active power
@@ -95,11 +74,6 @@ public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShap
         return polyhedron.getMaxQ(p);
     }
 
-    @Override
-    public void applyOwnerBounds(ReactiveLimitsHolder holder) {
-        polyhedron.withActivePowerBounds(holder.getMinP(), holder.getMaxP());
-    }
-
     /**
      * Constructor
      * @param polyhedron the reactive capacility shape polyhedron
@@ -118,6 +92,16 @@ public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShap
 
     public ReactiveCapabilityShapePolyhedron getPolyhedron() {
         return this.polyhedron;
+    }
+
+    @Override
+    public boolean isInside(double p, double q, double u) {
+        return this.polyhedron.isInside(p, q, u);
+    }
+
+    @Override
+    public Collection<ReactiveCapabilityShapePlane> getPlanes() {
+        return polyhedron.getPlanes();
     }
 
 }

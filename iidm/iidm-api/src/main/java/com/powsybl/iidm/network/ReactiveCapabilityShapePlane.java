@@ -1,145 +1,54 @@
+/**
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.iidm.network;
 
-import static org.apache.commons.math3.util.Precision.EPSILON;
-
 /**
- * Represents a plane (or half-space) defining one boundary of the convex polyhedron.
- * <pre>
- * The inequality is of the form: Q + alpha * U + beta * P  {≤, ≥}  gamma.
- * P = Active Power (MW)
- * Q = Reactive Power (MVaR)
- * U = Voltage (Volts)
- * </pre>
+ *
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at rte-france.com>}
  */
-public final class ReactiveCapabilityShapePlane {
+public interface ReactiveCapabilityShapePlane {
 
     /**
-     * Coefficient for U (Voltage)
+     * @return true if the hyperplan is of '≤' type
      */
-    private final double alpha;
-    /**
-     * Coefficient for P (Active Power)
-      */
-    private final double beta;
-    /**
-     *The constant limit on the right side
-      */
-    private double gamma;
+    boolean isLessOrEqual();
 
     /**
-     * ≤ or ≥ inequality types
+     * @return true if the hyperplan is of '≥' type
      */
-    public enum InequalityType {
-       LESS_OR_EQUAL,       // ≤ gamma
-        GREATER_OR_EQUAL    // ≥  gamma
-    }
+    boolean isGreaterOrEqual();
 
     /**
-     * The inequaility types
+     * @return the alpha coefficient for the tension U
      */
-    InequalityType inequalityType;
+    double getAlpha();
 
     /**
-     * private constructor for a ReactiveCapabilityShapePlane.
-     *
-     * @param alphaU    The coefficient for U.
-     * @param betaP     The coefficient for P.
+     * @return the beta coefficient for the active power P
      */
-    private ReactiveCapabilityShapePlane(double alphaU, double betaP) {
-        this.alpha = alphaU;
-        this.beta = betaP;
-    }
+    double getBeta();
 
     /**
-     * Builder for a ReactiveCapabilityShapePlane.
-     *
-     * @param alphaU    The coefficient for U.
-     * @param betaP     The coefficient for P.
+     * @return the gamma Right hand side
      */
-    public static ReactiveCapabilityShapePlane build(double alphaU, double betaP) {
-        return new ReactiveCapabilityShapePlane(alphaU, betaP);
-    }
+    double getGamma();
 
     /**
      * Set the hyperplane constraint to a less or equal ≤ inequality with gamma right hand side
      * @param gamma the gamma right hand side
      * @return this
      */
-    public ReactiveCapabilityShapePlane lessOrEqual(double gamma) {
-        this.gamma = gamma;
-        this.inequalityType = InequalityType.LESS_OR_EQUAL;
-        return this;
-    }
+    ReactiveCapabilityShapePlane lessOrEqual(double gamma);
 
     /**
      * Set the hyperplane constraint to a greater or equal ≥ inequality with gamma right hand side
      * @param gamma the gamma right hand side
      * @return this
      */
-    public ReactiveCapabilityShapePlane greaterOrEqual(double gamma) {
-        this.gamma = gamma;
-        this.inequalityType = InequalityType.GREATER_OR_EQUAL;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        // Always include Q since it has an implicit coefficient of 1.0 in your formula
-        sb.append("Q");
-
-        // Append U term (alpha * U)
-        if (Math.abs(alpha) > EPSILON) { // Check if alpha is non-zero
-            sb.append(alpha > 0 ? " + " : " - ");
-            sb.append(String.format("%.3f", Math.abs(alpha))).append(" * U");
-        }
-
-        // Append P term (beta * P)
-        if (Math.abs(beta) > EPSILON) { // Check if beta is non-zero
-            sb.append(beta > 0 ? " + " : " - ");
-            sb.append(String.format("%.3f", Math.abs(beta))).append(" * P");
-        }
-
-        // Append relation and gamma
-        sb.append(" ").append(inequalityType.equals(InequalityType.LESS_OR_EQUAL) ? '≤' : '≥').append(" ");
-        sb.append(String.format("%.3f", gamma));
-
-        return sb.toString();
-    }
-
-    /**
-     * @return true if the hyperplan is of '≤' type
-     */
-    public boolean isLessOrEqual() {
-        return inequalityType == InequalityType.LESS_OR_EQUAL;
-    }
-
-    /**
-     * @return true if the hyperplan is of '≥' type
-     */
-    public boolean isGreaterOrEqual() {
-        return inequalityType == InequalityType.GREATER_OR_EQUAL;
-    }
-
-    /**
-     * @return the alpha coefficient for the tension U
-     */
-    public double getAlpha() {
-        return alpha;
-    }
-
-    /**
-     * @return the beta coefficient for the active power P
-     */
-    public double getBeta() {
-        return beta;
-    }
-
-    /**
-     * @return the gamma Right hand side
-     */
-    public double getGamma() {
-        return gamma;
-    }
+    ReactiveCapabilityShapePlane greaterOrEqual(double gamma);
 }

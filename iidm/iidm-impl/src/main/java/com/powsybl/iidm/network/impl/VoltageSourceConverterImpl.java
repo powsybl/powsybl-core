@@ -138,7 +138,6 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public void setReactiveLimits(ReactiveLimits reactiveLimits) {
         this.reactiveLimits.setReactiveLimits(reactiveLimits);
-        reactiveLimits.applyOwnerBounds(this);
     }
 
     @Override

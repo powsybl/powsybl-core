@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,13 +14,12 @@ import java.util.ArrayList;
 /**
  *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at rte-france.com>}
-
  */
 class ReactiveCapabilityShapeAdderImpl<O extends ReactiveLimitsOwner & Validable> implements ReactiveCapabilityShapeAdder {
 
     private final O owner;
 
-    ReactiveCapabilityShapePolyhedron polyhedron;
+    private final ReactiveCapabilityShapePolyhedron polyhedron;
 
     /**
      * Constructor
@@ -43,11 +42,13 @@ class ReactiveCapabilityShapeAdderImpl<O extends ReactiveLimitsOwner & Validable
 
     @Override
     public ReactiveCapabilityShapeAdder addPlane(double alpha, double beta, double gamma, boolean isGreaterOrEqual) {
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(alpha, beta);
         if (isGreaterOrEqual) {
-            polyhedron.addReactiveCapabilityShapePlane(ReactiveCapabilityShapePlane.build(alpha, beta).greaterOrEqual(gamma));
+            plane.greaterOrEqual(gamma);
         } else {
-            polyhedron.addReactiveCapabilityShapePlane(ReactiveCapabilityShapePlane.build(alpha, beta).lessOrEqual(gamma));
+            plane.lessOrEqual(gamma);
         }
+        polyhedron.addReactiveCapabilityShapePlane(plane);
         return this;
     }
 

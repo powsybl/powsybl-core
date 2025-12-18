@@ -1,7 +1,13 @@
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ReactiveCapabilityShapePlane;
-import com.powsybl.iidm.network.ReactiveCapabilityShapePolyhedron;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -9,6 +15,9 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
+ */
 class ReactiveCapabilityShapePolyhedronTest {
 
     @Test
@@ -41,7 +50,7 @@ class ReactiveCapabilityShapePolyhedronTest {
     @Test
     void testBoundsSettersAppearInToString() {
         // Create a simple plane so toString lists something beyond the bounds section
-        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlane.build(0.0, 0.0).lessOrEqual(5.0);
+        ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(0.0, 0.0).lessOrEqual(5.0);
 
         ReactiveCapabilityShapePolyhedron poly = ReactiveCapabilityShapePolyhedron
                 .build(Collections.singletonList(plane))
@@ -60,16 +69,14 @@ class ReactiveCapabilityShapePolyhedronTest {
         assertTrue(out.contains("U ≥"), "Expected min U to appear");
         assertTrue(out.contains("U ≤"), "Expected max U to appear");
 
-        // The plane should appear in the constraints list
-        assertTrue(out.contains("Q") || out.contains("P") || out.contains("U"));
     }
 
     @Test
     void testIsInsideWithPlaneConstraintsOnly() {
         // Plane: Q ≤ 5  (alpha=0,beta=0)
-        ReactiveCapabilityShapePlane p1 = ReactiveCapabilityShapePlane.build(0.0, 0.0).lessOrEqual(5.0);
+        ReactiveCapabilityShapePlane p1 = ReactiveCapabilityShapePlaneImpl.build(0.0, 0.0).lessOrEqual(5.0);
         // Plane: Q ≥ -5
-        ReactiveCapabilityShapePlane p2 = ReactiveCapabilityShapePlane.build(0.0, 0.0).greaterOrEqual(-5.0);
+        ReactiveCapabilityShapePlane p2 = ReactiveCapabilityShapePlaneImpl.build(0.0, 0.0).greaterOrEqual(-5.0);
 
         ReactiveCapabilityShapePolyhedron poly = ReactiveCapabilityShapePolyhedron.build(Arrays.asList(p1, p2));
 
@@ -86,7 +93,7 @@ class ReactiveCapabilityShapePolyhedronTest {
     @Test
     void testIsInsideRespectsActiveAndVoltageBounds() {
         // Simple plane that doesn't constrain P or U (only Q)
-        ReactiveCapabilityShapePlane p = ReactiveCapabilityShapePlane.build(0.0, 0.0).lessOrEqual(1000.0);
+        ReactiveCapabilityShapePlane p = ReactiveCapabilityShapePlaneImpl.build(0.0, 0.0).lessOrEqual(1000.0);
 
         ReactiveCapabilityShapePolyhedron poly = ReactiveCapabilityShapePolyhedron
                 .build(Collections.singletonList(p))
@@ -106,9 +113,9 @@ class ReactiveCapabilityShapePolyhedronTest {
     @Test
     void testIsInsideWithMixedPlaneTypesAlphaBetaEffect() {
         // plane1: Q + 1.0*U + 0.0*P ≤ 3  -> Q ≤ 3 - U
-        ReactiveCapabilityShapePlane plane1 = ReactiveCapabilityShapePlane.build(1.0, 0.0).lessOrEqual(3.0);
+        ReactiveCapabilityShapePlane plane1 = ReactiveCapabilityShapePlaneImpl.build(1.0, 0.0).lessOrEqual(3.0);
         // plane2: Q + 0.0*U + 2.0*P ≥ -4 -> Q ≥ -4 - 2P
-        ReactiveCapabilityShapePlane plane2 = ReactiveCapabilityShapePlane.build(0.0, 2.0).greaterOrEqual(-4.0);
+        ReactiveCapabilityShapePlane plane2 = ReactiveCapabilityShapePlaneImpl.build(0.0, 2.0).greaterOrEqual(-4.0);
 
         ReactiveCapabilityShapePolyhedron poly = ReactiveCapabilityShapePolyhedron.build(Arrays.asList(plane1, plane2));
 

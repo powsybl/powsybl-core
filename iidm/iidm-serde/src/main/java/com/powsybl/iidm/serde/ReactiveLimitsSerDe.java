@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ReactiveCapabilityShapePlane;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -38,7 +39,7 @@ public class ReactiveLimitsSerDe {
                 ReactiveCapabilityShape shape = holder.getReactiveLimits(ReactiveCapabilityShape.class);
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_SHAPE);
                 context.getWriter().writeStartNodes();
-                for (ReactiveCapabilityShapePlane plane : shape.getPolyhedron().getPlanes()) {
+                for (ReactiveCapabilityShapePlane plane : shape.getPlanes()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), PLANE_ROOT_ELEMENT_NAME);
                     context.getWriter().writeDoubleAttribute(ATTR_ALPHA, plane.getAlpha());
                     context.getWriter().writeDoubleAttribute(ATTR_BETA, plane.getBeta());

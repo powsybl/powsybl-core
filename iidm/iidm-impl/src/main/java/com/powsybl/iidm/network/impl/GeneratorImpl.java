@@ -262,7 +262,6 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public void setReactiveLimits(ReactiveLimits reactiveLimits) {
         this.reactiveLimits.setReactiveLimits(reactiveLimits);
-        reactiveLimits.applyOwnerBounds(this);
     }
 
     @Override
