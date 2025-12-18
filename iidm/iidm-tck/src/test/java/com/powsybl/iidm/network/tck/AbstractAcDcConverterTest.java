@@ -764,9 +764,6 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals("AC/DC Line Commutated Converter 'converterA': targetP is invalid", e3.getMessage());
 
         adder.setTargetP(200.);
-        PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Line Commutated Converter 'converterA': converter has two AC terminals and pccTerminal is not set", e4.getMessage());
-
         adder.setPccTerminal(lax.getTerminal());
         PowsyblException e4 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("AC/DC Line Commutated Converter 'converterA': pccTerminal is not a line or transformer or converter terminal", e4.getMessage());

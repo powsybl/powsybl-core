@@ -346,7 +346,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         dl.setProperty("angle", Double.toString(angle));
     }
 
-    private static void removeVoltageProperties(Line dl) {
+    private static void removeVoltageProperties(BoundaryLine dl) {
         dl.removeProperty("v");
         dl.removeProperty("angle");
     }

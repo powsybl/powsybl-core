@@ -102,7 +102,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         } else {
             warnDanglingLineCreated();
             String eqInstance = p.get("graph");
-            boundaryLine = convertToDanglingLine(eqInstance, boundarySide, CgmesNames.SWITCH);
+            boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, CgmesNames.SWITCH);
             boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
             boundaryLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
         }
@@ -124,7 +124,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     public static void update(BoundaryLine boundaryLine, PropertyBag cgmesData, Context context) {
         boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultOpen(boundaryLine, context));
-        updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context) && isClosed, context);
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context) && isClosed, context);
     }
 
     // In the danglingLines, the status of the terminal on the boundary side cannot be explicitly represented.

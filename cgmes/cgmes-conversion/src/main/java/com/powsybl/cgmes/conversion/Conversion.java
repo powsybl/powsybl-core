@@ -306,7 +306,7 @@ public class Conversion {
             removeProperties(t3w.getLeg3().getOperationalLimitsGroups());
         });
 
-        network.getDanglingLines().forEach(danglingLine ->
+        network.getBoundaryLines().forEach(danglingLine ->
                 removeProperties(danglingLine.getOperationalLimitsGroups()));
     }
 
@@ -898,7 +898,7 @@ public class Conversion {
             return this;
         }
 
-        public boolean computeFlowsAtBoundaryDanglingLines() {
+        public boolean computeFlowsAtBoundaryBoundaryLines() {
             return true;
         }
 

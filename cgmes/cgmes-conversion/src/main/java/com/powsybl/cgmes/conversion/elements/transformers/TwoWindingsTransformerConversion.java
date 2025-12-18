@@ -128,7 +128,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
         // we will have differences in the LF computation.
         // TODO support in the danglingLine the complete twoWindingsTransformer model (transformer + tapChangers)
-        boundaryLine = convertToDanglingLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel), CgmesNames.POWER_TRANSFORMER);
+        boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel), CgmesNames.POWER_TRANSFORMER);
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
@@ -260,6 +260,6 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     }
 
     public static void update(BoundaryLine boundaryLine, Context context) {
-        updateDanglingLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 }
