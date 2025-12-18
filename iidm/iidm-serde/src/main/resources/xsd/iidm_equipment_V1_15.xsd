@@ -616,8 +616,8 @@
     </xs:simpleType>
     <xs:complexType name="RatioTapChanger">
         <xs:sequence>
-            <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
@@ -637,8 +637,8 @@
     </xs:simpleType>
     <xs:complexType name="PhaseTapChanger">
         <xs:sequence>
-            <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
