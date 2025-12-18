@@ -207,9 +207,9 @@ class TransformerConversionTest {
     /**
      * Default test for:
      * <ul>
-     *     <li>microGridBaseCaseBExfmr3Shunt</ul>
-     *     <li>microGridBaseCaseBExfmr3RatioPhase</ul>
-     *     <li>microGridBaseCaseBExfmr3Ratio0</ul>
+     *     <li>microGridBaseCaseBExfmr3Shunt</li>
+     *     <li>microGridBaseCaseBExfmr3RatioPhase</li>
+     *     <li>microGridBaseCaseBExfmr3Ratio0</li>
      * </ul>
      */
     @Test
@@ -425,9 +425,12 @@ class TransformerConversionTest {
         ThreeWindingsTransformer twt = n.getThreeWindingsTransformer(id);
         T3xFlow actual = threeWindingsTransformerFlow(twt);
         T3xFlow expected = new T3xFlow();
-        expected.p1 = p1; expected.q1 = q1;
-        expected.p2 = p2; expected.q2 = q2;
-        expected.p3 = p3; expected.q3 = q3;
+        expected.p1 = p1;
+        expected.q1 = q1;
+        expected.p2 = p2;
+        expected.q2 = q2;
+        expected.p3 = p3;
+        expected.q3 = q3;
         boolean ok = sameFlow(expected, actual);
 
         if (!ok && LOG.isErrorEnabled()) {

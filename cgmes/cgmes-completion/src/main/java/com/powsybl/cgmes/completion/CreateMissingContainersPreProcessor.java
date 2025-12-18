@@ -167,8 +167,8 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
             }
             writer.writeEndDocument();
             zout.closeEntry();
-        } catch (IOException | XMLStreamException x) {
-            throw new PowsyblException("Building file containing fixes for missing data", x);
+        } catch (IOException | XMLStreamException exception) {
+            throw new PowsyblException("Building file containing fixes for missing data", exception);
         }
     }
 
@@ -242,7 +242,8 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
             if (configDir.isPresent()) {
                 return configDir.get().resolve(fixesFolderName);
             } else {
-                LOG.error("Executing {} pre processor. The folder name for the output of files containing required fixes is a relative path ({}), but the platform config dir is empty.", NAME, fixesFolderName);
+                LOG.error("Executing {} pre processor. The folder name for the output of files containing required fixes is a relative path ({}), but the platform config dir is empty.",
+                    NAME, fixesFolderName);
                 return null;
             }
         }

@@ -240,6 +240,7 @@ public class ConversionTester {
         return config;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public static void computeMissingFlows(Network network, LoadFlowParameters lfparams, boolean useSv) {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,

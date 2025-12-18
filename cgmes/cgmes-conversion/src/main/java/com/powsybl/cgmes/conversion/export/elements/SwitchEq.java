@@ -19,7 +19,8 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class SwitchEq {
 
-    public static void write(String id, String switchName, String switchType, SwitchKind switchKind, String equipmentContainer, boolean open, boolean retained, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void write(String id, String switchName, String switchType, SwitchKind switchKind, String equipmentContainer,
+                             boolean open, boolean retained, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String className = switchType != null ? switchType : CgmesExportUtil.switchClassname(switchKind);
         CgmesExportUtil.writeStartIdName(className, id, switchName, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);

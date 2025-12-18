@@ -749,10 +749,10 @@ public class Comparison {
                 actual.getRegulationValue());
     }
 
-    private <TC extends TapChanger<TC, TCS, ?, ?>, TCS extends TapChangerStep<TCS>> void compareTapChanger(
-            TapChanger<TC, TCS, ?, ?> expected,
-            TapChanger<TC, TCS, ?, ?> actual,
-            BiConsumer<TCS, TCS> testTapChangerStep1) {
+    private <T extends TapChanger<T, S, ?, ?>, S extends TapChangerStep<S>> void compareTapChanger(
+            TapChanger<T, S, ?, ?> expected,
+            TapChanger<T, S, ?, ?> actual,
+            BiConsumer<S, S> testTapChangerStep1) {
         if (expected == null) {
             if (actual != null) {
                 diff.unexpected("TapChanger");
@@ -778,8 +778,8 @@ public class Comparison {
             compare("tapChanger.stepCount", expected.getStepCount(), actual.getStepCount());
             // Check steps
             for (int k = expected.getLowTapPosition(); k <= expected.getHighTapPosition(); k++) {
-                TCS stepExpected = expected.getStep(k);
-                TCS stepActual = actual.getStep(k);
+                S stepExpected = expected.getStep(k);
+                S stepActual = actual.getStep(k);
                 compareTapChangerStep(stepExpected, stepActual, testTapChangerStep1);
             }
             // Check regulation
@@ -811,10 +811,10 @@ public class Comparison {
         }
     }
 
-    private <TC extends TapChanger<TC, TCS, ?, ?>, TCS extends TapChangerStep<TCS>> void compareTapChangerStep(
-            TCS expected,
-            TCS actual,
-            BiConsumer<TCS, TCS> testTapChangerStep1) {
+    private <T extends TapChanger<T, S, ?, ?>, S extends TapChangerStep<S>> void compareTapChangerStep(
+            S expected,
+            S actual,
+            BiConsumer<S, S> testTapChangerStep1) {
         compare("tapChangerStep.r", expected.getR(), actual.getR());
         compare("tapChangerStep.x", expected.getX(), actual.getX());
         compare("tapChangerStep.g", expected.getG(), actual.getG());

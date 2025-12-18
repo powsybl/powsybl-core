@@ -266,9 +266,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         String operationalLimitId = p.getId(CgmesNames.OPERATIONAL_LIMIT);
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
-        if (limitTypeName.equalsIgnoreCase("highvoltage") || "LimitTypeKind.highVoltage".equals(limitType)) {
+        if ("highvoltage".equalsIgnoreCase(limitTypeName) || "LimitTypeKind.highVoltage".equals(limitType)) {
             convertHighVoltageLimit(operationalLimitId, value);
-        } else if (limitTypeName.equalsIgnoreCase("lowvoltage") || "LimitTypeKind.lowVoltage".equals(limitType)) {
+        } else if ("lowvoltage".equalsIgnoreCase(limitTypeName) || "LimitTypeKind.lowVoltage".equals(limitType)) {
             convertLowVoltageLimit(operationalLimitId, value);
         } else {
             notAssigned(vl);
@@ -298,7 +298,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private boolean isPatl() {
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
-        return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType) || "LimitKind.patl".equals(limitType);
+        return "PATL".equals(limitTypeName) || "LimitTypeKind.patl".equals(limitType) || "LimitKind.patl".equals(limitType);
     }
 
     private boolean addPatl(double value, LoadingLimitsAdder<?, ?> adder) {
@@ -340,7 +340,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private boolean isTatl() {
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
-        return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType) || "LimitKind.tatl".equals(limitType);
+        return "TATL".equals(limitTypeName) || "LimitTypeKind.tatl".equals(limitType) || "LimitKind.tatl".equals(limitType);
     }
 
     private boolean addTatl(String name, double value, int acceptableDuration, LoadingLimitsAdder<?, ?> adder) {
@@ -359,9 +359,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             return true;
         } else {
             if (terminalId != null) {
-                context.fixed(TEMPORARY_LIMIT, () -> String.format("Several temporary limits defined for same acceptable duration (%d s) for Terminal %s. Only the lowest is kept.", acceptableDuration, terminalId));
+                context.fixed(TEMPORARY_LIMIT, () -> String.format("Several temporary limits defined for same acceptable duration (%d s) for Terminal %s. Only the lowest is kept.",
+                    acceptableDuration, terminalId));
             } else {
-                context.fixed(TEMPORARY_LIMIT, () -> String.format("Several temporary limits defined for same acceptable duration (%d s) for Equipment %s. Only the lowest is kept.", acceptableDuration, equipmentId));
+                context.fixed(TEMPORARY_LIMIT, () -> String.format("Several temporary limits defined for same acceptable duration (%d s) for Equipment %s. Only the lowest is kept.",
+                    acceptableDuration, equipmentId));
             }
             if (adder.getTemporaryLimitValue(acceptableDuration) > value) {
                 adder.beginTemporaryLimit()
@@ -487,7 +489,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private static double getValue(String limitSubclass, boolean isInfiniteDuration, int duration, OperationalLimitsGroup operationalLimitsGroup, double previousValue, Context context) {
         String operationalLimitId = getOperationalLimitId(getPropertyName(limitSubclass, isInfiniteDuration, duration, CgmesNames.OPERATIONAL_LIMIT), operationalLimitsGroup);
-        double defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(limitSubclass, isInfiniteDuration, duration, CgmesNames.NORMAL_VALUE), operationalLimitsGroup), previousValue, context);
+        double defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(limitSubclass, isInfiniteDuration, duration, CgmesNames.NORMAL_VALUE), operationalLimitsGroup),
+            previousValue, context);
         return updatedValue(operationalLimitId, context).orElse(defaultLimitValue);
     }
 
