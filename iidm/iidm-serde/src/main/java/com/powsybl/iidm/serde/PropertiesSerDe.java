@@ -9,9 +9,12 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.AdderWithPostCreationTasks;
 import com.powsybl.iidm.network.PropertiesHolder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -58,18 +61,27 @@ public final class PropertiesSerDe {
     private PropertiesSerDe() {
     }
 
-    public static void readProperties(NetworkDeserializerContext context, PropertiesHolder holder) {
+    public static <T extends PropertiesHolder> void readProperties(NetworkDeserializerContext context, T holder) {
+        List<Consumer<T>> tasks = new ArrayList<>();
+        readProperties(context, holder.getClass().getSimpleName(), tasks);
+        tasks.forEach(task -> task.accept(holder));
+    }
+
+    public static <T extends PropertiesHolder> void readProperties(NetworkDeserializerContext context, String className, Collection<Consumer<T>> tasks) {
         if (context.getVersion().compareTo(IidmVersion.V_1_15) <= 0) {
             context.getReader().readChildNodes(elementName -> {
                 if (elementName.equals(PropertiesSerDe.ROOT_ELEMENT_NAME)) {
-                    String name = context.getReader().readStringAttribute(NAME);
-                    String value = context.getReader().readStringAttribute(VALUE);
-                    context.getReader().readEndNode();
-                    holder.setProperty(name, value);
+                    tasks.add(read(context));
                 } else {
-                    throw new PowsyblException(String.format("Unknown element name '%s' in '%s'", elementName, holder.getClass().getSimpleName()));
+                    throw new PowsyblException(String.format("Unknown element name '%s' in '%s'", elementName, className));
                 }
             });
         }
+    }
+
+    public static <T extends PropertiesHolder> void readProperties(NetworkDeserializerContext context, AdderWithPostCreationTasks<T> propertyHolderAdder) {
+        List<Consumer<T>> tasks = new ArrayList<>();
+        readProperties(context, propertyHolderAdder.getClass().getSimpleName(), tasks);
+        tasks.forEach(propertyHolderAdder::addPostCreationTask);
     }
 }
