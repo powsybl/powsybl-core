@@ -43,13 +43,13 @@ public class CgmesT2xModel {
 
         this.r = bagEnd1.asDouble(CgmesNames.R) + bagEnd2.asDouble(CgmesNames.R);
         this.x = x1 + x2;
-        this.end1 = new CgmesPartialEnd(bagEnd1, x, ratedU1, context);
+        this.end1 = new CgmesPartialEnd(bagEnd1, x, context);
         double xx2 = x;
         if (structuralRatioAtEnd2) {
             double a0 = ratedU2 / ratedU1;
             xx2 = impedanceConversion(x, new Complex(a0, 0.0));
         }
-        this.end2 = new CgmesPartialEnd(bagEnd2, xx2, ratedU2, context);
+        this.end2 = new CgmesPartialEnd(bagEnd2, xx2, context);
         this.ratedS = getRatedS(bagEnd1, bagEnd2);
     }
 
@@ -72,12 +72,12 @@ public class CgmesT2xModel {
         final double ratedU;
         final String terminal;
 
-        CgmesPartialEnd(PropertyBag bagEnd, double x, double ratedU, Context context) {
+        CgmesPartialEnd(PropertyBag bagEnd, double x, Context context) {
             this.g = bagEnd.asDouble(CgmesNames.G, 0);
             this.b = bagEnd.asDouble(CgmesNames.B);
             this.ratioTapChanger = TapChanger.ratioTapChangerFromEnd(bagEnd, context);
             this.phaseTapChanger = TapChanger.phaseTapChangerFromEnd(bagEnd, x, context);
-            this.ratedU = ratedU;
+            this.ratedU = bagEnd.asDouble(CgmesNames.RATEDU);
             this.terminal = bagEnd.getId(CgmesNames.TERMINAL);
         }
     }
