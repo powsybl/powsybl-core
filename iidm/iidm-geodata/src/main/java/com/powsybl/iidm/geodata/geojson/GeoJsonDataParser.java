@@ -11,9 +11,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.powsybl.iidm.geodata.geojson.dto.GeometryDto;
-import com.powsybl.iidm.geodata.geojson.dto.LineStringDto;
-import com.powsybl.iidm.geodata.geojson.dto.PointDto;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +44,9 @@ public final class GeoJsonDataParser {
      * @throws IOException if an I/O error occurs while reading the GeoJSON data
      */
     public static void parseSubstations(Reader reader, BiConsumer<String, Coordinate> substationConsumer) throws IOException {
-        parseFeatures(reader, (id, geometry) -> {
-            if (geometry instanceof PointDto pointDto) {
-                substationConsumer.accept(id, pointDto.getCoordinate());
-            } else {
-                logUnexpectedFeature(geometry);
+        parseFeatures(reader, (id, point, coordinates) -> {
+            if (point != null) {
+                substationConsumer.accept(id, point);
             }
         });
     }
@@ -65,11 +60,9 @@ public final class GeoJsonDataParser {
      * @throws IOException if an I/O error occurs during parsing
      */
     public static void parseLines(Reader reader, BiConsumer<String, List<Coordinate>> lineConsumer) throws IOException {
-        parseFeatures(reader, (id, geometry) -> {
-            if (geometry instanceof LineStringDto lineDto) {
-                lineConsumer.accept(id, lineDto.getCoordinates());
-            } else {
-                logUnexpectedFeature(geometry);
+        parseFeatures(reader, (id, point, coordinates) -> {
+            if (coordinates != null) {
+                lineConsumer.accept(id, coordinates);
             }
         });
     }
@@ -78,7 +71,7 @@ public final class GeoJsonDataParser {
         int count = 0;
         long start = System.nanoTime();
 
-        try (JsonParser parser = JSON_FACTORY.createParser(reader)) {
+        try (JsonParser parser = JSON_FACTORY.createParser(reader).configure(JsonParser.Feature.USE_FAST_DOUBLE_PARSER, true)) {
             if (parser.nextToken() != JsonToken.START_OBJECT) {
                 throw new IOException("Expected start of GeoJSON object");
             }
@@ -98,8 +91,9 @@ public final class GeoJsonDataParser {
                     parser.skipChildren();
                 }
             }
+        } finally {
+            POINT_BUFFER.remove();
         }
-        POINT_BUFFER.remove();
 
         long durationMs = (System.nanoTime() - start) / 1_000_000;
         LOGGER.info("{} features processed in {} ms", count, durationMs);
@@ -131,10 +125,10 @@ public final class GeoJsonDataParser {
             return false;
         }
         if (point != null) {
-            featureHandler.process(id, new PointDto(point));
+            featureHandler.process(id, point, null);
             return true;
         } else if (coordinates != null && !coordinates.isEmpty()) {
-            featureHandler.process(id, new LineStringDto(coordinates));
+            featureHandler.process(id, null, coordinates);
             return true;
         }
         return false;
@@ -164,7 +158,7 @@ public final class GeoJsonDataParser {
             parser.nextToken();
 
             if ("type".equals(geomField)) {
-                geometryType = parser.getText();
+                geometryType = parser.getValueAsString();
             } else if ("coordinates".equals(geomField)) {
                 switch (geometryType) {
                     case "Point" -> point = readPoint(parser);
@@ -180,7 +174,7 @@ public final class GeoJsonDataParser {
     }
 
     private static List<Coordinate> readMultiLineString(JsonParser parser) throws IOException {
-        List<Coordinate> list = new ArrayList<>(32);
+        List<Coordinate> list = new ArrayList<>(64);
         if (parser.currentToken() != JsonToken.START_ARRAY) {
             throw new IOException("Expected START_ARRAY for MultiLineString");
         }
@@ -191,7 +185,7 @@ public final class GeoJsonDataParser {
     }
 
     private static List<Coordinate> readLineString(JsonParser parser) throws IOException {
-        List<Coordinate> list = new ArrayList<>();
+        List<Coordinate> list = new ArrayList<>(32);
         readLines(parser, list);
         return list;
     }
@@ -227,13 +221,9 @@ public final class GeoJsonDataParser {
         }
     }
 
-    private static void logUnexpectedFeature(GeometryDto geometryDto) {
-        LOGGER.warn("Unexpected feature type: {} - feature: {}", geometryDto.getClass().getSimpleName(), geometryDto);
-    }
-
     @FunctionalInterface
     private interface FeatureProcessor {
-        void process(String id, GeometryDto feature);
+        void process(String id, Coordinate point, List<Coordinate> coordinates);
     }
 
     private record GeometryParseResult(Coordinate point, List<Coordinate> coordinates) {
