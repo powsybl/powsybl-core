@@ -28,7 +28,9 @@
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NLOAD" connectableBus="NLOAD"/>
             <iidm:load id="LOAD2" loadType="UNDEFINED" p0="10.0" q0="5.0" bus="NLOAD" connectableBus="NLOAD">
-                <iidm:exponentialModel np="0.6" nq="0.5"/>
+                <iidm:exponentialModel np="0.6" nq="0.5">
+                    <iidm:property name="key_1" value="value_1"/>
+                </iidm:exponentialModel>
             </iidm:load>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="NHV2" connectableBus1="NHV2" voltageLevelId1="VLHV2" bus2="NLOAD" connectableBus2="NLOAD" voltageLevelId2="VLLOAD">

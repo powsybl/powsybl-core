@@ -58,6 +58,7 @@ class LoadModelXmlTest extends AbstractIidmSerDeTest {
                 .newExponentialModel()
                     .setNp(0.6)
                     .setNq(0.5)
+                    .addProperty("key_1", "value_1")
                     .add()
                 .add();
 
