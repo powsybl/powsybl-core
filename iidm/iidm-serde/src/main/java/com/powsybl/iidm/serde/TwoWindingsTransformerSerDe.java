@@ -22,6 +22,10 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
 
     static final String ROOT_ELEMENT_NAME = "twoWindingsTransformer";
     static final String ARRAY_ELEMENT_NAME = "twoWindingsTransformers";
+    public static final String CURRENT_LIMITS_1 = "currentLimits1";
+    public static final String CURRENT_LIMITS_2 = "currentLimits2";
+    public static final String RATIO_TAP_CHANGER = "ratioTapChanger";
+    public static final String PHASE_TAP_CHANGER = "phaseTapChanger";
 
     @Override
     protected String getRootElementName() {
@@ -51,11 +55,11 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     protected void writeSubElements(TwoWindingsTransformer twt, Substation s, NetworkSerializerContext context) {
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
-            writeRatioTapChanger("ratioTapChanger", rtc, context);
+            writeRatioTapChanger(RATIO_TAP_CHANGER, rtc, context);
         }
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
         if (ptc != null) {
-            writePhaseTapChanger("phaseTapChanger", ptc, context);
+            writePhaseTapChanger(PHASE_TAP_CHANGER, ptc, context);
         }
         writeLimits(context, 1, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup1().orElse(null), twt.getOperationalLimitsGroups1());
         writeLimits(context, 2, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup2().orElse(null), twt.getOperationalLimitsGroups2());
@@ -108,7 +112,7 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(twt.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits(), context));
                 }
-                case "currentLimits1" -> readCurrentLimits(twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits(), context);
+                case CURRENT_LIMITS_1 -> readCurrentLimits(twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits(), context);
                 case LIMITS_GROUP_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(twt::newOperationalLimitsGroup2, LIMITS_GROUP_2, context));
@@ -121,9 +125,9 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(twt.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits(), context));
                 }
-                case "currentLimits2" -> readCurrentLimits(twt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits(), context);
-                case "ratioTapChanger" -> readRatioTapChanger(twt, context);
-                case "phaseTapChanger" -> readPhaseTapChanger(twt, context);
+                case CURRENT_LIMITS_2 -> readCurrentLimits(twt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits(), context);
+                case RATIO_TAP_CHANGER -> readRatioTapChanger(twt, context);
+                case PHASE_TAP_CHANGER -> readPhaseTapChanger(twt, context);
                 default -> readSubElement(elementName, twt, context);
             }
         });
