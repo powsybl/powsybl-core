@@ -203,7 +203,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         } else if (terminalNumber == -1 && b instanceof Line) {
             // Limits applied to the whole equipment == to both sides
             createLimitsAdder(1, limitSubclass, limitSetId, limitSetName, b);
-            createLimitsAdder(2, limitSubclass, limitSetId, limitSetName, b);
+            createLimitsAdder(2, limitSubclass, limitSetId + "-1", limitSetName, b);
         } else {
             if (terminalNumber == -1 && b instanceof TwoWindingsTransformer) {
                 context.ignored(limitSubclass, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
