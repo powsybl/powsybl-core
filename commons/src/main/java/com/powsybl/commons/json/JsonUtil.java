@@ -20,6 +20,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.PrettyPrinter;
+import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.json.JsonReadFeature;
@@ -90,6 +91,7 @@ public final class JsonUtil {
             .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
             .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
             .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+            .enable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
             .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS);
     }
 
