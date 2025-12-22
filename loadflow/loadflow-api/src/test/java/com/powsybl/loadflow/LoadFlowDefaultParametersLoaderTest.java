@@ -13,11 +13,13 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.powsybl.loadflow.LoadFlowParameters.load;
@@ -61,7 +63,7 @@ class LoadFlowDefaultParametersLoaderTest {
         // The module is present in configuration, but no "default-parameters-loader" is set.
         // A unique loader is found: it is used.
         assertNotNull(extension);
-        assertEquals("Hello", extension.getParameterString());
+        assertEquals("no", extension.getParameterString());
     }
 
     @Test
@@ -114,7 +116,7 @@ class LoadFlowDefaultParametersLoaderTest {
         JsonLoadFlowParametersTest.DummyExtension beforePlatformConfig = parameters.getExtension(JsonLoadFlowParametersTest.DummyExtension.class);
         assertNotNull(beforePlatformConfig);
         assertEquals(5, beforePlatformConfig.getParameterDouble());
-        assertEquals("Hello", beforePlatformConfig.getParameterString());
+        assertEquals("no", beforePlatformConfig.getParameterString());
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dummy-extension");
         moduleConfig.setStringProperty("parameterString", "modified");
@@ -128,4 +130,61 @@ class LoadFlowDefaultParametersLoaderTest {
         assertEquals(5, afterPlatformConfig.getParameterDouble());
         assertEquals("modified", afterPlatformConfig.getParameterString());
     }
+
+    private void assertSameMetaData(List<Parameter> l1, List<Parameter> l2) {
+        // Everything except default value should be the same
+        assertEquals(l1.size(), l2.size());
+        Iterator<Parameter> it1 = l1.iterator();
+        Iterator<Parameter> it2 = l2.iterator();
+        for (int i = 0; i < l1.size(); i++) {
+            Parameter p1 = it1.next();
+            Parameter p2 = it2.next();
+            assertEquals(p1.getName(), p2.getName());
+            assertEquals(p1.getCategoryKey(), p2.getCategoryKey());
+            assertEquals(p1.getDescription(), p2.getDescription());
+            assertEquals(p1.getPossibleValues(), p2.getPossibleValues());
+            assertEquals(p1.getType(), p2.getType());
+            assertEquals(p1.getScope(), p2.getScope());
+        }
+    }
+
+    @Test
+    void testSpecificParameters() {
+        LoadFlowDefaultParametersLoaderMock loader = new LoadFlowDefaultParametersLoaderMock("test");
+        LoadFlowProvider provider = new LoadFlowProviderMock();
+        List<Parameter> parameters = provider.getSpecificParameters();
+        List<Parameter> parametersWithDefaultValue = LoadFlowProviderUtil.getSpecificParameters(provider, loader);
+
+        assertSameMetaData(parameters, parametersWithDefaultValue);
+
+        assertEquals(6.4, parameters.get(0).getDefaultValue());
+        assertEquals(5.0, parametersWithDefaultValue.get(0).getDefaultValue());
+
+        assertEquals(42, parameters.get(1).getDefaultValue());
+        assertEquals(7, parametersWithDefaultValue.get(1).getDefaultValue());
+
+        assertEquals(false, parameters.get(2).getDefaultValue());
+        assertEquals(false, parametersWithDefaultValue.get(2).getDefaultValue());
+
+        assertEquals("yes", parameters.get(3).getDefaultValue());
+        assertEquals("no", parametersWithDefaultValue.get(3).getDefaultValue());
+
+        assertNull(parameters.get(4).getDefaultValue());
+        assertEquals("Hello", parametersWithDefaultValue.get(4).getDefaultValue());
+
+        assertNull(parameters.get(5).getDefaultValue());
+        assertEquals(List.of("a", "b"), parametersWithDefaultValue.get(5).getDefaultValue());
+
+        LoadFlowDefaultParametersLoader partialDefault = new AbstractLoadFlowDefaultParametersLoader("partial", "/LoadFlowParametersPartialUpdate.json") {
+        };
+        parametersWithDefaultValue = LoadFlowProviderUtil.getSpecificParameters(provider, partialDefault);
+        assertEquals(5.0, parametersWithDefaultValue.get(0).getDefaultValue());  // overridden
+        assertEquals(42, parametersWithDefaultValue.get(1).getDefaultValue()); // default value
+        assertEquals(false, parametersWithDefaultValue.get(2).getDefaultValue()); // default value
+        assertEquals("yes", parametersWithDefaultValue.get(3).getDefaultValue()); // default value
+        assertNull(parametersWithDefaultValue.get(4).getDefaultValue()); // default value
+        assertNull(parametersWithDefaultValue.get(5).getDefaultValue()); // default value
+
+    }
+
 }

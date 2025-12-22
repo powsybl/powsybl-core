@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.powsybl.commons.test.ComparisonUtils.assertIteratorsEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -50,8 +51,8 @@ class StringTimeSeriesTest {
                                    new StringPoint(4, Instant.parse("2015-01-01T01:00:00Z"), null),
                                    new StringPoint(5, Instant.parse("2015-01-01T01:15:00Z"), "c"),
                                    new StringPoint(6, Instant.parse("2015-01-01T01:30:00Z"), "d")};
-        assertArrayEquals(pointsRef, timeSeries.stream().toArray());
-        assertArrayEquals(pointsRef, Iterators.toArray(timeSeries.iterator(), StringPoint.class));
+        assertArrayEquals(pointsRef, timeSeries.compressedStream().toArray());
+        assertArrayEquals(pointsRef, Iterators.toArray(timeSeries.compressedIterator(), StringPoint.class));
 
         // json test
         String jsonRef = String.join(System.lineSeparator(),
@@ -80,7 +81,7 @@ class StringTimeSeriesTest {
         assertEquals(jsonRef, json);
         List<TimeSeries> timeSeriesList = TimeSeries.parseJson(json);
         assertEquals(1, timeSeriesList.size());
-        String json2 = JsonUtil.toJson(timeSeriesList.get(0)::writeJson);
+        String json2 = JsonUtil.toJson(timeSeriesList.getFirst()::writeJson);
         assertEquals(json, json2);
 
         // test json with object mapper
@@ -104,5 +105,41 @@ class StringTimeSeriesTest {
         RegularTimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(2), Duration.ofMillis(1));
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createString("ts1", index, "a", "b"));
         assertTrue(e.getMessage().contains("Bad number of values 2, expected 3"));
+    }
+
+    @Test
+    void testStream() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"),
+            Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.STRING, Collections.emptyMap(), index);
+        CompressedStringDataChunk chunk1 = new CompressedStringDataChunk(0, 5, new String[] {"a", "b"}, new int[] {3, 2});
+        CompressedStringDataChunk chunk2 = new CompressedStringDataChunk(5, 3, new String[] {"c", "d"}, new int[] {1, 2});
+        StringTimeSeries timeSeries = new StringTimeSeries(metadata, chunk1, chunk2);
+        assertArrayEquals(new String[] {"a", "a", "a", "b", "b", "c", "d", "d"}, timeSeries.toArray());
+
+        // Uncompressed points
+        StringPoint[] uncompressedPointsRef = {
+            new StringPoint(0, Instant.parse("2015-01-01T00:00:00Z"), "a"),
+            new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z"), "a"),
+            new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z"), "a"),
+            new StringPoint(3, Instant.parse("2015-01-01T00:45:00Z"), "b"),
+            new StringPoint(4, Instant.parse("2015-01-01T01:00:00Z"), "b"),
+            new StringPoint(5, Instant.parse("2015-01-01T01:15:00Z"), "c"),
+            new StringPoint(6, Instant.parse("2015-01-01T01:30:00Z"), "d"),
+            new StringPoint(7, Instant.parse("2015-01-01T01:45:00Z"), "d")
+        };
+        assertArrayEquals(uncompressedPointsRef, timeSeries.stream().toArray());
+        assertArrayEquals(uncompressedPointsRef, timeSeries.uncompressedStream().toArray());
+        assertIteratorsEquals(List.of(uncompressedPointsRef).iterator(), timeSeries.uncompressedIterator());
+
+        // Compressed points
+        StringPoint[] compressedPointsRef = {
+            new StringPoint(0, Instant.parse("2015-01-01T00:00:00Z"), "a"),
+            new StringPoint(3, Instant.parse("2015-01-01T00:45:00Z"), "b"),
+            new StringPoint(5, Instant.parse("2015-01-01T01:15:00Z"), "c"),
+            new StringPoint(6, Instant.parse("2015-01-01T01:30:00Z"), "d")
+        };
+        assertArrayEquals(compressedPointsRef, timeSeries.compressedStream().toArray());
+        assertIteratorsEquals(List.of(compressedPointsRef).iterator(), timeSeries.compressedIterator());
     }
 }
