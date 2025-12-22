@@ -7,7 +7,7 @@
  */
 package com.powsybl.loadflow.json;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 /**

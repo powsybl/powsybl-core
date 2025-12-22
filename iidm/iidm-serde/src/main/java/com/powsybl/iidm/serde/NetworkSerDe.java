@@ -308,11 +308,7 @@ public final class NetworkSerDe {
     }
 
     private static JsonWriter createJsonWriter(OutputStream os, ExportOptions options, ExtensionsSupplier extensionsSupplier) {
-        try {
-            return new JsonWriter(os, options.isIndent(), options.getVersion().toString("."), createSingleNameToArrayNameMap(options, extensionsSupplier));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return new JsonWriter(os, options.isIndent(), options.getVersion().toString("."), createSingleNameToArrayNameMap(options, extensionsSupplier));
     }
 
     private static TreeDataWriter createBinWriter(OutputStream os, ExportOptions options) {

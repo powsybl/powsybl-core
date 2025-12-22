@@ -7,18 +7,19 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.DynamicSimulationResultImpl;
 import com.powsybl.dynamicsimulation.TimelineEvent;
 import com.powsybl.timeseries.DoubleTimeSeries;
 import com.powsybl.timeseries.json.DoubleTimeSeriesJsonDeserializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +40,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
     }
 
     @Override
-    public DynamicSimulationResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    public DynamicSimulationResult deserialize(JsonParser parser, DeserializationContext ctx) throws JacksonException {
         DynamicSimulationResult.Status status = null;
         String error = "";
         Map<String, DoubleTimeSeries> curves = new LinkedHashMap<>();
@@ -76,7 +77,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         return new DynamicSimulationResultImpl(status, error, curves, fsv, timeLine);
     }
 
-    private void deserializeCurves(JsonParser parser, Map<String, DoubleTimeSeries> curves) throws IOException {
+    private void deserializeCurves(JsonParser parser, Map<String, DoubleTimeSeries> curves) throws JacksonException {
         DoubleTimeSeries curve;
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             curve = doubleTimeSeriesJsonDeserializer.deserialize(parser, null);
@@ -86,7 +87,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         }
     }
 
-    private void deserializeFinalStateValues(JsonParser parser, Map<String, Double> fsvs) throws IOException {
+    private void deserializeFinalStateValues(JsonParser parser, Map<String, Double> fsvs) throws JacksonException {
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             String name = null;
             double value = 0;
@@ -101,13 +102,13 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         }
     }
 
-    private void deserializeTimeline(JsonParser parser, List<TimelineEvent> timelineEvents) throws IOException {
+    private void deserializeTimeline(JsonParser parser, List<TimelineEvent> timelineEvents) throws JacksonException {
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             timelineEvents.add(deserializeTimelineEvent(parser));
         }
     }
 
-    private TimelineEvent deserializeTimelineEvent(JsonParser parser) throws IOException {
+    private TimelineEvent deserializeTimelineEvent(JsonParser parser) throws JacksonException {
         double time = 0;
         String modelName = null;
         String message = null;
@@ -122,15 +123,16 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         return new TimelineEvent(time, modelName, message);
     }
 
-    public static DynamicSimulationResult read(InputStream is) throws IOException {
+    public static DynamicSimulationResult read(InputStream is) throws JacksonException {
         Objects.requireNonNull(is);
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
 
         SimpleModule module = new SimpleModule();
         module.addDeserializer(DynamicSimulationResult.class, new DynamicSimulationResultDeserializer());
-        objectMapper.registerModule(module);
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(module)
+            .build();
 
-        return objectMapper.readValue(is, DynamicSimulationResult.class);
+        return jsonMapper.readValue(is, DynamicSimulationResult.class);
     }
 
     public static DynamicSimulationResult read(Path jsonFile) {
@@ -142,7 +144,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         }
     }
 
-    private static IllegalStateException getUnexpectedFieldException(JsonParser parser) throws IOException {
+    private static IllegalStateException getUnexpectedFieldException(JsonParser parser) throws JacksonException {
         return new IllegalStateException("Unexpected field: " + parser.currentName());
     }
 }

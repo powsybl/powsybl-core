@@ -7,14 +7,15 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.PostContingencyComputationStatus;
-import com.powsybl.security.results.*;
+import com.powsybl.security.results.ConnectivityResult;
+import com.powsybl.security.results.PostContingencyResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -38,7 +39,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
     }
 
     @Override
-    public PostContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public PostContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version...
             version = SecurityAnalysisResultSerializer.VERSION;

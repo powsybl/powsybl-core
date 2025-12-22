@@ -1,10 +1,10 @@
 package com.powsybl.action.json;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.action.*;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.network.identifiers.json.IdentifierDeserializer;
@@ -28,7 +28,7 @@ public class ActionJsonModule extends SimpleModule {
     }
 
     private <T, B> void registerActionBuilderType(Class<T> actionClass, Class<B> builderClass, String typeName,
-                                                  JsonSerializer<T> serializer, JsonDeserializer<B> deserializer) {
+                                                  ValueSerializer<T> serializer, ValueDeserializer<B> deserializer) {
         registerSubtypes(new NamedType(actionClass, typeName));
         registerSubtypes(new NamedType(builderClass, typeName));
         addDeserializer(builderClass, deserializer);

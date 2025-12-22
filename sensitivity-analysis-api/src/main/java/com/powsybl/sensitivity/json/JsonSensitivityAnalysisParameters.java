@@ -7,13 +7,13 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisProvider;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,16 +68,18 @@ public final class JsonSensitivityAnalysisParameters {
      * Updates parameters by reading the content of a JSON stream.
      */
     public static SensitivityAnalysisParameters update(SensitivityAnalysisParameters parameters, InputStream jsonStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        return jsonMapper.readerForUpdating(parameters).readValue(jsonStream);
     }
 
-    public static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper()
-                .registerModule(new SensitivityJsonModule());
+    public static JsonMapper createJsonMapper() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addModule(new SensitivityJsonModule())
+            .build();
+    }
+
+    public static JsonMapper.Builder createJsonMapperBuilder() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addModule(new SensitivityJsonModule());
     }
 }

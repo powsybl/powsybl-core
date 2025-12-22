@@ -1,6 +1,5 @@
 package com.powsybl.iidm.geodata.geojson;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.geodata.geojson.dto.AbstractGeometryDto;
 import com.powsybl.iidm.geodata.geojson.dto.FeatureCollectionDto;
 import com.powsybl.iidm.geodata.geojson.dto.LineStringDto;
@@ -10,6 +9,7 @@ import com.powsybl.iidm.network.extensions.Coordinate;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -23,7 +23,7 @@ import java.util.Map;
 public final class GeoJsonDataParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonDataParser.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().build();
 
     private GeoJsonDataParser() {
     }

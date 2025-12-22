@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.iidm.criteria.*;
 
 /**

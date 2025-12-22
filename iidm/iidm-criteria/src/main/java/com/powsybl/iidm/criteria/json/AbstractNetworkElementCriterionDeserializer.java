@@ -7,18 +7,17 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.criteria.NetworkElementCriterion;
-import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import com.powsybl.iidm.criteria.Criterion;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
+import com.powsybl.iidm.criteria.NetworkElementCriterion;
+import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * <p>Abstract class for {@link NetworkElementCriterion} implementations' deserializers.</p>
@@ -42,7 +41,7 @@ public abstract class AbstractNetworkElementCriterionDeserializer<T extends Netw
                                             ParsingContext parsingCtx, String name,
                                             NetworkElementCriterionType expectedCriterionType,
                                             CriterionType expectedCountriesCriterionType,
-                                            CriterionType expectedNominalVoltagesCriterionType) throws IOException {
+                                            CriterionType expectedNominalVoltagesCriterionType) throws JacksonException {
         String expectedType = expectedCriterionType.getName();
         switch (name) {
             case "countryCriterion" -> {
@@ -70,11 +69,11 @@ public abstract class AbstractNetworkElementCriterionDeserializer<T extends Netw
     }
 
     protected boolean deserializeCommonAttributes(JsonParser parser, ParsingContext parsingCtx, String name,
-                                                  NetworkElementCriterionType expectedCriterionType) throws IOException {
+                                                  NetworkElementCriterionType expectedCriterionType) throws JacksonException {
         String expectedType = expectedCriterionType.getName();
         switch (name) {
             case "name" -> {
-                parsingCtx.name = parser.nextTextValue();
+                parsingCtx.name = parser.nextStringValue();
                 return true;
             }
             case "version" -> {
@@ -82,7 +81,7 @@ public abstract class AbstractNetworkElementCriterionDeserializer<T extends Netw
                 return true;
             }
             case "type" -> {
-                String type = parser.nextTextValue();
+                String type = parser.nextStringValue();
                 if (!type.equals(expectedType)) {
                     throw new IllegalStateException(String.format("'type' is expected to be '%s' but encountered value was '%s'",
                             expectedType, type));

@@ -7,16 +7,12 @@
  */
 package com.powsybl.matpower.converter;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.*;
@@ -30,6 +26,12 @@ import com.powsybl.matpower.model.MatpowerReader;
 import com.powsybl.matpower.model.MatpowerWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -71,11 +73,11 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         MatpowerModel model = MatpowerReader.read(new ByteArrayInputStream(mat), network.getId());
 
         // Map to JSON with a specific serializer for doubles if decimal format is received
-        ObjectMapper jsonMapper = new ObjectMapper();
+        JsonMapper.Builder builder = JsonUtil.createJsonMapperBuilder();
         if (decimalFormat != null) {
-            jsonMapper.registerModule(new SimpleModule().addSerializer(double.class, new JsonSerializer<>() {
+            builder.addModule(new SimpleModule().addSerializer(double.class, new ValueSerializer<>() {
                 @Override
-                public void serialize(Double value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+                public void serialize(Double value, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
                     if (value == null) {
                         jsonGenerator.writeNull();
                     } else {
@@ -84,6 +86,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 }
             }));
         }
+        JsonMapper jsonMapper = builder.build();
         String json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(model);
 
         ComparisonUtils.assertTxtEquals(MatpowerExporterTest.class.getResourceAsStream(refJsonFile), json);

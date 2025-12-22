@@ -7,16 +7,16 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,12 +34,12 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
     }
 
     @Override
-    public SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         return deserialize(parser, deserializationContext, new SensitivityAnalysisParameters());
     }
 
     @Override
-    public SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SensitivityAnalysisParameters parameters) throws IOException {
+    public SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SensitivityAnalysisParameters parameters) throws JacksonException {
 
         List<Extension<SensitivityAnalysisParameters>> extensions = Collections.emptyList();
         String version = null;

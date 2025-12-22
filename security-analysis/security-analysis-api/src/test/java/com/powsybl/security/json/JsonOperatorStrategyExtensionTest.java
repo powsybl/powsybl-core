@@ -8,25 +8,26 @@
 package com.powsybl.security.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -119,24 +120,25 @@ class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
             OperatorStrategy getExtendable();
         }
 
-        private static ObjectMapper createMapper() {
-            return JsonUtil.createObjectMapper()
-                    .addMixIn(DummyExtension.class, DummySerializer.SerializationSpec.class);
+        private static JsonMapper createMapper() {
+            return JsonUtil.createJsonMapperBuilder()
+                .addMixIn(DummyExtension.class, DummySerializer.SerializationSpec.class)
+                .build();
         }
 
         @Override
         public void serialize(DummyExtension extension, JsonGenerator jsonGenerator,
-                              SerializerProvider serializerProvider) throws IOException {
+                              SerializationContext serializationContext) throws JacksonException {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeNumberField("parameterDouble", extension.parameterDouble);
-            jsonGenerator.writeBooleanField("parameterBoolean", extension.parameterBoolean);
-            jsonGenerator.writeStringField("parameterString", extension.parameterString);
+            jsonGenerator.writeNumberProperty("parameterDouble", extension.parameterDouble);
+            jsonGenerator.writeBooleanProperty("parameterBoolean", extension.parameterBoolean);
+            jsonGenerator.writeStringProperty("parameterString", extension.parameterString);
             jsonGenerator.writeEndObject();
         }
 
         @Override
         public DummyExtension deserialize(JsonParser jsonParser,
-                                          DeserializationContext deserializationContext) throws IOException {
+                                          DeserializationContext deserializationContext) throws JacksonException {
             DummyExtension dummyExtension = new DummyExtension();
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                 switch (jsonParser.currentName()) {
@@ -149,7 +151,7 @@ class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
                         dummyExtension.setParameterDouble(jsonParser.getValueAsDouble());
                         break;
                     case "parameterString":
-                        dummyExtension.setParameterString(jsonParser.nextTextValue());
+                        dummyExtension.setParameterString(jsonParser.nextStringValue());
                         break;
                     default:
                         throw new PowsyblException("Unexpected field " + jsonParser.currentName());
@@ -160,11 +162,10 @@ class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
 
         @Override
         public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext,
-                                                   DummyExtension parameters) throws IOException {
-            ObjectMapper objectMapper = createMapper();
-            ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-            DummyExtension updatedParameters = objectReader.readValue(jsonParser, DummyExtension.class);
-            return updatedParameters;
+                                                   DummyExtension parameters) throws JacksonException {
+            JsonMapper jsonMapper = createMapper();
+            ObjectReader objectReader = jsonMapper.readerForUpdating(parameters);
+            return objectReader.readValue(jsonParser);
         }
 
         @Override

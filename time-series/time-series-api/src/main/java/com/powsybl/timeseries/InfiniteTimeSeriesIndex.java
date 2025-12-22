@@ -7,12 +7,10 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -63,27 +61,19 @@ public class InfiniteTimeSeriesIndex extends AbstractTimeSeriesIndex {
     @Override
     public void writeJson(JsonGenerator generator, ExportFormat timeFormat) {
         Objects.requireNonNull(generator);
-        try {
-            generator.writeStartObject();
-            generator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        generator.writeStartObject();
+        generator.writeEndObject();
     }
 
     public static InfiniteTimeSeriesIndex parseJson(JsonParser parser) {
         Objects.requireNonNull(parser);
         JsonToken token;
-        try {
-            while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.END_OBJECT) {
-                    return InfiniteTimeSeriesIndex.INSTANCE;
-                }
+        while ((token = parser.nextToken()) != null) {
+            if (token == JsonToken.END_OBJECT) {
+                return InfiniteTimeSeriesIndex.INSTANCE;
             }
-            throw new IllegalStateException("Should not happen");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
+        throw new IllegalStateException("Should not happen");
     }
 
     @Override

@@ -7,18 +7,17 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.shortcircuit.FeederResult;
 import com.powsybl.shortcircuit.FortescueFeederResult;
 import com.powsybl.shortcircuit.FortescueValue;
 import com.powsybl.shortcircuit.MagnitudeFeederResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
@@ -30,7 +29,7 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
     }
 
     @Override
-    public FeederResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public FeederResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String connectableId = null;
         FortescueValue current = null;
         Double currentMagnitude = Double.NaN;

@@ -7,7 +7,7 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.databind.Module;
+import tools.jackson.databind.JacksonModule;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.security.*;
@@ -76,7 +76,7 @@ public abstract class AbstractSecurityAnalysisJsonModule extends ContingencyJson
     }
 
     @Override
-    public Iterable<? extends Module> getDependencies() {
+    public Iterable<? extends JacksonModule> getDependencies() {
         return () -> plugins.stream()
                 .flatMap(plugin -> plugin.getJsonModules().stream())
                 .iterator();

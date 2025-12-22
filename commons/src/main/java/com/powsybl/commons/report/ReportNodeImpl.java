@@ -7,20 +7,20 @@
  */
 package com.powsybl.commons.report;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.commons.ref.RefObj;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringSubstitutor;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -173,14 +173,10 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public void addCopy(ReportNode reportNode) {
-        var om = new ObjectMapper().registerModule(new ReportNodeJsonModule());
+        JsonMapper om = JsonMapper.builder().addModule(new ReportNodeJsonModule()).build();
         var sw = new StringWriter();
 
-        try {
-            om.writeValue(sw, reportNode);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        om.writeValue(sw, reportNode);
 
         ReportNodeImpl copiedReportNode = (ReportNodeImpl) ReportNodeDeserializer.read(IOUtils.toInputStream(sw.toString(), StandardCharsets.UTF_8));
         children.add(copiedReportNode);
@@ -288,11 +284,11 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void print(Writer writer, ReportFormatter formatter) throws IOException {
+    public void print(Writer writer, ReportFormatter formatter) throws JacksonException, IOException {
         print(writer, "", formatter);
     }
 
-    private void print(Writer writer, String indentationStart, ReportFormatter formatter) throws IOException {
+    private void print(Writer writer, String indentationStart, ReportFormatter formatter) throws JacksonException, IOException {
         if (children.isEmpty()) {
             print(writer, indentationStart, "", formatter);
         } else {
@@ -304,26 +300,26 @@ public final class ReportNodeImpl implements ReportNode {
         }
     }
 
-    private void print(Writer writer, String indent, String prefix, ReportFormatter formatter) throws IOException {
+    private void print(Writer writer, String indent, String prefix, ReportFormatter formatter) throws JacksonException, IOException {
         writer.append(indent).append(prefix).append(getMessage(formatter)).append(System.lineSeparator());
     }
 
-    public static ReportNodeImpl parseJsonNode(JsonParser parser, ObjectMapper objectMapper, TreeContext treeContext, ReportNodeVersion version) throws IOException {
+    public static ReportNodeImpl parseJsonNode(JsonParser parser, JsonMapper jsonMapper, TreeContext treeContext, ReportNodeVersion version) throws JacksonException {
         Objects.requireNonNull(version, "ReportNode version is missing (null)");
         Objects.requireNonNull(treeContext);
         return switch (version) {
             case V_1_0, V_2_0 -> throw new PowsyblException("No backward compatibility of version " + version);
-            case V_2_1, V_3_0 -> parseJsonNode(parser, objectMapper, treeContext);
+            case V_2_1, V_3_0 -> parseJsonNode(parser, jsonMapper, treeContext);
         };
     }
 
-    private static ReportNodeImpl parseJsonNode(JsonParser parser, ObjectMapper objectMapper, TreeContext treeContext) throws IOException {
+    private static ReportNodeImpl parseJsonNode(JsonParser parser, JsonMapper jsonMapper, TreeContext treeContext) throws JacksonException {
         checkToken(parser, JsonToken.START_OBJECT); // remove start object token to read the ReportNode itself
-        return parseJsonNode(parser, objectMapper, new RefChain<>(new RefObj<>(treeContext)), Collections.emptyList(), true);
+        return parseJsonNode(parser, jsonMapper, new RefChain<>(new RefObj<>(treeContext)), Collections.emptyList(), true);
     }
 
-    private static ReportNodeImpl parseJsonNode(JsonParser p, ObjectMapper objectMapper, RefChain<TreeContext> treeContext,
-                                                Collection<Map<String, TypedValue>> inheritedValuesMaps, boolean rootReportNode) throws IOException {
+    private static ReportNodeImpl parseJsonNode(JsonParser p, JsonMapper jsonMapper, RefChain<TreeContext> treeContext,
+                                                Collection<Map<String, TypedValue>> inheritedValuesMaps, boolean rootReportNode) throws JacksonException {
         ReportNodeImpl reportNode = null;
         var parsingContext = new Object() {
             String messageKey;
@@ -332,10 +328,10 @@ public final class ReportNodeImpl implements ReportNode {
 
         while (p.nextToken() != JsonToken.END_OBJECT) {
             switch (p.currentName()) {
-                case "messageKey" -> parsingContext.messageKey = p.nextTextValue();
+                case "messageKey" -> parsingContext.messageKey = p.nextStringValue();
                 case "values" -> {
                     checkToken(p, JsonToken.START_OBJECT); // Remove start object token to read the underlying map
-                    parsingContext.values = objectMapper.readValue(p, new TypeReference<HashMap<String, TypedValue>>() {
+                    parsingContext.values = jsonMapper.readValue(p, new TypeReference<HashMap<String, TypedValue>>() {
                     });
                 }
                 case "children" -> {
@@ -347,7 +343,7 @@ public final class ReportNodeImpl implements ReportNode {
                     checkToken(p, JsonToken.START_ARRAY);
 
                     while (p.nextToken() != JsonToken.END_ARRAY) {
-                        reportNode.addChild(parseJsonNode(p, objectMapper, treeContext, reportNode.getValuesMapsInheritance(), false));
+                        reportNode.addChild(parseJsonNode(p, jsonMapper, treeContext, reportNode.getValuesMapsInheritance(), false));
                     }
                 }
                 default -> throw new IllegalStateException("Unexpected value: " + p.currentName());
@@ -363,13 +359,13 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
-    public void writeJson(JsonGenerator generator) throws IOException {
-        generator.writeStringField("messageKey", getMessageKey());
+    public void writeJson(JsonGenerator generator) throws JacksonException {
+        generator.writeStringProperty("messageKey", getMessageKey());
         if (!values.isEmpty()) {
-            generator.writeObjectField("values", values);
+            generator.writePOJOProperty("values", values);
         }
         if (!children.isEmpty()) {
-            generator.writeFieldName("children");
+            generator.writeName("children");
             generator.writeStartArray();
             for (ReportNodeImpl messageNode : children) {
                 generator.writeStartObject();

@@ -7,14 +7,18 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.results.*;
 import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.results.AbstractContingencyResult;
+import com.powsybl.security.results.BranchResult;
+import com.powsybl.security.results.BusResult;
+import com.powsybl.security.results.NetworkResult;
+import com.powsybl.security.results.ThreeWindingsTransformerResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +40,7 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
 
     protected boolean deserializeCommonAttributes(JsonParser parser, ParsingContext context, String name,
                                                   DeserializationContext deserializationContext, String version,
-                                                  String contextName) throws IOException {
+                                                  String contextName) throws JacksonException {
         switch (name) {
             case "limitViolationsResult":
                 parser.nextToken();

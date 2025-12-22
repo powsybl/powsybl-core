@@ -7,11 +7,6 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.extensions.*;
@@ -22,6 +17,12 @@ import com.powsybl.security.NetworkMetadata;
 import com.powsybl.security.results.*;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.results.OperatorStrategyResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +52,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
     }
 
     @Override
-    public SecurityAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    public SecurityAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws JacksonException {
         String version = null;
         NetworkMetadata networkMetadata = null;
         LimitViolationsResult limitViolationsResult = null;
@@ -132,13 +133,10 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
     public static SecurityAnalysisResult read(InputStream is) {
         Objects.requireNonNull(is);
 
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule())
-                .registerModule(new ActionJsonModule());
-        try {
-            return objectMapper.readValue(is, SecurityAnalysisResult.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new SecurityAnalysisJsonModule())
+            .addModule(new ActionJsonModule())
+            .build();
+        return jsonMapper.readValue(is, SecurityAnalysisResult.class);
     }
 }

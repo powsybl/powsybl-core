@@ -15,16 +15,17 @@ import java.nio.file.Path;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.TimelineEvent;
 import com.powsybl.timeseries.DoubleTimeSeries;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -38,31 +39,31 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
     }
 
     @Override
-    public void serialize(DynamicSimulationResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(DynamicSimulationResult result, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeStringField("status", result.getStatus().name());
+        jsonGenerator.writeStringProperty("version", VERSION);
+        jsonGenerator.writeStringProperty("status", result.getStatus().name());
         if (!result.getStatusText().isEmpty()) {
-            jsonGenerator.writeStringField("error", result.getStatusText());
+            jsonGenerator.writeStringProperty("error", result.getStatusText());
         }
-        jsonGenerator.writeFieldName("curves");
+        jsonGenerator.writeName("curves");
         jsonGenerator.writeStartArray();
         for (Entry<String, DoubleTimeSeries> entry : result.getCurves().entrySet()) {
             entry.getValue().writeJson(jsonGenerator);
         }
         jsonGenerator.writeEndArray();
         // fsv
-        jsonGenerator.writeFieldName("finalStateValues");
+        jsonGenerator.writeName("finalStateValues");
         jsonGenerator.writeStartArray();
         for (Entry<String, Double> fsv : result.getFinalStateValues().entrySet()) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("name", fsv.getKey());
-            jsonGenerator.writeNumberField("value", fsv.getValue());
+            jsonGenerator.writeStringProperty("name", fsv.getKey());
+            jsonGenerator.writeNumberProperty("value", fsv.getValue());
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
         // timeline
-        jsonGenerator.writeFieldName("timeLine");
+        jsonGenerator.writeName("timeLine");
         jsonGenerator.writeStartArray();
         for (TimelineEvent event : result.getTimeLine()) {
             writeTimeline(event, jsonGenerator);
@@ -71,11 +72,11 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
         jsonGenerator.writeEndObject();
     }
 
-    private void writeTimeline(TimelineEvent event, JsonGenerator jsonGenerator) throws IOException {
+    private void writeTimeline(TimelineEvent event, JsonGenerator jsonGenerator) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("time", event.time());
-        jsonGenerator.writeStringField("modelName", event.modelName());
-        jsonGenerator.writeStringField("message", event.message());
+        jsonGenerator.writeNumberProperty("time", event.time());
+        jsonGenerator.writeStringProperty("modelName", event.modelName());
+        jsonGenerator.writeStringProperty("message", event.message());
         jsonGenerator.writeEndObject();
     }
 
@@ -84,11 +85,12 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper();
             SimpleModule module = new SimpleModule();
             module.addSerializer(DynamicSimulationResult.class, new DynamicSimulationResultSerializer());
-            objectMapper.registerModule(module);
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+            JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+                .addModule(module)
+                .build();
+            ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(os, result);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

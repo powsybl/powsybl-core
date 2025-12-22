@@ -7,14 +7,13 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.action.PhaseTapChangerTapPositionAction;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -27,7 +26,7 @@ public class PhaseTapChangerTapPositionActionBuilderDeserializer
     }
 
     @Override
-    public PhaseTapChangerTapPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public PhaseTapChangerTapPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         PhaseTapChangerTapPositionActionBuilder builder = new PhaseTapChangerTapPositionActionBuilder();
         String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
@@ -36,9 +35,9 @@ public class PhaseTapChangerTapPositionActionBuilderDeserializer
                 return true;
             }
             if (name.equals("type")) {
-                String type = jsonParser.nextTextValue();
+                String type = jsonParser.nextStringValue();
                 if (!PhaseTapChangerTapPositionAction.NAME.equals(type)) {
-                    throw JsonMappingException.from(jsonParser, "Expected type :" + PhaseTapChangerTapPositionAction.NAME + " got : " + type);
+                    throw DatabindException.from(jsonParser, "Expected type :" + PhaseTapChangerTapPositionAction.NAME + " got : " + type);
                 }
                 return true;
             }

@@ -7,13 +7,12 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.contingency.list.IdentifierContingencyListDeserializer;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -25,11 +24,11 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
     }
 
     @Override
-    public ContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public ContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         parser.nextToken();
         while (parser.currentName() != null) {
             if ("type".equals(parser.currentName())) {
-                switch (parser.nextTextValue()) {
+                switch (parser.nextStringValue()) {
                     case "default" -> {
                         DefaultContingencyListDeserializer defaultContingencyListDeserializer = new DefaultContingencyListDeserializer();
                         return defaultContingencyListDeserializer.deserialize(parser, deserializationContext);

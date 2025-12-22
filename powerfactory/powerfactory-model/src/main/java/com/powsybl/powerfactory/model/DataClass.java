@@ -7,8 +7,8 @@
  */
 package com.powsybl.powerfactory.model;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
@@ -70,7 +70,7 @@ public class DataClass {
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
                 case "name":
-                    context.name = parser.nextTextValue();
+                    context.name = parser.nextStringValue();
                     return true;
                 case "attributes":
                     JsonUtil.parseObjectArray(parser, context.attributes::add, DataAttribute::parseJson);
@@ -84,8 +84,8 @@ public class DataClass {
 
     public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeStartObject();
-        generator.writeStringField("name", name);
-        generator.writeFieldName("attributes");
+        generator.writeStringProperty("name", name);
+        generator.writeName("attributes");
         generator.writeStartArray();
         for (DataAttribute attribute : attributes) {
             attribute.writeJson(generator);

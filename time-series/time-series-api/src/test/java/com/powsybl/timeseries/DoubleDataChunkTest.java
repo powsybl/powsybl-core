@@ -7,12 +7,12 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.nio.DoubleBuffer;
@@ -97,17 +97,18 @@ class DoubleDataChunkTest {
         assertEquals(jsonRef, JsonUtil.toJson(compressedChunk::writeJson));
 
         // test json with object mapper
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new TimeSeriesJsonModule());
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new TimeSeriesJsonModule())
+            .build();
 
-        List<DoubleDataChunk> chunks = objectMapper.readValue(objectMapper.writeValueAsString(Arrays.asList(chunk, compressedChunk)),
-                                                               TypeFactory.defaultInstance().constructCollectionType(List.class, DoubleDataChunk.class));
+        List<DoubleDataChunk> chunks = jsonMapper.readValue(jsonMapper.writeValueAsString(Arrays.asList(chunk, compressedChunk)),
+                                                               TypeFactory.createDefaultInstance().constructCollectionType(List.class, DoubleDataChunk.class));
         assertEquals(2, chunks.size());
         assertEquals(chunk, chunks.get(0));
         assertEquals(compressedChunk, chunks.get(1));
 
         // check base class (DataChunk) deserializer
-        assertInstanceOf(DoubleDataChunk.class, objectMapper.readValue(objectMapper.writeValueAsString(chunk), DataChunk.class));
+        assertInstanceOf(DoubleDataChunk.class, jsonMapper.readValue(jsonMapper.writeValueAsString(chunk), DataChunk.class));
 
         // stream test
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:30:00Z"),

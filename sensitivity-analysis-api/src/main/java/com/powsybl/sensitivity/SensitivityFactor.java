@@ -7,9 +7,9 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
@@ -109,22 +109,18 @@ public class SensitivityFactor {
 
     public static void writeJson(JsonGenerator jsonGenerator, SensitivityFunctionType functionType, String functionId, SensitivityVariableType variableType,
                           String variableId, boolean variableSet, ContingencyContext contingencyContext) {
-        try {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("functionType", functionType.name());
-            jsonGenerator.writeStringField("functionId", functionId);
-            jsonGenerator.writeStringField("variableType", variableType.name());
-            jsonGenerator.writeStringField("variableId", variableId);
-            jsonGenerator.writeBooleanField("variableSet", variableSet);
-            jsonGenerator.writeStringField("contingencyContextType", contingencyContext.getContextType().name());
-            if (contingencyContext.getContingencyId() != null) {
-                jsonGenerator.writeStringField("contingencyId", contingencyContext.getContingencyId());
-            }
-
-            jsonGenerator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringProperty("functionType", functionType.name());
+        jsonGenerator.writeStringProperty("functionId", functionId);
+        jsonGenerator.writeStringProperty("variableType", variableType.name());
+        jsonGenerator.writeStringProperty("variableId", variableId);
+        jsonGenerator.writeBooleanProperty("variableSet", variableSet);
+        jsonGenerator.writeStringProperty("contingencyContextType", contingencyContext.getContextType().name());
+        if (contingencyContext.getContingencyId() != null) {
+            jsonGenerator.writeStringProperty("contingencyId", contingencyContext.getContingencyId());
         }
+
+        jsonGenerator.writeEndObject();
     }
 
     static final class ParsingContext {
@@ -154,7 +150,7 @@ public class SensitivityFactor {
         try {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.FIELD_NAME) {
+                if (token == JsonToken.PROPERTY_NAME) {
                     parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
                     boolean variableSet = Objects.requireNonNull(context.variableSet, "Parameter variableSet is missing");
@@ -172,25 +168,25 @@ public class SensitivityFactor {
         String fieldName = parser.currentName();
         switch (fieldName) {
             case "functionType":
-                context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());
+                context.functionType = SensitivityFunctionType.valueOf(parser.nextStringValue());
                 break;
             case "functionId":
-                context.functionId = parser.nextTextValue();
+                context.functionId = parser.nextStringValue();
                 break;
             case "variableType":
-                context.variableType = SensitivityVariableType.valueOf(parser.nextTextValue());
+                context.variableType = SensitivityVariableType.valueOf(parser.nextStringValue());
                 break;
             case "variableId":
-                context.variableId = parser.nextTextValue();
+                context.variableId = parser.nextStringValue();
                 break;
             case "variableSet":
                 context.variableSet = parser.nextBooleanValue();
                 break;
             case "contingencyContextType":
-                context.contingencyContextType = ContingencyContextType.valueOf(parser.nextTextValue());
+                context.contingencyContextType = ContingencyContextType.valueOf(parser.nextStringValue());
                 break;
             case "contingencyId":
-                context.contingencyId = parser.nextTextValue();
+                context.contingencyId = parser.nextStringValue();
                 break;
             default:
                 throw new PowsyblException("Unexpected field: " + fieldName);

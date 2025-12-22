@@ -7,9 +7,9 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import org.jgrapht.alg.util.Triple;
@@ -83,14 +83,10 @@ public class SensitivityAnalysisResult {
         }
 
         public static void writeJson(JsonGenerator jsonGenerator, SensitivityContingencyStatus contingencyStatus) {
-            try {
-                jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField("contingencyId", contingencyStatus.getContingencyId());
-                jsonGenerator.writeStringField("contingencyStatus", contingencyStatus.status.name());
-                jsonGenerator.writeEndObject();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringProperty("contingencyId", contingencyStatus.getContingencyId());
+            jsonGenerator.writeStringProperty("contingencyStatus", contingencyStatus.status.name());
+            jsonGenerator.writeEndObject();
         }
 
         static final class ParsingContext {
@@ -105,7 +101,7 @@ public class SensitivityAnalysisResult {
             try {
                 JsonToken token;
                 while ((token = parser.nextToken()) != null) {
-                    if (token == JsonToken.FIELD_NAME) {
+                    if (token == JsonToken.PROPERTY_NAME) {
                         parseJson(parser, context);
                     } else if (token == JsonToken.END_OBJECT) {
                         return new SensitivityContingencyStatus(context.contingency != null ? context.contingency.getId() : "", context.status);

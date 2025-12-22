@@ -7,9 +7,10 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -18,7 +19,6 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.shortcircuit.*;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +35,7 @@ class FaultResultDeserializer {
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
 
-    public List<FaultResult> deserialize(JsonParser parser, DeserializationContext deserializationContext, String version) throws IOException {
+    public List<FaultResult> deserialize(JsonParser parser, DeserializationContext deserializationContext, String version) throws JacksonException {
         List<FaultResult> faultResults = new ArrayList<>();
         parser.nextToken();
         while (parser.nextToken() != JsonToken.END_ARRAY) {

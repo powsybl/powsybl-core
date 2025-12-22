@@ -8,13 +8,14 @@
  */
 package com.powsybl.loadflow.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -37,49 +38,49 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
     }
 
     @Override
-    public void serialize(LoadFlowResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LoadFlowResult result, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeBooleanField("isOK", result.isOk());
-        serializerProvider.defaultSerializeField("metrics", result.getMetrics(), jsonGenerator);
+        jsonGenerator.writeStringProperty("version", VERSION);
+        jsonGenerator.writeBooleanProperty("isOK", result.isOk());
+        serializationContext.defaultSerializeProperty("metrics", result.getMetrics(), jsonGenerator);
         List<LoadFlowResult.ComponentResult> componentResults = result.getComponentResults();
         if (!componentResults.isEmpty()) {
-            jsonGenerator.writeFieldName("componentResults");
+            jsonGenerator.writeName("componentResults");
             jsonGenerator.writeStartArray();
             for (LoadFlowResult.ComponentResult componentResult : componentResults) {
-                serialize(componentResult, jsonGenerator, serializerProvider);
+                serialize(componentResult, jsonGenerator, serializationContext);
             }
             jsonGenerator.writeEndArray();
         }
         jsonGenerator.writeEndObject();
     }
 
-    public void serialize(LoadFlowResult.ComponentResult componentResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LoadFlowResult.ComponentResult componentResult, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("connectedComponentNum", componentResult.getConnectedComponentNum());
-        jsonGenerator.writeNumberField("synchronousComponentNum", componentResult.getSynchronousComponentNum());
-        jsonGenerator.writeStringField("status", componentResult.getStatus().name());
-        jsonGenerator.writeStringField("statusText", componentResult.getStatusText());
-        serializerProvider.defaultSerializeField("metrics", componentResult.getMetrics(), jsonGenerator);
-        jsonGenerator.writeNumberField("iterationCount", componentResult.getIterationCount());
-        jsonGenerator.writeStringField("referenceBusId", componentResult.getReferenceBusId());
+        jsonGenerator.writeNumberProperty("connectedComponentNum", componentResult.getConnectedComponentNum());
+        jsonGenerator.writeNumberProperty("synchronousComponentNum", componentResult.getSynchronousComponentNum());
+        jsonGenerator.writeStringProperty("status", componentResult.getStatus().name());
+        jsonGenerator.writeStringProperty("statusText", componentResult.getStatusText());
+        serializationContext.defaultSerializeProperty("metrics", componentResult.getMetrics(), jsonGenerator);
+        jsonGenerator.writeNumberProperty("iterationCount", componentResult.getIterationCount());
+        jsonGenerator.writeStringProperty("referenceBusId", componentResult.getReferenceBusId());
         List<LoadFlowResult.SlackBusResult> slackBusResults = componentResult.getSlackBusResults();
         if (!slackBusResults.isEmpty()) {
-            jsonGenerator.writeFieldName("slackBusResults");
+            jsonGenerator.writeName("slackBusResults");
             jsonGenerator.writeStartArray();
             for (LoadFlowResult.SlackBusResult slackBusResult : slackBusResults) {
                 serialize(slackBusResult, jsonGenerator);
             }
             jsonGenerator.writeEndArray();
         }
-        jsonGenerator.writeNumberField("distributedActivePower", componentResult.getDistributedActivePower());
+        jsonGenerator.writeNumberProperty("distributedActivePower", componentResult.getDistributedActivePower());
         jsonGenerator.writeEndObject();
     }
 
-    public void serialize(LoadFlowResult.SlackBusResult slackBusResult, JsonGenerator jsonGenerator) throws IOException {
+    public void serialize(LoadFlowResult.SlackBusResult slackBusResult, JsonGenerator jsonGenerator) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("id", slackBusResult.getId());
-        jsonGenerator.writeNumberField("activePowerMismatch", slackBusResult.getActivePowerMismatch());
+        jsonGenerator.writeStringProperty("id", slackBusResult.getId());
+        jsonGenerator.writeNumberProperty("activePowerMismatch", slackBusResult.getActivePowerMismatch());
         jsonGenerator.writeEndObject();
     }
 
@@ -88,9 +89,10 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            objectMapper.registerModule(new LoadFlowResultJsonModule());
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+            JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+                .addModule(new LoadFlowResultJsonModule())
+                .build();
+            ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(os, result);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -7,14 +7,15 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.SecurityAnalysisResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -32,16 +33,16 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
     }
 
     @Override
-    public void serialize(SecurityAnalysisResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(SecurityAnalysisResult result, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", VERSION);
+        jsonGenerator.writeStringProperty("version", VERSION);
         if (result.getNetworkMetadata() != null) {
-            serializerProvider.defaultSerializeField("network", result.getNetworkMetadata(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("network", result.getNetworkMetadata(), jsonGenerator);
         }
-        serializerProvider.defaultSerializeField("preContingencyResult", result.getPreContingencyResult(), jsonGenerator);
-        serializerProvider.defaultSerializeField("postContingencyResults", result.getPostContingencyResults(), jsonGenerator);
-        serializerProvider.defaultSerializeField("operatorStrategyResults", result.getOperatorStrategyResults(), jsonGenerator);
-        JsonUtil.writeExtensions(result, jsonGenerator, serializerProvider);
+        serializationContext.defaultSerializeProperty("preContingencyResult", result.getPreContingencyResult(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("postContingencyResults", result.getPostContingencyResults(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("operatorStrategyResults", result.getOperatorStrategyResults(), jsonGenerator);
+        JsonUtil.writeExtensions(result, jsonGenerator, serializationContext);
 
         jsonGenerator.writeEndObject();
     }
@@ -50,11 +51,12 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
 
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule())
-                .registerModule(new ActionJsonModule());
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new SecurityAnalysisJsonModule())
+            .addModule(new ActionJsonModule())
+            .build();
 
-        ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
+        ObjectWriter objectWriter = jsonMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(writer, result);
     }
 }

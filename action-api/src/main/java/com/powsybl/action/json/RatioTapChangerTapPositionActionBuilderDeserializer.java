@@ -7,14 +7,13 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.powsybl.action.RatioTapChangerTapPositionAction;
 import com.powsybl.action.RatioTapChangerTapPositionActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.action.RatioTapChangerTapPositionAction;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -26,7 +25,7 @@ public class RatioTapChangerTapPositionActionBuilderDeserializer extends Abstrac
     }
 
     @Override
-    public RatioTapChangerTapPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public RatioTapChangerTapPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         RatioTapChangerTapPositionActionBuilder builder = new RatioTapChangerTapPositionActionBuilder();
         String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
@@ -35,9 +34,9 @@ public class RatioTapChangerTapPositionActionBuilderDeserializer extends Abstrac
                 return true;
             }
             if (name.equals("type")) {
-                String type = jsonParser.nextTextValue();
+                String type = jsonParser.nextStringValue();
                 if (!RatioTapChangerTapPositionAction.NAME.equals(type)) {
-                    throw JsonMappingException.from(jsonParser, "Expected type :" + RatioTapChangerTapPositionAction.NAME + " got : " + type);
+                    throw DatabindException.from(jsonParser, "Expected type :" + RatioTapChangerTapPositionAction.NAME + " got : " + type);
                 }
                 return true;
             }

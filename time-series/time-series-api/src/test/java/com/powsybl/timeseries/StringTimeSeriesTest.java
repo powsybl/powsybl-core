@@ -7,12 +7,12 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -85,10 +85,11 @@ class StringTimeSeriesTest {
         assertEquals(json, json2);
 
         // test json with object mapper
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new TimeSeriesJsonModule());
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new TimeSeriesJsonModule())
+            .build();
 
-        assertEquals(timeSeries, objectMapper.readValue(objectMapper.writeValueAsString(timeSeries), StringTimeSeries.class));
+        assertEquals(timeSeries, jsonMapper.readValue(jsonMapper.writeValueAsString(timeSeries), StringTimeSeries.class));
     }
 
     @Test

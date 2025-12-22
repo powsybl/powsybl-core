@@ -7,9 +7,9 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.sensitivity.SensitivityFactor;
 
 /**
@@ -22,7 +22,7 @@ public class SensitivityFactorJsonSerializer extends StdSerializer<SensitivityFa
     }
 
     @Override
-    public void serialize(SensitivityFactor factor, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
+    public void serialize(SensitivityFactor factor, JsonGenerator jsonGenerator, SerializationContext serializationContext) {
         SensitivityFactor.writeJson(jsonGenerator, factor);
     }
 }

@@ -7,9 +7,9 @@
  */
 package com.powsybl.timeseries.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.timeseries.DataChunk;
 
 /**
@@ -22,7 +22,7 @@ public class DataChunkJsonSerializer extends StdSerializer<DataChunk> {
     }
 
     @Override
-    public void serialize(DataChunk chunk, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
+    public void serialize(DataChunk chunk, JsonGenerator jsonGenerator, SerializationContext serializationContext) {
         chunk.writeJson(jsonGenerator);
     }
 }

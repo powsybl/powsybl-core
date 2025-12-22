@@ -7,14 +7,17 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Models a group of variables.
@@ -67,46 +70,38 @@ public class SensitivityVariableSet {
     }
 
     public static void writeJson(JsonGenerator jsonGenerator, SensitivityVariableSet variableSet) {
-        try {
+        jsonGenerator.writeStartObject();
+
+        jsonGenerator.writeStringProperty("id", variableSet.getId());
+        jsonGenerator.writeName("variables");
+        jsonGenerator.writeStartArray();
+        for (WeightedSensitivityVariable variable : variableSet.getVariables()) {
             jsonGenerator.writeStartObject();
-
-            jsonGenerator.writeStringField("id", variableSet.getId());
-            jsonGenerator.writeFieldName("variables");
-            jsonGenerator.writeStartArray();
-            for (WeightedSensitivityVariable variable : variableSet.getVariables()) {
-                jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField("id", variable.getId());
-                jsonGenerator.writeNumberField("weight", variable.getWeight());
-                jsonGenerator.writeEndObject();
-            }
-            jsonGenerator.writeEndArray();
-
+            jsonGenerator.writeStringProperty("id", variable.getId());
+            jsonGenerator.writeNumberProperty("weight", variable.getWeight());
             jsonGenerator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeEndObject();
     }
 
     public static SensitivityVariableSet parseJson(JsonParser parser) {
         Objects.requireNonNull(parser);
-        try {
-            String id = null;
-            List<WeightedSensitivityVariable> variables = null;
-            JsonToken token;
-            while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.currentName();
-                    switch (fieldName) {
-                        case "id" -> id = parser.nextTextValue();
-                        case "variables" -> variables = WeightedSensitivityVariable.parseJson(parser);
-                        default -> throw new PowsyblException("Unexpected field: " + fieldName);
-                    }
-                } else if (token == JsonToken.END_OBJECT) {
-                    return new SensitivityVariableSet(id, variables);
+        String id = null;
+        List<WeightedSensitivityVariable> variables = null;
+        JsonToken token;
+        while ((token = parser.nextToken()) != null) {
+            if (token == JsonToken.PROPERTY_NAME) {
+                String fieldName = parser.currentName();
+                switch (fieldName) {
+                    case "id" -> id = parser.nextStringValue();
+                    case "variables" -> variables = WeightedSensitivityVariable.parseJson(parser);
+                    default -> throw new PowsyblException("Unexpected field: " + fieldName);
                 }
+            } else if (token == JsonToken.END_OBJECT) {
+                return new SensitivityVariableSet(id, variables);
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
         throw new PowsyblException("Parsing error");
     }

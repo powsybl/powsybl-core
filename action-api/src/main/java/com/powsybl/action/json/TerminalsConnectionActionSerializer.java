@@ -7,14 +7,14 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.action.TerminalsConnectionAction;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -27,16 +27,16 @@ public class TerminalsConnectionActionSerializer extends StdSerializer<Terminals
     }
 
     @Override
-    public void serialize(TerminalsConnectionAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(TerminalsConnectionAction action, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", action.getType());
-        jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("elementId", action.getElementId());
+        jsonGenerator.writeStringProperty("type", action.getType());
+        jsonGenerator.writeStringProperty("id", action.getId());
+        jsonGenerator.writeStringProperty("elementId", action.getElementId());
         Optional<ThreeSides> side = action.getSide();
         if (side.isPresent()) {
-            JsonUtil.writeOptionalStringField(jsonGenerator, "side", String.valueOf(side.get()));
+            JsonUtil.writeOptionalStringProperty(jsonGenerator, "side", String.valueOf(side.get()));
         }
-        jsonGenerator.writeBooleanField("open", action.isOpen());
+        jsonGenerator.writeBooleanProperty("open", action.isOpen());
         jsonGenerator.writeEndObject();
     }
 }

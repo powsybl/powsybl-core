@@ -7,18 +7,17 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.extensions.CurrentExtension;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -42,14 +41,14 @@ public class CurrentExtensionSerializer implements ExtensionJsonSerializer<Limit
     }
 
     @Override
-    public void serialize(CurrentExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(CurrentExtension extension, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("preContingencyValue", extension.getPreContingencyValue());
+        jsonGenerator.writeNumberProperty("preContingencyValue", extension.getPreContingencyValue());
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public CurrentExtension deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public CurrentExtension deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         double value = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {

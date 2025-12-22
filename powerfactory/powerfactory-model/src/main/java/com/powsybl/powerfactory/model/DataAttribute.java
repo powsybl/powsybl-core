@@ -7,8 +7,8 @@
  */
 package com.powsybl.powerfactory.model;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
@@ -64,13 +64,13 @@ public class DataAttribute {
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
                 case "name":
-                    context.name = parser.nextTextValue();
+                    context.name = parser.nextStringValue();
                     return true;
                 case "type":
-                    context.type = DataAttributeType.valueOf(parser.nextTextValue());
+                    context.type = DataAttributeType.valueOf(parser.nextStringValue());
                     return true;
                 case "description":
-                    context.description = parser.nextTextValue();
+                    context.description = parser.nextStringValue();
                     return true;
                 default:
                     return false;
@@ -81,10 +81,10 @@ public class DataAttribute {
 
     public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeStartObject();
-        generator.writeStringField("name", name);
-        generator.writeStringField("type", type.name());
+        generator.writeStringProperty("name", name);
+        generator.writeStringProperty("type", type.name());
         if (description != null && !description.isBlank()) {
-            generator.writeStringField("description", description);
+            generator.writeStringProperty("description", description);
         }
         generator.writeEndObject();
     }

@@ -7,9 +7,9 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
@@ -92,7 +92,7 @@ public class SensitivityValue {
         try {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.FIELD_NAME) {
+                if (token == JsonToken.PROPERTY_NAME) {
                     parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
                     return new SensitivityValue(context.factorIndex, context.contingencyIndex, context.value, context.functionReference);
@@ -137,18 +137,14 @@ public class SensitivityValue {
                           int contingencyIndex,
                           double value,
                           double functionReference) {
-        try {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeNumberField("factorIndex", factorIndex);
-            if (contingencyIndex != -1) {
-                jsonGenerator.writeNumberField("contingencyIndex", contingencyIndex);
-            }
-            jsonGenerator.writeNumberField("value", value);
-            jsonGenerator.writeNumberField("functionReference", functionReference);
-
-            jsonGenerator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeNumberProperty("factorIndex", factorIndex);
+        if (contingencyIndex != -1) {
+            jsonGenerator.writeNumberProperty("contingencyIndex", contingencyIndex);
         }
+        jsonGenerator.writeNumberProperty("value", value);
+        jsonGenerator.writeNumberProperty("functionReference", functionReference);
+
+        jsonGenerator.writeEndObject();
     }
 }

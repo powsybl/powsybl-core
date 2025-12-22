@@ -7,9 +7,9 @@
  */
 package com.powsybl.timeseries.ast;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
@@ -109,9 +109,9 @@ public class BinaryOperation extends AbstractBinaryNodeCalc {
 
     @Override
     public void writeJson(JsonGenerator generator) throws IOException {
-        generator.writeFieldName(NAME);
+        generator.writeName(NAME);
         generator.writeStartObject();
-        generator.writeStringField("op", operator.name());
+        generator.writeStringProperty("op", operator.name());
         left.writeJson(generator);
         right.writeJson(generator);
         generator.writeEndObject();
@@ -126,7 +126,7 @@ public class BinaryOperation extends AbstractBinaryNodeCalc {
     static void parseFieldName(JsonParser parser, JsonToken token, ParsingContext context) throws IOException {
         String fieldName = parser.currentName();
         if ("op".equals(fieldName)) {
-            context.operator = Operator.valueOf(parser.nextTextValue());
+            context.operator = Operator.valueOf(parser.nextStringValue());
         } else {
             if (context.left == null) {
                 context.left = NodeCalc.parseJson(parser, token);
@@ -152,7 +152,7 @@ public class BinaryOperation extends AbstractBinaryNodeCalc {
                     }
                     return new BinaryOperation(context.left, context.right, context.operator);
                 }
-                case FIELD_NAME -> parseFieldName(parser, token, context);
+                case PROPERTY_NAME -> parseFieldName(parser, token, context);
                 default -> throw NodeCalc.createUnexpectedToken(token);
             }
         }

@@ -7,13 +7,15 @@
  */
 package com.powsybl.commons.report;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.std.StdDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,28 +40,28 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
     }
 
     @Override
-    public ReportNode deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+    public ReportNode deserialize(JsonParser p, DeserializationContext ctx) throws JacksonException {
         ReportNodeImpl reportNode = null;
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
+        JsonMapper jsonMapper = createJsonMapperBuilder().build();
         ReportNodeVersion version = ReportConstants.CURRENT_VERSION;
         TreeContext treeContext = new TreeContextImpl();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             switch (p.currentName()) {
-                case "version" -> version = ReportNodeVersion.of(p.nextTextValue());
-                case "dictionaries" -> readDictionary(p, objectMapper, treeContext, getDictionaryName(ctx));
-                case "reportRoot" -> reportNode = ReportNodeImpl.parseJsonNode(p, objectMapper, treeContext, version);
+                case "version" -> version = ReportNodeVersion.of(p.nextStringValue());
+                case "dictionaries" -> readDictionary(p, jsonMapper, treeContext, getDictionaryName(ctx));
+                case "reportRoot" -> reportNode = ReportNodeImpl.parseJsonNode(p, jsonMapper, treeContext, version);
                 default -> throw new IllegalStateException("Unexpected value: " + p.currentName());
             }
         }
         return reportNode;
     }
 
-    private void readDictionary(JsonParser p, ObjectMapper objectMapper, TreeContext treeContext, String dictionaryName) throws IOException {
+    private void readDictionary(JsonParser p, JsonMapper jsonMapper, TreeContext treeContext, String dictionaryName) throws JacksonException {
         checkToken(p, JsonToken.START_OBJECT); // remove start object token to read the underlying map
         TypeReference<HashMap<String, HashMap<String, String>>> dictionariesTypeRef = new TypeReference<>() {
         };
         // We could avoid constructing the full HashMap, at the cost of code readability (the case "dictionaryName not found" makes it tricky)
-        HashMap<String, HashMap<String, String>> dictionaries = objectMapper.readValue(p, dictionariesTypeRef);
+        HashMap<String, HashMap<String, String>> dictionaries = jsonMapper.readValue(p, dictionariesTypeRef);
         Map<String, String> dictionary = dictionaries.get(dictionaryName);
         if (dictionary == null) {
             var dictionaryEntry = dictionaries.entrySet().stream().findFirst().orElse(null);
@@ -77,9 +79,9 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
     private String getDictionaryName(DeserializationContext ctx) {
         try {
             BeanProperty bp = new BeanProperty.Std(new PropertyName("Language for dictionary"), null, null, null, null);
-            Object dicNameInjected = ctx.findInjectableValue(DICTIONARY_VALUE_ID, bp, null);
+            Object dicNameInjected = ctx.findInjectableValue(DICTIONARY_VALUE_ID, bp, null, null, null);
             return dicNameInjected instanceof String name ? name : DICTIONARY_DEFAULT_NAME;
-        } catch (JsonMappingException | IllegalArgumentException e) {
+        } catch (DatabindException | IllegalArgumentException e) {
             LOGGER.info("No injectable value found for id `{}` in DeserializationContext, therefore taking `{}` dictionary",
                     DICTIONARY_VALUE_ID, DICTIONARY_DEFAULT_NAME);
             return DICTIONARY_DEFAULT_NAME;
@@ -107,21 +109,22 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
     public static ReportNode read(InputStream jsonIs, String dictionary) {
         Objects.requireNonNull(jsonIs);
         Objects.requireNonNull(dictionary);
-        try {
-            return getReportNodeModelObjectMapper(dictionary).readValue(jsonIs, ReportNode.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return createJsonMapper(dictionary).readValue(jsonIs, ReportNode.class);
     }
 
-    private static ObjectMapper getReportNodeModelObjectMapper(String dictionary) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new ReportNodeJsonModule());
-        mapper.setInjectableValues(new InjectableValues.Std().addValue(DICTIONARY_VALUE_ID, dictionary));
-        return mapper;
+    private static JsonMapper.Builder createJsonMapperBuilder() {
+        return JsonMapper.builder()
+            .addModule(new ReportNodeJsonModule())
+            .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
     }
 
-    static void checkToken(JsonParser p, JsonToken startObject) throws IOException {
+    private static JsonMapper createJsonMapper(String dictionary) {
+        return createJsonMapperBuilder()
+            .injectableValues(new InjectableValues.Std().addValue(DICTIONARY_VALUE_ID, dictionary))
+            .build();
+    }
+
+    static void checkToken(JsonParser p, JsonToken startObject) throws JacksonException {
         if (p.nextToken() != startObject) {
             throw new IllegalStateException("Unexpected token " + p.currentToken());
         }
@@ -134,7 +137,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
         }
 
         @Override
-        public TypedValue deserialize(JsonParser p, DeserializationContext deserializationContext) throws IOException {
+        public TypedValue deserialize(JsonParser p, DeserializationContext deserializationContext) throws JacksonException {
             Object value = null;
             String type = TypedValue.UNTYPED_TYPE;
 
@@ -146,7 +149,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
                         break;
 
                     case "type":
-                        type = p.nextTextValue();
+                        type = p.nextStringValue();
                         break;
 
                     default:

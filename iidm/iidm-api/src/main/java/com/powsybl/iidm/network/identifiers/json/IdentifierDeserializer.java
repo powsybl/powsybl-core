@@ -7,15 +7,15 @@
  */
 package com.powsybl.iidm.network.identifiers.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.identifiers.*;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +34,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
     }
 
     @Override
-    public NetworkElementIdentifier deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public NetworkElementIdentifier deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         NetworkElementIdentifier.IdentifierType type = null;
         String identifier = null;
         String voltageLevelId1 = null;
@@ -48,31 +48,31 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         char order = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "type" -> type = NetworkElementIdentifier.IdentifierType.valueOf(parser.nextTextValue());
-                case "identifier" -> identifier = parser.nextTextValue();
+                case "type" -> type = NetworkElementIdentifier.IdentifierType.valueOf(parser.nextStringValue());
+                case "identifier" -> identifier = parser.nextStringValue();
                 case CONTINGENCY_ID -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, CONTINGENCY_ID, version, "1.2");
-                    contingencyId = parser.nextTextValue();
+                    contingencyId = parser.nextStringValue();
                 }
                 case "identifierList" -> {
                     parser.nextToken();
                     networkElementIdentifierList = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                 }
-                case "voltageLevelId1" -> voltageLevelId1 = parser.nextTextValue();
-                case "voltageLevelId2" -> voltageLevelId2 = parser.nextTextValue();
-                case "substationOrVoltageLevelId" -> substationOrVoltageLevelId = parser.nextTextValue();
+                case "voltageLevelId1" -> voltageLevelId1 = parser.nextStringValue();
+                case "voltageLevelId2" -> voltageLevelId2 = parser.nextStringValue();
+                case "substationOrVoltageLevelId" -> substationOrVoltageLevelId = parser.nextStringValue();
                 case "voltageLevelIdentifiableTypes" -> {
                     parser.nextToken();
                     voltageLevelIdentifiableTypes = JsonUtil.readSet(deserializationContext, parser, IdentifiableType.class);
                 }
                 case "order" -> {
-                    String orderStr = parser.nextTextValue();
+                    String orderStr = parser.nextStringValue();
                     if (orderStr.length() != 1) {
                         throw new IllegalArgumentException("order is one character");
                     }
                     order = orderStr.charAt(0);
                 }
-                case "wildcard" -> wildcard = parser.nextTextValue();
+                case "wildcard" -> wildcard = parser.nextStringValue();
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }

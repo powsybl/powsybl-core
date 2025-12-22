@@ -7,15 +7,6 @@
  */
 package com.powsybl.commons.json;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonFactoryBuilder;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.core.json.JsonWriteFeature;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.common.base.Strings;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
@@ -23,6 +14,26 @@ import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.PrettyPrinter;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonFactoryBuilder;
+import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.util.DefaultPrettyPrinter;
+import tools.jackson.databind.DatabindContext;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -73,52 +84,53 @@ public final class JsonUtil {
     private JsonUtil() {
     }
 
-    public static ObjectMapper createObjectMapper() {
+    public static JsonMapper.Builder createJsonMapperBuilder() {
         return JsonMapper.builder()
-                .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
-                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
-            .build();
+            .enable(EnumFeature.READ_ENUMS_USING_TO_STRING)
+            .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+            .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+            .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+            .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS);
     }
 
-    public static void writeJson(Path jsonFile, Object object, ObjectMapper objectMapper) {
+    public static JsonMapper createJsonMapper() {
+        return createJsonMapperBuilder().build();
+    }
+
+    public static void writeJson(Path jsonFile, Object object, JsonMapper jsonMapper) {
         Objects.requireNonNull(jsonFile);
         Objects.requireNonNull(object);
-        Objects.requireNonNull(objectMapper);
+        Objects.requireNonNull(jsonMapper);
         try (Writer writer = Files.newBufferedWriter(jsonFile, StandardCharsets.UTF_8)) {
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(writer, object);
+            jsonMapper.writerWithDefaultPrettyPrinter().writeValue(writer, object);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static <T> T readJson(Path jsonFile, Class<T> clazz, ObjectMapper objectMapper) {
+    public static <T> T readJson(Path jsonFile, Class<T> clazz, JsonMapper jsonMapper) {
         Objects.requireNonNull(jsonFile);
-        Objects.requireNonNull(objectMapper);
+        Objects.requireNonNull(jsonMapper);
         try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
-            return objectMapper.readValue(reader, clazz);
+            return jsonMapper.readValue(reader, clazz);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static <T> T readJsonAndUpdate(InputStream is, T object, ObjectMapper objectMapper) {
+    public static <T> T readJsonAndUpdate(InputStream is, T object, JsonMapper jsonMapper) {
         Objects.requireNonNull(is);
         Objects.requireNonNull(object);
-        Objects.requireNonNull(objectMapper);
-        try {
-            return objectMapper.readerForUpdating(object).readValue(is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        Objects.requireNonNull(jsonMapper);
+        return jsonMapper.readerForUpdating(object).readValue(is);
     }
 
-    public static <T> T readJsonAndUpdate(Path jsonFile, T object, ObjectMapper objectMapper) {
+    public static <T> T readJsonAndUpdate(Path jsonFile, T object, JsonMapper jsonMapper) {
         Objects.requireNonNull(jsonFile);
         Objects.requireNonNull(object);
-        Objects.requireNonNull(objectMapper);
+        Objects.requireNonNull(jsonMapper);
         try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
-            return objectMapper.readerForUpdating(object).readValue(reader);
+            return jsonMapper.readerForUpdating(object).readValue(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -131,15 +143,21 @@ public final class JsonUtil {
             .build();
     }
 
+    public static ObjectWriteContext getObjectWriteContextWithDefaultPrettyPrinter() {
+        return new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() {
+                return new DefaultPrettyPrinter();
+            }
+        };
+    }
+
     public static void writeJson(Writer writer, Consumer<JsonGenerator> consumer) {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(consumer);
         JsonFactory factory = createJsonFactory();
-        try (JsonGenerator generator = factory.createGenerator(writer)) {
-            generator.useDefaultPrettyPrinter();
+        try (JsonGenerator generator = factory.createGenerator(JsonUtil.getObjectWriteContextWithDefaultPrettyPrinter(), writer)) {
             consumer.accept(generator);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
@@ -184,95 +202,93 @@ public final class JsonUtil {
         JsonFactory factory = createJsonFactory();
         try (JsonParser parser = factory.createParser(reader)) {
             return function.apply(parser);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
-    public static void writeOptionalStringField(JsonGenerator jsonGenerator, String fieldName, String value) throws IOException {
+    public static void writeOptionalStringProperty(JsonGenerator jsonGenerator, String fieldName, String value) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
         if (!Strings.isNullOrEmpty(value)) {
-            jsonGenerator.writeStringField(fieldName, value);
+            jsonGenerator.writeStringProperty(fieldName, value);
         }
     }
 
-    public static void writeOptionalEnumField(JsonGenerator jsonGenerator, String fieldName, Enum<?> value) throws IOException {
+    public static void writeOptionalEnumProperty(JsonGenerator jsonGenerator, String fieldName, Enum<?> value) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
         if (value != null) {
-            jsonGenerator.writeStringField(fieldName, value.name());
+            jsonGenerator.writeStringProperty(fieldName, value.name());
         }
     }
 
-    public static void writeOptionalBooleanField(JsonGenerator jsonGenerator, String fieldName, boolean value, boolean defaultValue) throws IOException {
+    public static void writeOptionalBooleanProperty(JsonGenerator jsonGenerator, String fieldName, boolean value, boolean defaultValue) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
         if (value != defaultValue) {
-            jsonGenerator.writeBooleanField(fieldName, value);
+            jsonGenerator.writeBooleanProperty(fieldName, value);
         }
     }
 
-    public static void writeOptionalFloatField(JsonGenerator jsonGenerator, String fieldName, float value) throws IOException {
+    public static void writeOptionalFloatProperty(JsonGenerator jsonGenerator, String fieldName, float value) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
         if (!Float.isNaN(value)) {
-            jsonGenerator.writeNumberField(fieldName, value);
+            jsonGenerator.writeNumberProperty(fieldName, value);
         }
     }
 
-    public static void writeOptionalDoubleField(JsonGenerator jsonGenerator, String fieldName, double value) throws IOException {
+    public static void writeOptionalDoubleProperty(JsonGenerator jsonGenerator, String fieldName, double value) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
         if (!Double.isNaN(value)) {
-            jsonGenerator.writeNumberField(fieldName, value);
+            jsonGenerator.writeNumberProperty(fieldName, value);
         }
     }
 
-    public static void writeOptionalDoubleField(JsonGenerator jsonGenerator, String fieldName, double value, double defaultValue) throws IOException {
+    public static void writeOptionalDoubleProperty(JsonGenerator jsonGenerator, String fieldName, double value, double defaultValue) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
         if (!Double.isNaN(value) && value != defaultValue) {
-            jsonGenerator.writeNumberField(fieldName, value);
+            jsonGenerator.writeNumberProperty(fieldName, value);
         }
     }
 
-    public static void writeOptionalIntegerField(JsonGenerator jsonGenerator, String fieldName, int value) throws IOException {
+    public static void writeOptionalIntegerProperty(JsonGenerator jsonGenerator, String fieldName, int value) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
         if (value != Integer.MAX_VALUE) {
-            jsonGenerator.writeNumberField(fieldName, value);
+            jsonGenerator.writeNumberProperty(fieldName, value);
         }
     }
 
     public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
-                                                  SerializerProvider serializerProvider) throws IOException {
-        return writeExtensions(extendable, jsonGenerator, serializerProvider, SUPPLIER.get());
+                                                  SerializationContext serializationContext) throws JacksonException {
+        return writeExtensions(extendable, jsonGenerator, serializationContext, SUPPLIER.get());
     }
 
     public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
-                                                  SerializerProvider serializerProvider,
-                                                  ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
-        return writeExtensions(extendable, jsonGenerator, true, serializerProvider, supplier);
+                                                  SerializationContext serializationContext,
+                                                  ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws JacksonException {
+        return writeExtensions(extendable, jsonGenerator, true, serializationContext, supplier);
     }
 
     public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
-                                                  SerializerProvider serializerProvider,
-                                                  SerializerSupplier supplier) throws IOException {
-        return writeExtensions(extendable, jsonGenerator, true, serializerProvider, supplier);
+                                                  SerializationContext serializationContext,
+                                                  SerializerSupplier supplier) throws JacksonException {
+        return writeExtensions(extendable, jsonGenerator, true, serializationContext, supplier);
     }
 
     public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
-                                                  boolean headerWanted, SerializerProvider serializerProvider,
-                                                  ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
-        return writeExtensions(extendable, jsonGenerator, headerWanted, serializerProvider, supplier::findProvider);
+                                                  boolean headerWanted, SerializationContext serializationContext,
+                                                  ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws JacksonException {
+        return writeExtensions(extendable, jsonGenerator, headerWanted, serializationContext, supplier::findProvider);
     }
 
     public interface SerializerSupplier {
@@ -280,11 +296,11 @@ public final class JsonUtil {
     }
 
     public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
-                                                  boolean headerWanted, SerializerProvider serializerProvider,
-                                                  SerializerSupplier supplier) throws IOException {
+                                                  boolean headerWanted, SerializationContext serializationContext,
+                                                  SerializerSupplier supplier) throws JacksonException {
         Objects.requireNonNull(extendable);
         Objects.requireNonNull(jsonGenerator);
-        Objects.requireNonNull(serializerProvider);
+        Objects.requireNonNull(serializationContext);
         Objects.requireNonNull(supplier);
 
         boolean headerDone = false;
@@ -295,12 +311,12 @@ public final class JsonUtil {
                 ExtensionJsonSerializer serializer = supplier.getSerializer(extension.getName());
                 if (serializer != null) {
                     if (!headerDone && headerWanted) {
-                        jsonGenerator.writeFieldName("extensions");
+                        jsonGenerator.writeName("extensions");
                         jsonGenerator.writeStartObject();
                         headerDone = true;
                     }
-                    jsonGenerator.writeFieldName(extension.getName());
-                    serializer.serialize(extension, jsonGenerator, serializerProvider);
+                    jsonGenerator.writeName(extension.getName());
+                    serializer.serialize(extension, jsonGenerator, serializationContext);
                 } else {
                     notFound.add(extension.getName());
                 }
@@ -317,7 +333,7 @@ public final class JsonUtil {
      *
      * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
      */
-    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, T extendable) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, T extendable) throws JacksonException {
         return updateExtensions(parser, context, SUPPLIER.get(), null, extendable);
     }
 
@@ -327,17 +343,17 @@ public final class JsonUtil {
      * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
      */
     public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
-                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, T extendable) throws IOException {
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, T extendable) throws JacksonException {
         return updateExtensions(parser, context, supplier, null, extendable);
     }
 
     public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
-                                                                             SerializerSupplier supplier, T extendable) throws IOException {
+                                                                             SerializerSupplier supplier, T extendable) throws JacksonException {
         return updateExtensions(parser, context, supplier, null, extendable);
     }
 
     public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
-                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T extendable) throws JacksonException {
         return updateExtensions(parser, context, supplier::findProvider, extensionsNotFound, extendable);
     }
 
@@ -346,13 +362,13 @@ public final class JsonUtil {
      *
      * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
      */
-    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws JacksonException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
 
         List<Extension<T>> extensions = new ArrayList<>();
-        if (parser.currentToken() != com.fasterxml.jackson.core.JsonToken.START_OBJECT) {
+        if (parser.currentToken() != JsonToken.START_OBJECT) {
             throw new PowsyblException("Error updating extensions, \"extensions\" field expected START_OBJECT, got "
                     + parser.currentToken());
         }
@@ -366,7 +382,7 @@ public final class JsonUtil {
     }
 
     private static <T extends Extendable, E extends Extension<T>> E updateExtension(JsonParser parser, DeserializationContext context,
-                                                                                    SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
+                                                                                    SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws JacksonException {
         String extensionName = parser.currentName();
         ExtensionJsonSerializer<T, E> extensionJsonSerializer = supplier.getSerializer(extensionName);
         if (extensionJsonSerializer != null) {
@@ -385,17 +401,17 @@ public final class JsonUtil {
         }
     }
 
-    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context) throws JacksonException {
         return readExtensions(parser, context, SUPPLIER.get());
     }
 
     public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
-                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
+                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws JacksonException {
         return readExtensions(parser, context, supplier, null);
     }
 
     public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
-                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws JacksonException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
@@ -414,7 +430,7 @@ public final class JsonUtil {
     }
 
     public static <T extends Extendable> Extension<T> readExtension(JsonParser parser, DeserializationContext context,
-                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws JacksonException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
@@ -424,9 +440,11 @@ public final class JsonUtil {
     /**
      * Skip a part of a JSON document
      */
-    public static void skip(JsonParser parser) throws IOException {
+    public static void skip(JsonParser parser) throws JacksonException {
         parser.nextToken();
-        parser.skipChildren();
+        if (parser.currentToken() == JsonToken.START_OBJECT || parser.currentToken() == JsonToken.START_ARRAY) {
+            parser.skipChildren();
+        }
     }
 
     public static void assertSupportedVersion(String contextName, String version, String maxSupportedVersion) {
@@ -526,7 +544,7 @@ public final class JsonUtil {
      */
     @FunctionalInterface
     public interface FieldHandler {
-        boolean onField(String name) throws IOException;
+        boolean onField(String name) throws JacksonException;
     }
 
     /**
@@ -539,8 +557,8 @@ public final class JsonUtil {
 
     /**
      * Parses an object from the current parser position, using the provided field handler.
-     * The parsing will accept the starting position to be either a START_OBJECT or a FIELD_NAME,
-     * see contract for {@link JsonDeserializer#deserialize(JsonParser, DeserializationContext)}.
+     * The parsing will accept the starting position to be either a START_OBJECT or a PROPERTY_NAME,
+     * see contract for {@link ValueDeserializer#deserialize(JsonParser, DeserializationContext)}.
      */
     public static void parsePolymorphicObject(JsonParser parser, FieldHandler fieldHandler) {
         parseObject(parser, true, fieldHandler);
@@ -549,35 +567,31 @@ public final class JsonUtil {
     /**
      * Parses an object from the current parser position, using the provided field handler.
      * If {@code polymorphic} is {@code true}, the parsing will accept the starting position
-     * to be either a START_OBJECT or a FIELD_NAME, see contract for {@link JsonDeserializer#deserialize(JsonParser, DeserializationContext)}.
+     * to be either a START_OBJECT or a PROPERTY_NAME, see contract for {@link ValueDeserializer#deserialize(JsonParser, DeserializationContext)}.
      */
     public static void parseObject(JsonParser parser, boolean polymorphic, FieldHandler fieldHandler) {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(fieldHandler);
-        try {
-            com.fasterxml.jackson.core.JsonToken token = parser.currentToken();
-            if (!polymorphic && token != JsonToken.START_OBJECT) {
-                throw new PowsyblException("Start object token was expected instead got: " + token);
-            }
-            if (token == JsonToken.START_OBJECT) {
-                token = parser.nextToken();
-            }
-            while (token != null) {
-                if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.currentName();
-                    boolean found = fieldHandler.onField(fieldName);
-                    if (!found) {
-                        throw new PowsyblException("Unexpected field " + fieldName);
-                    }
-                } else if (token == JsonToken.END_OBJECT) {
-                    break;
-                } else {
-                    throw new PowsyblException(UNEXPECTED_TOKEN + token);
+        JsonToken token = parser.currentToken();
+        if (!polymorphic && token != JsonToken.START_OBJECT) {
+            throw new PowsyblException("Start object token was expected instead got: " + token);
+        }
+        if (token == JsonToken.START_OBJECT) {
+            token = parser.nextToken();
+        }
+        while (token != null) {
+            if (token == JsonToken.PROPERTY_NAME) {
+                String fieldName = parser.currentName();
+                boolean found = fieldHandler.onField(fieldName);
+                if (!found) {
+                    throw new PowsyblException("Unexpected field " + fieldName);
                 }
-                token = parser.nextToken();
+            } else if (token == JsonToken.END_OBJECT) {
+                break;
+            } else {
+                throw new PowsyblException(UNEXPECTED_TOKEN + token);
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            token = parser.nextToken();
         }
     }
 
@@ -585,49 +599,41 @@ public final class JsonUtil {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(objectAdder);
         Objects.requireNonNull(objectParser);
-        try {
-            JsonToken token = parser.nextToken();
-            if (token != JsonToken.START_ARRAY) {
-                throw new PowsyblException("Start array token was expected");
+        JsonToken token = parser.nextToken();
+        if (token != JsonToken.START_ARRAY) {
+            throw new PowsyblException("Start array token was expected");
+        }
+        boolean continueLoop = true;
+        while (continueLoop && (token = parser.nextToken()) != null) {
+            switch (token) {
+                case START_OBJECT -> objectAdder.accept(objectParser.apply(parser));
+                case END_ARRAY -> continueLoop = false;
+                default -> throw new PowsyblException(UNEXPECTED_TOKEN + token);
             }
-            boolean continueLoop = true;
-            while (continueLoop && (token = parser.nextToken()) != null) {
-                switch (token) {
-                    case START_OBJECT -> objectAdder.accept(objectParser.apply(parser));
-                    case END_ARRAY -> continueLoop = false;
-                    default -> throw new PowsyblException(UNEXPECTED_TOKEN + token);
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
     @FunctionalInterface
     interface ValueParser<T> {
 
-        T parse(JsonParser parser) throws IOException;
+        T parse(JsonParser parser) throws JacksonException;
     }
 
     private static <T> List<T> parseValueArray(JsonParser parser, JsonToken valueToken, ValueParser<T> valueParser) {
         Objects.requireNonNull(parser);
         List<T> values = new ArrayList<>();
-        try {
-            JsonToken token = parser.nextToken();
-            if (token != JsonToken.START_ARRAY) {
-                throw new PowsyblException("Start array token was expected");
+        JsonToken token = parser.nextToken();
+        if (token != JsonToken.START_ARRAY) {
+            throw new PowsyblException("Start array token was expected");
+        }
+        while ((token = parser.nextToken()) != null) {
+            if (token == valueToken) {
+                values.add(valueParser.parse(parser));
+            } else if (token == JsonToken.END_ARRAY) {
+                break;
+            } else {
+                throw new PowsyblException(UNEXPECTED_TOKEN + token);
             }
-            while ((token = parser.nextToken()) != null) {
-                if (token == valueToken) {
-                    values.add(valueParser.parse(parser));
-                } else if (token == JsonToken.END_ARRAY) {
-                    break;
-                } else {
-                    throw new PowsyblException(UNEXPECTED_TOKEN + token);
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
         return values;
     }
@@ -649,7 +655,7 @@ public final class JsonUtil {
     }
 
     public static List<String> parseStringArray(JsonParser parser) {
-        return parseValueArray(parser, JsonToken.VALUE_STRING, JsonParser::getText);
+        return parseValueArray(parser, JsonToken.VALUE_STRING, JsonParser::getString);
     }
 
     /**
@@ -674,53 +680,41 @@ public final class JsonUtil {
      * Also handles reading {@code null} values.
      */
     public static <T> T readValue(DeserializationContext context, JsonParser parser, Class<?> type) {
-        try {
-            if (parser.currentToken() != JsonToken.VALUE_NULL) {
-                JavaType jType = context.getTypeFactory()
-                        .constructType(type);
-                return context.readValue(parser, jType);
-            }
-            return null;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        if (parser.currentToken() != JsonToken.VALUE_NULL) {
+            JavaType jType = context.getTypeFactory()
+                    .constructType(type);
+            return context.readValue(parser, jType);
         }
+        return null;
     }
 
     public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<?> type) {
         JavaType listType = context.getTypeFactory()
                 .constructCollectionType(List.class, type);
-        try {
-            return context.readValue(parser, listType);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return context.readValue(parser, listType);
     }
 
     public static <T> Set<T> readSet(DeserializationContext context, JsonParser parser, Class<?> type) {
         JavaType setType = context.getTypeFactory()
                 .constructCollectionType(Set.class, type);
-        try {
-            return context.readValue(parser, setType);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        return context.readValue(parser, setType);
+    }
+
+    public static <T extends Enum> void writeOptionalEnum(JsonGenerator jsonGenerator, String field, Optional<T> optional) throws JacksonException {
+        if (optional.isPresent()) {
+            jsonGenerator.writeStringProperty(field, optional.get().toString());
         }
     }
 
-    public static <T extends Enum> void writeOptionalEnum(JsonGenerator jsonGenerator, String field, Optional<T> optional) throws IOException {
+    public static void writeOptionalDouble(JsonGenerator jsonGenerator, String field, OptionalDouble optional) throws JacksonException {
         if (optional.isPresent()) {
-            jsonGenerator.writeStringField(field, optional.get().toString());
+            jsonGenerator.writeNumberProperty(field, optional.getAsDouble());
         }
     }
 
-    public static void writeOptionalDouble(JsonGenerator jsonGenerator, String field, OptionalDouble optional) throws IOException {
+    public static void writeOptionalBoolean(JsonGenerator jsonGenerator, String field, Optional<Boolean> optional) throws JacksonException {
         if (optional.isPresent()) {
-            jsonGenerator.writeNumberField(field, optional.getAsDouble());
-        }
-    }
-
-    public static void writeOptionalBoolean(JsonGenerator jsonGenerator, String field, Optional<Boolean> optional) throws IOException {
-        if (optional.isPresent()) {
-            jsonGenerator.writeBooleanField(field, optional.get());
+            jsonGenerator.writeBooleanProperty(field, optional.get());
         }
     }
 }

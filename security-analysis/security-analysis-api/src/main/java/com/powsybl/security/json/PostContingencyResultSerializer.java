@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.results.PostContingencyResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -24,13 +23,13 @@ public class PostContingencyResultSerializer extends StdSerializer<PostContingen
     }
 
     @Override
-    public void serialize(PostContingencyResult postContingencyResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(PostContingencyResult postContingencyResult, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        serializerProvider.defaultSerializeField("contingency", postContingencyResult.getContingency(), jsonGenerator);
-        serializerProvider.defaultSerializeField("status", postContingencyResult.getStatus(), jsonGenerator);
-        serializerProvider.defaultSerializeField("limitViolationsResult", postContingencyResult.getLimitViolationsResult(), jsonGenerator);
-        serializerProvider.defaultSerializeField("networkResult", postContingencyResult.getNetworkResult(), jsonGenerator);
-        serializerProvider.defaultSerializeField("connectivityResult", postContingencyResult.getConnectivityResult(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("contingency", postContingencyResult.getContingency(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("status", postContingencyResult.getStatus(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("limitViolationsResult", postContingencyResult.getLimitViolationsResult(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("networkResult", postContingencyResult.getNetworkResult(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("connectivityResult", postContingencyResult.getConnectivityResult(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }
