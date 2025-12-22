@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -51,20 +51,31 @@ class ProcessHelperTest {
     @Test
     void testWithTimeout() {
         try {
-            // process finishes in 1 second
-            when(process.exitValue()).thenThrow(new IllegalThreadStateException())
-                    .thenThrow(new IllegalThreadStateException())
-                    .thenReturn(0);
+            when(process.waitFor(10, TimeUnit.SECONDS)).thenReturn(true);
+            when(process.exitValue()).thenReturn(0);
 
             int exitCode = ProcessHelper.runWithTimeout(10, process);
 
             assertEquals(0, exitCode);
-            verify(process, never()).waitFor();
-            verify(process, times(3)).exitValue();
+            verify(process, times(1)).waitFor(10, TimeUnit.SECONDS);
+            verify(process, times(1)).exitValue();
             verify(process, never()).destroy();
         } catch (Exception e) {
             fail();
         }
+    }
+
+    @Test
+    void testWithLongTimeout() throws Exception {
+        // spawn a process that sleeps 3.5 second and exits 0
+        Process sleepProcess = new ProcessBuilder("sleep", "3.5").start();
+
+        long start = System.currentTimeMillis();
+        int exitCode = ProcessHelper.runWithTimeout(30, sleepProcess);
+        long duration = System.currentTimeMillis() - start;
+
+        assertEquals(0, exitCode);
+        assertTrue(duration < 4000);
     }
 
     @Test
