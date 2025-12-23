@@ -18,14 +18,10 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import tools.jackson.core.ObjectWriteContext;
-import tools.jackson.core.PrettyPrinter;
-import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.json.JsonWriteFeature;
-import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
@@ -91,7 +87,6 @@ public final class JsonUtil {
             .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
             .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
             .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
-            .enable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
             .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS);
     }
 
@@ -145,20 +140,11 @@ public final class JsonUtil {
             .build();
     }
 
-    public static ObjectWriteContext getObjectWriteContextWithDefaultPrettyPrinter() {
-        return new ObjectWriteContext.Base() {
-            @Override
-            public PrettyPrinter getPrettyPrinter() {
-                return new DefaultPrettyPrinter();
-            }
-        };
-    }
-
     public static void writeJson(Writer writer, Consumer<JsonGenerator> consumer) {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(consumer);
-        JsonFactory factory = createJsonFactory();
-        try (JsonGenerator generator = factory.createGenerator(JsonUtil.getObjectWriteContextWithDefaultPrettyPrinter(), writer)) {
+        JsonMapper jsonMapper = createJsonMapper();
+        try (JsonGenerator generator = jsonMapper.writerWithDefaultPrettyPrinter().createGenerator(writer)) {
             consumer.accept(generator);
         }
     }
@@ -201,8 +187,8 @@ public final class JsonUtil {
     public static <T> T parseJson(Reader reader, Function<JsonParser, T> function) {
         Objects.requireNonNull(reader);
         Objects.requireNonNull(function);
-        JsonFactory factory = createJsonFactory();
-        try (JsonParser parser = factory.createParser(reader)) {
+        JsonMapper jsonMapper = createJsonMapper();
+        try (JsonParser parser = jsonMapper.createParser(reader)) {
             return function.apply(parser);
         }
     }

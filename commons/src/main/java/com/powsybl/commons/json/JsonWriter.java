@@ -12,9 +12,8 @@ import com.powsybl.commons.io.AbstractTreeDataWriter;
 import com.powsybl.commons.json.JsonUtil.Context;
 import com.powsybl.commons.json.JsonUtil.ContextType;
 import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.OutputStream;
 import java.util.*;
@@ -34,10 +33,10 @@ public class JsonWriter extends AbstractTreeDataWriter {
     private final Deque<Context> contextQueue = new ArrayDeque<>();
 
     public JsonWriter(OutputStream os, boolean indent, String rootVersion, Map<String, String> singleNameToArrayNameMap) throws JacksonException {
-        ObjectWriteContext ppContext = indent ?
-            JsonUtil.getObjectWriteContextWithDefaultPrettyPrinter() :
-            ObjectWriteContext.empty();
-        this.jsonGenerator = JsonUtil.createJsonFactory().createGenerator(ppContext, os, JsonEncoding.UTF8);
+        ObjectWriter writer = indent ?
+            JsonUtil.createJsonMapper().writerWithDefaultPrettyPrinter() :
+            JsonUtil.createJsonMapper().writer();
+        this.jsonGenerator = writer.createGenerator(os);
         this.rootVersion = Objects.requireNonNull(rootVersion);
         this.singleNameToArrayNameMap = Objects.requireNonNull(singleNameToArrayNameMap);
     }
