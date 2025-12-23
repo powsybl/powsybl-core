@@ -15,7 +15,6 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.function.Function;
@@ -34,7 +33,7 @@ public class JsonReader extends AbstractTreeDataReader {
     private final Deque<Context> contextQueue = new ArrayDeque<>();
     private final Map<String, String> arrayElementNameToSingleElementName;
 
-    public JsonReader(InputStream is, String rootName, Map<String, String> arrayNameToSingleNameMap) throws IOException {
+    public JsonReader(InputStream is, String rootName, Map<String, String> arrayNameToSingleNameMap) {
         this.parser = JsonUtil.createJsonFactory().createParser(ObjectReadContext.empty(), Objects.requireNonNull(is));
         this.parser.nextToken();
         if (parser.currentToken() == JsonToken.START_OBJECT) {

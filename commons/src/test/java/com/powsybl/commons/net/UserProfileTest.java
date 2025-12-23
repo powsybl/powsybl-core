@@ -11,9 +11,7 @@ import com.google.common.testing.EqualsTester;
 import com.powsybl.commons.json.JsonUtil;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -21,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserProfileTest {
 
     @Test
-    void test() throws IOException {
+    void test() {
         UserProfile profile = new UserProfile("Peter", "Parker");
         assertEquals("Peter", profile.getFirstName());
         assertEquals("Parker", profile.getLastName());

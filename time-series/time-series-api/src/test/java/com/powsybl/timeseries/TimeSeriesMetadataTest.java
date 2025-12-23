@@ -15,14 +15,16 @@ import org.threeten.extra.Interval;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.type.TypeFactory;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -30,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TimeSeriesMetadataTest {
 
     @Test
-    void test() throws IOException {
+    void test() {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"),
                                                                      Duration.ofMinutes(15));
         ImmutableMap<String, String> tags = ImmutableMap.of("var1", "value1");
@@ -82,7 +84,7 @@ class TimeSeriesMetadataTest {
     }
 
     @Test
-    void testIrregularIndex() throws IOException {
+    void testIrregularIndex() {
         TimeSeriesIndex index = IrregularTimeSeriesIndex.create(
             Instant.parse("2015-01-01T00:00:00Z"),
             Instant.parse("2015-01-02T00:00:00Z"),

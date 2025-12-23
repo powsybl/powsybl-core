@@ -14,7 +14,6 @@ import org.threeten.extra.Interval;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.type.TypeFactory;
 
-import java.io.IOException;
 import java.nio.DoubleBuffer;
 import java.time.Duration;
 import java.time.Instant;
@@ -67,7 +66,7 @@ class DoubleDataChunkTest {
     }
 
     @Test
-    void compressTest() throws IOException {
+    void compressTest() {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[] {1d, 2d, 2d, 2d, 2d, 3d});
         DoubleDataChunk maybeCompressedChunk = chunk.tryToCompress();
         assertInstanceOf(CompressedDoubleDataChunk.class, maybeCompressedChunk);
@@ -140,13 +139,13 @@ class DoubleDataChunkTest {
     }
 
     @Test
-    void compressFailureTest() throws IOException {
+    void compressFailureTest() {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[] {1d, 2d, 2d, 3d});
         assertSame(chunk, chunk.tryToCompress());
     }
 
     @Test
-    void uncompressedSplitTest() throws IOException {
+    void uncompressedSplitTest() {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[]{1d, 2d, 3d});
         try {
             chunk.splitAt(1);
@@ -170,7 +169,7 @@ class DoubleDataChunkTest {
     }
 
     @Test
-    void compressedSplitTest() throws IOException {
+    void compressedSplitTest() {
         // index  0   1   2   3   4   5
         // value  NaN 1   1   2   2   2
         //            [-------]   [---]

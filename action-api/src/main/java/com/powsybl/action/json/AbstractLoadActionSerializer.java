@@ -33,12 +33,10 @@ public abstract class AbstractLoadActionSerializer<T extends AbstractLoadAction>
         jsonGenerator.writeStringProperty("id", action.getId());
         jsonGenerator.writeStringProperty(getElementIdAttributeName(), getElementId(action));
         jsonGenerator.writeBooleanProperty("relativeValue", action.isRelativeValue());
-        action.getActivePowerValue().ifPresent(activePowerValue -> {
-            jsonGenerator.writeNumberProperty("activePowerValue", activePowerValue);
-        });
-        action.getReactivePowerValue().ifPresent(reactivePowerValue -> {
-            jsonGenerator.writeNumberProperty("reactivePowerValue", reactivePowerValue);
-        });
+        action.getActivePowerValue().ifPresent(activePowerValue ->
+            jsonGenerator.writeNumberProperty("activePowerValue", activePowerValue));
+        action.getReactivePowerValue().ifPresent(reactivePowerValue ->
+            jsonGenerator.writeNumberProperty("reactivePowerValue", reactivePowerValue));
         jsonGenerator.writeEndObject();
     }
 }

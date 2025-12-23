@@ -578,7 +578,7 @@ public class DataObject {
         return object;
     }
 
-    private static boolean writeValue(JsonGenerator generator, Object value) throws IOException {
+    private static boolean writeValue(JsonGenerator generator, Object value) {
         if (value instanceof String stringValue) {
             generator.writeString(stringValue);
             return true;
@@ -601,7 +601,7 @@ public class DataObject {
         return false;
     }
 
-    private void writeListJson(JsonGenerator generator, Map.Entry<String, Object> e) throws IOException {
+    private void writeListJson(JsonGenerator generator, Map.Entry<String, Object> e) {
         generator.writeStartArray();
         for (Object value : (List) e.getValue()) {
             writeValue(generator, value);
@@ -609,7 +609,7 @@ public class DataObject {
         generator.writeEndArray();
     }
 
-    private void writeMatrixJson(JsonGenerator generator, Map.Entry<String, Object> e) throws IOException {
+    private void writeMatrixJson(JsonGenerator generator, Map.Entry<String, Object> e) {
         RealMatrix matrix = (RealMatrix) e.getValue();
         generator.writeStartObject();
         generator.writeNumberProperty("rowCount", matrix.getRowDimension());

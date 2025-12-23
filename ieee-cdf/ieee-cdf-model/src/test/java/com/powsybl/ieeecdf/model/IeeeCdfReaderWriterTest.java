@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class IeeeCdfReaderWriterTest {
 
-    // TODO: Check for JavaTimeModule
     private final JsonMapper mapper = JsonMapper.builder().build();
 
     private FileSystem fileSystem;

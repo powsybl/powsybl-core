@@ -28,21 +28,16 @@ public class GeneratorActionSerializer extends StdSerializer<GeneratorAction> {
         jsonGenerator.writeStringProperty("type", action.getType());
         jsonGenerator.writeStringProperty("id", action.getId());
         jsonGenerator.writeStringProperty("generatorId", action.getGeneratorId());
-        action.isActivePowerRelativeValue().ifPresent(activePowerRelativeValue -> {
-            jsonGenerator.writeBooleanProperty("activePowerRelativeValue", activePowerRelativeValue);
-        });
-        action.getActivePowerValue().ifPresent(activePowerValue -> {
-            jsonGenerator.writeNumberProperty("activePowerValue", activePowerValue);
-        });
-        action.isVoltageRegulatorOn().ifPresent(voltageControlOn -> {
-            jsonGenerator.writeBooleanProperty("voltageRegulatorOn", voltageControlOn);
-        });
-        action.getTargetV().ifPresent(targetV -> {
-            jsonGenerator.writeNumberProperty("targetV", targetV);
-        });
-        action.getTargetQ().ifPresent(targetQ -> {
-            jsonGenerator.writeNumberProperty("targetQ", targetQ);
-        });
+        action.isActivePowerRelativeValue().ifPresent(activePowerRelativeValue ->
+            jsonGenerator.writeBooleanProperty("activePowerRelativeValue", activePowerRelativeValue));
+        action.getActivePowerValue().ifPresent(activePowerValue ->
+            jsonGenerator.writeNumberProperty("activePowerValue", activePowerValue));
+        action.isVoltageRegulatorOn().ifPresent(voltageControlOn ->
+            jsonGenerator.writeBooleanProperty("voltageRegulatorOn", voltageControlOn));
+        action.getTargetV().ifPresent(targetV ->
+            jsonGenerator.writeNumberProperty("targetV", targetV));
+        action.getTargetQ().ifPresent(targetQ ->
+            jsonGenerator.writeNumberProperty("targetQ", targetQ));
         jsonGenerator.writeEndObject();
     }
 }

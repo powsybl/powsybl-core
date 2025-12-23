@@ -29,7 +29,6 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
@@ -255,9 +254,9 @@ public class SensitivityAnalysisTool implements Tool {
                     throw new UncheckedIOException(e);
                 }
             } else {
-                JsonFactory factory = JsonUtil.createJsonFactory();
+                JsonMapper jsonMapper = JsonUtil.createJsonMapper();
                 try (BufferedWriter writer = Files.newBufferedWriter(parametersRecord.outputFile, StandardCharsets.UTF_8);
-                     JsonGenerator generator = factory.createGenerator(writer);
+                     JsonGenerator generator = jsonMapper.createGenerator(writer);
                      SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, parametersRecord.contingencies)) {
                     SensitivityAnalysis.run(parametersRecord.network, parametersRecord.network.getVariantManager().getWorkingVariantId(),
                         parametersRecord.factorsReader, valuesWriter, parametersRecord.contingencies, parametersRecord.variableSets, parametersRecord.params,

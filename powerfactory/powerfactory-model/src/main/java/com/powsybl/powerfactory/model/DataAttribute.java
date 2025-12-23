@@ -7,11 +7,10 @@
  */
 package com.powsybl.powerfactory.model;
 
+import com.powsybl.commons.json.JsonUtil;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
-import com.powsybl.commons.json.JsonUtil;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -79,7 +78,7 @@ public class DataAttribute {
         return new DataAttribute(context.name, context.type, context.description);
     }
 
-    public void writeJson(JsonGenerator generator) throws IOException {
+    public void writeJson(JsonGenerator generator) {
         generator.writeStartObject();
         generator.writeStringProperty("name", name);
         generator.writeStringProperty("type", type.name());

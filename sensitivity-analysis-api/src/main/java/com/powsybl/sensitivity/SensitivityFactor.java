@@ -7,15 +7,13 @@
  */
 package com.powsybl.sensitivity;
 
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -147,24 +145,20 @@ public class SensitivityFactor {
         Objects.requireNonNull(parser);
 
         var context = new ParsingContext();
-        try {
-            JsonToken token;
-            while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.PROPERTY_NAME) {
-                    parseJson(parser, context);
-                } else if (token == JsonToken.END_OBJECT) {
-                    boolean variableSet = Objects.requireNonNull(context.variableSet, "Parameter variableSet is missing");
-                    return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, variableSet,
-                            new ContingencyContext(context.contingencyId, context.contingencyContextType));
-                }
+        JsonToken token;
+        while ((token = parser.nextToken()) != null) {
+            if (token == JsonToken.PROPERTY_NAME) {
+                parseJson(parser, context);
+            } else if (token == JsonToken.END_OBJECT) {
+                boolean variableSet = Objects.requireNonNull(context.variableSet, "Parameter variableSet is missing");
+                return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, variableSet,
+                        new ContingencyContext(context.contingencyId, context.contingencyContextType));
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
         throw new PowsyblException("Parsing error");
     }
 
-    static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
+    static void parseJson(JsonParser parser, ParsingContext context) {
         String fieldName = parser.currentName();
         switch (fieldName) {
             case "functionType":

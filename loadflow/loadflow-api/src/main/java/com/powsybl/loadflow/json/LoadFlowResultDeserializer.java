@@ -238,7 +238,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         return new LoadFlowResultImpl(ok, metrics, log, componentResults);
     }
 
-    public static LoadFlowResult read(InputStream is) throws IOException {
+    public static LoadFlowResult read(InputStream is) {
         Objects.requireNonNull(is);
         JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
             .addModule(new LoadFlowResultJsonModule())

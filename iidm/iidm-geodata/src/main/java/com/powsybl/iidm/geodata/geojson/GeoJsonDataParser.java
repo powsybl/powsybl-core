@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,9 +34,8 @@ public final class GeoJsonDataParser {
      * @param reader the reader containing the GeoJSON data to parse
      * @return a map where the keys are substation identifiers (as strings) and the values are their
      *         corresponding geographical coordinates
-     * @throws IOException if an I/O error occurs while reading the GeoJSON data
      */
-    public static Map<String, Coordinate> parseSubstations(Reader reader) throws IOException {
+    public static Map<String, Coordinate> parseSubstations(Reader reader) {
         return parseFeatures(reader, (result, id, geometry) -> {
             if (!(geometry instanceof PointDto pointDto)) {
                 logUnexpectedFeature(geometry);
@@ -55,9 +53,8 @@ public final class GeoJsonDataParser {
      * @param reader the reader containing the GeoJSON data to parse
      * @return a map where the keys are line IDs and the values are lists of coordinates
      *         describing the geometry of the lines
-     * @throws IOException if an I/O error occurs during parsing
      */
-    public static Map<String, List<Coordinate>> parseLines(Reader reader) throws IOException {
+    public static Map<String, List<Coordinate>> parseLines(Reader reader) {
         return parseFeatures(reader, (result, id, geometry) -> {
             if (!(geometry instanceof LineStringDto || geometry instanceof MultiLineStringDto)) {
                 logUnexpectedFeature(geometry);
@@ -72,7 +69,7 @@ public final class GeoJsonDataParser {
         });
     }
 
-    private static <T> Map<String, T> parseFeatures(Reader reader, GeoJsonDataParser.FeatureProcessor<T> featureProcessor) throws IOException {
+    private static <T> Map<String, T> parseFeatures(Reader reader, GeoJsonDataParser.FeatureProcessor<T> featureProcessor) {
         FeatureCollectionDto featureCollectionDto = MAPPER.readValue(reader, FeatureCollectionDto.class);
         Map<String, T> result = new LinkedHashMap<>(featureCollectionDto.getFeatures().size());
         StopWatch stopWatch = new StopWatch();

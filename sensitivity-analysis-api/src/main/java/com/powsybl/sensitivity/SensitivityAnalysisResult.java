@@ -7,16 +7,19 @@
  */
 package com.powsybl.sensitivity;
 
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import org.jgrapht.alg.util.Triple;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Sensitivity analysis result
@@ -98,22 +101,18 @@ public class SensitivityAnalysisResult {
             Objects.requireNonNull(parser);
 
             var context = new SensitivityContingencyStatus.ParsingContext();
-            try {
-                JsonToken token;
-                while ((token = parser.nextToken()) != null) {
-                    if (token == JsonToken.PROPERTY_NAME) {
-                        parseJson(parser, context);
-                    } else if (token == JsonToken.END_OBJECT) {
-                        return new SensitivityContingencyStatus(context.contingency != null ? context.contingency.getId() : "", context.status);
-                    }
+            JsonToken token;
+            while ((token = parser.nextToken()) != null) {
+                if (token == JsonToken.PROPERTY_NAME) {
+                    parseJson(parser, context);
+                } else if (token == JsonToken.END_OBJECT) {
+                    return new SensitivityContingencyStatus(context.contingency != null ? context.contingency.getId() : "", context.status);
                 }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
             }
             throw new PowsyblException("Parsing error");
         }
 
-        private static void parseJson(JsonParser parser, SensitivityContingencyStatus.ParsingContext context) throws IOException {
+        private static void parseJson(JsonParser parser, SensitivityContingencyStatus.ParsingContext context) {
             String fieldName = parser.currentName();
             switch (fieldName) {
                 case "contingencyId":

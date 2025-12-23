@@ -17,7 +17,6 @@ import org.threeten.extra.Interval;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.type.TypeFactory;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -63,7 +62,7 @@ class CalculatedTimeSeriesTest {
     }
 
     @Test
-    void jsonTest() throws IOException {
+    void jsonTest() {
         TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
         DoubleTimeSeries ts = TimeSeries.createDouble("ts", index, 1d, 2d);
         DoubleTimeSeries foo = TimeSeries.createDouble("foo", index, 0d, 3d);

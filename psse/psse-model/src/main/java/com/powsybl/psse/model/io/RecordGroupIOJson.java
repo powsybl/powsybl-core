@@ -80,7 +80,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         throw new PsseException("Generic record group cannot be written as head record");
     }
 
-    private JsonNode readJsonNode(JsonParser parser) throws IOException {
+    private JsonNode readJsonNode(JsonParser parser) {
         Objects.requireNonNull(parser);
         JsonMapper mapper = JsonUtil.createJsonMapper();
         String nodeName = recordGroup.getIdentification().getJsonNodeName();
