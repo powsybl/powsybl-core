@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl.regulation;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.MultiVariantObject;
+import com.powsybl.iidm.network.impl.Referrer;
+import com.powsybl.iidm.network.impl.TerminalExt;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -17,9 +19,9 @@ import gnu.trove.list.array.TDoubleArrayList;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObject {
+public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObject, Referrer<Terminal> {
 
-    private Terminal terminal;
+    private TerminalExt terminal;
     private RegulationMode mode;
     // attributes depending on the variant
     private final TDoubleArrayList targetValue;
@@ -34,7 +36,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
                                  RegulationMode mode,
                                  boolean regulating,
                                  int variantArraySize) {
-        this.terminal = terminal;
+        this.terminal = (TerminalExt) terminal;
         this.mode = mode;
         this.targetValue = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
@@ -52,24 +54,24 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return targetValue.get(index);
     }
 
-    public void setTargetValue(double targetValue, int index) {
-        this.targetValue.set(index, targetValue);
+    public double setTargetValue(double targetValue, int index) {
+        return this.targetValue.set(index, targetValue);
     }
 
     public double getTargetDeadband(int index) {
         return targetDeadband.get(index);
     }
 
-    public void setTargetDeadband(double targetDeadband, int index) {
-        this.targetDeadband.set(index, targetDeadband);
+    public double setTargetDeadband(double targetDeadband, int index) {
+        return this.targetDeadband.set(index, targetDeadband);
     }
 
     public double getSlope(int index) {
         return slope.get(index);
     }
 
-    public void setSlope(double slope, int index) {
-        this.slope.set(index, slope);
+    public double setSlope(double slope, int index) {
+        return this.slope.set(index, slope);
     }
 
     public Terminal getTerminal() {
@@ -77,7 +79,14 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
     }
 
     public void setTerminal(Terminal terminal) {
-        this.terminal = terminal;
+        if (this.terminal != null) {
+            this.terminal.getReferrerManager().unregister(this);
+            this.terminal = null;
+        }
+        if (terminal != null) {
+            this.terminal = (TerminalExt) terminal;
+            this.terminal.getReferrerManager().register(this);
+        }
     }
 
     public RegulationMode getMode() {
@@ -92,8 +101,15 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return regulating.get(index);
     }
 
-    public void setRegulating(boolean regulating, int index) {
-        this.regulating.set(index, regulating);
+    public boolean setRegulating(boolean regulating, int index) {
+        return this.regulating.set(index, regulating);
+    }
+
+    @Override
+    public void remove() {
+        if (terminal != null) {
+            terminal.getReferrerManager().unregister(this);
+        }
     }
 
     @Override
@@ -120,10 +136,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        targetValue.removeAt(index);
-        targetDeadband.removeAt(index);
-        slope.removeAt(index);
-        regulating.removeAt(index);
+        // Nothing to do ?? TODO MSA check that
     }
 
     @Override
@@ -133,6 +146,20 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
             targetDeadband.set(index, targetDeadband.get(sourceIndex));
             slope.set(index, slope.get(sourceIndex));
             regulating.set(index, regulating.get(sourceIndex));
+        }
+    }
+
+    @Override
+    public void onReferencedRemoval(Terminal removedReferenced) {
+        if (this.terminal == removedReferenced) {
+            this.terminal = null;
+        }
+    }
+
+    @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        if (this.terminal == oldReferenced) {
+            this.terminal = (TerminalExt) newReferenced;
         }
     }
 
