@@ -16,15 +16,15 @@ public interface VoltageRegulation {
 
     double getTargetValue(int index);
 
-    void setTargetValue(double targetValue, int index);
+    double setTargetValue(double targetValue, int index);
 
     double getTargetDeadband(int index);
 
-    void setTargetDeadband(double targetDeadband, int index);
+    double setTargetDeadband(double targetDeadband, int index);
 
     double getSlope(int index);
 
-    void setSlope(double slope, int index);
+    double setSlope(double slope, int index);
 
     Terminal getTerminal();
 
@@ -36,5 +36,7 @@ public interface VoltageRegulation {
 
     boolean isRegulating(int index);
 
-    void setRegulating(boolean regulating, int index);
+    boolean setRegulating(boolean regulating, int index);
+
+    void remove();
 }
