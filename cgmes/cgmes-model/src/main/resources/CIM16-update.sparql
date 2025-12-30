@@ -6,6 +6,34 @@
 # SPDX-License-Identifier: MPL-2.0
 #
 
+# query: boundaryNodes
+# Unused by update
+SELECT * WHERE { } LIMIT 0
+
+# query: transformerEnds
+# Unused by update
+SELECT * WHERE { } LIMIT 0
+
+# query: ratioTapChangerTablePoints
+# Unused by update
+SELECT * WHERE { } LIMIT 0
+
+# query: phaseTapChangerTablePoints
+# Unused by update
+SELECT * WHERE { } LIMIT 0
+
+# query: nonlinearShuntCompensatorPoints
+# Unused by update
+SELECT * WHERE { } LIMIT 0
+
+# query: reactiveCapabilityCurveData
+# Unused by update
+SELECT * WHERE { } LIMIT 0
+
+# query: equivalentShunts
+# Unused by update
+SELECT * WHERE { } LIMIT 0
+
 # query: fullModels
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
