@@ -11,6 +11,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -46,6 +47,20 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (isLoadingLimits()) {
             if (terminalId != null) {
                 terminal = context.terminalMapping().findForFlowLimits(terminalId);
+                if (terminal == null) {
+                    CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId);
+                    if (CgmesNames.SWITCH_TYPES.contains(cgmesTerminal.conductingEquipmentType())) {
+                        notAssigned(context.network().getSwitch(cgmesTerminal.conductingEquipment()));
+                        return;
+                    }
+                }
+                if (terminal == null) {
+                    Boundary boundary = context.terminalMapping().findBoundary(terminalId);
+                    if (boundary != null) {
+                        notAssigned(boundary.getDanglingLine());
+                        return;
+                    }
+                }
             }
             if (terminal != null) {
                 checkAndCreateLimitsAdder(context.terminalMapping().number(terminalId), terminal.getConnectable());
@@ -225,6 +240,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     @Override
     public boolean valid() {
+        if (notAssigned) {
+            return false;
+        }
         if (vl == null && olga == null
                 && olga1 == null
                 && olga2 == null
@@ -438,6 +456,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void notAssigned(Identifiable<?> eq) {
+        this.notAssigned = true;
         String type = p.getLocal(LIMIT_TYPE);
         String typeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String subclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
@@ -450,7 +469,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 typeName,
                 subclass,
                 terminalId);
-        context.pending(OPERATIONAL_LIMIT, reason);
+        if (context.config().isLogUnassignedOperationalLimits()) {
+            context.pending(OPERATIONAL_LIMIT, reason);
+        }
     }
 
     private static String className(Identifiable<?> o) {
@@ -460,6 +481,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             s = s.substring(dot + 1);
         }
         s = s.replace("Impl", "");
+        s = s.replace("DanglingLine", "DanglingLine at boundary side");
         return s;
     }
 
@@ -572,6 +594,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private final String terminalId;
     private final String equipmentId;
     private final String limitSubclass;
+
+    private boolean notAssigned = false;
 
     private OLGA olga;
     private OLGA olga1;
