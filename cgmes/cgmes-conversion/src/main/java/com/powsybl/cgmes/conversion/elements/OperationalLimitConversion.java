@@ -49,7 +49,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 terminal = context.terminalMapping().findForFlowLimits(terminalId);
                 if (terminal == null) {
                     CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId);
-                    if (CgmesNames.SWITCH_TYPES.contains(cgmesTerminal.conductingEquipmentType())) {
+                    if (cgmesTerminal!= null && CgmesNames.SWITCH_TYPES.contains(cgmesTerminal.conductingEquipmentType())) {
                         notAssigned(context.network().getSwitch(cgmesTerminal.conductingEquipment()));
                         return;
                     }
