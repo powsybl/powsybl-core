@@ -12,14 +12,17 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,5 +73,11 @@ class DataSourceTest {
 
         // Assert the class of the datasource
         assertInstanceOf(dataSourceClass, dataSource);
+    }
+
+    @Test
+    void testWeirdListNames() throws IOException, URISyntaxException {
+        DataSource dataSource = DataSource.fromPath(Paths.get(DataSourceTest.class.getResource("/" + "testCase.xiidm").toURI()));
+        assertEquals(1, dataSource.listNames(".*").size());
     }
 }
