@@ -15,7 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -168,5 +170,11 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         String filename = "a".repeat(100) + "!";
         Files.createFile(testDir.resolve(filename));
         return new DirectoryDataSource(testDir, "");
+    }
+
+    @Test
+    void testWeirdListNames() throws IOException, URISyntaxException {
+        DataSource dataSource = DataSource.fromPath(Paths.get(DirectoryDataSourceTest.class.getResource("/" + "testCase.xiidm").toURI()));
+        assertEquals(1, dataSource.listNames(".*").size());
     }
 }
