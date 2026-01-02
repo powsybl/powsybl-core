@@ -50,6 +50,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         if (g != g.getRegulatingTerminal().getConnectable()) {
             TerminalRefSerDe.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
+//        VoltageRegulationSerDe.writeVoltageRegulation(g.getVoltageRegulation(), context);
         ReactiveLimitsSerDe.INSTANCE.write(g, context);
     }
 
