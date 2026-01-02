@@ -102,8 +102,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         network.getIndex().checkAndAdd(battery);
         network.getListeners().notifyCreation(battery);
 
-        battery.setVoltageRegulation(voltageRegulation);
-
         return battery;
     }
 
