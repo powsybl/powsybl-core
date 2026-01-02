@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
@@ -228,6 +229,11 @@ public final class ValidationUtil {
         if (!Double.isNaN(equivalentLocalTargetV) && equivalentLocalTargetV < 0) {
             throw createInvalidValueException(validable, equivalentLocalTargetV, "equivalentLocalTargetV", "must be positive");
         }
+    }
+
+    public static ValidationLevel checkEquivalentLocalTargetQ(Validable validable, double equivalentLocalTargetQ, ValidationLevel validationLevel, ReportNode reportNode) {
+        // TODO MSA
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
     public static void checkRatedS(Validable validable, double ratedS) {
@@ -906,13 +912,6 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    public static ValidationLevel checkVoltageRegulation(Validable validable) {
-        if (validable instanceof VoltageRegulation) {
-
-        }
-        return ValidationLevel.MINIMUM_VALUE;
-    }
-
     private static ValidationLevel checkOperationalLimitsGroup(Validable validable, OperationalLimitsGroup operationalLimitsGroup, ValidationLevel previous, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel[] validationLevel = new ValidationLevel[1];
         validationLevel[0] = previous;
@@ -949,6 +948,49 @@ public final class ValidationUtil {
 
     private static ActionOnError checkValidationActionOnError(ValidationLevel validationLevel) {
         return validationLevel.compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0 ? ActionOnError.THROW_EXCEPTION : ActionOnError.IGNORE;
+    }
+
+    public static ValidationLevel checkVoltageRegulation(Validable validable) {
+        if (validable instanceof VoltageRegulation voltageRegulation) {
+            RegulationMode regulationMode = voltageRegulation.getMode();
+            if (regulationMode == null) {
+                throw new ValidationException(validable, "voltage regulator status is not set");
+            }
+            switch (regulationMode) {
+                case VOLTAGE -> {
+                    return checkVoltageRegulationV(voltageRegulation);
+                }
+                case REACTIVE_POWER -> {
+                    return checkVoltageRegulationQ(voltageRegulation);
+                }
+                case REACTIVE_POWER_PER_ACTIVE_POWER -> {
+                    return checkVoltageRegulationQP(voltageRegulation);
+                }
+                case VOLTAGE_PER_REACTIVE_POWER -> {
+                    return checkVoltageRegulationVQ(voltageRegulation);
+                }
+            }
+        }
+        return ValidationLevel.MINIMUM_VALUE;
+    }
+
+    private static ValidationLevel checkVoltageRegulationVQ(VoltageRegulation voltageRegulation) {
+        return ValidationLevel.MINIMUM_VALUE;
+    }
+
+    private static ValidationLevel checkVoltageRegulationQP(VoltageRegulation voltageRegulation) {
+        return ValidationLevel.MINIMUM_VALUE;
+    }
+
+    private static ValidationLevel checkVoltageRegulationQ(VoltageRegulation voltageRegulation) {
+        return ValidationLevel.MINIMUM_VALUE;
+    }
+
+    private static ValidationLevel checkVoltageRegulationV(VoltageRegulation voltageRegulation) {
+        if (Double.isNaN(voltageRegulation.getTargetValue())) {
+            throw new ValidationException((Validable) voltageRegulation, "TargetValue can't be Double.NaN");
+        }
+        return ValidationLevel.MINIMUM_VALUE;
     }
 
 }

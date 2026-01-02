@@ -6,7 +6,7 @@
                 <iidm:busbarSection id="BBS" node="0"/>
                 <iidm:switch id="SW" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="G" energySource="NUCLEAR" minP="10.0" maxP="20.0" voltageRegulatorOn="true" targetP="20.0" targetV="400.0" node="1">
+            <iidm:generator id="G" energySource="NUCLEAR" minP="10.0" maxP="20.0" voltageRegulatorOn="true" targetP="20.0" targetV="400.0" equivalentLocalTargetV="400.0" node="1">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
         </iidm:voltageLevel>

@@ -37,10 +37,12 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
         context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
         context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
+//        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_14, context, () -> context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ(), Double.NaN));
+//        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> context.getWriter().writeDoubleAttribute("equivalentLocalTargetQ", g.getEquivalentLocalTargetQ(), Double.NaN));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
                 context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () ->
-            context.getWriter().writeDoubleAttribute("equivalentLocalTargetV", g.getEquivalentLocalTargetV(), Double.NaN));
+            context.getWriter().writeDoubleAttribute("equivalentLocalTargetV", g.getEquivalentLocalTargetV()));
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
     }
@@ -51,6 +53,9 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
             TerminalRefSerDe.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
         ReactiveLimitsSerDe.INSTANCE.write(g, context);
+        if (g.getVoltageRegulation() != null) {
+
+        }
     }
 
     @Override
@@ -68,6 +73,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetV = context.getReader().readDoubleAttribute("targetV");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
+        double equivalentLocalTargetV = context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN);
+//        double equivalentLocalTargetQ = context.getReader().readDoubleAttribute("equivalentLocalTargetQ", Double.NaN);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
                 adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
         adder.setEnergySource(energySource)
@@ -80,8 +87,12 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         // Since V_1_15 -> use 'setTargetV(targetV, equivalentLocalTargetV)' instead of 'setTargetV(targetV)'
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_14, context, () ->
             adder.setTargetV(targetV));
+//        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_14, context, () ->
+//            adder.setTargetQ(targetQ));
+//        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () ->
+//            adder.setEquivalentLocalTargetQ(equivalentLocalTargetQ));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () ->
-            adder.setTargetV(targetV, context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN)));
+            adder.setTargetV(targetV, equivalentLocalTargetV));
 
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         Generator g = adder.add();
@@ -93,7 +104,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     protected void readSubElements(Generator g, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case "regulatingTerminal" -> TerminalRefSerDe.readTerminalRef(context, g.getNetwork(), g::setRegulatingTerminal);
+                case "regulatingTerminal" -> IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_14, context, () -> TerminalRefSerDe.readTerminalRef(context, g.getNetwork(), g::setRegulatingTerminal));
+//                case "regulatingTerminal" -> TerminalRefSerDe.readTerminalRef(context, g.getNetwork(), g::setRegulatingTerminal);
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(g, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(g, context);
                 default -> readSubElement(elementName, g, context);

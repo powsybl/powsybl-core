@@ -37,6 +37,7 @@
         "targetP" : 607.0,
         "targetV" : 24.5,
         "targetQ" : 301.0,
+        "equivalentLocalTargetV" : 24.5,
         "bus" : "NGEN",
         "connectableBus" : "NGEN",
         "p" : -605.558349609375,

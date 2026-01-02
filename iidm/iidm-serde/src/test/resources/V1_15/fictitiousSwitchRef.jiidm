@@ -345,6 +345,7 @@
         "targetP" : 0.0,
         "targetV" : 0.0,
         "targetQ" : 0.0,
+        "equivalentLocalTargetV" : 0.0,
         "node" : 12,
         "reactiveCapabilityCurve" : {
           "points" : [ {
@@ -366,6 +367,7 @@
         "targetP" : 0.0,
         "targetV" : 0.0,
         "targetQ" : 0.0,
+        "equivalentLocalTargetV" : 0.0,
         "node" : 14,
         "reactiveCapabilityCurve" : {
           "points" : [ {
@@ -387,6 +389,7 @@
         "targetP" : 21.789589,
         "targetV" : 236.44736,
         "targetQ" : -20.701546,
+        "equivalentLocalTargetV" : 236.44736,
         "node" : 16,
         "p" : -21.789589,
         "q" : 20.693394,

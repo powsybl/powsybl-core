@@ -33,7 +33,15 @@ public final class ComparisonUtils {
     }
 
     public static void assertXmlEquals(InputStream expected, InputStream actual) {
-        Diff myDiff = DiffBuilder.compare(expected).withTest(actual).ignoreWhitespace().ignoreComments().build();
+        String expectedString = null;
+        String actualString = null;
+        try {
+            expectedString = new String(expected.readAllBytes(), StandardCharsets.UTF_8);
+            actualString = new String(actual.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Diff myDiff = DiffBuilder.compare(expectedString).withTest(actualString).ignoreWhitespace().ignoreComments().build();
         boolean hasDiff = myDiff.hasDifferences();
         if (hasDiff) {
             LOGGER.error("{}", myDiff);

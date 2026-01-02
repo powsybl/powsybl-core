@@ -221,6 +221,10 @@
         <xs:attribute name="minQ" use="required" type="xs:double"/>
         <xs:attribute name="maxQ" use="required" type="xs:double"/>
     </xs:complexType>
+    <xs:complexType name="VoltageRegulation">
+        <xs:attribute name="msa" use="required" type="xs:double"/>
+        <xs:attribute name="msa2" use="required" type="xs:double"/>
+    </xs:complexType>
     <xs:simpleType name="EnergySource">
         <xs:restriction base="xs:string">
             <xs:enumeration value="HYDRO"/>
@@ -247,6 +251,7 @@
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
                     <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                     <xs:choice>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
@@ -261,6 +266,7 @@
                 <xs:attribute name="targetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="targetV" use="optional" type="xs:double"/>
                 <xs:attribute name="equivalentLocalTargetV" use="optional" type="xs:double"/>
+                <xs:attribute name="equivalentLocalTargetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="isCondenser" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>

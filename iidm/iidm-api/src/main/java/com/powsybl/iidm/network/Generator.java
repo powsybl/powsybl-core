@@ -7,6 +7,9 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
 /**
  * A power generator.
  *
@@ -133,7 +136,7 @@ package com.powsybl.iidm.network;
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve
  */
-public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
+public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, VoltageRegulationHolder, VoltageRegulationAdder<Generator> {
 
     /**
      * Get the energy source.
@@ -175,7 +178,9 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated Use {@link com.powsybl.iidm.network.regulation.VoltageRegulation}
      */
+    @Deprecated(forRemoval = true)
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
@@ -218,12 +223,30 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      *     or by dynamic simulators that use this voltage as a starting value.
      * </p>
      * <p>
-     *     To set the equivalentLocalTargetV use {@link Generator#setTargetV(double, double)}
+     *     To set the equivalentLocalTargetV use {@link Generator#setEquivalentLocalTargetV(double)}
      * </p>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getEquivalentLocalTargetV();
+
+    void setEquivalentLocalTargetV(double newEquivalentLocalTargetV);
+
+    /**
+     * <p>
+     *     If set, returns a local target reactive power that is expected to be consistent with the remote target reactive power.
+     *     When defined, this value can be used by simulators that deactivate the remote reactive power algorithms,
+     *     or by dynamic simulators that use this reactive power as a starting value.
+     * </p>
+     * <p>
+     *     To set the equivalentLocalTargetQ use {@link Generator#setEquivalentLocalTargetQ(double)}
+     * </p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    double getEquivalentLocalTargetQ();
+
+    void setEquivalentLocalTargetQ(double newEquivalentLocalTargetQ);
 
     /**
      * <p>

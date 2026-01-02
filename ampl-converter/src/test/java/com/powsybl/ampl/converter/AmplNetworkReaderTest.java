@@ -256,7 +256,8 @@ class AmplNetworkReaderTest {
         assertEquals(24.5, generator.getTargetV(), 0.0);
         assertEquals(607.0, generator.getTargetP(), 0.0);
         assertTrue(Double.isNaN(generator.getTerminal().getP()));
-        assertEquals(301.0, generator.getTargetQ(), 0.0);
+        assertEquals(Double.NaN, generator.getTargetQ(), 0.0);
+        assertEquals(301.0, generator.getEquivalentLocalTargetQ(), 0.0);
         assertTrue(Double.isNaN(generator.getTerminal().getQ()));
 
         reader.readGenerators();

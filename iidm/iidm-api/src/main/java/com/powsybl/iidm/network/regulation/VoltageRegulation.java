@@ -14,17 +14,17 @@ import com.powsybl.iidm.network.Terminal;
  */
 public interface VoltageRegulation {
 
-    double getTargetValue(int index);
+    Double getTargetValue();
 
-    double setTargetValue(double targetValue, int index);
+    Double setTargetValue(Double targetValue);
 
-    double getTargetDeadband(int index);
+    Double getTargetDeadband();
 
-    double setTargetDeadband(double targetDeadband, int index);
+    Double setTargetDeadband(Double targetDeadband);
 
-    double getSlope(int index);
+    Double getSlope();
 
-    double setSlope(double slope, int index);
+    Double setSlope(Double slope);
 
     Terminal getTerminal();
 
@@ -32,11 +32,9 @@ public interface VoltageRegulation {
 
     RegulationMode getMode();
 
-    void setMode(RegulationMode mode);
+    Boolean isRegulating();
 
-    boolean isRegulating(int index);
-
-    boolean setRegulating(boolean regulating, int index);
+    Boolean setRegulating(Boolean regulating);
 
     void remove();
 }

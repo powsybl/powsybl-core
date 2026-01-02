@@ -307,6 +307,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(607.0, generator1.getTargetP(), 0.0);
         assertEquals(24.5, generator1.getTargetV(), 0.0);
         assertEquals(301.0, generator1.getTargetQ(), 0.0);
+        assertEquals(301.0, generator1.getEquivalentLocalTargetQ(), 0.0);
         assertEquals(bus1.getId(), generator1.getTerminal().getBusBreakerView().getBus().getId());
 
         // Substation B

@@ -61,7 +61,8 @@ class GeneratorModificationActionTest {
         assertEquals(60., g.getMaxP(), 0.1);
         assertEquals(50., g.getTargetP(), 0.1);
         assertEquals(10, g.getTargetV(), 0.1);
-        assertEquals(25., g.getTargetQ(), 0.1);
+        assertEquals(Double.NaN, g.getTargetQ(), 0.1);
+        assertEquals(25., g.getEquivalentLocalTargetQ(), 0.1);
         assertFalse(g.isVoltageRegulatorOn());
     }
 
@@ -71,7 +72,8 @@ class GeneratorModificationActionTest {
         Action action = actionDb.getAction("targetV and targetQ with voltageRegulator ON");
         action.run(network);
         assertEquals(10, g.getTargetV(), 0.1);
-        assertEquals(25., g.getTargetQ(), 0.1);
+        assertEquals(Double.NaN, g.getTargetQ(), 0.1);
+        assertEquals(25., g.getEquivalentLocalTargetQ(), 0.1);
         assertTrue(g.isVoltageRegulatorOn());
     }
 

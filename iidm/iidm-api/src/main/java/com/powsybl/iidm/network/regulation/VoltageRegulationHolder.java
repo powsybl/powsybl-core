@@ -15,4 +15,6 @@ public interface VoltageRegulationHolder {
     VoltageRegulation getVoltageRegulation();
 
     void setVoltageRegulation(VoltageRegulation voltageRegulation);
+
+    VoltageRegulationAdder<T> new
 }

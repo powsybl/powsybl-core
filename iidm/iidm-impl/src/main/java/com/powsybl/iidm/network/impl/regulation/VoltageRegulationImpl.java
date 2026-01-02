@@ -7,11 +7,12 @@
  */
 package com.powsybl.iidm.network.impl.regulation;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.iidm.network.DefaultMessageHeader;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.impl.MultiVariantObject;
-import com.powsybl.iidm.network.impl.Referrer;
-import com.powsybl.iidm.network.impl.TerminalExt;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.impl.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -19,23 +20,26 @@ import gnu.trove.list.array.TDoubleArrayList;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObject, Referrer<Terminal> {
+public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObject, Referrer<Terminal>, Validable {
 
     private TerminalExt terminal;
-    private RegulationMode mode;
+    private final RegulationMode mode;
+    private final Ref<? extends VariantManagerHolder> network;
     // attributes depending on the variant
     private final TDoubleArrayList targetValue;
     private final TDoubleArrayList targetDeadband;
     private final TDoubleArrayList slope;
     private final TBooleanArrayList regulating;
 
-    public VoltageRegulationImpl(Double targetValue,
+    public VoltageRegulationImpl(Ref<NetworkImpl> network,
+                                 Double targetValue,
                                  Double targetDeadband,
                                  Double slope,
                                  Terminal terminal,
                                  RegulationMode mode,
-                                 boolean regulating,
-                                 int variantArraySize) {
+                                 boolean regulating) {
+        this.network = network;
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.terminal = (TerminalExt) terminal;
         this.mode = mode;
         this.targetValue = new TDoubleArrayList(variantArraySize);
@@ -50,34 +54,42 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         }
     }
 
-    public double getTargetValue(int index) {
-        return targetValue.get(index);
+    @Override
+    public Double getTargetValue() {
+        return targetValue.get(getCurrentIndex());
     }
 
-    public double setTargetValue(double targetValue, int index) {
-        return this.targetValue.set(index, targetValue);
+    @Override
+    public Double setTargetValue(Double targetValue) {
+        return this.targetValue.set(getCurrentIndex(), targetValue);
     }
 
-    public double getTargetDeadband(int index) {
-        return targetDeadband.get(index);
+    @Override
+    public Double getTargetDeadband() {
+        return targetDeadband.get(getCurrentIndex());
     }
 
-    public double setTargetDeadband(double targetDeadband, int index) {
-        return this.targetDeadband.set(index, targetDeadband);
+    @Override
+    public Double setTargetDeadband(Double targetDeadband) {
+        return this.targetDeadband.set(getCurrentIndex(), targetDeadband);
     }
 
-    public double getSlope(int index) {
-        return slope.get(index);
+    @Override
+    public Double getSlope() {
+        return slope.get(getCurrentIndex());
     }
 
-    public double setSlope(double slope, int index) {
-        return this.slope.set(index, slope);
+    @Override
+    public Double setSlope(Double slope) {
+        return this.slope.set(getCurrentIndex(), slope);
     }
 
+    @Override
     public Terminal getTerminal() {
         return terminal;
     }
 
+    @Override
     public void setTerminal(Terminal terminal) {
         if (this.terminal != null) {
             this.terminal.getReferrerManager().unregister(this);
@@ -89,20 +101,19 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         }
     }
 
+    @Override
     public RegulationMode getMode() {
         return mode;
     }
 
-    public void setMode(RegulationMode mode) {
-        this.mode = mode;
+    @Override
+    public Boolean isRegulating() {
+        return regulating.get(getCurrentIndex());
     }
 
-    public boolean isRegulating(int index) {
-        return regulating.get(index);
-    }
-
-    public boolean setRegulating(boolean regulating, int index) {
-        return this.regulating.set(index, regulating);
+    @Override
+    public Boolean setRegulating(Boolean regulating) {
+        return this.regulating.set(getCurrentIndex(), regulating);
     }
 
     @Override
@@ -163,6 +174,11 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         }
     }
 
+    @Override
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("TYPE", "MSAID");
+    }
+
     public static class Builder {
         private Double targetValue = Double.NaN;
         private Double targetDeadband = Double.NaN;
@@ -170,7 +186,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         private Terminal terminal = null;
         private RegulationMode mode = null;
         private boolean regulating = false;
-        private int variantArraySize = 1;
+        private Ref<NetworkImpl> network = null;
 
         public Builder setTargetValue(Double targetValue) {
             this.targetValue = targetValue;
@@ -202,8 +218,8 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
             return this;
         }
 
-        public Builder setVariantArraySize(int variantArraySize) {
-            this.variantArraySize = variantArraySize;
+        public Builder setNetwork(Ref<NetworkImpl> network) {
+            this.network = network;
             return this;
         }
 
@@ -214,12 +230,52 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
             if (terminal == null) {
 //                throw new IllegalArgumentException("Invalid VoltageRegulation: terminal must be defined.");
             }
-            return new VoltageRegulationImpl(targetValue, targetDeadband, slope, terminal, mode, regulating, variantArraySize);
+            return new VoltageRegulationImpl(network, targetValue, targetDeadband, slope, terminal, mode, regulating);
         }
 
     }
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    private double getTargetValue(RegulationMode expectedMode) {
+        if (expectedMode.equals(mode)) {
+            return this.getTargetValue();
+        }
+        return Double.NaN;
+//        throw new IllegalArgumentException("Can't get targetValue value for RegulationMode : " + expectedMode + ", the RegulationMode must be " + this.mode);
+    }
+
+    public double getTargetV() {
+        return this.getTargetValue(RegulationMode.VOLTAGE);
+    }
+
+    public void setTargetV(double targetV) {
+        if (RegulationMode.VOLTAGE.equals(mode)) {
+            this.targetValue.set(getCurrentIndex(), targetV);
+        }
+    }
+
+    public double getTargetQ() {
+        return this.getTargetValue(RegulationMode.REACTIVE_POWER);
+    }
+
+    public void setTargetQ(double targetQ) {
+        if (RegulationMode.REACTIVE_POWER.equals(mode)) {
+            this.targetValue.set(getCurrentIndex(), targetQ);
+        }
+    }
+
+    public double getTargetQP() {
+        return this.getTargetValue(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+    }
+
+    public double getTargetVQ() {
+        return this.getTargetValue(RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
+    }
+
+    private int getCurrentIndex() {
+        return network.get().getVariantIndex();
     }
 }

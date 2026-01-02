@@ -85,7 +85,7 @@ public abstract class AbstractNetworksTest {
         assertEquals(load.getTerminal().getP(), load.getP0());
         assertEquals(load.getTerminal().getQ(), load.getQ0());
         assertEquals(-generator.getTerminal().getP(), generator.getTargetP());
-        assertEquals(-generator.getTerminal().getQ(), generator.getTargetQ());
+        assertEquals(-generator.getTerminal().getQ(), generator.getEquivalentLocalTargetQ());
         assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getTargetV());
     }
 

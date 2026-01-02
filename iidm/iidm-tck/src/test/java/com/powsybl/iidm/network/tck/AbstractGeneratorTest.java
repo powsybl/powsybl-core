@@ -58,12 +58,12 @@ public abstract class AbstractGeneratorTest {
         double voltageSetpoint = 31.0;
         double ratedS = 41.0;
         generator.setTargetP(activePowerSetpoint);
-        generator.setTargetQ(reactivePowerSetpoint);
-        generator.setTargetV(voltageSetpoint);
+        generator.setEquivalentLocalTargetQ(reactivePowerSetpoint);
+        generator.setEquivalentLocalTargetV(voltageSetpoint);
         generator.setRatedS(ratedS);
         assertEquals(activePowerSetpoint, generator.getTargetP(), 0.0);
-        assertEquals(reactivePowerSetpoint, generator.getTargetQ(), 0.0);
-        assertEquals(voltageSetpoint, generator.getTargetV(), 0.0);
+        assertEquals(reactivePowerSetpoint, generator.getEquivalentLocalTargetQ(), 0.0);
+        assertEquals(voltageSetpoint, generator.getEquivalentLocalTargetV(), 0.0);
         assertEquals(ratedS, generator.getRatedS(), 0.0);
 
         generator.setVoltageRegulatorOn(false);
@@ -204,6 +204,7 @@ public abstract class AbstractGeneratorTest {
         assertEquals(2.0, generator.getRatedS(), 0.0);
         assertEquals(30.0, generator.getTargetP(), 0.0);
         assertEquals(20.0, generator.getTargetQ(), 0.0);
+        assertEquals(20.0, generator.getEquivalentLocalTargetQ(), 0.0);
         assertEquals(31.0, generator.getTargetV(), 0.0);
         assertEquals(Double.NaN, generator.getEquivalentLocalTargetV(), 0.0);
         assertTrue(generator.isCondenser());
@@ -320,6 +321,7 @@ public abstract class AbstractGeneratorTest {
         assertTrue(generator.isVoltageRegulatorOn());
         assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
+        assertEquals(40.0, generator.getEquivalentLocalTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
         assertEquals(1.0, generator.getEquivalentLocalTargetV(), 0.0);
         // change values in s4
@@ -337,6 +339,7 @@ public abstract class AbstractGeneratorTest {
         assertFalse(generator.isVoltageRegulatorOn());
         assertEquals(12.1, generator.getTargetP(), 0.0);
         assertEquals(9.2, generator.getTargetQ(), 0.0);
+        assertEquals(9.2, generator.getEquivalentLocalTargetQ(), 0.0);
         assertEquals(9.3, generator.getTargetV(), 0.0);
         assertEquals(4.2, generator.getEquivalentLocalTargetV(), 0.0);
 
@@ -345,6 +348,7 @@ public abstract class AbstractGeneratorTest {
         assertTrue(generator.isVoltageRegulatorOn());
         assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
+        assertEquals(40.0, generator.getEquivalentLocalTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
         assertEquals(1.0, generator.getEquivalentLocalTargetV(), 0.0);
 
