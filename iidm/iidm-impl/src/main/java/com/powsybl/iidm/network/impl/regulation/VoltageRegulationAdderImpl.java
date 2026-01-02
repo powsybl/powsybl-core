@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl.regulation;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.NetworkImpl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
@@ -20,9 +21,9 @@ public class VoltageRegulationAdderImpl<T extends VoltageRegulationAdder<T>> imp
 
     private final VoltageRegulationImpl.Builder voltageRegulationBuilder;
     private final T parent;
-    private final NetworkImpl network;
+    private final Ref<NetworkImpl> network;
 
-    public VoltageRegulationAdderImpl(T parent, NetworkImpl network) {
+    public VoltageRegulationAdderImpl(T parent, Ref<NetworkImpl> network) {
         this.parent = parent;
         this.network = network;
         this.voltageRegulationBuilder = VoltageRegulationImpl.builder();
@@ -67,7 +68,7 @@ public class VoltageRegulationAdderImpl<T extends VoltageRegulationAdder<T>> imp
     public T addVoltageRegulation() {
         // TODO MSA Add check
         VoltageRegulationImpl voltageRegulation = voltageRegulationBuilder
-            .setVariantArraySize(this.network.getVariantManager().getVariantArraySize())
+            .setNetwork(this.network)
             .build();
         parent.setVoltageRegulation(voltageRegulation);
         return parent;

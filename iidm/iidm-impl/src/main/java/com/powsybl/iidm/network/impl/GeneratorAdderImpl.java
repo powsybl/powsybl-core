@@ -122,7 +122,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     @Override
     public VoltageRegulationBuilder<GeneratorAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(this, getNetwork());
+        return new VoltageRegulationAdderImpl<>(this, getNetworkRef());
     }
 
     @Override
