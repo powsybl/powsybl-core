@@ -230,9 +230,4 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     public VoltageRegulation getVoltageRegulation() {
         return this.voltageRegulation;
     }
-
-    @Override
-    public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
-    }
 }

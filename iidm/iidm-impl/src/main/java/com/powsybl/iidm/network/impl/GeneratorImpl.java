@@ -169,7 +169,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     public GeneratorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         Terminal oldValue = voltageRegulation.getTerminal();
-        voltageRegulation.setTerminal((TerminalExt) regulatingTerminal);
+        voltageRegulation.setTerminal(regulatingTerminal);
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
         return this;
     }
