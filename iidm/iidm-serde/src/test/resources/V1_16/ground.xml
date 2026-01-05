@@ -24,6 +24,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="CB" energySource="HYDRO" minP="0.0" maxP="70.0" voltageRegulatorOn="false" targetP="0.0" targetV="0.0" targetQ="0.0" bus="BUS1" connectableBus="BUS1">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation targetValue="0.0"/>
             </iidm:generator>
             <iidm:ground id="GroundBB" name="GroundBB1" bus="BUS2" connectableBus="BUS2"/>
         </iidm:voltageLevel>

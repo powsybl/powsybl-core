@@ -19,12 +19,15 @@
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="1404.0" voltageRegulatorOn="true" targetP="1404.0" targetV="18.719999313354492" targetQ="0.0" node="1">
                 <iidm:minMaxReactiveLimits minQ="-9900.0009765625" maxQ="9900.0009765625"/>
+                <iidm:voltageRegulation targetValue="18.719999313354492"/>
             </iidm:generator>
             <iidm:generator id="sym_2_1" energySource="OTHER" minP="0.0" maxP="1404.0" voltageRegulatorOn="true" targetP="1404.0" targetV="18.719999313354492" targetQ="0.0" node="4">
                 <iidm:minMaxReactiveLimits minQ="-9900.0009765625" maxQ="9900.0009765625"/>
+                <iidm:voltageRegulation targetValue="18.719999313354492"/>
             </iidm:generator>
             <iidm:generator id="sym_3_1" energySource="OTHER" minP="0.0" maxP="800.0" voltageRegulatorOn="true" targetP="800.0" targetV="18.359999656677246" targetQ="0.0" node="8">
                 <iidm:minMaxReactiveLimits minQ="-9900.00390625" maxQ="9900.00390625"/>
+                <iidm:voltageRegulation targetValue="18.359999656677246"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL35" nominalV="500.0" topologyKind="NODE_BREAKER">
@@ -53,6 +56,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_6_1" energySource="OTHER" minP="0.0" maxP="9796.6845703125" voltageRegulatorOn="true" targetP="9796.6845703125" targetV="500.0" targetQ="0.0" node="16">
                 <iidm:minMaxReactiveLimits minQ="-9900.0" maxQ="9900.0"/>
+                <iidm:voltageRegulation targetValue="500.0"/>
             </iidm:generator>
             <iidm:load id="lod_4_1" loadType="UNDEFINED" p0="1400.0" q0="100.0" node="2"/>
             <iidm:load id="lod_5_1" loadType="UNDEFINED" p0="2000.0" q0="100.0" node="8"/>

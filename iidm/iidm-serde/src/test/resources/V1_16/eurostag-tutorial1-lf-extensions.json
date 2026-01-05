@@ -44,6 +44,9 @@
         "minMaxReactiveLimits" : {
           "minQ" : -9999.99,
           "maxQ" : 9999.99
+        },
+        "voltageRegulation" : {
+          "targetValue" : 24.5
         }
       } ]
     }, {
