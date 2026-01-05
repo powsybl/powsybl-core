@@ -7,6 +7,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-1" energySource="OTHER" minP="0.0" maxP="98.5" ratedS="100.0" voltageRegulatorOn="true" targetP="71.64102" targetV="1.04" targetQ="27.04592" bus="BUS-1" connectableBus="BUS-1">
                 <iidm:minMaxReactiveLimits minQ="-99990.0" maxQ="999900.0"/>
+                <iidm:voltageRegulation targetValue="1.04"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -17,6 +18,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-2" energySource="OTHER" minP="0.0" maxP="263.0" ratedS="100.0" voltageRegulatorOn="true" targetP="163.0" targetV="1.025" targetQ="6.65366" bus="BUS-2" connectableBus="BUS-2">
                 <iidm:minMaxReactiveLimits minQ="-99990.0" maxQ="999900.0"/>
+                <iidm:voltageRegulation targetValue="1.025"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -27,6 +29,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-3" energySource="OTHER" minP="0.0" maxP="185.0" ratedS="100.0" voltageRegulatorOn="true" targetP="85.0" targetV="1.025" targetQ="-10.8597" bus="BUS-3" connectableBus="BUS-3">
                 <iidm:minMaxReactiveLimits minQ="-99990.0" maxQ="999900.0"/>
+                <iidm:voltageRegulation targetValue="1.025"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

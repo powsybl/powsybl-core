@@ -56,18 +56,21 @@
                     <iidm:point p="0.0" minQ="-769.3" maxQ="860.0"/>
                     <iidm:point p="100.0" minQ="-864.55" maxQ="946.25"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation targetValue="400.0"/>
             </iidm:generator>
             <iidm:generator id="GH2" energySource="HYDRO" minP="0.0" maxP="200.0" voltageRegulatorOn="true" targetP="90.0" targetV="400.0" targetQ="512.081" node="9" p="-90.0" q="-512.0814">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-556.8" maxQ="557.4"/>
                     <iidm:point p="200.0" minQ="-553.514" maxQ="536.4"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation targetValue="400.0"/>
             </iidm:generator>
             <iidm:generator id="GH3" energySource="HYDRO" minP="0.0" maxP="200.0" voltageRegulatorOn="true" targetP="155.714" targetV="400.0" targetQ="512.081" node="11" p="-155.714" q="-512.0814">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-680.6" maxQ="688.1"/>
                     <iidm:point p="200.0" minQ="-681.725" maxQ="716.3500004"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation targetValue="400.0"/>
             </iidm:generator>
             <iidm:load id="LD2" loadType="UNDEFINED" p0="60.0" q0="5.0" node="13" p="60.0" q="5.0"/>
             <iidm:load id="LD3" loadType="UNDEFINED" p0="60.0" q0="5.0" node="15" p="60.0" q="5.0"/>
@@ -151,6 +154,7 @@
                     <iidm:point p="0.0" minQ="-76.8" maxQ="77.4"/>
                     <iidm:point p="100.0" minQ="-73.514" maxQ="76.4"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation targetValue="400.0"/>
             </iidm:generator>
             <iidm:vscConverterStation id="VSC2" name="VSC2" voltageRegulatorOn="false" lossFactor="1.1" voltageSetpoint="0.0" reactivePowerSetpoint="120.0" node="4" p="-9.89" q="-120.0">
                 <iidm:minMaxReactiveLimits minQ="-400.0" maxQ="500.0"/>
@@ -178,6 +182,7 @@
                     <iidm:point p="0.0" minQ="-169.3" maxQ="200.0"/>
                     <iidm:point p="400.0" minQ="-174.55" maxQ="176.25"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation targetValue="400.0"/>
             </iidm:generator>
             <iidm:load id="LD5" loadType="UNDEFINED" p0="200.0" q0="5.0" node="4" p="200.0" q="5.0"/>
             <iidm:lccConverterStation id="LCC2" name="LCC2" lossFactor="1.1" powerFactor="0.6" node="10" p="-79.12"/>

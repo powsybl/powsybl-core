@@ -7,6 +7,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="B101-G1" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.0" targetQ="0.0" bus="B101" connectableBus="B101">
                 <iidm:minMaxReactiveLimits minQ="-9999.0" maxQ="9999.0"/>
+                <iidm:voltageRegulation targetValue="1.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

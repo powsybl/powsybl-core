@@ -44,9 +44,11 @@
             </iidm:nodeBreakerTopology>
             <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="6">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation/>
             </iidm:generator>
             <iidm:generator id="gen2" name="gen2" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="10">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation/>
             </iidm:generator>
             <iidm:load id="load1" name="load1" loadType="UNDEFINED" p0="10.0" q0="10.0" node="4"/>
             <iidm:load id="load2" name="load2" loadType="UNDEFINED" p0="10.0" q0="10.0" node="8"/>
@@ -79,6 +81,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:generator id="gen4" name="gen4" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="4">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation/>
             </iidm:generator>
             <iidm:load id="load3" name="load3" loadType="UNDEFINED" p0="10.0" q0="10.0" node="2"/>
         </iidm:voltageLevel>

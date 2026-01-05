@@ -43,11 +43,14 @@ public final class VoltageRegulationSerDe {
 
     private static void writeVoltageRegulationAttribute(VoltageRegulation voltageRegulation, TreeDataWriter writer) {
         writer.writeDoubleAttribute(TARGET_VALUE, voltageRegulation.getTargetValue());
-        writer.writeDoubleAttribute(TARGET_DEADBAND, voltageRegulation.getTargetDeadband());
-        writer.writeDoubleAttribute(SLOPE, voltageRegulation.getSlope());
-        writer.writeBooleanAttribute(REGULATING, voltageRegulation.isRegulating());
+//        writer.writeDoubleAttribute(TARGET_DEADBAND, voltageRegulation.getTargetDeadband());
+//        writer.writeDoubleAttribute(SLOPE, voltageRegulation.getSlope());
+//        writer.writeBooleanAttribute(REGULATING, voltageRegulation.isRegulating());
     }
 
     public static void readVoltageRegulation(VoltageRegulationHolder holder, NetworkDeserializerContext context) {
+        Double targetValue = context.getReader().readDoubleAttribute(TARGET_VALUE);
+        holder.getVoltageRegulation().setTargetValue(targetValue);
+        context.getReader().readEndNode();
     }
 }
