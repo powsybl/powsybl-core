@@ -24,14 +24,14 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class BoundaryLineCriterionTest {
+class BoundaryLineCriterionTest {
     private static NetworkElement danglingLine1;
     private static NetworkElement danglingLine2;
     private static NetworkElement danglingLine3;
     private static NetworkElement danglingLine4;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         danglingLine1 = createBoundaryLine("danglingLine1", Country.FR, 90);
         danglingLine2 = createBoundaryLine("danglingLine2", Country.FR, 400);
         danglingLine3 = createBoundaryLine("danglingLine3", Country.BE, 400);
