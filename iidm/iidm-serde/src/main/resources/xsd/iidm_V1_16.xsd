@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--~
-  ~ Copyright (c) 2025, RTE (http://www.rte-france.com)
+  ~ Copyright (c) 2026, RTE (http://www.rte-france.com)
   ~ This Source Code Form is subject to the terms of the Mozilla Public
   ~ License, v. 2.0. If a copy of the MPL was not distributed with this
   ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
   ~ SPDX-License-Identifier: MPL-2.0
   -->
-<xs:schema version="1.15"
+<xs:schema version="1.16"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16"
            targetNamespace="http://www.powsybl.org/schema/iidm/1_16"
