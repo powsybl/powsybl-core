@@ -7,6 +7,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="false" targetP="232.392" targetV="146.28" targetQ="-16.549" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+                <iidm:voltageRegulation targetValue="146.28"/>
             </iidm:generator>
             <iidm:vscConverterStation id="VscConverter-1-VSC         " voltageRegulatorOn="true" lossFactor="9.9999E-4" voltageSetpoint="138.0" reactivePowerSetpoint="0.0" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="-250.0" maxQ="300.0"/>

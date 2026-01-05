@@ -10,6 +10,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:generator id="g1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="10.0" targetV="400.0" node="0">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation targetValue="400.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

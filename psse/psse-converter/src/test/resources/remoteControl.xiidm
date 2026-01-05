@@ -7,6 +7,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="B1-G1" energySource="OTHER" minP="0.0" maxP="464.8" voltageRegulatorOn="false" targetP="180.52" targetV="243.8" targetQ="-2.21" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+                <iidm:voltageRegulation targetValue="243.8"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -17,6 +18,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="B2-G1" energySource="OTHER" minP="0.0" maxP="80.0" voltageRegulatorOn="true" targetP="40.0" targetV="240.35" targetQ="23.74" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="50.0"/>
+                <iidm:voltageRegulation targetValue="240.35"/>
             </iidm:generator>
             <iidm:load id="B2-L1" loadType="UNDEFINED" p0="21.7" q0="12.7" bus="B2" connectableBus="B2"/>
         </iidm:voltageLevel>
@@ -28,6 +30,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="B3-G1" energySource="OTHER" minP="0.0" maxP="-0.0" voltageRegulatorOn="true" targetP="0.0" targetV="232.3" targetQ="4.31" bus="B3" connectableBus="B3">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="40.0"/>
+                <iidm:voltageRegulation targetValue="232.3"/>
             </iidm:generator>
             <iidm:load id="B3-L1" loadType="UNDEFINED" p0="94.2" q0="19.0" bus="B3" connectableBus="B3"/>
         </iidm:voltageLevel>
@@ -121,6 +124,7 @@
             <iidm:generator id="B6-G1" energySource="OTHER" minP="0.0" maxP="-0.0" voltageRegulatorOn="true" targetP="0.0" targetV="232.3" targetQ="-89.0" bus="B6" connectableBus="B6">
                 <iidm:regulatingTerminal id="B5-L1"/>
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="24.0"/>
+                <iidm:voltageRegulation targetValue="232.3"/>
             </iidm:generator>
             <iidm:load id="B6-L1" loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B6" connectableBus="B6"/>
         </iidm:voltageLevel>

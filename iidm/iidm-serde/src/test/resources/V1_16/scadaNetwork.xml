@@ -10,6 +10,7 @@
                     <iidm:point p="0.0" minQ="0.0" maxQ="0.0"/>
                     <iidm:point p="10.0" minQ="5.0" maxQ="15.0"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation/>
             </iidm:generator>
             <iidm:battery id="battery" minP="0.0" maxP="100.0" bus="bus" connectableBus="bus">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>

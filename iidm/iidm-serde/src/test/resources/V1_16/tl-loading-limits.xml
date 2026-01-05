@@ -10,6 +10,7 @@
                             targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN"
                             p="-605.558349609375" q="-225.2825164794922">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+                <iidm:voltageRegulation targetValue="24.5"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VLHV1" nominalV="380.0" topologyKind="BUS_BREAKER">

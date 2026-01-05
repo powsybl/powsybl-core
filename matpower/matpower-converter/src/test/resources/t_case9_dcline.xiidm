@@ -7,6 +7,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-1" energySource="OTHER" minP="90.0" maxP="250.0" ratedS="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.0" targetQ="0.0" bus="BUS-1" connectableBus="BUS-1">
                 <iidm:minMaxReactiveLimits minQ="-300.0" maxQ="300.0"/>
+                <iidm:voltageRegulation targetValue="1.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -20,6 +21,7 @@
                     <iidm:point p="0.0" minQ="-20.0" maxQ="20.0"/>
                     <iidm:point p="200.0" minQ="-10.0" maxQ="10.0"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation targetValue="1.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -33,6 +35,7 @@
                     <iidm:point p="0.0" minQ="-30.0" maxQ="30.0"/>
                     <iidm:point p="200.0" minQ="-15.0" maxQ="15.0"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation targetValue="1.0"/>
             </iidm:generator>
             <iidm:vscConverterStation id="CS1-30-4" voltageRegulatorOn="true" lossFactor="10.0" voltageSetpoint="1.01" bus="BUS-30" connectableBus="BUS-30">
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="10.0"/>

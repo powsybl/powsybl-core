@@ -7,6 +7,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="B1-G1 " energySource="OTHER" minP="0.0" maxP="900.0" voltageRegulatorOn="true" targetP="745.861" targetV="20.0" targetQ="143.612" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="600.0"/>
+                <iidm:voltageRegulation targetValue="20.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL5" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -23,6 +24,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="B2-G1 " energySource="OTHER" minP="0.0" maxP="900.0" voltageRegulatorOn="false" targetP="700.0" targetV="20.0" targetQ="300.0" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="300.0" maxQ="300.0"/>
+                <iidm:voltageRegulation targetValue="20.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL6" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -39,6 +41,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="B3-G1 " energySource="OTHER" minP="0.0" maxP="900.0" voltageRegulatorOn="false" targetP="700.0" targetV="20.0" targetQ="550.0" bus="B3" connectableBus="B3">
                 <iidm:minMaxReactiveLimits minQ="550.0" maxQ="550.0"/>
+                <iidm:voltageRegulation targetValue="20.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL9" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -55,6 +58,7 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="B4-G1 " energySource="OTHER" minP="0.0" maxP="2000.0" voltageRegulatorOn="false" targetP="700.0" targetV="20.0" targetQ="-100.0" bus="B4" connectableBus="B4">
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="-100.0"/>
+                <iidm:voltageRegulation targetValue="20.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL10" nominalV="230.0" topologyKind="BUS_BREAKER">

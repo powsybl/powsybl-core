@@ -45,12 +45,15 @@
             </iidm:nodeBreakerTopology>
             <iidm:generator id="GEN_1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="31">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation targetValue="400.0"/>
             </iidm:generator>
             <iidm:generator id="GEN_2" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="41">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation targetValue="400.0"/>
             </iidm:generator>
             <iidm:generator id="GEN_3" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="51">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation targetValue="400.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

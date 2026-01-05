@@ -356,6 +356,9 @@
             "minQ" : -54.55,
             "maxQ" : 46.25
           } ]
+        },
+        "voltageRegulation" : {
+          "targetValue" : 0.0
         }
       }, {
         "id" : "CC",
@@ -377,6 +380,9 @@
             "minQ" : -53.514,
             "maxQ" : 36.4
           } ]
+        },
+        "voltageRegulation" : {
+          "targetValue" : 0.0
         }
       }, {
         "id" : "CD",
@@ -400,6 +406,9 @@
             "minQ" : -21.725,
             "maxQ" : 6.3500004
           } ]
+        },
+        "voltageRegulation" : {
+          "targetValue" : 236.44736
         }
       } ],
       "loads" : [ {

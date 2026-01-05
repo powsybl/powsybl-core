@@ -50,8 +50,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         if (g != g.getRegulatingTerminal().getConnectable()) {
             TerminalRefSerDe.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
-//        VoltageRegulationSerDe.writeVoltageRegulation(g.getVoltageRegulation(), context);
         ReactiveLimitsSerDe.INSTANCE.write(g, context);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> VoltageRegulationSerDe.writeVoltageRegulation(g.getVoltageRegulation(), context));
     }
 
     @Override
@@ -95,6 +95,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case "regulatingTerminal" -> TerminalRefSerDe.readTerminalRef(context, g.getNetwork(), g::setRegulatingTerminal);
+                case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(g, context);
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(g, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(g, context);
                 default -> readSubElement(elementName, g, context);

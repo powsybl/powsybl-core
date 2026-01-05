@@ -251,6 +251,7 @@
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                 </xs:sequence>
                 <xs:attribute name="energySource" use="required" type="iidm:EnergySource"/>
                 <xs:attribute name="maxP" use="required" type="xs:double"/>
@@ -653,6 +654,9 @@
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="side" use="optional" type="iidm:Side"/>
         <xs:attribute name="number" use="optional" type="iidm:TerminalNumber"/>
+    </xs:complexType>
+    <xs:complexType name="VoltageRegulation">
+        <xs:attribute name="targetValue" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="RatioTapChangerStep">
         <xs:attribute name="rho" use="required" type="xs:double"/>

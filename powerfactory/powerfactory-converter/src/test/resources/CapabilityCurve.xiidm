@@ -18,6 +18,7 @@
                     <iidm:point p="405.0" minQ="-100.0" maxQ="196.15049743652344"/>
                     <iidm:point p="450.0" minQ="-80.0" maxQ="0.0"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation targetValue="423.9999771118164"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
