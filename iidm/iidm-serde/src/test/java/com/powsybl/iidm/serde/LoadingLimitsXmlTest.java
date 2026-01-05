@@ -104,35 +104,35 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     @Test
     void testTieLine() throws IOException {
         Network network = NetworkSerDe.read(getVersionedNetworkAsStream("tieline.xml", CURRENT_IIDM_VERSION));
-//        TieLine tl = network.getTieLine("NHV1_NHV2_1");
-//        OperationalLimitsGroup operationalLimitsGroup1 = tl.getOrCreateSelectedOperationalLimitsGroup1();
-//        OperationalLimitsGroup operationalLimitsGroup2 = tl.getOrCreateSelectedOperationalLimitsGroup2();
-//        createLoadingLimits(operationalLimitsGroup1::newActivePowerLimits);
-//        createLoadingLimits(operationalLimitsGroup2::newActivePowerLimits);
-//        createLoadingLimits(operationalLimitsGroup1::newApparentPowerLimits);
-//        createLoadingLimits(operationalLimitsGroup2::newApparentPowerLimits);
-//        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
-//        createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
-//        allFormatsRoundTripTest(network, "tl-loading-limits.xml", CURRENT_IIDM_VERSION);
-//
-//        // backward compatibility from version 1.5
-//        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmVersion.V_1_5);
-//
-//        // check that it fails for versions previous to 1.5
-//        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
-//            try {
-//                ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-//                NetworkSerDe.write(network, options, tmpDir.resolve("fail"));
-//                fail();
-//            } catch (PowsyblException e) {
-//                assertEquals("tieLine.activePowerLimits1 is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
-//                        e.getMessage());
-//            }
-//        });
-//
-//        // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
-//        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-//        testWriteXmlAllPreviousVersions(network, options, "tl-loading-limits.xml", IidmVersion.V_1_5);
+        TieLine tl = network.getTieLine("NHV1_NHV2_1");
+        OperationalLimitsGroup operationalLimitsGroup1 = tl.getOrCreateSelectedOperationalLimitsGroup1();
+        OperationalLimitsGroup operationalLimitsGroup2 = tl.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup1::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newActivePowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup2::newApparentPowerLimits);
+        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits);
+        createLoadingLimits(operationalLimitsGroup2::newCurrentLimits);
+        allFormatsRoundTripTest(network, "tl-loading-limits.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility from version 1.5
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmVersion.V_1_5);
+
+        // check that it fails for versions previous to 1.5
+        testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
+            try {
+                ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+                NetworkSerDe.write(network, options, tmpDir.resolve("fail"));
+                fail();
+            } catch (PowsyblException e) {
+                assertEquals("tieLine.activePowerLimits1 is not null and not supported for IIDM version " + version.toString(".") + ". IIDM version should be >= 1.5",
+                        e.getMessage());
+            }
+        });
+
+        // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
+        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
+        testWriteXmlAllPreviousVersions(network, options, "tl-loading-limits.xml", IidmVersion.V_1_5);
     }
 
     @Test
