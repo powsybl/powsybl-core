@@ -229,6 +229,103 @@ public abstract class AbstractTieLineTest {
     }
 
     @Test
+    public void setPairingKeyWithMultipleConnectedCandidatesTest() {
+        String pairingKey = "XNODE";
+
+        DanglingLine candidate1 = voltageLevelA.newDanglingLine()
+                .setId("DL_CANDIDATE_1")
+                .setBus("busA")
+                .setPairingKey(pairingKey)
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+
+        DanglingLine candidate2 = voltageLevelA.newDanglingLine()
+                .setId("DL_CANDIDATE_2")
+                .setBus("busA")
+                .setPairingKey(pairingKey)
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+
+        DanglingLine probeLine = voltageLevelB.newDanglingLine()
+                .setId("DL_PROBE")
+                .setBus("busB")
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+
+        probeLine.setPairingKey(pairingKey);
+
+        assertFalse(network.getTieLines().iterator().hasNext());
+        assertFalse(probeLine.isPaired());
+        assertFalse(candidate1.isPaired());
+        assertFalse(candidate2.isPaired());
+    }
+
+    @Test
+    public void setPairingKeyWithMultipleDisconnectedCandidatesTest() {
+        String pairingKey = "DISCONNECTED_KEY";
+
+        DanglingLine dlDisc1 = voltageLevelA.newDanglingLine()
+                .setId("DL_DISC_1")
+                .setBus("busA")
+                .setPairingKey(pairingKey)
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+        dlDisc1.getTerminal().disconnect();
+
+        DanglingLine dlDisc2 = voltageLevelA.newDanglingLine()
+                .setId("DL_DISC_2")
+                .setBus("busA")
+                .setPairingKey(pairingKey)
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+        dlDisc2.getTerminal().disconnect();
+
+        DanglingLine probeLine = voltageLevelB.newDanglingLine()
+                .setId("DL_PROBE")
+                .setBus("busB")
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+
+        probeLine.setPairingKey(pairingKey);
+
+        assertFalse(network.getTieLines().iterator().hasNext());
+    }
+
+    @Test
+    public void changePairingKeyTest() {
+
+        DanglingLine dl1 = voltageLevelA.newDanglingLine()
+                .setId("DL1")
+                .setBus("busA")
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .setPairingKey("KEY")
+                .add();
+
+        DanglingLine dl2 = voltageLevelB.newDanglingLine()
+                .setId("DL2")
+                .setBus("busB")
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .setPairingKey("KEY")
+                .add();
+
+        TieLine tieLine = network.newTieLine()
+                .setId("TIE1")
+                .setDanglingLine1(dl1.getId())
+                .setDanglingLine2(dl2.getId())
+                .add();
+
+        assertNotNull(network.getTieLine("TIE1"));
+        assertTrue(dl1.isPaired());
+        assertTrue(dl2.isPaired());
+
+        dl2.setPairingKey("newKey");
+
+        assertNull(network.getTieLine("TIE1"));
+        assertFalse(dl1.isPaired());
+        assertFalse(dl2.isPaired());
+    }
+
+    @Test
     public void setPairingKeyTest() {
         network = EurostagTutorialExample1Factory.createWithTieLine();
 

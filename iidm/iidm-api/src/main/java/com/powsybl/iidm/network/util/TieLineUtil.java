@@ -199,26 +199,25 @@ public final class TieLineUtil {
 
     public static DanglingLine chooseDanglingLine(String pairingKey, List<DanglingLine> connected, List<DanglingLine> disconnected, boolean doLog) {
         DanglingLine dl = null;
-        if (connected.isEmpty()) {
-            if (disconnected.size() == 1) {
-                dl = disconnected.get(0);
-            } else if (disconnected.size() > 1 && doLog) {
-                LOGGER.warn("Several disconnected dangling lines {} (and no connected one) of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
-                        disconnected.stream().map(DanglingLine::getId).toList(), pairingKey);
+        int candidates = connected.size() + disconnected.size();
+
+        if (candidates > 1) {
+            if (doLog) {
+                List<String> allCandidateIds = Stream.concat(connected.stream(), disconnected.stream())
+                        .map(DanglingLine::getId)
+                        .collect(Collectors.toList());
+                LOGGER.warn("Ambiguity detected: {} candidates found for pairing key '{}'. " +
+                                "No TieLine created to avoid inconsistency. Candidates: {}",
+                        candidates, pairingKey, allCandidateIds);
             }
-        } else if (connected.size() == 1) {
-            dl = connected.get(0);
-            if (!disconnected.isEmpty() && doLog) {
-                LOGGER.warn("Several dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
-                                "Only '{}' is considered (the only connected one)",
-                        Stream.concat(Stream.of(dl.getId()), disconnected.stream().map(DanglingLine::getId)).collect(Collectors.toList()),
-                        pairingKey, dl.getId());
-            }
-        } else if (doLog) {
-            LOGGER.warn("Several connected dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
-                    connected.stream().map(DanglingLine::getId).toList(), pairingKey);
+            return null;
         }
-        return dl;
+
+        if (candidates == 1) {
+            return connected.isEmpty() ? disconnected.getFirst() : connected.getFirst();
+        }
+
+        return null;
     }
 
     /**

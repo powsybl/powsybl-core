@@ -915,7 +915,7 @@ public abstract class AbstractMergeNetworkTest {
         // This test covers the case where the duplicate pairing key is in the CURRENT network.
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
-        addDanglingLine(n2, "vl2", "dl3", "code", "b2", null);
+        addDanglingLine(n2, "vl2", "dl3", "code2", "b2", null);
         Network merge = Network.merge(n1, n2);
         // Since n2 has ONLY ONE connected dangling line with the pairing key, the tie line is created
         assertNotNull(merge.getTieLine("dl1 + dl2"));
