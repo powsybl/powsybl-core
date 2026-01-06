@@ -23,6 +23,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL2;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,8 +35,6 @@ class AcDcConversionTest extends AbstractSerDeTest {
 
     private static final String DIR = "/issues/hvdc/";
     private static final Properties IMPORT_PARAMS = new Properties();
-    private static final String ALIAS_TERMINAL1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
-    private static final String ALIAS_TERMINAL2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2;
     private static final String ALIAS_DC_TERMINAL1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1;
     private static final String ALIAS_DC_TERMINAL2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL2;
 

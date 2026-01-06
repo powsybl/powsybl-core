@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.getDefaultIsOpen;
 
 /**
@@ -81,9 +82,9 @@ public final class TerminalConversion {
 
     private static int getNode(Switch sw, String terminalId) {
         String aliasType = sw.getAliasType(terminalId).orElse("");
-        if (aliasType.equals(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1)) {
+        if (ALIAS_TERMINAL1.equals(aliasType)) {
             return sw.getVoltageLevel().getNodeBreakerView().getNode1(sw.getId());
-        } else if (aliasType.equals(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2)) {
+        } else if (ALIAS_TERMINAL2.equals(aliasType)) {
             return sw.getVoltageLevel().getNodeBreakerView().getNode2(sw.getId());
         } else {
             throw new PowsyblException("Unexpected terminal " + terminalId + " in the switch " + sw.getId());
@@ -167,10 +168,10 @@ public final class TerminalConversion {
         String aliasType = connectable.getAliasType(terminalId).orElse("");
         return switch (aliasType) {
             case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL,
-                 Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1 -> connectable.getTerminals().get(0);
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2 -> connectable.getTerminals().get(1);
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 3 -> connectable.getTerminals().get(2);
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY -> null;
+                 ALIAS_TERMINAL1 -> connectable.getTerminals().get(0);
+            case ALIAS_TERMINAL2 -> connectable.getTerminals().get(1);
+            case ALIAS_TERMINAL3 -> connectable.getTerminals().get(2);
+            case ALIAS_TERMINAL_BOUNDARY -> null;
             default -> throw new PowsyblException("Unexpected terminal " + terminalId + " in the connectable " + connectable.getId());
         };
     }

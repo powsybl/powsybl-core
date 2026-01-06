@@ -44,7 +44,6 @@ public class CgmesExportContext {
 
     private static final String GENERATING_UNIT = "GeneratingUnit";
 
-    private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final String DEFAULT_REGION = "default region";
     private static final String BOUNDARY_EQ_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_BD_ID";
     private static final String BOUNDARY_TP_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
@@ -253,7 +252,6 @@ public class CgmesExportContext {
         // TODO add option to skip this part (if from CGMES)
         addIidmMappingsSubstations(network);
         addIidmMappingsBaseVoltages(network);
-        addIidmMappingsTerminals(network);
         addIidmMappingsDcTerminals(network);
         addIidmMappingsGenerators(network);
         addIidmMappingsBatteries(network);
@@ -341,19 +339,8 @@ public class CgmesExportContext {
             });
     }
 
-    private void addIidmMappingsTerminals(Network network) {
-        for (Connectable<?> c : network.getConnectables()) {
-            if (isExportedEquipment(c)) {
-                for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c);
-                }
-            }
-        }
-        addIidmMappingsSwitchTerminals(network);
-        addIidmMappingsHvdcTerminals(network);
-    }
-
     private void addIidmMappingsDcTerminals(Network network) {
+        addIidmMappingsHvdcTerminals(network);
         for (DcConnectable<?> c : network.getDcConnectables()) {
             if (isExportedEquipment(c)) {
                 for (DcTerminal t : c.getDcTerminals()) {
@@ -387,13 +374,6 @@ public class CgmesExportContext {
         return !ignored;
     }
 
-    private void addIidmMappingsSwitchTerminals(Network network) {
-        for (Switch sw : network.getSwitches()) {
-            addCgmesIdIfAbsent(sw, CgmesNames.TERMINAL, TERMINAL, 1);
-            addCgmesIdIfAbsent(sw, CgmesNames.TERMINAL, TERMINAL, 2);
-        }
-    }
-
     private void addIidmMappingsHvdcTerminals(Network network) {
         for (HvdcLine line : network.getHvdcLines()) {
             addCgmesIdIfAbsent(line, CgmesNames.DC_TERMINAL, TERMINAL, 1);
@@ -402,31 +382,6 @@ public class CgmesExportContext {
             addCgmesIdIfAbsent(line.getConverterStation1(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 2);
             addCgmesIdIfAbsent(line.getConverterStation2(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 1);
             addCgmesIdIfAbsent(line.getConverterStation2(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 2);
-        }
-    }
-
-    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
-        if (c instanceof DanglingLine) {
-            String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
-            if (terminalId == null) {
-                // Legacy: in previous versions, dangling line terminals were recorded in a different alias
-                // read it, remove it and store in the standard alias for equipment terminal (Terminal1)
-                terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
-                if (terminalId != null) {
-                    c.removeAlias(terminalId);
-                } else {
-                    terminalId = namingStrategy.getCgmesId(refTyped(c), TERMINAL);
-                }
-                c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
-            }
-            String boundaryId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
-            if (boundaryId == null) {
-                boundaryId = namingStrategy.getCgmesId(refTyped(c), BOUNDARY_TERMINAL);
-                c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
-            }
-        } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
-            addCgmesIdIfAbsent(c, CgmesNames.TERMINAL, TERMINAL, sequenceNumber);
         }
     }
 

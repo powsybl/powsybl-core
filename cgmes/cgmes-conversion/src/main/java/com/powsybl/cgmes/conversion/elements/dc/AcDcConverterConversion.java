@@ -18,6 +18,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.dc.AbstractDCConductingEquipmentConversion.isDcTerminalConnected;
 import static com.powsybl.cgmes.model.CgmesNames.VS_CONVERTER;
 
@@ -160,10 +161,10 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     private void addAliasesAndProperties(AcDcConverter<?> converter) {
         if (numberOfAcTerminals == 1) {
-            converter.addAlias(p.getId(CgmesNames.TERMINAL), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, context.config().isEnsureIdAliasUnicity());
+            converter.addAlias(p.getId(CgmesNames.TERMINAL), ALIAS_TERMINAL1, context.config().isEnsureIdAliasUnicity());
         } else {
-            converter.addAlias(p.getId(CgmesNames.TERMINAL1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, context.config().isEnsureIdAliasUnicity());
-            converter.addAlias(p.getId(CgmesNames.TERMINAL2), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, context.config().isEnsureIdAliasUnicity());
+            converter.addAlias(p.getId(CgmesNames.TERMINAL1), ALIAS_TERMINAL1, context.config().isEnsureIdAliasUnicity());
+            converter.addAlias(p.getId(CgmesNames.TERMINAL2), ALIAS_TERMINAL2, context.config().isEnsureIdAliasUnicity());
         }
         converter.addAlias(p.getId(CgmesNames.DC_TERMINAL1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1, context.config().isEnsureIdAliasUnicity());
         converter.addAlias(p.getId(CgmesNames.DC_TERMINAL2), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL2, context.config().isEnsureIdAliasUnicity());
