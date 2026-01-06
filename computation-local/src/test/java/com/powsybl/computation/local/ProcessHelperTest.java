@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -41,12 +42,8 @@ class ProcessHelperTest {
 
     @Test
     void testIllegalTimeout() {
-        try {
-            ProcessHelper.runWithTimeout(-1, process);
-            fail();
-        } catch (Exception e) {
-            assertEquals("negative timeout: -1", e.getMessage());
-        }
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ProcessHelper.runWithTimeout(-1, process));
+        assertEquals("negative timeout: -1", exception.getMessage());
     }
 
     @Test
