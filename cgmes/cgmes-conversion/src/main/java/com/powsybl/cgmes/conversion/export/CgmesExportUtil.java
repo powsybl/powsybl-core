@@ -35,9 +35,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
-import static com.powsybl.cgmes.model.CgmesNames.*;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -290,16 +290,14 @@ public final class CgmesExportUtil {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
             return 1;
+        } else if (c instanceof Branch<?> branch) {
+            return branch.getSide(t).getNum();
+        } else if (c instanceof ThreeWindingsTransformer twt) {
+            return twt.getSide(t).getNum();
+        } else if (c instanceof AcDcConverter<?> converter) {
+            return converter.getTerminalNumber(t).getNum();
         } else {
-            if (c instanceof Branch<?> branch) {
-                return branch.getSide(t).getNum();
-            } else if (c instanceof ThreeWindingsTransformer twt) {
-                return twt.getSide(t).getNum();
-            } else if (c instanceof AcDcConverter<?> converter) {
-                return converter.getTerminalNumber(t).getNum();
-            } else {
-                throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
-            }
+            throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
         }
     }
 
@@ -307,14 +305,12 @@ public final class CgmesExportUtil {
         DcConnectable<?> c = t.getDcConnectable();
         if (c.getDcTerminals().size() == 1) {
             return 1;
+        } else if (c instanceof DcLine dcl) {
+            return dcl.getSide(t).getNum();
+        } else if (c instanceof AcDcConverter<?> converter) {
+            return converter.getTerminalNumber(t).getNum();
         } else {
-            if (c instanceof DcLine dcl) {
-                return dcl.getSide(t).getNum();
-            } else if (c instanceof AcDcConverter<?> converter) {
-                return converter.getTerminalNumber(t).getNum();
-            } else {
-                throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
-            }
+            throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
         }
     }
 
@@ -412,18 +408,29 @@ public final class CgmesExportUtil {
         };
     }
 
+    public static String getTerminalAliasType(String endNumber) {
+        return switch (endNumber) {
+            case "1" -> ALIAS_TERMINAL1;
+            case "2" -> ALIAS_TERMINAL2;
+            case "3" -> ALIAS_TERMINAL3;
+            default -> throw new IllegalStateException("Unexpected terminal end number: " + endNumber);
+        };
+    }
+
     public static String getTerminalId(Terminal t, CgmesExportContext context) {
-        String aliasType;
-        Connectable<?> c = t.getConnectable();
-        // For dangling lines terminal id is always stored at TERMINAL1 alias,
-        // it doesn't matter if it is paired or not
-        if (c instanceof DanglingLine) {
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
-        } else {
-            int sequenceNumber = getTerminalSequenceNumber(t);
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
-        }
-        return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
+        int sequenceNumber = getTerminalSequenceNumber(t);
+        String aliasType = switch (sequenceNumber) {
+            case 1 -> ALIAS_TERMINAL1;
+            case 2 -> ALIAS_TERMINAL2;
+            case 3 -> ALIAS_TERMINAL3;
+            default -> throw new IllegalStateException("Unexpected sequence number: " + sequenceNumber);
+        };
+        return context.getNamingStrategy().getCgmesIdFromAlias(t.getConnectable(), aliasType);
+    }
+
+    public static String getDcTerminalId(DcTerminal dcTerminal, CgmesExportContext context) {
+        String aliasType = getDcTerminalSequenceNumber(dcTerminal) == 1 ? ALIAS_DC_TERMINAL1 : ALIAS_DC_TERMINAL2;
+        return context.getNamingStrategy().getCgmesIdFromAlias(dcTerminal.getDcConnectable(), aliasType);
     }
 
     public static List<DanglingLine> getBoundaryDanglingLines(Network network) {

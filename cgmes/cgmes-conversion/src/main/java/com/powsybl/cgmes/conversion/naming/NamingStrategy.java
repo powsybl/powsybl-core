@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.naming;
 
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
@@ -53,11 +54,22 @@ public interface NamingStrategy {
             case ALIAS_RATIO_TAP_CHANGER1 -> new CgmesObjectReference[] {refTyped(identifiable), RATIO_TAP_CHANGER, ref(1)};
             case ALIAS_RATIO_TAP_CHANGER2 -> new CgmesObjectReference[] {refTyped(identifiable), RATIO_TAP_CHANGER, ref(2)};
             case ALIAS_RATIO_TAP_CHANGER3 -> new CgmesObjectReference[] {refTyped(identifiable), RATIO_TAP_CHANGER, ref(3)};
+            case ALIAS_TERMINAL_BOUNDARY -> new CgmesObjectReference[] {refTyped(identifiable), BOUNDARY_TERMINAL};
+            case ALIAS_TERMINAL1 -> getTerminal1References(identifiable);
+            case ALIAS_TERMINAL2 -> new CgmesObjectReference[] {refTyped(identifiable), TERMINAL, ref(2)};
+            case ALIAS_TERMINAL3 -> new CgmesObjectReference[] {refTyped(identifiable), TERMINAL, ref(3)};
             case ALIAS_TRANSFORMER_END1 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(1))};
             case ALIAS_TRANSFORMER_END2 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(2))};
             case ALIAS_TRANSFORMER_END3 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(3))};
             default -> throw new IllegalStateException("Unexpected value: " + aliasOrProperty);
         };
+    }
+
+    private CgmesObjectReference[] getTerminal1References(Identifiable<?> identifiable) {
+        if (identifiable instanceof DanglingLine) {
+            return new CgmesObjectReference[] {refTyped(identifiable), TERMINAL};
+        }
+        return new CgmesObjectReference[] {refTyped(identifiable), TERMINAL, ref(1)};
     }
 
     final class Identity implements NamingStrategy {
