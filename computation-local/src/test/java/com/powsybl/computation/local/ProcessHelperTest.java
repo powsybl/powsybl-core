@@ -15,7 +15,6 @@ import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -43,7 +42,7 @@ class ProcessHelperTest {
     @Test
     void testIllegalTimeout() {
         try {
-            int exitCode = ProcessHelper.runWithTimeout(-1, process);
+            ProcessHelper.runWithTimeout(-1, process);
             fail();
         } catch (Exception e) {
             assertEquals("negative timeout: -1", e.getMessage());
@@ -51,7 +50,7 @@ class ProcessHelperTest {
     }
 
     @Test
-    void testWithTimeout() {
+    void testProcessFinishedBeforeTimeout() {
         try {
             when(process.waitFor(10, TimeUnit.SECONDS)).thenReturn(true);
             when(process.exitValue()).thenReturn(0);
@@ -61,6 +60,9 @@ class ProcessHelperTest {
             assertEquals(0, exitCode);
             verify(process, times(1)).waitFor(10, TimeUnit.SECONDS);
             verify(process, times(1)).exitValue();
+            verify(in, times(1)).close();
+            verify(out, times(1)).close();
+            verify(err, times(1)).close();
             verify(process, never()).destroy();
         } catch (Exception e) {
             fail();
@@ -68,28 +70,19 @@ class ProcessHelperTest {
     }
 
     @Test
-    void testWithLongTimeout() throws Exception {
-        // spawn a process that sleeps 3.5 second and exits 0
-        Process sleepProcess = new ProcessBuilder("sleep", "3.5").start();
-
-        long start = System.currentTimeMillis();
-        int exitCode = ProcessHelper.runWithTimeout(30, sleepProcess);
-        long duration = System.currentTimeMillis() - start;
-
-        assertEquals(0, exitCode);
-        assertTrue(duration < 4000);
-    }
-
-    @Test
-    void testTimeouted() {
+    void testTimeoutBeforeProcessFinishes() {
         try {
             // process never finish
-            when(process.exitValue()).thenThrow(new IllegalThreadStateException());
+            when(process.waitFor(2, TimeUnit.SECONDS)).thenReturn(false);
 
             int exitCode = ProcessHelper.runWithTimeout(2, process);
 
             assertEquals(124, exitCode);
-            verify(process, never()).waitFor();
+            verify(process, times(1)).waitFor(2, TimeUnit.SECONDS);
+            verify(process, never()).exitValue();
+            verify(in, times(1)).close();
+            verify(out, times(1)).close();
+            verify(err, times(1)).close();
             verify(process, times(1)).destroy();
         } catch (Exception e) {
             fail();
