@@ -206,7 +206,6 @@ class HvdcConversionTest extends AbstractSerDeTest {
         //   - Some connections are missing so that there is 2 DCIsland.
         //     o The biggest island has a 1 converter / 1 dc line / 2 converters configuration.
         //     o The smallest island has a 1 converter / 1 dc line configuration.
-        //   - There are different converter types on each side of the bipole.
         //   - There is a completely isolated dc switch.
         // IIDM network:
         //   Neither HvdcConverterStation nor HvdcLine are created when DCConfiguration is invalid.
@@ -229,8 +228,6 @@ class HvdcConversionTest extends AbstractSerDeTest {
         assertTrue(logs.contains("DCEquipment DCSW is discarded as it couldn't be attached to any DCIsland."));
         assertTrue(logs.contains("DCIsland made of ACDCConverters: CSC_1N, CSC_1P, VSC_2P has a POINT_TO_POINT configuration " +
                 "but doesn't have the same number of converters of same type on each side."));
-        assertTrue(logs.contains("DCLineSegment: DCL_12N is not in 2 DCIslandEnd."));
-        assertTrue(logs.contains("DCIsland made of ACDCConverters: VSC_2N has unsupported BACK_TO_BACK DCConfiguration."));
     }
 
     @Test

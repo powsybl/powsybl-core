@@ -89,20 +89,60 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     TimeSeriesDataType getDataType();
 
     /**
-     * Get a point stream.
+     * Get a point stream. Defaults to {@link #uncompressedStream(TimeSeriesIndex)}
      *
      * @param index the time series index
      * @return a point stream
      */
-    Stream<P> stream(TimeSeriesIndex index);
+    default Stream<P> stream(TimeSeriesIndex index) {
+        return uncompressedStream(index);
+    }
 
     /**
-     * Get a point iterator.
+     * Get an uncompressed point stream (i.e., there will be as many elements in the stream as in the DataChunk).
+     *
+     * @param index the time series index
+     * @return a point stream
+     */
+    Stream<P> uncompressedStream(TimeSeriesIndex index);
+
+    /**
+     * Get a compressed point stream. The compression depends on the implementation. By default, there is no compression.
+     *
+     * @param index the time series index
+     * @return a point stream
+     */
+    default Stream<P> compressedStream(TimeSeriesIndex index) {
+        return uncompressedStream(index);
+    }
+
+    /**
+     * Get a point iterator. Defaults to {@link #uncompressedIterator(TimeSeriesIndex)}
      *
      * @param index the time series index
      * @return a point iterator
      */
-    Iterator<P> iterator(TimeSeriesIndex index);
+    default Iterator<P> iterator(TimeSeriesIndex index) {
+        return uncompressedIterator(index);
+    }
+
+    /**
+     * Get an uncompressed point iterator (i.e., there will be as many elements in the iterator as in the DataChunk).
+     *
+     * @param index the time series index
+     * @return a point iterator
+     */
+    Iterator<P> uncompressedIterator(TimeSeriesIndex index);
+
+    /**
+     * Get a compressed point iterator. The compression depends on the implementation. By default, there is no compression.
+     *
+     * @param index the time series index
+     * @return a point iterator
+     */
+    default Iterator<P> compressedIterator(TimeSeriesIndex index) {
+        return uncompressedIterator(index);
+    }
 
     /**
      * Try to compress the chunk.

@@ -146,13 +146,13 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
     }
 
     @Override
-    public Stream<StringPoint> stream(TimeSeriesIndex index) {
+    public Stream<StringPoint> uncompressedStream(TimeSeriesIndex index) {
         Objects.requireNonNull(index);
         return IntStream.range(0, values.length).mapToObj(i -> new StringPoint(offset + i, index.getInstantAt(offset + i), values[i]));
     }
 
     @Override
-    public Iterator<StringPoint> iterator(TimeSeriesIndex index) {
+    public Iterator<StringPoint> uncompressedIterator(TimeSeriesIndex index) {
         Objects.requireNonNull(index);
         return new Iterator<StringPoint>() {
 

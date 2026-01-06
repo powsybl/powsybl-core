@@ -7,18 +7,15 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
-import com.powsybl.iidm.network.DcBus;
-import com.powsybl.iidm.network.DcConnectable;
-import com.powsybl.iidm.network.DcNode;
-import com.powsybl.iidm.network.DcTerminal;
-import com.powsybl.iidm.network.TerminalNumber;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraversalType;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -178,7 +175,45 @@ public class DcTerminalImpl implements DcTerminal, MultiVariantObject {
         throw new IllegalStateException("Unexpected dcConnectable type: " + dcConnectable.getClass().getName());
     }
 
+    Network getParentNetwork() {
+        if (dcConnectable instanceof AbstractDcConnectable<?> abstractDcConnectable) {
+            return abstractDcConnectable.getParentNetwork();
+        } else if (dcConnectable instanceof AbstractAcDcConverter<?> abstractDcConverter) {
+            return abstractDcConverter.getParentNetwork();
+        }
+        throw new IllegalStateException("Unexpected dcConnectable type: " + dcConnectable.getClass().getName());
+    }
+
     String getAttributeSideOrNumberSuffix() {
         return "" + (side != null ? side.getNum() : "") + (terminalNumber != null ? terminalNumber.getNum() : "");
+    }
+
+    public boolean traverse(TopologyTraverser traverser, Set<DcTerminal> visitedDcTerminals, TraversalType traversalType) {
+        if (removed) {
+            throw new PowsyblException(String.format("Associated equipment %s is removed", dcConnectable.getId()));
+        }
+        return getTopologyModel().traverse(this, traverser, visitedDcTerminals, traversalType);
+    }
+
+    @Override
+    public void traverse(DcTerminal.TopologyTraverser traverser) {
+        traverse(traverser, TraversalType.DEPTH_FIRST);
+    }
+
+    @Override
+    public void traverse(DcTerminal.TopologyTraverser traverser, TraversalType traversalType) {
+        if (removed) {
+            throw new PowsyblException(String.format("Associated equipment %s is removed", dcConnectable.getId()));
+        }
+        getTopologyModel().traverse(this, traverser, traversalType);
+    }
+
+    private DcTopologyModel getTopologyModel() {
+        return ((AbstractNetwork) this.getParentNetwork()).getDcTopologyModel();
+    }
+
+    @Override
+    public boolean disconnect() {
+        return getTopologyModel().disconnect(this);
     }
 }
