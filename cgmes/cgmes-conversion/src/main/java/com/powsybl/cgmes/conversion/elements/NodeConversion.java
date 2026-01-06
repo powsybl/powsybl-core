@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.*;
+import static com.powsybl.cgmes.conversion.Conversion.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -222,13 +223,13 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     private static Optional<String> getTerminalId(Connectable<?> connectable, ThreeSides side) {
         if (side == null) {
             return connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL)
-                    .or(() -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1));
+                    .or(() -> connectable.getAliasFromType(ALIAS_TERMINAL1));
         }
         return switch (side) {
-            case ONE -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1)
+            case ONE -> connectable.getAliasFromType(ALIAS_TERMINAL1)
                     .or(() -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL));
-            case TWO -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
-            case THREE -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 3);
+            case TWO -> connectable.getAliasFromType(ALIAS_TERMINAL2);
+            case THREE -> connectable.getAliasFromType(ALIAS_TERMINAL3);
         };
     }
 

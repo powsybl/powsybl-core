@@ -116,32 +116,26 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         new LoadFlowResultsCompletion(new LoadFlowResultsCompletionParameters(), new LoadFlowParameters()).run(n, null);
         String sv = exportSvAsString(n, true);
 
-        assertEqualsPowerFlow(new PowerFlow(10, 1), extractSvPowerFlow(sv, cgmesTerminal(n, "LOAD", 1)));
-        assertEqualsPowerFlow(new PowerFlow(-10, -1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK11", 1)));
-        assertEqualsPowerFlow(new PowerFlow(10, 1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK11", 2)));
-        assertEqualsPowerFlow(new PowerFlow(-10, -1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK12", 1)));
-        assertEqualsPowerFlow(new PowerFlow(10, 1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK12", 2)));
+        assertEqualsPowerFlow(new PowerFlow(10, 1), extractSvPowerFlow(sv, "LOAD_EC_T_1"));
+        assertEqualsPowerFlow(new PowerFlow(-10, -1), extractSvPowerFlow(sv, "BK11_SW_T_1"));
+        assertEqualsPowerFlow(new PowerFlow(10, 1), extractSvPowerFlow(sv, "BK11_SW_T_2"));
+        assertEqualsPowerFlow(new PowerFlow(-10, -1), extractSvPowerFlow(sv, "BK12_SW_T_1"));
+        assertEqualsPowerFlow(new PowerFlow(10, 1), extractSvPowerFlow(sv, "BK12_SW_T_2"));
 
-        assertEqualsPowerFlow(new PowerFlow(-10, -1), extractSvPowerFlow(sv, cgmesTerminal(n, "LINE", 1)));
-        assertEqualsPowerFlow(new PowerFlow(10.01, 1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "LINE", 2)));
+        assertEqualsPowerFlow(new PowerFlow(-10, -1), extractSvPowerFlow(sv, "LINE_ACLS_T_1"));
+        assertEqualsPowerFlow(new PowerFlow(10.01, 1.1), extractSvPowerFlow(sv, "LINE_ACLS_T_2"));
 
-        assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "GEN", 1)));
-        assertEqualsPowerFlow(new PowerFlow(10.01, 1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK21", 1)));
-        assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK21", 2)));
-        assertEqualsPowerFlow(new PowerFlow(10.01, 1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK22", 1)));
-        assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK22", 2)));
+        assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, "GEN_SM_T_1"));
+        assertEqualsPowerFlow(new PowerFlow(10.01, 1.1), extractSvPowerFlow(sv, "BK21_SW_T_1"));
+        assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, "BK21_SW_T_2"));
+        assertEqualsPowerFlow(new PowerFlow(10.01, 1.1), extractSvPowerFlow(sv, "BK22_SW_T_1"));
+        assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, "BK22_SW_T_2"));
     }
 
     private static void assertEqualsPowerFlow(PowerFlow expected, PowerFlow actual) {
         final double epsilon = 1e-2;
         assertEquals(expected.p(), actual.p(), epsilon);
         assertEquals(expected.q(), actual.q(), epsilon);
-    }
-
-    private static String cgmesTerminal(Network n, String id, int terminal) {
-        return n.getIdentifiable(id)
-                .getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + terminal)
-                .orElseThrow();
     }
 
     private static PowerFlow extractSvPowerFlow(String sv, String terminalId) {
@@ -558,7 +552,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     }
 
     private static String getCgmesTerminal(Terminal terminal) {
-        return ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
+        return ((Connectable<?>) terminal.getConnectable()).getAliasFromType(ALIAS_TERMINAL1).orElse(null);
     }
 
     private static void addRepackagerFiles(String tso, Repackager repackager) {
