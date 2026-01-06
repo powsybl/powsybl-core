@@ -16,7 +16,6 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.function.Consumer;
@@ -626,7 +625,7 @@ public class DataObject {
         generator.writeEndObject();
     }
 
-    public void writeJson(JsonGenerator generator) throws IOException {
+    public void writeJson(JsonGenerator generator) {
         generator.writeStartObject();
 
         generator.writeNumberProperty("id", id);

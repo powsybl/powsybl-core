@@ -11,7 +11,6 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -65,7 +64,7 @@ public class DataScheme {
         return scheme;
     }
 
-    public void writeJson(JsonGenerator generator) throws IOException {
+    public void writeJson(JsonGenerator generator) {
         generator.writeName("classes");
         generator.writeStartArray();
         for (DataClass clazz : classesByName.values()) {
