@@ -88,7 +88,6 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
             parser.nextToken();
             if (nodeName.equals(parser.currentName())) {
                 return mapper.readTree(parser).get("caseid");
-                // TODO: check this
             }
         }
         throw new PsseException("Json node not found: " + nodeName);
