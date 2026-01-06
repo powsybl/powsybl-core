@@ -11,6 +11,8 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.AcDcConverter;
 import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.DroopCurve;
+import com.powsybl.iidm.network.DroopCurveAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ValidationUtil;
