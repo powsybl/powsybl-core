@@ -17,15 +17,16 @@ import java.util.concurrent.TimeUnit;
  */
 public final class ProcessHelper {
 
+    public static final int TIMEOUT_EXIT_CODE = 124;
+
     /**
-     * Waits for the given process to finish up to the specified timeout.
-     * This method blocks efficiently until either:
+     * This method blocks the current thread until either:
      * <ul>
      *     <li>The process terminates, in which case it returns the exit code from {@link Process#exitValue()}</li>
-     *     <li>The timeout expires, in which case the process is destroyed and 124 is returned</li>
+     *     <li>The timeout is reached, in which case the process is destroyed and the exit code {@value #TIMEOUT_EXIT_CODE} is returned</li>
      * </ul>
      * @param process The process to run
-     * @return Returns exit code for the process. Returns 124 if process timeout.
+     * @return Returns exit code for the process, or {@value #TIMEOUT_EXIT_CODE} if the process timeouts.
      * @throws InterruptedException
      * @throws IOException
      */
@@ -37,7 +38,7 @@ public final class ProcessHelper {
         }
         process.destroy();
         closeStream(process);
-        return 124;
+        return TIMEOUT_EXIT_CODE;
     }
 
     private static void closeStream(Process process) throws IOException {
