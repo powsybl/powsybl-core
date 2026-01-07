@@ -166,8 +166,8 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             converter.addAlias(p.getId(CgmesNames.TERMINAL1), ALIAS_TERMINAL1, context.config().isEnsureIdAliasUnicity());
             converter.addAlias(p.getId(CgmesNames.TERMINAL2), ALIAS_TERMINAL2, context.config().isEnsureIdAliasUnicity());
         }
-        converter.addAlias(p.getId(CgmesNames.DC_TERMINAL1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1, context.config().isEnsureIdAliasUnicity());
-        converter.addAlias(p.getId(CgmesNames.DC_TERMINAL2), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL2, context.config().isEnsureIdAliasUnicity());
+        converter.addAlias(p.getId(CgmesNames.DC_TERMINAL1), ALIAS_DC_TERMINAL1, context.config().isEnsureIdAliasUnicity());
+        converter.addAlias(p.getId(CgmesNames.DC_TERMINAL2), ALIAS_DC_TERMINAL2, context.config().isEnsureIdAliasUnicity());
         converter.setProperty(Conversion.PROPERTY_CGMES_DC_CONVERTER_UNIT, p.getId("DCConverterUnit"));
     }
 

@@ -251,7 +251,6 @@ public class CgmesExportContext {
     }
 
     public void addIidmMappings(Network network) {
-        addIidmMappingsDcTerminals(network);
         addIidmMappingsGenerators(network);
         addIidmMappingsBatteries(network);
         addIidmMappingsShuntCompensators(network);
@@ -340,18 +339,6 @@ public class CgmesExportContext {
             });
     }
 
-    private void addIidmMappingsDcTerminals(Network network) {
-        addIidmMappingsHvdcTerminals(network);
-        for (DcConnectable<?> c : network.getDcConnectables()) {
-            if (isExportedEquipment(c)) {
-                for (DcTerminal t : c.getDcTerminals()) {
-                    addIidmMappingsDcTerminal(t, c);
-                }
-            }
-        }
-        addIidmMappingsDcSwitchTerminals(network);
-    }
-
     public boolean isExportEquipment() {
         return exportEquipment;
     }
@@ -373,37 +360,6 @@ public class CgmesExportContext {
                     || isBusBranchExport() && !hasDifferentTNsAtBothEnds(sw);
         }
         return !ignored;
-    }
-
-    private void addIidmMappingsHvdcTerminals(Network network) {
-        for (HvdcLine line : network.getHvdcLines()) {
-            addCgmesIdIfAbsent(line, CgmesNames.DC_TERMINAL, TERMINAL, 1);
-            addCgmesIdIfAbsent(line, CgmesNames.DC_TERMINAL, TERMINAL, 2);
-            addCgmesIdIfAbsent(line.getConverterStation1(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 1);
-            addCgmesIdIfAbsent(line.getConverterStation1(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 2);
-            addCgmesIdIfAbsent(line.getConverterStation2(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 1);
-            addCgmesIdIfAbsent(line.getConverterStation2(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 2);
-        }
-    }
-
-    private void addIidmMappingsDcTerminal(DcTerminal t, DcConnectable<?> c) {
-        int sequenceNumber = CgmesExportUtil.getDcTerminalSequenceNumber(t);
-        addCgmesIdIfAbsent(c, CgmesNames.DC_TERMINAL, DC_TERMINAL, sequenceNumber);
-    }
-
-    private void addIidmMappingsDcSwitchTerminals(Network network) {
-        for (DcSwitch dcSwitch : network.getDcSwitches()) {
-            addCgmesIdIfAbsent(dcSwitch, CgmesNames.DC_TERMINAL, DC_TERMINAL, 1);
-            addCgmesIdIfAbsent(dcSwitch, CgmesNames.DC_TERMINAL, DC_TERMINAL, 2);
-        }
-    }
-
-    private void addCgmesIdIfAbsent(Identifiable<?> identifiable, String aliasType, CgmesObjectReference.Part part, int sequenceNumber) {
-        String aliasValue = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + aliasType + sequenceNumber).orElse(null);
-        if (aliasValue == null) {
-            aliasValue = namingStrategy.getCgmesId(refTyped(identifiable), part, ref(sequenceNumber));
-            identifiable.addAlias(aliasValue, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + aliasType + sequenceNumber);
-        }
     }
 
     private static boolean isCondenser(Generator generator) {
