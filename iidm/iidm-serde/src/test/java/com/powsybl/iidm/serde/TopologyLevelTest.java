@@ -62,17 +62,22 @@ class TopologyLevelTest extends AbstractIidmSerDeTest {
 
     @Test
     void testUnconnectableElementSerialization() throws IOException {
+
         Network network = EurostagTutorialExample1Factory.create();
+
         //Disconnecting the generator GEN by disconnecting its transformer
         TwoWindingsTransformer stepUpTransfo = network.getTwoWindingsTransformer("NGEN_NHV1");
         stepUpTransfo.getTerminal1().disconnect();
         stepUpTransfo.getTerminal2().disconnect();
+
         network.getGenerator("GEN")
                 .getTerminal().disconnect();
+
         ExportOptions options = new ExportOptions()
                 .setTopologyLevel(TopologyLevel.BUS_BRANCH);
         // TODO: For debug purpose, remove before merge
         NetworkSerDe.write(network, options, System.out);
+
         byte[] networkXmlBytes = toBytes(os -> NetworkSerDe.write(network, options, os));
         try (InputStream is = new ByteArrayInputStream(networkXmlBytes)) {
             // Throws with
