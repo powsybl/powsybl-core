@@ -216,29 +216,19 @@ public final class TopologyExport {
         for (DcConnectable<?> dcConnectable : network.getDcConnectables()) {
             for (DcTerminal dcTerminal : dcConnectable.getDcTerminals()) {
                 String className = dcConnectable instanceof AcDcConverter<?> ? CgmesNames.ACDC_CONVERTER_DC_TERMINAL : CgmesNames.DC_TERMINAL;
-                int sequenceNumber = getDcTerminalNumber(dcTerminal);
-                String dcTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dcConnectable, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + sequenceNumber);
+                String dcTerminalId = CgmesExportUtil.getDcTerminalId(dcTerminal, context);
                 String dcTopologicalNodeId = context.getNamingStrategy().getCgmesId(dcTerminal.getDcNode().getDcBus());
                 writeDCBaseTerminal(className, dcTerminalId, dcTopologicalNodeId, cimNamespace, writer, context);
             }
         }
         for (DcSwitch dcSwitch : network.getDcSwitches()) {
-            String dcTerminal1Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1);
+            String dcTerminal1Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL1);
             String dcTopologicalNode1Id = context.getNamingStrategy().getCgmesId(dcSwitch.getDcNode1().getDcBus());
             writeDCBaseTerminal(CgmesNames.DC_TERMINAL, dcTerminal1Id, dcTopologicalNode1Id, cimNamespace, writer, context);
-            String dcTerminal2Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL2);
+            String dcTerminal2Id = context.getNamingStrategy().getCgmesIdFromAlias(dcSwitch, ALIAS_DC_TERMINAL2);
             String dcTopologicalNode2Id = context.getNamingStrategy().getCgmesId(dcSwitch.getDcNode2().getDcBus());
             writeDCBaseTerminal(CgmesNames.DC_TERMINAL, dcTerminal2Id, dcTopologicalNode2Id, cimNamespace, writer, context);
         }
-    }
-
-    private static int getDcTerminalNumber(DcTerminal dcTerminal) {
-        if (dcTerminal.getDcConnectable() instanceof AcDcConverter<?>) {
-            return dcTerminal.getTerminalNumber().getNum();
-        } else if (dcTerminal.getSide() != null) {
-            return dcTerminal.getSide().getNum();
-        }
-        return 1;
     }
 
     private static void writeDcTerminals(HvdcLine line, HvdcConverterStation<?> converter, int side, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -246,13 +236,14 @@ public final class TopologyExport {
         if (bus == null) {
             bus = converter.getTerminal().getBusBreakerView().getConnectableBus();
         }
+        String aliasType = side == 1 ? ALIAS_DC_TERMINAL1 : ALIAS_DC_TERMINAL2;
         // DCTerminal of the DCLineSegment and positive ACDCConverterDCTerminal of the ACDCConverter.
         String dcTopologicalNode = context.getNamingStrategy().getCgmesId(refTyped(bus), DC_TOPOLOGICAL_NODE);
         String dcNode = context.getNamingStrategy().getCgmesId(refTyped(line), DCNODE, ref(side));
         writeDCNode(dcNode, dcTopologicalNode, cimNamespace, writer, context);
-        String dcTerminal = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + side).orElseThrow(PowsyblException::new);
+        String dcTerminal = context.getNamingStrategy().getCgmesIdFromAlias(line, aliasType);
         writeDCBaseTerminal(CgmesNames.DC_TERMINAL, dcTerminal, dcTopologicalNode, cimNamespace, writer, context);
-        String acdcConverterDcTerminal = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1).orElseThrow(PowsyblException::new);
+        String acdcConverterDcTerminal = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL1);
         writeDCBaseTerminal(CgmesNames.ACDC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminal, dcTopologicalNode, cimNamespace, writer, context);
 
         // DCTerminal of the DCGround and middle ACDCConverterDCTerminal of the ACDCConverter.
@@ -261,7 +252,7 @@ public final class TopologyExport {
         writeDCNode(dcNodeG, dcTopologicalNodeG, cimNamespace, writer, context);
         String dcTerminalG = context.getNamingStrategy().getCgmesId(refTyped(line), DC_TERMINAL, ref(side + "G"));
         writeDCBaseTerminal(CgmesNames.DC_TERMINAL, dcTerminalG, dcTopologicalNodeG, cimNamespace, writer, context);
-        String acdcConverterDcTerminalG = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL2).orElseThrow(PowsyblException::new);
+        String acdcConverterDcTerminalG = context.getNamingStrategy().getCgmesIdFromAlias(converter, ALIAS_DC_TERMINAL2);
         writeDCBaseTerminal(CgmesNames.ACDC_CONVERTER_DC_TERMINAL, acdcConverterDcTerminalG, dcTopologicalNodeG, cimNamespace, writer, context);
     }
 
