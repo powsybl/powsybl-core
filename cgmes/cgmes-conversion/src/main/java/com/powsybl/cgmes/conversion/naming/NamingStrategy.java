@@ -48,6 +48,8 @@ public interface NamingStrategy {
 
     default CgmesObjectReference[] getCgmesObjectReferences(Identifiable<?> identifiable, String aliasOrProperty) {
         return switch (aliasOrProperty) {
+            case ALIAS_DC_TERMINAL1 -> new CgmesObjectReference[] {refTyped(identifiable), refDcTerminal(identifiable), ref(1)};
+            case ALIAS_DC_TERMINAL2 -> new CgmesObjectReference[] {refTyped(identifiable), refDcTerminal(identifiable), ref(2)};
             case ALIAS_PHASE_TAP_CHANGER1 -> new CgmesObjectReference[] {refTyped(identifiable), PHASE_TAP_CHANGER, ref(1)};
             case ALIAS_PHASE_TAP_CHANGER2 -> new CgmesObjectReference[] {refTyped(identifiable), PHASE_TAP_CHANGER, ref(2)};
             case ALIAS_PHASE_TAP_CHANGER3 -> new CgmesObjectReference[] {refTyped(identifiable), PHASE_TAP_CHANGER, ref(3)};

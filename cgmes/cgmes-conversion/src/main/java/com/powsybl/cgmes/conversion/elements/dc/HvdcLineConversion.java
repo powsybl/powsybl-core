@@ -14,6 +14,8 @@ import com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL2;
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.updateTerminals;
 import static com.powsybl.cgmes.conversion.elements.dc.DCLinkUpdate.resistiveLossesFromPdcRectifier;
 import static com.powsybl.cgmes.model.CgmesNames.*;
@@ -60,8 +62,8 @@ public class HvdcLineConversion extends AbstractIdentifiedObjectConversion {
         HvdcLine hvdcLine = adder.add();
 
         // Add aliases
-        hvdcLine.addAlias(dcLink.getDcLine1().getId(DC_TERMINAL1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1);
-        hvdcLine.addAlias(dcLink.getDcLine1().getId(DC_TERMINAL2), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2);
+        hvdcLine.addAlias(dcLink.getDcLine1().getId(DC_TERMINAL1), ALIAS_DC_TERMINAL1);
+        hvdcLine.addAlias(dcLink.getDcLine1().getId(DC_TERMINAL2), ALIAS_DC_TERMINAL2);
         if (dcLink.getDcLine2() != null) {
             hvdcLine.addAlias(dcLink.getDcLine2().getId(DC_LINE_SEGMENT), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DC_LINE_SEGMENT2);
         }
