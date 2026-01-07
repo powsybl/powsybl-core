@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-iidm</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>7.1.0</version>
+        <version>7.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-iidm-modification</artifactId>
