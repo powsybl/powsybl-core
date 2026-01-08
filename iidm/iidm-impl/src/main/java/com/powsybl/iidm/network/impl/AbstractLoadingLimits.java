@@ -25,6 +25,9 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
     private double permanentLimit;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
+    // Epsilon to filter small temporary limit changes (in A, MW and MVA)
+    private static final double TEMPORARY_LIMIT_EPSILON = 1e-6;
+
     static class TemporaryLimitImpl implements TemporaryLimit {
 
         private final String name;
@@ -101,7 +104,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
 
         double oldValue = identifiedLimit.getValue();
 
-        if (Math.abs(temporaryLimitValue - oldValue) > 1e-6) { // do not apply negligible changes
+        if (Math.abs(temporaryLimitValue - oldValue) > TEMPORARY_LIMIT_EPSILON) { // do not apply negligible changes
             TreeMap<Integer, TemporaryLimit> temporaryLimitTreeMap = new TreeMap<>(this.temporaryLimits);
             // Creation of index markers
             Map.Entry<Integer, TemporaryLimit> biggerDurationEntry = temporaryLimitTreeMap.lowerEntry(acceptableDuration);
