@@ -656,8 +656,23 @@
         <xs:attribute name="number" use="optional" type="iidm:TerminalNumber"/>
     </xs:complexType>
     <xs:complexType name="VoltageRegulation">
-        <xs:attribute name="targetValue" use="optional" type="xs:double"/>
+        <xs:sequence>
+            <xs:element name="terminal" minOccurs="0" type="iidm:TerminalRef"/>
+        </xs:sequence>
+        <xs:attribute name="targetValue" use="optional" type="xs:double"/><!-- TODO required -->
+        <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
+        <xs:attribute name="slope" use="optional" type="xs:double"/>
+        <xs:attribute name="mode" use="optional" type="iidm:RegulationMode"/><!-- TODO required -->
+        <xs:attribute name="regulating" use="optional" type="xs:boolean"/><!-- TODO required -->
     </xs:complexType>
+    <xs:simpleType name="RegulationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="VOLTAGE"/>
+            <xs:enumeration value="REACTIVE_POWER"/>
+            <xs:enumeration value="VOLTAGE_PER_REACTIVE_POWER"/>
+            <xs:enumeration value="REACTIVE_POWER_PER_ACTIVE_POWER"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="RatioTapChangerStep">
         <xs:attribute name="rho" use="required" type="xs:double"/>
         <xs:attribute name="r" use="required" type="xs:double"/>
