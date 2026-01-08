@@ -31,7 +31,6 @@
                 </executions>
                 <configuration>
                     <licenseFile>myLic.txt</licenseFile>
-                    <thirdPartyFile>my3rdParties.txt</thirdPartyFile>
                 </configuration>
             </plugin>
         </plugins>

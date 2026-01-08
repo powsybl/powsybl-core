@@ -177,16 +177,29 @@ public class ItoolsPackagerMojo extends AbstractMojo {
     }
 
     private void addLicenseFiles(Path packageDir) {
-        // List of the license files to copy
-        Path projectRoot = Path.of(project.getBasedir().getPath());
+        Path projectRoot = project.getBasedir().toPath();
 
-        List<Path> candidateLicenseFiles = Stream.of(licenseFile, "LICENSE.txt", "../LICENSE.txt")
-                .filter(Objects::nonNull).map(projectRoot::resolve).toList();
+        List<Path> candidateLicenseFiles = getFilePathList(licenseFile, "LICENSE", projectRoot);
         addLicenseFile(packageDir, candidateLicenseFiles);
 
-        List<Path> candidateThirdPartyFiles = Stream.of(thirdPartyFile, "THIRD-PARTY.txt", "../THIRD-PARTY.txt")
-                .filter(Objects::nonNull).map(projectRoot::resolve).toList();
+        List<Path> candidateThirdPartyFiles = getFilePathList(thirdPartyFile, "THIRD-PARTY", projectRoot);
         addLicenseFile(packageDir, candidateThirdPartyFiles);
+    }
+
+    private List<Path> getFilePathList(String fileName, String defaultFileNameBase, Path projectRoot) {
+        if (fileName != null) {
+            return List.of(
+                    projectRoot.resolve(fileName),
+                    projectRoot.resolve("..").resolve(fileName)
+            );
+        }
+        // Search for default names
+        return Stream.of("", ".txt")
+                .flatMap(ext -> Stream.of(
+                        projectRoot.resolve(defaultFileNameBase + ext),
+                        projectRoot.resolve("..").resolve(defaultFileNameBase + ext)
+                ))
+                .toList();
     }
 
     private void addLicenseFile(Path packageDir, List<Path> candidateLicenseFiles) {

@@ -129,7 +129,7 @@ class ItoolsPackagerMojoTest {
         mojo.execute();
         String target = project.getBuild().getDirectory();
         assertTrue(new File(target, DEFAULT_PACKAGE_NAME + ".zip").exists());
-        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists());
+        assertFalse(new File(target, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists()); // wrong file specified in pom.xml
         assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
     }
 
