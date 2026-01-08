@@ -19,6 +19,8 @@ This Maven plugin can be used to generate an itools package with the following l
         java
             <jars of the project classpath>
     <additional files to be placed at package root>
+    LICENSE.txt
+    THIRD-PARTY.txt
 ```
 
 Here is how to configure itools package Maven plugin in your project
