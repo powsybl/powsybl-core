@@ -23,7 +23,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObject, Referrer<Terminal>, Validable {
 
     private TerminalExt terminal;
-    private final RegulationMode mode;
+    private RegulationMode mode;
     private final Ref<? extends VariantManagerHolder> network;
     // attributes depending on the variant
     private final TDoubleArrayList targetValue;
@@ -104,6 +104,11 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
     @Override
     public RegulationMode getMode() {
         return mode;
+    }
+
+    @Override
+    public void setMode(RegulationMode mode) {
+        this.mode = mode;
     }
 
     @Override
