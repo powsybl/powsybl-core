@@ -48,13 +48,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             if (terminalId != null) {
                 terminal = context.terminalMapping().findForFlowLimits(terminalId);
                 if (terminal == null) {
+                    // If it is a switch Terminal we are not able to convert it
                     CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId);
                     if (cgmesTerminal != null && CgmesNames.SWITCH_TYPES.contains(cgmesTerminal.conductingEquipmentType())) {
                         notAssigned(context.network().getSwitch(cgmesTerminal.conductingEquipment()));
                         return;
                     }
-                }
-                if (terminal == null) {
+                    // If it is a boundary Terminal we are not able to convert it
                     Boundary boundary = context.terminalMapping().findBoundary(terminalId);
                     if (boundary != null) {
                         notAssigned(boundary.getDanglingLine());
@@ -241,6 +241,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     @Override
     public boolean valid() {
         if (notAssigned) {
+            // a "not assigned" log was already issued
             return false;
         }
         if (vl == null && olga == null
@@ -457,19 +458,19 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private void notAssigned(Identifiable<?> eq) {
         this.notAssigned = true;
-        String type = p.getLocal(LIMIT_TYPE);
-        String typeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
-        String subclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
-        Supplier<String> reason = () -> String.format(
-                "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
-                eq != null ? className(eq) : "",
-                eq != null ? eq.getId() : "",
-                id,
-                type,
-                typeName,
-                subclass,
-                terminalId);
         if (context.config().isLogUnassignedOperationalLimits()) {
+            String type = p.getLocal(LIMIT_TYPE);
+            String typeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
+            String subclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
+            Supplier<String> reason = () -> String.format(
+                    "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
+                    eq != null ? className(eq) : "",
+                    eq != null ? eq.getId() : "",
+                    id,
+                    type,
+                    typeName,
+                    subclass,
+                    terminalId);
             context.pending(OPERATIONAL_LIMIT, reason);
         }
     }
