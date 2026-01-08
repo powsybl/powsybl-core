@@ -51,7 +51,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                     // If it is a switch Terminal we are not able to convert it
                     CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId);
                     if (cgmesTerminal != null && CgmesNames.SWITCH_TYPES.contains(cgmesTerminal.conductingEquipmentType())) {
-                        notAssigned(context.network().getSwitch(cgmesTerminal.conductingEquipment()));
+                        // note that in bus-breaker import, the Switch may not exist in IIDM if it has same from/to buses.
+                        notAssigned("Switch", cgmesTerminal.conductingEquipment());
                         return;
                     }
                     // If it is a boundary Terminal we are not able to convert it
@@ -457,6 +458,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void notAssigned(Identifiable<?> eq) {
+        notAssigned(eq != null ? className(eq) : "", eq != null ? eq.getId() : "");
+    }
+
+    private void notAssigned(String className, String id) {
         this.notAssigned = true;
         if (context.config().isLogUnassignedOperationalLimits()) {
             String type = p.getLocal(LIMIT_TYPE);
@@ -464,8 +469,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             String subclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
             Supplier<String> reason = () -> String.format(
                     "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
-                    eq != null ? className(eq) : "",
-                    eq != null ? eq.getId() : "",
+                    className != null ? className : "",
+                    id != null ? id : "",
                     id,
                     type,
                     typeName,
