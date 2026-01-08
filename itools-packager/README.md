@@ -67,6 +67,8 @@ Here is how to configure itools package Maven plugin in your project
                             <file>...</file>
                         </files>
                     </copyToPackageRoot>
+                    <licenseFile>LICENSE.txt</licenseFile>
+                    <thirdPartyFile>THIRD-PARTY.txt</thirdPartyFile>
                 </configuration>
             </plugin>
         </plugins>
@@ -78,4 +80,5 @@ Here is how to configure itools package Maven plugin in your project
 - packageType is optional, "zip" is the default value. It can be either zip or tgz.
 - javaXmx, mpiTasks and mpiHosts are used to generate itools.conf, are all optional and default values are respectively 8G, 2 and localhost.
 - additional binaries, libraries, configurations, package files can be added to the package using optional copyToBin, copyToLib, copyToEtc, copyToPackageRoot tags.
+- licenseFile and thirdPartyFile are optional. If not provided or not found, the packager will look for LICENSE.txt and THIRD-PARTY.txt in the project directory as well as its parent directory.
 - all the jars with compile and runtime scope will be included in the package

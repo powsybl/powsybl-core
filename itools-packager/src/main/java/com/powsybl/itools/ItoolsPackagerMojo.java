@@ -28,9 +28,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  *
@@ -81,6 +80,12 @@ public class ItoolsPackagerMojo extends AbstractMojo {
 
     @Parameter
     private CopyTo copyToPackageRoot;
+
+    @Parameter
+    private String licenseFile;
+
+    @Parameter
+    private String thirdPartyFile;
 
     private void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
         getLog().info("Zip package");
@@ -171,6 +176,33 @@ public class ItoolsPackagerMojo extends AbstractMojo {
         writer.newLine();
     }
 
+    private void addLicenseFiles(Path packageDir) {
+        // List of the license files to copy
+        Path projectRoot = Path.of(project.getBasedir().getPath());
+
+        List<Path> candidateLicenseFiles = Stream.of(licenseFile, "LICENSE.txt", "../LICENSE.txt")
+                .filter(Objects::nonNull).map(projectRoot::resolve).toList();
+        addLicenseFile(packageDir, candidateLicenseFiles);
+
+        List<Path> candidateThirdPartyFiles = Stream.of(thirdPartyFile, "THIRD-PARTY.txt", "../THIRD-PARTY.txt")
+                .filter(Objects::nonNull).map(projectRoot::resolve).toList();
+        addLicenseFile(packageDir, candidateThirdPartyFiles);
+    }
+
+    private void addLicenseFile(Path packageDir, List<Path> candidateLicenseFiles) {
+        Optional<Path> foundLicenseFile = candidateLicenseFiles.stream().filter(Files::exists).findFirst();
+        foundLicenseFile.ifPresentOrElse(file -> {
+            try {
+                getLog().info("Copy license file " + file + " to " + packageDir);
+                Files.copy(file, packageDir.resolve(file.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                getLog().warn("Failed to copy license file " + file + ": " + e.getMessage());
+            }
+        },
+            () -> getLog().warn("License file not found (tried " + candidateLicenseFiles + ")")
+        );
+    }
+
     @Override
     public void execute() {
         try {
@@ -221,8 +253,11 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             Files.createDirectories(libDir);
             copyFiles(copyToLib, libDir);
 
-            // Add misc files to package root (e.g. license, third party ...)
+            // Add misc files to package root
             copyFiles(copyToPackageRoot, packageDir);
+
+            // Add licenses
+            addLicenseFiles(packageDir);
 
             String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
             if (packageType.equalsIgnoreCase("zip")) {

@@ -30,12 +30,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <copyToPackageRoot>
-                        <files>
-                            <file>${project.basedir}/path/to/some/file.txt</file>
-                            <file>${project.basedir}/does/not_exists.txt</file>
-                        </files>
-                    </copyToPackageRoot>
+                    <licenseFile>myLic.txt</licenseFile>
+                    <thirdPartyFile>my3rdParties.txt</thirdPartyFile>
                 </configuration>
             </plugin>
         </plugins>
