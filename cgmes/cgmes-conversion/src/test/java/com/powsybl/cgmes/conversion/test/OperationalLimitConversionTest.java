@@ -183,7 +183,7 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
         assertEquals(3, getElementCount(eqFile, "OperationalLimitSet"));
         assertOperationalLimitSetTerminal(eqFile, "OLS_ACL", "T_ACL_1");
-        assertOperationalLimitSetTerminal(eqFile, "OLS_ACL-1", "T_ACL_2");
+        assertOperationalLimitSetTerminal(eqFile, "T_ACL_2_OLS_ACL-1_OLS", "T_ACL_2");
         assertOperationalLimitSetTerminal(eqFile, "OLS_DL", "T_DL_2");
     }
 

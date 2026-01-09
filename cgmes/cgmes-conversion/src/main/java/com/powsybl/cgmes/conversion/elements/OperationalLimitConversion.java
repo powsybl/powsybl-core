@@ -101,18 +101,22 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      * @param limitSetName The name of the set containing the OperationalLimit.
      * @param b The branch to which the OperationalLimit applies.
      */
-    private void createLimitsAdder(int terminalNumber, String limitSubclass, String limitSetId, String limitSetName, Branch<?> b) {
+    private void createLimitsAdder(int terminalNumber, String limitSubclass, String limitSetId, String limitSetName, Branch<?> b, boolean addProperties) {
         if (terminalNumber == 1) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup1(limitSetId).orElseGet(() -> {
                 OperationalLimitsGroup newLimitsGroup = b.newOperationalLimitsGroup1(limitSetId);
-                addProperties(newLimitsGroup, limitSetId, limitSetName);
+                if (addProperties) {
+                    addProperties(newLimitsGroup, limitSetId, limitSetName);
+                }
                 return newLimitsGroup;
             });
             olga1 = new OLGA(limitsGroup, context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup2(limitSetId).orElseGet(() -> {
                 OperationalLimitsGroup newLimitsGroup = b.newOperationalLimitsGroup2(limitSetId);
-                addProperties(newLimitsGroup, limitSetId, limitSetName);
+                if (addProperties) {
+                    addProperties(newLimitsGroup, limitSetId, limitSetName);
+                }
                 return newLimitsGroup;
             });
             olga2 = new OLGA(limitsGroup, context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
@@ -199,11 +203,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private void checkAndCreateLimitsAdderBranch(Branch<?> b, int terminalNumber, String limitSetId, String limitSetName) {
         if (terminalNumber == 1 || terminalNumber == 2) {
-            createLimitsAdder(terminalNumber, limitSubclass, limitSetId, limitSetName, b);
+            createLimitsAdder(terminalNumber, limitSubclass, limitSetId, limitSetName, b, true);
         } else if (terminalNumber == -1 && b instanceof Line) {
-            // Limits applied to the whole equipment == to both sides
-            createLimitsAdder(1, limitSubclass, limitSetId, limitSetName, b);
-            createLimitsAdder(2, limitSubclass, limitSetId + "-1", limitSetName, b);
+            // Limits applied to the whole equipment == to both sides. Properties are stored only on side 1 limit set.
+            createLimitsAdder(1, limitSubclass, limitSetId, limitSetName, b, true);
+            createLimitsAdder(2, limitSubclass, limitSetId + "-1", limitSetName, b, false);
         } else {
             if (terminalNumber == -1 && b instanceof TwoWindingsTransformer) {
                 context.ignored(limitSubclass, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
