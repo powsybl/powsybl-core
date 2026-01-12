@@ -29,7 +29,7 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
 
     private final List<OperatorStrategy> operatorStrategies;
 
-    private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatusBuffer;
+    private final List<SensitivityAnalysisResult.SensitivityStateStatus> contingencyStatusBuffer;
 
     public SensitivityResultJsonWriter(JsonGenerator jsonGenerator, List<Contingency> contingencies,
                                        List<OperatorStrategy> operatorStrategies) {
@@ -51,13 +51,10 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
     }
 
     @Override
-    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
-        contingencyStatusBuffer.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status));
-    }
-
-    @Override
-    public void writeOperatorStrategyStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
-        // TODO
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+        SensitivityState state = new SensitivityState(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
+                                                      operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
+        contingencyStatusBuffer.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityStateStatus(state, status));
     }
 
     @Override
@@ -66,8 +63,8 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
             jsonGenerator.writeEndArray();
             //Write buffered contingency status at the end
             jsonGenerator.writeStartArray();
-            for (SensitivityAnalysisResult.SensitivityContingencyStatus status : contingencyStatusBuffer) {
-                SensitivityAnalysisResult.SensitivityContingencyStatus.writeJson(jsonGenerator, status);
+            for (SensitivityAnalysisResult.SensitivityStateStatus status : contingencyStatusBuffer) {
+                SensitivityAnalysisResult.SensitivityStateStatus.writeJson(jsonGenerator, status);
             }
             jsonGenerator.writeEndArray();
             jsonGenerator.writeEndArray();

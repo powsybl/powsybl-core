@@ -24,16 +24,16 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
     private final TableFormatter formatter;
 
-    private final TableFormatter formatterContingencyStatus;
+    private final TableFormatter formatterStatus;
 
     private final List<Contingency> contingencies;
 
     private final List<OperatorStrategy> operatorStrategies;
 
-    public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterContingencyStatus,
+    public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterStatus,
                                       List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         this.formatter = Objects.requireNonNull(formatter);
-        this.formatterContingencyStatus = Objects.requireNonNull(formatterContingencyStatus);
+        this.formatterStatus = Objects.requireNonNull(formatterStatus);
         this.contingencies = Objects.requireNonNull(contingencies);
         this.operatorStrategies = Objects.requireNonNull(operatorStrategies);
     }
@@ -54,9 +54,10 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
         Objects.requireNonNull(writer);
         TableFormatterFactory factory = new CsvTableFormatterFactory();
         var tfc = TableFormatterConfig.load();
-        return factory.create(writer, "Sensitivity analysis contingency status result", tfc,
+        return factory.create(writer, "Sensitivity analysis status result", tfc,
                 new Column("Contingency ID"),
-                new Column("Contingency Status"));
+                new Column("Operator strategy ID"),
+                new Column("Status"));
     }
 
     @Override
@@ -75,17 +76,13 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
         try {
-            formatterContingencyStatus.writeCell(contingencies.get(contingencyIndex).getId());
-            formatterContingencyStatus.writeCell(status.name());
+            formatterStatus.writeCell(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : "");
+            formatterStatus.writeCell(operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : "");
+            formatterStatus.writeCell(status.name());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    @Override
-    public void writeOperatorStrategyStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
-        // TODO
     }
 }

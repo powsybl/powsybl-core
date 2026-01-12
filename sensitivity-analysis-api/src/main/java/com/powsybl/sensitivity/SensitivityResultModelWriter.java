@@ -8,6 +8,7 @@
 package com.powsybl.sensitivity;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.strategy.OperatorStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,21 +22,24 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     private final List<Contingency> contingencies;
 
+    private final List<OperatorStrategy> operatorStrategies;
+
     private final List<SensitivityValue> values = new ArrayList<>();
 
-    private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatuses;
+    private final List<SensitivityAnalysisResult.SensitivityStateStatus> stateStatuses;
 
-    public SensitivityResultModelWriter(List<Contingency> contingencies) {
+    public SensitivityResultModelWriter(List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         this.contingencies = Objects.requireNonNull(contingencies);
-        contingencyStatuses = new ArrayList<>(Collections.nCopies(contingencies.size(), null));
+        this.operatorStrategies = Objects.requireNonNull(operatorStrategies);
+        stateStatuses = new ArrayList<>(Collections.nCopies(contingencies.size(), null));
     }
 
     public List<SensitivityValue> getValues() {
         return values;
     }
 
-    public List<SensitivityAnalysisResult.SensitivityContingencyStatus> getContingencyStatuses() {
-        return contingencyStatuses;
+    public List<SensitivityAnalysisResult.SensitivityStateStatus> getStateStatuses() {
+        return stateStatuses;
     }
 
     @Override
@@ -44,12 +48,9 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
-        contingencyStatuses.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status));
-    }
-
-    @Override
-    public void writeOperatorStrategyStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
-        // TODO
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+        SensitivityState state = new SensitivityState(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
+                                                      operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
+        stateStatuses.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityStateStatus(state, status));
     }
 }

@@ -15,14 +15,14 @@ import com.powsybl.sensitivity.SensitivityAnalysisResult;
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class SensitivityContingencyStatusJsonSerializer extends StdSerializer<SensitivityAnalysisResult.SensitivityContingencyStatus> {
+public class SensitivityStateStatusJsonSerializer extends StdSerializer<SensitivityAnalysisResult.SensitivityStateStatus> {
 
-    public SensitivityContingencyStatusJsonSerializer() {
-        super(SensitivityAnalysisResult.SensitivityContingencyStatus.class);
+    public SensitivityStateStatusJsonSerializer() {
+        super(SensitivityAnalysisResult.SensitivityStateStatus.class);
     }
 
     @Override
-    public void serialize(SensitivityAnalysisResult.SensitivityContingencyStatus value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
-        SensitivityAnalysisResult.SensitivityContingencyStatus.writeJson(jsonGenerator, value);
+    public void serialize(SensitivityAnalysisResult.SensitivityStateStatus value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
+        SensitivityAnalysisResult.SensitivityStateStatus.writeJson(jsonGenerator, value);
     }
 }

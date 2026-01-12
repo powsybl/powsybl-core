@@ -10,19 +10,21 @@ package com.powsybl.sensitivity.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class SensitivityContingencyStatusJsonDeserializer extends StdDeserializer<SensitivityAnalysisResult.SensitivityContingencyStatus> {
+public class SensitivityStateStatusJsonDeserializer extends StdDeserializer<SensitivityAnalysisResult.SensitivityStateStatus> {
 
-    public SensitivityContingencyStatusJsonDeserializer() {
-        super(SensitivityAnalysisResult.SensitivityContingencyStatus.class);
+    public SensitivityStateStatusJsonDeserializer() {
+        super(SensitivityAnalysisResult.SensitivityStateStatus.class);
     }
 
     @Override
-    public SensitivityAnalysisResult.SensitivityContingencyStatus deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        return SensitivityAnalysisResult.SensitivityContingencyStatus.parseJson(jsonParser);
+    public SensitivityAnalysisResult.SensitivityStateStatus deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        String version = JsonUtil.getSourceVersion(deserializationContext, SensitivityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE);
+        return SensitivityAnalysisResult.SensitivityStateStatus.parseJson(jsonParser, version);
     }
 }
