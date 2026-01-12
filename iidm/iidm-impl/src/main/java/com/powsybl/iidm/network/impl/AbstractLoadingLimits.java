@@ -25,11 +25,14 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
     private double permanentLimit;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
+    // Epsilon to filter small temporary limit changes (in A, MW and MVA)
+    private static final double TEMPORARY_LIMIT_EPSILON = 1e-6;
+
     static class TemporaryLimitImpl implements TemporaryLimit {
 
         private final String name;
 
-        private double value;
+        private final double value;
 
         private final int acceptableDuration;
 
@@ -99,23 +102,25 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
             throw new ValidationException(group.getValidable(), "No temporary limit found for the given acceptable duration");
         }
 
-        TreeMap<Integer, TemporaryLimit> temporaryLimitTreeMap = new TreeMap<>(this.temporaryLimits);
-        // Creation of index markers
-        Map.Entry<Integer, TemporaryLimit> biggerDurationEntry = temporaryLimitTreeMap.lowerEntry(acceptableDuration);
-        Map.Entry<Integer, TemporaryLimit> smallerDurationEntry = temporaryLimitTreeMap.higherEntry(acceptableDuration);
-
         double oldValue = identifiedLimit.getValue();
 
-        if (isTemporaryLimitValueValid(biggerDurationEntry, smallerDurationEntry, acceptableDuration, temporaryLimitValue)) {
-            LOGGER.info("{}Temporary limit value changed from {} to {}", group.getValidable().getMessageHeader(), oldValue, temporaryLimitValue);
-        } else {
-            LOGGER.warn("{}Temporary limit value changed from {} to {}, but it is not valid", group.getValidable().getMessageHeader(), oldValue, temporaryLimitValue);
+        if (Math.abs(temporaryLimitValue - oldValue) > TEMPORARY_LIMIT_EPSILON) { // do not apply negligible changes
+            TreeMap<Integer, TemporaryLimit> temporaryLimitTreeMap = new TreeMap<>(this.temporaryLimits);
+            // Creation of index markers
+            Map.Entry<Integer, TemporaryLimit> biggerDurationEntry = temporaryLimitTreeMap.lowerEntry(acceptableDuration);
+            Map.Entry<Integer, TemporaryLimit> smallerDurationEntry = temporaryLimitTreeMap.higherEntry(acceptableDuration);
+
+            if (isTemporaryLimitValueValid(biggerDurationEntry, smallerDurationEntry, acceptableDuration, temporaryLimitValue)) {
+                LOGGER.info("{}Temporary limit {}s value changed from {} to {}", group.getValidable().getMessageHeader(), acceptableDuration, oldValue, temporaryLimitValue);
+            } else {
+                LOGGER.warn("{}Temporary limit {}s value changed from {} to {}, but it is not valid", group.getValidable().getMessageHeader(), acceptableDuration, oldValue, temporaryLimitValue);
+            }
+
+            this.temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(identifiedLimit.getName(), temporaryLimitValue,
+                    identifiedLimit.getAcceptableDuration(), identifiedLimit.isFictitious()));
+
+            group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue, acceptableDuration);
         }
-
-        this.temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(identifiedLimit.getName(), temporaryLimitValue,
-                identifiedLimit.getAcceptableDuration(), identifiedLimit.isFictitious()));
-
-        group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue, acceptableDuration);
 
         return (L) this;
     }
