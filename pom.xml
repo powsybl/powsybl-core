@@ -127,7 +127,7 @@
         <maven.compat>3.9.9</maven.compat>
         <maven.core.version>3.8.5</maven.core.version>
         <maven.plugin.annotations.version>3.15.1</maven.plugin.annotations.version>
-        <maven.plugin.testing.harness.version>3.3.0</maven.plugin.testing.harness.version>
+        <maven.plugin.testing.harness.version>3.4.0</maven.plugin.testing.harness.version>
         <mfl.version>0.5.15</mfl.version>
         <mockito.version>5.18.0</mockito.version>
         <nativelibloader.version>2.5.0</nativelibloader.version>
