@@ -28,10 +28,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  *
@@ -79,6 +77,15 @@ public class ItoolsPackagerMojo extends AbstractMojo {
 
     @Parameter
     private CopyTo copyToEtc;
+
+    @Parameter
+    private CopyTo copyToPackageRoot;
+
+    @Parameter
+    private String licenseFile;
+
+    @Parameter
+    private String thirdPartyFile;
 
     private void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
         getLog().info("Zip package");
@@ -170,29 +177,43 @@ public class ItoolsPackagerMojo extends AbstractMojo {
     }
 
     private void addLicenseFiles(Path packageDir) {
-        // List of the license files to copy
-        List<String> licenseFiles = Arrays.asList("LICENSE.txt", "THIRD-PARTY.txt");
+        Path projectRoot = project.getBasedir().toPath();
 
-        // Get the root directory of the project
-        File projectRoot = project.getBasedir();
-        if (project.getParent() != null) {
-            projectRoot = projectRoot.getParentFile();
+        List<Path> candidateLicenseFiles = getFilePathList(licenseFile, "LICENSE", projectRoot);
+        addLicenseFile(packageDir, candidateLicenseFiles);
+
+        List<Path> candidateThirdPartyFiles = getFilePathList(thirdPartyFile, "THIRD-PARTY", projectRoot);
+        addLicenseFile(packageDir, candidateThirdPartyFiles);
+    }
+
+    private List<Path> getFilePathList(String fileName, String defaultFileNameBase, Path projectRoot) {
+        if (fileName != null) {
+            return List.of(
+                    projectRoot.resolve(fileName),
+                    projectRoot.resolve("..").resolve(fileName)
+            );
         }
+        // Search for default names
+        return Stream.of("", ".txt")
+                .flatMap(ext -> Stream.of(
+                        projectRoot.resolve(defaultFileNameBase + ext),
+                        projectRoot.resolve("..").resolve(defaultFileNameBase + ext)
+                ))
+                .toList();
+    }
 
-        // Copy each license file to the package directory
-        for (String licenseFile : licenseFiles) {
-            Path sourcePath = Paths.get(projectRoot.getPath(), licenseFile);
-            if (Files.exists(sourcePath)) {
-                try {
-                    getLog().info("Copy license file " + sourcePath + " to " + packageDir);
-                    Files.copy(sourcePath, packageDir.resolve(licenseFile), StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    getLog().warn("Failed to copy license file " + sourcePath + ": " + e.getMessage());
-                }
-            } else {
-                getLog().warn("License file " + sourcePath + " not found");
+    private void addLicenseFile(Path packageDir, List<Path> candidateLicenseFiles) {
+        Optional<Path> foundLicenseFile = candidateLicenseFiles.stream().filter(Files::exists).findFirst();
+        foundLicenseFile.ifPresentOrElse(file -> {
+            try {
+                getLog().info("Copy license file " + file + " to " + packageDir);
+                Files.copy(file, packageDir.resolve(file.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                getLog().warn("Failed to copy license file " + file + ": " + e.getMessage());
             }
-        }
+        },
+            () -> getLog().warn("License file not found (tried " + candidateLicenseFiles + ")")
+        );
     }
 
     @Override
@@ -244,6 +265,9 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             Path libDir = packageDir.resolve("lib");
             Files.createDirectories(libDir);
             copyFiles(copyToLib, libDir);
+
+            // Add misc files to package root
+            copyFiles(copyToPackageRoot, packageDir);
 
             // Add licenses
             addLicenseFiles(packageDir);
