@@ -201,6 +201,26 @@ public final class NetworkReports {
                 .add();
     }
 
+    public static void svcLowVoltageSetpointInvalid(ReportNode reportNode, String id, double voltageSetpoint, double voltageSetpointThreshold) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.svcLowVoltageSetpointInvalid")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue("lowVoltageSetpoint", voltageSetpoint, TypedValue.VOLTAGE)
+            .withTypedValue("lowVoltageThreshold", voltageSetpointThreshold, TypedValue.VOLTAGE)
+            .withSeverity(TypedValue.WARN_SEVERITY)
+            .add();
+    }
+
+    public static void svcHighVoltageSetpointInvalid(ReportNode reportNode, String id, double voltageSetpoint, double voltageSetpointThreshold) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.svcHighVoltageSetpointInvalid")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue("highVoltageSetpoint", voltageSetpoint, TypedValue.VOLTAGE)
+            .withTypedValue("highVoltageThreshold", voltageSetpointThreshold, TypedValue.VOLTAGE)
+            .withSeverity(TypedValue.WARN_SEVERITY)
+            .add();
+    }
+
     public static void voltageSetpointInvalidVoltageRegulatorOn(ReportNode reportNode, String id, double voltageSetpoint) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.voltageSetpointInvalidVoltageRegulatorOn")
