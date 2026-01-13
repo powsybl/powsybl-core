@@ -212,9 +212,12 @@ public final class NetworkSerDe {
                 continue;
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e ->
-                            isExtensionIncluded(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
-                            canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
+                    .filter(e -> {
+                        ExtensionSerDe extensionSerDe = getExtensionSerializer(context.getOptions(), e, extensionsSupplier);
+                        return isExtensionIncluded(extensionSerDe, context.getOptions())
+                            && canTheExtensionBeWritten(extensionSerDe, context.getVersion(), context.getOptions())
+                            && extensionSerDe.isValid(e, context);
+                    })
                     .toList();
 
             if (!extensions.isEmpty()) {
