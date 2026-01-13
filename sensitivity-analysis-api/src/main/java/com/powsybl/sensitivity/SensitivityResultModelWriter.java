@@ -10,10 +10,7 @@ package com.powsybl.sensitivity;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -26,12 +23,11 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     private final List<SensitivityValue> values = new ArrayList<>();
 
-    private final List<SensitivityAnalysisResult.SensitivityStateStatus> stateStatuses;
+    private final Map<SensitivityState, SensitivityAnalysisResult.SensitivityStateStatus> stateStatuses = new HashMap<>();
 
     public SensitivityResultModelWriter(List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         this.contingencies = Objects.requireNonNull(contingencies);
         this.operatorStrategies = Objects.requireNonNull(operatorStrategies);
-        stateStatuses = new ArrayList<>(Collections.nCopies(contingencies.size(), null));
     }
 
     public List<SensitivityValue> getValues() {
@@ -39,7 +35,7 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
     }
 
     public List<SensitivityAnalysisResult.SensitivityStateStatus> getStateStatuses() {
-        return stateStatuses;
+        return new ArrayList<>(stateStatuses.values());
     }
 
     @Override
@@ -51,6 +47,6 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
     public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
         SensitivityState state = new SensitivityState(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
                                                       operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
-        stateStatuses.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityStateStatus(state, status));
+        stateStatuses.put(state, new SensitivityAnalysisResult.SensitivityStateStatus(state, status));
     }
 }
