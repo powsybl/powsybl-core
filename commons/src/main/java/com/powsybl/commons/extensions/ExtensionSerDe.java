@@ -111,6 +111,16 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     }
 
     /**
+     * Check if an extension is valid for serialization in the given context.
+     * @param extension the extension to check
+     * @param context the serialization context
+     * @return true if the extension is valid for serialization in the given context, false otherwise
+     */
+    default boolean isValid(E extension, SerializerContext context) {
+        return true;
+    }
+
+    /**
      * Provides the map whose keys are the array field names and whose values are the single element field names.
      * This is used to deduce the name of an element inside and array.
      */
