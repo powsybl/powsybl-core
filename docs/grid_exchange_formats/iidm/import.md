@@ -26,13 +26,13 @@ The `iidm.import.xml.with-automation-systems` property is an optional property t
 By default the value is `true`, the overload management systems are imported when deserializing a network.
 
 **iidm.import.xml.missing-permanent-limit-percentage**  
-The `iidm.import.xml.missing-permanent-limit-percentage` property is an optional property that defines the percentage applied to lowest temporary limit to compute the permanent limit when missing (for IIDM < 1.12 only).
+The `iidm.import.xml.missing-permanent-limit-percentage` property is an optional property that defines the percentage applied to the lowest temporary limit to compute the permanent limit when missing (for IIDM < 1.12 only).
 
-By default it is set to `100`, the computed permanent limit is then computed to be the same as the lowest temporary limit.
+By default it is set to `100`, the computed permanent limit is then the same as the lowest temporary limit.
 
 **iidm.import.minimal-validation-level**  
 The `iidm.import.minimal-validation-level` property is an optional property that allows to override the network minimum validation level among the accepted validation levels.
-Possible validation levels are  `EQUIPMENT` and `STEADY_STATE_HYPOTHESIS`.
+The possible validation levels are  `EQUIPMENT` and `STEADY_STATE_HYPOTHESIS`.
 
 By default the value is `null`, the network validation level remains the same.
 
