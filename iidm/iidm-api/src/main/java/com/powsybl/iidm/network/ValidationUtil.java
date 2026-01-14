@@ -182,7 +182,7 @@ public final class ValidationUtil {
 
     public static void checkRate(Validable validable, String validableType, double rate, String fieldName) {
         if (!Double.isNaN(rate) && (rate < 0 || rate > 1)) {
-            throw new ValidationException(validable, String.format("Unexpected value for %s of %s : " + rate + " is not included in [0, 1]", fieldName, validableType));
+            throw new ValidationException(validable, "Unexpected value for " + fieldName + " of " + validableType + " : " + rate + " is not included in [0, 1]");
         }
     }
 

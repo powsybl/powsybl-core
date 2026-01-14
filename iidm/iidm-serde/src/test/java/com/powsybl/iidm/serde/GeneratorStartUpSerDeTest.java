@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class GeneratorStartUpSerDeTest {
+class GeneratorStartUpSerDeTest {
 
     @Test
-    public void testCompatibility() throws URISyntaxException {
+    void testCompatibility() throws URISyntaxException {
         Path path = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource("generatorStartUp.xml")).toURI());
         Network network = NetworkSerDe.read(path);
         GeneratorStartup generatorStartup = network.getGenerator("GEN").getExtension(GeneratorStartup.class);
