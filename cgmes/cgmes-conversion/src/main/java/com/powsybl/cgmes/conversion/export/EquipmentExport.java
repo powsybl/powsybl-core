@@ -436,8 +436,8 @@ public final class EquipmentExport {
         double defaultRatedS = computeDefaultRatedS(i, minP, maxP);
 
         String reactiveLimitsId = writeReactiveCapabilityCurve(i, cimNamespace, writer, context);
-        String kind = obtainSynchronousMachineKind(i, minP, maxP, CgmesExportUtil.obtainCurve(i), !(i instanceof Generator gen) || gen.isCondenser());
-        String generatingUnit = "condenser".equals(kind) ? null : context.getNamingStrategy().getCgmesIdFromProperty(i, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
+        String kind = obtainSynchronousMachineKind(i);
+        String generatingUnit = "condenser".equals(kind) ? null : context.getNamingStrategy().getCgmesIdFromProperty(i, PROPERTY_GENERATING_UNIT);
 
         SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
