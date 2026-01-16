@@ -558,4 +558,35 @@ public final class CgmesExportUtil {
     public static boolean isMinusOrMaxValue(double value) {
         return value == -Double.MAX_VALUE || value == Double.MAX_VALUE;
     }
+
+    public static boolean hasRegulatingControlCapability(Connectable<?> connectable) {
+        if (connectable.hasProperty(PROPERTY_REGULATING_CONTROL)) {
+            return true;
+        } else if (connectable instanceof Generator generator) {
+            return generator.getExtension(RemoteReactivePowerControl.class) != null
+                || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
+        } else if (connectable instanceof ShuntCompensator shuntCompensator) {
+            return CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getTargetV())
+                || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable());
+        } else if (connectable instanceof StaticVarCompensator staticVarCompensator) {
+            return CgmesExportUtil.isValidReactivePowerSetpoint(staticVarCompensator.getReactivePowerSetpoint())
+                || CgmesExportUtil.isValidVoltageSetpoint(staticVarCompensator.getVoltageSetpoint())
+                || !Objects.equals(staticVarCompensator, staticVarCompensator.getRegulatingTerminal().getConnectable());
+        }
+        return false;
+    }
+
+    private static boolean hasReactiveCapability(Generator generator) {
+        ReactiveLimits reactiveLimits = generator.getReactiveLimits();
+        if (reactiveLimits == null) {
+            return false;
+        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
+            ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) reactiveLimits;
+            return rcc.getPoints().stream().anyMatch(p -> p.getMaxQ() != p.getMinQ());
+        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+            MinMaxReactiveLimits mmrl = (MinMaxReactiveLimits) reactiveLimits;
+            return mmrl.getMaxQ() != mmrl.getMinQ();
+        }
+        return false;
+    }
 }

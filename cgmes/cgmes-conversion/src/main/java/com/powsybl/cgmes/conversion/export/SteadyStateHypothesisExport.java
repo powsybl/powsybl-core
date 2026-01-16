@@ -261,7 +261,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void addRegulatingControlView(ShuntCompensator s, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
-        if (s.hasProperty(Conversion.PROPERTY_REGULATING_CONTROL)) {
+        if (hasRegulatingControlCapability(s)) {
             // PowSyBl has considered the control as discrete, with a certain targetDeadband
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
             String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, Conversion.PROPERTY_REGULATING_CONTROL);
@@ -385,10 +385,10 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void addRegulatingControlView(Generator g, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
-        if (g.hasProperty(Conversion.PROPERTY_REGULATING_CONTROL)) {
+        if (hasRegulatingControlCapability(g)) {
             // PowSyBl has considered the control as continuous and with targetDeadband of size 0
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, Conversion.PROPERTY_REGULATING_CONTROL);
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, PROPERTY_REGULATING_CONTROL);
 
             double targetDeadband = 0;
             double target;
@@ -423,38 +423,39 @@ public final class SteadyStateHypothesisExport {
     private static void writeStaticVarCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            boolean controlEnabled = svc.isRegulating();
-
             CgmesExportUtil.writeStartAbout("StaticVarCompensator", context.getNamingStrategy().getCgmesId(svc), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
-            writer.writeCharacters(Boolean.toString(controlEnabled));
+            writer.writeCharacters(Boolean.toString(svc.isRegulating()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "StaticVarCompensator.q");
             writer.writeCharacters(CgmesExportUtil.format(svc.getTerminal().getQ()));
             writer.writeEndElement();
             writer.writeEndElement();
+            addRegulatingControlView(svc, regulatingControlViews, context);
+        }
+    }
 
-            if (svc.hasProperty(Conversion.PROPERTY_REGULATING_CONTROL)) {
-                String rcid = context.getNamingStrategy().getCgmesIdFromProperty(svc, Conversion.PROPERTY_REGULATING_CONTROL);
-                double targetDeadband = 0;
-                // Regulating control could be reactive power or voltage
-                double targetValue;
-                String multiplier;
-                String svcMode = CgmesExportUtil.getSvcMode(svc);
-                if (svcMode.equals(RegulatingControlEq.REGULATING_CONTROL_VOLTAGE)) {
-                    targetValue = svc.getVoltageSetpoint();
-                    multiplier = "k";
-                } else if (svcMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                    targetValue = svc.getReactivePowerSetpoint();
-                    multiplier = "M";
-                } else {
-                    targetValue = 0;
-                    multiplier = "k";
-                }
-                RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
-                        controlEnabled, targetDeadband, targetValue, multiplier);
-                regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
+    private static void addRegulatingControlView(StaticVarCompensator svc, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
+        if (hasRegulatingControlCapability(svc)) {
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(svc, PROPERTY_REGULATING_CONTROL);
+            double targetDeadband = 0;
+            // Regulating control could be reactive power or voltage
+            double targetValue;
+            String multiplier;
+            String svcMode = CgmesExportUtil.getSvcMode(svc);
+            if (svcMode.equals(RegulatingControlEq.REGULATING_CONTROL_VOLTAGE)) {
+                targetValue = svc.getVoltageSetpoint();
+                multiplier = "k";
+            } else if (svcMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
+                targetValue = svc.getReactivePowerSetpoint();
+                multiplier = "M";
+            } else {
+                targetValue = 0;
+                multiplier = "k";
             }
+            RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
+                svc.isRegulating(), targetDeadband, targetValue, multiplier);
+            regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }
 

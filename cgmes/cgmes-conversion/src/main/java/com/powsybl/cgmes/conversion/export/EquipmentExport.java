@@ -382,14 +382,14 @@ public final class EquipmentExport {
                             cimNamespace, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
-                    regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, getTerminalId(regulatingTerminal, context), regulatingControlsWritten, mode, cimNamespace, writer, context);
+                    regulatingControlId = writeRegulatingControlId(generator, getTerminalId(regulatingTerminal, context), regulatingControlsWritten, mode, cimNamespace, writer, context);
                     ExternalNetworkInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
                             context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
                             obtainGeneratorGovernorScd(generator), generator.getMaxP(), getMaxQ(generator), generator.getMinP(), getMinQ(generator),
                             regulatingControlId, cimNamespace, writer, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
-                    regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(generator, getTerminalId(regulatingTerminal, context), regulatingControlsWritten, mode, cimNamespace, writer, context);
+                    regulatingControlId = writeRegulatingControlId(generator, getTerminalId(regulatingTerminal, context), regulatingControlsWritten, mode, cimNamespace, writer, context);
                     writeSynchronousMachine(generator, cimNamespace,
                             generator.getMinP(), generator.getMaxP(), generator.getTargetP(), generator.getRatedS(), generator.getEnergySource(),
                             regulatingControlId, writer, context, generatingUnitsWritten);
@@ -398,6 +398,19 @@ public final class EquipmentExport {
                     throw new PowsyblException("Unexpected cgmes equipment " + cgmesOriginalClass);
             }
         }
+    }
+
+    private static String writeRegulatingControlId(Connectable<?> connectable, String terminalId, Set<String> regulatingControlsWritten, String mode,
+                                                   String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String regulatingControlId = null;
+        if (hasRegulatingControlCapability(connectable)) {
+            regulatingControlId = context.getNamingStrategy().getCgmesIdFromProperty(connectable, PROPERTY_REGULATING_CONTROL);
+            if (!regulatingControlsWritten.contains(regulatingControlId)) {
+                RegulatingControlEq.writeRegulatingControlEq(connectable, terminalId, regulatingControlId, mode, cimNamespace, writer, context);
+                regulatingControlsWritten.add(regulatingControlId);
+            }
+        }
+        return regulatingControlId;
     }
 
     private static double obtainGeneratorGovernorScd(Generator generator) {
@@ -420,12 +433,11 @@ public final class EquipmentExport {
     private static <I extends ReactiveLimitsHolder & Injection<I>> void writeSynchronousMachine(I i, String cimNamespace,
                                                                                                 double minP, double maxP, double targetP, double ratedS, EnergySource energySource, String regulatingControlId,
                                                                                                 XMLStreamWriter writer, CgmesExportContext context, Set<String> generatingUnitsWritten) throws XMLStreamException {
-
-        String generatingUnit = context.getNamingStrategy().getCgmesIdFromProperty(i, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
         double defaultRatedS = computeDefaultRatedS(i, minP, maxP);
 
         String reactiveLimitsId = writeReactiveCapabilityCurve(i, cimNamespace, writer, context);
         String kind = obtainSynchronousMachineKind(i, minP, maxP, CgmesExportUtil.obtainCurve(i), !(i instanceof Generator gen) || gen.isCondenser());
+        String generatingUnit = "condenser".equals(kind) ? null : context.getNamingStrategy().getCgmesIdFromProperty(i, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
 
         SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
@@ -602,7 +614,7 @@ public final class EquipmentExport {
                     bPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getBPerSection();
                     gPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getGPerSection();
                 }
-                String regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(s, getTerminalId(s.getRegulatingTerminal(), context), regulatingControlsWritten, mode, cimNamespace, writer, context);
+                String regulatingControlId = writeRegulatingControlId(s, getTerminalId(s.getRegulatingTerminal(), context), regulatingControlsWritten, mode, cimNamespace, writer, context);
                 ShuntCompensatorEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(), s.getSectionCount(), s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, regulatingControlId,
                         context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
                 if (s.getModelType().equals(ShuntCompensatorModelType.NON_LINEAR)) {
@@ -623,7 +635,7 @@ public final class EquipmentExport {
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             String mode = CgmesExportUtil.getSvcMode(svc);
-            String regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(svc, getTerminalId(svc.getRegulatingTerminal(), context), regulatingControlsWritten, mode, cimNamespace, writer, context);
+            String regulatingControlId = writeRegulatingControlId(svc, getTerminalId(svc.getRegulatingTerminal(), context), regulatingControlsWritten, mode, cimNamespace, writer, context);
             double inductiveRating = svc.getBmin() != 0 ? 1 / svc.getBmin() : 0;
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
             StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc), svc.getNameOrId(), context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()), regulatingControlId, inductiveRating, capacitiveRating, svc.getExtension(VoltagePerReactivePowerControl.class), svc.getRegulationMode(), svc.getVoltageSetpoint(), cimNamespace, writer, context);

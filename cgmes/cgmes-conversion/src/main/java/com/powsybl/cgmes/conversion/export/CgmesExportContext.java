@@ -18,7 +18,6 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -253,8 +252,6 @@ public class CgmesExportContext {
     public void addIidmMappings(Network network) {
         addIidmMappingsGenerators(network);
         addIidmMappingsBatteries(network);
-        addIidmMappingsShuntCompensators(network);
-        addIidmMappingsStaticVarCompensators(network);
         addIidmMappingsEquivalentInjection(network);
     }
 
@@ -376,42 +373,7 @@ public class CgmesExportContext {
                     generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
                 }
             }
-            String regulatingControlId = generator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            if (regulatingControlId == null && hasRegulatingControlCapability(generator)) {
-                regulatingControlId = namingStrategy.getCgmesId(ref(generator), Part.REGULATING_CONTROL);
-                generator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
-            }
         }
-    }
-
-    private static boolean hasRegulatingControlCapability(Generator generator) {
-        return generator.getExtension(RemoteReactivePowerControl.class) != null
-                || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
-    }
-
-    private static boolean hasReactiveCapability(Generator generator) {
-        ReactiveLimits reactiveLimits = generator.getReactiveLimits();
-        if (reactiveLimits == null) {
-            return false;
-        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
-            return hasReactiveCapability((ReactiveCapabilityCurve) reactiveLimits);
-        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
-            return hasReactiveCapability((MinMaxReactiveLimits) reactiveLimits);
-        }
-        return false;
-    }
-
-    private static boolean hasReactiveCapability(ReactiveCapabilityCurve rcc) {
-        for (ReactiveCapabilityCurve.Point point : rcc.getPoints()) {
-            if (point.getMaxQ() != point.getMinQ()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean hasReactiveCapability(MinMaxReactiveLimits mmrl) {
-        return mmrl.getMaxQ() != mmrl.getMinQ();
     }
 
     private void addIidmMappingsBatteries(Network network) {
@@ -422,34 +384,6 @@ public class CgmesExportContext {
                 battery.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
             }
             // TODO regulation
-        }
-    }
-
-    private void addIidmMappingsShuntCompensators(Network network) {
-        for (ShuntCompensator shuntCompensator : network.getShuntCompensators()) {
-            if ("true".equals(shuntCompensator.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
-                continue;
-            }
-            String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            if (regulatingControlId == null && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getTargetV())
-                                            || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
-                regulatingControlId = namingStrategy.getCgmesId(ref(shuntCompensator), Part.REGULATING_CONTROL);
-                shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
-            }
-        }
-    }
-
-    private void addIidmMappingsStaticVarCompensators(Network network) {
-        for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            String regulatingControlId = svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            boolean validVoltageSetpoint = CgmesExportUtil.isValidVoltageSetpoint(svc.getVoltageSetpoint());
-            boolean validReactiveSetpoint = CgmesExportUtil.isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
-            if (regulatingControlId == null && (validReactiveSetpoint
-                                                || validVoltageSetpoint
-                                                || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
-                regulatingControlId = namingStrategy.getCgmesId(ref(svc), Part.REGULATING_CONTROL);
-                svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
-            }
         }
     }
 
