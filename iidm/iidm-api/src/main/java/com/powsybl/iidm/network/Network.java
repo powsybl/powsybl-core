@@ -1800,7 +1800,7 @@ public interface Network extends Container<Network> {
             case DC_SWITCH -> getDcSwitchStream().map(Function.identity());
             case LINE_COMMUTATED_CONVERTER -> getLineCommutatedConverterStream().map(Function.identity());
             case VOLTAGE_SOURCE_CONVERTER -> getVoltageSourceConverterStream().map(Function.identity());
-            default -> throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
+            default -> throw new PowsyblException("can't get a stream of " + identifiableType + " from a network.");
         };
     }
 
