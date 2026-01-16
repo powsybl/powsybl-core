@@ -24,6 +24,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 import java.util.Arrays;
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_GENERATING_UNIT;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -75,7 +77,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     private void convertGenerator(Generator g) {
         String generatingUnit = p.getId(CgmesNames.GENERATING_UNIT);
         if (generatingUnit != null) {
-            g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.GENERATING_UNIT, generatingUnit);
+            g.setProperty(PROPERTY_GENERATING_UNIT, generatingUnit);
         }
         addGeneratingUnitProperties(g, p);
     }
@@ -139,7 +141,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
         generator.setTargetP(targetP).setTargetQ(targetQ);
 
-        String generatingUnitId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.GENERATING_UNIT);
+        String generatingUnitId = generator.getProperty(PROPERTY_GENERATING_UNIT);
         if (generatingUnitId != null) {
             updateGeneratingUnit(generator, generatingUnitId, context);
         }

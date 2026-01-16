@@ -9,7 +9,7 @@
 package com.powsybl.cgmes.conversion.naming;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
@@ -66,6 +66,7 @@ public interface NamingStrategy {
             case ALIAS_TRANSFORMER_END1 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(1))};
             case ALIAS_TRANSFORMER_END2 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(2))};
             case ALIAS_TRANSFORMER_END3 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(3))};
+            case PROPERTY_GENERATING_UNIT -> getGeneratingUnitReferences(identifiable);
             case PROPERTY_REGULATING_CONTROL -> new CgmesObjectReference[] {ref(identifiable), REGULATING_CONTROL};
             default -> throw new IllegalStateException("Unexpected value: " + aliasOrProperty);
         };
@@ -76,6 +77,13 @@ public interface NamingStrategy {
             return new CgmesObjectReference[] {refTyped(identifiable), TERMINAL};
         }
         return new CgmesObjectReference[] {refTyped(identifiable), TERMINAL, ref(1)};
+    }
+
+    private CgmesObjectReference[] getGeneratingUnitReferences(Identifiable<?> identifiable) {
+        if (identifiable instanceof Generator generator) {
+            return new CgmesObjectReference[]{ref(generator), refGeneratingUnit(generator)};
+        }
+        return new CgmesObjectReference[]{refTyped(identifiable), Part.GENERATING_UNIT};
     }
 
     final class Identity implements NamingStrategy {

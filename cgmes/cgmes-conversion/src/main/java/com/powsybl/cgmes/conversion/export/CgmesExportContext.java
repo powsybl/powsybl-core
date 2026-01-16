@@ -29,19 +29,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
-import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.export.EquipmentExport.hasDifferentTNsAtBothEnds;
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refGeneratingUnit;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CgmesExportContext {
-
-    private static final String GENERATING_UNIT = "GeneratingUnit";
 
     private static final String DEFAULT_REGION = "default region";
     private static final String BOUNDARY_EQ_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_BD_ID";
@@ -250,8 +245,6 @@ public class CgmesExportContext {
     }
 
     public void addIidmMappings(Network network) {
-        addIidmMappingsGenerators(network);
-        addIidmMappingsBatteries(network);
         addIidmMappingsEquivalentInjection(network);
     }
 
@@ -357,34 +350,6 @@ public class CgmesExportContext {
                     || isBusBranchExport() && !hasDifferentTNsAtBothEnds(sw);
         }
         return !ignored;
-    }
-
-    private static boolean isCondenser(Generator generator) {
-        return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), CgmesExportUtil.obtainCurve(generator), generator.isCondenser()).contains("condenser");
-    }
-
-    private void addIidmMappingsGenerators(Network network) {
-        for (Generator generator : network.getGenerators()) {
-            // Condensers should not have generating units
-            if (!isCondenser(generator)) {
-                String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
-                if (generatingUnit == null) {
-                    generatingUnit = namingStrategy.getCgmesId(ref(generator), refGeneratingUnit(generator));
-                    generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
-                }
-            }
-        }
-    }
-
-    private void addIidmMappingsBatteries(Network network) {
-        for (Battery battery : network.getBatteries()) {
-            String generatingUnit = battery.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
-            if (generatingUnit == null) {
-                generatingUnit = namingStrategy.getCgmesId(refTyped(battery), Part.GENERATING_UNIT);
-                battery.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
-            }
-            // TODO regulation
-        }
     }
 
     private void addIidmMappingsEquivalentInjection(Network network) {

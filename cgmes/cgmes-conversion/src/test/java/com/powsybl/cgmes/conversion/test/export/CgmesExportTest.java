@@ -38,6 +38,7 @@ import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_GENERATING_UNIT;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
@@ -130,8 +131,8 @@ class CgmesExportTest {
             Network n2 = Network.read(new GenericReadOnlyDataSource(tmpDir, baseName), importParams);
             Generator g1 = n2.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
             Generator g2 = n2.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
-            String gu1 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
-            String gu2 = g2.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
+            String gu1 = g1.getProperty(PROPERTY_GENERATING_UNIT);
+            String gu2 = g2.getProperty(PROPERTY_GENERATING_UNIT);
             assertEquals(gu1, gu2);
         }
     }
