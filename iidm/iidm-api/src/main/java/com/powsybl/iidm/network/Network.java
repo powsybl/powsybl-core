@@ -1775,6 +1775,7 @@ public interface Network extends Container<Network> {
 
     default Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
         return switch (identifiableType) {
+            case NETWORK -> getSubnetworks().stream().map(Function.identity());
             case SWITCH -> getSwitchStream().map(Function.identity());
             case TWO_WINDINGS_TRANSFORMER -> getTwoWindingsTransformerStream().map(Function.identity());
             case THREE_WINDINGS_TRANSFORMER -> getThreeWindingsTransformerStream().map(Function.identity());
