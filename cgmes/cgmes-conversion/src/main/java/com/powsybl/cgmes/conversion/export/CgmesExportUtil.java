@@ -453,6 +453,15 @@ public final class CgmesExportUtil {
         return i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE) ? i.getReactiveLimits(ReactiveCapabilityCurve.class) : null;
     }
 
+    public static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i) {
+        if (i instanceof Battery battery) {
+            return obtainSynchronousMachineKind(battery, battery.getMinP(), battery.getMaxP(), obtainCurve(battery), true);
+        } else if (i instanceof Generator generator) {
+            return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), obtainCurve(generator), generator.isCondenser());
+        }
+        throw new IllegalStateException("Unexpected machine kind: " + i.getClass().getName());
+    }
+
     // Original synchronous machine kind it is only preserved if it is compatible with the calculated synchronous machine kind
     // calculated synchronous machine kind is based on the present limits
     static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
