@@ -82,15 +82,10 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
 
     @Override
     public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
-        // This is a hack to save in the naming strategy an identifier for something comes as named property of identifiable
-        // Generating units and regulating controls of generators
-        String id = identifiable.getProperty(propertyName);
-        // May be empty
-        if (id == null) {
-            return null;
-        } else {
-            return getCgmesId(id);
+        if (identifiable.hasProperty(propertyName)) {
+            return getCgmesId(identifiable.getProperty(propertyName));
         }
+        return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
     }
 
     @Override

@@ -35,7 +35,10 @@ public interface NamingStrategy {
     }
 
     default String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
-        return identifiable.getProperty(propertyName);
+        if (identifiable.hasProperty(propertyName)) {
+            return identifiable.getProperty(propertyName);
+        }
+        return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
     }
 
     default String getCgmesId(String identifier) {
@@ -63,6 +66,7 @@ public interface NamingStrategy {
             case ALIAS_TRANSFORMER_END1 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(1))};
             case ALIAS_TRANSFORMER_END2 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(2))};
             case ALIAS_TRANSFORMER_END3 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(3))};
+            case PROPERTY_REGULATING_CONTROL -> new CgmesObjectReference[] {ref(identifiable), REGULATING_CONTROL};
             default -> throw new IllegalStateException("Unexpected value: " + aliasOrProperty);
         };
     }

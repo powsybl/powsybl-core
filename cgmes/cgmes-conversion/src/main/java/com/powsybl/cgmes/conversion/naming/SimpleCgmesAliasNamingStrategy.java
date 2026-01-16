@@ -38,16 +38,4 @@ public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStra
         return identifiable.getAliasFromType(aliasType)
                 .orElseGet(() -> getCgmesId(getCgmesObjectReferences(identifiable, aliasType)));
     }
-
-    @Override
-    public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
-        // We only try to fix subRegionId and regionId identifiers stored in properties
-        // Any other identifer stored in a property comes from original CGMES data
-        // and is assumed to be correct
-        if (propertyName.endsWith("egionId")) {
-            return super.getCgmesIdFromProperty(identifiable, propertyName);
-        } else {
-            return identifiable.getProperty(propertyName);
-        }
-    }
 }

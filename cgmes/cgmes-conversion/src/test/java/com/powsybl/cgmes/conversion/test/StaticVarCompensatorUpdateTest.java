@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -133,7 +134,7 @@ class StaticVarCompensatorUpdateTest {
         if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
             assertNotNull(staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN));
         }
-        assertNotNull(staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL));
+        assertNotNull(staticVarCompensator.getProperty(PROPERTY_REGULATING_CONTROL));
     }
 
     private static void assertSsh(StaticVarCompensator staticVarCompensator, double targetQ, double targetV, boolean regulating) {

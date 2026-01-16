@@ -731,7 +731,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected static Optional<PropertyBag> findCgmesRegulatingControl(Connectable<?> connectable, Context context) {
-        String regulatingControlId = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL);
+        String regulatingControlId = connectable.getProperty(PROPERTY_REGULATING_CONTROL);
         return regulatingControlId != null ? Optional.ofNullable(context.regulatingControl(regulatingControlId)) : Optional.empty();
     }
 
