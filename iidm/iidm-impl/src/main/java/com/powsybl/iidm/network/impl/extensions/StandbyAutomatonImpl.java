@@ -44,6 +44,7 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
     private static void checkVoltageConfig(StaticVarCompensatorImpl svc, double lowVoltageSetpoint, double highVoltageSetpoint,
                                            double lowVoltageThreshold, double highVoltageThreshold,
                                            boolean standby) {
+        ReportNode reportNode = svc.getNetwork().getReportNodeContext().getReportNode();
         if (Double.isNaN(lowVoltageSetpoint)) {
             throw new ValidationException(svc, String.format("low voltage setpoint (%s) is invalid", lowVoltageSetpoint));
         }
@@ -65,9 +66,10 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
             } else {
                 LOGGER.warn("Inconsistent low {} and high ({}) voltage thresholds for StaticVarCompensator {}",
                         lowVoltageSetpoint, lowVoltageThreshold, svc.getId());
+                NetworkReports.svcVoltageThresholdInvalid(reportNode, svc.getId(), lowVoltageThreshold, highVoltageThreshold);
             }
         }
-        ReportNode reportNode = svc.getNetwork().getReportNodeContext().getReportNode();
+
         if (lowVoltageSetpoint < lowVoltageThreshold) {
             LOGGER.warn("Invalid low voltage setpoint {} < threshold {} for StaticVarCompensator {}",
                 lowVoltageSetpoint, lowVoltageThreshold, svc.getId());

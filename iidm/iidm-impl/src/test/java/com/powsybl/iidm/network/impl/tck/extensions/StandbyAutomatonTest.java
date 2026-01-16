@@ -100,7 +100,7 @@ class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
         // Builder
         StandbyAutomatonAdder standbyAutomatonAdder = svc.newExtension(StandbyAutomatonAdder.class)
             .withB0(0.0001f)
-            .withStandbyStatus(true);
+            .withStandbyStatus(false);
 
         // lowVoltageSetpoint < lowVoltageThreshold
         standbyAutomatonAdder.withLowVoltageSetpoint(380f)
@@ -123,13 +123,22 @@ class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
             .withHighVoltageThreshold(405f)
             .add();
 
+        // lowVoltageThreshold > highVoltageThreshold
+        standbyAutomatonAdder.withLowVoltageSetpoint(410f)
+            .withHighVoltageSetpoint(380f)
+            .withLowVoltageThreshold(400f)
+            .withHighVoltageThreshold(385f)
+            .add();
+
         ReportNode reportNode = svc.getNetwork().getReportNodeContext().getReportNode();
-        assertEquals(2, reportNode.getChildren().size());
+        assertEquals(3, reportNode.getChildren().size());
         assertEquals("Static VAR compensator 'SVC2': invalid low voltage setpoint (380.0) < threshold (385.0)",
             reportNode.getChildren().get(0).getMessage());
 
         assertEquals("Static VAR compensator 'SVC2': invalid high voltage setpoint (410.0) > threshold (405.0)",
             reportNode.getChildren().get(1).getMessage());
 
+        assertEquals("Static VAR compensator 'SVC2': Inconsistent low (400.0) and high (385.0) voltage thresholds",
+            reportNode.getChildren().get(2).getMessage());
     }
 }

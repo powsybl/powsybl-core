@@ -201,6 +201,17 @@ public final class NetworkReports {
                 .add();
     }
 
+    public static void svcVoltageThresholdInvalid(ReportNode reportNode, String id, double lowVoltageThreshold,
+            double highVoltageThreshold) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.svcVoltageThresholdInvalid")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue("lowVoltageThreshold", lowVoltageThreshold, TypedValue.VOLTAGE)
+            .withTypedValue("highVoltageThreshold", highVoltageThreshold, TypedValue.VOLTAGE)
+            .withSeverity(TypedValue.WARN_SEVERITY)
+            .add();
+    }
+
     public static void svcLowVoltageSetpointInvalid(ReportNode reportNode, String id, double voltageSetpoint, double voltageSetpointThreshold) {
         reportNode.newReportNode()
             .withMessageTemplate("core.iidm.network.svcLowVoltageSetpointInvalid")
