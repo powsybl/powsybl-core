@@ -7,15 +7,52 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NAME;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseMultiTerminalDcConverterx {
+
+    private static final Map<String, PsseFieldDefinition<PsseMultiTerminalDcConverterx, ?>> FIELDS = createFields();
+
+    private String name;
+    private PsseMultiTerminalDcConverter converter;
+
+    private static Map<String, PsseFieldDefinition<PsseMultiTerminalDcConverterx, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseMultiTerminalDcConverterx, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_NAME, String.class, PsseMultiTerminalDcConverterx::getName, PsseMultiTerminalDcConverterx::setName));
+
+        return fields;
+    }
+
+    public static PsseMultiTerminalDcConverterx fromRecord(CsvRecord rec, String[] headers) {
+        PsseMultiTerminalDcConverterx multiTerminalDcConverterx = Util.fromRecord(rec.getFields(), headers, FIELDS, PsseMultiTerminalDcConverterx::new);
+        multiTerminalDcConverterx.setConverter(PsseMultiTerminalDcConverter.fromRecord(rec, headers));
+        return multiTerminalDcConverterx;
+    }
+
+    public static String[] toRecord(PsseMultiTerminalDcConverterx multiTerminalDcConverterx, String[] headers) {
+        Set<String> unexpectedHeaders = new HashSet<>(List.of(headers));
+        String[] recordValues = Util.toRecord(multiTerminalDcConverterx, headers, FIELDS, unexpectedHeaders);
+        PsseMultiTerminalDcConverter.toRecord(multiTerminalDcConverterx.getConverter(), headers, recordValues, unexpectedHeaders);
+        checkForUnexpectedHeader(unexpectedHeaders);
+        return recordValues;
+    }
 
     public PsseMultiTerminalDcConverterx() {
     }
@@ -23,43 +60,6 @@ public class PsseMultiTerminalDcConverterx {
     public PsseMultiTerminalDcConverterx(String name, PsseMultiTerminalDcConverter converter) {
         this.name = name;
         this.converter = converter;
-    }
-
-    private String name;
-    private PsseMultiTerminalDcConverter converter;
-
-    public static PsseMultiTerminalDcConverterx fromRecord(CsvRecord rec, String[] headers) {
-        PsseMultiTerminalDcConverterx psseMultiTerminalDcConverterx = new PsseMultiTerminalDcConverterx();
-        psseMultiTerminalDcConverterx.setName(parseStringFromRecord(rec, headers, "name"));
-        psseMultiTerminalDcConverterx.setConverter(PsseMultiTerminalDcConverter.fromRecord(rec, headers));
-        return psseMultiTerminalDcConverterx;
-    }
-
-    public static String[] toRecord(PsseMultiTerminalDcConverterx psseMultiTerminalDcConverterx, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "name" -> psseMultiTerminalDcConverterx.getName();
-                case "ib" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getIb());
-                case "n" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getN());
-                case "angmx" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getAngmx());
-                case "angmn" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getAngmn());
-                case "rc" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getRc());
-                case "xc" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getXc());
-                case "ebas" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getEbas());
-                case "tr" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getTr());
-                case "tap" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getTap());
-                case "tpmx" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getTpmx());
-                case "tpmn" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getTpmn());
-                case "tstp" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getTstp());
-                case "setvl" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getSetvl());
-                case "dcpf" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getDcpf());
-                case "marg" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getMarg());
-                case "cnvcod" -> String.valueOf(psseMultiTerminalDcConverterx.getConverter().getCnvcod());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
     }
 
     public String getName() {

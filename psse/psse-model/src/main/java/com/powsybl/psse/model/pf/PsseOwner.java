@@ -7,11 +7,18 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -19,26 +26,42 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  */
 public class PsseOwner {
 
+    private static final Map<String, PsseFieldDefinition<PsseOwner, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_32_33 = {STR_I, STR_OWNAME};
+    private static final String[] FIELD_NAMES_35 = {STR_IOWNER, STR_OWNAME};
+
     private int i;
-    private String owname;
+    private String owname = defaultStringFor(STR_OWNAME, FIELDS);
+
+    public static String[] getFieldNames3233() {
+        return FIELD_NAMES_32_33;
+    }
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
 
     public static PsseOwner fromRecord(CsvRecord rec, String[] headers) {
-        PsseOwner psseOwner = new PsseOwner();
-        psseOwner.setI(parseIntFromRecord(rec, headers, "i", "iowner"));
-        psseOwner.setOwname(parseStringFromRecord(rec, "            ", headers, "owname", "owner"));
-        return psseOwner;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseOwner::new);
     }
 
     public static String[] toRecord(PsseOwner psseOwner, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "i", "iowner" -> String.valueOf(psseOwner.getI());
-                case "owname", "owner" -> psseOwner.getOwname();
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+        return Util.toRecord(psseOwner, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseOwner, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseOwner, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseOwner::getI, PsseOwner::setI));
+        addField(fields, createNewField(STR_IOWNER, Integer.class, PsseOwner::getI, PsseOwner::setI));
+        addField(fields, createNewField(STR_OWNAME, String.class, PsseOwner::getOwname, PsseOwner::setOwname, "            "));
+        addField(fields, createNewField(STR_OWNER, String.class, PsseOwner::getOwname, PsseOwner::setOwname, "            "));
+
+        return fields;
     }
 
     public int getI() {

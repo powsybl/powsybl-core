@@ -7,17 +7,52 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ISUB;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseSubstationSwitchingDevicex {
+
+    private static final Map<String, PsseFieldDefinition<PsseSubstationSwitchingDevicex, ?>> FIELDS = createFields();
+
+    private int isub;
+    private PsseSubstationSwitchingDevice switchingDevice;
+
+    private static Map<String, PsseFieldDefinition<PsseSubstationSwitchingDevicex, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseSubstationSwitchingDevicex, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_ISUB, Integer.class, PsseSubstationSwitchingDevicex::getIsub, PsseSubstationSwitchingDevicex::setIsub));
+
+        return fields;
+    }
+
+    public static PsseSubstationSwitchingDevicex fromRecord(CsvRecord rec, String[] headers) {
+        PsseSubstationSwitchingDevicex psseSubstationSwitchingDevicex = Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationSwitchingDevicex::new);
+        psseSubstationSwitchingDevicex.setSwitchingDevice(PsseSubstationSwitchingDevice.fromRecord(rec, headers));
+        return psseSubstationSwitchingDevicex;
+    }
+
+    public static String[] toRecord(PsseSubstationSwitchingDevicex psseSubstationSwitchingDevicex, String[] headers) {
+        Set<String> unexpectedHeaders = new HashSet<>(List.of(headers));
+        String[] recordValues = Util.toRecord(psseSubstationSwitchingDevicex, headers, FIELDS, unexpectedHeaders);
+        PsseSubstationSwitchingDevice.toRecord(psseSubstationSwitchingDevicex.getSwitchingDevice(), headers, recordValues, unexpectedHeaders);
+        checkForUnexpectedHeader(unexpectedHeaders);
+        return recordValues;
+    }
 
     public PsseSubstationSwitchingDevicex() {
 
@@ -26,34 +61,6 @@ public class PsseSubstationSwitchingDevicex {
     public PsseSubstationSwitchingDevicex(int isub, PsseSubstationSwitchingDevice switchingDevice) {
         this.isub = isub;
         this.switchingDevice = switchingDevice;
-    }
-
-    private int isub;
-    private PsseSubstationSwitchingDevice switchingDevice;
-
-    public static PsseSubstationSwitchingDevicex fromRecord(CsvRecord rec, String[] headers) {
-        PsseSubstationSwitchingDevicex psseSubstationSwitchingDevicex = new PsseSubstationSwitchingDevicex();
-        psseSubstationSwitchingDevicex.setIsub(parseIntFromRecord(rec, headers, "isub"));
-        psseSubstationSwitchingDevicex.setSwitchingDevice(PsseSubstationSwitchingDevice.fromRecord(rec, headers));
-        return psseSubstationSwitchingDevicex;
-    }
-
-    public static String[] toRecord(PsseSubstationSwitchingDevicex psseSubstationSwitchingDevicex, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "isub" -> String.valueOf(psseSubstationSwitchingDevicex.getIsub());
-                case "rsetnam" -> null; // This header seems to be expected, but no variable seems consistent with it
-                default -> {
-                    Optional<String> optionalValue = psseSubstationSwitchingDevicex.getSwitchingDevice().headerToString(headers[i]);
-                    if (optionalValue.isPresent()) {
-                        yield optionalValue.get();
-                    }
-                    throw new PsseException("Unsupported header: " + headers[i]);
-                }
-            };
-        }
-        return row;
     }
 
     public int getIsub() {

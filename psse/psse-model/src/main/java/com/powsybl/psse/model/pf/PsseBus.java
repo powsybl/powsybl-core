@@ -7,15 +7,35 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_AREA;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_BASKV;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_EVHI;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_EVLO;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IBUS;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IDE;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NAME;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NVHI;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NVLO;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_OWNER;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_VA;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_VM;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ZONE;
 
 /**
  *
@@ -23,69 +43,80 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  */
 public class PsseBus extends PsseVersioned {
 
+    private static final Map<String, PsseFieldDefinition<PsseBus, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_COMMON = {STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA};
+    private static final String[] FIELD_NAMES_32_33_START = {STR_I};
+    private static final String[] FIELD_NAMES_32 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON);
+    private static final String[] FIELD_NAMES_33_PLUS = {STR_NVHI, STR_NVLO, STR_EVHI, STR_EVLO};
+    private static final String[] FIELD_NAMES_33 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON, FIELD_NAMES_33_PLUS);
+    private static final String[] FIELD_NAMES_35_START = {STR_IBUS};
+    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_35_START, FIELD_NAMES_COMMON, FIELD_NAMES_33_PLUS);
+
     private int i;
     private String name;
-    private double baskv = 0;
-    private int ide = 1;
-    private int area = 1;
-    private int zone = 1;
-    private int owner = 1;
-    private double vm = 1;
-    private double va = 0;
+    private double baskv = defaultDoubleFor(STR_BASKV, FIELDS);
+    private int ide = defaultIntegerFor(STR_IDE, FIELDS);
+    private int area = defaultIntegerFor(STR_AREA, FIELDS);
+    private int zone = defaultIntegerFor(STR_ZONE, FIELDS);
+    private int owner = defaultIntegerFor(STR_OWNER, FIELDS);
+    private double vm = defaultDoubleFor(STR_VM, FIELDS);
+    private double va = defaultDoubleFor(STR_VA, FIELDS);
 
     @Revision(since = 33)
-    private double nvhi = 1.1;
+    private double nvhi = defaultDoubleFor(STR_NVHI, FIELDS);
 
     @Revision(since = 33)
-    private double nvlo = 0.9;
+    private double nvlo = defaultDoubleFor(STR_NVLO, FIELDS);
 
     @Revision(since = 33)
-    private double evhi = 1.1;
+    private double evhi = defaultDoubleFor(STR_EVHI, FIELDS);
 
     @Revision(since = 33)
-    private double evlo = 0.9;
+    private double evlo = defaultDoubleFor(STR_EVLO, FIELDS);
 
-    public static PsseBus fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
-        PsseBus psseBus = new PsseBus();
-        psseBus.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
-        psseBus.setName(parseStringFromRecord(rec, "            ", headers, "name"));
-        psseBus.setBaskv(parseDoubleFromRecord(rec, 0d, headers, "baskv"));
-        psseBus.setIde(parseIntFromRecord(rec, 1, headers, "ide"));
-        psseBus.setArea(parseIntFromRecord(rec, 1, headers, "area"));
-        psseBus.setZone(parseIntFromRecord(rec, 1, headers, "zone"));
-        psseBus.setOwner(parseIntFromRecord(rec, 1, headers, "owner"));
-        psseBus.setVm(parseDoubleFromRecord(rec, 1d, headers, "vm"));
-        psseBus.setVa(parseDoubleFromRecord(rec, 0d, headers, "va"));
-        if (version.getMajorNumber() >= 33) {
-            psseBus.setNvhi(parseDoubleFromRecord(rec, 1.1, headers, "nvhi"));
-            psseBus.setNvlo(parseDoubleFromRecord(rec, 0.9, headers, "nvlo"));
-            psseBus.setEvhi(parseDoubleFromRecord(rec, 1.1, headers, "evhi"));
-            psseBus.setEvlo(parseDoubleFromRecord(rec, 0.9, headers, "evlo"));
-        }
-        return psseBus;
+    public static String[] getFieldNames32() {
+        return FIELD_NAMES_32;
+    }
+
+    public static String[] getFieldNames33() {
+        return FIELD_NAMES_33;
+    }
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseBus fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseBus::new);
     }
 
     public static String[] toRecord(PsseBus psseBus, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "i", "ibus" -> String.valueOf(psseBus.getI());
-                case "name" -> psseBus.getName() == null ? "            " : psseBus.getName();
-                case "baskv" -> String.valueOf(psseBus.getBaskv());
-                case "ide" -> String.valueOf(psseBus.getIde());
-                case "area" -> String.valueOf(psseBus.getArea());
-                case "zone" -> String.valueOf(psseBus.getZone());
-                case "owner" -> String.valueOf(psseBus.getOwner());
-                case "vm" -> String.valueOf(psseBus.getVm());
-                case "va" -> String.valueOf(psseBus.getVa());
-                case "nvhi" -> String.valueOf(psseBus.getNvhi());
-                case "nvlo" -> String.valueOf(psseBus.getNvlo());
-                case "evhi" -> String.valueOf(psseBus.getEvhi());
-                case "evlo" -> String.valueOf(psseBus.getEvlo());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+        return Util.toRecord(psseBus, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseBus, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseBus, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseBus::getI, PsseBus::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseBus::getI, PsseBus::setI));
+        addField(fields, createNewField(STR_NAME, String.class, PsseBus::getName, PsseBus::setName));
+        addField(fields, createNewField(STR_BASKV, Double.class, PsseBus::getBaskv, PsseBus::setBaskv, 0d));
+        addField(fields, createNewField(STR_IDE, Integer.class, PsseBus::getIde, PsseBus::setIde, 1));
+        addField(fields, createNewField(STR_AREA, Integer.class, PsseBus::getArea, PsseBus::setArea, 1));
+        addField(fields, createNewField(STR_ZONE, Integer.class, PsseBus::getZone, PsseBus::setZone, 1));
+        addField(fields, createNewField(STR_OWNER, Integer.class, PsseBus::getOwner, PsseBus::setOwner, 1));
+        addField(fields, createNewField(STR_VM, Double.class, PsseBus::getVm, PsseBus::setVm, 1d));
+        addField(fields, createNewField(STR_VA, Double.class, PsseBus::getVa, PsseBus::setVa, 0d));
+        addField(fields, createNewField(STR_NVHI, Double.class, PsseBus::getNvhi, PsseBus::setNvhi, 1.1));
+        addField(fields, createNewField(STR_NVLO, Double.class, PsseBus::getNvlo, PsseBus::setNvlo, 0.9));
+        addField(fields, createNewField(STR_EVHI, Double.class, PsseBus::getEvhi, PsseBus::setEvhi, 1.1));
+        addField(fields, createNewField(STR_EVLO, Double.class, PsseBus::getEvlo, PsseBus::setEvlo, 0.9));
+
+        return fields;
     }
 
     public int getI() {

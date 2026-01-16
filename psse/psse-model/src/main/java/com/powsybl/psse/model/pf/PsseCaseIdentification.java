@@ -13,16 +13,28 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseFloatFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_1;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_2;
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultFloatFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_BASFRQ;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IC;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NXFRAT;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_REV;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_SBASE;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE1;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE2;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_XFRRAT;
 
 /**
  *
@@ -30,49 +42,52 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_2;
  */
 public class PsseCaseIdentification {
 
-    private int ic = 0;
-    private double sbase = 100;
+    private static final Map<String, PsseFieldDefinition<PsseCaseIdentification, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_IC, STR_SBASE, STR_REV, STR_XFRRAT, STR_NXFRAT, STR_BASFRQ, STR_TITLE1, STR_TITLE2};
+
+    private int ic = defaultIntegerFor(STR_IC, FIELDS);
+    private double sbase = defaultDoubleFor(STR_SBASE, FIELDS);
 
     // Similar way writing revision for Json,
     // but relying on PsseVersion class
     @JsonSerialize(using = RevisionSerializer.class)
-    private float rev = 33;
+    private float rev = defaultFloatFor(STR_REV, FIELDS);
 
-    private double xfrrat = Double.NaN;
-    private double nxfrat = Double.NaN;
-    private double basfrq = Double.NaN;
+    private double xfrrat = defaultDoubleFor(STR_XFRRAT, FIELDS);
+    private double nxfrat = defaultDoubleFor(STR_NXFRAT, FIELDS);
+    private double basfrq = defaultDoubleFor(STR_BASFRQ, FIELDS);
     private String title1;
     private String title2;
 
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
     public static PsseCaseIdentification fromRecord(CsvRecord rec, String[] headers) {
-        PsseCaseIdentification psseCaseIdentification = new PsseCaseIdentification();
-        psseCaseIdentification.setIc(parseIntFromRecord(rec, 0, headers, "ic"));
-        psseCaseIdentification.setSbase(parseDoubleFromRecord(rec, 100d, headers, "sbase"));
-        psseCaseIdentification.setRev(parseFloatFromRecord(rec, 33f, headers, "rev"));
-        psseCaseIdentification.setXfrrat(parseDoubleFromRecord(rec, Double.NaN, headers, "xfrrat"));
-        psseCaseIdentification.setNxfrat(parseDoubleFromRecord(rec, Double.NaN, headers, "nxfrat"));
-        psseCaseIdentification.setBasfrq(parseDoubleFromRecord(rec, Double.NaN, headers, "basfrq"));
-        psseCaseIdentification.setTitle1(parseStringFromRecord(rec, "", headers, STR_TITLE_1));
-        psseCaseIdentification.setTitle2(parseStringFromRecord(rec, "", headers, STR_TITLE_2));
-        return psseCaseIdentification;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseCaseIdentification::new);
     }
 
     public static String[] toRecord(PsseCaseIdentification psseCaseIdentification, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "ic" -> String.valueOf(psseCaseIdentification.getIc());
-                case "sbase" -> String.valueOf(psseCaseIdentification.getSbase());
-                case "rev" -> PsseVersion.fromRevision(psseCaseIdentification.getRev()).toString();
-                case "xfrrat" -> String.format("%.0f", psseCaseIdentification.getXfrrat());
-                case "nxfrat" -> String.format("%.0f", psseCaseIdentification.getNxfrat());
-                case "basfrq" -> String.valueOf(psseCaseIdentification.getBasfrq());
-                case STR_TITLE_1 -> psseCaseIdentification.getTitle1();
-                case STR_TITLE_2 -> psseCaseIdentification.getTitle2();
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+        return Util.toRecord(psseCaseIdentification, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseCaseIdentification, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseCaseIdentification, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_IC, Integer.class, PsseCaseIdentification::getIc, PsseCaseIdentification::setIc, 0));
+        addField(fields, createNewField(STR_SBASE, Double.class, PsseCaseIdentification::getSbase, PsseCaseIdentification::setSbase, 100d));
+        addField(fields, createNewField(STR_REV, Float.class, value -> PsseVersion.fromRevision(value).toString(), PsseCaseIdentification::getRev, PsseCaseIdentification::setRev, 33f));
+        addField(fields, createNewField(STR_XFRRAT, Double.class, value -> String.format("%.0f", value), PsseCaseIdentification::getXfrrat, PsseCaseIdentification::setXfrrat, Double.NaN));
+        addField(fields, createNewField(STR_NXFRAT, Double.class, value -> String.format("%.0f", value), PsseCaseIdentification::getNxfrat, PsseCaseIdentification::setNxfrat, Double.NaN));
+        addField(fields, createNewField(STR_BASFRQ, Double.class, PsseCaseIdentification::getBasfrq, PsseCaseIdentification::setBasfrq, Double.NaN));
+        addField(fields, createNewField(STR_TITLE1, String.class, PsseCaseIdentification::getTitle1, PsseCaseIdentification::setTitle1, ""));
+        addField(fields, createNewField(STR_TITLE2, String.class, PsseCaseIdentification::getTitle2, PsseCaseIdentification::setTitle2, ""));
+
+        return fields;
     }
 
     public int getIc() {

@@ -22,12 +22,9 @@ class InductionMachineData extends AbstractRecordGroup<PsseInductionMachine> {
 
     InductionMachineData() {
         super(PowerFlowRecordGroup.INDUCTION_MACHINE);
-        withFieldNames(V33, "i", "id", "stat", "scode", "dcode", "area", "zone", "owner", "tcode", "bcode", "mbase", "ratekv", "pcode",
-            "pset", "h", "a", "b", "d", "e", "ra", "xa", "xm", "r1", "x1", "r2", "x2", "x3", "e1", "se1", "e2", "se2", "ia1", "ia2", "xamult");
-        withFieldNames(V35, "ibus", "imid", "stat", "scode", "dcode", "area", "zone", "owner", "tcode", "bcode", "mbase", "ratekv", "pcode",
-            "pset", "hconst", "aconst", "bconst", "dconst", "econst", "ra", "xa", "xm", "r1", "x1", "r2", "x2", "x3", "e1", "se1",
-            "e2", "se2", "ia1", "ia2", "xamult");
-        withQuotedFields("id", "imid");
+        withFieldNames(V33, PsseInductionMachine.getFieldNames33());
+        withFieldNames(V35, PsseInductionMachine.getFieldNames35());
+        withQuotedFields(PsseInductionMachine.getFieldNamesString());
     }
 
     @Override

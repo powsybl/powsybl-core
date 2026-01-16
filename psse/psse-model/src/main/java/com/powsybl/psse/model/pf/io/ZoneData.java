@@ -10,10 +10,9 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseZone;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ZONAME;
 
 /**
  *
@@ -22,14 +21,12 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ZONAME;
  */
 class ZoneData extends AbstractRecordGroup<PsseZone> {
 
-    private static final String[] FIELD_NAMES_32_33 = {"i", STR_ZONAME};
-
     ZoneData() {
         super(PowerFlowRecordGroup.ZONE);
-        withFieldNames(V32, FIELD_NAMES_32_33);
-        withFieldNames(V33, FIELD_NAMES_32_33);
-        withFieldNames(V35, "izone", STR_ZONAME);
-        withQuotedFields(STR_ZONAME);
+        withFieldNames(V32, PsseZone.getFieldNames3233());
+        withFieldNames(V33, PsseZone.getFieldNames3233());
+        withFieldNames(V35, PsseZone.getFieldNames35());
+        withQuotedFields(PsseZone.getFieldNamesString());
     }
 
     @Override

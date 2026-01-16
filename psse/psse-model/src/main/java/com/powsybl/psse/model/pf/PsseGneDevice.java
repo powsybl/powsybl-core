@@ -7,15 +7,20 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -24,149 +29,109 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  */
 public class PsseGneDevice {
 
-    private static final Map<String, Function<PsseGneDevice, String>> GETTERS = Map.ofEntries(
-        Map.entry("name", PsseGneDevice::getName),
-        Map.entry("model", PsseGneDevice::getModel),
-        Map.entry("nterm", device -> String.valueOf(device.getNterm())),
-        Map.entry("bus1", device -> String.valueOf(device.getBus1())),
-        Map.entry("bus2", device -> String.valueOf(device.getBus2())),
-        Map.entry("nreal", device -> String.valueOf(device.getNreal())),
-        Map.entry("nintg", device -> String.valueOf(device.getNintg())),
-        Map.entry("nchar", device -> String.valueOf(device.getNchar())),
-        Map.entry("status", device -> String.valueOf(device.getStatus())),
-        Map.entry("stat", device -> String.valueOf(device.getStatus())),
-        Map.entry("owner", device -> String.valueOf(device.getOwner())),
-        Map.entry("nmet", device -> String.valueOf(device.getNmet())),
-        Map.entry("real1", device -> String.valueOf(device.getReal1())),
-        Map.entry("real2", device -> String.valueOf(device.getReal2())),
-        Map.entry("real3", device -> String.valueOf(device.getReal3())),
-        Map.entry("real4", device -> String.valueOf(device.getReal4())),
-        Map.entry("real5", device -> String.valueOf(device.getReal5())),
-        Map.entry("real6", device -> String.valueOf(device.getReal6())),
-        Map.entry("real7", device -> String.valueOf(device.getReal7())),
-        Map.entry("real8", device -> String.valueOf(device.getReal8())),
-        Map.entry("real9", device -> String.valueOf(device.getReal9())),
-        Map.entry("real10", device -> String.valueOf(device.getReal10())),
-        Map.entry("intg1", device -> String.valueOf(device.getIntg1())),
-        Map.entry("intg2", device -> String.valueOf(device.getIntg2())),
-        Map.entry("intg3", device -> String.valueOf(device.getIntg3())),
-        Map.entry("intg4", device -> String.valueOf(device.getIntg4())),
-        Map.entry("intg5", device -> String.valueOf(device.getIntg5())),
-        Map.entry("intg6", device -> String.valueOf(device.getIntg6())),
-        Map.entry("intg7", device -> String.valueOf(device.getIntg7())),
-        Map.entry("intg8", device -> String.valueOf(device.getIntg8())),
-        Map.entry("intg9", device -> String.valueOf(device.getIntg9())),
-        Map.entry("intg10", device -> String.valueOf(device.getIntg10())),
-        Map.entry("char1", device -> String.valueOf(device.getChar1())),
-        Map.entry("char2", device -> String.valueOf(device.getChar2())),
-        Map.entry("char3", device -> String.valueOf(device.getChar3())),
-        Map.entry("char4", device -> String.valueOf(device.getChar4())),
-        Map.entry("char5", device -> String.valueOf(device.getChar5())),
-        Map.entry("char6", device -> String.valueOf(device.getChar6())),
-        Map.entry("char7", device -> String.valueOf(device.getChar7())),
-        Map.entry("char8", device -> String.valueOf(device.getChar8())),
-        Map.entry("char9", device -> String.valueOf(device.getChar9())),
-        Map.entry("char10", device -> String.valueOf(device.getChar10()))
-    );
+    private static final Map<String, PsseFieldDefinition<PsseGneDevice, ?>> FIELDS = createFields();
 
     private String name;
     private String model;
-    private int nterm = 1;
+    private int nterm = defaultIntegerFor(STR_NTERM, FIELDS);
     private int bus1;
     private int bus2;
-    private int nreal = 0;
-    private int nintg = 0;
-    private int nchar = 0;
-    private int status = 1;
+    private int nreal = defaultIntegerFor(STR_NREAL, FIELDS);
+    private int nintg = defaultIntegerFor(STR_NINTG, FIELDS);
+    private int nchar = defaultIntegerFor(STR_NCHAR, FIELDS);
+    private int status = defaultIntegerFor(STR_STATUS, FIELDS);
     private int owner;
     private int nmet;
-    private double real1 = 0.0;
-    private double real2 = 0.0;
-    private double real3 = 0.0;
-    private double real4 = 0.0;
-    private double real5 = 0.0;
-    private double real6 = 0.0;
-    private double real7 = 0.0;
-    private double real8 = 0.0;
-    private double real9 = 0.0;
-    private double real10 = 0.0;
-    private int intg1;
-    private int intg2;
-    private int intg3;
-    private int intg4;
-    private int intg5;
-    private int intg6;
-    private int intg7;
-    private int intg8;
-    private int intg9;
-    private int intg10;
-    private String char1;
-    private String char2;
-    private String char3;
-    private String char4;
-    private String char5;
-    private String char6;
-    private String char7;
-    private String char8;
-    private String char9;
-    private String char10;
+    private double real1 = defaultDoubleFor(STR_REAL1, FIELDS);
+    private double real2 = defaultDoubleFor(STR_REAL2, FIELDS);
+    private double real3 = defaultDoubleFor(STR_REAL3, FIELDS);
+    private double real4 = defaultDoubleFor(STR_REAL4, FIELDS);
+    private double real5 = defaultDoubleFor(STR_REAL5, FIELDS);
+    private double real6 = defaultDoubleFor(STR_REAL6, FIELDS);
+    private double real7 = defaultDoubleFor(STR_REAL7, FIELDS);
+    private double real8 = defaultDoubleFor(STR_REAL8, FIELDS);
+    private double real9 = defaultDoubleFor(STR_REAL9, FIELDS);
+    private double real10 = defaultDoubleFor(STR_REAL10, FIELDS);
+    private int intg1 = defaultIntegerFor(STR_INTG1, FIELDS);
+    private int intg2 = defaultIntegerFor(STR_INTG2, FIELDS);
+    private int intg3 = defaultIntegerFor(STR_INTG3, FIELDS);
+    private int intg4 = defaultIntegerFor(STR_INTG4, FIELDS);
+    private int intg5 = defaultIntegerFor(STR_INTG5, FIELDS);
+    private int intg6 = defaultIntegerFor(STR_INTG6, FIELDS);
+    private int intg7 = defaultIntegerFor(STR_INTG7, FIELDS);
+    private int intg8 = defaultIntegerFor(STR_INTG8, FIELDS);
+    private int intg9 = defaultIntegerFor(STR_INTG9, FIELDS);
+    private int intg10 = defaultIntegerFor(STR_INTG10, FIELDS);
+    private String char1 = defaultStringFor(STR_CHAR1, FIELDS);
+    private String char2 = defaultStringFor(STR_CHAR2, FIELDS);
+    private String char3 = defaultStringFor(STR_CHAR3, FIELDS);
+    private String char4 = defaultStringFor(STR_CHAR4, FIELDS);
+    private String char5 = defaultStringFor(STR_CHAR5, FIELDS);
+    private String char6 = defaultStringFor(STR_CHAR6, FIELDS);
+    private String char7 = defaultStringFor(STR_CHAR7, FIELDS);
+    private String char8 = defaultStringFor(STR_CHAR8, FIELDS);
+    private String char9 = defaultStringFor(STR_CHAR9, FIELDS);
+    private String char10 = defaultStringFor(STR_CHAR10, FIELDS);
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
 
     public static PsseGneDevice fromRecord(CsvRecord rec, String[] headers) {
-        PsseGneDevice psseGneDevice = new PsseGneDevice();
-        psseGneDevice.setName(parseStringFromRecord(rec, headers, "name"));
-        psseGneDevice.setModel(parseStringFromRecord(rec, headers, "model"));
-        psseGneDevice.setNterm(parseIntFromRecord(rec, 1, headers, "nterm"));
-        psseGneDevice.setBus1(parseIntFromRecord(rec, headers, "bus1"));
-        psseGneDevice.setBus2(parseIntFromRecord(rec, headers, "bus2"));
-        psseGneDevice.setNreal(parseIntFromRecord(rec, 0, headers, "nreal"));
-        psseGneDevice.setNintg(parseIntFromRecord(rec, 0, headers, "nintg"));
-        psseGneDevice.setNchar(parseIntFromRecord(rec, 0, headers, "nchar"));
-        psseGneDevice.setStatus(parseIntFromRecord(rec, 1, headers, "status", "stat"));
-        psseGneDevice.setOwner(parseIntFromRecord(rec, headers, "owner"));
-        psseGneDevice.setNmet(parseIntFromRecord(rec, headers, "nmet"));
-        psseGneDevice.setReal1(parseDoubleFromRecord(rec, 0d, headers, "real1"));
-        psseGneDevice.setReal2(parseDoubleFromRecord(rec, 0d, headers, "real2"));
-        psseGneDevice.setReal3(parseDoubleFromRecord(rec, 0d, headers, "real3"));
-        psseGneDevice.setReal4(parseDoubleFromRecord(rec, 0d, headers, "real4"));
-        psseGneDevice.setReal5(parseDoubleFromRecord(rec, 0d, headers, "real5"));
-        psseGneDevice.setReal6(parseDoubleFromRecord(rec, 0d, headers, "real6"));
-        psseGneDevice.setReal7(parseDoubleFromRecord(rec, 0d, headers, "real7"));
-        psseGneDevice.setReal8(parseDoubleFromRecord(rec, 0d, headers, "real8"));
-        psseGneDevice.setReal9(parseDoubleFromRecord(rec, 0d, headers, "real9"));
-        psseGneDevice.setReal10(parseDoubleFromRecord(rec, 0d, headers, "real10"));
-        psseGneDevice.setIntg1(parseIntFromRecord(rec, 0, headers, "intg1"));
-        psseGneDevice.setIntg2(parseIntFromRecord(rec, 0, headers, "intg2"));
-        psseGneDevice.setIntg3(parseIntFromRecord(rec, 0, headers, "intg3"));
-        psseGneDevice.setIntg4(parseIntFromRecord(rec, 0, headers, "intg4"));
-        psseGneDevice.setIntg5(parseIntFromRecord(rec, 0, headers, "intg5"));
-        psseGneDevice.setIntg6(parseIntFromRecord(rec, 0, headers, "intg6"));
-        psseGneDevice.setIntg7(parseIntFromRecord(rec, 0, headers, "intg7"));
-        psseGneDevice.setIntg8(parseIntFromRecord(rec, 0, headers, "intg8"));
-        psseGneDevice.setIntg9(parseIntFromRecord(rec, 0, headers, "intg9"));
-        psseGneDevice.setIntg10(parseIntFromRecord(rec, 0, headers, "intg10"));
-        psseGneDevice.setChar1(parseStringFromRecord(rec, "1", headers, "char1"));
-        psseGneDevice.setChar2(parseStringFromRecord(rec, "1", headers, "char2"));
-        psseGneDevice.setChar3(parseStringFromRecord(rec, "1", headers, "char3"));
-        psseGneDevice.setChar4(parseStringFromRecord(rec, "1", headers, "char4"));
-        psseGneDevice.setChar5(parseStringFromRecord(rec, "1", headers, "char5"));
-        psseGneDevice.setChar6(parseStringFromRecord(rec, "1", headers, "char6"));
-        psseGneDevice.setChar7(parseStringFromRecord(rec, "1", headers, "char7"));
-        psseGneDevice.setChar8(parseStringFromRecord(rec, "1", headers, "char8"));
-        psseGneDevice.setChar9(parseStringFromRecord(rec, "1", headers, "char9"));
-        psseGneDevice.setChar10(parseStringFromRecord(rec, "1", headers, "char10"));
-        return psseGneDevice;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseGneDevice::new);
     }
 
     public static String[] toRecord(PsseGneDevice psseGneDevice, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            Function<PsseGneDevice, String> getter = GETTERS.get(headers[i]);
-            if (getter == null) {
-                throw new PsseException("Unsupported header: " + headers[i]);
-            }
-            row[i] = getter.apply(psseGneDevice);
-        }
-        return row;
+        return Util.toRecord(psseGneDevice, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseGneDevice, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseGneDevice, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_NAME, String.class, PsseGneDevice::getName, PsseGneDevice::setName));
+        addField(fields, createNewField(STR_MODEL, String.class, PsseGneDevice::getModel, PsseGneDevice::setModel));
+        addField(fields, createNewField(STR_NTERM, Integer.class, PsseGneDevice::getNterm, PsseGneDevice::setNterm, 1));
+        addField(fields, createNewField(STR_BUS1, Integer.class, PsseGneDevice::getBus1, PsseGneDevice::setBus1));
+        addField(fields, createNewField(STR_BUS2, Integer.class, PsseGneDevice::getBus2, PsseGneDevice::setBus2));
+        addField(fields, createNewField(STR_NREAL, Integer.class, PsseGneDevice::getNreal, PsseGneDevice::setNreal, 0));
+        addField(fields, createNewField(STR_NINTG, Integer.class, PsseGneDevice::getNintg, PsseGneDevice::setNintg, 0));
+        addField(fields, createNewField(STR_NCHAR, Integer.class, PsseGneDevice::getNchar, PsseGneDevice::setNchar, 0));
+        addField(fields, createNewField(STR_STATUS, Integer.class, PsseGneDevice::getStatus, PsseGneDevice::setStatus, 1));
+        addField(fields, createNewField(STR_STAT, Integer.class, PsseGneDevice::getStatus, PsseGneDevice::setStatus, 1));
+        addField(fields, createNewField(STR_OWNER, Integer.class, PsseGneDevice::getOwner, PsseGneDevice::setOwner));
+        addField(fields, createNewField(STR_NMET, Integer.class, PsseGneDevice::getNmet, PsseGneDevice::setNmet));
+        addField(fields, createNewField(STR_REAL1, Double.class, PsseGneDevice::getReal1, PsseGneDevice::setReal1, 0.0));
+        addField(fields, createNewField(STR_REAL2, Double.class, PsseGneDevice::getReal2, PsseGneDevice::setReal2, 0.0));
+        addField(fields, createNewField(STR_REAL3, Double.class, PsseGneDevice::getReal3, PsseGneDevice::setReal3, 0.0));
+        addField(fields, createNewField(STR_REAL4, Double.class, PsseGneDevice::getReal4, PsseGneDevice::setReal4, 0.0));
+        addField(fields, createNewField(STR_REAL5, Double.class, PsseGneDevice::getReal5, PsseGneDevice::setReal5, 0.0));
+        addField(fields, createNewField(STR_REAL6, Double.class, PsseGneDevice::getReal6, PsseGneDevice::setReal6, 0.0));
+        addField(fields, createNewField(STR_REAL7, Double.class, PsseGneDevice::getReal7, PsseGneDevice::setReal7, 0.0));
+        addField(fields, createNewField(STR_REAL8, Double.class, PsseGneDevice::getReal8, PsseGneDevice::setReal8, 0.0));
+        addField(fields, createNewField(STR_REAL9, Double.class, PsseGneDevice::getReal9, PsseGneDevice::setReal9, 0.0));
+        addField(fields, createNewField(STR_REAL10, Double.class, PsseGneDevice::getReal10, PsseGneDevice::setReal10, 0.0));
+        addField(fields, createNewField(STR_INTG1, Integer.class, PsseGneDevice::getIntg1, PsseGneDevice::setIntg1, 0));
+        addField(fields, createNewField(STR_INTG2, Integer.class, PsseGneDevice::getIntg2, PsseGneDevice::setIntg2, 0));
+        addField(fields, createNewField(STR_INTG3, Integer.class, PsseGneDevice::getIntg3, PsseGneDevice::setIntg3, 0));
+        addField(fields, createNewField(STR_INTG4, Integer.class, PsseGneDevice::getIntg4, PsseGneDevice::setIntg4, 0));
+        addField(fields, createNewField(STR_INTG5, Integer.class, PsseGneDevice::getIntg5, PsseGneDevice::setIntg5, 0));
+        addField(fields, createNewField(STR_INTG6, Integer.class, PsseGneDevice::getIntg6, PsseGneDevice::setIntg6, 0));
+        addField(fields, createNewField(STR_INTG7, Integer.class, PsseGneDevice::getIntg7, PsseGneDevice::setIntg7, 0));
+        addField(fields, createNewField(STR_INTG8, Integer.class, PsseGneDevice::getIntg8, PsseGneDevice::setIntg8, 0));
+        addField(fields, createNewField(STR_INTG9, Integer.class, PsseGneDevice::getIntg9, PsseGneDevice::setIntg9, 0));
+        addField(fields, createNewField(STR_INTG10, Integer.class, PsseGneDevice::getIntg10, PsseGneDevice::setIntg10, 0));
+        addField(fields, createNewField(STR_CHAR1, String.class, PsseGneDevice::getChar1, PsseGneDevice::setChar1, "1"));
+        addField(fields, createNewField(STR_CHAR2, String.class, PsseGneDevice::getChar2, PsseGneDevice::setChar2, "1"));
+        addField(fields, createNewField(STR_CHAR3, String.class, PsseGneDevice::getChar3, PsseGneDevice::setChar3, "1"));
+        addField(fields, createNewField(STR_CHAR4, String.class, PsseGneDevice::getChar4, PsseGneDevice::setChar4, "1"));
+        addField(fields, createNewField(STR_CHAR5, String.class, PsseGneDevice::getChar5, PsseGneDevice::setChar5, "1"));
+        addField(fields, createNewField(STR_CHAR6, String.class, PsseGneDevice::getChar6, PsseGneDevice::setChar6, "1"));
+        addField(fields, createNewField(STR_CHAR7, String.class, PsseGneDevice::getChar7, PsseGneDevice::setChar7, "1"));
+        addField(fields, createNewField(STR_CHAR8, String.class, PsseGneDevice::getChar8, PsseGneDevice::setChar8, "1"));
+        addField(fields, createNewField(STR_CHAR9, String.class, PsseGneDevice::getChar9, PsseGneDevice::setChar9, "1"));
+        addField(fields, createNewField(STR_CHAR10, String.class, PsseGneDevice::getChar10, PsseGneDevice::setChar10, "1"));
+
+        return fields;
     }
 
     public String getName() {

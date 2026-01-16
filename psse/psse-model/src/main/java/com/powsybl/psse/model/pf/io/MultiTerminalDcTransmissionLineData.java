@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_BUS;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_CONVERTER;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_LINK;
@@ -41,6 +42,10 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_TERMINAL_D
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiTerminalDcTransmissionLine> {
+
+    private static final String[] QUOTED_FIELDS = concatStringArrays(PsseMultiTerminalDcMain.getFieldNamesString(),
+        PsseMultiTerminalDcBus.getFieldNamesString(),
+        PsseMultiTerminalDcLink.getFieldNamesString());
 
     MultiTerminalDcTransmissionLineData() {
         super(MULTI_TERMINAL_DC_TRANSMISSION_LINE);
@@ -178,7 +183,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
         private static class MultiTerminalDcConverterData extends AbstractRecordGroup<PsseMultiTerminalDcConverter> {
             MultiTerminalDcConverterData() {
-                super(INTERNAL_MULTI_TERMINAL_DC_CONVERTER, "ib", "n", "angmx", "angmn", "rc", "xc", "ebas", "tr", "tap", "tpmx", "tpmn", "tstp", "setvl", "dcpf", "marg", "cnvcod");
+                super(INTERNAL_MULTI_TERMINAL_DC_CONVERTER, PsseMultiTerminalDcConverter.getFieldNames());
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -190,7 +195,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
         private static class MultiTerminalDcBusData extends AbstractRecordGroup<PsseMultiTerminalDcBus> {
             MultiTerminalDcBusData() {
-                super(INTERNAL_MULTI_TERMINAL_DC_BUS, "idc", "ib", "area", "zone", "dcname", "idc2", "rgrnd", "owner");
+                super(INTERNAL_MULTI_TERMINAL_DC_BUS, PsseMultiTerminalDcBus.getFieldNames());
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -202,7 +207,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
         private static class MultiTerminalDcLinkData extends AbstractRecordGroup<PsseMultiTerminalDcLink> {
             MultiTerminalDcLinkData() {
-                super(INTERNAL_MULTI_TERMINAL_DC_LINK, "idc", "jdc", "dcckt", "met", "rdc", "ldc");
+                super(INTERNAL_MULTI_TERMINAL_DC_LINK, PsseMultiTerminalDcLink.getFieldNames());
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -312,7 +317,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
     private static class MultiTerminalDcMainData extends AbstractRecordGroup<PsseMultiTerminalDcMain> {
         MultiTerminalDcMainData() {
-            super(MULTI_TERMINAL_DC_TRANSMISSION_LINE, "name", "nconv", "ndcbs", "ndcln", "mdc", "vconv", "vcmod", "vconvn");
+            super(MULTI_TERMINAL_DC_TRANSMISSION_LINE, PsseMultiTerminalDcMain.getFieldNames());
             withQuotedFields(QUOTED_FIELDS);
         }
 
@@ -321,7 +326,4 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             return PsseMultiTerminalDcMain.class;
         }
     }
-
-    private static final String[] QUOTED_FIELDS = {"name", "dcname", "dcckt"};
-
 }

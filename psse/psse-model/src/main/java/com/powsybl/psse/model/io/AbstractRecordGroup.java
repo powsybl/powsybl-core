@@ -178,36 +178,36 @@ public abstract class AbstractRecordGroup<T> {
 
     private static Map<Class<?>, MapperFrom<?>> getMappersFromRecord() {
         Map<Class<?>, MapperFrom<?>> mappers = new HashMap<>();
-        mappers.put(PsseArea.class, (MapperFrom<PsseArea>) (rec, version, headers) -> PsseArea.fromRecord(rec, headers));
+        mappers.put(PsseArea.class, (MapperFrom<PsseArea>) PsseArea::fromRecord);
         mappers.put(PsseBus.class, (MapperFrom<PsseBus>) PsseBus::fromRecord);
-        mappers.put(PsseCaseIdentification.class, (MapperFrom<PsseCaseIdentification>) (rec1, version1, headers1) -> PsseCaseIdentification.fromRecord(rec1, headers1));
+        mappers.put(PsseCaseIdentification.class, (MapperFrom<PsseCaseIdentification>) PsseCaseIdentification::fromRecord);
         mappers.put(PsseFacts.class, (MapperFrom<PsseFacts>) PsseFacts::fromRecord);
-        mappers.put(PsseFixedShunt.class, (MapperFrom<PsseFixedShunt>) (rec1, version1, headers1) -> PsseFixedShunt.fromRecord(rec1, headers1));
+        mappers.put(PsseFixedShunt.class, (MapperFrom<PsseFixedShunt>) PsseFixedShunt::fromRecord);
         mappers.put(PsseGenerator.class, (MapperFrom<PsseGenerator>) PsseGenerator::fromRecord);
-        mappers.put(PsseGneDevice.class, (MapperFrom<PsseGneDevice>) (rec1, version1, headers1) -> PsseGneDevice.fromRecord(rec1, headers1));
-        mappers.put(PsseInductionMachine.class, (MapperFrom<PsseInductionMachine>) (rec, version, headers) -> PsseInductionMachine.fromRecord(rec, headers));
-        mappers.put(PsseInterareaTransfer.class, (MapperFrom<PsseInterareaTransfer>) (rec, version, headers) -> PsseInterareaTransfer.fromRecord(rec, headers));
-        mappers.put(PsseLineGrouping.class, (MapperFrom<PsseLineGrouping>) (rec3, version2, headers4) -> PsseLineGrouping.fromRecord(rec3, headers4));
+        mappers.put(PsseGneDevice.class, (MapperFrom<PsseGneDevice>) PsseGneDevice::fromRecord);
+        mappers.put(PsseInductionMachine.class, (MapperFrom<PsseInductionMachine>) PsseInductionMachine::fromRecord);
+        mappers.put(PsseInterareaTransfer.class, (MapperFrom<PsseInterareaTransfer>) PsseInterareaTransfer::fromRecord);
+        mappers.put(PsseLineGrouping.class, (MapperFrom<PsseLineGrouping>) PsseLineGrouping::fromRecord);
         mappers.put(PsseLoad.class, (MapperFrom<PsseLoad>) PsseLoad::fromRecord);
-        mappers.put(PsseMultiTerminalDcBus.class, (MapperFrom<PsseMultiTerminalDcBus>) (rec1, version1, headers1) -> PsseMultiTerminalDcBus.fromRecord(rec1, headers1));
-        mappers.put(PsseMultiTerminalDcBusx.class, (MapperFrom<PsseMultiTerminalDcBusx>) (rec1, headers1, headers2) -> PsseMultiTerminalDcBusx.fromRecord(rec1, headers2));
-        mappers.put(PsseMultiTerminalDcConverter.class, (MapperFrom<PsseMultiTerminalDcConverter>) (rec1, version1, headers1) -> PsseMultiTerminalDcConverter.fromRecord(rec1, headers1));
-        mappers.put(PsseMultiTerminalDcConverterx.class, (MapperFrom<PsseMultiTerminalDcConverterx>) (rec1, headers1, headers2) -> PsseMultiTerminalDcConverterx.fromRecord(rec1, headers2));
-        mappers.put(PsseMultiTerminalDcLink.class, (MapperFrom<PsseMultiTerminalDcLink>) (rec1, version1, headers1) -> PsseMultiTerminalDcLink.fromRecord(rec1, headers1));
-        mappers.put(PsseMultiTerminalDcLinkx.class, (MapperFrom<PsseMultiTerminalDcLinkx>) (rec1, headers1, headers2) -> PsseMultiTerminalDcLinkx.fromRecord(rec1, headers2));
-        mappers.put(PsseMultiTerminalDcMain.class, (MapperFrom<PsseMultiTerminalDcMain>) (rec1, version1, headers1) -> PsseMultiTerminalDcMain.fromRecord(rec1, headers1));
+        mappers.put(PsseMultiTerminalDcBus.class, (MapperFrom<PsseMultiTerminalDcBus>) PsseMultiTerminalDcBus::fromRecord);
+        mappers.put(PsseMultiTerminalDcBusx.class, (MapperFrom<PsseMultiTerminalDcBusx>) PsseMultiTerminalDcBusx::fromRecord);
+        mappers.put(PsseMultiTerminalDcConverter.class, (MapperFrom<PsseMultiTerminalDcConverter>) PsseMultiTerminalDcConverter::fromRecord);
+        mappers.put(PsseMultiTerminalDcConverterx.class, (MapperFrom<PsseMultiTerminalDcConverterx>) PsseMultiTerminalDcConverterx::fromRecord);
+        mappers.put(PsseMultiTerminalDcLink.class, (MapperFrom<PsseMultiTerminalDcLink>) PsseMultiTerminalDcLink::fromRecord);
+        mappers.put(PsseMultiTerminalDcLinkx.class, (MapperFrom<PsseMultiTerminalDcLinkx>) PsseMultiTerminalDcLinkx::fromRecord);
+        mappers.put(PsseMultiTerminalDcMain.class, (MapperFrom<PsseMultiTerminalDcMain>) PsseMultiTerminalDcMain::fromRecord);
         mappers.put(PsseNonTransformerBranch.class, (MapperFrom<PsseNonTransformerBranch>) PsseNonTransformerBranch::fromRecord);
-        mappers.put(PsseOwner.class, (MapperFrom<PsseOwner>) (rec, version, headers) -> PsseOwner.fromRecord(rec, headers));
-        mappers.put(PsseOwnership.class, (MapperFrom<PsseOwnership>) (rec, version, headers) -> PsseOwnership.fromRecord(rec, headers));
+        mappers.put(PsseOwner.class, (MapperFrom<PsseOwner>) PsseOwner::fromRecord);
+        mappers.put(PsseOwnership.class, (MapperFrom<PsseOwnership>) PsseOwnership::fromRecord);
         mappers.put(PsseRates.class, (MapperFrom<PsseRates>) PsseRates::fromRecord);
-        mappers.put(PsseSubstationEquipmentTerminal.class, (MapperFrom<PsseSubstationEquipmentTerminal>) (rec, version, headers) -> PsseSubstationEquipmentTerminal.fromRecord(rec, headers));
-        mappers.put(PsseSubstationEquipmentTerminalCommonStart.class, (MapperFrom<PsseSubstationEquipmentTerminalCommonStart>) (rec1, version, headers1) -> PsseSubstationEquipmentTerminalCommonStart.fromRecord(rec1, headers1));
-        mappers.put(PsseSubstationEquipmentTerminalx.class, (MapperFrom<PsseSubstationEquipmentTerminalx>) (rec, headers, headers2) -> PsseSubstationEquipmentTerminalx.fromRecord(rec, headers2));
-        mappers.put(PsseSubstationNode.class, (MapperFrom<PsseSubstationNode>) (rec, version, headers) -> PsseSubstationNode.fromRecord(rec, headers));
-        mappers.put(PsseSubstationNodex.class, (MapperFrom<PsseSubstationNodex>) (rec, headers, headers2) -> PsseSubstationNodex.fromRecord(rec, headers2));
-        mappers.put(PsseSubstationRecord.class, (MapperFrom<PsseSubstationRecord>) (rec, version, headers) -> PsseSubstationRecord.fromRecord(rec, headers));
-        mappers.put(PsseSubstationSwitchingDevice.class, (MapperFrom<PsseSubstationSwitchingDevice>) (rec, version, headers) -> PsseSubstationSwitchingDevice.fromRecord(rec, headers));
-        mappers.put(PsseSubstationSwitchingDevicex.class, (MapperFrom<PsseSubstationSwitchingDevicex>) (rec, headers, headers2) -> PsseSubstationSwitchingDevicex.fromRecord(rec, headers2));
+        mappers.put(PsseSubstationEquipmentTerminal.class, (MapperFrom<PsseSubstationEquipmentTerminal>) PsseSubstationEquipmentTerminal::fromRecord);
+        mappers.put(PsseSubstationEquipmentTerminalCommonStart.class, (MapperFrom<PsseSubstationEquipmentTerminalCommonStart>) PsseSubstationEquipmentTerminalCommonStart::fromRecord);
+        mappers.put(PsseSubstationEquipmentTerminalx.class, (MapperFrom<PsseSubstationEquipmentTerminalx>) PsseSubstationEquipmentTerminalx::fromRecord);
+        mappers.put(PsseSubstationNode.class, (MapperFrom<PsseSubstationNode>) PsseSubstationNode::fromRecord);
+        mappers.put(PsseSubstationNodex.class, (MapperFrom<PsseSubstationNodex>) PsseSubstationNodex::fromRecord);
+        mappers.put(PsseSubstationRecord.class, (MapperFrom<PsseSubstationRecord>) PsseSubstationRecord::fromRecord);
+        mappers.put(PsseSubstationSwitchingDevice.class, (MapperFrom<PsseSubstationSwitchingDevice>) PsseSubstationSwitchingDevice::fromRecord);
+        mappers.put(PsseSubstationSwitchingDevicex.class, (MapperFrom<PsseSubstationSwitchingDevicex>) PsseSubstationSwitchingDevicex::fromRecord);
         mappers.put(PsseSwitchedShunt.class, (MapperFrom<PsseSwitchedShunt>) PsseSwitchedShunt::fromRecord);
         mappers.put(PsseTransformer.class, (MapperFrom<PsseTransformer>) PsseTransformer::fromRecord);
         mappers.put(PsseTransformerImpedanceCorrection.class, (MapperFrom<PsseTransformerImpedanceCorrection>) PsseTransformerImpedanceCorrection::fromRecord);
@@ -216,13 +216,13 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseTwoTerminalDcTransmissionLine.class, (MapperFrom<PsseTwoTerminalDcTransmissionLine>) PsseTwoTerminalDcTransmissionLine::fromRecord);
         mappers.put(PsseVoltageSourceConverter.class, (MapperFrom<PsseVoltageSourceConverter>) PsseVoltageSourceConverter::fromRecord);
         mappers.put(PsseVoltageSourceConverterDcTransmissionLine.class, (MapperFrom<PsseVoltageSourceConverterDcTransmissionLine>) PsseVoltageSourceConverterDcTransmissionLine::fromRecord);
-        mappers.put(PsseZone.class, (MapperFrom<PsseZone>) (rec2, version1, headers3) -> PsseZone.fromRecord(rec2, headers3));
-        mappers.put(TransformerImpedances.class, (MapperFrom<TransformerImpedances>) (rec, version, headers) -> TransformerImpedances.fromRecord(rec, headers));
+        mappers.put(PsseZone.class, (MapperFrom<PsseZone>) PsseZone::fromRecord);
+        mappers.put(TransformerImpedances.class, (MapperFrom<TransformerImpedances>) TransformerImpedances::fromRecord);
         mappers.put(TransformerWindingRecord.class, (MapperFrom<TransformerWindingRecord>) TransformerWindingRecord::fromRecord);
-        mappers.put(ZCorr33.class, (MapperFrom<ZCorr33>) (rec, version, headers) -> ZCorr33.fromRecord(rec, headers));
-        mappers.put(ZCorr35First.class, (MapperFrom<ZCorr35First>) (rec1, headers1, headers2) -> ZCorr35First.fromRecord(rec1, headers2));
-        mappers.put(ZCorr35Points.class, (MapperFrom<ZCorr35Points>) (rec, version, headers) -> ZCorr35Points.fromRecord(rec, headers));
-        mappers.put(ZCorr35X.class, (MapperFrom<ZCorr35X>) (rec, version, headers) -> ZCorr35X.fromRecord(rec, headers));
+        mappers.put(ZCorr33.class, (MapperFrom<ZCorr33>) ZCorr33::fromRecord);
+        mappers.put(ZCorr35First.class, (MapperFrom<ZCorr35First>) ZCorr35First::fromRecord);
+        mappers.put(ZCorr35Points.class, (MapperFrom<ZCorr35Points>) ZCorr35Points::fromRecord);
+        mappers.put(ZCorr35X.class, (MapperFrom<ZCorr35X>) ZCorr35X::fromRecord);
         return mappers;
     }
 
@@ -277,7 +277,7 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     private interface MapperFrom<T> {
-        T apply(CsvRecord rec, PsseVersion version, String[] headers);
+        T apply(CsvRecord rec, String[] headers);
     }
 
     private interface MapperTo<T> {
@@ -312,7 +312,7 @@ public abstract class AbstractRecordGroup<T> {
             // Parse the records
             reader.stream().forEach(rec -> {
                 try {
-                    beans.add(mapper.apply(rec, context.getVersion(), headersToUse));
+                    beans.add(mapper.apply(rec, headersToUse));
                     context.setCurrentRecordNumFields(rec.getFieldCount());
                 } catch (Exception e) {
                     throw new PsseException("Parsing error", e);

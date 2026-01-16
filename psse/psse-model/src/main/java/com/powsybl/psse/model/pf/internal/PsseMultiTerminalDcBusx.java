@@ -7,15 +7,52 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NAME;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseMultiTerminalDcBusx {
+
+    private static final Map<String, PsseFieldDefinition<PsseMultiTerminalDcBusx, ?>> FIELDS = createFields();
+
+    private String name;
+    private PsseMultiTerminalDcBus bus;
+
+    private static Map<String, PsseFieldDefinition<PsseMultiTerminalDcBusx, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseMultiTerminalDcBusx, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_NAME, String.class, PsseMultiTerminalDcBusx::getName, PsseMultiTerminalDcBusx::setName));
+
+        return fields;
+    }
+
+    public static PsseMultiTerminalDcBusx fromRecord(CsvRecord rec, String[] headers) {
+        PsseMultiTerminalDcBusx multiTerminalDcBusx = Util.fromRecord(rec.getFields(), headers, FIELDS, PsseMultiTerminalDcBusx::new);
+        multiTerminalDcBusx.setBus(PsseMultiTerminalDcBus.fromRecord(rec, headers));
+        return multiTerminalDcBusx;
+    }
+
+    public static String[] toRecord(PsseMultiTerminalDcBusx multiTerminalDcBusx, String[] headers) {
+        Set<String> unexpectedHeaders = new HashSet<>(List.of(headers));
+        String[] recordValues = Util.toRecord(multiTerminalDcBusx, headers, FIELDS, unexpectedHeaders);
+        PsseMultiTerminalDcBus.toRecord(multiTerminalDcBusx.getBus(), headers, recordValues, unexpectedHeaders);
+        checkForUnexpectedHeader(unexpectedHeaders);
+        return recordValues;
+    }
 
     public PsseMultiTerminalDcBusx() {
     }
@@ -23,35 +60,6 @@ public class PsseMultiTerminalDcBusx {
     public PsseMultiTerminalDcBusx(String name, PsseMultiTerminalDcBus bus) {
         this.name = name;
         this.bus = bus;
-    }
-
-    private String name;
-    private PsseMultiTerminalDcBus bus;
-
-    public static PsseMultiTerminalDcBusx fromRecord(CsvRecord rec, String[] headers) {
-        PsseMultiTerminalDcBusx psseMultiTerminalDcBusx = new PsseMultiTerminalDcBusx();
-        psseMultiTerminalDcBusx.setName(parseStringFromRecord(rec, headers, "name"));
-        psseMultiTerminalDcBusx.setBus(PsseMultiTerminalDcBus.fromRecord(rec, headers));
-        return psseMultiTerminalDcBusx;
-    }
-
-    public static String[] toRecord(PsseMultiTerminalDcBusx psseMultiTerminalDcBusx, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "name" -> psseMultiTerminalDcBusx.getName();
-                case "idc" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getIdc());
-                case "ib" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getIb());
-                case "area" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getArea());
-                case "zone" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getZone());
-                case "dcname" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getDcname());
-                case "idc2" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getIdc2());
-                case "rgrnd" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getRgrnd());
-                case "owner" -> String.valueOf(psseMultiTerminalDcBusx.getBus().getOwner());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
     }
 
     public String getName() {

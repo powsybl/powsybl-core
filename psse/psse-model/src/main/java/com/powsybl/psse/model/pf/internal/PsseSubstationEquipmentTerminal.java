@@ -7,49 +7,72 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_EQID;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IBUS;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ID;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_INODE;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_J;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_JBUS;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_K;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_KBUS;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NI;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TYPE;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseSubstationEquipmentTerminal {
 
+    private static final Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminal, ?>> FIELDS = createFields();
+
     private int i;
     private int ni;
     private String type;
-    private String id;
-    private int j = 0;
-    private int k = 0;
+    private String id = defaultStringFor(STR_ID, FIELDS);
+    private int j = defaultIntegerFor(STR_J, FIELDS);
+    private int k = defaultIntegerFor(STR_K, FIELDS);
 
-    public static PsseSubstationEquipmentTerminal fromRecord(CsvRecord rec, String[] headers) {
-        PsseSubstationEquipmentTerminal psseSubstationEquipmentTerminal = new PsseSubstationEquipmentTerminal();
-        psseSubstationEquipmentTerminal.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
-        psseSubstationEquipmentTerminal.setNi(parseIntFromRecord(rec, headers, "ni", "inode"));
-        psseSubstationEquipmentTerminal.setType(parseStringFromRecord(rec, headers, "type"));
-        psseSubstationEquipmentTerminal.setId(parseStringFromRecord(rec, "1 ", headers, "id", "eqid"));
-        psseSubstationEquipmentTerminal.setJ(parseIntFromRecord(rec, 0, headers, "j", "jbus"));
-        psseSubstationEquipmentTerminal.setK(parseIntFromRecord(rec, 0, headers, "k", "kbus"));
-        return psseSubstationEquipmentTerminal;
+    private static Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminal, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminal, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseSubstationEquipmentTerminal::getI, PsseSubstationEquipmentTerminal::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseSubstationEquipmentTerminal::getI, PsseSubstationEquipmentTerminal::setI));
+        addField(fields, createNewField(STR_NI, Integer.class, PsseSubstationEquipmentTerminal::getNi, PsseSubstationEquipmentTerminal::setNi));
+        addField(fields, createNewField(STR_INODE, Integer.class, PsseSubstationEquipmentTerminal::getNi, PsseSubstationEquipmentTerminal::setNi));
+        addField(fields, createNewField(STR_TYPE, String.class, PsseSubstationEquipmentTerminal::getType, PsseSubstationEquipmentTerminal::setType));
+        addField(fields, createNewField(STR_ID, String.class, PsseSubstationEquipmentTerminal::getId, PsseSubstationEquipmentTerminal::setId, "1"));
+        addField(fields, createNewField(STR_EQID, String.class, PsseSubstationEquipmentTerminal::getId, PsseSubstationEquipmentTerminal::setId, "1"));
+        addField(fields, createNewField(STR_JBUS, Integer.class, PsseSubstationEquipmentTerminal::getJ, PsseSubstationEquipmentTerminal::setJ, 0));
+        addField(fields, createNewField(STR_J, Integer.class, PsseSubstationEquipmentTerminal::getJ, PsseSubstationEquipmentTerminal::setJ, 0));
+        addField(fields, createNewField(STR_K, Integer.class, PsseSubstationEquipmentTerminal::getK, PsseSubstationEquipmentTerminal::setK, 0));
+        addField(fields, createNewField(STR_KBUS, Integer.class, PsseSubstationEquipmentTerminal::getK, PsseSubstationEquipmentTerminal::setK, 0));
+
+        return fields;
     }
 
-    public static String[] toRecord(PsseSubstationEquipmentTerminal psseSubstationEquipmentTerminal, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "i", "ibus" -> String.valueOf(psseSubstationEquipmentTerminal.getI());
-                case "ni", "inode" -> String.valueOf(psseSubstationEquipmentTerminal.getNi());
-                case "type" -> psseSubstationEquipmentTerminal.getType();
-                case "id", "eqid" -> psseSubstationEquipmentTerminal.getId();
-                case "j", "jbus" -> String.valueOf(psseSubstationEquipmentTerminal.getJ());
-                case "k", "kbus" -> String.valueOf(psseSubstationEquipmentTerminal.getK());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+    public static PsseSubstationEquipmentTerminal fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationEquipmentTerminal::new);
+    }
+
+    public static void toRecord(PsseSubstationEquipmentTerminal substationEquipmentTerminal, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(substationEquipmentTerminal, headers, FIELDS, row, unexpectedHeaders);
+    }
+
+    public static String[] toRecord(PsseSubstationEquipmentTerminal substationEquipmentTerminal, String[] headers) {
+        return Util.toRecord(substationEquipmentTerminal, headers, FIELDS);
     }
 
     public int getI() {

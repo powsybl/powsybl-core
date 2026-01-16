@@ -7,79 +7,102 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseSubstationSwitchingDevice {
 
+    private static final Map<String, PsseFieldDefinition<PsseSubstationSwitchingDevice, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_COMMON_START = {"name", "type"};
+    private static final String[] FIELD_NAMES_COMMON_NSTAT = {STR_NSTAT};
+    private static final String[] FIELD_NAMES_COMMON_END = {"rate1", "rate2", "rate3"};
+    private static final String[] FIELD_NAMES_START_RAW = {"ni", "nj", "ckt"};
+    private static final String[] FIELD_NAMES_START_RAWX = {"isub", STR_INODE, "jnode", "swdid"};
+    private static final String[] FIELD_NAMES_MIDDLE_RAW = {STR_STATUS};
+    private static final String[] FIELD_NAMES_MIDDLE_RAWX = {STR_STAT};
+    private static final String[] FIELD_NAMES_END_RAW = {"x"};
+    private static final String[] FIELD_NAMES_END_RAWX = {"xpu"};
+    private static final String[] FIELD_NAMES_RAW = concatStringArrays(FIELD_NAMES_START_RAW, FIELD_NAMES_COMMON_START,
+        FIELD_NAMES_MIDDLE_RAW, FIELD_NAMES_COMMON_NSTAT, FIELD_NAMES_END_RAW, FIELD_NAMES_COMMON_END);
+    private static final String[] FIELD_NAMES_RAWX = concatStringArrays(FIELD_NAMES_START_RAWX, FIELD_NAMES_COMMON_START,
+        FIELD_NAMES_MIDDLE_RAWX, FIELD_NAMES_COMMON_NSTAT, FIELD_NAMES_END_RAWX, FIELD_NAMES_COMMON_END);
+
     private int ni;
-    private int nj = 0;
+    private int nj = defaultIntegerFor(STR_NJ, FIELDS);
     private String ckt;
     private String name;
-    private int type = 1;
-    private int status = 1;
-    private int nstat = 1;
-    private double x = 0.0001;
-    private double rate1 = 0.0;
-    private double rate2 = 0.0;
-    private double rate3 = 0.0;
+    private int type = defaultIntegerFor(STR_TYPE, FIELDS);
+    private int status = defaultIntegerFor(STR_STATUS, FIELDS);
+    private int nstat = defaultIntegerFor(STR_NSTAT, FIELDS);
+    private double x = defaultDoubleFor(STR_X, FIELDS);
+    private double rate1 = defaultDoubleFor(STR_RATE1, FIELDS);
+    private double rate2 = defaultDoubleFor(STR_RATE2, FIELDS);
+    private double rate3 = defaultDoubleFor(STR_RATE3, FIELDS);
+
+    public static String[] getFieldNamesRaw() {
+        return FIELD_NAMES_RAW;
+    }
+
+    public static String[] getFieldNamesRawx() {
+        return FIELD_NAMES_RAWX;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
 
     public static PsseSubstationSwitchingDevice fromRecord(CsvRecord rec, String[] headers) {
-        PsseSubstationSwitchingDevice psseSubstationSwitchingDevice = new PsseSubstationSwitchingDevice();
-        psseSubstationSwitchingDevice.setNi(parseIntFromRecord(rec, headers, "ni", "inode"));
-        psseSubstationSwitchingDevice.setNj(parseIntFromRecord(rec, 0, headers, "nj", "jnode"));
-        psseSubstationSwitchingDevice.setCkt(parseStringFromRecord(rec, "1 ", headers, "ckt", "swdid"));
-        psseSubstationSwitchingDevice.setName(parseStringFromRecord(rec, "                                        ", headers, "name"));
-        psseSubstationSwitchingDevice.setType(parseIntFromRecord(rec, 1, headers, "type"));
-        psseSubstationSwitchingDevice.setStatus(parseIntFromRecord(rec, 1, headers, "stat", "status"));
-        psseSubstationSwitchingDevice.setNstat(parseIntFromRecord(rec, 1, headers, "nstat"));
-        psseSubstationSwitchingDevice.setX(parseDoubleFromRecord(rec, 0.0001, headers, "x", "xpu"));
-        psseSubstationSwitchingDevice.setRate1(parseDoubleFromRecord(rec, 0.0, headers, "rate1"));
-        psseSubstationSwitchingDevice.setRate2(parseDoubleFromRecord(rec, 0.0, headers, "rate2"));
-        psseSubstationSwitchingDevice.setRate3(parseDoubleFromRecord(rec, 0.0, headers, "rate3"));
-        return psseSubstationSwitchingDevice;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationSwitchingDevice::new);
+    }
+
+    public static void toRecord(PsseSubstationSwitchingDevice psseSubstationSwitchingDevice, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(psseSubstationSwitchingDevice, headers, FIELDS, row, unexpectedHeaders);
     }
 
     public static String[] toRecord(PsseSubstationSwitchingDevice psseSubstationSwitchingDevice, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            if ("rsetnam".equals(headers[i])) {
-                // This header seems to be expected, but no variable seems consistent with it
-                continue;
-            }
-            Optional<String> optionalValue = psseSubstationSwitchingDevice.headerToString(headers[i]);
-            if (optionalValue.isEmpty()) {
-                throw new PsseException("Unsupported header: " + headers[i]);
-            }
-            row[i] = optionalValue.get();
-        }
-        return row;
+        return Util.toRecord(psseSubstationSwitchingDevice, headers, FIELDS);
     }
 
-    public Optional<String> headerToString(String header) {
-        return switch (header) {
-            case "ni", "inode" -> Optional.of(String.valueOf(getNi()));
-            case "nj", "jnode" -> Optional.of(String.valueOf(getNj()));
-            case "ckt", "swdid" -> Optional.of(String.valueOf(getCkt()));
-            case "name" -> Optional.of(getName());
-            case "type" -> Optional.of(String.valueOf(getType()));
-            case "stat", "status" -> Optional.of(String.valueOf(getStatus()));
-            case "nstat" -> Optional.of(String.valueOf(getNstat()));
-            case "x", "xpu" -> Optional.of(String.valueOf(getX()));
-            case "rate1" -> Optional.of(String.valueOf(getRate1()));
-            case "rate2" -> Optional.of(String.valueOf(getRate2()));
-            case "rate3" -> Optional.of(String.valueOf(getRate3()));
-            default -> Optional.empty();
-        };
+    private static Map<String, PsseFieldDefinition<PsseSubstationSwitchingDevice, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseSubstationSwitchingDevice, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_NI, Integer.class, PsseSubstationSwitchingDevice::getNi, PsseSubstationSwitchingDevice::setNi));
+        addField(fields, createNewField(STR_INODE, Integer.class, PsseSubstationSwitchingDevice::getNi, PsseSubstationSwitchingDevice::setNi));
+        addField(fields, createNewField(STR_NJ, Integer.class, PsseSubstationSwitchingDevice::getNj, PsseSubstationSwitchingDevice::setNj, 0));
+        addField(fields, createNewField(STR_JNODE, Integer.class, PsseSubstationSwitchingDevice::getNj, PsseSubstationSwitchingDevice::setNj, 0));
+        addField(fields, createNewField(STR_CKT, String.class, PsseSubstationSwitchingDevice::getCkt, PsseSubstationSwitchingDevice::setCkt, "1 "));
+        addField(fields, createNewField(STR_SWDID, String.class, PsseSubstationSwitchingDevice::getCkt, PsseSubstationSwitchingDevice::setCkt, "1 "));
+        addField(fields, createNewField(STR_NAME, String.class, PsseSubstationSwitchingDevice::getName, PsseSubstationSwitchingDevice::setName, STR_SPACES_40));
+        addField(fields, createNewField(STR_TYPE, Integer.class, PsseSubstationSwitchingDevice::getType, PsseSubstationSwitchingDevice::setType, 1));
+        addField(fields, createNewField(STR_STAT, Integer.class, PsseSubstationSwitchingDevice::getStatus, PsseSubstationSwitchingDevice::setStatus, 1));
+        addField(fields, createNewField(STR_STATUS, Integer.class, PsseSubstationSwitchingDevice::getStatus, PsseSubstationSwitchingDevice::setStatus, 1));
+        addField(fields, createNewField(STR_NSTAT, Integer.class, PsseSubstationSwitchingDevice::getNstat, PsseSubstationSwitchingDevice::setNstat, 1));
+        addField(fields, createNewField(STR_X, Double.class, PsseSubstationSwitchingDevice::getX, PsseSubstationSwitchingDevice::setX, 0.0001));
+        addField(fields, createNewField(STR_XPU, Double.class, PsseSubstationSwitchingDevice::getX, PsseSubstationSwitchingDevice::setX, 0.0001));
+        addField(fields, createNewField(STR_RATE1, Double.class, PsseSubstationSwitchingDevice::getRate1, PsseSubstationSwitchingDevice::setRate1, 0.0));
+        addField(fields, createNewField(STR_RATE2, Double.class, PsseSubstationSwitchingDevice::getRate2, PsseSubstationSwitchingDevice::setRate2, 0.0));
+        addField(fields, createNewField(STR_RATE3, Double.class, PsseSubstationSwitchingDevice::getRate3, PsseSubstationSwitchingDevice::setRate3, 0.0));
+
+        // This header seems to be expected, but no variable seems consistent with it
+        addField(fields, createNewField(STR_RSETNAM, Double.class, device -> null, (device, name) -> { }));
+
+        return fields;
     }
 
     public int getNi() {

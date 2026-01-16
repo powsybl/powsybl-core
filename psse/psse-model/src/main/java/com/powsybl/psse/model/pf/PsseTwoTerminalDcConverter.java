@@ -7,17 +7,23 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -26,6 +32,13 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  */
 public class PsseTwoTerminalDcConverter extends PsseVersioned {
 
+    private static final Map<String, PsseFieldDefinition<PsseTwoTerminalDcConverter, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_COMMON_1 = {STR_IP, STR_NB, STR_ANMX, STR_ANMN, STR_RC, STR_XC, STR_EBAS, STR_TR, STR_TAP, STR_TMX, STR_TMN, STR_STP, STR_IC};
+    private static final String[] FIELD_NAMES_COMMON_2 = {STR_IF, STR_IT, STR_ID, STR_XCAP};
+    private static final String[] FIELD_NAMES_ND = {STR_ND};
+    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_COMMON_1, FIELD_NAMES_COMMON_2);
+    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_COMMON_1, FIELD_NAMES_ND, FIELD_NAMES_COMMON_2);
+
     private int ip;
     private int nb;
     private double anmx;
@@ -33,85 +46,78 @@ public class PsseTwoTerminalDcConverter extends PsseVersioned {
     private double rc;
     private double xc;
     private double ebas;
-    private double tr = 1.0;
-    private double tap = 1.0;
-    private double tmx = 1.5;
-    private double tmn = 0.51;
-    private double stp = 0.00625;
-    private int ic = 0;
+    private double tr = defaultDoubleFor(STR_TR, FIELDS);
+    private double tap = defaultDoubleFor(STR_TAP, FIELDS);
+    private double tmx = defaultDoubleFor(STR_TMX, FIELDS);
+    private double tmn = defaultDoubleFor(STR_TMN, FIELDS);
+    private double stp = defaultDoubleFor(STR_STP, FIELDS);
+    private int ic = defaultIntegerFor(STR_IC, FIELDS);
 
     // Originally the field name is "if", but that is not allowed
-    private int ifx = 0;
-    private int it = 0;
+    private int ifx = defaultIntegerFor(STR_IF, FIELDS);
+    private int it = defaultIntegerFor(STR_IT, FIELDS);
     private String id;
-    private double xcap = 0.0;
+    private double xcap = defaultDoubleFor(STR_XCAP, FIELDS);
 
     @Revision(since = 35)
-    private int nd = 0;
+    private int nd = defaultIntegerFor(STR_ND, FIELDS);
 
-    public static PsseTwoTerminalDcConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
-        return fromRecord(rec, version, headers, "");
+    public static String[] getFieldNames3233() {
+        return FIELD_NAMES_32_33;
     }
 
-    public static PsseTwoTerminalDcConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers, String headerSuffix) {
-        PsseTwoTerminalDcConverter psseTwoTerminalDcConverter = new PsseTwoTerminalDcConverter();
-        psseTwoTerminalDcConverter.setIp(parseIntFromRecord(rec, headers, "ip" + headerSuffix));
-        psseTwoTerminalDcConverter.setNb(parseIntFromRecord(rec, headers, "nb" + headerSuffix));
-        psseTwoTerminalDcConverter.setAnmx(parseDoubleFromRecord(rec, headers, "anmx" + headerSuffix));
-        psseTwoTerminalDcConverter.setAnmn(parseDoubleFromRecord(rec, headers, "anmn" + headerSuffix));
-        psseTwoTerminalDcConverter.setRc(parseDoubleFromRecord(rec, headers, "rc" + headerSuffix));
-        psseTwoTerminalDcConverter.setXc(parseDoubleFromRecord(rec, headers, "xc" + headerSuffix));
-        psseTwoTerminalDcConverter.setEbas(parseDoubleFromRecord(rec, headers, "ebas" + headerSuffix));
-        psseTwoTerminalDcConverter.setTr(parseDoubleFromRecord(rec, 1.0, headers, "tr" + headerSuffix));
-        psseTwoTerminalDcConverter.setTap(parseDoubleFromRecord(rec, 1.0, headers, "tap" + headerSuffix));
-        psseTwoTerminalDcConverter.setTmx(parseDoubleFromRecord(rec, 1.5, headers, "tmx" + headerSuffix));
-        psseTwoTerminalDcConverter.setTmn(parseDoubleFromRecord(rec, 0.51, headers, "tmn" + headerSuffix));
-        psseTwoTerminalDcConverter.setStp(parseDoubleFromRecord(rec, 0.00625, headers, "stp" + headerSuffix));
-        psseTwoTerminalDcConverter.setIc(parseIntFromRecord(rec, 0, headers, "ic" + headerSuffix));
-        psseTwoTerminalDcConverter.setIf(parseIntFromRecord(rec, 0, headers, "if" + headerSuffix));
-        psseTwoTerminalDcConverter.setIt(parseIntFromRecord(rec, 0, headers, "it" + headerSuffix));
-        psseTwoTerminalDcConverter.setId(parseStringFromRecord(rec, "1", headers, "id" + headerSuffix));
-        psseTwoTerminalDcConverter.setXcap(parseDoubleFromRecord(rec, 0.0, headers, "xcap" + headerSuffix));
-        if (version.getMajorNumber() >= 35) {
-            psseTwoTerminalDcConverter.setNd(parseIntFromRecord(rec, 0, headers, "nd" + headerSuffix));
-        }
-        return psseTwoTerminalDcConverter;
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseTwoTerminalDcConverter fromRecord(CsvRecord rec, String[] headers) {
+        return fromRecord(rec, headers, "");
+    }
+
+    public static PsseTwoTerminalDcConverter fromRecord(CsvRecord rec, String[] headers, String headerSuffix) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseTwoTerminalDcConverter::new, headerSuffix);
+    }
+
+    public static void toRecord(PsseTwoTerminalDcConverter psseTwoTerminalDcConverter, String[] headers, String[] row,
+                                Set<String> unexpectedHeaders, String headerSuffix) {
+        Util.toRecord(psseTwoTerminalDcConverter, headers, FIELDS, row, unexpectedHeaders, headerSuffix);
+    }
+
+    public static void toRecord(PsseTwoTerminalDcConverter psseTwoTerminalDcConverter, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        toRecord(psseTwoTerminalDcConverter, headers, row, unexpectedHeaders, "");
     }
 
     public static String[] toRecord(PsseTwoTerminalDcConverter psseTwoTerminalDcConverter, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            Optional<String> optionalValue = psseTwoTerminalDcConverter.headerToString(headers[i]);
-            if (optionalValue.isEmpty()) {
-                throw new PsseException("Unsupported header: " + headers[i]);
-            }
-            row[i] = optionalValue.get();
-        }
-        return row;
+        return Util.toRecord(psseTwoTerminalDcConverter, headers, FIELDS);
     }
 
-    public Optional<String> headerToString(String header) {
-        return switch (header) {
-            case "ip" -> Optional.of(String.valueOf(getIp()));
-            case "nb" -> Optional.of(String.valueOf(getNb()));
-            case "anmx" -> Optional.of(String.valueOf(getAnmx()));
-            case "anmn" -> Optional.of(String.valueOf(getAnmn()));
-            case "rc" -> Optional.of(String.valueOf(getRc()));
-            case "xc" -> Optional.of(String.valueOf(getXc()));
-            case "ebas" -> Optional.of(String.valueOf(getEbas()));
-            case "tr" -> Optional.of(String.valueOf(getTr()));
-            case "tap" -> Optional.of(String.valueOf(getTap()));
-            case "tmx" -> Optional.of(String.valueOf(getTmx()));
-            case "tmn" -> Optional.of(String.valueOf(getTmn()));
-            case "stp" -> Optional.of(String.valueOf(getStp()));
-            case "ic" -> Optional.of(String.valueOf(getIc()));
-            case "if" -> Optional.of(String.valueOf(getIf()));
-            case "it" -> Optional.of(String.valueOf(getIt()));
-            case "id" -> Optional.of(String.valueOf(getId()));
-            case "xcap" -> Optional.of(String.valueOf(getXcap()));
-            case "nd" -> Optional.of(String.valueOf(getNd()));
-            default -> Optional.empty();
-        };
+    private static Map<String, PsseFieldDefinition<PsseTwoTerminalDcConverter, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseTwoTerminalDcConverter, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_IP, Integer.class, PsseTwoTerminalDcConverter::getIp, PsseTwoTerminalDcConverter::setIp));
+        addField(fields, createNewField(STR_NB, Integer.class, PsseTwoTerminalDcConverter::getNb, PsseTwoTerminalDcConverter::setNb));
+        addField(fields, createNewField(STR_ANMX, Double.class, PsseTwoTerminalDcConverter::getAnmx, PsseTwoTerminalDcConverter::setAnmx));
+        addField(fields, createNewField(STR_ANMN, Double.class, PsseTwoTerminalDcConverter::getAnmn, PsseTwoTerminalDcConverter::setAnmn));
+        addField(fields, createNewField(STR_RC, Double.class, PsseTwoTerminalDcConverter::getRc, PsseTwoTerminalDcConverter::setRc));
+        addField(fields, createNewField(STR_XC, Double.class, PsseTwoTerminalDcConverter::getXc, PsseTwoTerminalDcConverter::setXc));
+        addField(fields, createNewField(STR_EBAS, Double.class, PsseTwoTerminalDcConverter::getEbas, PsseTwoTerminalDcConverter::setEbas));
+        addField(fields, createNewField(STR_TR, Double.class, PsseTwoTerminalDcConverter::getTr, PsseTwoTerminalDcConverter::setTr, 1d));
+        addField(fields, createNewField(STR_TAP, Double.class, PsseTwoTerminalDcConverter::getTap, PsseTwoTerminalDcConverter::setTap, 1d));
+        addField(fields, createNewField(STR_TMX, Double.class, PsseTwoTerminalDcConverter::getTmx, PsseTwoTerminalDcConverter::setTmx, 1.5));
+        addField(fields, createNewField(STR_TMN, Double.class, PsseTwoTerminalDcConverter::getTmn, PsseTwoTerminalDcConverter::setTmn, 0.51));
+        addField(fields, createNewField(STR_STP, Double.class, PsseTwoTerminalDcConverter::getStp, PsseTwoTerminalDcConverter::setStp, 0.00625));
+        addField(fields, createNewField(STR_IC, Integer.class, PsseTwoTerminalDcConverter::getIc, PsseTwoTerminalDcConverter::setIc, 0));
+        addField(fields, createNewField(STR_IF, Integer.class, PsseTwoTerminalDcConverter::getIf, PsseTwoTerminalDcConverter::setIf, 0));
+        addField(fields, createNewField(STR_IT, Integer.class, PsseTwoTerminalDcConverter::getIt, PsseTwoTerminalDcConverter::setIt, 0));
+        addField(fields, createNewField(STR_ID, String.class, PsseTwoTerminalDcConverter::getId, PsseTwoTerminalDcConverter::setId));
+        addField(fields, createNewField(STR_XCAP, Double.class, PsseTwoTerminalDcConverter::getXcap, PsseTwoTerminalDcConverter::setXcap, 0d));
+        addField(fields, createNewField(STR_ND, Integer.class, PsseTwoTerminalDcConverter::getNd, PsseTwoTerminalDcConverter::setNd, 0));
+
+        return fields;
     }
 
     public int getIp() {

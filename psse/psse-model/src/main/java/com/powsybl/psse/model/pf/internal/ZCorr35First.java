@@ -7,53 +7,51 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class ZCorr35First {
 
+    private static final Map<String, PsseFieldDefinition<ZCorr35First, ?>> FIELDS = createFields();
+
     private int i;
     private ZCorr35Points points = new ZCorr35Points();
 
+    private static Map<String, PsseFieldDefinition<ZCorr35First, ?>> createFields() {
+        Map<String, PsseFieldDefinition<ZCorr35First, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, ZCorr35First::getI, ZCorr35First::setI));
+
+        return fields;
+    }
+
     public static ZCorr35First fromRecord(CsvRecord rec, String[] headers) {
-        ZCorr35First zCorr35First = new ZCorr35First();
-        zCorr35First.setI(parseIntFromRecord(rec, headers, "i"));
+        ZCorr35First zCorr35First = Util.fromRecord(rec.getFields(), headers, FIELDS, ZCorr35First::new);
         zCorr35First.setPoints(ZCorr35Points.fromRecord(rec, headers));
         return zCorr35First;
     }
 
-    public static String[] toRecord(ZCorr35First zCorr35First, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "i" -> String.valueOf(zCorr35First.getI());
-                case "t1" -> String.valueOf(zCorr35First.getPoints().getT1());
-                case "ref1" -> String.valueOf(zCorr35First.getPoints().getRef1());
-                case "imf1" -> String.valueOf(zCorr35First.getPoints().getImf1());
-                case "t2" -> String.valueOf(zCorr35First.getPoints().getT2());
-                case "ref2" -> String.valueOf(zCorr35First.getPoints().getRef2());
-                case "imf2" -> String.valueOf(zCorr35First.getPoints().getImf2());
-                case "t3" -> String.valueOf(zCorr35First.getPoints().getT3());
-                case "ref3" -> String.valueOf(zCorr35First.getPoints().getRef3());
-                case "imf3" -> String.valueOf(zCorr35First.getPoints().getImf3());
-                case "t4" -> String.valueOf(zCorr35First.getPoints().getT4());
-                case "ref4" -> String.valueOf(zCorr35First.getPoints().getRef4());
-                case "imf4" -> String.valueOf(zCorr35First.getPoints().getImf4());
-                case "t5" -> String.valueOf(zCorr35First.getPoints().getT5());
-                case "ref5" -> String.valueOf(zCorr35First.getPoints().getRef5());
-                case "imf5" -> String.valueOf(zCorr35First.getPoints().getImf5());
-                case "t6" -> String.valueOf(zCorr35First.getPoints().getT6());
-                case "ref6" -> String.valueOf(zCorr35First.getPoints().getRef6());
-                case "imf6" -> String.valueOf(zCorr35First.getPoints().getImf6());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+    public static String[] toRecord(ZCorr35First multiTerminalDcLinkx, String[] headers) {
+        Set<String> unexpectedHeaders = new HashSet<>(List.of(headers));
+        String[] recordValues = Util.toRecord(multiTerminalDcLinkx, headers, FIELDS, unexpectedHeaders);
+        ZCorr35Points.toRecord(multiTerminalDcLinkx.getPoints(), headers, recordValues, unexpectedHeaders);
+        checkForUnexpectedHeader(unexpectedHeaders);
+        return recordValues;
     }
 
     public int getI() {

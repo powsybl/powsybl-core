@@ -7,56 +7,78 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_AREA;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_DCNAME;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IB;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IDC;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IDC2;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_OWNER;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_RGRND;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ZONE;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseMultiTerminalDcBus {
 
-    private int idc;
-    private int ib = 0;
-    private int area = 1;
-    private int zone = 1;
-    private String dcname;
-    private int idc2 = 0;
-    private double rgrnd = 0.0;
-    private int owner = 1;
+    private static final Map<String, PsseFieldDefinition<PsseMultiTerminalDcBus, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_IDC, STR_IB, STR_AREA, STR_ZONE, STR_DCNAME, STR_IDC2, STR_RGRND, STR_OWNER};
 
-    public static PsseMultiTerminalDcBus fromRecord(CsvRecord rec, String[] headers) {
-        PsseMultiTerminalDcBus psseMultiTerminalDcBus = new PsseMultiTerminalDcBus();
-        psseMultiTerminalDcBus.setIdc(parseIntFromRecord(rec, headers, "idc"));
-        psseMultiTerminalDcBus.setIb(parseIntFromRecord(rec, headers, "ib"));
-        psseMultiTerminalDcBus.setArea(parseIntFromRecord(rec, headers, "area"));
-        psseMultiTerminalDcBus.setZone(parseIntFromRecord(rec, headers, "zone"));
-        psseMultiTerminalDcBus.setDcname(parseStringFromRecord(rec, "            ", headers, "dcname"));
-        psseMultiTerminalDcBus.setIdc2(parseIntFromRecord(rec, headers, "idc2"));
-        psseMultiTerminalDcBus.setRgrnd(parseDoubleFromRecord(rec, headers, "rgrnd"));
-        psseMultiTerminalDcBus.setOwner(parseIntFromRecord(rec, headers, "owner"));
-        return psseMultiTerminalDcBus;
+    private int idc;
+    private int ib = defaultIntegerFor(STR_IB, FIELDS);
+    private int area = defaultIntegerFor(STR_AREA, FIELDS);
+    private int zone = defaultIntegerFor(STR_ZONE, FIELDS);
+    private String dcname;
+    private int idc2 = defaultIntegerFor(STR_IDC2, FIELDS);
+    private double rgrnd = defaultDoubleFor(STR_RGRND, FIELDS);
+    private int owner = defaultIntegerFor(STR_OWNER, FIELDS);
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] toRecord(PsseMultiTerminalDcBus psseMultiTerminalDcBus, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "idc" -> String.valueOf(psseMultiTerminalDcBus.getIdc());
-                case "ib" -> String.valueOf(psseMultiTerminalDcBus.getIb());
-                case "area" -> String.valueOf(psseMultiTerminalDcBus.getArea());
-                case "zone" -> String.valueOf(psseMultiTerminalDcBus.getZone());
-                case "dcname" -> String.valueOf(psseMultiTerminalDcBus.getDcname());
-                case "idc2" -> String.valueOf(psseMultiTerminalDcBus.getIdc2());
-                case "rgrnd" -> String.valueOf(psseMultiTerminalDcBus.getRgrnd());
-                case "owner" -> String.valueOf(psseMultiTerminalDcBus.getOwner());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseMultiTerminalDcBus fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseMultiTerminalDcBus::new);
+    }
+
+    public static void toRecord(PsseMultiTerminalDcBus multiTerminalDcBus, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(multiTerminalDcBus, headers, FIELDS, row, unexpectedHeaders);
+    }
+
+    public static String[] toRecord(PsseMultiTerminalDcBus multiTerminalDcBus, String[] headers) {
+        return Util.toRecord(multiTerminalDcBus, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseMultiTerminalDcBus, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseMultiTerminalDcBus, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_IDC, Integer.class, PsseMultiTerminalDcBus::getIdc, PsseMultiTerminalDcBus::setIdc));
+        addField(fields, createNewField(STR_IB, Integer.class, PsseMultiTerminalDcBus::getIb, PsseMultiTerminalDcBus::setIb, 0));
+        addField(fields, createNewField(STR_AREA, Integer.class, PsseMultiTerminalDcBus::getArea, PsseMultiTerminalDcBus::setArea, 1));
+        addField(fields, createNewField(STR_ZONE, Integer.class, PsseMultiTerminalDcBus::getZone, PsseMultiTerminalDcBus::setZone, 1));
+        addField(fields, createNewField(STR_DCNAME, String.class, PsseMultiTerminalDcBus::getDcname, PsseMultiTerminalDcBus::setDcname));
+        addField(fields, createNewField(STR_IDC2, Integer.class, PsseMultiTerminalDcBus::getIdc2, PsseMultiTerminalDcBus::setIdc2, 0));
+        addField(fields, createNewField(STR_RGRND, Double.class, PsseMultiTerminalDcBus::getRgrnd, PsseMultiTerminalDcBus::setRgrnd, 0.0));
+        addField(fields, createNewField(STR_OWNER, Integer.class, PsseMultiTerminalDcBus::getOwner, PsseMultiTerminalDcBus::setOwner, 1));
+
+        return fields;
     }
 
     public int getIdc() {
