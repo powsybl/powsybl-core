@@ -7,15 +7,52 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NAME;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseMultiTerminalDcLinkx {
+
+    private static final Map<String, PsseFieldDefinition<PsseMultiTerminalDcLinkx, ?>> FIELDS = createFields();
+
+    private String name;
+    private PsseMultiTerminalDcLink link;
+
+    private static Map<String, PsseFieldDefinition<PsseMultiTerminalDcLinkx, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseMultiTerminalDcLinkx, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_NAME, String.class, PsseMultiTerminalDcLinkx::getName, PsseMultiTerminalDcLinkx::setName));
+
+        return fields;
+    }
+
+    public static PsseMultiTerminalDcLinkx fromRecord(CsvRecord rec, String[] headers) {
+        PsseMultiTerminalDcLinkx multiTerminalDcLinkx = Util.fromRecord(rec.getFields(), headers, FIELDS, PsseMultiTerminalDcLinkx::new);
+        multiTerminalDcLinkx.setLink(PsseMultiTerminalDcLink.fromRecord(rec, headers));
+        return multiTerminalDcLinkx;
+    }
+
+    public static String[] toRecord(PsseMultiTerminalDcLinkx multiTerminalDcLinkx, String[] headers) {
+        Set<String> unexpectedHeaders = new HashSet<>(List.of(headers));
+        String[] recordValues = Util.toRecord(multiTerminalDcLinkx, headers, FIELDS, unexpectedHeaders);
+        PsseMultiTerminalDcLink.toRecord(multiTerminalDcLinkx.getLink(), headers, recordValues, unexpectedHeaders);
+        checkForUnexpectedHeader(unexpectedHeaders);
+        return recordValues;
+    }
 
     public PsseMultiTerminalDcLinkx() {
     }
@@ -23,33 +60,6 @@ public class PsseMultiTerminalDcLinkx {
     public PsseMultiTerminalDcLinkx(String name, PsseMultiTerminalDcLink link) {
         this.name = name;
         this.link = link;
-    }
-
-    private String name;
-    private PsseMultiTerminalDcLink link;
-
-    public static PsseMultiTerminalDcLinkx fromRecord(CsvRecord rec, String[] headers) {
-        PsseMultiTerminalDcLinkx psseMultiTerminalDcLinkx = new PsseMultiTerminalDcLinkx();
-        psseMultiTerminalDcLinkx.setName(parseStringFromRecord(rec, headers, "name"));
-        psseMultiTerminalDcLinkx.setLink(PsseMultiTerminalDcLink.fromRecord(rec, headers));
-        return psseMultiTerminalDcLinkx;
-    }
-
-    public static String[] toRecord(PsseMultiTerminalDcLinkx psseMultiTerminalDcLinkx, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "name" -> psseMultiTerminalDcLinkx.getName();
-                case "idc" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getIdc());
-                case "jdc" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getJdc());
-                case "dcckt" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getDcckt());
-                case "met" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getMet());
-                case "rdc" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getRdc());
-                case "ldc" -> String.valueOf(psseMultiTerminalDcLinkx.getLink().getLdc());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
     }
 
     public String getName() {

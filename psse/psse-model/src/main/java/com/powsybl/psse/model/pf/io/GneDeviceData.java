@@ -7,17 +7,21 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.io.LegacyTextReader;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
+import com.powsybl.psse.model.pf.PsseGneDevice;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.powsybl.psse.model.io.*;
-import org.apache.commons.lang3.ArrayUtils;
-
-import com.powsybl.psse.model.pf.PsseGneDevice;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -28,7 +32,7 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
 
     GneDeviceData() {
         super(GNE_DEVICE);
-        withQuotedFields(QUOTED_FIELDS);
+        withQuotedFields(PsseGneDevice.getFieldNamesString());
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
     }
 
@@ -40,10 +44,10 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
     private static class IOLegacyText extends RecordGroupIOLegacyText<PsseGneDevice> {
 
         private static final String[][] FIELD_NAMES = {
-            {"name", "model", "nterm", "bus1", "bus2", "nreal", "nintg", "nchar", "status", "owner", "nmet"},
-            {"real1", "real2", "real3", "real4", "real5", "real6", "real7", "real8", "real9", "real10"},
-            {"intg1", "intg2", "intg3", "intg4", "intg5", "intg6", "intg7", "intg8", "intg9", "intg10"},
-            {"char1", "char2", "char3", "char4", "char5", "char6", "char7", "char8", "char9", "char10"}};
+            {STR_NAME, STR_MODEL, STR_NTERM, STR_BUS1, STR_BUS2, STR_NREAL, STR_NINTG, STR_NCHAR, STR_STATUS, STR_OWNER, STR_NMET},
+            {STR_REAL1, STR_REAL2, STR_REAL3, STR_REAL4, STR_REAL5, STR_REAL6, STR_REAL7, STR_REAL8, STR_REAL9, STR_REAL10},
+            {STR_INTG1, STR_INTG2, STR_INTG3, STR_INTG4, STR_INTG5, STR_INTG6, STR_INTG7, STR_INTG8, STR_INTG9, STR_INTG10},
+            {STR_CHAR1, STR_CHAR2, STR_CHAR3, STR_CHAR4, STR_CHAR5, STR_CHAR6, STR_CHAR7, STR_CHAR8, STR_CHAR9, STR_CHAR10}};
 
         IOLegacyText(AbstractRecordGroup<PsseGneDevice> recordGroup) {
             super(recordGroup);
@@ -140,6 +144,4 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
             return maxNumMainHeaders;
         }
     }
-
-    private static final String[] QUOTED_FIELDS = {"name", "model", "char1", "char2", "char3", "char4", "char5", "char6", "char7", "char8", "char9", "char10"};
 }

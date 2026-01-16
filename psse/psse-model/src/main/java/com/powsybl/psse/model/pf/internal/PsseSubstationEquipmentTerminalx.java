@@ -7,15 +7,52 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ISUB;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseSubstationEquipmentTerminalx {
+
+    private static final Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminalx, ?>> FIELDS = createFields();
+
+    private int isub;
+    private PsseSubstationEquipmentTerminal equipmentTerminal;
+
+    private static Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminalx, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminalx, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_ISUB, Integer.class, PsseSubstationEquipmentTerminalx::getIsub, PsseSubstationEquipmentTerminalx::setIsub));
+
+        return fields;
+    }
+
+    public static PsseSubstationEquipmentTerminalx fromRecord(CsvRecord rec, String[] headers) {
+        PsseSubstationEquipmentTerminalx psseSubstationEquipmentTerminalx = Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationEquipmentTerminalx::new);
+        psseSubstationEquipmentTerminalx.setEquipmentTerminal(PsseSubstationEquipmentTerminal.fromRecord(rec, headers));
+        return psseSubstationEquipmentTerminalx;
+    }
+
+    public static String[] toRecord(PsseSubstationEquipmentTerminalx psseSubstationEquipmentTerminalx, String[] headers) {
+        Set<String> unexpectedHeaders = new HashSet<>(List.of(headers));
+        String[] recordValues = Util.toRecord(psseSubstationEquipmentTerminalx, headers, FIELDS, unexpectedHeaders);
+        PsseSubstationEquipmentTerminal.toRecord(psseSubstationEquipmentTerminalx.getEquipmentTerminal(), headers, recordValues, unexpectedHeaders);
+        checkForUnexpectedHeader(unexpectedHeaders);
+        return recordValues;
+    }
 
     public PsseSubstationEquipmentTerminalx() {
 
@@ -24,33 +61,6 @@ public class PsseSubstationEquipmentTerminalx {
     public PsseSubstationEquipmentTerminalx(int isub, PsseSubstationEquipmentTerminal equipmentTerminal) {
         this.isub = isub;
         this.equipmentTerminal = equipmentTerminal;
-    }
-
-    private int isub;
-    private PsseSubstationEquipmentTerminal equipmentTerminal;
-
-    public static PsseSubstationEquipmentTerminalx fromRecord(CsvRecord rec, String[] headers) {
-        PsseSubstationEquipmentTerminalx psseSubstationEquipmentTerminalx = new PsseSubstationEquipmentTerminalx();
-        psseSubstationEquipmentTerminalx.setIsub(parseIntFromRecord(rec, headers, "isub"));
-        psseSubstationEquipmentTerminalx.setEquipmentTerminal(PsseSubstationEquipmentTerminal.fromRecord(rec, headers));
-        return psseSubstationEquipmentTerminalx;
-    }
-
-    public static String[] toRecord(PsseSubstationEquipmentTerminalx psseSubstationEquipmentTerminalx, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "isub" -> String.valueOf(psseSubstationEquipmentTerminalx.getIsub());
-                case "i", "ibus" -> String.valueOf(psseSubstationEquipmentTerminalx.getEquipmentTerminal().getI());
-                case "ni", "inode" -> String.valueOf(psseSubstationEquipmentTerminalx.getEquipmentTerminal().getNi());
-                case "type" -> psseSubstationEquipmentTerminalx.getEquipmentTerminal().getType();
-                case "id", "eqid" -> psseSubstationEquipmentTerminalx.getEquipmentTerminal().getId();
-                case "j", "jbus" -> String.valueOf(psseSubstationEquipmentTerminalx.getEquipmentTerminal().getJ());
-                case "k", "kbus" -> String.valueOf(psseSubstationEquipmentTerminalx.getEquipmentTerminal().getK());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
     }
 
     public int getIsub() {

@@ -28,8 +28,8 @@ import java.util.List;
 
 import static com.powsybl.psse.model.io.FileFormat.JSON;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_1;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_2;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE1;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE2;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -37,11 +37,9 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_2;
  */
 class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
 
-    static final String[] FIELD_NAMES_CASE_IDENTIFICATION = {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", STR_TITLE_1, STR_TITLE_2};
-
     CaseIdentificationData() {
-        super(PowerFlowRecordGroup.CASE_IDENTIFICATION, FIELD_NAMES_CASE_IDENTIFICATION);
-        withQuotedFields(STR_TITLE_1, STR_TITLE_2);
+        super(PowerFlowRecordGroup.CASE_IDENTIFICATION, PsseCaseIdentification.getFieldNames());
+        withQuotedFields(PsseCaseIdentification.getFieldNamesString());
         withIO(LEGACY_TEXT, new CaseIdentificationLegacyText(this));
         withIO(JSON, new CaseIdentificationJson(this));
     }
@@ -75,7 +73,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         public void writeHead(PsseCaseIdentification caseIdentification, Context context, OutputStream outputStream) {
             // Adapt headers of case identification record
             // title1 and title2 go in separate lines in legacy text format
-            String[] headers = ArrayUtils.removeElements(context.getFieldNames(recordGroup.getIdentification()), STR_TITLE_1, STR_TITLE_2);
+            String[] headers = ArrayUtils.removeElements(context.getFieldNames(recordGroup.getIdentification()), STR_TITLE1, STR_TITLE2);
             String[] quotedFields = recordGroup.quotedFields();
             write(Collections.singletonList(caseIdentification), headers, Util.retainAll(quotedFields, headers), context, outputStream);
             writeLine(caseIdentification.getTitle1(), outputStream);

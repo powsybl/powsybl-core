@@ -7,11 +7,19 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -20,20 +28,14 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  */
 public class PsseLineGrouping {
 
-    public PsseLineGrouping() {
-    }
-
-    public PsseLineGrouping(int i, int j, String id, int met) {
-        this.i = i;
-        this.j = j;
-        this.id = id;
-        this.met = met;
-    }
+    private static final Map<String, PsseFieldDefinition<PsseLineGrouping, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_I, STR_J, STR_ID, STR_MET,
+        STR_DUM1, STR_DUM2, STR_DUM3, STR_DUM4, STR_DUM5, STR_DUM6, STR_DUM7, STR_DUM8, STR_DUM9};
 
     private int i;
     private int j;
-    private String id;
-    private int met = 1;
+    private String id = defaultStringFor(STR_ID, FIELDS);
+    private int met = defaultIntegerFor(STR_MET, FIELDS);
     private Integer dum1;
     private Integer dum2;
     private Integer dum3;
@@ -44,45 +46,53 @@ public class PsseLineGrouping {
     private Integer dum8;
     private Integer dum9;
 
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
     public static PsseLineGrouping fromRecord(CsvRecord rec, String[] headers) {
-        PsseLineGrouping psseLineGrouping = new PsseLineGrouping();
-        psseLineGrouping.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
-        psseLineGrouping.setJ(parseIntFromRecord(rec, headers, "j", "jbus"));
-        psseLineGrouping.setId(parseStringFromRecord(rec, "&1", headers, "id", "mslid"));
-        psseLineGrouping.setMet(parseIntFromRecord(rec, headers, "met"));
-        psseLineGrouping.setDum1(parseIntFromRecord(rec, null, headers, "dum1"));
-        psseLineGrouping.setDum2(parseIntFromRecord(rec, null, headers, "dum2"));
-        psseLineGrouping.setDum3(parseIntFromRecord(rec, null, headers, "dum3"));
-        psseLineGrouping.setDum4(parseIntFromRecord(rec, null, headers, "dum4"));
-        psseLineGrouping.setDum5(parseIntFromRecord(rec, null, headers, "dum5"));
-        psseLineGrouping.setDum6(parseIntFromRecord(rec, null, headers, "dum6"));
-        psseLineGrouping.setDum7(parseIntFromRecord(rec, null, headers, "dum7"));
-        psseLineGrouping.setDum8(parseIntFromRecord(rec, null, headers, "dum8"));
-        psseLineGrouping.setDum9(parseIntFromRecord(rec, null, headers, "dum9"));
-        return psseLineGrouping;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseLineGrouping::new);
     }
 
     public static String[] toRecord(PsseLineGrouping psseLineGrouping, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "i", "ibus" -> String.valueOf(psseLineGrouping.getI());
-                case "j", "jbus" -> String.valueOf(psseLineGrouping.getJ());
-                case "id", "mslid" -> psseLineGrouping.getId();
-                case "met" -> String.valueOf(psseLineGrouping.getMet());
-                case "dum1" -> String.valueOf(psseLineGrouping.getDum1());
-                case "dum2" -> String.valueOf(psseLineGrouping.getDum2());
-                case "dum3" -> String.valueOf(psseLineGrouping.getDum3());
-                case "dum4" -> String.valueOf(psseLineGrouping.getDum4());
-                case "dum5" -> String.valueOf(psseLineGrouping.getDum5());
-                case "dum6" -> String.valueOf(psseLineGrouping.getDum6());
-                case "dum7" -> String.valueOf(psseLineGrouping.getDum7());
-                case "dum8" -> String.valueOf(psseLineGrouping.getDum8());
-                case "dum9" -> String.valueOf(psseLineGrouping.getDum9());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+        return Util.toRecord(psseLineGrouping, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseLineGrouping, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseLineGrouping, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseLineGrouping::getI, PsseLineGrouping::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseLineGrouping::getI, PsseLineGrouping::setI));
+        addField(fields, createNewField(STR_J, Integer.class, PsseLineGrouping::getJ, PsseLineGrouping::setJ));
+        addField(fields, createNewField(STR_JBUS, Integer.class, PsseLineGrouping::getJ, PsseLineGrouping::setJ));
+        addField(fields, createNewField(STR_ID, String.class, PsseLineGrouping::getId, PsseLineGrouping::setId, "&1"));
+        addField(fields, createNewField(STR_MSLID, String.class, PsseLineGrouping::getId, PsseLineGrouping::setId, "&1"));
+        addField(fields, createNewField(STR_MET, Integer.class, PsseLineGrouping::getMet, PsseLineGrouping::setMet, 1));
+        addField(fields, createNewField(STR_DUM1, Integer.class, PsseLineGrouping::getDum1, PsseLineGrouping::setDum1, null));
+        addField(fields, createNewField(STR_DUM2, Integer.class, PsseLineGrouping::getDum2, PsseLineGrouping::setDum2, null));
+        addField(fields, createNewField(STR_DUM3, Integer.class, PsseLineGrouping::getDum3, PsseLineGrouping::setDum3, null));
+        addField(fields, createNewField(STR_DUM4, Integer.class, PsseLineGrouping::getDum4, PsseLineGrouping::setDum4, null));
+        addField(fields, createNewField(STR_DUM5, Integer.class, PsseLineGrouping::getDum5, PsseLineGrouping::setDum5, null));
+        addField(fields, createNewField(STR_DUM6, Integer.class, PsseLineGrouping::getDum6, PsseLineGrouping::setDum6, null));
+        addField(fields, createNewField(STR_DUM7, Integer.class, PsseLineGrouping::getDum7, PsseLineGrouping::setDum7, null));
+        addField(fields, createNewField(STR_DUM8, Integer.class, PsseLineGrouping::getDum8, PsseLineGrouping::setDum8, null));
+        addField(fields, createNewField(STR_DUM9, Integer.class, PsseLineGrouping::getDum9, PsseLineGrouping::setDum9, null));
+
+        return fields;
+    }
+
+    public PsseLineGrouping() {
+    }
+
+    public PsseLineGrouping(int i, int j, String id, int met) {
+        this.i = i;
+        this.j = j;
+        this.id = id;
+        this.met = met;
     }
 
     public int getI() {

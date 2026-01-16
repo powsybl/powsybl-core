@@ -7,50 +7,72 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_DCCKT;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IDC;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_JDC;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_LDC;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_MET;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_RDC;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseMultiTerminalDcLink {
 
+    private static final Map<String, PsseFieldDefinition<PsseMultiTerminalDcLink, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_IDC, STR_JDC, STR_DCCKT, STR_MET, STR_RDC, STR_LDC};
+
     private int idc;
     private int jdc;
     private String dcckt;
-    private int met = 1;
+    private int met = defaultIntegerFor(STR_MET, FIELDS);
     private double rdc;
-    private double ldc = 0.0;
+    private double ldc = defaultDoubleFor(STR_LDC, FIELDS);
 
-    public static PsseMultiTerminalDcLink fromRecord(CsvRecord rec, String[] headers) {
-        PsseMultiTerminalDcLink psseMultiTerminalDcLink = new PsseMultiTerminalDcLink();
-        psseMultiTerminalDcLink.setIdc(parseIntFromRecord(rec, headers, "idc"));
-        psseMultiTerminalDcLink.setJdc(parseIntFromRecord(rec, headers, "jdc"));
-        psseMultiTerminalDcLink.setDcckt(parseStringFromRecord(rec, "1", headers, "dcckt"));
-        psseMultiTerminalDcLink.setMet(parseIntFromRecord(rec, headers, "met"));
-        psseMultiTerminalDcLink.setRdc(parseDoubleFromRecord(rec, headers, "rdc"));
-        psseMultiTerminalDcLink.setLdc(parseDoubleFromRecord(rec, headers, "ldc"));
-        return psseMultiTerminalDcLink;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] toRecord(PsseMultiTerminalDcLink psseMultiTerminalDcLink, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "idc" -> String.valueOf(psseMultiTerminalDcLink.getIdc());
-                case "jdc" -> String.valueOf(psseMultiTerminalDcLink.getJdc());
-                case "dcckt" -> String.valueOf(psseMultiTerminalDcLink.getDcckt());
-                case "met" -> String.valueOf(psseMultiTerminalDcLink.getMet());
-                case "rdc" -> String.valueOf(psseMultiTerminalDcLink.getRdc());
-                case "ldc" -> String.valueOf(psseMultiTerminalDcLink.getLdc());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseMultiTerminalDcLink, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseMultiTerminalDcLink, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_IDC, Integer.class, PsseMultiTerminalDcLink::getIdc, PsseMultiTerminalDcLink::setIdc));
+        addField(fields, createNewField(STR_JDC, Integer.class, PsseMultiTerminalDcLink::getJdc, PsseMultiTerminalDcLink::setJdc));
+        addField(fields, createNewField(STR_DCCKT, String.class, PsseMultiTerminalDcLink::getDcckt, PsseMultiTerminalDcLink::setDcckt));
+        addField(fields, createNewField(STR_MET, Integer.class, PsseMultiTerminalDcLink::getMet, PsseMultiTerminalDcLink::setMet, 1));
+        addField(fields, createNewField(STR_RDC, Double.class, PsseMultiTerminalDcLink::getRdc, PsseMultiTerminalDcLink::setRdc));
+        addField(fields, createNewField(STR_LDC, Double.class, PsseMultiTerminalDcLink::getLdc, PsseMultiTerminalDcLink::setLdc, 0.0));
+
+        return fields;
+    }
+
+    public static PsseMultiTerminalDcLink fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseMultiTerminalDcLink::new);
+    }
+
+    public static void toRecord(PsseMultiTerminalDcLink multiTerminalDcLink, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(multiTerminalDcLink, headers, FIELDS, row, unexpectedHeaders);
+    }
+
+    public static String[] toRecord(PsseMultiTerminalDcLink multiTerminalDcLink, String[] headers) {
+        return Util.toRecord(multiTerminalDcLink, headers, FIELDS);
     }
 
     public int getIdc() {

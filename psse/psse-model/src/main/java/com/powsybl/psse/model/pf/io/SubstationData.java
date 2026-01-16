@@ -27,7 +27,7 @@ import java.util.List;
 
 import static com.powsybl.psse.model.pf.PsseSubstation.*;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I_NODE;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_INODE;
 
 /**
  *
@@ -36,16 +36,12 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I_NODE;
  */
 class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
-    static final String[] FIELD_NAMES_SUBSTATION = {"is", "name", "lati", "long", "srg"};
-    static final String[] FIELD_NAMES_SUBSTATION_NODE = {"ni", "name", "i", "status", "vm", "va"};
     static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES = {"ni", "nj", "ckt", "name", "type", "status", "nstat", "x", "rate1", "rate2", "rate3"};
     static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS = {"i", "ni", "type", "id"};
     static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES = {"i", "ni", "type", "j", "id"};
     static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES = {"i", "ni", "type", "j", "k", "id"};
-    static final String[] FIELD_NAMES_SUBSTATION_RAWX = {"isub", "name", "lati", "long", "srg"};
-    static final String[] FIELD_NAMES_SUBSTATION_NODE_RAWX = {"isub", STR_I_NODE, "name", "ibus", "stat", "vm", "va"};
-    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX = {"isub", STR_I_NODE, "jnode", "swdid", "name", "type", "stat", "nstat", "xpu", "rate1", "rate2", "rate3"};
-    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_RAWX = {"isub", STR_I_NODE, "type", "eqid", "ibus", "jbus", "kbus"};
+    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX = {"isub", STR_INODE, "jnode", "swdid", "name", "type", "stat", "nstat", "xpu", "rate1", "rate2", "rate3"};
+    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_RAWX = {"isub", STR_INODE, "type", "eqid", "ibus", "jbus", "kbus"};
 
     SubstationData() {
         super(SUBSTATION);
@@ -162,7 +158,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationNodeData extends AbstractRecordGroup<PsseSubstationNode> {
             SubstationNodeData() {
-                super(INTERNAL_SUBSTATION_NODE, FIELD_NAMES_SUBSTATION_NODE);
+                super(INTERNAL_SUBSTATION_NODE, PsseSubstationNode.getFieldNamesRaw());
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -328,7 +324,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
     private static class SubstationRecordData extends AbstractRecordGroup<PsseSubstationRecord> {
         SubstationRecordData() {
-            super(SUBSTATION, FIELD_NAMES_SUBSTATION);
+            super(SUBSTATION, PsseSubstationRecord.getFieldNamesRaw());
             withQuotedFields(QUOTED_FIELDS);
         }
 

@@ -7,18 +7,23 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -26,170 +31,153 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  */
 public class PsseSwitchedShunt extends PsseVersioned {
 
-    private static final String STRING_SWREM = "swrem";
-    private static final String STRING_SWREG = "swreg";
-
-    private static final Map<String, Function<PsseSwitchedShunt, String>> GETTERS = Map.ofEntries(
-        Map.entry("i", switchShunt -> String.valueOf(switchShunt.getI())),
-        Map.entry("ibus", switchShunt -> String.valueOf(switchShunt.getI())),
-        Map.entry("modsw", switchShunt -> String.valueOf(switchShunt.getModsw())),
-        Map.entry("adjm", switchShunt -> String.valueOf(switchShunt.getAdjm())),
-        Map.entry("stat", switchShunt -> String.valueOf(switchShunt.getStat())),
-        Map.entry("vswhi", switchShunt -> String.valueOf(switchShunt.getVswhi())),
-        Map.entry("vswlo", switchShunt -> String.valueOf(switchShunt.getVswlo())),
-        Map.entry(STRING_SWREM, switchShunt -> String.valueOf(switchShunt.getSwrem())),
-        Map.entry("rmpct", switchShunt -> String.valueOf(switchShunt.getRmpct())),
-        Map.entry("rmidnt", PsseSwitchedShunt::getRmidnt),
-        Map.entry("binit", switchShunt -> String.valueOf(switchShunt.getBinit())),
-        Map.entry("n1", switchShunt -> String.valueOf(switchShunt.getN1())),
-        Map.entry("b1", switchShunt -> String.valueOf(switchShunt.getB1())),
-        Map.entry("n2", switchShunt -> String.valueOf(switchShunt.getN2())),
-        Map.entry("b2", switchShunt -> String.valueOf(switchShunt.getB2())),
-        Map.entry("n3", switchShunt -> String.valueOf(switchShunt.getN3())),
-        Map.entry("b3", switchShunt -> String.valueOf(switchShunt.getB3())),
-        Map.entry("n4", switchShunt -> String.valueOf(switchShunt.getN4())),
-        Map.entry("b4", switchShunt -> String.valueOf(switchShunt.getB4())),
-        Map.entry("n5", switchShunt -> String.valueOf(switchShunt.getN5())),
-        Map.entry("b5", switchShunt -> String.valueOf(switchShunt.getB5())),
-        Map.entry("n6", switchShunt -> String.valueOf(switchShunt.getN6())),
-        Map.entry("b6", switchShunt -> String.valueOf(switchShunt.getB6())),
-        Map.entry("n7", switchShunt -> String.valueOf(switchShunt.getN7())),
-        Map.entry("b7", switchShunt -> String.valueOf(switchShunt.getB7())),
-        Map.entry("n8", switchShunt -> String.valueOf(switchShunt.getN8())),
-        Map.entry("b8", switchShunt -> String.valueOf(switchShunt.getB8())),
-        Map.entry("id", PsseSwitchedShunt::getId),
-        Map.entry("shntid", PsseSwitchedShunt::getId),
-        Map.entry(STRING_SWREG, switchShunt -> String.valueOf(switchShunt.getSwreg())),
-        Map.entry("nreg", switchShunt -> String.valueOf(switchShunt.getNreg())),
-        Map.entry("s1", switchShunt -> String.valueOf(switchShunt.getS1())),
-        Map.entry("s2", switchShunt -> String.valueOf(switchShunt.getS2())),
-        Map.entry("s3", switchShunt -> String.valueOf(switchShunt.getS3())),
-        Map.entry("s4", switchShunt -> String.valueOf(switchShunt.getS4())),
-        Map.entry("s5", switchShunt -> String.valueOf(switchShunt.getS5())),
-        Map.entry("s6", switchShunt -> String.valueOf(switchShunt.getS6())),
-        Map.entry("s7", switchShunt -> String.valueOf(switchShunt.getS7())),
-        Map.entry("s8", switchShunt -> String.valueOf(switchShunt.getS8()))
-    );
+    private static final Map<String, PsseFieldDefinition<PsseSwitchedShunt, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_32_33_START = {STR_I};
+    private static final String[] FIELD_NAMES_35_START = {STR_I, STR_ID};
+    private static final String[] FIELD_NAMES_35_RAWX_START = {STR_IBUS, STR_SHNTID};
+    private static final String[] FIELD_NAMES_COMMON_1 = {STR_MODSW, STR_ADJM, STR_STAT, STR_VSWHI, STR_VSWLO};
+    private static final String[] FIELD_NAMES_32_33_MIDDLE = {STR_SWREM};
+    private static final String[] FIELD_NAMES_35_MIDDLE = {STR_SWREG, STR_NREG};
+    private static final String[] FIELD_NAMES_COMMON_2 = {STR_RMPCT, STR_RMIDNT, STR_BINIT};
+    private static final String[] FIELD_NAMES_32_33_END = {STR_N1, STR_B1, STR_N2, STR_B2, STR_N3, STR_B3, STR_N4, STR_B4, STR_N5,
+        STR_B5, STR_N6, STR_B6, STR_N7, STR_B7, STR_N8, STR_B8};
+    private static final String[] FIELD_NAMES_35_END = {STR_S1, STR_N1, STR_B1, STR_S2, STR_N2, STR_B2, STR_S3, STR_N3, STR_B3, STR_S4,
+        STR_N4, STR_B4, STR_S5, STR_N5, STR_B5, STR_S6, STR_N6, STR_B6, STR_S7, STR_N7, STR_B7, STR_S8, STR_N8, STR_B8};
+    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_32_33_MIDDLE, FIELD_NAMES_COMMON_2, FIELD_NAMES_32_33_END);
+    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_35_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_35_MIDDLE, FIELD_NAMES_COMMON_2, FIELD_NAMES_35_END);
+    private static final String[] FIELD_NAMES_35_RAWX = concatStringArrays(FIELD_NAMES_35_RAWX_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_35_MIDDLE, FIELD_NAMES_COMMON_2, FIELD_NAMES_35_END);
 
     private int i;
-    private int modsw = 1;
-    private int adjm = 0;
-    private int stat = 1;
-    private double vswhi = 1.0;
-    private double vswlo = 1.0;
+    private int modsw = defaultIntegerFor(STR_MODSW, FIELDS);
+    private int adjm = defaultIntegerFor(STR_ADJM, FIELDS);
+    private int stat = defaultIntegerFor(STR_STAT, FIELDS);
+    private double vswhi = defaultDoubleFor(STR_VSWHI, FIELDS);
+    private double vswlo = defaultDoubleFor(STR_VSWLO, FIELDS);
 
     @Revision(until = 33)
-    private int swrem = 0;
+    private int swrem = defaultIntegerFor(STR_SWREM, FIELDS);
 
-    private double rmpct = 100.0;
+    private double rmpct = defaultDoubleFor(STR_RMPCT, FIELDS);
     private String rmidnt;
-    private double binit = 0.0;
-    private int n1 = 0;
-    private double b1 = 0.0;
-    private int n2 = 0;
-    private double b2 = 0.0;
-    private int n3 = 0;
-    private double b3 = 0.0;
-    private int n4 = 0;
-    private double b4 = 0.0;
-    private int n5 = 0;
-    private double b5 = 0.0;
-    private int n6 = 0;
-    private double b6 = 0.0;
-    private int n7 = 0;
-    private double b7 = 0.0;
-    private int n8 = 0;
-    private double b8 = 0.0;
+    private double binit = defaultDoubleFor(STR_BINIT, FIELDS);
+    private int n1 = defaultIntegerFor(STR_N1, FIELDS);
+    private double b1 = defaultDoubleFor(STR_B1, FIELDS);
+    private int n2 = defaultIntegerFor(STR_N2, FIELDS);
+    private double b2 = defaultDoubleFor(STR_B2, FIELDS);
+    private int n3 = defaultIntegerFor(STR_N3, FIELDS);
+    private double b3 = defaultDoubleFor(STR_B3, FIELDS);
+    private int n4 = defaultIntegerFor(STR_N4, FIELDS);
+    private double b4 = defaultDoubleFor(STR_B4, FIELDS);
+    private int n5 = defaultIntegerFor(STR_N5, FIELDS);
+    private double b5 = defaultDoubleFor(STR_B5, FIELDS);
+    private int n6 = defaultIntegerFor(STR_N6, FIELDS);
+    private double b6 = defaultDoubleFor(STR_B6, FIELDS);
+    private int n7 = defaultIntegerFor(STR_N7, FIELDS);
+    private double b7 = defaultDoubleFor(STR_B7, FIELDS);
+    private int n8 = defaultIntegerFor(STR_N8, FIELDS);
+    private double b8 = defaultDoubleFor(STR_B8, FIELDS);
 
     @Revision(since = 35)
-    private String id;
+    private String id = defaultStringFor(STR_ID, FIELDS);
 
     @Revision(since = 35)
-    private int swreg = 0;
+    private int swreg = defaultIntegerFor(STR_SWREG, FIELDS);
 
     @Revision(since = 35)
-    private int nreg = 0;
+    private int nreg = defaultIntegerFor(STR_NREG, FIELDS);
 
     @Revision(since = 35)
-    private int s1 = 1;
+    private int s1 = defaultIntegerFor(STR_S1, FIELDS);
 
     @Revision(since = 35)
-    private int s2 = 1;
+    private int s2 = defaultIntegerFor(STR_S2, FIELDS);
 
     @Revision(since = 35)
-    private int s3 = 1;
+    private int s3 = defaultIntegerFor(STR_S3, FIELDS);
 
     @Revision(since = 35)
-    private int s4 = 1;
+    private int s4 = defaultIntegerFor(STR_S4, FIELDS);
 
     @Revision(since = 35)
-    private int s5 = 1;
+    private int s5 = defaultIntegerFor(STR_S5, FIELDS);
 
     @Revision(since = 35)
-    private int s6 = 1;
+    private int s6 = defaultIntegerFor(STR_S6, FIELDS);
 
     @Revision(since = 35)
-    private int s7 = 1;
+    private int s7 = defaultIntegerFor(STR_S7, FIELDS);
 
     @Revision(since = 35)
-    private int s8 = 1;
+    private int s8 = defaultIntegerFor(STR_S8, FIELDS);
 
-    public static PsseSwitchedShunt fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
-        PsseSwitchedShunt psseSwitchedShunt = new PsseSwitchedShunt();
-        psseSwitchedShunt.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
-        psseSwitchedShunt.setModsw(parseIntFromRecord(rec, 1, headers, "modsw"));
-        psseSwitchedShunt.setAdjm(parseIntFromRecord(rec, 0, headers, "adjm"));
-        psseSwitchedShunt.setStat(parseIntFromRecord(rec, 1, headers, "stat"));
-        psseSwitchedShunt.setVswhi(parseDoubleFromRecord(rec, 1.0, headers, "vswhi"));
-        psseSwitchedShunt.setVswlo(parseDoubleFromRecord(rec, 1.0, headers, "vswlo"));
-        if (version.getMajorNumber() <= 33) {
-            psseSwitchedShunt.setSwrem(parseIntFromRecord(rec, 0, headers, STRING_SWREM));
-        }
-        psseSwitchedShunt.setRmpct(parseDoubleFromRecord(rec, 100.0, headers, "rmpct"));
-        psseSwitchedShunt.setRmidnt(parseStringFromRecord(rec, " ", headers, "rmidnt"));
-        psseSwitchedShunt.setBinit(parseDoubleFromRecord(rec, headers, "binit"));
-        psseSwitchedShunt.setN1(parseIntFromRecord(rec, 0, headers, "n1"));
-        psseSwitchedShunt.setB1(parseDoubleFromRecord(rec, 0.0, headers, "b1"));
-        psseSwitchedShunt.setN2(parseIntFromRecord(rec, 0, headers, "n2"));
-        psseSwitchedShunt.setB2(parseDoubleFromRecord(rec, 0.0, headers, "b2"));
-        psseSwitchedShunt.setN3(parseIntFromRecord(rec, 0, headers, "n3"));
-        psseSwitchedShunt.setB3(parseDoubleFromRecord(rec, 0.0, headers, "b3"));
-        psseSwitchedShunt.setN4(parseIntFromRecord(rec, 0, headers, "n4"));
-        psseSwitchedShunt.setB4(parseDoubleFromRecord(rec, 0.0, headers, "b4"));
-        psseSwitchedShunt.setN5(parseIntFromRecord(rec, 0, headers, "n5"));
-        psseSwitchedShunt.setB5(parseDoubleFromRecord(rec, 0.0, headers, "b5"));
-        psseSwitchedShunt.setN6(parseIntFromRecord(rec, 0, headers, "n6"));
-        psseSwitchedShunt.setB6(parseDoubleFromRecord(rec, 0.0, headers, "b6"));
-        psseSwitchedShunt.setN7(parseIntFromRecord(rec, 0, headers, "n7"));
-        psseSwitchedShunt.setB7(parseDoubleFromRecord(rec, 0.0, headers, "b7"));
-        psseSwitchedShunt.setN8(parseIntFromRecord(rec, 0, headers, "n8"));
-        psseSwitchedShunt.setB8(parseDoubleFromRecord(rec, 0.0, headers, "b8"));
-        if (version.getMajorNumber() >= 35) {
-            psseSwitchedShunt.setId(parseStringFromRecord(rec, "1", headers, "id", "shntid"));
-            psseSwitchedShunt.setSwreg(parseIntFromRecord(rec, headers, STRING_SWREG));
-            psseSwitchedShunt.setNreg(parseIntFromRecord(rec, headers, "nreg"));
-            psseSwitchedShunt.setS1(parseIntFromRecord(rec, headers, "s1"));
-            psseSwitchedShunt.setS2(parseIntFromRecord(rec, 1, headers, "s2"));
-            psseSwitchedShunt.setS3(parseIntFromRecord(rec, 1, headers, "s3"));
-            psseSwitchedShunt.setS4(parseIntFromRecord(rec, 1, headers, "s4"));
-            psseSwitchedShunt.setS5(parseIntFromRecord(rec, 1, headers, "s5"));
-            psseSwitchedShunt.setS6(parseIntFromRecord(rec, 1, headers, "s6"));
-            psseSwitchedShunt.setS7(parseIntFromRecord(rec, 1, headers, "s7"));
-            psseSwitchedShunt.setS8(parseIntFromRecord(rec, 1, headers, "s8"));
-        }
-        return psseSwitchedShunt;
+    public static String[] getFieldNames3233() {
+        return FIELD_NAMES_32_33;
+    }
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNames35RawX() {
+        return FIELD_NAMES_35_RAWX;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseSwitchedShunt fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSwitchedShunt::new);
     }
 
     public static String[] toRecord(PsseSwitchedShunt psseSwitchedShunt, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            Function<PsseSwitchedShunt, String> getter = GETTERS.get(headers[i]);
-            if (getter == null) {
-                throw new PsseException("Unsupported header: " + headers[i]);
-            }
-            row[i] = getter.apply(psseSwitchedShunt);
-        }
-        return row;
+        return Util.toRecord(psseSwitchedShunt, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseSwitchedShunt, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseSwitchedShunt, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseSwitchedShunt::getI, PsseSwitchedShunt::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseSwitchedShunt::getI, PsseSwitchedShunt::setI));
+        addField(fields, createNewField(STR_MODSW, Integer.class, PsseSwitchedShunt::getModsw, PsseSwitchedShunt::setModsw, 1));
+        addField(fields, createNewField(STR_ADJM, Integer.class, PsseSwitchedShunt::getAdjm, PsseSwitchedShunt::setAdjm, 0));
+        addField(fields, createNewField(STR_STAT, Integer.class, PsseSwitchedShunt::getStat, PsseSwitchedShunt::setStat, 1));
+        addField(fields, createNewField(STR_VSWHI, Double.class, PsseSwitchedShunt::getVswhi, PsseSwitchedShunt::setVswhi, 1d));
+        addField(fields, createNewField(STR_VSWLO, Double.class, PsseSwitchedShunt::getVswlo, PsseSwitchedShunt::setVswlo, 1d));
+        addField(fields, createNewField(STR_SWREM, Integer.class, PsseSwitchedShunt::getSwrem, PsseSwitchedShunt::setSwrem, 0));
+        addField(fields, createNewField(STR_RMPCT, Double.class, PsseSwitchedShunt::getRmpct, PsseSwitchedShunt::setRmpct, 100d));
+        addField(fields, createNewField(STR_RMIDNT, String.class, PsseSwitchedShunt::getRmidnt, PsseSwitchedShunt::setRmidnt, " "));
+        addField(fields, createNewField(STR_BINIT, Double.class, PsseSwitchedShunt::getBinit, PsseSwitchedShunt::setBinit, 0.0));
+        addField(fields, createNewField(STR_N1, Integer.class, PsseSwitchedShunt::getN1, PsseSwitchedShunt::setN1, 0));
+        addField(fields, createNewField(STR_B1, Double.class, PsseSwitchedShunt::getB1, PsseSwitchedShunt::setB1, 0d));
+        addField(fields, createNewField(STR_N2, Integer.class, PsseSwitchedShunt::getN2, PsseSwitchedShunt::setN2, 0));
+        addField(fields, createNewField(STR_B2, Double.class, PsseSwitchedShunt::getB2, PsseSwitchedShunt::setB2, 0d));
+        addField(fields, createNewField(STR_N3, Integer.class, PsseSwitchedShunt::getN3, PsseSwitchedShunt::setN3, 0));
+        addField(fields, createNewField(STR_B3, Double.class, PsseSwitchedShunt::getB3, PsseSwitchedShunt::setB3, 0d));
+        addField(fields, createNewField(STR_N4, Integer.class, PsseSwitchedShunt::getN4, PsseSwitchedShunt::setN4, 0));
+        addField(fields, createNewField(STR_B4, Double.class, PsseSwitchedShunt::getB4, PsseSwitchedShunt::setB4, 0d));
+        addField(fields, createNewField(STR_N5, Integer.class, PsseSwitchedShunt::getN5, PsseSwitchedShunt::setN5, 0));
+        addField(fields, createNewField(STR_B5, Double.class, PsseSwitchedShunt::getB5, PsseSwitchedShunt::setB5, 0d));
+        addField(fields, createNewField(STR_N6, Integer.class, PsseSwitchedShunt::getN6, PsseSwitchedShunt::setN6, 0));
+        addField(fields, createNewField(STR_B6, Double.class, PsseSwitchedShunt::getB6, PsseSwitchedShunt::setB6, 0d));
+        addField(fields, createNewField(STR_N7, Integer.class, PsseSwitchedShunt::getN7, PsseSwitchedShunt::setN7, 0));
+        addField(fields, createNewField(STR_B7, Double.class, PsseSwitchedShunt::getB7, PsseSwitchedShunt::setB7, 0d));
+        addField(fields, createNewField(STR_N8, Integer.class, PsseSwitchedShunt::getN8, PsseSwitchedShunt::setN8, 0));
+        addField(fields, createNewField(STR_B8, Double.class, PsseSwitchedShunt::getB8, PsseSwitchedShunt::setB8, 0d));
+        addField(fields, createNewField(STR_ID, String.class, PsseSwitchedShunt::getId, PsseSwitchedShunt::setId, "1"));
+        addField(fields, createNewField(STR_SHNTID, String.class, PsseSwitchedShunt::getId, PsseSwitchedShunt::setId, "1"));
+        addField(fields, createNewField(STR_SWREG, Integer.class, PsseSwitchedShunt::getSwreg, PsseSwitchedShunt::setSwreg, 0));
+        addField(fields, createNewField(STR_NREG, Integer.class, PsseSwitchedShunt::getNreg, PsseSwitchedShunt::setNreg, 0));
+        addField(fields, createNewField(STR_S1, Integer.class, PsseSwitchedShunt::getS1, PsseSwitchedShunt::setS1, 1));
+        addField(fields, createNewField(STR_S2, Integer.class, PsseSwitchedShunt::getS2, PsseSwitchedShunt::setS2, 1));
+        addField(fields, createNewField(STR_S3, Integer.class, PsseSwitchedShunt::getS3, PsseSwitchedShunt::setS3, 1));
+        addField(fields, createNewField(STR_S4, Integer.class, PsseSwitchedShunt::getS4, PsseSwitchedShunt::setS4, 1));
+        addField(fields, createNewField(STR_S5, Integer.class, PsseSwitchedShunt::getS5, PsseSwitchedShunt::setS5, 1));
+        addField(fields, createNewField(STR_S6, Integer.class, PsseSwitchedShunt::getS6, PsseSwitchedShunt::setS6, 1));
+        addField(fields, createNewField(STR_S7, Integer.class, PsseSwitchedShunt::getS7, PsseSwitchedShunt::setS7, 1));
+        addField(fields, createNewField(STR_S8, Integer.class, PsseSwitchedShunt::getS8, PsseSwitchedShunt::setS8, 1));
+
+        return fields;
     }
 
     public int getI() {
@@ -241,7 +229,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getSwrem() {
-        checkVersion(STRING_SWREM);
+        checkVersion(STR_SWREM);
         return swrem;
     }
 
@@ -411,7 +399,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getSwreg() {
-        checkVersion(STRING_SWREG);
+        checkVersion(STR_SWREG);
         return swreg;
     }
 

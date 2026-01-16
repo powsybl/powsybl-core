@@ -8,71 +8,80 @@
 package com.powsybl.psse.model.pf.internal;
 
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class ZCorr35Points {
 
-    private double t1 = 0.0;
-    private double ref1 = 0.0;
-    private double imf1 = 0.0;
-    private double t2 = 0.0;
-    private double ref2 = 0.0;
-    private double imf2 = 0.0;
-    private double t3 = 0.0;
-    private double ref3 = 0.0;
-    private double imf3 = 0.0;
-    private double t4 = 0.0;
-    private double ref4 = 0.0;
-    private double imf4 = 0.0;
-    private double t5 = 0.0;
-    private double ref5 = 0.0;
-    private double imf5 = 0.0;
-    private double t6 = 0.0;
-    private double ref6 = 0.0;
-    private double imf6 = 0.0;
+    private static final Map<String, PsseFieldDefinition<ZCorr35Points, ?>> FIELDS = createFields();
+
+    private double t1 = defaultDoubleFor(STR_T1, FIELDS);
+    private double ref1 = defaultDoubleFor(STR_REF1, FIELDS);
+    private double imf1 = defaultDoubleFor(STR_IMF1, FIELDS);
+    private double t2 = defaultDoubleFor(STR_T2, FIELDS);
+    private double ref2 = defaultDoubleFor(STR_REF2, FIELDS);
+    private double imf2 = defaultDoubleFor(STR_IMF2, FIELDS);
+    private double t3 = defaultDoubleFor(STR_T3, FIELDS);
+    private double ref3 = defaultDoubleFor(STR_REF3, FIELDS);
+    private double imf3 = defaultDoubleFor(STR_IMF3, FIELDS);
+    private double t4 = defaultDoubleFor(STR_T4, FIELDS);
+    private double ref4 = defaultDoubleFor(STR_REF4, FIELDS);
+    private double imf4 = defaultDoubleFor(STR_IMF4, FIELDS);
+    private double t5 = defaultDoubleFor(STR_T5, FIELDS);
+    private double ref5 = defaultDoubleFor(STR_REF5, FIELDS);
+    private double imf5 = defaultDoubleFor(STR_IMF5, FIELDS);
+    private double t6 = defaultDoubleFor(STR_T6, FIELDS);
+    private double ref6 = defaultDoubleFor(STR_REF6, FIELDS);
+    private double imf6 = defaultDoubleFor(STR_IMF6, FIELDS);
+
+    private static Map<String, PsseFieldDefinition<ZCorr35Points, ?>> createFields() {
+        Map<String, PsseFieldDefinition<ZCorr35Points, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_T1, Double.class, ZCorr35Points::getT1, ZCorr35Points::setT1, 0d));
+        addField(fields, createNewField(STR_REF1, Double.class, ZCorr35Points::getRef1, ZCorr35Points::setRef1, 0d));
+        addField(fields, createNewField(STR_IMF1, Double.class, ZCorr35Points::getImf1, ZCorr35Points::setImf1, 0d));
+        addField(fields, createNewField(STR_T2, Double.class, ZCorr35Points::getT2, ZCorr35Points::setT2, 0d));
+        addField(fields, createNewField(STR_REF2, Double.class, ZCorr35Points::getRef2, ZCorr35Points::setRef2, 0d));
+        addField(fields, createNewField(STR_IMF2, Double.class, ZCorr35Points::getImf2, ZCorr35Points::setImf2, 0d));
+        addField(fields, createNewField(STR_T3, Double.class, ZCorr35Points::getT3, ZCorr35Points::setT3, 0d));
+        addField(fields, createNewField(STR_REF3, Double.class, ZCorr35Points::getRef3, ZCorr35Points::setRef3, 0d));
+        addField(fields, createNewField(STR_IMF3, Double.class, ZCorr35Points::getImf3, ZCorr35Points::setImf3, 0d));
+        addField(fields, createNewField(STR_T4, Double.class, ZCorr35Points::getT4, ZCorr35Points::setT4, 0d));
+        addField(fields, createNewField(STR_REF4, Double.class, ZCorr35Points::getRef4, ZCorr35Points::setRef4, 0d));
+        addField(fields, createNewField(STR_IMF4, Double.class, ZCorr35Points::getImf4, ZCorr35Points::setImf4, 0d));
+        addField(fields, createNewField(STR_T5, Double.class, ZCorr35Points::getT5, ZCorr35Points::setT5, 0d));
+        addField(fields, createNewField(STR_REF5, Double.class, ZCorr35Points::getRef5, ZCorr35Points::setRef5, 0d));
+        addField(fields, createNewField(STR_IMF5, Double.class, ZCorr35Points::getImf5, ZCorr35Points::setImf5, 0d));
+        addField(fields, createNewField(STR_T6, Double.class, ZCorr35Points::getT6, ZCorr35Points::setT6, 0d));
+        addField(fields, createNewField(STR_REF6, Double.class, ZCorr35Points::getRef6, ZCorr35Points::setRef6, 0d));
+        addField(fields, createNewField(STR_IMF6, Double.class, ZCorr35Points::getImf6, ZCorr35Points::setImf6, 0d));
+
+        return fields;
+    }
 
     public static ZCorr35Points fromRecord(CsvRecord rec, String[] headers) {
-        ZCorr35Points zCorr35Points = new ZCorr35Points();
-        for (int j = 1; j < 6; j++) {
-            double t = parseDoubleFromRecord(rec, headers, "t" + j);
-            double ref = parseDoubleFromRecord(rec, headers, "ref" + j);
-            double imf = parseDoubleFromRecord(rec, headers, "imf" + j);
-            zCorr35Points.setTF(j, t, ref, imf);
-        }
-        return zCorr35Points;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, ZCorr35Points::new);
+    }
+
+    public static void toRecord(ZCorr35Points zCorr35Points, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(zCorr35Points, headers, FIELDS, row, unexpectedHeaders);
     }
 
     public static String[] toRecord(ZCorr35Points zCorr35Points, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "t1" -> String.valueOf(zCorr35Points.getT1());
-                case "ref1" -> String.valueOf(zCorr35Points.getRef1());
-                case "imf1" -> String.valueOf(zCorr35Points.getImf1());
-                case "t2" -> String.valueOf(zCorr35Points.getT2());
-                case "ref2" -> String.valueOf(zCorr35Points.getRef2());
-                case "imf2" -> String.valueOf(zCorr35Points.getImf2());
-                case "t3" -> String.valueOf(zCorr35Points.getT3());
-                case "ref3" -> String.valueOf(zCorr35Points.getRef3());
-                case "imf3" -> String.valueOf(zCorr35Points.getImf3());
-                case "t4" -> String.valueOf(zCorr35Points.getT4());
-                case "ref4" -> String.valueOf(zCorr35Points.getRef4());
-                case "imf4" -> String.valueOf(zCorr35Points.getImf4());
-                case "t5" -> String.valueOf(zCorr35Points.getT5());
-                case "ref5" -> String.valueOf(zCorr35Points.getRef5());
-                case "imf5" -> String.valueOf(zCorr35Points.getImf5());
-                case "t6" -> String.valueOf(zCorr35Points.getT6());
-                case "ref6" -> String.valueOf(zCorr35Points.getRef6());
-                case "imf6" -> String.valueOf(zCorr35Points.getImf6());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+        return Util.toRecord(zCorr35Points, headers, FIELDS);
     }
 
     public double getT1() {
@@ -182,5 +191,77 @@ public class ZCorr35Points {
             default:
                 throw new PsseException("Unexpected point " + point);
         }
+    }
+
+    public void setT1(double t1) {
+        this.t1 = t1;
+    }
+
+    public void setRef1(double ref1) {
+        this.ref1 = ref1;
+    }
+
+    public void setImf1(double imf1) {
+        this.imf1 = imf1;
+    }
+
+    public void setT2(double t2) {
+        this.t2 = t2;
+    }
+
+    public void setRef2(double ref2) {
+        this.ref2 = ref2;
+    }
+
+    public void setImf2(double imf2) {
+        this.imf2 = imf2;
+    }
+
+    public void setT3(double t3) {
+        this.t3 = t3;
+    }
+
+    public void setRef3(double ref3) {
+        this.ref3 = ref3;
+    }
+
+    public void setImf3(double imf3) {
+        this.imf3 = imf3;
+    }
+
+    public void setT4(double t4) {
+        this.t4 = t4;
+    }
+
+    public void setRef4(double ref4) {
+        this.ref4 = ref4;
+    }
+
+    public void setImf4(double imf4) {
+        this.imf4 = imf4;
+    }
+
+    public void setT5(double t5) {
+        this.t5 = t5;
+    }
+
+    public void setRef5(double ref5) {
+        this.ref5 = ref5;
+    }
+
+    public void setImf5(double imf5) {
+        this.imf5 = imf5;
+    }
+
+    public void setT6(double t6) {
+        this.t6 = t6;
+    }
+
+    public void setRef6(double ref6) {
+        this.ref6 = ref6;
+    }
+
+    public void setImf6(double imf6) {
+        this.imf6 = imf6;
     }
 }

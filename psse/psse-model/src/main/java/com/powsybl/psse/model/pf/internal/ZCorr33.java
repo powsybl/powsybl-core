@@ -8,82 +8,85 @@
 package com.powsybl.psse.model.pf.internal;
 
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class ZCorr33 {
 
+    private static final Map<String, PsseFieldDefinition<ZCorr33, ?>> FIELDS = createFields();
+
     private int i;
-    private double t1 = 0.0;
-    private double f1 = 0.0;
-    private double t2 = 0.0;
-    private double f2 = 0.0;
-    private double t3 = 0.0;
-    private double f3 = 0.0;
-    private double t4 = 0.0;
-    private double f4 = 0.0;
-    private double t5 = 0.0;
-    private double f5 = 0.0;
-    private double t6 = 0.0;
-    private double f6 = 0.0;
-    private double t7 = 0.0;
-    private double f7 = 0.0;
-    private double t8 = 0.0;
-    private double f8 = 0.0;
-    private double t9 = 0.0;
-    private double f9 = 0.0;
-    private double t10 = 0.0;
-    private double f10 = 0.0;
-    private double t11 = 0.0;
-    private double f11 = 0.0;
+    private double t1 = defaultDoubleFor(STR_T1, FIELDS);
+    private double f1 = defaultDoubleFor(STR_F1, FIELDS);
+    private double t2 = defaultDoubleFor(STR_T2, FIELDS);
+    private double f2 = defaultDoubleFor(STR_F2, FIELDS);
+    private double t3 = defaultDoubleFor(STR_T3, FIELDS);
+    private double f3 = defaultDoubleFor(STR_F3, FIELDS);
+    private double t4 = defaultDoubleFor(STR_T4, FIELDS);
+    private double f4 = defaultDoubleFor(STR_F4, FIELDS);
+    private double t5 = defaultDoubleFor(STR_T5, FIELDS);
+    private double f5 = defaultDoubleFor(STR_F5, FIELDS);
+    private double t6 = defaultDoubleFor(STR_T6, FIELDS);
+    private double f6 = defaultDoubleFor(STR_F6, FIELDS);
+    private double t7 = defaultDoubleFor(STR_T7, FIELDS);
+    private double f7 = defaultDoubleFor(STR_F7, FIELDS);
+    private double t8 = defaultDoubleFor(STR_T8, FIELDS);
+    private double f8 = defaultDoubleFor(STR_F8, FIELDS);
+    private double t9 = defaultDoubleFor(STR_T9, FIELDS);
+    private double f9 = defaultDoubleFor(STR_F9, FIELDS);
+    private double t10 = defaultDoubleFor(STR_T10, FIELDS);
+    private double f10 = defaultDoubleFor(STR_F10, FIELDS);
+    private double t11 = defaultDoubleFor(STR_T11, FIELDS);
+    private double f11 = defaultDoubleFor(STR_F11, FIELDS);
+
+    private static Map<String, PsseFieldDefinition<ZCorr33, ?>> createFields() {
+        Map<String, PsseFieldDefinition<ZCorr33, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, ZCorr33::getI, ZCorr33::setI));
+        addField(fields, createNewField(STR_T1, Double.class, ZCorr33::getT1, ZCorr33::setT1, 0d));
+        addField(fields, createNewField(STR_F1, Double.class, ZCorr33::getF1, ZCorr33::setF1, 0d));
+        addField(fields, createNewField(STR_T2, Double.class, ZCorr33::getT2, ZCorr33::setT2, 0d));
+        addField(fields, createNewField(STR_F2, Double.class, ZCorr33::getF2, ZCorr33::setF2, 0d));
+        addField(fields, createNewField(STR_T3, Double.class, ZCorr33::getT3, ZCorr33::setT3, 0d));
+        addField(fields, createNewField(STR_F3, Double.class, ZCorr33::getF3, ZCorr33::setF3, 0d));
+        addField(fields, createNewField(STR_T4, Double.class, ZCorr33::getT4, ZCorr33::setT4, 0d));
+        addField(fields, createNewField(STR_F4, Double.class, ZCorr33::getF4, ZCorr33::setF4, 0d));
+        addField(fields, createNewField(STR_T5, Double.class, ZCorr33::getT5, ZCorr33::setT5, 0d));
+        addField(fields, createNewField(STR_F5, Double.class, ZCorr33::getF5, ZCorr33::setF5, 0d));
+        addField(fields, createNewField(STR_T6, Double.class, ZCorr33::getT6, ZCorr33::setT6, 0d));
+        addField(fields, createNewField(STR_F6, Double.class, ZCorr33::getF6, ZCorr33::setF6, 0d));
+        addField(fields, createNewField(STR_T7, Double.class, ZCorr33::getT7, ZCorr33::setT7, 0d));
+        addField(fields, createNewField(STR_F7, Double.class, ZCorr33::getF7, ZCorr33::setF7, 0d));
+        addField(fields, createNewField(STR_T8, Double.class, ZCorr33::getT8, ZCorr33::setT8, 0d));
+        addField(fields, createNewField(STR_F8, Double.class, ZCorr33::getF8, ZCorr33::setF8, 0d));
+        addField(fields, createNewField(STR_T9, Double.class, ZCorr33::getT9, ZCorr33::setT9, 0d));
+        addField(fields, createNewField(STR_F9, Double.class, ZCorr33::getF9, ZCorr33::setF9, 0d));
+        addField(fields, createNewField(STR_T10, Double.class, ZCorr33::getT10, ZCorr33::setT10, 0d));
+        addField(fields, createNewField(STR_F10, Double.class, ZCorr33::getF10, ZCorr33::setF10, 0d));
+        addField(fields, createNewField(STR_T11, Double.class, ZCorr33::getT11, ZCorr33::setT11, 0d));
+        addField(fields, createNewField(STR_F11, Double.class, ZCorr33::getF11, ZCorr33::setF11, 0d));
+
+        return fields;
+    }
 
     public static ZCorr33 fromRecord(CsvRecord rec, String[] headers) {
-        ZCorr33 zCorr33 = new ZCorr33();
-        zCorr33.setI(parseIntFromRecord(rec, headers, "i"));
-        for (int j = 1; j < 12; j++) {
-            double t = parseDoubleFromRecord(rec, headers, "t" + j);
-            double f = parseDoubleFromRecord(rec, headers, "f" + j);
-            zCorr33.setTF(j, t, f);
-        }
-        return zCorr33;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, ZCorr33::new);
     }
 
     public static String[] toRecord(ZCorr33 zCorr33, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "i" -> String.valueOf(zCorr33.getI());
-                case "t1" -> String.valueOf(zCorr33.getT1());
-                case "f1" -> String.valueOf(zCorr33.getF1());
-                case "t2" -> String.valueOf(zCorr33.getT2());
-                case "f2" -> String.valueOf(zCorr33.getF2());
-                case "t3" -> String.valueOf(zCorr33.getT3());
-                case "f3" -> String.valueOf(zCorr33.getF3());
-                case "t4" -> String.valueOf(zCorr33.getT4());
-                case "f4" -> String.valueOf(zCorr33.getF4());
-                case "t5" -> String.valueOf(zCorr33.getT5());
-                case "f5" -> String.valueOf(zCorr33.getF5());
-                case "t6" -> String.valueOf(zCorr33.getT6());
-                case "f6" -> String.valueOf(zCorr33.getF6());
-                case "t7" -> String.valueOf(zCorr33.getT7());
-                case "f7" -> String.valueOf(zCorr33.getF7());
-                case "t8" -> String.valueOf(zCorr33.getT8());
-                case "f8" -> String.valueOf(zCorr33.getF8());
-                case "t9" -> String.valueOf(zCorr33.getT9());
-                case "f9" -> String.valueOf(zCorr33.getF9());
-                case "t10" -> String.valueOf(zCorr33.getT10());
-                case "f10" -> String.valueOf(zCorr33.getF10());
-                case "t11" -> String.valueOf(zCorr33.getT11());
-                case "f11" -> String.valueOf(zCorr33.getF11());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+        return Util.toRecord(zCorr33, headers, FIELDS);
     }
 
     public int getI() {
@@ -231,5 +234,93 @@ public class ZCorr33 {
             default:
                 throw new PsseException("Unexpected point " + point);
         }
+    }
+
+    public void setT1(double t1) {
+        this.t1 = t1;
+    }
+
+    public void setF1(double f1) {
+        this.f1 = f1;
+    }
+
+    public void setT2(double t2) {
+        this.t2 = t2;
+    }
+
+    public void setF2(double f2) {
+        this.f2 = f2;
+    }
+
+    public void setT3(double t3) {
+        this.t3 = t3;
+    }
+
+    public void setF3(double f3) {
+        this.f3 = f3;
+    }
+
+    public void setT4(double t4) {
+        this.t4 = t4;
+    }
+
+    public void setF4(double f4) {
+        this.f4 = f4;
+    }
+
+    public void setT5(double t5) {
+        this.t5 = t5;
+    }
+
+    public void setF5(double f5) {
+        this.f5 = f5;
+    }
+
+    public void setT6(double t6) {
+        this.t6 = t6;
+    }
+
+    public void setF6(double f6) {
+        this.f6 = f6;
+    }
+
+    public void setT7(double t7) {
+        this.t7 = t7;
+    }
+
+    public void setF7(double f7) {
+        this.f7 = f7;
+    }
+
+    public void setT8(double t8) {
+        this.t8 = t8;
+    }
+
+    public void setF8(double f8) {
+        this.f8 = f8;
+    }
+
+    public void setT9(double t9) {
+        this.t9 = t9;
+    }
+
+    public void setF9(double f9) {
+        this.f9 = f9;
+    }
+
+    public void setT10(double t10) {
+        this.t10 = t10;
+    }
+
+    public void setF10(double f10) {
+        this.f10 = f10;
+    }
+
+    public void setT11(double t11) {
+        this.t11 = t11;
+    }
+
+    public void setF11(double f11) {
+        this.f11 = f11;
     }
 }

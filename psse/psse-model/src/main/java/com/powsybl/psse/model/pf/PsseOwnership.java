@@ -7,14 +7,27 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersioned;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_F1;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_F2;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_F3;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_F4;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_O1;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_O2;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_O3;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_O4;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -22,52 +35,47 @@ import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
  */
 public class PsseOwnership extends PsseVersioned {
 
-    private int o1 = -1;
-    private double f1 = 1;
-    private int o2 = 0;
-    private double f2 = 1;
-    private int o3 = 0;
-    private double f3 = 1;
-    private int o4 = 0;
-    private double f4 = 1;
+    private static final Map<String, PsseFieldDefinition<PsseOwnership, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4};
+
+    private int o1 = defaultIntegerFor(STR_O1, FIELDS);
+    private double f1 = defaultDoubleFor(STR_F1, FIELDS);
+    private int o2 = defaultIntegerFor(STR_O2, FIELDS);
+    private double f2 = defaultDoubleFor(STR_F2, FIELDS);
+    private int o3 = defaultIntegerFor(STR_O3, FIELDS);
+    private double f3 = defaultDoubleFor(STR_F3, FIELDS);
+    private int o4 = defaultIntegerFor(STR_O4, FIELDS);
+    private double f4 = defaultDoubleFor(STR_F4, FIELDS);
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
 
     public static PsseOwnership fromRecord(CsvRecord rec, String[] headers) {
-        PsseOwnership psseOwnership = new PsseOwnership();
-        psseOwnership.setO1(parseIntFromRecord(rec, -1, headers, "o1"));
-        psseOwnership.setF1(parseDoubleFromRecord(rec, 1d, headers, "f1"));
-        psseOwnership.setO2(parseIntFromRecord(rec, 0, headers, "o2"));
-        psseOwnership.setF2(parseDoubleFromRecord(rec, 1d, headers, "f2"));
-        psseOwnership.setO3(parseIntFromRecord(rec, 0, headers, "o3"));
-        psseOwnership.setF3(parseDoubleFromRecord(rec, 1d, headers, "f3"));
-        psseOwnership.setO4(parseIntFromRecord(rec, 0, headers, "o4"));
-        psseOwnership.setF4(parseDoubleFromRecord(rec, 1d, headers, "f4"));
-        return psseOwnership;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseOwnership::new);
+    }
+
+    public static void toRecord(PsseOwnership psseOwnership, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(psseOwnership, headers, FIELDS, row, unexpectedHeaders);
     }
 
     public static String[] toRecord(PsseOwnership psseOwnership, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            Optional<String> optionalValue = psseOwnership.headerToString(headers[i]);
-            if (optionalValue.isEmpty()) {
-                throw new PsseException("Unsupported header: " + headers[i]);
-            }
-            row[i] = optionalValue.get();
-        }
-        return row;
+        return Util.toRecord(psseOwnership, headers, FIELDS);
     }
 
-    public Optional<String> headerToString(String header) {
-        return switch (header) {
-            case "o1" -> Optional.of(String.valueOf(getO1()));
-            case "f1" -> Optional.of(String.valueOf(getF1()));
-            case "o2" -> Optional.of(String.valueOf(getO2()));
-            case "f2" -> Optional.of(String.valueOf(getF2()));
-            case "o3" -> Optional.of(String.valueOf(getO3()));
-            case "f3" -> Optional.of(String.valueOf(getF3()));
-            case "o4" -> Optional.of(String.valueOf(getO4()));
-            case "f4" -> Optional.of(String.valueOf(getF4()));
-            default -> Optional.empty();
-        };
+    private static Map<String, PsseFieldDefinition<PsseOwnership, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseOwnership, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_O1, Integer.class, PsseOwnership::getO1, PsseOwnership::setO1, -1));
+        addField(fields, createNewField(STR_F1, Double.class, PsseOwnership::getF1, PsseOwnership::setF1, 1d));
+        addField(fields, createNewField(STR_O2, Integer.class, PsseOwnership::getO2, PsseOwnership::setO2, 0));
+        addField(fields, createNewField(STR_F2, Double.class, PsseOwnership::getF2, PsseOwnership::setF2, 1d));
+        addField(fields, createNewField(STR_O3, Integer.class, PsseOwnership::getO3, PsseOwnership::setO3, 0));
+        addField(fields, createNewField(STR_F3, Double.class, PsseOwnership::getF3, PsseOwnership::setF3, 1d));
+        addField(fields, createNewField(STR_O4, Integer.class, PsseOwnership::getO4, PsseOwnership::setO4, 0));
+        addField(fields, createNewField(STR_F4, Double.class, PsseOwnership::getF4, PsseOwnership::setF4, 1d));
+
+        return fields;
     }
 
     public int getO1() {

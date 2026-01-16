@@ -7,40 +7,46 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NI;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TYPE;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseSubstationEquipmentTerminalCommonStart {
 
+    private static final Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminalCommonStart, ?>> FIELDS = createFields();
+
     private int i;
     private int ni;
     private String type;
 
+    private static Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminalCommonStart, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminalCommonStart, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseSubstationEquipmentTerminalCommonStart::getI, PsseSubstationEquipmentTerminalCommonStart::setI));
+        addField(fields, createNewField(STR_NI, Integer.class, PsseSubstationEquipmentTerminalCommonStart::getNi, PsseSubstationEquipmentTerminalCommonStart::setNi));
+        addField(fields, createNewField(STR_TYPE, String.class, PsseSubstationEquipmentTerminalCommonStart::getType, PsseSubstationEquipmentTerminalCommonStart::setType));
+
+        return fields;
+    }
+
     public static PsseSubstationEquipmentTerminalCommonStart fromRecord(CsvRecord rec, String[] headers) {
-        PsseSubstationEquipmentTerminalCommonStart psseSubstationEquipmentTerminalCommonStart = new PsseSubstationEquipmentTerminalCommonStart();
-        psseSubstationEquipmentTerminalCommonStart.setI(parseIntFromRecord(rec, headers, "i"));
-        psseSubstationEquipmentTerminalCommonStart.setNi(parseIntFromRecord(rec, headers, "ni"));
-        psseSubstationEquipmentTerminalCommonStart.setType(parseStringFromRecord(rec, headers, "type"));
-        return psseSubstationEquipmentTerminalCommonStart;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationEquipmentTerminalCommonStart::new);
     }
 
     public static String[] toRecord(PsseSubstationEquipmentTerminalCommonStart psseSubstationEquipmentTerminalCommonStart, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "i" -> String.valueOf(psseSubstationEquipmentTerminalCommonStart.getI());
-                case "ni" -> String.valueOf(psseSubstationEquipmentTerminalCommonStart.getNi());
-                case "type" -> psseSubstationEquipmentTerminalCommonStart.getType();
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+        return Util.toRecord(psseSubstationEquipmentTerminalCommonStart, headers, FIELDS);
     }
 
     public int getI() {

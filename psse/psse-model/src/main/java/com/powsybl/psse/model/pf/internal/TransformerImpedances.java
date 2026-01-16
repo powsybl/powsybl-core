@@ -7,73 +7,94 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class TransformerImpedances {
 
-    private double r12 = 0;
-    private double x12 = Double.NaN;
-    private double sbase12 = Double.NaN;
-    private double r23 = 0;
-    private double x23 = Double.NaN;
-    private double sbase23 = Double.NaN;
-    private double r31 = 0;
-    private double x31 = Double.NaN;
-    private double sbase31 = Double.NaN;
-    private double vmstar = 1;
-    private double anstar = 0;
+    private static final Map<String, PsseFieldDefinition<TransformerImpedances, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_IMPEDANCE_12 = {STR_R12, STR_X12, STR_SBASE12};
+    private static final String[] FIELD_NAMES_IMPEDANCE_23 = {STR_R23, STR_X23, STR_SBASE23};
+    private static final String[] FIELD_NAMES_IMPEDANCE_31 = {STR_R31, STR_X31, STR_SBASE31};
+    private static final String[] FIELD_NAMES_COMMON = {STR_VMSTAR, STR_ANSTAR};
+    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_IMPEDANCE_12, FIELD_NAMES_IMPEDANCE_23, FIELD_NAMES_IMPEDANCE_31, FIELD_NAMES_COMMON);
+    private static final String[] FIELD_NAMES_35_RAWX = {STR_R1_2, STR_X1_2, STR_SBASE1_2, STR_R2_3, STR_X2_3, STR_SBASE2_3, STR_R3_1, STR_X3_1, STR_SBASE3_1, STR_VMSTAR, STR_ANSTAR};
+
+    private double r12 = defaultDoubleFor(STR_R12, FIELDS);
+    private double x12 = defaultDoubleFor(STR_X12, FIELDS);
+    private double sbase12 = defaultDoubleFor(STR_SBASE12, FIELDS);
+    private double r23 = defaultDoubleFor(STR_R23, FIELDS);
+    private double x23 = defaultDoubleFor(STR_X23, FIELDS);
+    private double sbase23 = defaultDoubleFor(STR_SBASE23, FIELDS);
+    private double r31 = defaultDoubleFor(STR_R31, FIELDS);
+    private double x31 = defaultDoubleFor(STR_X31, FIELDS);
+    private double sbase31 = defaultDoubleFor(STR_SBASE31, FIELDS);
+    private double vmstar = defaultDoubleFor(STR_VMSTAR, FIELDS);
+    private double anstar = defaultDoubleFor(STR_ANSTAR, FIELDS);
+
+    public static String[] getFieldNamesT2W() {
+        return FIELD_NAMES_IMPEDANCE_12;
+    }
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNames35RawX() {
+        return FIELD_NAMES_35_RAWX;
+    }
 
     public static TransformerImpedances fromRecord(CsvRecord rec, String[] headers) {
-        TransformerImpedances transformerImpedances = new TransformerImpedances();
-        transformerImpedances.setR12(parseDoubleFromRecord(rec, 0d, headers, "r12", "r1_2"));
-        transformerImpedances.setX12(parseDoubleFromRecord(rec, Double.NaN, headers, "x12", "x1_2"));
-        transformerImpedances.setSbase12(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase12", "sbase1_2"));
-        transformerImpedances.setR23(parseDoubleFromRecord(rec, 0.0, headers, "r23", "r2_3"));
-        transformerImpedances.setX23(parseDoubleFromRecord(rec, Double.NaN, headers, "x23", "x2_3"));
-        transformerImpedances.setSbase23(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase23", "sbase2_3"));
-        transformerImpedances.setR31(parseDoubleFromRecord(rec, 0.0, headers, "r31", "r3_1"));
-        transformerImpedances.setX31(parseDoubleFromRecord(rec, Double.NaN, headers, "x31", "x3_1"));
-        transformerImpedances.setSbase31(parseDoubleFromRecord(rec, Double.NaN, headers, "sbase31", "sbase3_1"));
-        transformerImpedances.setVmstar(parseDoubleFromRecord(rec, 1.0, headers, "vmstar"));
-        transformerImpedances.setAnstar(parseDoubleFromRecord(rec, 0.0, headers, "anstar"));
-        return transformerImpedances;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, TransformerImpedances::new);
+    }
+
+    public static void toRecord(TransformerImpedances transformerImpedances, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(transformerImpedances, headers, FIELDS, row, unexpectedHeaders);
     }
 
     public static String[] toRecord(TransformerImpedances transformerImpedances, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            Optional<String> optionalValue = transformerImpedances.headerToString(headers[i]);
-            if (optionalValue.isEmpty()) {
-                throw new PsseException("Unsupported header: " + headers[i]);
-            }
-            row[i] = optionalValue.get();
-        }
-        return row;
+        return Util.toRecord(transformerImpedances, headers, FIELDS);
     }
 
-    public Optional<String> headerToString(String header) {
-        return switch (header) {
-            case "r12", "r1_2" -> Optional.of(String.valueOf(getR12()));
-            case "x12", "x1_2" -> Optional.of(String.valueOf(getX12()));
-            case "sbase12", "sbase1_2" -> Optional.of(String.valueOf(getSbase12()));
-            case "r23", "r2_3" -> Optional.of(String.valueOf(getR23()));
-            case "x23", "x2_3" -> Optional.of(String.valueOf(getX23()));
-            case "sbase23", "sbase2_3" -> Optional.of(String.valueOf(getSbase23()));
-            case "r31", "r3_1" -> Optional.of(String.valueOf(getR31()));
-            case "x31", "x3_1" -> Optional.of(String.valueOf(getX31()));
-            case "sbase31", "sbase3_1" -> Optional.of(String.valueOf(getSbase31()));
-            case "vmstar" -> Optional.of(String.valueOf(getVmstar()));
-            case "anstar" -> Optional.of(String.valueOf(getAnstar()));
-            default -> Optional.empty();
-        };
+    private static Map<String, PsseFieldDefinition<TransformerImpedances, ?>> createFields() {
+        Map<String, PsseFieldDefinition<TransformerImpedances, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_R12, Double.class, TransformerImpedances::getR12, TransformerImpedances::setR12, 0d));
+        addField(fields, createNewField(STR_R1_2, Double.class, TransformerImpedances::getR12, TransformerImpedances::setR12, 0d));
+        addField(fields, createNewField(STR_X12, Double.class, TransformerImpedances::getX12, TransformerImpedances::setX12, Double.NaN));
+        addField(fields, createNewField(STR_X1_2, Double.class, TransformerImpedances::getX12, TransformerImpedances::setX12, Double.NaN));
+        addField(fields, createNewField(STR_SBASE12, Double.class, TransformerImpedances::getSbase12, TransformerImpedances::setSbase12, Double.NaN));
+        addField(fields, createNewField(STR_SBASE1_2, Double.class, TransformerImpedances::getSbase12, TransformerImpedances::setSbase12, Double.NaN));
+        addField(fields, createNewField(STR_R23, Double.class, TransformerImpedances::getR23, TransformerImpedances::setR23, 0d));
+        addField(fields, createNewField(STR_R2_3, Double.class, TransformerImpedances::getR23, TransformerImpedances::setR23, 0d));
+        addField(fields, createNewField(STR_X23, Double.class, TransformerImpedances::getX23, TransformerImpedances::setX23, Double.NaN));
+        addField(fields, createNewField(STR_X2_3, Double.class, TransformerImpedances::getX23, TransformerImpedances::setX23, Double.NaN));
+        addField(fields, createNewField(STR_SBASE23, Double.class, TransformerImpedances::getSbase23, TransformerImpedances::setSbase23, Double.NaN));
+        addField(fields, createNewField(STR_SBASE2_3, Double.class, TransformerImpedances::getSbase23, TransformerImpedances::setSbase23, Double.NaN));
+        addField(fields, createNewField(STR_R31, Double.class, TransformerImpedances::getR31, TransformerImpedances::setR31, 0d));
+        addField(fields, createNewField(STR_R3_1, Double.class, TransformerImpedances::getR31, TransformerImpedances::setR31, 0d));
+        addField(fields, createNewField(STR_X31, Double.class, TransformerImpedances::getX31, TransformerImpedances::setX31, Double.NaN));
+        addField(fields, createNewField(STR_X3_1, Double.class, TransformerImpedances::getX31, TransformerImpedances::setX31, Double.NaN));
+        addField(fields, createNewField(STR_SBASE31, Double.class, TransformerImpedances::getSbase31, TransformerImpedances::setSbase31, Double.NaN));
+        addField(fields, createNewField(STR_SBASE3_1, Double.class, TransformerImpedances::getSbase31, TransformerImpedances::setSbase31, Double.NaN));
+        addField(fields, createNewField(STR_VMSTAR, Double.class, TransformerImpedances::getVmstar, TransformerImpedances::setVmstar, 1d));
+        addField(fields, createNewField(STR_ANSTAR, Double.class, TransformerImpedances::getAnstar, TransformerImpedances::setAnstar, 0d));
+
+        return fields;
     }
 
     public TransformerImpedances copy() {

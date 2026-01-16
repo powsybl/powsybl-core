@@ -28,8 +28,8 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_SECTION_LI
 class MultiSectionLineGroupingData extends AbstractRecordGroup<PsseLineGrouping> {
 
     MultiSectionLineGroupingData() {
-        super(MULTI_SECTION_LINE_GROUPING, "i", "j", "id", "met", "dum1", "dum2", "dum3", "dum4", "dum5", "dum6", "dum7", "dum8", "dum9");
-        withQuotedFields("id", "mslid");
+        super(MULTI_SECTION_LINE_GROUPING, PsseLineGrouping.getFieldNames());
+        withQuotedFields(PsseLineGrouping.getFieldNamesString());
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
     }
 

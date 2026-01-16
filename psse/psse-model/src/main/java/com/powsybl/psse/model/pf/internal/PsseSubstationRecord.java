@@ -7,47 +7,80 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IS;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ISUB;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_LATI;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_LONG;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NAME;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_SPACES_40;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_SRG;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseSubstationRecord {
 
+    private static final Map<String, PsseFieldDefinition<PsseSubstationRecord, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_COMMON = {STR_NAME, STR_LATI, STR_LONG, STR_SRG};
+    private static final String[] FIELD_NAMES_START_RAW = {STR_IS};
+    private static final String[] FIELD_NAMES_START_RAWX = {STR_ISUB};
+    private static final String[] FIELD_NAMES_RAW = concatStringArrays(FIELD_NAMES_START_RAW, FIELD_NAMES_COMMON);
+    private static final String[] FIELD_NAMES_RAWX = concatStringArrays(FIELD_NAMES_START_RAWX, FIELD_NAMES_COMMON);
+
     private int is;
     private String name;
-    private double lati = 0.0;
-    private double longi = 0.0;
-    private double srg = 0.0;
+    private double lati = defaultDoubleFor(STR_LATI, FIELDS);
+    private double longi = defaultDoubleFor(STR_LONG, FIELDS);
+    private double srg = defaultDoubleFor(STR_SRG, FIELDS);
 
-    public static PsseSubstationRecord fromRecord(CsvRecord rec, String[] headers) {
-        PsseSubstationRecord psseSubstationRecord = new PsseSubstationRecord();
-        psseSubstationRecord.setIs(parseIntFromRecord(rec, headers, "is", "isub"));
-        psseSubstationRecord.setName(parseStringFromRecord(rec, "                                        ", headers, "name"));
-        psseSubstationRecord.setLati(parseDoubleFromRecord(rec, 0.0, headers, "lati"));
-        psseSubstationRecord.setLong(parseDoubleFromRecord(rec, 0.0, headers, "long"));
-        psseSubstationRecord.setSrg(parseDoubleFromRecord(rec, 0.0, headers, "srg"));
-        return psseSubstationRecord;
+    public static String[] getFieldNamesRaw() {
+        return FIELD_NAMES_RAW;
     }
 
-    public static String[] toRecord(PsseSubstationRecord psseSubstationRecord, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "is", "isub" -> String.valueOf(psseSubstationRecord.getIs());
-                case "name" -> psseSubstationRecord.getName();
-                case "lati" -> String.valueOf(psseSubstationRecord.getLati());
-                case "long" -> String.valueOf(psseSubstationRecord.getLong());
-                case "srg" -> String.valueOf(psseSubstationRecord.getSrg());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+    public static String[] getFieldNamesRawx() {
+        return FIELD_NAMES_RAWX;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseSubstationRecord fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationRecord::new);
+    }
+
+    public static void toRecord(PsseSubstationRecord multiTerminalDcLink, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(multiTerminalDcLink, headers, FIELDS, row, unexpectedHeaders);
+    }
+
+    public static String[] toRecord(PsseSubstationRecord multiTerminalDcLink, String[] headers) {
+        return Util.toRecord(multiTerminalDcLink, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseSubstationRecord, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseSubstationRecord, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_IS, Integer.class, PsseSubstationRecord::getIs, PsseSubstationRecord::setIs));
+        addField(fields, createNewField(STR_ISUB, Integer.class, PsseSubstationRecord::getIs, PsseSubstationRecord::setIs));
+        addField(fields, createNewField(STR_NAME, String.class, PsseSubstationRecord::getName, PsseSubstationRecord::setName, STR_SPACES_40));
+        addField(fields, createNewField(STR_LATI, Double.class, PsseSubstationRecord::getLati, PsseSubstationRecord::setLati, 0d));
+        addField(fields, createNewField(STR_LONG, Double.class, PsseSubstationRecord::getLong, PsseSubstationRecord::setLong, 0d));
+        addField(fields, createNewField(STR_SRG, Double.class, PsseSubstationRecord::getSrg, PsseSubstationRecord::setSrg, 0d));
+
+        return fields;
     }
 
     public int getIs() {

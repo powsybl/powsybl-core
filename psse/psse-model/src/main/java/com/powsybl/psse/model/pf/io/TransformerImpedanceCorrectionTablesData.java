@@ -42,15 +42,13 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TRANSFORMER_IMPE
  */
 class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseTransformerImpedanceCorrection> {
 
-    private static final String[] FIELD_NAMES_32_33 = {"i", "t1", "f1", "t2", "f2", "t3", "f3", "t4", "f4", "t5", "f5", "t6", "f6", "t7", "f7", "t8", "f8", "t9", "f9", "t10", "f10", "t11", "f11"};
-
     TransformerImpedanceCorrectionTablesData() {
         super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES);
         withIO(FileFormat.LEGACY_TEXT, V32, new IOLegacyText33(this));
         withIO(FileFormat.LEGACY_TEXT, V33, new IOLegacyText33(this));
         withIO(FileFormat.LEGACY_TEXT, V35, new IOLegacyText35(this));
-        withFieldNames(V32, FIELD_NAMES_32_33);
-        withFieldNames(V33, FIELD_NAMES_32_33);
+        withFieldNames(V32, PsseTransformerImpedanceCorrection.getFieldNames3233());
+        withFieldNames(V33, PsseTransformerImpedanceCorrection.getFieldNames3233());
         withIO(FileFormat.JSON, new IOJson(this));
     }
 
@@ -107,7 +105,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         private static class ZCorr33Data extends AbstractRecordGroup<ZCorr33> {
             ZCorr33Data() {
-                super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, "i", "t1", "f1", "t2", "f2", "t3", "f3", "t4", "f4", "t5", "f5", "t6", "f6", "t7", "f7", "t8", "f8", "t9", "f9", "t10", "f10", "t11", "f11");
+                super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, PsseTransformerImpedanceCorrection.getFieldNames3233());
                 withQuotedFields();
             }
 
@@ -128,12 +126,6 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
      */
     private static class IOLegacyText35 extends RecordGroupIOLegacyText<PsseTransformerImpedanceCorrection> {
 
-        private static final String[][] FIELD_NAMES = {
-            {"i", "t1", "ref1", "imf1", "t2", "ref2", "imf2", "t3", "ref3", "imf3", "t4", "ref4", "imf4", "t5", "ref5", "imf5", "t6", "ref6", "imf6"},
-            {"t1", "ref1", "imf1", "t2", "ref2", "imf2", "t3", "ref3", "imf3", "t4", "ref4", "imf4", "t5", "ref5", "imf5", "t6", "ref6", "imf6"},
-        };
-        private static final String[] QUOTED_FIELDS = {};
-
         IOLegacyText35(AbstractRecordGroup<PsseTransformerImpedanceCorrection> recordGroup) {
             super(recordGroup);
         }
@@ -150,12 +142,12 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
                 List<String> headers = new ArrayList<>();
                 StringBuilder fullRecord = new StringBuilder();
                 // First line always contains the field "i"
-                endPoint = addLineToRecord(fullRecord, records.get(i++), headers, FIELD_NAMES[0], context);
+                endPoint = addLineToRecord(fullRecord, records.get(i++), headers, PsseTransformerImpedanceCorrection.getFieldNames35(), context);
 
                 // Then we can have an undefined number of lines
                 while (i < records.size() && !endPoint) {
                     // Add the line to the full record
-                    endPoint = addLineToRecord(fullRecord, records.get(i++), headers, FIELD_NAMES[1], context);
+                    endPoint = addLineToRecord(fullRecord, records.get(i++), headers, PsseTransformerImpedanceCorrectionPoint.getFieldNames35(), context);
                 }
 
                 PsseTransformerImpedanceCorrection impedanceCorrection = super.recordGroup.parseSingleRecord(fullRecord.toString(), headers.toArray(headers.toArray(new String[0])), context);
@@ -206,16 +198,16 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
                 int indexPoints = 0;
                 ZCorr35First r1 = convertToRecord1(impedanceCorrection, indexPoints);
-                String[] writeHeaders = ArrayUtils.subarray(FIELD_NAMES[0], 0, 1 + 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
-                String record = record1Data.buildRecord(r1, writeHeaders, QUOTED_FIELDS, context);
+                String[] writeHeaders = ArrayUtils.subarray(PsseTransformerImpedanceCorrection.getFieldNames35(), 0, 1 + 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
+                String record = record1Data.buildRecord(r1, writeHeaders, PsseTransformerImpedanceCorrection.getFieldNamesString(), context);
                 write(record, outputStream);
 
                 indexPoints = indexPoints + 6;
                 // A (0.0, 0.0, 0.0) point must be added at the end so <=
                 while (indexPoints <= impedanceCorrection.getPoints().size()) {
                     ZCorr35Points r2 = convertToRecord2(impedanceCorrection, indexPoints);
-                    String[] writeHeadersPoints = ArrayUtils.subarray(FIELD_NAMES[1], 0, 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
-                    String recordPoints = record2Data.buildRecord(r2, writeHeadersPoints, QUOTED_FIELDS, context);
+                    String[] writeHeadersPoints = ArrayUtils.subarray(PsseTransformerImpedanceCorrectionPoint.getFieldNames35(), 0, 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
+                    String recordPoints = record2Data.buildRecord(r2, writeHeadersPoints, PsseTransformerImpedanceCorrection.getFieldNamesString(), context);
                     write(recordPoints, outputStream);
 
                     indexPoints = indexPoints + 6;

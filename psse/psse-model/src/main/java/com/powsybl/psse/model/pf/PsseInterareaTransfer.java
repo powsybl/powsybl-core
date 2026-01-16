@@ -7,12 +7,22 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ARFROM;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ARTO;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_PTRAN;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TRID;
 
 /**
  *
@@ -21,33 +31,39 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  */
 public class PsseInterareaTransfer {
 
+    private static final Map<String, PsseFieldDefinition<PsseInterareaTransfer, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_ARFROM, STR_ARTO, STR_TRID, STR_PTRAN};
+
     private int arfrom;
     private int arto;
-    private String trid;
-    private double ptran = 0.0;
+    private String trid = defaultStringFor(STR_TRID, FIELDS);
+    private double ptran = defaultDoubleFor(STR_PTRAN, FIELDS);
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
 
     public static PsseInterareaTransfer fromRecord(CsvRecord rec, String[] headers) {
-        PsseInterareaTransfer psseInterareaTransfer = new PsseInterareaTransfer();
-        psseInterareaTransfer.setArfrom(parseIntFromRecord(rec, headers, "arfrom"));
-        psseInterareaTransfer.setArto(parseIntFromRecord(rec, headers, "arto"));
-        psseInterareaTransfer.setTrid(parseStringFromRecord(rec, "1", headers, "trid"));
-        psseInterareaTransfer.setPtran(parseDoubleFromRecord(rec, headers, "ptran"));
-        return psseInterareaTransfer;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseInterareaTransfer::new);
     }
 
     public static String[] toRecord(PsseInterareaTransfer psseInterareaTransfer, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            String h = headers[i];
-            row[i] = switch (h) {
-                case "arfrom" -> String.valueOf(psseInterareaTransfer.getArfrom());
-                case "arto" -> String.valueOf(psseInterareaTransfer.getArto());
-                case "trid" -> psseInterareaTransfer.getTrid();
-                case "ptran" -> String.valueOf(psseInterareaTransfer.getPtran());
-                default -> throw new PsseException("Unsupported header: " + h);
-            };
-        }
-        return row;
+        return Util.toRecord(psseInterareaTransfer, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseInterareaTransfer, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseInterareaTransfer, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_ARFROM, Integer.class, PsseInterareaTransfer::getArfrom, PsseInterareaTransfer::setArfrom));
+        addField(fields, createNewField(STR_ARTO, Integer.class, PsseInterareaTransfer::getArto, PsseInterareaTransfer::setArto));
+        addField(fields, createNewField(STR_TRID, String.class, PsseInterareaTransfer::getTrid, PsseInterareaTransfer::setTrid, "1"));
+        addField(fields, createNewField(STR_PTRAN, Double.class, PsseInterareaTransfer::getPtran, PsseInterareaTransfer::setPtran, 0.0));
+
+        return fields;
     }
 
     public int getArfrom() {

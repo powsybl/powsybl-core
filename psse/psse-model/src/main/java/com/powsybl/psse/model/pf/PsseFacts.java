@@ -7,15 +7,22 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -24,104 +31,97 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  */
 public class PsseFacts extends PsseVersioned {
 
-    private static final String STRING_REMOT = "remot";
-    private static final String STRING_FCREG = "fcreg";
-    private static final String STRING_NREG = "nreg";
+    private static final Map<String, PsseFieldDefinition<PsseFacts, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_COMMON = {STR_MODE, STR_PDES, STR_QDES, STR_VSET, STR_SHMX, STR_TRMX,
+        STR_VTMN, STR_VTMX, STR_VSMX, STR_IMX, STR_LINX, STR_RMPCT, STR_OWNER, STR_SET1, STR_SET2, STR_VSREF};
+    private static final String[] FIELD_NAMES_32_33_START = {STR_NAME, STR_I, STR_J};
+    private static final String[] FIELD_NAMES_32_33_END = {STR_REMOT, STR_MNAME};
+    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON, FIELD_NAMES_32_33_END);
+    private static final String[] FIELD_NAMES_35_START = {STR_NAME, STR_IBUS, STR_JBUS};
+    private static final String[] FIELD_NAMES_35_END = {STR_FCREG, STR_NREG, STR_MNAME};
+    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_35_START, FIELD_NAMES_COMMON, FIELD_NAMES_35_END);
 
     private String name;
     private int i;
-    private int j = 0;
-    private int mode = 1;
-    private double pdes = 0.0;
-    private double qdes = 0.0;
-    private double vset = 1.0;
-    private double shmx = 9999.0;
-    private double trmx = 9999.0;
-    private double vtmn = 0.9;
-    private double vtmx = 1.1;
-    private double vsmx = 1.0;
-    private double imx = 0.0;
-    private double linx = 0.05;
-    private double rmpct = 100.0;
-    private int owner = 1;
-    private double set1 = 0.0;
-    private double set2 = 0.0;
-    private int vsref = 0;
+    private int j = defaultIntegerFor(STR_J, FIELDS);
+    private int mode = defaultIntegerFor(STR_MODE, FIELDS);
+    private double pdes = defaultDoubleFor(STR_PDES, FIELDS);
+    private double qdes = defaultDoubleFor(STR_QDES, FIELDS);
+    private double vset = defaultDoubleFor(STR_VSET, FIELDS);
+    private double shmx = defaultDoubleFor(STR_SHMX, FIELDS);
+    private double trmx = defaultDoubleFor(STR_TRMX, FIELDS);
+    private double vtmn = defaultDoubleFor(STR_VTMN, FIELDS);
+    private double vtmx = defaultDoubleFor(STR_VTMX, FIELDS);
+    private double vsmx = defaultDoubleFor(STR_VSMX, FIELDS);
+    private double imx = defaultDoubleFor(STR_IMX, FIELDS);
+    private double linx = defaultDoubleFor(STR_LINX, FIELDS);
+    private double rmpct = defaultDoubleFor(STR_RMPCT, FIELDS);
+    private int owner = defaultIntegerFor(STR_OWNER, FIELDS);
+    private double set1 = defaultDoubleFor(STR_SET1, FIELDS);
+    private double set2 = defaultDoubleFor(STR_SET2, FIELDS);
+    private int vsref = defaultIntegerFor(STR_VSREF, FIELDS);
 
     @Revision(until = 33)
-    private int remot = 0;
+    private int remot = defaultIntegerFor(STR_REMOT, FIELDS);
 
     private String mname;
 
     @Revision(since = 35)
-    private int fcreg = 0;
+    private int fcreg = defaultIntegerFor(STR_FCREG, FIELDS);
 
     @Revision(since = 35)
-    private int nreg = 0;
+    private int nreg = defaultIntegerFor(STR_NREG, FIELDS);
 
-    public static PsseFacts fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
-        PsseFacts psseFacts = new PsseFacts();
-        psseFacts.setName(parseStringFromRecord(rec, headers, "name"));
-        psseFacts.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
-        psseFacts.setJ(parseIntFromRecord(rec, 0, headers, "j", "jbus"));
-        psseFacts.setMode(parseIntFromRecord(rec, 1, headers, "mode"));
-        psseFacts.setPdes(parseDoubleFromRecord(rec, 0.0, headers, "pdes"));
-        psseFacts.setQdes(parseDoubleFromRecord(rec, 0.0, headers, "qdes"));
-        psseFacts.setVset(parseDoubleFromRecord(rec, 1.0, headers, "vset"));
-        psseFacts.setShmx(parseDoubleFromRecord(rec, 9999.0, headers, "shmx"));
-        psseFacts.setTrmx(parseDoubleFromRecord(rec, 9999.0, headers, "trmx"));
-        psseFacts.setVtmn(parseDoubleFromRecord(rec, 0.9, headers, "vtmn"));
-        psseFacts.setVtmx(parseDoubleFromRecord(rec, 1.1, headers, "vtmx"));
-        psseFacts.setVsmx(parseDoubleFromRecord(rec, 1.0, headers, "vsmx"));
-        psseFacts.setImx(parseDoubleFromRecord(rec, 0.0, headers, "imx"));
-        psseFacts.setLinx(parseDoubleFromRecord(rec, 0.05, headers, "linx"));
-        psseFacts.setRmpct(parseDoubleFromRecord(rec, 100.0, headers, "rmpct"));
-        psseFacts.setOwner(parseIntFromRecord(rec, 1, headers, "owner"));
-        psseFacts.setSet1(parseDoubleFromRecord(rec, 0.0, headers, "set1"));
-        psseFacts.setSet2(parseDoubleFromRecord(rec, 0.0, headers, "set2"));
-        psseFacts.setVsref(parseIntFromRecord(rec, 0, headers, "vsref"));
-        if (version.getMajorNumber() <= 33) {
-            psseFacts.setRemot(parseIntFromRecord(rec, 0, headers, STRING_REMOT));
-        }
-        psseFacts.setMname(parseStringFromRecord(rec, headers, "mname"));
-        if (version.getMajorNumber() >= 35) {
-            psseFacts.setFcreg(parseIntFromRecord(rec, 0, headers, STRING_FCREG));
-            psseFacts.setNreg(parseIntFromRecord(rec, 0, headers, STRING_NREG));
-        }
-        return psseFacts;
+    public static String[] getFieldNames3233() {
+        return FIELD_NAMES_32_33;
+    }
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseFacts fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseFacts::new);
     }
 
     public static String[] toRecord(PsseFacts psseFacts, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "name" -> psseFacts.getName();
-                case "i", "ibus" -> String.valueOf(psseFacts.getI());
-                case "j", "jbus" -> String.valueOf(psseFacts.getJ());
-                case "mode" -> String.valueOf(psseFacts.getMode());
-                case "pdes" -> String.valueOf(psseFacts.getPdes());
-                case "qdes" -> String.valueOf(psseFacts.getQdes());
-                case "vset" -> String.valueOf(psseFacts.getVset());
-                case "shmx" -> String.valueOf(psseFacts.getShmx());
-                case "trmx" -> String.valueOf(psseFacts.getTrmx());
-                case "vtmn" -> String.valueOf(psseFacts.getVtmn());
-                case "vtmx" -> String.valueOf(psseFacts.getVtmx());
-                case "vsmx" -> String.valueOf(psseFacts.getVsmx());
-                case "imx" -> String.valueOf(psseFacts.getImx());
-                case "linx" -> String.valueOf(psseFacts.getLinx());
-                case "rmpct" -> String.valueOf(psseFacts.getRmpct());
-                case "owner" -> String.valueOf(psseFacts.getOwner());
-                case "set1" -> String.valueOf(psseFacts.getSet1());
-                case "set2" -> String.valueOf(psseFacts.getSet2());
-                case "vsref" -> String.valueOf(psseFacts.getVsref());
-                case STRING_REMOT -> String.valueOf(psseFacts.getRemot());
-                case "mname" -> psseFacts.getMname();
-                case STRING_FCREG -> String.valueOf(psseFacts.getFcreg());
-                case STRING_NREG -> String.valueOf(psseFacts.getNreg());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+        return Util.toRecord(psseFacts, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseFacts, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseFacts, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_NAME, String.class, PsseFacts::getName, PsseFacts::setName));
+        addField(fields, createNewField(STR_I, Integer.class, PsseFacts::getI, PsseFacts::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseFacts::getI, PsseFacts::setI));
+        addField(fields, createNewField(STR_J, Integer.class, PsseFacts::getJ, PsseFacts::setJ, 0));
+        addField(fields, createNewField(STR_JBUS, Integer.class, PsseFacts::getJ, PsseFacts::setJ, 0));
+        addField(fields, createNewField(STR_MODE, Integer.class, PsseFacts::getMode, PsseFacts::setMode, 1));
+        addField(fields, createNewField(STR_PDES, Double.class, PsseFacts::getPdes, PsseFacts::setPdes, 0.0));
+        addField(fields, createNewField(STR_QDES, Double.class, PsseFacts::getQdes, PsseFacts::setQdes, 0.0));
+        addField(fields, createNewField(STR_VSET, Double.class, PsseFacts::getVset, PsseFacts::setVset, 1.0));
+        addField(fields, createNewField(STR_SHMX, Double.class, PsseFacts::getShmx, PsseFacts::setShmx, 9999.0));
+        addField(fields, createNewField(STR_TRMX, Double.class, PsseFacts::getTrmx, PsseFacts::setTrmx, 9999.0));
+        addField(fields, createNewField(STR_VTMN, Double.class, PsseFacts::getVtmn, PsseFacts::setVtmn, 0.9));
+        addField(fields, createNewField(STR_VTMX, Double.class, PsseFacts::getVtmx, PsseFacts::setVtmx, 1.1));
+        addField(fields, createNewField(STR_VSMX, Double.class, PsseFacts::getVsmx, PsseFacts::setVsmx, 1.0));
+        addField(fields, createNewField(STR_IMX, Double.class, PsseFacts::getImx, PsseFacts::setImx, 0.0));
+        addField(fields, createNewField(STR_LINX, Double.class, PsseFacts::getLinx, PsseFacts::setLinx, 0.05));
+        addField(fields, createNewField(STR_RMPCT, Double.class, PsseFacts::getRmpct, PsseFacts::setRmpct, 100.0));
+        addField(fields, createNewField(STR_OWNER, Integer.class, PsseFacts::getOwner, PsseFacts::setOwner, 1));
+        addField(fields, createNewField(STR_SET1, Double.class, PsseFacts::getSet1, PsseFacts::setSet1, 0.0));
+        addField(fields, createNewField(STR_SET2, Double.class, PsseFacts::getSet2, PsseFacts::setSet2, 0.0));
+        addField(fields, createNewField(STR_VSREF, Integer.class, PsseFacts::getVsref, PsseFacts::setVsref, 0));
+        addField(fields, createNewField(STR_REMOT, Integer.class, PsseFacts::getRemot, PsseFacts::setRemot, 0));
+        addField(fields, createNewField(STR_MNAME, String.class, PsseFacts::getMname, PsseFacts::setMname));
+        addField(fields, createNewField(STR_FCREG, Integer.class, PsseFacts::getFcreg, PsseFacts::setFcreg, 0));
+        addField(fields, createNewField(STR_NREG, Integer.class, PsseFacts::getNreg, PsseFacts::setNreg, 0));
+
+        return fields;
     }
 
     public String getName() {
@@ -277,7 +277,7 @@ public class PsseFacts extends PsseVersioned {
     }
 
     public int getRemot() {
-        checkVersion(STRING_REMOT);
+        checkVersion(STR_REMOT);
         return remot;
     }
 
@@ -294,7 +294,7 @@ public class PsseFacts extends PsseVersioned {
     }
 
     public int getFcreg() {
-        checkVersion(STRING_FCREG);
+        checkVersion(STR_FCREG);
         return fcreg;
     }
 
@@ -303,7 +303,7 @@ public class PsseFacts extends PsseVersioned {
     }
 
     public int getNreg() {
-        checkVersion(STRING_NREG);
+        checkVersion(STR_NREG);
         return nreg;
     }
 

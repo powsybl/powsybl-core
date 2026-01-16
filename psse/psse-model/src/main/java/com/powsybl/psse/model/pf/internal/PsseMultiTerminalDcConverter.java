@@ -7,16 +7,27 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseMultiTerminalDcConverter {
+
+    private static final Map<String, PsseFieldDefinition<PsseMultiTerminalDcConverter, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_IB, STR_N, STR_ANGMX, STR_ANGMN, STR_RC, STR_XC, STR_EBAS, STR_TR, STR_TAP, STR_TPMX, STR_TPMN, STR_TSTP, STR_SETVL, STR_DCPF, STR_MARG, STR_CNVCOD};
 
     private int ib;
     private int n;
@@ -25,61 +36,53 @@ public class PsseMultiTerminalDcConverter {
     private double rc;
     private double xc;
     private double ebas;
-    private double tr = 1.0;
-    private double tap = 1.0;
-    private double tpmx = 1.5;
-    private double tpmn = 0.51;
-    private double tstp = 0.00625;
+    private double tr = defaultDoubleFor(STR_TR, FIELDS);
+    private double tap = defaultDoubleFor(STR_TAP, FIELDS);
+    private double tpmx = defaultDoubleFor(STR_TPMX, FIELDS);
+    private double tpmn = defaultDoubleFor(STR_TPMN, FIELDS);
+    private double tstp = defaultDoubleFor(STR_TSTP, FIELDS);
     private double setvl;
-    private double dcpf = 1.0;
-    private double marg = 0.0;
-    private int cnvcod = 1;
+    private double dcpf = defaultDoubleFor(STR_DCPF, FIELDS);
+    private double marg = defaultDoubleFor(STR_MARG, FIELDS);
+    private int cnvcod = defaultIntegerFor(STR_CNVCOD, FIELDS);
 
-    public static PsseMultiTerminalDcConverter fromRecord(CsvRecord rec, String[] headers) {
-        PsseMultiTerminalDcConverter psseMultiTerminalDcConverter = new PsseMultiTerminalDcConverter();
-        psseMultiTerminalDcConverter.setIb(parseIntFromRecord(rec, headers, "ib"));
-        psseMultiTerminalDcConverter.setN(parseIntFromRecord(rec, headers, "n"));
-        psseMultiTerminalDcConverter.setAngmx(parseDoubleFromRecord(rec, headers, "angmx"));
-        psseMultiTerminalDcConverter.setAngmn(parseDoubleFromRecord(rec, headers, "angmn"));
-        psseMultiTerminalDcConverter.setRc(parseDoubleFromRecord(rec, headers, "rc"));
-        psseMultiTerminalDcConverter.setXc(parseDoubleFromRecord(rec, headers, "xc"));
-        psseMultiTerminalDcConverter.setEbas(parseDoubleFromRecord(rec, headers, "ebas"));
-        psseMultiTerminalDcConverter.setTr(parseDoubleFromRecord(rec, 1.0, headers, "tr"));
-        psseMultiTerminalDcConverter.setTap(parseDoubleFromRecord(rec, 1.0, headers, "tap"));
-        psseMultiTerminalDcConverter.setTpmx(parseDoubleFromRecord(rec, 1.5, headers, "tpmx"));
-        psseMultiTerminalDcConverter.setTpmn(parseDoubleFromRecord(rec, 0.51, headers, "tpmn"));
-        psseMultiTerminalDcConverter.setTstp(parseDoubleFromRecord(rec, 0.00625, headers, "tstp"));
-        psseMultiTerminalDcConverter.setSetvl(parseDoubleFromRecord(rec, headers, "setvl"));
-        psseMultiTerminalDcConverter.setDcpf(parseDoubleFromRecord(rec, 1.0, headers, "dcpf"));
-        psseMultiTerminalDcConverter.setMarg(parseDoubleFromRecord(rec, 0.0, headers, "marg"));
-        psseMultiTerminalDcConverter.setCnvcod(parseIntFromRecord(rec, 1, headers, "cnvcod"));
-        return psseMultiTerminalDcConverter;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] toRecord(PsseMultiTerminalDcConverter psseMultiTerminalDcConverter, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "ib" -> String.valueOf(psseMultiTerminalDcConverter.getIb());
-                case "n" -> String.valueOf(psseMultiTerminalDcConverter.getN());
-                case "angmx" -> String.valueOf(psseMultiTerminalDcConverter.getAngmx());
-                case "angmn" -> String.valueOf(psseMultiTerminalDcConverter.getAngmn());
-                case "rc" -> String.valueOf(psseMultiTerminalDcConverter.getRc());
-                case "xc" -> String.valueOf(psseMultiTerminalDcConverter.getXc());
-                case "ebas" -> String.valueOf(psseMultiTerminalDcConverter.getEbas());
-                case "tr" -> String.valueOf(psseMultiTerminalDcConverter.getTr());
-                case "tap" -> String.valueOf(psseMultiTerminalDcConverter.getTap());
-                case "tpmx" -> String.valueOf(psseMultiTerminalDcConverter.getTpmx());
-                case "tpmn" -> String.valueOf(psseMultiTerminalDcConverter.getTpmn());
-                case "tstp" -> String.valueOf(psseMultiTerminalDcConverter.getTstp());
-                case "setvl" -> String.valueOf(psseMultiTerminalDcConverter.getSetvl());
-                case "dcpf" -> String.valueOf(psseMultiTerminalDcConverter.getDcpf());
-                case "marg" -> String.valueOf(psseMultiTerminalDcConverter.getMarg());
-                case "cnvcod" -> String.valueOf(psseMultiTerminalDcConverter.getCnvcod());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+    public static PsseMultiTerminalDcConverter fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseMultiTerminalDcConverter::new);
+    }
+
+    public static void toRecord(PsseMultiTerminalDcConverter multiTerminalDcConverter, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(multiTerminalDcConverter, headers, FIELDS, row, unexpectedHeaders);
+    }
+
+    public static String[] toRecord(PsseMultiTerminalDcConverter multiTerminalDcConverter, String[] headers) {
+        return Util.toRecord(multiTerminalDcConverter, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseMultiTerminalDcConverter, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseMultiTerminalDcConverter, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_IB, Integer.class, PsseMultiTerminalDcConverter::getIb, PsseMultiTerminalDcConverter::setIb));
+        addField(fields, createNewField(STR_N, Integer.class, PsseMultiTerminalDcConverter::getN, PsseMultiTerminalDcConverter::setN));
+        addField(fields, createNewField(STR_ANGMX, Double.class, PsseMultiTerminalDcConverter::getAngmx, PsseMultiTerminalDcConverter::setAngmx));
+        addField(fields, createNewField(STR_ANGMN, Double.class, PsseMultiTerminalDcConverter::getAngmn, PsseMultiTerminalDcConverter::setAngmn));
+        addField(fields, createNewField(STR_RC, Double.class, PsseMultiTerminalDcConverter::getRc, PsseMultiTerminalDcConverter::setRc));
+        addField(fields, createNewField(STR_XC, Double.class, PsseMultiTerminalDcConverter::getXc, PsseMultiTerminalDcConverter::setXc));
+        addField(fields, createNewField(STR_EBAS, Double.class, PsseMultiTerminalDcConverter::getEbas, PsseMultiTerminalDcConverter::setEbas));
+        addField(fields, createNewField(STR_TR, Double.class, PsseMultiTerminalDcConverter::getTr, PsseMultiTerminalDcConverter::setTr, 1.0));
+        addField(fields, createNewField(STR_TAP, Double.class, PsseMultiTerminalDcConverter::getTap, PsseMultiTerminalDcConverter::setTap, 1.0));
+        addField(fields, createNewField(STR_TPMX, Double.class, PsseMultiTerminalDcConverter::getTpmx, PsseMultiTerminalDcConverter::setTpmx, 1.5));
+        addField(fields, createNewField(STR_TPMN, Double.class, PsseMultiTerminalDcConverter::getTpmn, PsseMultiTerminalDcConverter::setTpmn, 0.51));
+        addField(fields, createNewField(STR_TSTP, Double.class, PsseMultiTerminalDcConverter::getTstp, PsseMultiTerminalDcConverter::setTstp, 0.00625));
+        addField(fields, createNewField(STR_SETVL, Double.class, PsseMultiTerminalDcConverter::getSetvl, PsseMultiTerminalDcConverter::setSetvl));
+        addField(fields, createNewField(STR_DCPF, Double.class, PsseMultiTerminalDcConverter::getDcpf, PsseMultiTerminalDcConverter::setDcpf, 1.0));
+        addField(fields, createNewField(STR_MARG, Double.class, PsseMultiTerminalDcConverter::getMarg, PsseMultiTerminalDcConverter::setMarg, 0.0));
+        addField(fields, createNewField(STR_CNVCOD, Integer.class, PsseMultiTerminalDcConverter::getCnvcod, PsseMultiTerminalDcConverter::setCnvcod, 1));
+
+        return fields;
     }
 
     public int getIb() {

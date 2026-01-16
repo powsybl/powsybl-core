@@ -7,12 +7,24 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ARNAME;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IAREA;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ISW;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_PDES;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_PTOL;
 
 /**
  *
@@ -20,35 +32,47 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  */
 public class PsseArea {
 
+    private static final Map<String, PsseFieldDefinition<PsseArea, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_32_33 = {STR_I, STR_ISW, STR_PDES, STR_PTOL, STR_ARNAME};
+    private static final String[] FIELD_NAMES_35 = {STR_IAREA, STR_ISW, STR_PDES, STR_PTOL, STR_ARNAME};
+
     private int i;
-    private int isw = 0;
-    private double pdes = 0;
-    private double ptol = 10;
+    private int isw = defaultIntegerFor(STR_ISW, FIELDS);
+    private double pdes = defaultDoubleFor(STR_PDES, FIELDS);
+    private double ptol = defaultDoubleFor(STR_PTOL, FIELDS);
     private String arname;
 
+    public static String[] getFieldNames3233() {
+        return FIELD_NAMES_32_33;
+    }
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
     public static PsseArea fromRecord(CsvRecord rec, String[] headers) {
-        PsseArea psseArea = new PsseArea();
-        psseArea.setI(parseIntFromRecord(rec, headers, "i", "iarea"));
-        psseArea.setIsw(parseIntFromRecord(rec, 0, headers, "isw"));
-        psseArea.setPdes(parseDoubleFromRecord(rec, 0d, headers, "pdes"));
-        psseArea.setPtol(parseDoubleFromRecord(rec, 10d, headers, "ptol"));
-        psseArea.setArname(parseStringFromRecord(rec, "            ", headers, "arname"));
-        return psseArea;
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseArea::new);
     }
 
     public static String[] toRecord(PsseArea psseArea, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "i", "iarea" -> String.valueOf(psseArea.getI());
-                case "arname" -> "            ".equals(psseArea.getArname()) ? "" : psseArea.getArname();
-                case "isw" -> String.valueOf(psseArea.getIsw());
-                case "pdes" -> String.valueOf(psseArea.getPdes());
-                case "ptol" -> String.valueOf(psseArea.getPtol());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+        return Util.toRecord(psseArea, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseArea, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseArea, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseArea::getI, PsseArea::setI));
+        addField(fields, createNewField(STR_IAREA, Integer.class, PsseArea::getI, PsseArea::setI));
+        addField(fields, createNewField(STR_ISW, Integer.class, PsseArea::getIsw, PsseArea::setIsw, 0));
+        addField(fields, createNewField(STR_PDES, Double.class, PsseArea::getPdes, PsseArea::setPdes, 0d));
+        addField(fields, createNewField(STR_PTOL, Double.class, PsseArea::getPtol, PsseArea::setPtol, 10d));
+        addField(fields, createNewField(STR_ARNAME, String.class, PsseArea::getArname, PsseArea::setArname));
+
+        return fields;
     }
 
     public int getI() {

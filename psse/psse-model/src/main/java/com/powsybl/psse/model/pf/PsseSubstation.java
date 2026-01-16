@@ -22,10 +22,8 @@ import java.util.List;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-
 @JsonIgnoreProperties({"record"})
 @JsonPropertyOrder({"is", "name", "lati", "long", "srg"})
-
 public class PsseSubstation {
 
     public PsseSubstation(PsseSubstationRecord substationRecord,

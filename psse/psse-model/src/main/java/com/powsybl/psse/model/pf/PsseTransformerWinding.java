@@ -7,16 +7,22 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -24,82 +30,92 @@ import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
  */
 public class PsseTransformerWinding extends PsseVersioned {
 
-    private double windv = Double.NaN;
-    private double nomv = 0;
-    private double ang = 0;
-    private int cod = 0;
-    private int cont = 0;
+    private static final Map<String, PsseFieldDefinition<PsseTransformerWinding, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_T2W = {STR_WINDV, STR_NOMV};
+    private static final String[] FIELD_NAMES_PART_1 = {STR_WINDV, STR_NOMV, STR_ANG};
+    private static final String[] FIELD_NAMES_PART_2 = {STR_COD, STR_CONT, STR_NODE, STR_RMA, STR_RMI, STR_VMA, STR_VMI, STR_NTP, STR_TAB, STR_CR, STR_CX, STR_CNXA};
+    private static final String[] FIELD_NAMES = concatStringArrays(FIELD_NAMES_PART_1, FIELD_NAMES_PART_2);
+
+    private double windv = defaultDoubleFor(STR_WINDV, FIELDS);
+    private double nomv = defaultDoubleFor(STR_NOMV, FIELDS);
+    private double ang = defaultDoubleFor(STR_ANG, FIELDS);
+    private int cod = defaultIntegerFor(STR_COD, FIELDS);
+    private int cont = defaultIntegerFor(STR_CONT, FIELDS);
 
     @Revision(since = 35)
-    private int node = 0;
+    private int node = defaultIntegerFor(STR_NODE, FIELDS);
 
-    private double rma = Double.NaN;
-    private double rmi = Double.NaN;
-    private double vma = Double.NaN;
-    private double vmi = Double.NaN;
-    private int ntp = 33;
-    private int tab = 0;
-    private double cr = 0;
-    private double cx = 0;
-    private double cnxa = 0;
+    private double rma = defaultDoubleFor(STR_RMA, FIELDS);
+    private double rmi = defaultDoubleFor(STR_RMI, FIELDS);
+    private double vma = defaultDoubleFor(STR_VMA, FIELDS);
+    private double vmi = defaultDoubleFor(STR_VMI, FIELDS);
+    private int ntp = defaultIntegerFor(STR_NTP, FIELDS);
+    private int tab = defaultIntegerFor(STR_TAB, FIELDS);
+    private double cr = defaultDoubleFor(STR_CR, FIELDS);
+    private double cx = defaultDoubleFor(STR_CX, FIELDS);
+    private double cnxa = defaultDoubleFor(STR_CNXA, FIELDS);
 
-    public static PsseTransformerWinding fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
-        return fromRecord(rec, version, headers, "");
+    public static String[] getFieldNamesT2W() {
+        return FIELD_NAMES_T2W;
     }
 
-    public static PsseTransformerWinding fromRecord(CsvRecord rec, PsseVersion version, String[] headers, String headerSuffix) {
-        PsseTransformerWinding psseTransformerWinding = new PsseTransformerWinding();
-        psseTransformerWinding.setWindv(parseDoubleFromRecord(rec, Double.NaN, headers, "windv" + headerSuffix));
-        psseTransformerWinding.setNomv(parseDoubleFromRecord(rec, 0.0, headers, "nomv" + headerSuffix));
-        psseTransformerWinding.setAng(parseDoubleFromRecord(rec, 0.0, headers, "ang" + headerSuffix));
-        psseTransformerWinding.setCod(parseIntFromRecord(rec, 0, headers, "cod" + headerSuffix));
-        psseTransformerWinding.setCont(parseIntFromRecord(rec, 0, headers, "cont" + headerSuffix));
-        if (version.getMajorNumber() >= 35) {
-            psseTransformerWinding.setNode(parseIntFromRecord(rec, 0, headers, "node" + headerSuffix));
-        }
-        psseTransformerWinding.setRma(parseDoubleFromRecord(rec, Double.NaN, headers, "rma" + headerSuffix));
-        psseTransformerWinding.setRmi(parseDoubleFromRecord(rec, Double.NaN, headers, "rmi" + headerSuffix));
-        psseTransformerWinding.setVma(parseDoubleFromRecord(rec, Double.NaN, headers, "vma" + headerSuffix));
-        psseTransformerWinding.setVmi(parseDoubleFromRecord(rec, Double.NaN, headers, "vmi" + headerSuffix));
-        psseTransformerWinding.setNtp(parseIntFromRecord(rec, 33, headers, "ntp" + headerSuffix));
-        psseTransformerWinding.setTab(parseIntFromRecord(rec, 0, headers, "tab" + headerSuffix));
-        psseTransformerWinding.setCr(parseDoubleFromRecord(rec, 0.0, headers, "cr" + headerSuffix));
-        psseTransformerWinding.setCx(parseDoubleFromRecord(rec, 0.0, headers, "cx" + headerSuffix));
-        psseTransformerWinding.setCnxa(parseDoubleFromRecord(rec, 0.0, headers, "cnxa" + headerSuffix));
-        return psseTransformerWinding;
+    public static String[] getFieldNamesPart1() {
+        return FIELD_NAMES_PART_1;
+    }
+
+    public static String[] getFieldNamesPart2() {
+        return FIELD_NAMES_PART_2;
+    }
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    public static PsseTransformerWinding fromRecord(CsvRecord rec, String[] headers) {
+        return fromRecord(rec, headers, "");
+    }
+
+    public static PsseTransformerWinding fromRecord(CsvRecord rec, String[] headers, String headerSuffix) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseTransformerWinding::new, headerSuffix);
+    }
+
+    public static void toRecord(PsseTransformerWinding psseTransformerWinding, String[] headers, String[] row,
+                                Set<String> unexpectedHeaders, String headerSuffix) {
+        Util.toRecord(psseTransformerWinding, headers, FIELDS, row, unexpectedHeaders, headerSuffix);
+    }
+
+    public static void toRecord(PsseTransformerWinding psseTransformerWinding, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        toRecord(psseTransformerWinding, headers, row, unexpectedHeaders, "");
     }
 
     public static String[] toRecord(PsseTransformerWinding psseTransformerWinding, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            Optional<String> optionalValue = psseTransformerWinding.headerToString(headers[i]);
-            if (optionalValue.isEmpty()) {
-                throw new PsseException("Unsupported header: " + headers[i]);
-            }
-            row[i] = optionalValue.get();
-        }
-        return row;
+        return Util.toRecord(psseTransformerWinding, headers, FIELDS);
     }
 
-    public Optional<String> headerToString(String header) {
-        return switch (header) {
-            case "windv" -> Optional.of(String.valueOf(getWindv()));
-            case "nomv" -> Optional.of(String.valueOf(getNomv()));
-            case "ang" -> Optional.of(String.valueOf(getAng()));
-            case "cod" -> Optional.of(String.valueOf(getCod()));
-            case "cont" -> Optional.of(String.valueOf(getCont()));
-            case "node" -> Optional.of(String.valueOf(getNode()));
-            case "rma" -> Optional.of(String.valueOf(getRma()));
-            case "rmi" -> Optional.of(String.valueOf(getRmi()));
-            case "vma" -> Optional.of(String.valueOf(getVma()));
-            case "vmi" -> Optional.of(String.valueOf(getVmi()));
-            case "ntp" -> Optional.of(String.valueOf(getNtp()));
-            case "tab" -> Optional.of(String.valueOf(getTab()));
-            case "cr" -> Optional.of(String.valueOf(getCr()));
-            case "cx" -> Optional.of(String.valueOf(getCx()));
-            case "cnxa" -> Optional.of(String.valueOf(getCnxa()));
-            default -> Optional.empty();
-        };
+    public static String[] toRecord(PsseTransformerWinding psseTransformerWinding, String[] headers, Set<String> unexpectedHeaders) {
+        return Util.toRecord(psseTransformerWinding, headers, FIELDS, unexpectedHeaders);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseTransformerWinding, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseTransformerWinding, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_WINDV, Double.class, PsseTransformerWinding::getWindv, PsseTransformerWinding::setWindv, Double.NaN));
+        addField(fields, createNewField(STR_NOMV, Double.class, PsseTransformerWinding::getNomv, PsseTransformerWinding::setNomv, 0d));
+        addField(fields, createNewField(STR_ANG, Double.class, PsseTransformerWinding::getAng, PsseTransformerWinding::setAng, 0d));
+        addField(fields, createNewField(STR_COD, Integer.class, PsseTransformerWinding::getCod, PsseTransformerWinding::setCod, 0));
+        addField(fields, createNewField(STR_CONT, Integer.class, PsseTransformerWinding::getCont, PsseTransformerWinding::setCont, 0));
+        addField(fields, createNewField(STR_NODE, Integer.class, PsseTransformerWinding::getNode, PsseTransformerWinding::setNode, 0));
+        addField(fields, createNewField(STR_RMA, Double.class, PsseTransformerWinding::getRma, PsseTransformerWinding::setRma, Double.NaN));
+        addField(fields, createNewField(STR_RMI, Double.class, PsseTransformerWinding::getRmi, PsseTransformerWinding::setRmi, Double.NaN));
+        addField(fields, createNewField(STR_VMA, Double.class, PsseTransformerWinding::getVma, PsseTransformerWinding::setVma, Double.NaN));
+        addField(fields, createNewField(STR_VMI, Double.class, PsseTransformerWinding::getVmi, PsseTransformerWinding::setVmi, Double.NaN));
+        addField(fields, createNewField(STR_NTP, Integer.class, PsseTransformerWinding::getNtp, PsseTransformerWinding::setNtp, 33));
+        addField(fields, createNewField(STR_TAB, Integer.class, PsseTransformerWinding::getTab, PsseTransformerWinding::setTab, 0));
+        addField(fields, createNewField(STR_CR, Double.class, PsseTransformerWinding::getCr, PsseTransformerWinding::setCr, 0d));
+        addField(fields, createNewField(STR_CX, Double.class, PsseTransformerWinding::getCx, PsseTransformerWinding::setCx, 0d));
+        addField(fields, createNewField(STR_CNXA, Double.class, PsseTransformerWinding::getCnxa, PsseTransformerWinding::setCnxa, 0d));
+
+        return fields;
     }
 
     public double getWindv() {

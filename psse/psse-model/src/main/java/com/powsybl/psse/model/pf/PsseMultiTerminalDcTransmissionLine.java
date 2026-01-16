@@ -22,10 +22,8 @@ import java.util.List;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-
 @JsonIgnoreProperties({"main"})
 @JsonPropertyOrder({"name", "nconv", "ndcbs", "ndcln", "mdc", "vconv", "vcmod", "vconvn"})
-
 public class PsseMultiTerminalDcTransmissionLine {
 
     public PsseMultiTerminalDcTransmissionLine(PsseMultiTerminalDcMain main) {

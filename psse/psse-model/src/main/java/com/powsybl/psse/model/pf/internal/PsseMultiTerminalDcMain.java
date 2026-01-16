@@ -7,56 +7,78 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_MDC;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NAME;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NCONV;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NDCBS;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NDCLN;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_VCMOD;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_VCONV;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_VCONVN;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseMultiTerminalDcMain {
 
+    private static final Map<String, PsseFieldDefinition<PsseMultiTerminalDcMain, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_NAME, STR_NCONV, STR_NDCBS, STR_NDCLN, STR_MDC, STR_VCONV, STR_VCMOD, STR_VCONVN};
+
     private String name;
     private int nconv;
     private int ndcbs;
     private int ndcln;
-    private int mdc = 0;
+    private int mdc = defaultIntegerFor(STR_MDC, FIELDS);
     private int vconv;
-    private double vcmod = 0.0;
-    private int vconvn = 0;
+    private double vcmod = defaultDoubleFor(STR_VCMOD, FIELDS);
+    private int vconvn = defaultIntegerFor(STR_VCONVN, FIELDS);
 
-    public static PsseMultiTerminalDcMain fromRecord(CsvRecord rec, String[] headers) {
-        PsseMultiTerminalDcMain psseMultiTerminalDcMain = new PsseMultiTerminalDcMain();
-        psseMultiTerminalDcMain.setName(parseStringFromRecord(rec, headers, "name"));
-        psseMultiTerminalDcMain.setNconv(parseIntFromRecord(rec, headers, "nconv"));
-        psseMultiTerminalDcMain.setNdcbs(parseIntFromRecord(rec, headers, "ndcbs"));
-        psseMultiTerminalDcMain.setNdcln(parseIntFromRecord(rec, headers, "ndcln"));
-        psseMultiTerminalDcMain.setMdc(parseIntFromRecord(rec, 0, headers, "mdc"));
-        psseMultiTerminalDcMain.setVconv(parseIntFromRecord(rec, headers, "vconv"));
-        psseMultiTerminalDcMain.setVcmod(parseDoubleFromRecord(rec, 0d, headers, "vcmod"));
-        psseMultiTerminalDcMain.setVconvn(parseIntFromRecord(rec, 0, headers, "vconvn"));
-        return psseMultiTerminalDcMain;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] toRecord(PsseMultiTerminalDcMain psseMultiTerminalDcMain, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "name" -> psseMultiTerminalDcMain.getName();
-                case "nconv" -> String.valueOf(psseMultiTerminalDcMain.getNconv());
-                case "ndcbs" -> String.valueOf(psseMultiTerminalDcMain.getNdcbs());
-                case "ndcln" -> String.valueOf(psseMultiTerminalDcMain.getNdcln());
-                case "mdc" -> String.valueOf(psseMultiTerminalDcMain.getMdc());
-                case "vconv" -> String.valueOf(psseMultiTerminalDcMain.getVconv());
-                case "vcmod" -> String.valueOf(psseMultiTerminalDcMain.getVcmod());
-                case "vconvn" -> String.valueOf(psseMultiTerminalDcMain.getVconvn());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseMultiTerminalDcMain fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseMultiTerminalDcMain::new);
+    }
+
+    public static void toRecord(PsseMultiTerminalDcMain multiTerminalDcMain, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(multiTerminalDcMain, headers, FIELDS, row, unexpectedHeaders);
+    }
+
+    public static String[] toRecord(PsseMultiTerminalDcMain multiTerminalDcMain, String[] headers) {
+        return Util.toRecord(multiTerminalDcMain, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseMultiTerminalDcMain, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseMultiTerminalDcMain, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_NAME, String.class, PsseMultiTerminalDcMain::getName, PsseMultiTerminalDcMain::setName));
+        addField(fields, createNewField(STR_NCONV, Integer.class, PsseMultiTerminalDcMain::getNconv, PsseMultiTerminalDcMain::setNconv));
+        addField(fields, createNewField(STR_NDCBS, Integer.class, PsseMultiTerminalDcMain::getNdcbs, PsseMultiTerminalDcMain::setNdcbs));
+        addField(fields, createNewField(STR_NDCLN, Integer.class, PsseMultiTerminalDcMain::getNdcln, PsseMultiTerminalDcMain::setNdcln));
+        addField(fields, createNewField(STR_MDC, Integer.class, PsseMultiTerminalDcMain::getMdc, PsseMultiTerminalDcMain::setMdc, 0));
+        addField(fields, createNewField(STR_VCONV, Integer.class, PsseMultiTerminalDcMain::getVconv, PsseMultiTerminalDcMain::setVconv));
+        addField(fields, createNewField(STR_VCMOD, Double.class, PsseMultiTerminalDcMain::getVcmod, PsseMultiTerminalDcMain::setVcmod, 0.0));
+        addField(fields, createNewField(STR_VCONVN, Integer.class, PsseMultiTerminalDcMain::getVconvn, PsseMultiTerminalDcMain::setVconvn, 0));
+
+        return fields;
     }
 
     public String getName() {

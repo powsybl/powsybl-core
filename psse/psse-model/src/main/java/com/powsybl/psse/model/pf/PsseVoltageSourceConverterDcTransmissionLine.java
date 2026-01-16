@@ -7,16 +7,26 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
-import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.addSuffixToHeaders;
+import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_MDC;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NAME;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_RDC;
 
 /**
  *
@@ -25,70 +35,62 @@ import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
  */
 public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned {
 
+    private static final Map<String, PsseFieldDefinition<PsseVoltageSourceConverterDcTransmissionLine, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_SPECIFIC = {STR_NAME, STR_MDC, STR_RDC};
+    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_SPECIFIC, PsseOwnership.getFieldNames());
+    private static final String[] FIELD_NAMES_35_RAWX = concatStringArrays(FIELD_NAMES_35,
+        addSuffixToHeaders(PsseVoltageSourceConverter.getFieldNames35(), "1"),
+        addSuffixToHeaders(PsseVoltageSourceConverter.getFieldNames35(), "2"));
+
+    private String name;
+    private int mdc = defaultIntegerFor(STR_MDC, FIELDS);
+    private double rdc;
+    private PsseOwnership ownership;
+    private PsseVoltageSourceConverter converter1 = new PsseVoltageSourceConverter();
+    private PsseVoltageSourceConverter converter2 = new PsseVoltageSourceConverter();
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNames35RawX() {
+        return FIELD_NAMES_35_RAWX;
+    }
+
+    public static PsseVoltageSourceConverterDcTransmissionLine fromRecord(CsvRecord rec, String[] headers) {
+        PsseVoltageSourceConverterDcTransmissionLine transmissionLine = Util.fromRecord(rec.getFields(), headers, FIELDS, PsseVoltageSourceConverterDcTransmissionLine::new);
+        transmissionLine.setOwnership(PsseOwnership.fromRecord(rec, headers));
+        transmissionLine.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, headers, "1"));
+        transmissionLine.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, headers, "2"));
+        return transmissionLine;
+    }
+
+    public static String[] toRecord(PsseVoltageSourceConverterDcTransmissionLine transmissionLine, String[] headers) {
+        Set<String> unexpectedHeaders = new HashSet<>(List.of(headers));
+        String[] recordValues = Util.toRecord(transmissionLine, headers, FIELDS, unexpectedHeaders);
+        PsseOwnership.toRecord(transmissionLine.getOwnership(), headers, recordValues, unexpectedHeaders);
+        PsseVoltageSourceConverter.toRecord(transmissionLine.getConverter1(), headers, recordValues, unexpectedHeaders, "1");
+        PsseVoltageSourceConverter.toRecord(transmissionLine.getConverter2(), headers, recordValues, unexpectedHeaders, "2");
+        checkForUnexpectedHeader(unexpectedHeaders);
+        return recordValues;
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseVoltageSourceConverterDcTransmissionLine, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseVoltageSourceConverterDcTransmissionLine, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_NAME, String.class, PsseVoltageSourceConverterDcTransmissionLine::getName, PsseVoltageSourceConverterDcTransmissionLine::setName));
+        addField(fields, createNewField(STR_MDC, Integer.class, PsseVoltageSourceConverterDcTransmissionLine::getMdc, PsseVoltageSourceConverterDcTransmissionLine::setMdc, 1));
+        addField(fields, createNewField(STR_RDC, Double.class, PsseVoltageSourceConverterDcTransmissionLine::getRdc, PsseVoltageSourceConverterDcTransmissionLine::setRdc));
+
+        return fields;
+    }
+
     @Override
     public void setModel(PssePowerFlowModel model) {
         super.setModel(model);
         ownership.setModel(model);
         converter1.setModel(model);
         converter2.setModel(model);
-    }
-
-    private String name;
-    private int mdc = 1;
-    private double rdc;
-    private PsseOwnership ownership;
-    private PsseVoltageSourceConverter converter1 = new PsseVoltageSourceConverter();
-    private PsseVoltageSourceConverter converter2 = new PsseVoltageSourceConverter();
-
-    public static PsseVoltageSourceConverterDcTransmissionLine fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
-        PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverter = new PsseVoltageSourceConverterDcTransmissionLine();
-        psseVoltageSourceConverter.setName(parseStringFromRecord(rec, headers, "name"));
-        psseVoltageSourceConverter.setMdc(parseIntFromRecord(rec, headers, "mdc"));
-        psseVoltageSourceConverter.setRdc(parseDoubleFromRecord(rec, headers, "rdc"));
-        psseVoltageSourceConverter.setOwnership(PsseOwnership.fromRecord(rec, headers));
-        try {
-            psseVoltageSourceConverter.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "1"));
-        } catch (PsseException e) {
-            // Converter is optional
-        }
-        try {
-            psseVoltageSourceConverter.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "2"));
-        } catch (PsseException e) {
-            // Converter is optional
-        }
-        return psseVoltageSourceConverter;
-    }
-
-    public static String[] toRecord(PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverterDcTransmissionLine, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "name" -> psseVoltageSourceConverterDcTransmissionLine.getName();
-                case "mdc" -> String.valueOf(psseVoltageSourceConverterDcTransmissionLine.getMdc());
-                case "rdc" -> String.valueOf(psseVoltageSourceConverterDcTransmissionLine.getRdc());
-                default -> {
-                    Optional<String> optionalValue = psseVoltageSourceConverterDcTransmissionLine.getOwnership().headerToString(headers[i]);
-                    if (optionalValue.isPresent()) {
-                        yield optionalValue.get();
-                    }
-                    optionalValue = converterHeaderToString(psseVoltageSourceConverterDcTransmissionLine, headers[i]);
-                    if (optionalValue.isPresent()) {
-                        yield optionalValue.get();
-                    }
-                    throw new PsseException("Unsupported header: " + headers[i]);
-                }
-            };
-        }
-        return row;
-    }
-
-    private static Optional<String> converterHeaderToString(PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverterDcTransmissionLine, String header) {
-        String shortHeader = header.substring(0, header.length() - 1);
-        return switch (header.substring(header.length() - 1)) {
-            case "1" -> psseVoltageSourceConverterDcTransmissionLine.getConverter1().headerToString(shortHeader);
-            case "2" -> psseVoltageSourceConverterDcTransmissionLine.getConverter2().headerToString(shortHeader);
-            default -> Optional.empty();
-        };
     }
 
     public String getName() {

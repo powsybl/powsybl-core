@@ -7,15 +7,52 @@
  */
 package com.powsybl.psse.model.pf.internal;
 
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ISUB;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseSubstationNodex {
+
+    private static final Map<String, PsseFieldDefinition<PsseSubstationNodex, ?>> FIELDS = createFields();
+
+    private int isub;
+    private PsseSubstationNode node;
+
+    private static Map<String, PsseFieldDefinition<PsseSubstationNodex, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseSubstationNodex, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_ISUB, Integer.class, PsseSubstationNodex::getIsub, PsseSubstationNodex::setIsub));
+
+        return fields;
+    }
+
+    public static PsseSubstationNodex fromRecord(CsvRecord rec, String[] headers) {
+        PsseSubstationNodex multiTerminalDcLinkx = Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationNodex::new);
+        multiTerminalDcLinkx.setNode(PsseSubstationNode.fromRecord(rec, headers));
+        return multiTerminalDcLinkx;
+    }
+
+    public static String[] toRecord(PsseSubstationNodex multiTerminalDcLinkx, String[] headers) {
+        Set<String> unexpectedHeaders = new HashSet<>(List.of(headers));
+        String[] recordValues = Util.toRecord(multiTerminalDcLinkx, headers, FIELDS, unexpectedHeaders);
+        PsseSubstationNode.toRecord(multiTerminalDcLinkx.getNode(), headers, recordValues, unexpectedHeaders);
+        checkForUnexpectedHeader(unexpectedHeaders);
+        return recordValues;
+    }
 
     public PsseSubstationNodex() {
     }
@@ -23,33 +60,6 @@ public class PsseSubstationNodex {
     public PsseSubstationNodex(int isub, PsseSubstationNode node) {
         this.isub = isub;
         this.node = node;
-    }
-
-    private int isub;
-    private PsseSubstationNode node;
-
-    public static PsseSubstationNodex fromRecord(CsvRecord rec, String[] headers) {
-        PsseSubstationNodex psseSubstationNodex = new PsseSubstationNodex();
-        psseSubstationNodex.setIsub(parseIntFromRecord(rec, headers, "isub"));
-        psseSubstationNodex.setNode(PsseSubstationNode.fromRecord(rec, headers));
-        return psseSubstationNodex;
-    }
-
-    public static String[] toRecord(PsseSubstationNodex psseSubstationNodex, String[] headers) {
-        String[] row = new String[headers.length];
-        for (int i = 0; i < headers.length; i++) {
-            row[i] = switch (headers[i]) {
-                case "isub" -> String.valueOf(psseSubstationNodex.getIsub());
-                case "ni", "inode" -> String.valueOf(psseSubstationNodex.getNode().getNi());
-                case "name" -> psseSubstationNodex.getNode().getName();
-                case "i", "ibus" -> String.valueOf(psseSubstationNodex.getNode().getI());
-                case "stat", "status" -> String.valueOf(psseSubstationNodex.getNode().getStatus());
-                case "vm" -> String.valueOf(psseSubstationNodex.getNode().getVm());
-                case "va" -> String.valueOf(psseSubstationNodex.getNode().getVa());
-                default -> throw new PsseException("Unsupported header: " + headers[i]);
-            };
-        }
-        return row;
     }
 
     public int getIsub() {
