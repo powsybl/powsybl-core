@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZoneOffset;
@@ -29,6 +30,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
+import static com.powsybl.iidm.network.test.NetworkTest1Factory.id;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -706,5 +708,175 @@ public abstract class AbstractNetworkTest {
 
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+    }
+
+    @Test
+    public void testIdentifiableStream() {
+        String id1 = "1";
+        String id2 = "2";
+        Network n1 = AbstractSubnetworksExplorationTest.createNetwork(id1, Country.BE);
+        Network n2 = AbstractSubnetworksExplorationTest.createNetwork(id2, Country.DE);
+        Network fullNetwork = Network.merge("full", n1, n2);
+        Map<IdentifiableType, Set<String>> expectedMapping = Map.ofEntries(
+                entry(IdentifiableType.NETWORK, Set.of(
+                        "full",
+                        id("network", id1),
+                        id("network", id2)
+                )),
+                entry(IdentifiableType.SUBSTATION, Set.of(
+                        id("substation1", id1),
+                        id("substation1", id2),
+                        id("substation2", id1),
+                        id("substation2", id2),
+                        id("substation3", id1),
+                        id("substation3", id2)
+                )),
+                entry(IdentifiableType.VOLTAGE_LEVEL, Set.of(
+                        id("voltageLevel1", id1),
+                        id("voltageLevel1", id2),
+                        id("voltageLevel2", id1),
+                        id("voltageLevel2", id2),
+                        id("voltageLevel3", id1),
+                        id("voltageLevel3", id2),
+                        id("voltageLevel4", id1),
+                        id("voltageLevel4", id2),
+                        id("voltageLevel5", id1),
+                        id("voltageLevel5", id2)
+                )),
+                entry(IdentifiableType.AREA, Set.of(
+                        id("area1", id1),
+                        id("area1", id2)
+                )),
+                entry(IdentifiableType.HVDC_LINE, Set.of(
+                        id("hvdcLine1", id1),
+                        id("hvdcLine1", id2),
+                        id("hvdcLine2", id1),
+                        id("hvdcLine2", id2)
+                )),
+                entry(IdentifiableType.SWITCH, Set.of(
+                        id("voltageLevel1Breaker1", id1),
+                        id("load1Disconnector1", id1),
+                        id("load1Breaker1", id1),
+                        id("generator1Disconnector1", id1),
+                        id("generator1Breaker1", id1),
+                        id("voltageLevel1Breaker1", id2),
+                        id("load1Disconnector1", id2),
+                        id("load1Breaker1", id2),
+                        id("generator1Disconnector1", id2),
+                        id("generator1Breaker1", id2)
+                )),
+                entry(IdentifiableType.BUSBAR_SECTION, Set.of(
+                        id("voltageLevel1BusbarSection1", id1),
+                        id("voltageLevel1BusbarSection2", id1),
+                        id("voltageLevel1BusbarSection1", id2),
+                        id("voltageLevel1BusbarSection2", id2)
+                )),
+                entry(IdentifiableType.LINE, Set.of(
+                        id("line1", id1),
+                        id("line1", id2)
+                )),
+                entry(IdentifiableType.TIE_LINE, Set.of(
+                        id("tieLine1", id1),
+                        id("tieLine1", id2),
+                        TieLineUtil.buildMergedId(id("danglingLine3", id1), id("danglingLine3", id2))
+                )),
+                entry(IdentifiableType.TWO_WINDINGS_TRANSFORMER, Set.of(
+                        id("twoWindingsTransformer1", id1),
+                        id("twoWindingsTransformer1", id2)
+                )),
+                entry(IdentifiableType.THREE_WINDINGS_TRANSFORMER, Set.of(
+                        id("threeWindingsTransformer1", id1),
+                        id("threeWindingsTransformer1", id2)
+                )),
+                entry(IdentifiableType.GENERATOR, Set.of(
+                        id("generator1", id1),
+                        id("generator1", id2)
+                )),
+                entry(IdentifiableType.BATTERY, Set.of(
+                        id("battery1", id1),
+                        id("battery1", id2)
+                )),
+                entry(IdentifiableType.LOAD, Set.of(
+                        id("load1", id1),
+                        id("load1", id2)
+                )),
+                entry(IdentifiableType.SHUNT_COMPENSATOR, Set.of(
+                        id("shuntCompensator1", id1),
+                        id("shuntCompensator1", id2)
+                )),
+                entry(IdentifiableType.DANGLING_LINE, Set.of(
+                        id("danglingLine1", id1),
+                        id("danglingLine2", id1),
+                        id("danglingLine3", id1),
+                        id("danglingLine1", id2),
+                        id("danglingLine2", id2),
+                        id("danglingLine3", id2)
+                )),
+                entry(IdentifiableType.STATIC_VAR_COMPENSATOR, Set.of(
+                        id("svc1", id1),
+                        id("svc1", id2)
+                )),
+                entry(IdentifiableType.HVDC_CONVERTER_STATION, Set.of(
+                        id("lcc1", id1),
+                        id("lcc2", id1),
+                        id("lcc1", id2),
+                        id("lcc2", id2),
+                        id("vsc1", id1),
+                        id("vsc2", id1),
+                        id("vsc1", id2),
+                        id("vsc2", id2)
+                )),
+                entry(IdentifiableType.OVERLOAD_MANAGEMENT_SYSTEM, Set.of(
+                        id("overloadManagementSystem", id1),
+                        id("overloadManagementSystem", id2)
+                )),
+                entry(IdentifiableType.GROUND, Set.of(
+                        //TODO no ground in AbstractSubnetworksExplorationTest ? only DC_GROUND ?
+                )),
+                entry(IdentifiableType.DC_NODE, Set.of(
+                        id("dcNode1", id1),
+                        id("dcNode2", id1),
+                        id("dcNode1", id2),
+                        id("dcNode2", id2)
+                )),
+                entry(IdentifiableType.DC_SWITCH, Set.of(
+                       id("dcSwitch1", id1),
+                       id("dcSwitch1", id2)
+                )),
+                entry(IdentifiableType.DC_GROUND, Set.of(
+                        id("dcGround1", id1),
+                        id("dcGround1", id2)
+                )),
+                entry(IdentifiableType.DC_LINE, Set.of(
+                        id("dcLine1", id1),
+                        id("dcLine1", id2)
+                )),
+                entry(IdentifiableType.LINE_COMMUTATED_CONVERTER, Set.of(
+                        id("lccDetailed1", id1),
+                        id("lccDetailed1", id2)
+                )),
+                entry(IdentifiableType.VOLTAGE_SOURCE_CONVERTER, Set.of(
+                        id("vscDetailed1", id1),
+                        id("vscDetailed1", id2)
+                ))
+        );
+        Set<IdentifiableType> skipTypes = EnumSet.of(
+                IdentifiableType.BUS, //BUS is not an identifiable that we can get a stream of from the network (need to go through a bus view for example
+                IdentifiableType.DC_BUS // same reason as bus
+        );
+        // make sure we didn't forget a case of the enum in this test (either tested or skipped)
+        assertEquals(IdentifiableType.values().length, expectedMapping.size() + skipTypes.size());
+        for(IdentifiableType identifiableType: IdentifiableType.values()) {
+            //skip variants for which there is no identifiableStream
+            if (skipTypes.contains(identifiableType)) {
+                continue;
+            }
+            Set<String> expectedIds = expectedMapping.get(identifiableType);
+            Set<String> actualIds = fullNetwork
+                    .getIdentifiableStream(identifiableType)
+                    .map(Identifiable::getId)
+                    .collect(Collectors.toSet());
+            assertEquals(expectedIds, actualIds);
+        }
     }
 }
