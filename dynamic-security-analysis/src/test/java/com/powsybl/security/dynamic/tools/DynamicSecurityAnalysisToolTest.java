@@ -1,8 +1,9 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.dynamic.tools;
 
@@ -93,7 +94,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
         Options options = command.getOptions();
-        assertCommand(command, "dynamic-security-analysis", 16, 2);
+        assertCommand(command, "dynamic-security-analysis", 18, 2);
         assertOption(options, "case-file", true, true);
         assertOption(options, "dynamic-models-file", true, true);
         assertOption(options, "parameters-file", false, true);
@@ -108,6 +109,8 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         assertOption(options, "log-file", false, true);
         assertOption(options, "monitoring-file", false, true);
         assertOption(options, "event-models-file", false, true);
+        assertOption(options, "strategies-file", false, true);
+        assertOption(options, "actions-file", false, true);
     }
 
     @Test
