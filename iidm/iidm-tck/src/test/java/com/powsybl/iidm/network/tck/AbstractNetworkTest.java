@@ -866,7 +866,7 @@ public abstract class AbstractNetworkTest {
         );
         // make sure we didn't forget a case of the enum in this test (either tested or skipped)
         assertEquals(IdentifiableType.values().length, expectedMapping.size() + skipTypes.size());
-        for(IdentifiableType identifiableType: IdentifiableType.values()) {
+        for (IdentifiableType identifiableType : IdentifiableType.values()) {
             //skip variants for which there is no identifiableStream
             if (skipTypes.contains(identifiableType)) {
                 continue;
