@@ -860,15 +860,16 @@ public abstract class AbstractNetworkTest {
                         id("vscDetailed1", id2)
                 ))
         );
-        Set<IdentifiableType> skipTypes = EnumSet.of(
+        Set<IdentifiableType> throwTypes = EnumSet.of(
                 IdentifiableType.BUS, //BUS is not an identifiable that we can get a stream of from the network (need to go through a bus view for example
                 IdentifiableType.DC_BUS // same reason as bus
         );
-        // make sure we didn't forget a case of the enum in this test (either tested or skipped)
-        assertEquals(IdentifiableType.values().length, expectedMapping.size() + skipTypes.size());
+        // make sure we didn't forget a case of the enum in this test (either tested or throws error)
+        assertEquals(IdentifiableType.values().length, expectedMapping.size() + throwTypes.size());
         for (IdentifiableType identifiableType : IdentifiableType.values()) {
-            //skip variants for which there is no identifiableStream
-            if (skipTypes.contains(identifiableType)) {
+            //check those variants throw since there is no identifiableStream
+            if (throwTypes.contains(identifiableType)) {
+                assertThrows(PowsyblException.class, () -> fullNetwork.getIdentifiableStream(identifiableType));
                 continue;
             }
             Set<String> expectedIds = expectedMapping.get(identifiableType);
