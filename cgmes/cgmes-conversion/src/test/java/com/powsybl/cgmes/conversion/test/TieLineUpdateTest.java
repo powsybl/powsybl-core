@@ -135,20 +135,20 @@ class TieLineUpdateTest {
     }
 
     private static void assertEmptySv(TieLine tieLine) {
-        assertBusVoltage(tieLine.getDanglingLine1().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
-        assertBusVoltage(tieLine.getDanglingLine2().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
-        assertBoundaryBusVoltage(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
-        assertBoundaryBusVoltage(tieLine.getDanglingLine2(), Double.NaN, Double.NaN);
+        assertBusVoltage(tieLine.getBoundaryLine1().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
+        assertBusVoltage(tieLine.getBoundaryLine2().getTerminal().getBusView().getBus(), Double.NaN, Double.NaN);
+        assertBoundaryBusVoltage(tieLine.getBoundaryLine1(), Double.NaN, Double.NaN);
+        assertBoundaryBusVoltage(tieLine.getBoundaryLine2(), Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsSv(TieLine tieLine) {
-        assertFlow(tieLine.getDanglingLine1(), 275.1, 50.5);
-        assertFlow(tieLine.getDanglingLine2(), -275.0, -50.0);
+        assertFlow(tieLine.getBoundaryLine1(), 275.1, 50.5);
+        assertFlow(tieLine.getBoundaryLine2(), -275.0, -50.0);
     }
 
     private static void assertFlowsEmptySv(TieLine tieLine) {
-        assertFlow(tieLine.getDanglingLine1(), Double.NaN, Double.NaN);
-        assertFlow(tieLine.getDanglingLine2(), Double.NaN, Double.NaN);
+        assertFlow(tieLine.getBoundaryLine1(), Double.NaN, Double.NaN);
+        assertFlow(tieLine.getBoundaryLine2(), Double.NaN, Double.NaN);
     }
 
     private static void assertEq(Network network) {

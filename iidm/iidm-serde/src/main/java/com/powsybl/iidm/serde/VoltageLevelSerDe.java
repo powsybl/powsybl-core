@@ -235,7 +235,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
             if (!context.getFilter().test(dl) || context.getVersion().compareTo(IidmVersion.V_1_10) < 0 && dl.isPaired()) {
                 continue;
             }
-            if (context.getVersion().compareTo(IidmVersion.V_1_14) <= 0) {
+            if (context.getVersion().compareTo(IidmVersion.V_1_15) <= 0) {
                 DanglingLineSerDe.INSTANCE.write(dl, vl, context);
             } else {
                 BoundaryLineSerDe.INSTANCE.write(dl, vl, context);

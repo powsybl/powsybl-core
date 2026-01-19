@@ -28,11 +28,6 @@ class TieLineXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testV1() throws IOException {
-        allFormatsRoundTripFromVersionedXmlTest("tieline.xml", IidmVersion.V_1_15);
-    }
-
-    @Test
     void testV9() throws IOException {
         allFormatsRoundTripFromVersionedXmlTest("tieline.xml", IidmVersion.V_1_9);
     }

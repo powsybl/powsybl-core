@@ -23,11 +23,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class BoundaryLineUpdateTest {
 
-    private static final String DIR = "/update/dangling-line/";
+    private static final String DIR = "/update/boundary-line/";
 
     @Test
     void importEqTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml");
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml");
         assertEquals(4, network.getBoundaryLineCount());
 
         assertEq(network);
@@ -35,7 +35,7 @@ class BoundaryLineUpdateTest {
 
     @Test
     void importEqAndSshTogetherTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml", "boundaryLine_SSH.xml");
         assertEquals(4, network.getBoundaryLineCount());
 
         assertFirstSsh(network);
@@ -43,21 +43,21 @@ class BoundaryLineUpdateTest {
 
     @Test
     void importEqAndTwoSshsTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml");
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml");
         assertEquals(4, network.getBoundaryLineCount());
 
         assertEq(network);
 
-        readCgmesResources(network, DIR, "danglingLine_SSH.xml");
+        readCgmesResources(network, DIR, "boundaryLine_SSH.xml");
         assertFirstSsh(network);
 
-        readCgmesResources(network, DIR, "danglingLine_SSH_1.xml");
+        readCgmesResources(network, DIR, "boundaryLine_SSH_1.xml");
         assertSecondSsh(network);
     }
 
     @Test
     void importSvTogetherTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml", "danglingLine_TP.xml", "danglingLine_SV.xml");
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml", "boundaryLine_SSH.xml", "boundaryLine_TP.xml", "boundaryLine_SV.xml");
 
         assertEquals(4, network.getBoundaryLineCount());
         assertSvTogether(network, 285.2495134203, -68.1683990331, 275.1, 50.5, 400.5, -3, 388.0868627936761, -5.9167013802728095);
@@ -65,7 +65,7 @@ class BoundaryLineUpdateTest {
 
     @Test
     void importSvSeparatelyTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml", "boundaryLine_SSH.xml");
 
         assertEquals(4, network.getBoundaryLineCount());
 
@@ -86,7 +86,7 @@ class BoundaryLineUpdateTest {
         assertEquals(10.0, breaker.getTerminal().getP(), tol);
         assertEquals(5.0, breaker.getTerminal().getQ(), tol);
 
-        readCgmesResources(network, DIR, "danglingLine_TP.xml", "danglingLine_SV.xml");
+        readCgmesResources(network, DIR, "boundaryLine_TP.xml", "boundaryLine_SV.xml");
 
         assertEquals(0.0503090159, acLineSegment.getTerminal().getP(), tol);
         assertEquals(-145.5845194744, acLineSegment.getTerminal().getQ(), tol);
@@ -104,12 +104,12 @@ class BoundaryLineUpdateTest {
 
     @Test
     void usePreviousValuesTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml", "danglingLine_TP.xml", "danglingLine_SV.xml");
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml", "boundaryLine_SSH.xml", "boundaryLine_TP.xml", "boundaryLine_SV.xml");
         assertEquals(4, network.getBoundaryLineCount());
         assertFirstSsh(network);
 
         // As the TP file is not read, voltage values cannot be assigned
-        readCgmesResources(network, DIR, "danglingLine_SSH.xml", "danglingLine_SV.xml");
+        readCgmesResources(network, DIR, "boundaryLine_SSH.xml", "boundaryLine_SV.xml");
         assertFirstSsh(network);
         assertSvTogether(network, Double.NaN, Double.NaN, 275.1, 50.5, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 
@@ -122,12 +122,12 @@ class BoundaryLineUpdateTest {
 
     @Test
     void removeAllPropertiesAndAliasesTest() {
-        Network network = readCgmesResources(DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
+        Network network = readCgmesResources(DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml", "boundaryLine_SSH.xml");
         assertPropertiesAndAliasesEmpty(network, false);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
-        network = readCgmesResources(properties, DIR, "danglingLine_EQ.xml", "danglingLine_EQ_BD.xml", "danglingLine_SSH.xml");
+        network = readCgmesResources(properties, DIR, "boundaryLine_EQ.xml", "boundaryLine_EQ_BD.xml", "boundaryLine_SSH.xml");
         assertPropertiesAndAliasesEmpty(network, true);
     }
 
@@ -135,9 +135,9 @@ class BoundaryLineUpdateTest {
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
 
-        assertEquals(expected, network.getDanglingLineStream().allMatch(dl -> dl.getPropertyNames().isEmpty()));
-        assertEquals(expected, network.getDanglingLineStream().allMatch(dl -> dl.getAliases().isEmpty()));
-        assertEquals(expected, network.getDanglingLineStream().allMatch(dl -> dl.getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getBoundaryLineStream().allMatch(dl -> dl.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getBoundaryLineStream().allMatch(dl -> dl.getAliases().isEmpty()));
+        assertEquals(expected, network.getBoundaryLineStream().allMatch(dl -> dl.getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
     }
 
     private static void assertEq(Network network) {

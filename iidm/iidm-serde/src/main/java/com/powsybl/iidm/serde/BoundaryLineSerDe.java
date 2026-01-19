@@ -55,7 +55,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         p0[0] = dl.getP0();
         q0[0] = dl.getQ0();
         if (generation != null) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_15, context);
+            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_16, context);
             IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_2, context, () -> {
                 if (!Double.isNaN(generation.getTargetP())) {
                     p0[0] -= generation.getTargetP();
