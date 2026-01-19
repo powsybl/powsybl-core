@@ -1,5 +1,5 @@
-sphinx==7.1.2
+sphinx==8.1.3
 sphinx-tabs
-furo==2024.1.29
-myst-parser
+furo==2025.12.19
+myst-parser>=4.0.0
 sphinx-copybutton
