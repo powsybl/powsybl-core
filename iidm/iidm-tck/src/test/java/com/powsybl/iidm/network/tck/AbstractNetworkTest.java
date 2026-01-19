@@ -985,7 +985,12 @@ public abstract class AbstractNetworkTest {
         assertIdentifiableStreamEqual(expected, IdentifiableType.VOLTAGE_SOURCE_CONVERTER);
     }
 
-    // BUS, DC_BUS not tested because not supported
+    @Test
+    public void testIdentifiableStreamUnsupportedType() {
+        // unsupported types also include DC_BUS
+        assertThrows(PowsyblException.class, () -> fullNetwork.getIdentifiableStream(IdentifiableType.BUS));
+    }
+
     // GROUND not tested because there is no GROUND in the test network we are using
 
     private void assertIdentifiableStreamEqual(Set<String> expected, IdentifiableType type) {
