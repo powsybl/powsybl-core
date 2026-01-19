@@ -123,7 +123,7 @@ class ContingencyTest {
 
     @Test
     void validationTestForDL() {
-        Network network = DanglingLineNetworkFactory.create();
+        Network network = BoundaryLineNetworkFactory.create();
         Contingency danglingLineContingency = Contingency.builder("DL contingency").addDanglingLine("DL").build();
         Contingency danglingLineInvalidContingency = Contingency.builder("DL invalid contingency").addDanglingLine("DL_THAT_DO_NOT_EXIST").build();
         List<Contingency> validContingencies = ContingencyList.of(danglingLineContingency, danglingLineInvalidContingency)

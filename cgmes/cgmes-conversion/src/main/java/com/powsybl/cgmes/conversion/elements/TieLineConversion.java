@@ -31,9 +31,9 @@ public final class TieLineConversion {
 
     public static void create(String node, EquipmentAtBoundaryConversion conversion1, EquipmentAtBoundaryConversion conversion2, Context context) {
         conversion1.convertAtBoundary();
-        Optional<DanglingLine> dl1 = conversion1.getDanglingLine();
+        Optional<BoundaryLine> dl1 = conversion1.getBoundaryLine();
         conversion2.convertAtBoundary();
-        Optional<DanglingLine> dl2 = conversion2.getDanglingLine();
+        Optional<BoundaryLine> dl2 = conversion2.getBoundaryLine();
 
         if (dl1.isPresent() && dl2.isPresent()) {
             // there can be several dangling lines linked to same x-node in one IGM for planning purposes
@@ -61,42 +61,42 @@ public final class TieLineConversion {
         return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
     }
 
-    private static void convertToTieLine(Context context, DanglingLine dl1, DanglingLine dl2) {
+    private static void convertToTieLine(Context context, BoundaryLine dl1, BoundaryLine dl2) {
         TieLineAdder adder = context.network().newTieLine()
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId());
+                .setBoundaryLine1(dl1.getId())
+                .setBoundaryLine2(dl2.getId());
         identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(dl1.getId(), dl2.getId())),
                 TieLineUtil.buildMergedName(dl1.getId(), dl2.getId(), dl1.getNameOrId(), dl2.getNameOrId()));
         adder.add();
     }
 
     public static void createDuringUpdate(Network network, Context context) {
-        network.getDanglingLineStream()
+        network.getBoundaryLineStream()
                 .filter(danglingLine -> !danglingLine.isPaired())
-                .collect(Collectors.groupingBy(DanglingLine::getPairingKey))
+                .collect(Collectors.groupingBy(BoundaryLine::getPairingKey))
                 .values().forEach(danglingLinesList -> {
-                    List<DanglingLine> connectedDanglingLines = danglingLinesList.stream()
+                    List<BoundaryLine> connectedBoundaryLines = danglingLinesList.stream()
                             .filter(danglingLine -> isConnected(danglingLine, context))
                             .sorted(Comparator.comparing(Identifiable::getId)).toList();
 
-                    if (connectedDanglingLines.size() == 2 && !isSameRegion(connectedDanglingLines.get(0), connectedDanglingLines.get(1))) {
-                        convertToTieLine(context, connectedDanglingLines.get(0), connectedDanglingLines.get(1));
+                    if (connectedBoundaryLines.size() == 2 && !isSameRegion(connectedBoundaryLines.get(0), connectedBoundaryLines.get(1))) {
+                        convertToTieLine(context, connectedBoundaryLines.get(0), connectedBoundaryLines.get(1));
                     }
                 });
     }
 
     // We use the raw terminal connected attribute received in CGMES because in nodeBreaker models,
     // depending on the configuration, this information is not reflected in the terminal status of the danglingLine
-    private static boolean isConnected(DanglingLine danglingLine, Context context) {
-        return danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1)
+    private static boolean isConnected(BoundaryLine boundaryLine, Context context) {
+        return boundaryLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1)
                 .map(context::cgmesTerminal)
                 .map(cgmesData -> cgmesData.asBoolean(CgmesNames.CONNECTED, true))
                 .orElse(true);
     }
 
-    private static boolean isSameRegion(DanglingLine danglingLine1, DanglingLine danglingLine2) {
-        String region1 = obtainRegionName(danglingLine1.getTerminal().getVoltageLevel());
-        String region2 = obtainRegionName(danglingLine2.getTerminal().getVoltageLevel());
+    private static boolean isSameRegion(BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
+        String region1 = obtainRegionName(boundaryLine1.getTerminal().getVoltageLevel());
+        String region2 = obtainRegionName(boundaryLine2.getTerminal().getVoltageLevel());
         return region1 != null && region1.equals(region2);
     }
 }

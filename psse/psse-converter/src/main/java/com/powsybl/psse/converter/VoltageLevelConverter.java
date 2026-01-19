@@ -263,7 +263,7 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static void createBusBranchContextExportForFullExport(VoltageLevel voltageLevel, ContextExport contextExport) {
         voltageLevel.getBusView().getBuses().forEach(bus -> contextExport.getFullExport().addBusIBusView(contextExport.getFullExport().getNewPsseBusI(), bus));
-        voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
+        voltageLevel.getBoundaryLineStream().filter(danglingLine -> !danglingLine.isPaired())
                 .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
     }
 
@@ -342,7 +342,7 @@ class VoltageLevelConverter extends AbstractConverter {
             contextExport.getFullExport().addBusIBusView(busI, selectedBus);
         });
 
-        voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
+        voltageLevel.getBoundaryLineStream().filter(danglingLine -> !danglingLine.isPaired())
                 .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
 
         // add isolated nodes, associated with terminals not previously considered
@@ -618,7 +618,7 @@ class VoltageLevelConverter extends AbstractConverter {
         List<Integer> buses = new ArrayList<>();
         if (identifiable.getType() == IdentifiableType.DANGLING_LINE) {
             // busJ associated with boundary side of the dangling lines
-            buses.add(contextExport.getFullExport().getBusI((DanglingLine) identifiable).orElseThrow());
+            buses.add(contextExport.getFullExport().getBusI((BoundaryLine) identifiable).orElseThrow());
         } else {
             terminals.forEach(terminal -> {
                 if (contextExport.getFullExport().isExportedAsNodeBreaker(terminal.getVoltageLevel())) {

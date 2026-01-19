@@ -1030,38 +1030,38 @@ public interface Network extends Container<Network> {
     /**
      * Get all dangling lines corresponding to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
+    Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
      * Get all dangling lines.
      */
-    default Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLines(DanglingLineFilter.ALL);
+    default Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     /**
      * Get the dangling lines corresponding to given filter.
      */
-    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+    Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
 
     /**
      * Get all the dangling lines.
      */
-    default Stream<DanglingLine> getDanglingLineStream() {
-        return getDanglingLineStream(DanglingLineFilter.ALL);
+    default Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     /**
      * Get the dangling line count.
      */
-    int getDanglingLineCount();
+    int getBoundaryLineCount();
 
     /**
      * Get a dangling line.
      *
      * @param id the id or an alias of the dangling line
      */
-    DanglingLine getDanglingLine(String id);
+    BoundaryLine getBoundaryLine(String id);
 
     /**
      * Get all static var compensators.
@@ -1778,7 +1778,7 @@ public interface Network extends Container<Network> {
             case SWITCH -> getSwitchStream().map(Function.identity());
             case TWO_WINDINGS_TRANSFORMER -> getTwoWindingsTransformerStream().map(Function.identity());
             case THREE_WINDINGS_TRANSFORMER -> getThreeWindingsTransformerStream().map(Function.identity());
-            case DANGLING_LINE -> getDanglingLineStream(DanglingLineFilter.ALL).map(Function.identity());
+            case DANGLING_LINE -> getBoundaryLineStream(BoundaryLineFilter.ALL).map(Function.identity());
             case LINE -> getLineStream().map(Function.identity());
             case TIE_LINE -> getTieLineStream().map(Function.identity());
             case LOAD -> getLoadStream().map(Function.identity());

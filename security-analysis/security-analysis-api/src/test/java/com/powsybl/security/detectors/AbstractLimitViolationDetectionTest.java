@@ -164,7 +164,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     void testLimitReductionOnCurrentPermanentLimitOnTieLine() {
         final double i = 460;
         TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-        Optional<? extends LoadingLimits> line1Limits = tieLine1.getDanglingLine(TwoSides.ONE).getCurrentLimits();
+        Optional<? extends LoadingLimits> line1Limits = tieLine1.getBoundaryLine(TwoSides.ONE).getCurrentLimits();
         assertTrue(line1Limits.isPresent()
                 && line1Limits.get().getTemporaryLimits().isEmpty()
                 && line1Limits.get().getPermanentLimit() > i); // no overload expected

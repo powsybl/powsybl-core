@@ -77,7 +77,7 @@ public interface AmplColumnsExporter {
 
     void writeLinesToFormatter(TableFormatter formatter, Line l) throws IOException;
 
-    void writeDanglingLineMiddleBusesToFormatter(TableFormatter formatter, DanglingLine dl,
+    void writeDanglingLineMiddleBusesToFormatter(TableFormatter formatter, BoundaryLine dl,
                                                  int middleCcNum) throws IOException;
 
     void writeTieLineMiddleBusesToFormatter(TableFormatter formatter, TieLine tieLine,
@@ -85,7 +85,7 @@ public interface AmplColumnsExporter {
 
     void writeTieLineToFormatter(TableFormatter formatter, TieLine tieLine) throws IOException;
 
-    void writeDanglingLineToFormatter(TableFormatter formatter, DanglingLine dl) throws IOException;
+    void writeDanglingLineToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException;
 
     void writeTwoWindingsTranformerToFormatter(TableFormatter formatter, TwoWindingsTransformer twt) throws IOException;
 
@@ -95,14 +95,14 @@ public interface AmplColumnsExporter {
 
     void writeTieLineVoltageLevelToFormatter(TableFormatter formatter, TieLine tieLine) throws IOException;
 
-    void writeDanglingLineVoltageLevelToFormatter(TableFormatter formatter, DanglingLine dl) throws IOException;
+    void writeDanglingLineVoltageLevelToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException;
 
     void writeThreeWindingsTransformerVoltageLevelToFormatter(TableFormatter formatter,
                                                               ThreeWindingsTransformer twt) throws IOException;
 
     void writeVoltageLevelToFormatter(TableFormatter formatter, VoltageLevel vl) throws IOException;
 
-    void writeDanglingLineLoadToFormatter(TableFormatter formatter, DanglingLine dl) throws IOException;
+    void writeDanglingLineLoadToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException;
 
     void writeLoadtoFormatter(TableFormatter formatter, Load l) throws IOException;
 
