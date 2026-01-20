@@ -58,6 +58,9 @@ Depending on object types the following sorting key has been chosen :
 
 By default, the network components are not sorted.
 
+**iidm.export.xml.flatten**  
+The `iidm.export.xml.flatten` property is an optional property that defines whether the XIIDM exporter will flatten the network by merging subnetworks into the main network during export. When set to `true`, all subnetworks are integrated into a single flat network structure in the generated XIIDM file. If the network contains no subnetworks, setting this property to `true` has no effect. Its default value is `false`.
+
 **iidm.export.xml.version**  
 The `iidm.export.xml.version` property is an optional property that defines the XIIDM version to use for the exported file. If the chosen version is not compatible with the network to write, an error occurs. This is typically the case when an attribute appeared in a version more recent than the target one, and its value is not the default one (importing back the file will lead to a different network). By default, the export is done in the more recent version that is supported.
 
