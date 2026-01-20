@@ -15,6 +15,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
@@ -260,5 +261,25 @@ class UcteExporterTest extends AbstractSerDeTest {
         parameters.put("ucte.export.combine-phase-angle-regulation", "true");
         Network network = loadNetworkFromResourceFile("/expectedExport5.uct", parameters);
         testExporter(network, "/expectedExport5.uct", parameters);
+    }
+
+    @Test
+    void exportMultipleLoads() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        // Splits the load on two loads LOAD and LOAD2
+        network.getVoltageLevel("VLLOAD").newLoad()
+            .setId("LOAD2")
+            .setBus("NLOAD")
+            .setConnectableBus("NLOAD")
+            .setP0(300.0)
+            .setQ0(100.0)
+            .add();
+        network.getLoad("LOAD").setP0(300.0).setQ0(100.0);
+
+        Properties parameters = new Properties();
+        parameters.put(UcteExporter.NAMING_STRATEGY, "Counter");
+        testExporter(network, "/eurostagMultipleLoads.uct", parameters);
+
     }
 }
