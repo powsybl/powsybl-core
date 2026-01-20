@@ -62,11 +62,11 @@ public class TieLineUtilTest {
 
         // 1 connected, 1 disconnected
         configureDanglingLines(dlConnected1, dlDisconnected1);
-        Assertions.assertEquals(dlConnected1, getCandidate().orElse(null));
+        Assertions.assertNull(getCandidate().orElse(null));
 
         // 1 connected, several disconnected
         configureDanglingLines(dlConnected1, dlDisconnected1, dlDisconnected2);
-        Assertions.assertEquals(dlConnected1, getCandidate().orElse(null));
+        Assertions.assertNull(getCandidate().orElse(null));
     }
 
     @Test
