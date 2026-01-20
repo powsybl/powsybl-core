@@ -12,14 +12,14 @@ import java.io.Writer;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.loadflow.validation.data.*;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
@@ -50,24 +50,15 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     protected Column[] getColumns() {
-        switch (validationType) {
-            case FLOWS:
-                return getFlowColumns();
-            case GENERATORS:
-                return getGeneratorColumns();
-            case BUSES:
-                return getBusColumns();
-            case SVCS:
-                return getSvcColumns();
-            case SHUNTS:
-                return getShuntColumns();
-            case TWTS:
-                return getTwtColumns();
-            case TWTS3W:
-                return getTwt3wColumns();
-            default:
-                throw new IllegalStateException("Unexpected ValidationType value: " + validationType);
-        }
+        return switch (validationType) {
+            case FLOWS -> getFlowColumns();
+            case GENERATORS -> getGeneratorColumns();
+            case BUSES -> getBusColumns();
+            case SVCS -> getSvcColumns();
+            case SHUNTS -> getShuntColumns();
+            case TWTS -> getTwtColumns();
+            case TWTS3W -> getTwt3wColumns();
+        };
     }
 
     private Column[] getFlowColumns() {
@@ -503,290 +494,257 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
-                         double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                         double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
-                         boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException {
-        formatter.writeCell(branchId);
+    protected void writeBranch(Validated<BranchData> v, Validated<BranchData> validatedFlow, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(v.data().getId());
         if (compareResults) {
             formatter = found ?
-                        write(found, flowData.p1, flowData.p1Calc, flowData.q1, flowData.q1Calc, flowData.p2, flowData.p2Calc, flowData.q2, flowData.q2Calc,
-                              flowData.r, flowData.x, flowData.g1, flowData.g2, flowData.b1, flowData.b2, flowData.rho1, flowData.rho2, flowData.alpha1, flowData.alpha2,
-                              flowData.u1, flowData.u2, flowData.theta1, flowData.theta2, flowData.z, flowData.y, flowData.ksi, flowData.phaseAngleClock, flowData.connected1, flowData.connected2,
-                              flowData.mainComponent1, flowData.mainComponent2, flowData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false);
+                    writeBranch(found, validatedFlow) :
+                    writeBranch(found, new Validated<>(createEmptyBranchData(v.data().getId()), false));
         }
-        formatter = write(writeValues, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2,
-                          u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated);
+        formatter = writeBranch(writeValues, v);
     }
 
-    private TableFormatter write(boolean writeValues, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
-                                 double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                                 double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
-                                 boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
+    private TableFormatter writeBranch(boolean writeValues, Validated<BranchData> v) throws IOException {
+        BranchData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(p1)
-                             .writeCell(p1Calc)
-                             .writeCell(q1)
-                             .writeCell(q1Calc)
-                             .writeCell(p2)
-                             .writeCell(p2Calc)
-                             .writeCell(q2)
-                             .writeCell(q2Calc) :
+                    formatter.writeCell(d.getP1())
+                             .writeCell(d.getComputedP1())
+                             .writeCell(d.getQ1())
+                             .writeCell(d.getComputedQ1())
+                             .writeCell(d.getP2())
+                             .writeCell(d.getComputedP2())
+                             .writeCell(d.getQ2())
+                             .writeCell(d.getComputedQ2()) :
                     formatter.writeEmptyCells(8);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(r)
-                                 .writeCell(x)
-                                 .writeCell(g1)
-                                 .writeCell(g2)
-                                 .writeCell(b1)
-                                 .writeCell(b2)
-                                 .writeCell(rho1)
-                                 .writeCell(rho2)
-                                 .writeCell(alpha1)
-                                 .writeCell(alpha2)
-                                 .writeCell(u1)
-                                 .writeCell(u2)
-                                 .writeCell(theta1)
-                                 .writeCell(theta2)
-                                 .writeCell(z)
-                                 .writeCell(y)
-                                 .writeCell(ksi)
-                                 .writeCell(phaseAngleClock)
-                                 .writeCell(connected1)
-                                 .writeCell(connected2)
-                                 .writeCell(mainComponent1)
-                                 .writeCell(mainComponent2)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.getR())
+                                 .writeCell(d.getX())
+                                 .writeCell(d.getG1())
+                                 .writeCell(d.getG2())
+                                 .writeCell(d.getB1())
+                                 .writeCell(d.getB2())
+                                 .writeCell(d.getRho1())
+                                 .writeCell(d.getRho2())
+                                 .writeCell(d.getAlpha1())
+                                 .writeCell(d.getAlpha2())
+                                 .writeCell(d.getU1())
+                                 .writeCell(d.getU2())
+                                 .writeCell(d.getTheta1())
+                                 .writeCell(d.getTheta2())
+                                 .writeCell(d.getZ())
+                                 .writeCell(d.getY())
+                                 .writeCell(d.getKsi())
+                                 .writeCell(d.getPhaseAngleClock())
+                                 .writeCell(d.isConnected1())
+                                 .writeCell(d.isConnected2())
+                                 .writeCell(d.isMainComponent1())
+                                 .writeCell(d.isMainComponent2())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(23);
         }
         return formatter;
     }
 
     @Override
-    protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-                         boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
-                         boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
-        formatter.writeCell(generatorId);
+    protected void writeGenerator(Validated<GeneratorData> v, Validated<GeneratorData> validatedGenerator, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(v.data().generatorId());
         if (compareResults) {
             formatter = found ?
-                        write(found, generatorData.p, generatorData.q, generatorData.v, generatorData.targetP, generatorData.targetQ, generatorData.targetV,
-                              generatorData.expectedP, generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minP, generatorData.maxP, generatorData.minQ,
-                              generatorData.maxQ, generatorData.mainComponent, generatorData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
+                    writeGenerator(found, validatedGenerator) :
+                    writeGenerator(found, GeneratorData.createEmptyValidated(v.data().generatorId()));
         }
-        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+        formatter = writeGenerator(writeValues, v);
     }
 
-    private TableFormatter write(boolean writeValues, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
-                                 boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter writeGenerator(boolean writeValues, Validated<GeneratorData> v) throws IOException {
+        GeneratorData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(-p)
-                             .writeCell(-q)
-                             .writeCell(v)
-                             .writeCell(targetP)
-                             .writeCell(targetQ)
-                             .writeCell(targetV)
-                             .writeCell(expectedP) :
+                    formatter.writeCell(-d.p())
+                             .writeCell(-d.q())
+                             .writeCell(d.v())
+                             .writeCell(d.targetP())
+                             .writeCell(d.targetQ())
+                             .writeCell(d.targetV())
+                             .writeCell(d.expectedP()) :
                     formatter.writeEmptyCells(7);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(connected)
-                                 .writeCell(voltageRegulatorOn)
-                                 .writeCell(minP)
-                                 .writeCell(maxP)
-                                 .writeCell(minQ)
-                                 .writeCell(maxQ)
-                                 .writeCell(mainComponent)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.connected())
+                                 .writeCell(d.voltageRegulatorOn())
+                                 .writeCell(d.minP())
+                                 .writeCell(d.maxP())
+                                 .writeCell(d.minQ())
+                                 .writeCell(d.maxQ())
+                                 .writeCell(d.mainComponent())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(8);
         }
         return formatter;
     }
 
-    private TableFormatter write(boolean writeValues, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
-                                 double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                                 double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
-                                 boolean validated) throws IOException {
+    private TableFormatter write(boolean writeValues, Validated<BusData> v) throws IOException {
+        BusData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(incomingP)
-                             .writeCell(incomingQ)
-                             .writeCell(loadP)
-                             .writeCell(loadQ) :
+                    formatter.writeCell(d.incomingP())
+                             .writeCell(d.incomingQ())
+                             .writeCell(d.loadP())
+                             .writeCell(d.loadQ()) :
                     formatter.writeEmptyCells(4);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(genP)
-                                 .writeCell(genQ)
-                                 .writeCell(shuntP)
-                                 .writeCell(shuntQ)
-                                 .writeCell(svcP)
-                                 .writeCell(svcQ)
-                                 .writeCell(vscCSP)
-                                 .writeCell(vscCSQ)
-                                 .writeCell(lineP)
-                                 .writeCell(lineQ)
-                                 .writeCell(danglingLineP)
-                                 .writeCell(danglingLineQ)
-                                 .writeCell(twtP)
-                                 .writeCell(twtQ)
-                                 .writeCell(tltP)
-                                 .writeCell(tltQ)
-                                 .writeCell(mainComponent)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.genP())
+                                 .writeCell(d.genQ())
+                                 .writeCell(d.shuntP())
+                                 .writeCell(d.shuntQ())
+                                 .writeCell(d.svcP())
+                                 .writeCell(d.svcQ())
+                                 .writeCell(d.vscCSP())
+                                 .writeCell(d.vscCSQ())
+                                 .writeCell(d.lineP())
+                                 .writeCell(d.lineQ())
+                                 .writeCell(d.danglingLineP())
+                                 .writeCell(d.danglingLineQ())
+                                 .writeCell(d.twtP())
+                                 .writeCell(d.twtQ())
+                                 .writeCell(d.tltP())
+                                 .writeCell(d.tltQ())
+                                 .writeCell(d.mainComponent())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(18);
         }
         return formatter;
     }
 
     @Override
-    protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP, double shuntQ,
-                         double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-                         double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, boolean validated, BusData busData, boolean found,
-                         boolean writeValues) throws IOException {
+    protected void writeBus(Validated<BusData> v, Validated<BusData> validatedBus, boolean found,
+                            boolean writeValues) throws IOException {
+        String busId = v.data().busId();
         formatter.writeCell(busId);
         if (compareResults) {
             formatter = found ?
-                    write(found, busData.incomingP, busData.incomingQ, busData.loadP, busData.loadQ, busData.genP, busData.genQ,
-                            busData.shuntP, busData.shuntQ, busData.svcP, busData.svcQ, busData.vscCSP, busData.vscCSQ,
-                            busData.lineP, busData.lineQ, busData.danglingLineP, busData.danglingLineQ, busData.twtP, busData.twtQ,
-                            busData.tltP, busData.tltQ, busData.mainComponent, busData.validated) :
-                    write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                            Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                            Double.NaN, false, false);
+                    write(found, validatedBus) :
+                    write(found, BusData.createEmptyValidated(busId));
         }
-        formatter = write(writeValues, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
+        formatter = write(writeValues, v);
     }
 
     @Override
-    protected void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                         boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
-                         SvcData svcData, boolean found, boolean writeValues) throws IOException {
+    protected void writeSvc(Validated<SvcData> v, Validated<SvcData> validatedSvc, boolean found, boolean writeValues) throws IOException {
+        String svcId = v.data().svcId();
         formatter.writeCell(svcId);
         if (compareResults) {
             formatter = found ?
-                        write(found, svcData.p, svcData.q, svcData.vControlled, svcData.vController, svcData.nominalVcontroller, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
-                              svcData.connected, svcData.regulationMode, svcData.regulating, svcData.bMin, svcData.bMax, svcData.mainComponent, svcData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, false, Double.NaN, Double.NaN, false, false);
+                    writeSvc(found, validatedSvc) :
+                    writeSvc(found, SvcData.createEmptyValidated(svcId));
         }
-        formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
+        formatter = writeSvc(writeValues, v);
     }
 
-    private TableFormatter write(boolean writeValues, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                                 boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter writeSvc(boolean writeValues, Validated<SvcData> v) throws IOException {
+        SvcData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(-p)
-                             .writeCell(-q)
-                             .writeCell(vControlled)
-                             .writeCell(vController)
-                             .writeCell(nominalVcontroller)
-                             .writeCell(reactivePowerSetpoint)
-                             .writeCell(voltageSetpoint) :
+                    formatter.writeCell(-d.p())
+                             .writeCell(-d.q())
+                             .writeCell(d.vControlled())
+                             .writeCell(d.vController())
+                             .writeCell(d.nominalVcontroller())
+                             .writeCell(d.reactivePowerSetpoint())
+                             .writeCell(d.voltageSetpoint()) :
                     formatter.writeEmptyCells(7);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(connected)
-                                 .writeCell(regulationMode.name())
-                                 .writeCell(regulating)
-                                 .writeCell(bMin)
-                                 .writeCell(bMax)
-                                 .writeCell(mainComponent)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.connected())
+                                 .writeCell(d.regulationMode().name())
+                                 .writeCell(d.regulating())
+                                 .writeCell(d.bMin())
+                                 .writeCell(d.bMax())
+                                 .writeCell(d.mainComponent())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(7);
         }
         return formatter;
     }
 
-    protected void write(String shuntId, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
-                         double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent,
-                         boolean validated, ShuntData shuntData, boolean found, boolean writeValues) throws IOException {
-        formatter.writeCell(shuntId);
+    protected void writeShunt(Validated<ShuntData> v,
+                              Validated<ShuntData> validatedShunt, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(v.data().shuntId());
         if (compareResults) {
             formatter = found ?
-                        write(found, shuntData.q, shuntData.expectedQ, shuntData.p, shuntData.currentSectionCount, shuntData.maximumSectionCount,
-                              shuntData.bPerSection, shuntData.v, shuntData.connected, shuntData.qMax, shuntData.nominalV, shuntData.mainComponent, shuntData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, -1, -1, Double.NaN, Double.NaN, false, Double.NaN, Double.NaN, false, false);
+                        writeShunt(found, validatedShunt) :
+                        writeShunt(found, ShuntData.createEmptyValidated(v.data().shuntId()));
         }
-        write(writeValues, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated);
+        writeShunt(writeValues, v);
     }
 
-    private TableFormatter write(boolean writeValues, double q, double expectedQ, double p, int currentSectionCount, int maximumSectionCount,
-                                 double bPerSection, double v, boolean connected, double qMax, double nominalV, boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter writeShunt(boolean writeValues, Validated<ShuntData> v) throws IOException {
+        ShuntData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(q)
-                             .writeCell(expectedQ) :
+                    formatter.writeCell(d.q())
+                             .writeCell(d.expectedQ()) :
                     formatter.writeEmptyCells(2);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(p)
-                                 .writeCell(currentSectionCount)
-                                 .writeCell(maximumSectionCount)
-                                 .writeCell(bPerSection)
-                                 .writeCell(v)
-                                 .writeCell(connected)
-                                 .writeCell(qMax)
-                                 .writeCell(nominalV)
-                                 .writeCell(mainComponent)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.p())
+                                 .writeCell(d.currentSectionCount())
+                                 .writeCell(d.maximumSectionCount())
+                                 .writeCell(d.bPerSection())
+                                 .writeCell(d.v())
+                                 .writeCell(d.connected())
+                                 .writeCell(d.qMax())
+                                 .writeCell(d.nominalV())
+                                 .writeCell(d.mainComponent())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(10);
         }
         return formatter;
     }
 
     @Override
-    protected void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                         int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
-                         boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException {
-        formatter.writeCell(twtId);
+    protected void writeT2wt(Validated<TransformerData> v, Validated<TransformerData> twtData, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(v.data().twtId());
         if (compareResults) {
             formatter = found ?
-                        write(found, twtData.error, twtData.upIncrement, twtData.downIncrement, twtData.rho, twtData.rhoPreviousStep, twtData.rhoNextStep,
-                              twtData.tapPosition, twtData.lowTapPosition, twtData.highTapPosition, twtData.targetV, twtData.regulatedSide, twtData.v,
-                              twtData.connected, twtData.mainComponent, twtData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false);
+                    writeT2wt(found, twtData) :
+                    writeT2wt(found, TransformerData.createEmptyValidated(v.data().twtId()));
         }
-        write(writeValues, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV,
-              regulatedSide, v, connected, mainComponent, validated);
+        writeT2wt(writeValues, v);
     }
 
-    private TableFormatter write(boolean writeValues, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                                 int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
-                                 boolean mainComponent, boolean validated) throws IOException {
+    private TableFormatter writeT2wt(boolean writeValues, Validated<TransformerData> v) throws IOException {
+        TransformerData d = v.data();
         formatter = writeValues ?
-                    formatter.writeCell(error)
-                             .writeCell(upIncrement)
-                             .writeCell(downIncrement) :
+                    formatter.writeCell(d.error())
+                             .writeCell(d.upIncrement())
+                             .writeCell(d.downIncrement()) :
                     formatter.writeEmptyCells(3);
         if (verbose) {
+            String regSideString = d.regulatedSide() != null ? d.regulatedSide().name() : invalidString;
             formatter = writeValues ?
-                        formatter.writeCell(rho)
-                                 .writeCell(rhoPreviousStep)
-                                 .writeCell(rhoNextStep)
-                                 .writeCell(tapPosition)
-                                 .writeCell(lowTapPosition)
-                                 .writeCell(highTapPosition)
-                                 .writeCell(targetV)
-                                 .writeCell(regulatedSide != null ? regulatedSide.name() : invalidString)
-                                 .writeCell(v)
-                                 .writeCell(connected)
-                                 .writeCell(mainComponent)
-                                 .writeCell(getValidated(validated)) :
+                        formatter.writeCell(d.rho())
+                                 .writeCell(d.rhoPreviousStep())
+                                 .writeCell(d.rhoNextStep())
+                                 .writeCell(d.tapPosition())
+                                 .writeCell(d.lowTapPosition())
+                                 .writeCell(d.highTapPosition())
+                                 .writeCell(d.targetV())
+                                 .writeCell(regSideString)
+                                 .writeCell(d.v())
+                                 .writeCell(d.connected())
+                                 .writeCell(d.mainComponent())
+                                 .writeCell(getValidated(v.validated())) :
                         formatter.writeEmptyCells(12);
         }
         return formatter;
     }
 
     @Override
-    protected void write(String twtId, Transformer3WData transformer3wData1, Transformer3WData transformer3wData2, boolean found, boolean writeValues) throws IOException {
+    protected void writeT3wt(String twtId, ValidatedTransformer3W validatedTransformer3W1, ValidatedTransformer3W validatedTransformer3W2, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(twtId);
         if (compareResults) {
-            formatter = write(found, transformer3wData2.twtData, transformer3wData2.validated);
+            formatter = write(found, validatedTransformer3W2.twtData(), validatedTransformer3W2.validated());
         }
-        write(writeValues, transformer3wData1.twtData, transformer3wData1.validated);
+        write(writeValues, validatedTransformer3W1.twtData(), validatedTransformer3W1.validated());
     }
 
     private TableFormatter write(boolean writeValues, TwtData twtData, boolean validated) throws IOException {

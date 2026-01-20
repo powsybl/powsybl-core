@@ -26,8 +26,10 @@ import com.powsybl.iidm.network.Network;
  */
 public class BalanceTypeGuesser {
 
+    public static final BalanceTypeGuesser NO_BALANCING_GUESSER = new BalanceTypeGuesser();
     private String slackCandidate;
     private double maxActivePowerDifference = 0;
+    private final double threshold;
 
     /**
      * Compute balancing ratio assuming balancing proportional to P max.
@@ -47,8 +49,9 @@ public class BalanceTypeGuesser {
     private BalanceType balanceType;
     private String slack;
 
-    public BalanceTypeGuesser() {
+    private BalanceTypeGuesser() {
         this.balanceType = BalanceType.NONE;
+        this.threshold = ValidationConfig.THRESHOLD_DEFAULT;
     }
 
     /**
@@ -58,12 +61,17 @@ public class BalanceTypeGuesser {
      */
     public BalanceTypeGuesser(Network network, double threshold) {
         Objects.requireNonNull(network);
-        guess(network, threshold);
+        this.threshold = threshold;
+        guess(network);
     }
 
-    private void guess(Network network, double threshold) {
+    public double getThreshold() {
+        return threshold;
+    }
+
+    private void guess(Network network) {
         // Number of generators that significantly moved
-        int movedGeneratorsCount = network.getGeneratorStream().mapToInt(generator -> isMovedGenerator(generator, threshold)).sum();
+        int movedGeneratorsCount = network.getGeneratorStream().mapToInt(this::isMovedGenerator).sum();
         if (movedGeneratorsCount > 0) {
             this.balanceType = getBalanceType(kMaxComputation.getVarK(), kTargetComputation.getVarK(), kHeadroomComputation.getVarK());
         } else {
@@ -81,7 +89,7 @@ public class BalanceTypeGuesser {
                      .orElse(BalanceType.NONE);
     }
 
-    private int isMovedGenerator(Generator generator, double threshold) {
+    private int isMovedGenerator(Generator generator) {
         double p = -generator.getTerminal().getP();
         double targetP = generator.getTargetP();
         double maxP = generator.getMaxP();
