@@ -300,7 +300,7 @@ public final class StateVariablesExport {
             List<String> topologicalNodeIds = new ArrayList<>();
             String busTnId = context.getNamingStrategy().getCgmesId(b);
             topologicalNodeIds.add(busTnId);
-            b.getDanglingLines().forEach(dl -> topologicalNodeIds.add(dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)));
+            b.getDanglingLines().forEach(dl -> topologicalNodeIds.add(context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_TOPOLOGICAL_NODE_BOUNDARY)));
             if (b.getSynchronousComponent() != null) {
                 String key = String.valueOf(b.getSynchronousComponent().getNum());
                 TopologicalIsland island = islands.computeIfAbsent(key, k -> TopologicalIsland.fromSynchronousComponent(k, context));
@@ -324,15 +324,13 @@ public final class StateVariablesExport {
     private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             Bus b = dl.getTerminal().getBusView().getBus();
-            String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-            if (topologicalNode != null) {
-                if (dl.hasProperty("v") && dl.hasProperty("angle")) {
-                    writeVoltage(topologicalNode, Double.parseDouble(dl.getProperty("v", "NaN")), Double.parseDouble(dl.getProperty("angle", "NaN")), cimNamespace, writer, context);
-                } else if (b != null) {
-                    writeVoltage(topologicalNode, dl.getBoundary().getV(), dl.getBoundary().getAngle(), cimNamespace, writer, context);
-                } else {
-                    writeVoltage(topologicalNode, 0.0, 0.0, cimNamespace, writer, context);
-                }
+            String topologicalNode = context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_TOPOLOGICAL_NODE_BOUNDARY);
+            if (dl.hasProperty("v") && dl.hasProperty("angle")) {
+                writeVoltage(topologicalNode, Double.parseDouble(dl.getProperty("v", "NaN")), Double.parseDouble(dl.getProperty("angle", "NaN")), cimNamespace, writer, context);
+            } else if (b != null) {
+                writeVoltage(topologicalNode, dl.getBoundary().getV(), dl.getBoundary().getAngle(), cimNamespace, writer, context);
+            } else {
+                writeVoltage(topologicalNode, 0.0, 0.0, cimNamespace, writer, context);
             }
         }
     }

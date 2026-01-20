@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -271,7 +270,7 @@ public final class TopologyExport {
     private static void writeBoundaryTerminal(DanglingLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, ALIAS_TERMINAL_BOUNDARY);
         String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
-        String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        String topologicalNode = context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_TOPOLOGICAL_NODE_BOUNDARY);
         // Topological nodes of boundaries are published by external entities and should be ok,
         // we do not make an additional effort to ensure a valid CGMES id has been assigned
         // If not defined it has already been created above so topological node is never null
@@ -299,8 +298,7 @@ public final class TopologyExport {
 
     private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
-            String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-            if (topologicalNodeId == null) {
+            if (!dl.hasProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY)) {
                 // If no information about original boundary has been preserved in the IIDM model,
                 // we will create a new TopologicalNode
                 String baseVoltageId = context.getBaseVoltageIdFromNominalV(dl.getTerminal().getVoltageLevel().getNominalV());
@@ -313,8 +311,7 @@ public final class TopologyExport {
                             dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
                     containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
                 }
-                String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(refTyped(dl), TOPOLOGICAL_NODE);
-                dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, fictTopologicalNodeId);
+                String fictTopologicalNodeId = context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_TOPOLOGICAL_NODE_BOUNDARY);
                 writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltageId, cimNamespace, writer, context);
             }
         }
