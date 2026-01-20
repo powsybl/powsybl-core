@@ -230,8 +230,6 @@ public class CgmesExport implements Exporter {
         // Export the SSH for the IGMs and the SV for the CGM
         String baseName = getBaseName(context, dataSource, network);
         for (Network subnetwork : network.getSubnetworks()) {
-            context.addIidmMappings(subnetwork);
-
             String country = getCountry(subnetwork);
             String igmName = country != null ? country : subnetwork.getNameOrId();
             String igmSshFileName = baseName + "_" + igmName + "_" + CgmesSubset.STEADY_STATE_HYPOTHESIS.getIdentifier() + ".xml";

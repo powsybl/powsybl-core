@@ -66,6 +66,8 @@ public interface NamingStrategy {
             case ALIAS_TRANSFORMER_END1 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(1))};
             case ALIAS_TRANSFORMER_END2 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(2))};
             case ALIAS_TRANSFORMER_END3 -> new CgmesObjectReference[] {ref(identifiable), combo(TRANSFORMER_END, ref(3))};
+            case PROPERTY_EQUIVALENT_INJECTION -> new CgmesObjectReference[] {refTyped(identifiable), EQUIVALENT_INJECTION};
+            case PROPERTY_EQUIVALENT_INJECTION_TERMINAL -> new CgmesObjectReference[] {refTyped(identifiable), EQUIVALENT_INJECTION, TERMINAL};
             case PROPERTY_GENERATING_UNIT -> getGeneratingUnitReferences(identifiable);
             case PROPERTY_REGULATING_CONTROL -> new CgmesObjectReference[] {ref(identifiable), REGULATING_CONTROL};
             default -> throw new IllegalStateException("Unexpected value: " + aliasOrProperty);
