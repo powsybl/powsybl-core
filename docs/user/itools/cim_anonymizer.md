@@ -21,16 +21,16 @@ Available arguments are:
 
 ### Required arguments
 
-`--cim-path`  
+`--cim-path`
 This option defines the CIM file (zip) or a directory where to look for CIM files.
 
-`--mapping-file`  
+`--mapping-file`
 This option defines the CSV file where the mapping between original and new identifiers is exported.
 
-`--output-dir`  
+`--output-dir`
 This option defines the path of the directory where to write the anonymized CIM files. If the output directory doesn't exist, an exception is thrown.
 
 ### Optional arguments
 
-`--skip-external-refs`  
+`--skip-external-refs`
 This option defines if the XML external references should also be anonymized or not. The default value is `false`, meaning that the external references are also anonymized.

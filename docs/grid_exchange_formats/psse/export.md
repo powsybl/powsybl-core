@@ -13,8 +13,8 @@ A voltage level is exported as node-breaker when the topologyKind is `NODE_BREAK
 ## Options
 Parameters for the export can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
-**psse.export.update**  
+**psse.export.update**
 The `psse.export.update` property is optional and defines whether the exporter should perform an update. The default value is `true`.
 
-**psse.export.raw-format**  
+**psse.export.raw-format**
 The `psse.export.raw-format` property is optional and defines whether the exporter should use the `raw` format. The default value is `true`.

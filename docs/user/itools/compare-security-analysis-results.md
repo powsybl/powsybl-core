@@ -2,19 +2,19 @@
 
 The `compare-security-analysis-results` command is used to compare [security-analysis](../../simulation/security/index.md#outputs) results, stored in JSON.
 
-The outcome of the comparison is `success` if the results are equivalent, `fail` otherwise.  
-  
+The outcome of the comparison is `success` if the results are equivalent, `fail` otherwise.
+
 This tool compares for the pre-contingency state and for all the post-contingency states of the two results:
 - the outcome (convergence/divergence) of the load flow computations
 - the values of the constraints violations
-  
+
 Two security analysis results are considered equivalent if all the following conditions are satisfied:
 - for all the pre-contingency and post-contingency states, the corresponding (i.e., related to the same state) outcome of the load flow computation is the same
 - for all the constraint violations, the difference of value of a corresponding (i.e., related to the same contingency
 and equipment) violation is less than a predefined threshold
 - if a constraint violation is contained in just one result, the violation is less than a predefined threshold
 - if a contingency is contained in just one result, all the post-contingency violations are less than a predefined threshold
-  
+
 The comparison process can optionally output in a CSV file all the compared values (pre- and post-contingency load flow computation outcomes, and related constraints violations), with a corresponding comparison result (`equivalent`,`different`). See example below.
 
 ```
@@ -50,13 +50,13 @@ Available arguments are:
 
 ### Required parameters
 
-`--output-file`  
+`--output-file`
 This parameter defines the path of the output file, where the comparison results will be stored.
 
-`--result1-file`  
-This parameter defines the path of the JSON file containing the first security analysis result. 
+`--result1-file`
+This parameter defines the path of the JSON file containing the first security analysis result.
 
-`--result2-file`  
+`--result2-file`
 This parameter defines the path of the JSON file containing the second security analysis result.
 
 ### Optional parameters

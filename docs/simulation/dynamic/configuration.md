@@ -44,10 +44,10 @@ The parameters may also be overridden with a JSON file, in which case the config
 
 ### Optional properties
 
-**startTime**  
+**startTime**
 `startTime` defines when the simulation begins, in seconds. The default value of this property is `0`.
 
-**stopTime**  
+**stopTime**
 `stopTime` defines when the simulation stops, in seconds. The default value of this property is `1`.
 
 **debugDir**

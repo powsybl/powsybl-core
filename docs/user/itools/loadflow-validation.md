@@ -56,41 +56,41 @@ Available arguments are:
 
 ### Required arguments
 
-`--case-file`  
+`--case-file`
 Use the `--case-file` parameter to define the path of the case file.
 
-`--output-folder`  
+`--output-folder`
 Use the `--output-folder` parameter to define the path of the folder where the output files will be stored.
 
 
 ### Optional arguments
 
-`--compare-case-file`   
+`--compare-case-file`
 Use the `--compare-case-file` parameter to define the path of the second case file, in order to compare the load flow
 results of two case files.
 
-`--compare-results`  
+`--compare-results`
 Use the `--compare-results` parameter to define the type of results to compare. The available types are:
 - `BASECASE`: compare results of the two base cases
 - `COMPUTATION`: run a computation on the two base cases and compare results of the resulting states.
 
-`--import-parameters`  
+`--import-parameters`
 Use the `--import-parameters` parameter to specify the path of the configuration file of the importer. It is possible to
 overload one or many parameters using the `-I property=value` parameter. The properties depend on the input format.
 Refer to the documentation page of each [importer](../../grid_exchange_formats/index.md) to know their specific configuration.
 
-`--load-flow`  
+`--load-flow`
 Use the `--load-flow` parameter to run a load-flow before the validation. This option is equivalent to
 `--run-computation loadflow`.
 
-`--output-format`  
+`--output-format`
 Use the `--output-format` parameter to specify the format of the output files. The available output formats are `CSV` or `CSV_MULTILINE`.
 
 If this parameter is set to `CSV`, in the output files a line contains all values of validated equipment. If the parameter
 is set to `CSV_MULTILINE`, in the output files the values of a piece of equipment are split in multiple lines, one value for each
 line, see examples below:
 
-**CSV**  
+**CSV**
 ```
 id;p;q;v;nominalV;reactivePowerSetpoint;voltageSetpoint;connected;regulationMode;bMin;bMax;mainComponent;validation
 CSPCH.TC1;-0,00000;93,6368;238,307;225,000;0,00000;238,307;true;VOLTAGE;-0,00197531;0,00493827;true;success
@@ -98,7 +98,7 @@ CSPDO.TC1;-0,00000;0,00000;240,679;225,000;0,00000;240,713;true;VOLTAGE;-0,00493
 ...
 ```
 
-**CSV_MULTILINE**  
+**CSV_MULTILINE**
 ```
 id;characteristic;value
 CSPCH.TC1;p;-0,00000
@@ -107,13 +107,13 @@ CSPCH.TC1;v;238,307
 ...
 ```
 
-`--run-computation**  
+`--run-computation**
 Use the `--run-computation` parameter to run a computation before the validation. The supported computations are:
 - `loadflow`: run a load-flow
 - `loadflowResultsCompletion`: compute the missing `P`, `Q`, `V` and $\theta$ values
 
-`--types**  
-Use the `--types` parameter to define the types of checks to run. If this parameter is not set, run all the checks. 
+`--types**
+Use the `--types` parameter to define the types of checks to run. If this parameter is not set, run all the checks.
 The supported types are `FLOWS`, `GENERATORS`, `BUSES`, `SVCS`, `SHUNTS`, `TWTS`.
 
 To learn more about the different checks, read the [loadflow validation](../../grid_features/loadflow_validation.md) documentation page.
@@ -173,7 +173,7 @@ possible to recompute $(V_2, \theta_2)$ which are usually not returned by power 
 
 In case of missing results (usually the powers $P_1$, $Q_1$, $P_2$, $Q_2$ which are not mandatory), the PowSyBl validation
 will consider the results as inconsistent, unless `ok-missing-values` was set to `true` by the user on purpose to make the consistency
-check more leniently. 
+check more leniently.
 
 In case the voltages are available but not the powers, the result completion feature of the PowSyBl validation
 can be used to recompute them using the validation equations (meaning that the branch validation tests will always be OK, so that it allows performing the bus validation tests).
@@ -186,7 +186,7 @@ can be used to recompute them using the validation equations (meaning that the b
 #### Active power
 
 The load-flow validation of PowSyBl checks whether the adjustment of balances has been done consistently by the power flow.
-The load-flow results do not include the adjustment mode used, nor the participation factors. They thus have to be inferred. 
+The load-flow results do not include the adjustment mode used, nor the participation factors. They thus have to be inferred.
 If deviations are perfect, the proportion factor $\hat{K}$ estimated for the right mode will
 be the same for all the deviating units for which $P$ is strictly $P_{min}$ and $P_{max}$. Therefore, the inferred
 deviation is the one for which the standard deviation of the estimated proportion factor is the lowest.
@@ -253,7 +253,7 @@ $$\sum_{\text{stations}}{P} = \sum_{\text{stations}}{Loss} + Loss_{cable}$$
 To check a steady-state has been reached, an upper bound of the deadband value is needed. Generally, the value of the
 deadband is not available in data models. Usual load flow solvers simply consider a continuous tap that is rounded
 afterward. As a result, one should compute an upper bound of the effect of the rounding. Under the usual situation where
-the low voltage (side one) is controlled, the maximum effect is expected if the high voltage is fixed (usually it decreases), 
+the low voltage (side one) is controlled, the maximum effect is expected if the high voltage is fixed (usually it decreases),
 and if the network connected to the low voltage is an antenna. If the transformer is perfect, the equations are:
 
 - With the current tap `tap`, and if the regulated side is side `TWO`:
@@ -287,7 +287,7 @@ The test is done only if the regulated voltage is on one end of the transformer,
 ## Examples
 
 ### Example 1
-The following example shows how to run a load flow validation on a UCTE network model: 
+The following example shows how to run a load flow validation on a UCTE network model:
 ```
 $> itools loadflow-validation --case-file 20170322_1844_SN3_FR2.uct --output-folder /tmp/results
 ```

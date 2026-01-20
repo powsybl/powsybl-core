@@ -11,10 +11,10 @@ First, input data is obtained by reading and parsing the input file, and as a re
 ## Options
 Parameters for the import can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
-**psse.import.ignore-base-voltage**  
+**psse.import.ignore-base-voltage**
 The `psse.import.ignore-base-voltage` property is an optional property that defines if the importer should ignore the base voltage information present in the PSS®E file. The default value is `false`.
 
-**psse.import.ignore-node-breaker-topology**  
+**psse.import.ignore-node-breaker-topology**
 The `psse.import.ignore-node-breaker-topology` property is an optional property that defines if the importer should ignore the node breaker information present in the PSS®E file. The default value is `false`.
 
 (psse-inconsistency-checks)=
@@ -248,7 +248,7 @@ Every _Area interchange_ single line record represents one area in PowSyBl grid 
 - **VoltageLevels** - a set of voltage levels of the area. The set is created from `VoltageLevels` objects that
   correspond
   to PSS®E buses within the given area.
-- **AreaBoundaries** – a list of area boundaries. Boundary terminals are determined from the boundary (AC) lines, 
+- **AreaBoundaries** – a list of area boundaries. Boundary terminals are determined from the boundary (AC) lines,
   HVDC lines and transformers. The boundary lines or boundary transformers are always identified such that one of
   their terminals belongs to the area. This  terminal is marked as a boundary terminal and included to area boundaries.
   Similarly, three-winding transformers are considered boundary transformers only if some, but not all, of their
