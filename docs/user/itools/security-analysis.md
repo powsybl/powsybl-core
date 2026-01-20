@@ -2,8 +2,23 @@
 
 The `security-analysis` command loads a grid file and runs a [security analysis](../../simulation/security/index.md) simulation, to detect security violations on pre- or post-contingencies states. At the end of the simulation, the results are printed or exported to a file.
 
-## Usage
+## Configuration
+
+To set up the security-analysis command, a configuration file is required. See [iTools Configuration](../itools/index.md#configuration).
+
+If you have several implementations in your classpath, you need to choose which implementation to use in your configuration file.
+```yaml
+componentDefaultConfig:
+  ContingenciesProviderFactory: "<IMPLEMENTATION_NAME>"
+load-flow:
+  default-impl-name: "<IMPLEMENTATION_NAME>"
 ```
+
+There are two main implementations for the `ContingenciesProviderFactory` that can be used.
+- JSON contingencies list: `com.powsybl.contingency.JsonContingenciesProviderFactory`
+- Groovy DSL contingencies list: `com.powsybl.contingency.dsl.GroovyDslContingenciesProviderFactor`
+## Usage
+``` shell
 $> itools security-analysis --help
 usage: itools [OPTIONS] security-analysis [--actions-file <FILE>] --case-file
        <FILE> [--contingencies-file <FILE>] [--external] [--help] [-I
@@ -55,9 +70,6 @@ This option defines the path of the contingency files. If this parameter is not 
 The supported format depends on the configured `ContingenciesProviderFactory` (see the [`componentDefaultConfig`](../configuration/componentDefaultConfig.md) module):
 - Groovy DSL: script that respects the [contingency DSL](../../simulation/security/contingency-dsl.md) syntax
 - JSON: a contingencies list (type `ContingencyList`) — minimal example below.
-
-
-**Example of JSON contingencies**
 ```json
 {
   "type" : "default",
@@ -66,7 +78,7 @@ The supported format depends on the configured `ContingenciesProviderFactory` (s
   "contingencies" : [{
     "id" : "contingency1",
     "elements" : [ {
-      "id" : "NHV1_NHV2_2",
+      "id" : "id1",
       "type" : "BRANCH"
     }]
   }]
@@ -75,22 +87,22 @@ The supported format depends on the configured `ContingenciesProviderFactory` (s
 
 `--strategies-file`  
 Path to a JSON file describing operator strategies (sets of “conditional actions” triggered under some conditions, in a contingency context).
+ 
+Example
 
-**Exemple minimal (operator strategies JSON)**
 ```json
 {
   "version" : "1.2",
   "operatorStrategies" : [ {
-    "id" : "strategy_reclose_line2_on_any_current_violation",
+    "id" : "strategy_gen_load",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingency1",
     "conditionalActions" : [ {
       "id" : "stage1",
       "condition" : {
-        "type" : "ANY_VIOLATION_CONDITION",
-        "filters" : [ "CURRENT" ]
+        "type" : "TRUE_CONDITION"
       },
-      "actionIds" : [ "recloseLine2" ]
+      "actionIds" : [ "load-action-id", "generator-action-id" ]
     } ]
   } ]
 }
@@ -98,14 +110,14 @@ Path to a JSON file describing operator strategies (sets of “conditional actio
 `--actions-file`  
 Path to a JSON file describing the available actions. These actions can then be referenced by operator strategies through their `actionIds`.
 
-**Minimal example (actions JSON)**
+Example
 ```json
 {
   "version" : "1.2",
   "actions" : [ {
     "type" : "TERMINALS_CONNECTION",
-    "id" : "recloseLine2",
-    "elementId" : "NHV1_NHV2_2",
+    "id" : "closeLine",
+    "elementId" : "elementId",
     "open" : false
   } ]
 }
@@ -140,16 +152,22 @@ This option defines the path of the [parameters](#parameters) file of the simula
 This option defines the list of extensions to complete the simulation results with additional data. The available extensions are listed in the usage of the command.
 
 ## Simulators
-<span style="color: red">TODO</span>
+The security analysis computation is performed by a `SecurityAnalysisFactory` implementation available on the classpath (typically provided by a simulator module such as `powsybl-open-loadflow`).
+
+The default implementation is selected through the [`componentDefaultConfig`](../configuration/componentDefaultConfig.md) module (`SecurityAnalysisFactory`). If several implementations are available, the `security-analysis` configuration module may also be used to select a specific one (property `default-impl-name`).
 
 ## Contingencies
-<span style="color: red">TODO</span>
+Contingencies are provided through `--contingencies-file`. The file is interpreted by the configured `ContingenciesProviderFactory` (see [`componentDefaultConfig`](../configuration/componentDefaultConfig.md)).
+
+Typical inputs are:
+- Groovy DSL file (see [Contingency DSL](../../simulation/security/contingency-dsl.md))
+- JSON contingencies list (type `ContingencyList`, see examples above)
 
 ## Parameters
 <span style="color: red">TODO</span>
 
 ## Results
-<span style="color: red">TODO</span>
+If `--output-file` is not set, results are printed to the console (tables). If `--output-file` is set, results are exported to the given path and `--output-format` must be provided.
 
 ## Examples
 
@@ -205,6 +223,279 @@ Post-contingency limit violations:
 +-------------+----------+--------+---------------+-------+---------+--------------+----------------+-----------------+-----------+-----------+------------------+----------------+
 ```
 
+### Example 3
+The following example shows how to run a security analysis simulation with an `operator strategy` with `actions` for `contingency` of a given network.
+
+```shell
+itools security-analysis \
+  --case-file network.xiidm \
+  --contingencies-file contingency.json \
+  --strategies-file strategies.json \
+  --actions-file action-reclose.json
+```
+
+#### Inputs
+
+<details>
+<summary>Network</summary>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+  <iidm:substation id="P1" country="FR" tso="RTE" geographicalTags="A">
+    <iidm:voltageLevel id="VLGEN" nominalV="24.0" topologyKind="BUS_BREAKER">
+      <iidm:busBreakerTopology>
+        <iidm:bus id="NGEN"/>
+      </iidm:busBreakerTopology>
+      <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
+        <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+      </iidm:generator>
+    </iidm:voltageLevel>
+    <iidm:voltageLevel id="VLHV1" nominalV="380.0" topologyKind="BUS_BREAKER">
+      <iidm:busBreakerTopology>
+        <iidm:bus id="NHV1"/>
+      </iidm:busBreakerTopology>
+    </iidm:voltageLevel>
+    <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" voltageLevelId1="VLGEN" bus1="NGEN" connectableBus1="NGEN" voltageLevelId2="VLHV1" bus2="NHV1" connectableBus2="NHV1"/>
+  </iidm:substation>
+  <iidm:substation id="P2" country="FR" tso="RTE" geographicalTags="B">
+    <iidm:voltageLevel id="VLHV2" nominalV="380.0" topologyKind="BUS_BREAKER">
+      <iidm:busBreakerTopology>
+        <iidm:bus id="NHV2"/>
+      </iidm:busBreakerTopology>
+    </iidm:voltageLevel>
+    <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
+      <iidm:busBreakerTopology>
+        <iidm:bus id="NLOAD"/>
+      </iidm:busBreakerTopology>
+      <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NLOAD" connectableBus="NLOAD"/>
+    </iidm:voltageLevel>
+    <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" voltageLevelId1="VLHV2" bus1="NHV2" connectableBus1="NHV2" voltageLevelId2="VLLOAD" bus2="NLOAD" connectableBus2="NLOAD">
+      <iidm:ratioTapChanger regulating="true" lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulationMode="VOLTAGE" regulationValue="158.0">
+        <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
+        <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191"/>
+        <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>
+        <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914"/>
+      </iidm:ratioTapChanger>
+    </iidm:twoWindingsTransformer>
+  </iidm:substation>
+  <iidm:line id="NHV1_NHV2_1" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" voltageLevelId1="VLHV1" bus1="NHV1" connectableBus1="NHV1" voltageLevelId2="VLHV2" bus2="NHV2" connectableBus2="NHV2" selectedOperationalLimitsGroupId1="DEFAULT">
+    <iidm:operationalLimitsGroup1 id="DEFAULT">
+      <iidm:currentLimits permanentLimit="460"/>
+    </iidm:operationalLimitsGroup1>
+  </iidm:line>
+  <iidm:line id="NHV1_NHV2_2" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" voltageLevelId1="VLHV1" bus1="NHV1" connectableBus1="NHV1" voltageLevelId2="VLHV2" bus2="NHV2" connectableBus2="NHV2"/>
+</iidm:network>
+```
+</details>
+
+<details>
+<summary>Contingency</summary>
+
+```json lines
+{
+  "type" : "default",
+  "version" : "1.0",
+  "name" : "list",
+  "contingencies" : [{
+    "id" : "contingency1",
+    "elements" : [ {
+      "id" : "NHV1_NHV2_2",
+      "type" : "BRANCH"
+    }]
+  }]
+}
+```
+</details>
+
+<details>
+<summary>Strategies</summary>
+
+```json lines
+{
+  "version" : "1.2",
+  "operatorStrategies" : [ {
+    "id" : "strategy_gen_load",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingency1",
+    "conditionalActions" : [ {
+      "id" : "stage1",
+      "condition" : {
+        "type" : "TRUE_CONDITION"
+      },
+      "actionIds" : [ "decreaseLoadP", "decreaseGenP" ]
+    } ]
+  } ]
+}
+```
+</details> 
+
+<details>
+<summary>Actions</summary>
+
+```json lines
+{
+  "version" : "1.2",
+  "actions" : [
+    {
+      "type" : "LOAD",
+      "id" : "decreaseLoadP",
+      "loadId" : "LOAD",
+      "relativeValue" : false,
+      "activePowerValue" : 250.0
+    }, {
+      "type" : "GENERATOR",
+      "id" : "decreaseGenP",
+      "generatorId" : "GEN",
+      "activePowerRelativeValue" : false,
+      "activePowerValue" : 250.0
+    }
+  ]
+}
+```
+</details>
+
+#### Output
+
+``` shell
+Pre-contingency violations:
++--------+---------------+-----+---------+--------------+----------------+----------------+-------+-------+------------------+----------------+
+| Action | Equipment (0) | End | Country | Base voltage | Violation type | Violation name | Value | Limit | abs(value-limit) | Loading rate % |
++--------+---------------+-----+---------+--------------+----------------+----------------+-------+-------+------------------+----------------+
+Post-contingency limit violations:
++--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+| Contingency  | Status    | Action | Equipment (1) | End   | Country | Base voltage | Violation type | Violation name | Value     | Limit    | abs(value-limit) | Loading rate % |
++--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+| contingency1 | CONVERGED |        | Equipment (1) |       |         |              |                |                |           |          |                  |                |
+|              |           |        | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | permanent      | 1008,9288 | 460,0000 |         548,9288 |         219,33 |
++--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+```
+
+- After adding operator strategies and actions, the simulation result written out by itools does not yet include information about operator strategies remedial action violations.
+- `itools` print:
+  - ✅ Pre-contingency violations
+  - ✅ Post-contingency limit violations
+  - ⬜️ Operator strategy remedial action violations
+- All simulation results are contained in the output result, which can be retrieved using `--output-file` and `--output-format`.
+
+Example
+```shell
+itools security-analysis \
+  --case-file network.xiidm \
+  --contingencies-file contingency.json \
+  --strategies-file strategies.json \
+  --actions-file action-load-gen.json \
+  --output-file "/tmp/result.json" --output-format JSON
+```
+The result shows that no more limit violations exist.
+```json 
+...
+"operatorStrategyResults" : [ {
+    "conditionalActionsResults" : [ {
+      "conditionalActionsId" : "strategy_gen_load",
+      "status" : "CONVERGED",
+      "limitViolationsResult" : {
+        "limitViolations" : [ ],  <== no more limit violations
+        "actionsTaken" : [ ]
+      }
+    }]
+}]
+```
+
+### Example 4
+The following example shows how to run a security analysis simulation with `limit reductions` of a given network.
+
+```shell
+itools security-analysis \
+  --case-file network.xiidm \
+  --limit-reductions-file limit-reductions.json
+```
+
+#### Inputs
+
+<details>
+<summary>Network</summary>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+  <iidm:substation id="P1" country="FR" tso="RTE" geographicalTags="A">
+    <iidm:voltageLevel id="VLGEN" nominalV="24.0" topologyKind="BUS_BREAKER">
+      <iidm:busBreakerTopology>
+        <iidm:bus id="NGEN"/>
+      </iidm:busBreakerTopology>
+      <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
+        <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+      </iidm:generator>
+    </iidm:voltageLevel>
+    <iidm:voltageLevel id="VLHV1" nominalV="380.0" topologyKind="BUS_BREAKER">
+      <iidm:busBreakerTopology>
+        <iidm:bus id="NHV1"/>
+      </iidm:busBreakerTopology>
+    </iidm:voltageLevel>
+    <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" voltageLevelId1="VLGEN" bus1="NGEN" connectableBus1="NGEN" voltageLevelId2="VLHV1" bus2="NHV1" connectableBus2="NHV1"/>
+  </iidm:substation>
+  <iidm:substation id="P2" country="FR" tso="RTE" geographicalTags="B">
+    <iidm:voltageLevel id="VLHV2" nominalV="380.0" topologyKind="BUS_BREAKER">
+      <iidm:busBreakerTopology>
+        <iidm:bus id="NHV2"/>
+      </iidm:busBreakerTopology>
+    </iidm:voltageLevel>
+    <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
+      <iidm:busBreakerTopology>
+        <iidm:bus id="NLOAD"/>
+      </iidm:busBreakerTopology>
+      <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NLOAD" connectableBus="NLOAD"/>
+    </iidm:voltageLevel>
+    <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" voltageLevelId1="VLHV2" bus1="NHV2" connectableBus1="NHV2" voltageLevelId2="VLLOAD" bus2="NLOAD" connectableBus2="NLOAD">
+      <iidm:ratioTapChanger regulating="true" lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulationMode="VOLTAGE" regulationValue="158.0">
+        <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
+        <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191"/>
+        <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>
+        <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914"/>
+      </iidm:ratioTapChanger>
+    </iidm:twoWindingsTransformer>
+  </iidm:substation>
+  <iidm:line id="NHV1_NHV2_1" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" voltageLevelId1="VLHV1" bus1="NHV1" connectableBus1="NHV1" voltageLevelId2="VLHV2" bus2="NHV2" connectableBus2="NHV2" selectedOperationalLimitsGroupId1="DEFAULT">
+    <iidm:operationalLimitsGroup1 id="DEFAULT">
+      <iidm:currentLimits permanentLimit="460"/>
+    </iidm:operationalLimitsGroup1>
+  </iidm:line>
+  <iidm:line id="NHV1_NHV2_2" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" voltageLevelId1="VLHV1" bus1="NHV1" connectableBus1="NHV1" voltageLevelId2="VLHV2" bus2="NHV2" connectableBus2="NHV2"/>
+</iidm:network>
+```
+</details>
+
+<details>
+<summary>Limit Reductions: reduce the current limit of NHV1_NHV2_1 by 10%</summary>
+
+```json lines
+{
+  "version": "1.0",
+  "limitReductions": [
+    {
+      "value": 0.9,
+      "limitType": "CURRENT",
+      "monitoringOnly": false,
+      "contingencyContext": {
+        "contextType": "ALL"
+      }
+    }
+  ]
+}
+```
+</details>
+
+#### Output
+The reduction affect results as pre-contingency violations
+``` shell
+Pre-contingency violations:
++--------+---------------+-------+---------+--------------+----------------+----------------+----------+----------+------------------+----------------+
+| Action | Equipment (1) | End   | Country | Base voltage | Violation type | Violation name | Value    | Limit    | abs(value-limit) | Loading rate % |
++--------+---------------+-------+---------+--------------+----------------+----------------+----------+----------+------------------+----------------+
+|        | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | permanent      | 456,7690 | 414,0000 |          42,7690 |          99,30 |
++--------+---------------+-------+---------+--------------+----------------+----------------+----------+----------+------------------+----------------+
+```
 ***
 
 <span style="color: red">TODO</span>: to be clean and completed with the following information
