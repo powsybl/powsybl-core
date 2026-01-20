@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,7 +77,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
         Options options = command.getOptions();
-        assertCommand(command, "security-analysis", 16, 1);
+        assertCommand(command, "security-analysis", 17, 1);
         assertOption(options, "case-file", true, true);
         assertOption(options, "parameters-file", false, true);
         assertOption(options, "limit-types", false, true);
@@ -91,6 +92,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
         assertOption(options, "monitoring-file", false, true);
         assertOption(options, "strategies-file", false, true);
         assertOption(options, "actions-file", false, true);
+        assertOption(options, "limit-reductions-file", false, true);
     }
 
     @Test
@@ -268,14 +270,14 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     @Test
     void shouldSucceedParseStrategiesFile() throws IOException {
         //Given
-        byte[] strategiesBytes;
-        try (var is = getClass().getResourceAsStream("/OperatorStrategyFileTest.json")) {
+        byte[] operatorStrategiesBytes;
+        try (InputStream is = getClass().getResourceAsStream("/OperatorStrategyFileTest.json")) {
             assertNotNull(is);
-            strategiesBytes = is.readAllBytes();
+            operatorStrategiesBytes = is.readAllBytes();
         }
-        Files.write(fileSystem.getPath("strategies.json"), strategiesBytes);
+        Files.write(fileSystem.getPath("strategies"), operatorStrategiesBytes);
+        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.STRATEGIES_FILE, "strategies"));
         //When
-        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.STRATEGIES_FILE, "strategies.json"));
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
         tool.updateInput(options, input);
         //Then
@@ -286,17 +288,34 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     void shouldSucceedParseActionsFile() throws IOException {
         //Given
         byte[] actionsBytes;
-        try (var is = getClass().getResourceAsStream("/ActionFileTest.json")) {
+        try (InputStream is = getClass().getResourceAsStream("/ActionFileTest.json")) {
             assertNotNull(is);
             actionsBytes = is.readAllBytes();
         }
-        Files.write(fileSystem.getPath("actions.json"), actionsBytes);
+        Files.write(fileSystem.getPath("actions"), actionsBytes);
+        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.ACTIONS_FILE, "actions"));
         //When
-        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.ACTIONS_FILE, "actions.json"));
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
         tool.updateInput(options, input);
         //Then
         assertThat(input.getActions()).isNotEmpty();
+    }
+
+    @Test
+    void shouldSucceedParseLimitReductionsFile() throws IOException {
+        //Given
+        byte[] limitReductionsBytes;
+        try (InputStream is = getClass().getResourceAsStream("/LimitReductions.json")) {
+            assertNotNull(is);
+            limitReductionsBytes = is.readAllBytes();
+        }
+        Files.write(fileSystem.getPath("limit-reductions"), limitReductionsBytes);
+        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_REDUCTIONS_FILE, "limit-reductions"));
+        //When
+        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
+        tool.updateInput(options, input);
+        //Then
+        assertThat(input.getLimitReductions()).isNotEmpty();
     }
 
     @AutoService(SecurityAnalysisProvider.class)
