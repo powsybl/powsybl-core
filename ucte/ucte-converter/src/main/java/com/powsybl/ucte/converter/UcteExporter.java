@@ -29,9 +29,13 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Supplier;
 
+import static com.powsybl.ucte.converter.export.elements.GeneratorUcteExport.convertGenerators;
 import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
 
@@ -179,9 +183,6 @@ public class UcteExporter implements Exporter {
     private static void convertBus(UcteNetwork ucteNetwork, Bus bus, UcteExporterContext context) {
         LOGGER.trace("Converting bus {}", bus.getId());
 
-        if (bus.getGeneratorStream().count() > 1) {
-            throw new UcteException("Too many generators connected to this bus");
-        }
         if (bus.getLoadStream().count() > 1) {
             throw new UcteException("Too many loads connected to this bus");
         }
@@ -235,66 +236,6 @@ public class UcteExporter implements Exporter {
         }
         ucteNode.setActiveLoad(activeLoad);
         ucteNode.setReactiveLoad(reactiveLoad);
-    }
-
-    /**
-     * Initialize the power generation fields from the generators connected to the specified bus.
-     *
-     * @param ucteNode The UCTE node to fill
-     * @param bus The bus the generators are connected to
-     */
-    private static void convertGenerators(UcteNode ucteNode, Bus bus) {
-        double activePowerGeneration = -0.0;
-        double reactivePowerGeneration = -0.0;
-        double voltageReference = Double.NaN;
-        double minP = Double.NaN;
-        double maxP = Double.NaN;
-        double minQ = Double.NaN;
-        double maxQ = Double.NaN;
-        UcteNodeTypeCode nodeType = UcteNodeTypeCode.PQ;
-        UctePowerPlantType powerPlantType = null;
-        for (Generator generator : bus.getGenerators()) {
-            if (!Double.isNaN(generator.getTargetP())) {
-                activePowerGeneration += generator.getTargetP();
-            }
-            if (!Double.isNaN(generator.getTargetQ())) {
-                reactivePowerGeneration += generator.getTargetQ();
-            }
-            if (!Double.isNaN(generator.getTargetV())) {
-                // FIXME(mathbagu): what if not all the generators have the same targetV?
-                // Should we use bus.getV() instead?
-                voltageReference = generator.getTargetV();
-            }
-            if (generator.isVoltageRegulatorOn()) {
-                nodeType = UcteNodeTypeCode.PU;
-            }
-            minP = generator.getMinP();
-            maxP = generator.getMaxP();
-            // FIXME(mathbagu): how to get minQ and maxQ for an aggregated generator
-            minQ = generator.getReactiveLimits().getMinQ(activePowerGeneration);
-            maxQ = generator.getReactiveLimits().getMaxQ(activePowerGeneration);
-
-            // FIXME(mathbagu): what if not all the generators have the same energy source?
-            powerPlantType = energySourceToUctePowerPlantType(generator);
-        }
-        ucteNode.setActivePowerGeneration(activePowerGeneration != 0 ? -activePowerGeneration : 0);
-        ucteNode.setReactivePowerGeneration(reactivePowerGeneration != 0 ? -reactivePowerGeneration : 0);
-        ucteNode.setVoltageReference(voltageReference);
-        ucteNode.setPowerPlantType(powerPlantType);
-        ucteNode.setTypeCode(nodeType);
-        // FIXME(mathbagu): to be changed in UcteImporter?
-        if (minP != -DEFAULT_POWER_LIMIT) {
-            ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
-        }
-        if (maxP != DEFAULT_POWER_LIMIT) {
-            ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
-        }
-        if (minQ != -DEFAULT_POWER_LIMIT) {
-            ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
-        }
-        if (maxQ != DEFAULT_POWER_LIMIT) {
-            ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
-        }
     }
 
     /**
@@ -788,24 +729,6 @@ public class UcteExporter implements Exporter {
         } else {
             ucteLine.setCurrentLimit(null);
             LOGGER.warn("Switch {}: No current limit provided", sw.getId());
-        }
-    }
-
-    private static UctePowerPlantType energySourceToUctePowerPlantType(Generator generator) {
-        if (generator.hasProperty(POWER_PLANT_TYPE_PROPERTY_KEY)) {
-            return UctePowerPlantType.valueOf(generator.getProperty(POWER_PLANT_TYPE_PROPERTY_KEY));
-        }
-        switch (generator.getEnergySource()) {
-            case HYDRO:
-                return UctePowerPlantType.H;
-            case NUCLEAR:
-                return UctePowerPlantType.N;
-            case THERMAL:
-                return UctePowerPlantType.C;
-            case WIND:
-                return UctePowerPlantType.W;
-            default:
-                return UctePowerPlantType.F;
         }
     }
 
