@@ -470,9 +470,9 @@ public class Conversion {
 
     public static String getDanglingLineBoundaryNode(DanglingLine dl) {
         String node;
-        node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
+        node = dl.getProperty(PROPERTY_CONNECTIVITY_NODE_BOUNDARY);
         if (node == null) {
-            node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+            node = dl.getProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY);
         }
         if (node == null) {
             LOG.warn("Dangling line {} does not have a boundary node identifier.", dl.getId());
@@ -1168,6 +1168,7 @@ public class Conversion {
     public static final String PROPERTY_OPERATIONAL_LIMIT_SET_RDFID = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetRdfID";
     public static final String PROPERTY_CGMES_REGULATION_CAPABILITY = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATION_CAPABILITY;
     public static final String PROPERTY_CGMES_DC_CONVERTER_UNIT = CGMES_PREFIX_ALIAS_PROPERTIES + "DCConverterUnit";
+    public static final String PROPERTY_CONNECTIVITY_NODE_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + CONNECTIVITY_NODE_BOUNDARY;
     public static final String PROPERTY_EQUIVALENT_INJECTION = CGMES_PREFIX_ALIAS_PROPERTIES + EQUIVALENT_INJECTION;
     public static final String PROPERTY_EQUIVALENT_INJECTION_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + EQUIVALENT_INJECTION_TERMINAL;
     public static final String PROPERTY_GENERATING_UNIT = CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT;
@@ -1175,4 +1176,5 @@ public class Conversion {
     public static final String PROPERTY_REGION_NAME = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME;
     public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL;
     public static final String PROPERTY_SUB_REGION_ID = CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID;
+    public static final String PROPERTY_TOPOLOGICAL_NODE_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + TOPOLOGICAL_NODE_BOUNDARY;
 }
