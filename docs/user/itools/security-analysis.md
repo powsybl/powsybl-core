@@ -1,38 +1,43 @@
 # iTools security-analysis
 
-The `security-analysis` command loads a grid file and run a [security analysis](../../simulation/security/index.md) simulation, to detect security violations on pre- or post-contingencies states. At the end of the simulation, the results are printed or exported to a file.
+The `security-analysis` command loads a grid file and runs a [security analysis](../../simulation/security/index.md) simulation, to detect security violations on pre- or post-contingencies states. At the end of the simulation, the results are printed or exported to a file.
 
 ## Usage
 ```
 $> itools security-analysis --help
-usage: itools [OPTIONS] security-analysis --case-file <FILE>
-       [--contingencies-file <FILE>] [--external] [--help] [-I <property=value>]
-       [--import-parameters <IMPORT_PARAMETERS>] [--limit-types <LIMIT-TYPES>]
-       [--log-file <FILE>] [--output-file <FILE>] [--output-format <FORMAT>]
-       [--parameters-file <FILE>] [--skip-postproc] [--with-extensions
-       <EXTENSIONS>]
+usage: itools [OPTIONS] security-analysis [--actions-file <FILE>] --case-file
+       <FILE> [--contingencies-file <FILE>] [--external] [--help] [-I
+       <property=value>] [--import-parameters <IMPORT_PARAMETERS>]
+       [--limit-reductions-file <FILE>] [--limit-types <LIMIT-TYPES>]
+       [--log-file <FILE>] [--monitoring-file <FILE>] [--output-file <FILE>]
+       [--output-format <FORMAT>] [--parameters-file <FILE>] [--strategies-file
+       <FILE>] [--with-extensions <EXTENSIONS>]
 
 Available options are:
     --config-name <CONFIG_NAME>   Override configuration file name
 
 Available arguments are:
+    --actions-file <FILE>                     actions file (.json)
     --case-file <FILE>                        the case path
     --contingencies-file <FILE>               the contingencies path
     --external                                external execution
     --help                                    display the help and quit
  -I <property=value>                          use value for given importer
                                               parameter
-    --import-parameters <IMPORT_PARAMETERS>   the importer configuation file
+    --import-parameters <IMPORT_PARAMETERS>   the importer configuration file
+    --limit-reductions-file <FILE>            limit reductions file (.json)
     --limit-types <LIMIT-TYPES>               limit type filter (all if not set)
     --log-file <FILE>                         log output path (.zip)
+    --monitoring-file <FILE>                  monitoring file (.json) to get
+                                              network's infos after computation
     --output-file <FILE>                      the output path
     --output-format <FORMAT>                  the output format [JSON]
     --parameters-file <FILE>                  loadflow parameters as JSON file
-    --skip-postproc                           skip network importer post
-                                              processors (when configured)
+    --strategies-file <FILE>                  operator strategies file (.json)
     --with-extensions <EXTENSIONS>            the extension list to enable
 
-Allowed LIMIT-TYPES values are [CURRENT, LOW_VOLTAGE, HIGH_VOLTAGE,
+Allowed LIMIT-TYPES values are [ACTIVE_POWER, APPARENT_POWER, CURRENT,
+LOW_VOLTAGE, HIGH_VOLTAGE, LOW_VOLTAGE_ANGLE, HIGH_VOLTAGE_ANGLE,
 LOW_SHORT_CIRCUIT_CURRENT, HIGH_SHORT_CIRCUIT_CURRENT, OTHER]
 Allowed EXTENSIONS values are []
 ```
@@ -46,6 +51,68 @@ This option defines the path of the case file on which the power flow simulation
 
 `--contingencies-file`<br>
 This option defines the path of the contingency files. If this parameter is not set, the security violations are checked on the base state only. This file is a groovy script that respects the [contingency DSL](../../simulation/security/contingency-dsl.md) syntax.
+
+The supported format depends on the configured `ContingenciesProviderFactory` (see the [`componentDefaultConfig`](../configuration/componentDefaultConfig.md) module):
+- Groovy DSL: script that respects the [contingency DSL](../../simulation/security/contingency-dsl.md) syntax
+- JSON: a contingencies list (type `ContingencyList`) — minimal example below.
+
+
+**Example of JSON contingencies**
+```json
+{
+  "type" : "default",
+  "version" : "1.0",
+  "name" : "list",
+  "contingencies" : [{
+    "id" : "contingency1",
+    "elements" : [ {
+      "id" : "NHV1_NHV2_2",
+      "type" : "BRANCH"
+    }]
+  }]
+}
+```
+
+`--strategies-file`  
+Path to a JSON file describing operator strategies (sets of “conditional actions” triggered under some conditions, in a contingency context).
+
+**Exemple minimal (operator strategies JSON)**
+```json
+{
+  "version" : "1.2",
+  "operatorStrategies" : [ {
+    "id" : "strategy_reclose_line2_on_any_current_violation",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingency1",
+    "conditionalActions" : [ {
+      "id" : "stage1",
+      "condition" : {
+        "type" : "ANY_VIOLATION_CONDITION",
+        "filters" : [ "CURRENT" ]
+      },
+      "actionIds" : [ "recloseLine2" ]
+    } ]
+  } ]
+}
+```
+`--actions-file`  
+Path to a JSON file describing the available actions. These actions can then be referenced by operator strategies through their `actionIds`.
+
+**Minimal example (actions JSON)**
+```json
+{
+  "version" : "1.2",
+  "actions" : [ {
+    "type" : "TERMINALS_CONNECTION",
+    "id" : "recloseLine2",
+    "elementId" : "NHV1_NHV2_2",
+    "open" : false
+  } ]
+}
+```
+
+`--limit-reductions-file`  
+Path to a JSON file defining limit reductions. See [Limit reductions](../../simulation/security/limit-reductions.md) for principles and details.
 
 `--external`<br>
 <span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.
