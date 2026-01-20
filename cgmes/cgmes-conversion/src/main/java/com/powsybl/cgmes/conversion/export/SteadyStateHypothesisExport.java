@@ -117,9 +117,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeTerminalForDanglingLines(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             // Terminal for equivalent injection at boundary is always connected
-            if (dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal") != null) {
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), true, cimNamespace, writer, context);
-            }
+            writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), true, cimNamespace, writer, context);
             // Terminal for boundary side of original line/switch is always connected
             writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(dl, ALIAS_TERMINAL_BOUNDARY), true, cimNamespace, writer, context);
         }
@@ -163,10 +161,8 @@ public final class SteadyStateHypothesisExport {
         List<String> exported = new ArrayList<>();
 
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
-            String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
-            if (!exported.contains(ei) && ei != null) {
-                // Ensure equivalent injection identifier is valid
-                String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
+            String equivalentInjectionId = context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION);
+            if (!exported.contains(equivalentInjectionId)) {
                 // regulationStatus and regulationTarget are optional,
                 // but test cases contain the attributes with disabled and 0
                 boolean regulationStatus = false;
@@ -175,8 +171,8 @@ public final class SteadyStateHypothesisExport {
                     regulationStatus = dl.getGeneration().isVoltageRegulationOn();
                     regulationTarget = dl.getGeneration().getTargetV();
                 }
-                writeEquivalentInjection(cgmesId, dl.getP0(), dl.getQ0(), regulationStatus, regulationTarget, cimNamespace, writer, context);
-                exported.add(ei);
+                writeEquivalentInjection(equivalentInjectionId, dl.getP0(), dl.getQ0(), regulationStatus, regulationTarget, cimNamespace, writer, context);
+                exported.add(equivalentInjectionId);
             }
         }
     }

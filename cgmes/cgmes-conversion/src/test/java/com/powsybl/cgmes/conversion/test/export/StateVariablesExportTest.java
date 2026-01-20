@@ -577,10 +577,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
-        // Ensure all information in IIDM mapping extensions is created
-        // Some mappings are not built until export is requested
-        new CgmesExportContext().addIidmMappings(expected0);
-
         // Export to XIIDM and re-import to test serialization of CGMES-IIDM extension
         NetworkSerDe.write(expected0, tmpDir.resolve("temp.xiidm"));
         Network expected = NetworkSerDe.read(tmpDir.resolve("temp.xiidm"));

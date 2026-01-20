@@ -401,8 +401,8 @@ public final class StateVariablesExport {
                 writeIdentifiableTerminalPowerFlow(dl, ALIAS_TERMINAL_BOUNDARY, dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
             }
             writeTerminalPowerFlow(dl.getTerminal(), cimNamespace, writer, context);
-            equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
-            equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
+            equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
+            equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
         });
         equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
 
