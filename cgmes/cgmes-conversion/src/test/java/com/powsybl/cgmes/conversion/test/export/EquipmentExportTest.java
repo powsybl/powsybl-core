@@ -57,6 +57,8 @@ import java.util.*;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_EQUIVALENT_INJECTION;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_EQUIVALENT_INJECTION_TERMINAL;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerAliasType;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getRatioTapChangerAliasType;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
@@ -185,8 +187,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         // Remove aliases of equivalent injections, so they will have to be created during export
         for (DanglingLine danglingLine : expected.getDanglingLines(DanglingLineFilter.ALL)) {
-            danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
-            danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            danglingLine.removeProperty(PROPERTY_EQUIVALENT_INJECTION);
+            danglingLine.removeProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
         }
         Network actual = exportImportBusBranch(expected, dataSource);
         assertTrue(compareNetworksEQdata(expected, actual));

@@ -247,7 +247,6 @@ public class CgmesExportContext {
         // TODO add option to skip this part (if from CGMES)
         addIidmMappingsSubstations(network);
         addIidmMappingsBaseVoltages(network);
-        addIidmMappingsEquivalentInjection(network);
     }
 
     private void addIidmMappingsSubstations(Network network) {
@@ -350,22 +349,6 @@ public class CgmesExportContext {
                     || isBusBranchExport() && !hasDifferentTNsAtBothEnds(sw);
         }
         return !ignored;
-    }
-
-    private void addIidmMappingsEquivalentInjection(Network network) {
-        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.ALL)) {
-            String alias;
-            alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
-            if (alias == null) {
-                String equivalentInjectionId = namingStrategy.getCgmesId(refTyped(danglingLine), EQUIVALENT_INJECTION);
-                danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, equivalentInjectionId);
-            }
-            alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
-            if (alias == null) {
-                String equivalentInjectionTerminalId = namingStrategy.getCgmesId(refTyped(danglingLine), EQUIVALENT_INJECTION, TERMINAL);
-                danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", equivalentInjectionTerminalId);
-            }
-        }
     }
 
     public int getCimVersion() {
