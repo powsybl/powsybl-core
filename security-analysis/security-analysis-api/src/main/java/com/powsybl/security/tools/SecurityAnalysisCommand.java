@@ -118,6 +118,11 @@ public class SecurityAnalysisCommand implements Command {
                 .hasArg()
                 .argName("FILE")
                 .build());
+        options.addOption(Option.builder().longOpt(LIMIT_REDUCTIONS_FILE)
+                .desc("limit reductions file (.json)")
+                .hasArg()
+                .argName("FILE")
+                .build());
         return options;
     }
 
