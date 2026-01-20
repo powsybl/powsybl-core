@@ -237,11 +237,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
         Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> {
             if (isTopologicalNodeDefinedAtBoundary(tn, boundarySide)) {
-                dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn);
+                dl.setProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY, tn);
             }
         });
 
-        Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn));
+        Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn -> dl.setProperty(PROPERTY_CONNECTIVITY_NODE_BOUNDARY, cn));
         setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
@@ -413,7 +413,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     private static String getTopologicalNodeIdOnBoundarySide(DanglingLine danglingLine, Context context) {
-        String topologicalNodeIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        String topologicalNodeIdOnBoundarySide = danglingLine.getProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY);
         if (topologicalNodeIdOnBoundarySide != null) {
             return topologicalNodeIdOnBoundarySide;
         }

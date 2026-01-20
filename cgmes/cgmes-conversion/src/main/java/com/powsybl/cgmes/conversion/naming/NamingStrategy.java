@@ -70,6 +70,7 @@ public interface NamingStrategy {
             case PROPERTY_EQUIVALENT_INJECTION_TERMINAL -> new CgmesObjectReference[] {refTyped(identifiable), EQUIVALENT_INJECTION, TERMINAL};
             case PROPERTY_GENERATING_UNIT -> getGeneratingUnitReferences(identifiable);
             case PROPERTY_REGULATING_CONTROL -> new CgmesObjectReference[] {ref(identifiable), REGULATING_CONTROL};
+            case PROPERTY_TOPOLOGICAL_NODE_BOUNDARY -> new CgmesObjectReference[] {refTyped(identifiable), TOPOLOGICAL_NODE};
             default -> throw new IllegalStateException("Unexpected value: " + aliasOrProperty);
         };
     }

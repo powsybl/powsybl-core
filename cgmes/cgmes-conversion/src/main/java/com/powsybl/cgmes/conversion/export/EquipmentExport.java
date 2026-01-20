@@ -1054,7 +1054,6 @@ public final class EquipmentExport {
             throw new PowsyblException("Paired danglingLines with different connectivityNode on the boundarySide. ParingKey: " + danglingLineList.get(0).getPairingKey());
         } else if (connectevityNodeIdSet.size() == 1) {
             connectivityNodeId = connectevityNodeIdSet.iterator().next();
-            setDanglingLinesProperty(danglingLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
         } else {
             // If no information about original boundary has been preserved in the IIDM model,
             // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
@@ -1067,23 +1066,14 @@ public final class EquipmentExport {
 
             String connectivityNodeContainerId = createFictitiousContainerFor(danglingLineList, baseVoltageId, cimNamespace, writer, context);
             ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
-            setDanglingLinesProperty(danglingLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
         }
         return connectivityNodeId;
     }
 
     private static Optional<String> obtainConnectivityNodeId(DanglingLine danglingLine, CgmesExportContext context) {
-        return danglingLine.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY)
-                ? Optional.of(context.getNamingStrategy().getCgmesIdFromProperty(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY))
+        return danglingLine.hasProperty(PROPERTY_CONNECTIVITY_NODE_BOUNDARY)
+                ? Optional.of(context.getNamingStrategy().getCgmesIdFromProperty(danglingLine, PROPERTY_CONNECTIVITY_NODE_BOUNDARY))
                 : Optional.empty();
-    }
-
-    private static void setDanglingLinesProperty(List<DanglingLine> danglingLineList, String propertyKey, String connectivityNodeId) {
-        danglingLineList.forEach(danglingLine -> {
-            if (!danglingLine.hasProperty(propertyKey)) {
-                danglingLine.setProperty(propertyKey, connectivityNodeId);
-            }
-        });
     }
 
     private static void writeDanglingLinesFictitiousContainer(List<DanglingLine> danglingLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
@@ -1096,10 +1086,7 @@ public final class EquipmentExport {
 
         if (topologicalNodeIdSet.size() > 1) { // Only in paired danglingLines
             throw new PowsyblException("Paired danglingLines with different topologicalNode on the boundarySide. ParingKey: " + danglingLineList.get(0).getPairingKey());
-        } else if (topologicalNodeIdSet.size() == 1) {
-            String topologicalNodeId = topologicalNodeIdSet.iterator().next();
-            setDanglingLinesProperty(danglingLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, topologicalNodeId);
-        } else {
+        } else if (topologicalNodeIdSet.isEmpty()) {
             // Also create a container if we will have to create a Topological Node for the boundary
             if (LOG.isInfoEnabled()) {
                 LOG.info("Dangling line(s) not connected to a topology node in boundaries files: a fictitious substation and voltage level are created: {}", danglingLinesId(danglingLineList));
@@ -1109,8 +1096,8 @@ public final class EquipmentExport {
     }
 
     private static Optional<String> obtainTopologicalNodeId(DanglingLine danglingLine) {
-        return danglingLine.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)
-                ? Optional.of(danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY))
+        return danglingLine.hasProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY)
+                ? Optional.of(danglingLine.getProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY))
                 : Optional.empty();
     }
 
