@@ -33,7 +33,9 @@ import java.util.function.Supplier;
 public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrategy> {
 
     private static final String CONTEXT_NAME = "OperatorStrategy";
-    private static final String TAG_CONTINGENCY_STATUS = "Tag: contingencyStatus";
+    private static final String TAG_CONDITIONAL_ACTIONS = "Tag: conditionalActions";
+    private static final String TAG_CONDITION = "Tag: condition";
+    private static final String TAG_ACTION_IDS = "Tag: actionIds";
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
     public OperatorStrategyDeserializer() {
@@ -76,20 +78,20 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     return true;
                 case "conditionalActions":
                     parser.nextToken();
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG_CONTINGENCY_STATUS,
-                            context.version, "1.5");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG_CONDITIONAL_ACTIONS,
+                            context.version, "1.1");
                     context.stages = JsonUtil.readList(deserializationContext, parser, ConditionalActions.class);
                     return true;
                 case "condition":
                     parser.nextToken();
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, TAG_CONTINGENCY_STATUS,
-                            context.version, "1.4");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, TAG_CONDITION,
+                            context.version, "1.0");
                     context.condition = JsonUtil.readValue(deserializationContext, parser, Condition.class);
                     return true;
                 case "actionIds":
                     parser.nextToken();
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, TAG_CONTINGENCY_STATUS,
-                            context.version, "1.4");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, TAG_ACTION_IDS,
+                            context.version, "1.0");
                     context.actionIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     return true;
                 case "extensions":
@@ -106,7 +108,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
         ContingencyContext contingencyContext = new ContingencyContext(context.contingencyId,
                 context.contingencyContextType != null ? context.contingencyContextType : ContingencyContextType.SPECIFIC);
         OperatorStrategy strategy;
-        if (context.version.compareTo("1.5") < 0) {
+        if (context.version.compareTo("1.1") < 0) {
             strategy = new OperatorStrategy(context.id, contingencyContext, context.condition, context.actionIds);
         } else {
             strategy = new OperatorStrategy(context.id, contingencyContext, context.stages);

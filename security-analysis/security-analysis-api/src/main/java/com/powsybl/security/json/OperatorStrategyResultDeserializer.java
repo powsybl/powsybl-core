@@ -50,7 +50,22 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
             switch (parser.currentName()) {
                 case "operatorStrategy":
                     parser.nextToken();
+                    // operator strategies are independent of security analysis, we need to shift to operator strategy
+                    // version values
+                    // <= 1.4 -> 1.0
+                    // between 1.5 and 1.7 -> 1.1
+                    // >= 1.8 -> 1.2
+                    String operatorStrategyVersion;
+                    if (version.compareTo("1.4") <= 0) {
+                        operatorStrategyVersion = "1.0";
+                    } else if (version.compareTo("1.5") >= 0 && version.compareTo("1.7") <= 0) {
+                        operatorStrategyVersion = "1.1";
+                    } else {
+                        operatorStrategyVersion = "1.2";
+                    }
+                    JsonUtil.setSourceVersion(deserializationContext, operatorStrategyVersion, SOURCE_VERSION_ATTRIBUTE);
                     operatorStrategy = JsonUtil.readValue(deserializationContext, parser, OperatorStrategy.class);
+                    JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE); // restore
                     break;
 
                 case "limitViolationsResult":
