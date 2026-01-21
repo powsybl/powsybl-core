@@ -111,7 +111,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
             .allSatisfy(l -> {
-                org.junit.jupiter.api.Assertions.assertEquals(LimitViolationType.HIGH_VOLTAGE, violationsCollector.get(0).getLimitType());
+                assertEquals(LimitViolationType.HIGH_VOLTAGE, violationsCollector.get(0).getLimitType());
                 assertEquals(620.0, violationsCollector.get(0).getValue());
                 assertEquals(500, violationsCollector.get(0).getLimit());
                 assertEquals("VLHV2", violationsCollector.get(0).getSubjectId());
