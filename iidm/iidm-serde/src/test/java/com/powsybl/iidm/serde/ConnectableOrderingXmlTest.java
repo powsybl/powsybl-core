@@ -8,24 +8,30 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
 
+        @Test
+    void testOK() throws IOException {
+        ExportOptions exportOptions = new ExportOptions();
+        roundTripTest(Network.read("/twtOrderingOk.xiidm", getNetworkAsStream("/twtOrderingOk.xiidm")),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                "/twtOrderingOk.xiidm");
+    }
+
     @Test
-    void test() throws IOException {
+    void testKO() throws IOException {
         ExportOptions exportOptions = new ExportOptions();
         roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),
-                Network::read,
+                NetworkSerDe::validateAndRead,
                 "/twtOrdering.xiidm");
     }
 }
