@@ -24,14 +24,14 @@ public interface LineFortescue extends Extension<Line> {
     }
 
     /**
-     * The zero sequence resistance of the line.
+     * The zero-sequence resistance of the line.
      */
     double getRz();
 
     void setRz(double rz);
 
     /**
-     * The zero sequence reactance of the line.
+     * The zero-sequence reactance of the line.
      */
     double getXz();
 
