@@ -22,14 +22,12 @@ The chosen implementations are:
 ```yaml
 componentDefaultConfig:
     ContingenciesProviderFactory: com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory
-    SecurityAnalysisFactory: com.powsybl.security.SecurityAnalysisFactoryImpl
 ```
 
 **XML configuration**
 ```xml
 <componentDefaultConfig>
     <ContingenciesProviderFactory>com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory</ContingenciesProviderFactory>
-    <SecurityAnalysisFactory>com.powsybl.security.SecurityAnalysisFactoryImpl</SecurityAnalysisFactory>
 </componentDefaultConfig>
 ```
 
