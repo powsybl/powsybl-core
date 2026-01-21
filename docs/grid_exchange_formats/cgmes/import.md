@@ -695,23 +695,23 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
 
 
-**iidm.import.cgmes.boundary-location**
+**iidm.import.cgmes.boundary-location**<br>
 Optional property that defines the directory path where the CGMES importer can find the boundary files (`EQBD` and `TPBD` profiles) if they are not present in the imported zip file. By default, its value is `<ITOOLS_CONFIG_DIR>/CGMES/boundary`.
 This property can also be used at CGMES export if the network was not imported from a CGMES to indicate the boundary files that should be used for reference.
 
-**iidm.import.cgmes.convert-boundary**
+**iidm.import.cgmes.convert-boundary**<br>
 Optional property that defines if the equipment located inside the boundary is imported as part of the network. Used for debugging purposes. `false` by default.
 
-**iidm.import.cgmes.convert-sv-injections**
+**iidm.import.cgmes.convert-sv-injections**<br>
 Optional property that defines if `SvInjection` objects are converted to IIDM loads. `true` by default.
 
-**iidm.import.cgmes.create-active-power-control-extension**
+**iidm.import.cgmes.create-active-power-control-extension**<br>
 Optional property that defines if active power control extensions are created for the converted generators. `true` by default. If `true`, the extension will be created for the CGMES `SynchronousMachines` with the attribute `normalPF` defined. For these generators, the `normalPF` value will be saved as the `participationFactor` and the flag `participate` set to `true`.
 
-**iidm.import.cgmes.create-busbar-section-for-every-connectivity-node**
+**iidm.import.cgmes.create-busbar-section-for-every-connectivity-node**<br>
 Optional property that defines if the CGMES importer creates an [IIDM Busbar Section](../../grid_model/network_subnetwork.md#busbar-section) for each CGMES connectivity node. Used for debugging purposes. `false` by default.
 
-**iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode**
+**iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode**<br>
 Optional property that defines if fictitious switches are created when terminals are disconnected in CGMES node-breaker networks.
 Three modes are available:
 - `ALWAYS`: fictitious switches are created at every disconnected terminal.
@@ -720,74 +720,74 @@ Three modes are available:
 
 The default value is `ALWAYS`.
 
-**iidm.import.cgmes.decode-escaped-identifiers**
+**iidm.import.cgmes.decode-escaped-identifiers**<br>
 Optional property that defines if identifiers containing escaped characters are decoded when CGMES files are read. `true` by default.
 
-**iidm.import.cgmes.ensure-id-alias-unicity**
+**iidm.import.cgmes.ensure-id-alias-unicity**<br>
 Optional property that defines if IDs' and aliases' unicity is ensured during CGMES import. If it is set to `true`, identical CGMES IDs will be modified to be unique. If it is set to `false`, identical CGMES IDs will throw an exception. `false` by default.
 
-**iidm.import.cgmes.import-control-areas**
+**iidm.import.cgmes.import-control-areas**<br>
 Optional property that defines if control areas must be imported or not. `true` by default.
 
-**iidm.import.cgmes.naming-strategy**
+**iidm.import.cgmes.naming-strategy**<br>
 Optional property that defines which naming strategy is used to transform CGMES identifiers to IIDM identifiers. Currently, all naming strategies assign CGMES Ids directly to IIDM Ids during import, without any transformation. The default value is `identity`.
 You can also define a custom naming strategy by implementing the `NamingStrategy` interface on your own project and declare
 a `NamingStrategyProvider` that can be automatically discovered. Then in this parameter, you can specify the name of the provider.
 
-**iidm.import.cgmes.post-processors**
+**iidm.import.cgmes.post-processors**<br>
 Optional property that defines all the CGMES post-processors which will be activated after import.
 By default, it is an empty list.
 One implementation of such a post-processor is available in PowSyBl in the [powsybl-diagram](https://github.com/powsybl/powsybl-diagram) repository, named [CgmesDLImportPostProcessor](./post_processor.md#cgmesdlimportpostprocessor).
 
-**iidm.import.cgmes.powsybl-triplestore**
+**iidm.import.cgmes.powsybl-triplestore**<br>
 Optional property that defines which Triplestore implementation is used. Currently, PowSyBl only supports [RDF4J](https://rdf4j.org/). `rdf4j` by default.
 
-**iidm.import.cgmes.source-for-iidm-id**
+**iidm.import.cgmes.source-for-iidm-id**<br>
 Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID` (master resource identifier) or the CGMES `rdfID` (Resource Description Framework identifier). The default value is `mRID`.
 
-**iidm.import.cgmes.store-cgmes-model-as-network-extension**
+**iidm.import.cgmes.store-cgmes-model-as-network-extension**<br>
 Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](import.md#cgmes-model). The default value is `true`.
 
-**iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension**
+**iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension**<br>
 Optional property that defines if the CGMES conversion context is stored as an extension of the IIDM output network. It is useful for external validation of the mapping made between CGMES and IIDM. Its default value is `false`.
 
-**iidm.import.cgmes.use-detailed-dc-model**
+**iidm.import.cgmes.use-detailed-dc-model**<br>
 Optional property that defines which IIDM DC model should be populated at import. Set to `true` to import DC objects into the detailed DC model, `false` to import into the reduced DC model. The default value is `false`.
 
-**iidm.import.cgmes.import-node-breaker-as-bus-breaker**
+**iidm.import.cgmes.import-node-breaker-as-bus-breaker**<br>
 Optional property that forces CGMES model to be in topology bus/breaker in IIDM. This is a key feature when some models do not have all the breakers to connect and disconnect equipments in IIDM. In bus/breaker topology, connect and disconnect equipment only rely on terminal statuses and not on breakers. Its default value is `false`.
 
-**iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected**
+**iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected**<br>
 Optional property used at CGMES import that disconnects the IIDM dangling line if in the CGMES model the line is open at the boundary side. As IIDM does not have any equivalence for that, this is an approximation. Its default value is `false`.
 
-**iidm.import.cgmes.missing-permanent-limit-percentage**
+**iidm.import.cgmes.missing-permanent-limit-percentage**<br>
 Optional property used when in operational limits, temporary limits are present and the permanent limit is missing as it is forbidden in IIDM. The missing permanent limit is equal to a percentage of the lowest temporary limit, with the percentage defined by the value of this property if present, `100` by default.
 
-**iidm.import.cgmes.cgm-with-subnetworks**
+**iidm.import.cgmes.cgm-with-subnetworks**<br>
 Optional property to define if subnetworks must be added to the network when importing a Common Grid Model (CGM). Each subnetwork will model an Individual Grid Model (IGM). By default `true`: subnetworks are added, and the merging is done at IIDM level, with a main IIDM network representing the CGM and containing a set of subnetworks, one for each IGM. If the value is set to `false` all the CGMES data will be flattened in a single network and information about the ownership of each equipment will be lost.
 
-**iidm.import.cgmes.cgm-with-subnetworks-defined-by**
+**iidm.import.cgmes.cgm-with-subnetworks-defined-by**<br>
 If `iidm.import.cgmes.cgm-with-subnetworks` is set to `true`, use this property to specify how the set of input files should be split by IGM: based on their filenames (use the value `FILENAME`) or by its modeling authority, read from the header (use the value `MODELING_AUTHORITY`).
 Its default value is `MODELING_AUTHORITY`.
 
-**iidm.import.cgmes.create-fictitious-voltage-level-for-every-node**
+**iidm.import.cgmes.create-fictitious-voltage-level-for-every-node**<br>
 Optional property that defines the fictitious voltage levels created by line container. If it is set to `true`, a fictitious voltage level is created for each connectivity node inside the line container.
 If it is set to `false`, only one fictitious voltage level is created for each line container.
 `true` by default.
 
-**iidm.import.cgmes.use-previous-values-during-update**
+**iidm.import.cgmes.use-previous-values-during-update**<br>
 Optional property that defines whether the CGMES importer should use previous values to fill in missing SSH attributes during an update.
 When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
 If set to `false`, missing SSH attributes will be filled using default values.
 This property does not apply to SV data. SV data is handled as a complete dataset, with no support for incremental updates of the SV file.
 `false` by default.
 
-**iidm.import.cgmes.remove-properties-and-aliases-after-import**
+**iidm.import.cgmes.remove-properties-and-aliases-after-import**<br>
 Properties and aliases are generated during the EQ import process and are used both in the initial import and in subsequent network updates.
 When this option is set to `true`, all generated properties and aliases are removed after the import/update process.
 If the option is set to `true` during the initial import, then both the EQ and SSH files must be provided to obtain a valid network at the steady-state hypothesis level.
 Cgmes importer will import the EQ file, create the properties and aliases, perform the update by importing the SSH file, and finally remove the properties and aliases.
-If only the EQ file is provided, the properties and aliases will be deleted immediately after the import, not allowing any future update.
+If only the EQ file is provided, the properties and aliases will be deleted immediately after the import, not allowing any future update.<br>
 In this case, the imported network will only be valid at the Equipment level.
 If the option is set to `true` during an update, the update will be performed and then the properties and aliases will be removed.
 Removing properties and aliases invalidates all subsequent updates but reduces the size of the IIDM network during serialization,

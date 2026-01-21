@@ -40,27 +40,27 @@ Available arguments are:
 
 ### Required options
 
-`--case-file`
+`--case-file`<br>
 This option defines the path of the case file on which the simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
-`--dynamic-models-file`
+`--dynamic-models-file`<br>
 This option defines the path of the file used to associate dynamic models to static equipments of the network or add dynamic automation systems. At the moment, only groovy scripts are supported. The [dynamic models DSL](../../simulation/dynamic/index.md#dynamic-models-configuration) depends on the simulator used.
 
 ### Optional options
 
-`--output-variables-file`
+`--output-variables-file`<br>
 This option defines the path of the configuration for the output variables to export at the end of the simulation. This configuration file is a groovy script that respects the [output variables DSL](../../simulation/dynamic/index.md#output-variables-configuration) syntax.
 
-`--event-models-file`
+`--event-models-file`<br>
 This option defines the path of the configuration for the events to simulate during the simulation. At the moment, only groovy scripts are supported. The [event models DSL](../../simulation/dynamic/index.md#event-models-configuration) depends on the simulator used.
 
-`--import-parameters`
+`--import-parameters`<br>
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
-`--output-file`
+`--output-file`<br>
 This option defines the path where to export the [results](#results) of the simulation.
 
-`--parameters-file`
+`--parameters-file`<br>
 This option defines the path of the [parameters](#parameters) file of the simulation. If this option is not used, the simulation is run with the default parameters.
 
 ## Simulators

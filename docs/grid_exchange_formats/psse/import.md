@@ -11,10 +11,10 @@ First, input data is obtained by reading and parsing the input file, and as a re
 ## Options
 Parameters for the import can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
-**psse.import.ignore-base-voltage**
+**psse.import.ignore-base-voltage**<br>
 The `psse.import.ignore-base-voltage` property is an optional property that defines if the importer should ignore the base voltage information present in the PSS®E file. The default value is `false`.
 
-**psse.import.ignore-node-breaker-topology**
+**psse.import.ignore-node-breaker-topology**<br>
 The `psse.import.ignore-node-breaker-topology` property is an optional property that defines if the importer should ignore the node breaker information present in the PSS®E file. The default value is `false`.
 
 (psse-inconsistency-checks)=

@@ -61,11 +61,11 @@ The parameters may also be overridden with a JSON file, in which case the config
 }
 ```
 
-**dc**
+**dc**<br>
 The `dc` property is an optional property that defines if you want to run an AC power flow (`false`) or a DC power flow (`true`).
 The default value is `false`.
 
-**voltageInitMode**
+**voltageInitMode**<br>
 The `voltageInitMode` property is an optional property that defines the policy used by the load flow to initialize the
 voltage values. The available values are:
 - `UNIFORM_VALUES`: $v = 1 pu$ , $\theta = 0$
@@ -74,11 +74,11 @@ voltage values. The available values are:
 
 The default value is `UNIFORM_VALUES`.
 
-**distributedSlack**
+**distributedSlack**<br>
 The `distributedSlack` property is an optional property that defines if the active power mismatch is distributed over the network or not.
 The default value is `true`.
 
-**balanceType**
+**balanceType**<br>
 The `balanceType` property is an optional property that defines, if `distributedSlack` parameter is set to true, how to manage the distribution. Several algorithms are supported. All algorithms follow the same scheme: only some elements are participating in the slack distribution, with a given participation factor. Six options are available:
 - If using `PROPORTIONAL_TO_GENERATION_P_MAX` then the participating elements are the generators. The participation factor is computed using the maximum active power target $MaxP$ and the active power control droop. The default droop value is `4`. If present, the simulator uses the droop of the generator given by the [active power control extension](../../grid_model/extensions.md#active-power-control).
 - If using `PROPORTIONAL_TO_GENERATION_P` then the participating elements are the generators. The participation factor is computed using the active power set point $TargetP$.
@@ -92,55 +92,55 @@ Some algorithms may not be supported by all LoadFlow providers or all simulation
 This default value is `PROPORTIONAL_TO_GENERATION_P_MAX`.
 
 
-**countriesToBalance**
+**countriesToBalance**<br>
 The `countriesToBalance` property is an optional property that defines the list of [ISO-3166](https://en.wikipedia.org/wiki/ISO_3166-1)
 country which participating elements are used for slack distribution. If the slack is distributed but this parameter is not set, the slack distribution is performed over all countries present in the network.
 
-**readSlackBus**
+**readSlackBus**<br>
 The `readSlackBus` is an optional property that defines if the slack bus has to be selected in the network through the [slack terminal extension](../../grid_model/extensions.md#slack-terminal).
 The default value is `true`.
 
-**writeSlackBus**
+**writeSlackBus**<br>
 The `writeSlackBus` is an optional property that says if the slack bus has to be written in the network using the [slack terminal extension](../../grid_model/extensions.md#slack-terminal) after a load flow computation.
 The default value is `true`.
 
-**useReactiveLimits**
+**useReactiveLimits**<br>
 The `useReactiveLimits` property is an optional property that defines whether the load flow should take into account equipment's reactive limits. Applies to generators, batteries, static VAR compensators, dangling lines, and HVDC VSCs.
 The default value is `true`.
 
-**phaseShifterRegulationOn**
+**phaseShifterRegulationOn**<br>
 The `phaseShifterRegulationOn` property is an optional property that defines whether phase shifter regulating controls should be simulated in the load flow.
 The default value is `false`.
 
-**transformerVoltageControlOn**
+**transformerVoltageControlOn**<br>
 The `transformerVoltageControlOn` property is an optional property that defines whether transformer voltage regulating controls should be simulated in the load flow.
 The default value is `false`.
 
-**shuntCompensatorVoltageControlOn**
+**shuntCompensatorVoltageControlOn**<br>
 The `shuntCompensatorVoltageControlOn` property is an optional property that defines whether shunt compensator voltage regulating controls should be simulated in the load flow.
 The default value is `false`.
 
-**componentMode**
+**componentMode**<br>
 The `componentMode` property is an optional property that defines 3 possibles modes to run power flow. These modes can be :
 - `ALL_CONNECTED`: the power flow is computed over all synchronous components of all connected components
 - `MAIN_CONNECTED` : the power flow is computed over all synchronous components of the main (largest) connected component
 - `MAIN_SYNCHRONOUS` : the power flow is computed on the main (largest) synchronous component
 The default value is `MAIN_CONNECTED`.
 -
-**twtSplitShuntAdmittance**
+**twtSplitShuntAdmittance**<br>
 The `twtSplitShuntAdmittance` property is an optional property that defines whether the shunt admittance is split at each side of the series impedance for transformers.
 The default value is `false`.
 
-**dcUseTransformerRatio**
+**dcUseTransformerRatio**<br>
 The `dcUseTransformerRatio` property is an optional property that defines if the ratio of transformers should be used in
 the flow equations in a DC power flow.
 The default value of this parameter is `true`.
 
-**dcPowerFactor**
+**dcPowerFactor**<br>
 The `dcPowerFactor` property is an optional property that defines the power factor used to convert current limits into active power limits in DC calculations.
 The default value is `1.0`.
 
-**hvdcAcEmulation**
+**hvdcAcEmulation**<br>
 The `hvdcAcEmulation` property is an optional property that defines whether AC emulation for HVDC should be simulated in the load flow or not (HVDC that are in AC emulation mode should have the hvdc-angle-droop-active-power-control extension).
 The default value is `true`.
 

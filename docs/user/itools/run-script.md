@@ -17,7 +17,7 @@ Available arguments are:
 
 ### Required arguments
 
-`--file`
+`--file`<br>
 This option defines the path of the script to execute. Current, only Groovy scripts are supported.
 
 ## Groovy extensions
@@ -32,7 +32,7 @@ The `NetworkLoadSaveGroovyScriptExtension` extension adds a `loadNetwork` functi
 - the path of the file to load (mandatory)
 - a list of properties to configure the importer (optional). The list of supported properties depends on the [grid format](../../grid_exchange_formats/index.md).
 
-In order to benefit from this feature, add `com.powsybl:powsybl-iidm-scripting` to your classpath.
+To benefit from this feature, add `com.powsybl:powsybl-iidm-scripting` to your classpath.
 
 **Example:**
 ```groovy
@@ -46,7 +46,7 @@ The `NetworkLoadSave` extension adds a `saveNetwork` function to load a network 
 - a list of properties to configure the exporter (optional). The list of supported properties depends on the [output grid format](../../grid_exchange_formats/index.md).
 - the path of the output file (mandatory)
 
-In order to benefit from this feature, add `com.powsybl:powsybl-iidm-scripting` to your classpath.
+To benefit from this feature, add `com.powsybl:powsybl-iidm-scripting` to your classpath.
 
 **Example:**
 ```groovy
@@ -58,7 +58,7 @@ The `LoadFlow` extension adds a `loadflow` function to run a [load flow](../../s
 - the network object (mandatory)
 - the [load-flow parameters](../../simulation/loadflow/configuration.md#generic-parameters) (optional). If this parameter is not set, the parameters are loaded from the configuration.
 
-In order to benefit from this feature, add `com.powsybl:powsybl-loadflow-scripting` to your classpath.
+To benefit from this feature, add `com.powsybl:powsybl-loadflow-scripting` to your classpath.
 
 **Example:**
 ```groovy

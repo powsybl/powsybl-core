@@ -4,7 +4,7 @@ The `security-analysis` module is used to configure the execution of the [securi
 
 ## Optional property
 
-**preprocessor**
+**preprocessor**<br>
 The `preprocessor` property is an optional property which requires that the `SecurityAnalysisPreprocessor` with specified name is used to preprocess inputs, based on the contingency file, before actually running the security analysis.
 
 Such a preprocessor will have the possibility to programmatically transform the following objects before the security analysis is actually executed :

@@ -44,42 +44,42 @@ Available arguments are:
 
 ### Required arguments
 
-`--case-file`
+`--case-file`<br>
 This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
-`--dsl-file`
+`--dsl-file`<br>
 This option defines the path of the strategy to evaluate. This is a groovy script that respects the [action DSL](../../simulation/security/action-dsl.md) syntax.
 
 ### Optional parameters
 
-`--apply-if-solved-violations`
+`--apply-if-solved-violations`<br>
 <span style="color: red">TODO</span>
 
-`--contingencies`
+`--contingencies`<br>
 This option defines the list of contingencies to simulate. If this parameter is omitted, all the contingencies defined in the DSL file are simulated.
 
-`--export-after-each-round`
+`--export-after-each-round`<br>
 If this option is passed, a case file is exported after each round of the simulation. Otherwise, a single case file is exported at the end of the simulation (once there are no more violations or matching rules).
 
-`--import-parameters`
+`--import-parameters`<br>
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
-`--output-case-folder`
+`--output-case-folder`<br>
 This option defines the path to the folder in which the case files will be exported.
 
-`--output-case-format`
+`--output-case-format`<br>
 This option defines the format of the output case files. The list of [supported formats](../../grid_exchange_formats/index.md) are listed between brackets in the command help.
 
-`--output-compression-format`
+`--output-compression-format`<br>
 This option defines the compression format of the case files. The list of supported formats is mentioned between brackets in the command help.
 
-`--output-file`
+`--output-file`<br>
 This option defines the path of the result file. If this option is omitted, the results are displayed in the console.
 
-`--output-format`
+`--output-format`<br>
 This option defines the format of the result file. This option is required if `--output-file` is used. The supported formats are listed between brackets in the command help.
 
-`--verbose`
+`--verbose`<br>
 This option enables the verbose mode, to display more information during the simulation.
 
 ## Simulators

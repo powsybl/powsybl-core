@@ -56,34 +56,34 @@ Available arguments are:
 
 ### Required arguments
 
-`--case-file`
+`--case-file`<br>
 Use the `--case-file` parameter to define the path of the case file.
 
-`--output-folder`
+`--output-folder`<br>
 Use the `--output-folder` parameter to define the path of the folder where the output files will be stored.
 
 
 ### Optional arguments
 
-`--compare-case-file`
+`--compare-case-file`<br>
 Use the `--compare-case-file` parameter to define the path of the second case file, in order to compare the load flow
 results of two case files.
 
-`--compare-results`
+`--compare-results`<br>
 Use the `--compare-results` parameter to define the type of results to compare. The available types are:
 - `BASECASE`: compare results of the two base cases
 - `COMPUTATION`: run a computation on the two base cases and compare results of the resulting states.
 
-`--import-parameters`
+`--import-parameters`<br>
 Use the `--import-parameters` parameter to specify the path of the configuration file of the importer. It is possible to
 overload one or many parameters using the `-I property=value` parameter. The properties depend on the input format.
 Refer to the documentation page of each [importer](../../grid_exchange_formats/index.md) to know their specific configuration.
 
-`--load-flow`
+`--load-flow`<br>
 Use the `--load-flow` parameter to run a load-flow before the validation. This option is equivalent to
 `--run-computation loadflow`.
 
-`--output-format`
+`--output-format`<br>
 Use the `--output-format` parameter to specify the format of the output files. The available output formats are `CSV` or `CSV_MULTILINE`.
 
 If this parameter is set to `CSV`, in the output files a line contains all values of validated equipment. If the parameter
@@ -107,12 +107,12 @@ CSPCH.TC1;v;238,307
 ...
 ```
 
-`--run-computation**
+`--run-computation`<br>
 Use the `--run-computation` parameter to run a computation before the validation. The supported computations are:
 - `loadflow`: run a load-flow
 - `loadflowResultsCompletion`: compute the missing `P`, `Q`, `V` and $\theta$ values
 
-`--types**
+`--types`<br>
 Use the `--types` parameter to define the types of checks to run. If this parameter is not set, run all the checks.
 The supported types are `FLOWS`, `GENERATORS`, `BUSES`, `SVCS`, `SHUNTS`, `TWTS`.
 

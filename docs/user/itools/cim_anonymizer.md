@@ -21,13 +21,13 @@ Available arguments are:
 
 ### Required arguments
 
-`--cim-path`
+`--cim-path`<br>
 This option defines the CIM file (zip) or a directory where to look for CIM files.
 
-`--mapping-file`
+`--mapping-file`<br>
 This option defines the CSV file where the mapping between original and new identifiers is exported.
 
-`--output-dir`
+`--output-dir`<br>
 This option defines the path of the directory where to write the anonymized CIM files. If the output directory doesn't exist, an exception is thrown.
 
 ### Optional arguments
