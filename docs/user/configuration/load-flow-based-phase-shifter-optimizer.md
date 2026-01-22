@@ -5,7 +5,7 @@ tries to solve a current violation on a phase tap changer.
 
 ## Required properties
 
-**load-flow-name**  
+**load-flow-name**<br>
 The `load-flow-name` property is an optional property that defines the implementation name to use for running the load flow.
 If this property is not set, the default load flow implementation is used. See [Loadflow Configuration](load-flow.md) to configure the default load flow.
 

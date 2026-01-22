@@ -99,7 +99,7 @@ updated each time you use the `install.sh` script.
 | ------ | ----------- | ------------- |
 | --help | Display this help | |
 | --prefix | Set the installation directory | $HOME/powsybl |
-| --mvn | Set the maven command to use | mvn | 
+| --mvn | Set the maven command to use | mvn |
 
 ### Default configuration file
 ```

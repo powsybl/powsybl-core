@@ -41,7 +41,7 @@ The reduction may affect results:
 1. Monitoring only (`monitoringOnly` set to `true`) means that if reductions are provided in a security analysis, only
 reported violations are affected.
 
-2. Else (`monitoringOnly` set to `false`) if reductions are provided in a security analysis, they affect not only the 
+2. Else (`monitoringOnly` set to `false`) if reductions are provided in a security analysis, they affect not only the
 reported violations but also the conditions for applying remedial actions.
 
 
@@ -85,5 +85,5 @@ Duration criteria can be optionally specified. It contains:
 
 When no duration criteria are present, the reduction is applied to all permanent and temporary limits.
 
-When several duration criteria are specified, the limit reductions apply to each one. 
+When several duration criteria are specified, the limit reductions apply to each one.
 For instance, if both criteria `PERMANENT` and (`TEMPORARY` ; `EQUALITY`: 600) are defined, the limit reduction will apply to permanent limits and 600 s limits.

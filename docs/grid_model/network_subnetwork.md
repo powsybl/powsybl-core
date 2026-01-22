@@ -113,9 +113,9 @@ The area type is used to distinguish between various area concepts of different 
 
 A [voltage level](#voltage-level) can belong to several areas, as long as all areas are of a different type.
 
-The area boundaries define how interchange is to be calculated for the area.  
+The area boundaries define how interchange is to be calculated for the area.
 Area interchange is calculated by summing the active power flows across the area boundaries and can be obtained for AC part only (considering only AC boundaries),
-for DC part only (considering only DC boundaries) and in total (AC+DC).  
+for DC part only (considering only DC boundaries) and in total (AC+DC).
 Note that if the Area has no boundary explicitly defined, the interchange is considered 0MW.
 
 For area types that are meant to be used for area interchange control, e.g., in Load Flow simulations, the interchange target of the area can be specified as an input for the simulation.
@@ -227,21 +227,21 @@ In the grid model, loads comprise the following metadata:
     - `FICTITIOUS`
 - The load model, which can be:
     - `ZIP` (or polynomial), following equations:
-  
-      $$P = P0 * (c0p + c1p \times (v / v_0) + c2p \times (v / v_0)^2)$$  
 
-      $$Q = Q0 * (c0q + c1q \times (v / v_0) + c2q \times (v / v_0)^2)$$  
+      $$P = P0 * (c0p + c1p \times (v / v_0) + c2p \times (v / v_0)^2)$$
 
-      with $v_0$ the nominal voltage.  
-      Sum of $c0p$, $c1p$ and $c2p$ must be equal to 1.  
+      $$Q = Q0 * (c0q + c1q \times (v / v_0) + c2q \times (v / v_0)^2)$$
+
+      with $v_0$ the nominal voltage.
+      Sum of $c0p$, $c1p$ and $c2p$ must be equal to 1.
       Sum of $c0q$, $c1q$ and $c2q$ must be equal to 1.
-    - `EXPONENTIAL`, following equations:  
+    - `EXPONENTIAL`, following equations:
 
-      $$P = P0 \times (v / v_0)^{n_p}$$  
+      $$P = P0 \times (v / v_0)^{n_p}$$
 
-      $$Q = Q0 \times (v / v_0)^{n_q}$$  
+      $$Q = Q0 \times (v / v_0)^{n_q}$$
 
-      with $v_0$ the nominal voltage.  
+      with $v_0$ the nominal voltage.
       $n_p$ and $n_q$ are expected to be positive.
 
 **Available extensions**
@@ -344,7 +344,7 @@ In case the line is a boundary, a pairing key $pairingKey$ (in previous network 
 A dangling line has a `Boundary` object that emulates a terminal located at boundary side. A dangling line is a connectable
 with a single terminal located on the network side, but sometimes we need state variables such as active or reactive powers on
 the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
-are automatically computed using information from the terminal of the dangling line.  
+are automatically computed using information from the terminal of the dangling line.
 
 
 **Available extensions**
@@ -378,7 +378,7 @@ Shunt compensators follow a passive-sign convention:
 |-----------------------|------|--------------------------------------------------------------------------------|
 | $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on                         |
 | $SectionCount$        | -    | The current number of sections that are switched on (input of the calculation) |
-| $SolvedSectionCount$  | -    | The calculated number of sections that are switched on (after a load flow)     | 
+| $SolvedSectionCount$  | -    | The calculated number of sections that are switched on (after a load flow)     |
 | $B$                   | S    | The susceptance of the shunt compensator in its current state                  |
 | $G$                   | S    | The conductance of the shunt compensator in its current state                  |
 | $TargetV$             | kV   | The voltage target                                                             |
@@ -452,8 +452,8 @@ Static VAR compensators follow a passive-sign convention:
 
 **Specifications**
 
-- $Bmin$ and $Bmax$ are the susceptance bounds of the static VAR compensator. Reactive power output of a static VAR compensator is limited by the maximum and the minimum susceptance values. The min/max reactive power of a static VAR compensator is determined by:  
-  
+- $Bmin$ and $Bmax$ are the susceptance bounds of the static VAR compensator. Reactive power output of a static VAR compensator is limited by the maximum and the minimum susceptance values. The min/max reactive power of a static VAR compensator is determined by:
+
   $$Qmin = -Bmin \times V^2$$
 
   $$Qmax = -Bmax \times V^2$$
@@ -975,7 +975,7 @@ When the `ControlMode` of the converter is set to `V_DC`, the converter controls
 No explicit attribute specifies whether the DC is a symmetrical or asymmetrical scheme.
 The scheme symmetrical or asymmetrical is derived implicitly by either the presence or absence of a DC Ground connected to the DC system:
 - If a DC Ground is connected, the configuration is asymmetrical, and the converter imposes the target voltage difference
-between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc` 
+between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
 - If no DC Ground is present, the configuration is symmetrical, in this case the converter provides internally an implicit DC Ground and imposes:
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
@@ -984,14 +984,14 @@ When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter c
 for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
 $P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
 Where:
-- $k$ is the droop coefficient of the actual droop segment. 
-- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint. 
+- $k$ is the droop coefficient of the actual droop segment.
+- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint.
 It represents the operating point before the security analysis starts.
 - $V_{REF}$ is the DC voltage which was calculated during the base loadflow. The droop control is only used for P controlled converters, so they should not have a targetVdc.
 - $P_{DC}$ is the actual power at DC side during the security analysis, which is determined by Newton Raphson.
 - $V_{DC}$ is the actual DC voltage during the security analysis, which is determined by Newton Raphson.
 
-Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual 
+Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual
 droop segment should be the one which verifies:
 $V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
 
@@ -1040,8 +1040,8 @@ hence a PowerFactor of 0.89443.
 
 DC equipment connectivity may be modified in two ways:
 - By changing the `connected` attribute of a `DcTerminal` of a DC Line, or a DC Ground, or an AC/DC Converter:
-  - When `connected = true`, the DC terminal is connected to its associated DC Node. 
-  - When `connected = false` the DC terminal is disconnected from its associated DC Node. 
+  - When `connected = true`, the DC terminal is connected to its associated DC Node.
+  - When `connected = false` the DC terminal is disconnected from its associated DC Node.
 - By changing the `open` attribute of a `DcSwitch`.
 
 PowSyBl's IIDM topology processor computes DC Buses as follows:
@@ -1062,8 +1062,8 @@ The IIDM API provides methods for navigating the network topology, for example:
 - getting all DC Components/Islands of a network or a subnetwork
 - getting all DC Buses part of a DC Component or a Connected Component
 - etc.
- 
-Please refer to the javadoc for an exhaustive list of the available methods. 
+
+Please refer to the javadoc for an exhaustive list of the available methods.
 
 #### DC Equipment containment in main network and subnetworks
 
