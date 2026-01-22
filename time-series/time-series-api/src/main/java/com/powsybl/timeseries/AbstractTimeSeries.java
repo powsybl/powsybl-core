@@ -128,10 +128,15 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     protected abstract T createTimeSeries(C chunk);
 
-    private void splitByFirstAndLastIndex(C chunkToSplit, List<C> splitChunks, int firstIndex, int lastIndex) {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Split chunk [{}, {}]", firstIndex, lastIndex);
+    private void splitByFirstAndLastIndex(@NonNull C chunkToSplit, List<C> splitChunks, int firstIndex, int lastIndex) {
+        if (chunkToSplit.getOffset() > firstIndex) {
+            throw new IllegalArgumentException(String.format("Incomplete chunk, expected at least first offset to be %s, but we got %s", firstIndex, chunkToSplit.getOffset()));
         }
+        int chunkLastIndex = chunkToSplit.getOffset() + chunkToSplit.getLength() - 1;
+        if (chunkLastIndex < lastIndex) {
+            throw new IllegalArgumentException(String.format("Incomplete chunk, expected at least last index to be %s, but we got %s", lastIndex, chunkLastIndex));
+        }
+        traceSplitChunk(firstIndex, lastIndex);
         C newChunk;
         // chunkToSplit = [x0, y0] -> newChunk = [x0=firstIndex, y0]
         if (firstIndex == chunkToSplit.getOffset()) {
@@ -151,10 +156,14 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         }
     }
 
-    private void split(C chunkToSplit, List<C> splitChunks, int newChunkSize) {
+    private static void traceSplitChunk(int firstIndex, int lastIndex) {
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Split chunk [{}, {}]", chunkToSplit.getOffset(), chunkToSplit.getOffset() + chunkToSplit.getLength() - 1);
+            LOGGER.trace("Split chunk [{}, {}]", firstIndex, lastIndex);
         }
+    }
+
+    private void split(C chunkToSplit, List<C> splitChunks, int newChunkSize) {
+        traceSplitChunk(chunkToSplit.getOffset(), chunkToSplit.getOffset() + chunkToSplit.getLength() - 1);
 
         boolean usePreviousChunk = false;
         C previousChunk = splitChunks.isEmpty() ? null : splitChunks.get(splitChunks.size() - 1);
@@ -218,11 +227,31 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
     }
 
     public List<T> splitByRanges(List<Range<@NonNull Integer>> ranges) {
+        int lowerIndex = newChunks.stream().map(Range::lowerEndpoint).min(Integer::compareTo).orElse(0);
+        int upperIndex = newChunks.stream().map(Range::upperEndpoint).max(Integer::compareTo).orElse(0);
         List<C> splitNewChunks = new ArrayList<>();
-        for (C chunkToSplit : getCheckedChunks(false)) {
-            for (Range<@NonNull Integer> range : ranges) {
-                splitByFirstAndLastIndex(chunkToSplit, splitNewChunks, range.lowerEndpoint(), range.upperEndpoint());
+        // We need to have one and only one chunk that we will split
+        // We merged chunks that are in our ranges
+        List<C> checkedChunks = getCheckedChunks(false);
+        C mergedChunk = null;
+        for (C chunk : checkedChunks) {
+            int chunkFirstIndex = chunk.getOffset();
+            int chunkLastIndex = chunk.getOffset() + chunk.getLength() - 1;
+            if (chunkFirstIndex <= upperIndex && chunkLastIndex >= lowerIndex) {
+                if (mergedChunk == null) {
+                    mergedChunk = chunk;
+                } else {
+                    mergedChunk = mergedChunk.append(chunk);
+                }
             }
+        }
+        if (mergedChunk == null) {
+            throw new IllegalArgumentException(String.format("No chunk found for range [%s-%s]", lowerIndex, upperIndex));
+        }
+
+        // We can split our chunk
+        for (Range<@NonNull Integer> range : ranges) {
+            splitByFirstAndLastIndex(mergedChunk, splitNewChunks, range.lowerEndpoint(), range.upperEndpoint());
         }
         return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
     }

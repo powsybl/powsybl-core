@@ -172,7 +172,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> split(List<T> timeSeriesList, int newChunkSize) {
-        verifyTimeseriesList(timeSeriesList);
+        verifyTimeSeriesList(timeSeriesList);
         if (newChunkSize < 1) {
             throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
@@ -184,15 +184,20 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 + index.getPointCount());
         }
         int chunkCount = computeChunkCount(index, newChunkSize);
-        List<List<T>> splitList = new ArrayList<>(chunkCount);
-        for (int i = 0; i < chunkCount; i++) {
-            splitList.add(new ArrayList<>(timeSeriesList.size()));
-        }
+        List<List<T>> splitList = getSplitList(timeSeriesList, chunkCount);
         for (T timeSeries : timeSeriesList) {
             List<T> split = timeSeries.split(newChunkSize);
             for (int i = 0; i < chunkCount; i++) {
                 splitList.get(i).add(split.get(i));
             }
+        }
+        return splitList;
+    }
+
+    private static <P extends AbstractPoint, T extends TimeSeries<P, T>> @NonNull List<List<T>> getSplitList(List<T> timeSeriesList, int chunkCount) {
+        List<List<T>> splitList = new ArrayList<>(chunkCount);
+        for (int i = 0; i < chunkCount; i++) {
+            splitList.add(new ArrayList<>(timeSeriesList.size()));
         }
         return splitList;
     }
@@ -214,13 +219,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> splitByRanges(List<T> timeSeriesList, List<Range<@NonNull Integer>> ranges) {
-        verifyTimeseriesList(timeSeriesList);
+        verifyTimeSeriesList(timeSeriesList);
         verifyIndexes(getTimeSeriesIndexes(timeSeriesList));
         int chunkCount = ranges.size();
-        List<List<T>> splitList = new ArrayList<>(chunkCount);
-        for (int i = 0; i < chunkCount; i++) {
-            splitList.add(new ArrayList<>(timeSeriesList.size()));
-        }
+        List<List<T>> splitList = getSplitList(timeSeriesList, chunkCount);
         for (T timeSeries : timeSeriesList) {
             List<T> split = timeSeries.splitByRanges(ranges);
             for (int i = 0; i < chunkCount; i++) {
@@ -230,7 +232,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return splitList;
     }
 
-    private static <P extends AbstractPoint, T extends TimeSeries<P, T>> void verifyTimeseriesList(List<T> timeSeriesList) {
+    private static <P extends AbstractPoint, T extends TimeSeries<P, T>> void verifyTimeSeriesList(List<T> timeSeriesList) {
         Objects.requireNonNull(timeSeriesList);
         if (timeSeriesList.isEmpty()) {
             throw new IllegalArgumentException("Time series list is empty");
