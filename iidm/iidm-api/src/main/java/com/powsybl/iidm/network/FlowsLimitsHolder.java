@@ -24,10 +24,21 @@ public interface FlowsLimitsHolder {
     Collection<OperationalLimitsGroup> getOperationalLimitsGroups();
 
     /**
-     * Get the ID of the selected {@link OperationalLimitsGroup}.
-     * @return the ID of the selected {@link OperationalLimitsGroup} if any, an empty {@link Optional} otherwise.
+     * <p>Get the ID of the last {@link OperationalLimitsGroup} set as selected (either by {@link #setSelectedOperationalLimitsGroup(String)} or any other mean).</p>
+     * <p>If the last selected was deselected (using {@link #deselectOperationalLimitsGroup(String)}),
+     * then this will return the ID of the OperationalLimitsGroup selected before that if any (this logic can be repeated, if the two previously selected are not selected anymore, gets the 3rd, the 4th, etc...),
+     * otherwise an empty {@link Optional}</p>
+     * @return the ID of the last selected {@link OperationalLimitsGroup} from all the selected groups if any,
+     * the one selected before that if the last selected is not selected anymore (repeatable),
+     * an empty {@link Optional} otherwise.
      */
     Optional<String> getSelectedOperationalLimitsGroupId();
+
+    /**
+     * Get the IDs of all the selected {@link OperationalLimitsGroup}
+     * @return a collection containing one ID per selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
+     */
+    Collection<String> getAllSelectedOperationalLimitsGroupIds();
 
     /**
      * Get the {@link OperationalLimitsGroup} corresponding to an ID.
@@ -36,10 +47,19 @@ public interface FlowsLimitsHolder {
     Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id);
 
     /**
-     * Get the selected {@link OperationalLimitsGroup}.
-     * @return the selected {@link OperationalLimitsGroup} if any, an empty {@link Optional} otherwise.
+     * Get the {@link OperationalLimitsGroup} that was last selected (either by {@link #setSelectedOperationalLimitsGroup(String)} or any other mean)
+     * If the last selected is not selected anymore, it will return the one selected before that (or the 3rd, 4th... if those are not selected anymore either)
+     * @return the first selected {@link OperationalLimitsGroup} from all the selected if any,
+     * the one selected before that if it is not selected anymore (repeatable),
+     * an empty {@link Optional} otherwise.
      */
     Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup();
+
+    /**
+     * Get all the selected {@link OperationalLimitsGroup}
+     * @return a collection containing all selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
+     */
+    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup();
 
     /**
      * <p>Create a new {@link OperationalLimitsGroup} with the given ID.</p>
@@ -49,10 +69,11 @@ public interface FlowsLimitsHolder {
     OperationalLimitsGroup newOperationalLimitsGroup(String id);
 
     /**
-     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as as the selected one.</p>
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as a selected one.</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
-     * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.
-     * To reset the selected group, use {@link #cancelSelectedOperationalLimitsGroup}.</p>
+     * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.</p>
+     * To deselect the selected group, use {@link #deselectOperationalLimitsGroup(String)}.
+     * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
      * @param id an ID of {@link OperationalLimitsGroup}
      */
     void setSelectedOperationalLimitsGroup(String id);
@@ -65,10 +86,21 @@ public interface FlowsLimitsHolder {
     void removeOperationalLimitsGroup(String id);
 
     /**
-     * <p>Cancel the selected {@link OperationalLimitsGroup}.</p>
+     * <p>Cancel all the selected {@link OperationalLimitsGroup}.</p>
      * <p>After calling this method, no {@link OperationalLimitsGroup} is selected.</p>
+     * To deselect a specific {@link OperationalLimitsGroup}, use {@link #deselectOperationalLimitsGroup(String)}
      */
     void cancelSelectedOperationalLimitsGroup();
+
+    /**
+     * <p>Deselect the {@link OperationalLimitsGroup} corresponding to <code>id</code>.</p>
+     * <p>If the {@link OperationalLimitsGroup} exists but is not selected, this method will do nothing</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group</p>
+     * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
+     * To deselect all {@link OperationalLimitsGroup}, use {@link #cancelSelectedOperationalLimitsGroup()}
+     * @param id the ID of the group to remove from the selected
+     */
+    void deselectOperationalLimitsGroup(String id);
 
     /**
      * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup}.
@@ -95,7 +127,7 @@ public interface FlowsLimitsHolder {
 
     /**
      * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
-     * Set the {@link OperationalLimitsGroup} as the selected one .</p>
+     * Set the {@link OperationalLimitsGroup} as a selected one .</p>
      * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
      * @return the selected {@link OperationalLimitsGroup}.
      */
@@ -106,11 +138,25 @@ public interface FlowsLimitsHolder {
     }
 
     /**
-     * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup}.
-     * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} if any, an empty {@link Optional} otherwise.
+     * Get the {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup}.
+     * @return {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} if any, an empty {@link Optional} otherwise.
      */
     default Optional<ActivePowerLimits> getActivePowerLimits() {
         return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getActivePowerLimits);
+    }
+
+    //TODO do we want that ? do we want Collection<Optional<>> or just Collection<> ? If just collection what do we put when optional is empty, null ?
+    /**
+     * Get the {@link ActivePowerLimits} of all selected {@link OperationalLimitsGroup}
+     * @return a collection containing the ActivePowerLimits of each OperationalLimitsGroup (if it exists) that is currently selected,
+     * an empty {@link Optional} otherwise,
+     * might be empty is none is selected
+     */
+    default Collection<Optional<ActivePowerLimits>> getActivePowerLimitsFromId() {
+        return getAllSelectedOperationalLimitsGroup()
+                .stream()
+                .map(OperationalLimitsGroup::getActivePowerLimits)
+                .toList();
     }
 
     /**
