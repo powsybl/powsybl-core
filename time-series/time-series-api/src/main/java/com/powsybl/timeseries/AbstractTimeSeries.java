@@ -217,14 +217,14 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
     }
 
-    public List<T> splitByRanges(List<Range<@NonNull Integer>> newChunks) {
+    public List<T> splitByRanges(List<Range<@NonNull Integer>> ranges) {
         List<C> splitNewChunks = new ArrayList<>();
         for (C chunkToSplit : getCheckedChunks(false)) {
-            for (Range<@NonNull Integer> range : newChunks) {
+            for (Range<@NonNull Integer> range : ranges) {
                 splitByFirstAndLastIndex(chunkToSplit, splitNewChunks, range.lowerEndpoint(), range.upperEndpoint());
             }
         }
-        return splitNewChunks.stream().map(this::createTimeSeries).toList();
+        return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
     }
 
     public void writeJson(JsonGenerator generator) {
