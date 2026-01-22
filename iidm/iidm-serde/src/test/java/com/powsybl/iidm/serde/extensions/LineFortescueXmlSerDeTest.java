@@ -34,6 +34,10 @@ class LineFortescueXmlSerDeTest extends AbstractIidmSerDeTest {
         LineFortescue fortescue = l.newExtension(LineFortescueAdder.class)
                 .withRz(0.1d)
                 .withXz(2d)
+                .withG1z(3d)
+                .withG2z(4d)
+                .withB1z(5d)
+                .withB2z(6d)
                 .withOpenPhaseA(true)
                 .withOpenPhaseC(true)
                 .add();
