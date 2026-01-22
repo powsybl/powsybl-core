@@ -480,6 +480,21 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup();
     }
 
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+        return operationalLimitsGroups.getAllSelectedOperationalLimitsGroupIds();
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup() {
+        return operationalLimitsGroups.getAllSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroup(String id) {
+        operationalLimitsGroups.deselectOperationalLimitsGroup(id);
+    }
+
     /**
      * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
      */

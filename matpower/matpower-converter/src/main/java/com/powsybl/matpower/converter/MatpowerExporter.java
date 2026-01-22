@@ -473,6 +473,21 @@ public class MatpowerExporter implements Exporter {
         }
 
         @Override
+        public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deselectOperationalLimitsGroup(String id) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public Optional<CurrentLimits> getCurrentLimits() {
             return branch.getCurrentLimits(side);
         }
