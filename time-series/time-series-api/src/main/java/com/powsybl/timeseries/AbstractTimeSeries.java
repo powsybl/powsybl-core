@@ -227,8 +227,8 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
     }
 
     public List<T> splitByRanges(List<Range<@NonNull Integer>> ranges) {
-        int lowerIndex = newChunks.stream().map(Range::lowerEndpoint).min(Integer::compareTo).orElse(0);
-        int upperIndex = newChunks.stream().map(Range::upperEndpoint).max(Integer::compareTo).orElse(0);
+        int lowerIndex = ranges.stream().map(Range::lowerEndpoint).min(Integer::compareTo).orElse(0);
+        int upperIndex = ranges.stream().map(Range::upperEndpoint).max(Integer::compareTo).orElse(0);
         List<C> splitNewChunks = new ArrayList<>();
         // We need to have one and only one chunk that we will split
         // We merged chunks that are in our ranges
