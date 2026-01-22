@@ -22,35 +22,35 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class UpdateUseCasesTest {
 
-    private static final String INCREMENTAL_DIR = "/update/use_cases/incremental_update_using_one_variant/";
+    private static final String PARTIAL_DIR = "/update/use_cases/partial_update_using_one_variant/";
     private static final String COMPLETE_DIR = "/update/use_cases/complete_update_using_different_variants/";
 
     @Test
-    void incrementalUpdateUsingOneVariantTest() {
-        Network network = readCgmesResources(INCREMENTAL_DIR, "incremental_update_EQ.xml", "incremental_update_00_SSH.xml");
+    void partialUpdateUsingOneVariantTest() {
+        Network network = readCgmesResources(PARTIAL_DIR, "partial_update_EQ.xml", "partial_update_00_SSH.xml");
         assertEquals(3, network.getLoadCount());
-        assertIncrementalEq(network);
-        assertIncrementalSsh(network, 10.1, 5.1, 10.2, 5.2, 10.3, 5.3);
+        assertPartialEq(network);
+        assertPartialSsh(network, 10.1, 5.1, 10.2, 5.2, 10.3, 5.3);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
-        readCgmesResources(network, properties, INCREMENTAL_DIR, "incremental_update_08_SSH.xml");
-        assertIncrementalSsh(network, 20.1, 10.1, 10.2, 5.2, 10.3, 5.3);
+        readCgmesResources(network, properties, PARTIAL_DIR, "partial_update_08_SSH.xml");
+        assertPartialSsh(network, 20.1, 10.1, 10.2, 5.2, 10.3, 5.3);
 
-        readCgmesResources(network, properties, INCREMENTAL_DIR, "incremental_update_16_SSH.xml");
-        assertIncrementalSsh(network, 20.1, 10.1, 20.2, 10.2, 10.3, 5.3);
+        readCgmesResources(network, properties, PARTIAL_DIR, "partial_update_16_SSH.xml");
+        assertPartialSsh(network, 20.1, 10.1, 20.2, 10.2, 10.3, 5.3);
 
-        readCgmesResources(network, properties, INCREMENTAL_DIR, "incremental_update_24_SSH.xml");
-        assertIncrementalSsh(network, 20.1, 10.1, 20.2, 10.2, 20.3, 10.3);
+        readCgmesResources(network, properties, PARTIAL_DIR, "partial_update_24_SSH.xml");
+        assertPartialSsh(network, 20.1, 10.1, 20.2, 10.2, 20.3, 10.3);
     }
 
-    private static void assertIncrementalEq(Network network) {
+    private static void assertPartialEq(Network network) {
         assertNotNull(network.getLoad("EnergyConsumer_1"));
         assertNotNull(network.getLoad("EnergyConsumer_2"));
         assertNotNull(network.getLoad("EnergyConsumer_3"));
     }
 
-    void assertIncrementalSsh(Network network, double p1, double q1, double p2, double q2, double p3, double q3) {
+    void assertPartialSsh(Network network, double p1, double q1, double p2, double q2, double p3, double q3) {
         assertSsh(network.getLoad("EnergyConsumer_1"), p1, q1);
         assertSsh(network.getLoad("EnergyConsumer_2"), p2, q2);
         assertSsh(network.getLoad("EnergyConsumer_3"), p3, q3);

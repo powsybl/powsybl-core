@@ -32,12 +32,12 @@ In the first step, only the EQ profile is imported using the `Network.read` meth
 Then, the operational data is imported using the `network.update` method, providing all or part of the following profiles: SSH, TP, and SV. 
 The `network.update` method cannot be used with EQ profiles.
 
-**Import one EQ file and 24 incremental SSH files**
+**Import one EQ file and 24 partial SSH files**
 In this case, the 00 SSH file is the only complete file and contains data for all equipment. 
-The remaining SSH files are incremental, including only the changes relative to the preceding SSH file.
+The remaining SSH files are partial, including only the changes relative to the preceding SSH file.
 In the first step, we can import the EQ and 00 SSH files using the `Network.read` method. 
 Then, we can perform one update for each of the remaining SSH files using the `network.update` method. 
-Before performing the updates, the property `iidm.import.cgmes.use-previous-values-during-update` must be set to `true` to fill in any missing data in the incremental SSH files using the values previously recorded in the model.
+Before performing the updates, the property `iidm.import.cgmes.use-previous-values-during-update` must be set to `true` to fill in any missing data in the partial SSH files using the values previously recorded in the model.
 
 PowSyBl uses variants to record operational data. In this case, we are performing the update on the same variant, so at the end, PowSyBl will only contain the operational data corresponding to the last hour.
 
@@ -815,7 +815,7 @@ If it is set to `false`, only one fictitious voltage level is created for each l
 Optional property that defines whether the CGMES importer should use previous values to fill in missing SSH attributes during an update.
 When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
 If set to `false`, missing SSH attributes will be filled using default values. 
-This property does not apply to SV data. SV data is handled as a complete dataset, with no support for incremental updates of the SV file.
+This property does not apply to SV data. SV data is handled as a complete dataset, with no support for partial updates of the SV file.
 `false` by default.
 
 **iidm.import.cgmes.remove-properties-and-aliases-after-import**  
