@@ -129,7 +129,6 @@ Path to a JSON file defining limit reductions. See [Limit reductions](../../simu
 `--external`<br>
 <span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.
 
-
 `--import-parameters`<br>
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
@@ -152,9 +151,7 @@ This option defines the path of the [parameters](#parameters) file of the simula
 This option defines the list of extensions to complete the simulation results with additional data. The available extensions are listed in the usage of the command.
 
 ## Simulators
-The security analysis computation is performed by a `SecurityAnalysisFactory` implementation available on the classpath (typically provided by a simulator module such as `powsybl-open-loadflow`).
-
-The default implementation is selected through the [`componentDefaultConfig`](../configuration/componentDefaultConfig.md) module (`SecurityAnalysisFactory`). If several implementations are available, the `security-analysis` configuration module may also be used to select a specific one (property `default-impl-name`).
+The available power flow simulators implementations are described [here](../../simulation/security/implementations.md).
 
 ## Contingencies
 Contingencies are provided through `--contingencies-file`. The file is interpreted by the configured `ContingenciesProviderFactory` (see [`componentDefaultConfig`](../configuration/componentDefaultConfig.md)).
@@ -224,14 +221,14 @@ Post-contingency limit violations:
 ```
 
 ### Example 3
-The following example shows how to run a security analysis simulation with an `operator strategy` with `actions` for `contingency` of a given network.
+The following example shows how to run a security analysis simulation with an `operator strategy` with `actions` for a `contingency` of a given network.
 
 ```shell
 itools security-analysis \
   --case-file network.xiidm \
   --contingencies-file contingency.json \
   --strategies-file strategies.json \
-  --actions-file action-reclose.json
+  --actions-file actions-gen-load.json
 ```
 
 #### Inputs
