@@ -86,7 +86,7 @@ public interface FlowsLimitsHolder {
     void removeOperationalLimitsGroup(String id);
 
     /**
-     * <p>Cancel all the selected {@link OperationalLimitsGroup}.</p>
+     * <p>Deselect all the selected {@link OperationalLimitsGroup}.</p>
      * <p>After calling this method, no {@link OperationalLimitsGroup} is selected.</p>
      * To deselect a specific {@link OperationalLimitsGroup}, use {@link #deselectOperationalLimitsGroup(String)}
      */
@@ -118,9 +118,10 @@ public interface FlowsLimitsHolder {
         return getCurrentLimits().orElse(null);
     }
 
+    //TODO does it still make sense to have a default when multiple active are present ?
     /**
      * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exist.
-     * Set the {@link OperationalLimitsGroup} as the selected one.</p>
+     * Set the {@link OperationalLimitsGroup} as a selected one.</p>
      * @return the selected {@link OperationalLimitsGroup}.
      */
     OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup();
@@ -145,7 +146,7 @@ public interface FlowsLimitsHolder {
         return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getActivePowerLimits);
     }
 
-    //TODO do we want that ? do we want Collection<Optional<>> or just Collection<> ? If just collection what do we put when optional is empty, null ?
+    //TODO do we want that ? do we want Collection<Optional<>> or just Collection<> ? If just collection what do we put when optional is empty, null ? should we do the same for current and apparent power ?
     /**
      * Get the {@link ActivePowerLimits} of all selected {@link OperationalLimitsGroup}
      * @return a collection containing the ActivePowerLimits of each OperationalLimitsGroup (if it exists) that is currently selected,
