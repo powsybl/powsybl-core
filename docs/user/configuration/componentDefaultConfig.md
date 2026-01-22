@@ -35,6 +35,6 @@ componentDefaultConfig:
 
 ## Removed properties
 
-**load-flow-factory:**  
+**load-flow-factory:**<br>
 The `load-flow-factory` property has been removed in PowSyBl 3.0.0. Use the `default-impl-name` property of the [load-flow](load-flow.md) module instead.
 

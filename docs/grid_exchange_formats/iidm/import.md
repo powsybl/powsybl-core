@@ -6,26 +6,26 @@
 ## Options
 These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
-**iidm.import.xml.throw-exception-if-extension-not-found**  
+**iidm.import.xml.throw-exception-if-extension-not-found**
 The `iidm.import.xml.throw-exception-if-extension-not-found` property is an optional property that defines if the XIIDM importer throws an exception while trying to import an unknown or undeserializable extension or if it just ignores it. Its default value is `false`.
 
-**iidm.import.xml.included.extensions**  
+**iidm.import.xml.included.extensions**
 The `iidm.import.xml.included.extensions` property is an optional property that defines the list of extensions that will be imported by the XIIDM importer. By default, all extensions will be imported.
 When set to an empty string, all extensions will be ignored during the import.
 
 **iidm.import.xml.excluded.extensions**
 The `iidm.import.xml.excluded.extensions` property is an optional property that defines the list of extensions that will not be imported by the XIIDM importer.
-When both `iidm.import.xml.included.extensions` and `iidm.import.xml.excluded.extensions` are defined, a configuration exception is thrown. 
+When both `iidm.import.xml.included.extensions` and `iidm.import.xml.excluded.extensions` are defined, a configuration exception is thrown.
 By default, no extension is excluded from the import.
 
 ### Deprecated properties
 
-**throwExceptionIfExtensionNotFound**  
+**throwExceptionIfExtensionNotFound**
 The `throwExceptionIfExtensionNotFound` property is deprecated since v2.0.0. Use the `iidm.import.xml.throw-exception-if-extension-not-found` property instead.
 
 ### Removed properties
 
-**iidm.import.xml.import-mode**  
+**iidm.import.xml.import-mode**
 The `iidm.import.xml.import-mode` property is an optional property that defines the import mode of the XIIDM importer.
 
 Its possible values are :

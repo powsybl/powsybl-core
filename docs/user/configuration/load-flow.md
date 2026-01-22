@@ -12,7 +12,7 @@ is not present on the classpath.
 
 ## Properties
 
-**default-impl-name**  
+**default-impl-name**
 Use the `default-impl-name` property to specify the name of the default load flow implementation.
 
 ## Examples
