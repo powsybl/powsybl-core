@@ -293,7 +293,7 @@ class StoredDoubleTimeSeriesTest {
         // Prepare the Ranges
         List<Range<@NonNull Integer>> ranges = List.of(Range.closed(9, 17));
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> timeSeries.splitByRanges(ranges));
-        assertEquals("No chunk found for range [9-17]", exception.getMessage());
+        assertEquals("No chunk found for ranges [[9..17]]", exception.getMessage());
     }
 
     @Test

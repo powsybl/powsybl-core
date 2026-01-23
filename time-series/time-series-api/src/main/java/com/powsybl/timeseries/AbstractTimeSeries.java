@@ -227,33 +227,86 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
     }
 
     public List<T> splitByRanges(List<Range<@NonNull Integer>> ranges) {
-        int lowerIndex = ranges.stream().map(Range::lowerEndpoint).min(Integer::compareTo).orElse(0);
-        int upperIndex = ranges.stream().map(Range::upperEndpoint).max(Integer::compareTo).orElse(0);
+        List<Range<@NonNull Integer>> sortedRanges = checkAndSortRanges(ranges);
+        List<C> sortedChunks = getCheckedChunks(false);
+        checkChunkIsPresent(ranges, sortedChunks);
         List<C> splitNewChunks = new ArrayList<>();
-        // We need to have one and only one chunk that we will split
-        // We merged chunks that are in our ranges
-        List<C> checkedChunks = getCheckedChunks(false);
-        C mergedChunk = null;
-        for (C chunk : checkedChunks) {
-            int chunkFirstIndex = chunk.getOffset();
-            int chunkLastIndex = chunk.getOffset() + chunk.getLength() - 1;
-            if (chunkFirstIndex <= upperIndex && chunkLastIndex >= lowerIndex) {
-                if (mergedChunk == null) {
-                    mergedChunk = chunk;
-                } else {
-                    mergedChunk = mergedChunk.append(chunk);
+        int rangesIndex = 0;
+        int chunkIndex = 0;
+        int maxRangesIndex = ranges.size() - 1;
+        int maxChunkIndex = sortedChunks.size() - 1;
+        Optional<C> previousChunk = Optional.empty();
+        boolean isSplitRunning = true;
+        while (isSplitRunning) {
+            Range<@NonNull Integer> currentRange = sortedRanges.get(rangesIndex);
+            C currentChunk = sortedChunks.get(chunkIndex);
+            int firstIndex = currentChunk.getOffset();
+            int lastIndex = currentChunk.getOffset() + currentChunk.getLength() - 1;
+            if (lastIndex < currentRange.lowerEndpoint()) {
+                chunkIndex++;
+            } else if (firstIndex > currentRange.upperEndpoint()) {
+                rangesIndex++;
+            } else if (currentRange.lowerEndpoint() >= firstIndex && currentRange.upperEndpoint() <= lastIndex) {
+                splitByFirstAndLastIndex(currentChunk, splitNewChunks, currentRange.lowerEndpoint(), currentRange.upperEndpoint());
+                rangesIndex++;
+            } else if (currentRange.lowerEndpoint() >= firstIndex) {
+                previousChunk = previousChunk.map(c -> c.append(currentChunk))
+                    .or(() -> Optional.of(currentChunk));
+                chunkIndex++;
+            } else if (currentRange.upperEndpoint() <= lastIndex) {
+                previousChunk = previousChunk.map(c -> c.append(currentChunk));
+                splitByFirstAndLastIndex(previousChunk.orElse(currentChunk), splitNewChunks, currentRange.lowerEndpoint(), currentRange.upperEndpoint());
+                rangesIndex++;
+                previousChunk = Optional.empty();
+            } else {
+                previousChunk = previousChunk.map(c -> c.append(currentChunk))
+                    .or(() -> Optional.of(currentChunk));
+                chunkIndex++;
+            }
+
+            if (chunkIndex > maxChunkIndex) {
+                if (previousChunk.isPresent()) {
+                    LOGGER.warn("Incomplete Range [{}-{}], last index found in chunk was {}", currentRange.lowerEndpoint(), currentRange.upperEndpoint(), lastIndex);
+                    splitByFirstAndLastIndex(previousChunk.get(), splitNewChunks, currentRange.lowerEndpoint(), currentRange.upperEndpoint());
                 }
+                isSplitRunning = false;
+            }
+
+            if (rangesIndex > maxRangesIndex) {
+                isSplitRunning = false;
             }
         }
-        if (mergedChunk == null) {
-            throw new IllegalArgumentException(String.format("No chunk found for range [%s-%s]", lowerIndex, upperIndex));
-        }
-
-        // We can split our chunk
-        for (Range<@NonNull Integer> range : ranges) {
-            splitByFirstAndLastIndex(mergedChunk, splitNewChunks, range.lowerEndpoint(), range.upperEndpoint());
-        }
         return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
+    }
+
+    private void checkChunkIsPresent(List<Range<@NonNull Integer>> ranges, List<C> sortedChunks) {
+        int minRangeIndex = ranges.stream().map(Range::lowerEndpoint).min(Integer::compareTo).orElse(0);
+        int maxRangeIndex = ranges.stream().map(Range::upperEndpoint).max(Integer::compareTo).orElse(0);
+        int minChunkindex = sortedChunks.stream().map(DataChunk::getOffset).min(Integer::compareTo).orElse(0);
+        int maxChunkIndex = sortedChunks.stream().map(chunk -> chunk.getOffset() + chunk.getLength() - 1).max(Integer::compareTo).orElse(0);
+        if (!(minChunkindex <= minRangeIndex && minRangeIndex <= maxChunkIndex || minChunkindex <= maxRangeIndex && maxRangeIndex <= maxChunkIndex)) {
+            throw new IllegalArgumentException(String.format("No chunk found for ranges %s", ranges));
+        }
+    }
+
+    private List<Range<@NonNull Integer>> checkAndSortRanges(List<Range<@NonNull Integer>> ranges) {
+        // Sort the ranges
+        List<Range<Integer>> sorted = new ArrayList<>(ranges);
+        sorted.sort(Comparator.comparing(Range::lowerEndpoint));
+
+        // Check the first range
+        Range<Integer> prev = sorted.getFirst();
+
+        // Check the other ranges and the overlaps
+        int nbSorted = sorted.size();
+        for (int i = 1; i < nbSorted; i++) {
+            Range<Integer> curr = sorted.get(i);
+            if (prev.isConnected(curr)) {
+                throw new IllegalArgumentException(prev + " overlaps with range " + curr);
+            }
+            prev = curr;
+        }
+        return sorted;
     }
 
     public void writeJson(JsonGenerator generator) {
