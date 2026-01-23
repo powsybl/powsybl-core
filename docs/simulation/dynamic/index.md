@@ -48,7 +48,8 @@ The outputs of a dynamic simulation are:
 
 ## Implementations
 
-For the moment, the only available implementation is provided by powsybl-dynawo, which links PowSyBl with [Dynaωo](http://dynawo.org) open source suite.
+For the moment, the only available implementation is provided by `powsybl-dynawo`, which links PowSyBl with [Dynaωo](http://dynawo.org) open source suite:
+- [Dynaωo](inv:powsybldynawo:*:*#dynamic_simulation/index)
 
 ## Going further
 - [Run a dynamic simulation through an iTools command](../../user/itools/dynamic-simulation.md): learn how to perform a dynamic simulation from the command line
