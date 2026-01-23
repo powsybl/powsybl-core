@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -38,6 +39,8 @@ import java.util.function.Supplier;
  */
 public final class JsonUtil {
 
+    private static final Map<Class<?>, JavaType> LIST_TYPE_CACHE = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, JavaType> SET_TYPE_CACHE = new ConcurrentHashMap<>();
     private static final String UNEXPECTED_TOKEN = "Unexpected token ";
 
     enum ContextType {
@@ -676,9 +679,7 @@ public final class JsonUtil {
     public static <T> T readValue(DeserializationContext context, JsonParser parser, Class<?> type) {
         try {
             if (parser.currentToken() != JsonToken.VALUE_NULL) {
-                JavaType jType = context.getTypeFactory()
-                        .constructType(type);
-                return context.readValue(parser, jType);
+                return context.readValue(parser, context.constructType(type));
             }
             return null;
         } catch (IOException e) {
@@ -687,8 +688,8 @@ public final class JsonUtil {
     }
 
     public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<?> type) {
-        JavaType listType = context.getTypeFactory()
-                .constructCollectionType(List.class, type);
+        JavaType listType = LIST_TYPE_CACHE.computeIfAbsent(type,
+            t -> context.getTypeFactory().constructCollectionType(List.class, t));
         try {
             return context.readValue(parser, listType);
         } catch (IOException e) {
@@ -697,8 +698,8 @@ public final class JsonUtil {
     }
 
     public static <T> Set<T> readSet(DeserializationContext context, JsonParser parser, Class<?> type) {
-        JavaType setType = context.getTypeFactory()
-                .constructCollectionType(Set.class, type);
+        JavaType setType = SET_TYPE_CACHE.computeIfAbsent(type,
+            t -> context.getTypeFactory().constructCollectionType(Set.class, t));
         try {
             return context.readValue(parser, setType);
         } catch (IOException e) {
