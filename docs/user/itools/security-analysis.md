@@ -151,7 +151,7 @@ This option defines the path of the [parameters](#parameters) file of the simula
 This option defines the list of extensions to complete the simulation results with additional data. The available extensions are listed in the usage of the command.
 
 ## Simulators
-The available power flow simulators implementations are described [here](../../simulation/security/implementations.md).
+The available security analysis implementations are described [here](../../simulation/security/implementations.md).
 
 ## Contingencies
 Contingencies are provided through `--contingencies-file`. The file is interpreted by the configured `ContingenciesProviderFactory` (see [`componentDefaultConfig`](../configuration/componentDefaultConfig.md)).
@@ -164,7 +164,7 @@ Typical inputs are:
 <span style="color: red">TODO</span>
 
 ## Results
-If `--output-file` is not set, results are printed to the console (tables). If `--output-file` is set, results are exported to the given path and `--output-format` must be provided.
+The expected results are described in the [security analysis documentation](../../simulation/security/index.md#outputs)
 
 ## Examples
 
