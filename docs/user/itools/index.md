@@ -33,16 +33,16 @@ It is possible to install a basic PowSyBl distribution and to start running iToo
 
 ### Install from the binaries
 
-It is possible to directly use the executable tool from the `powsybl-distribution` repository. For this follow these steps:
-- Download the zip folder from the [powSyBl-distribution latest version release](https://github.com/powsybl/powsybl-distribution/releases)
+To use the executable tool provided with the `powsybl-distribution` repository, follow these steps:
+- Download the zip folder from the latest released version of [powsybl-distribution](https://github.com/powsybl/powsybl-distribution/releases)
 - Unzip the downloaded package
 - You can then add `<INSTALL_DIR>/powsybl-distribution-<LATEST_VERSION>/bin` to your environment variable `PATH`.
 
 ### Install from the sources
 
-It is possible to generate the tool from the sources. For this follow these steps:
+To generate the executable tool from the sources, follow these steps:
 - Download the [powsybl-distribution](https://github.com/powsybl/powsybl-distribution) sources
-- You can checkout on the latest stable version thanks to the tag
+- Checkout the latest stable version by referencing the tag
 - Generate the executable with the maven command
 
 ```
@@ -53,7 +53,7 @@ $ mvn clean package
 ```
 
 The distribution is generated in the `target` folder.  
-You can then add `<PROJECT_ROOT_PATH>/target/powsybl-distribution-<VERSION>/bin` to your environment variable `PATH`.
+- Add `<INSTALL_DIR>/powsybl-distribution-<LATEST_VERSION>/bin` to your environment variable `PATH`.
 
 ### Test your installation
 
