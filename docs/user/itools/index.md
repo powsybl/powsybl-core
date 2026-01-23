@@ -5,18 +5,7 @@
 maxdepth: 1
 hidden: true
 ---
-action-simulator.md
-cim_anonymizer.md
-compare-security-analysis-results.md
-convert_network.md
-dynamic-security-analysis.md
-dynamic-simulation.md
-list-dynamic-simulation-models.md
-loadflow.md
-loadflow-validation.md
-run-script.md
-security-analysis.md
-sensitivity-computation.md
+commands.md
 ```
 
 The `iTools` script provides a command-line interface to interact with PowSyBl, available under Linux and Windows (macOS is not supported yet).
@@ -95,15 +84,14 @@ Available options are:
     --config-name <CONFIG_NAME>   Override configuration file name
 
 Available commands are:
-...
 ```
 
 `--config-name`<br>
-Use this option to overload the default base name for the configuration file. It overrides the [powsybl_config_name](#powsybl_config_name) property defined in the `itools.conf` file.
+Use this option to overload the default base name for the configuration file. It overrides the `powsybl_config_name` property defined in the `itools.conf` file.
+
 
 (itools-configuration)=
 ## Configuration
-
 The `iTools` script reads its configuration from the `<ITOOLS_PREFIX>/etc/itools.conf` [property file](https://en.wikipedia.org/wiki/.properties). The properties defined in this file are used to configure the Java Virtual Machine.
 
 **Example of itools.conf file:**
@@ -130,12 +118,29 @@ This step is not mandatory **if you already have a custom configuration file and
 **powsybl_config_dirs:**<br>
 This is an optional property that defines the list of the folders where the configuration files are located. If this property is not set, the configuration files are read from `<USER_HOME>/.itools` and `<ITOOLS_PREFIX>/etc` folders. Note that the order of the folder is really import as the PowSyBl configuration is stackable.
 
-(powsybl_config_name)=
 **powsybl_config_name:**<br>
 This is an optional property that defines the base name of the configuration files. The default value for this property is `config`.
 
-**java_xmx:**<br>
+**java_xmx**<br>
 This is an optional property that defines the maximum size of the memory allocation pool of the JVM. The default value for this property is 8 gigabytes.
+
+At startup, Powsybl looks in the configuration directories defined in the `powsybl_config_dirs` for a YAML configuration file first, for a XML configuration file then and finally for properties files.
+
+All the configuration files are stacked to allow a user to partially or totally overload the system configuration of a module.
+
+## Deprecated properties
+
+**itools_cache_dir**<br>
+The `itools_cache_dir` property is deprecated since V2.2.0. The `itools_cache_dir` property was an optional property that
+defined the path to the cache folder used by modules that required cache functionalities. The default value was
+`$HOME/.cache/itools`.
+
+**itools_config_dir**<br>
+The `itools_config_dir` property is deprecated since V2.2.0. Use the `powsybl_config_dirs` property instead.
+
+**itools_config_name**<br>
+The `itools_config_name` property is deprecated since V2.2.0. Use the `powsybl_config_name` property instead.
+
 
 ## Logging
 The `iTools` script uses [logback](https://logback.qos.ch/) as a logging framework. To configure the logging framework, edit the `<ITOOLS_HOME>/etc/logback-itools.xml` configuration file. Please refer to the [logback manual](https://logback.qos.ch/manual/index.html) for the available logging options.
@@ -156,24 +161,6 @@ Sometimes, it could be useful for a user to have its own logging configuration t
     </root>
 </configuration>
 ```
-
-(itools-available-commands)=
-## Available commands
-The `iTools` script relies on a plugin mechanism: the commands are discovered at runtime and depend on the jars present in the `share/java` folder.
-
-| Command                                                                     | Theme           | Description                                   |
-|-----------------------------------------------------------------------------|-----------------|-----------------------------------------------|
-| [action-simulator](./action-simulator.md)                                   | Computation     | Run a security analysis with remedial actions |
-| [cim-anonymizer](cim_anonymizer.md)                                         | Data conversion | Anonymize CIM files                           |
-| [compare-security-analysis-results](./compare-security-analysis-results.md) | Computation     | Compare security analysis results             |
-| [convert-network](convert_network.md)                                       | Data conversion | Convert a grid file from a format to another  |
-| [dynamic-simulation](dynamic-simulation.md)                                 | Computation     | Run a dynamic simulation                      |
-| [loadflow](loadflow.md)                                                     | Computation     | Run a power flow simulation                   |
-| [loadflow-validation](loadflow-validation.md)                               | Computation     | Validate load flow results on a network       |
-| [run-script](run-script.md)                                                 | Script          | Run a script on top of PowSyBl                |
-| [security-analysis](./security-analysis.md)                                 | Computation     | Run a security analysis                       |
-| [dynamic-security-analysis](./dynamic-security-analysis.md)                 | Computation     | Run a dynamic security analysis               |
-| [sensitivity-computation](sensitivity-computation.md)                       | Computation     | Run a sensitivity analysis                    |
 
 ## Going further
 The following links could also be useful:
