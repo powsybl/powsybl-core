@@ -36,7 +36,7 @@ It is possible to install a basic PowSyBl distribution and to start running iToo
 To use the executable tool provided with the `powsybl-distribution` repository, follow these steps:
 - Download the zip folder from the latest released version of [powsybl-distribution](https://github.com/powsybl/powsybl-distribution/releases)
 - Unzip the downloaded package
-- You can then add `<INSTALL_DIR>/powsybl-distribution-<LATEST_VERSION>/bin` to your environment variable `PATH`.
+- Add `<INSTALL_DIR>/powsybl-distribution-<LATEST_VERSION>/bin` to your environment variable `PATH`.
 
 ### Install from the sources
 
