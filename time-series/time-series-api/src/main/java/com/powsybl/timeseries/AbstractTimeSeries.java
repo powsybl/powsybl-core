@@ -147,7 +147,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             newChunk = split.getChunk2();
         }
         // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, y0=lastIndex]
-        if (lastIndex == chunkToSplit.getLength() - 1) {
+        if (lastIndex == chunkToSplit.getOffset() + chunkToSplit.getLength() - 1) {
             splitChunks.add(newChunk);
         } else {
             // chunkToSplit = [x0, y0] -> newChunk = [firstIndex, lastIndex]

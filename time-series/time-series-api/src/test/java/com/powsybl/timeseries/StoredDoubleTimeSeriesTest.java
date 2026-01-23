@@ -282,6 +282,45 @@ class StoredDoubleTimeSeriesTest {
     }
 
     @Test
+    void splitTimeSeriesWithMultipleChunksAndIgnoredChunkByRangeTest() {
+        // Prepare the TimeSeries
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(20);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0,
+            new double[]{0d, 1d, 2d, 3d, 4d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(5,
+            new double[]{5d, 6d, 7d, 8d, 9d});
+        UncompressedDoubleDataChunk chunk3 = new UncompressedDoubleDataChunk(10,
+            new double[]{10d, 11d, 12d, 13d, 14d});
+        UncompressedDoubleDataChunk chunk4 = new UncompressedDoubleDataChunk(15,
+            new double[]{15d, 16d, 17d, 18d, 19d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2, chunk3, chunk4);
+        // Prepare the Ranges
+        List<Range<@NonNull Integer>> ranges = List.of(Range.closed(6, 10), Range.closed(13, 14));
+        List<DoubleTimeSeries> split = timeSeries.splitByRanges(ranges);
+
+        // check there are 2 new time series
+        assertEquals(2, split.size());
+
+        // check first chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.getFirst());
+        StoredDoubleTimeSeries ts = (StoredDoubleTimeSeries) split.getFirst();
+        assertEquals(1, ts.getChunks().size());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
+        assertEquals(6, ts.getChunks().getFirst().getOffset());
+        assertEquals(5, ts.getChunks().getFirst().getLength());
+
+        // check second chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1));
+        ts = (StoredDoubleTimeSeries) split.get(1);
+        assertEquals(1, ts.getChunks().size());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
+        assertEquals(13, ts.getChunks().getFirst().getOffset());
+        assertEquals(2, ts.getChunks().getFirst().getLength());
+    }
+
+    @Test
     void splitTimeSeriesWithNoChunkException() {
         // Prepare the TimeSeries
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
