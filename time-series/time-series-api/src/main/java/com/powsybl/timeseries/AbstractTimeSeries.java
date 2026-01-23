@@ -132,10 +132,6 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         if (chunkToSplit.getOffset() > firstIndex) {
             throw new IllegalArgumentException(String.format("Incomplete chunk, expected at least first offset to be %s, but we got %s", firstIndex, chunkToSplit.getOffset()));
         }
-        int chunkLastIndex = chunkToSplit.getOffset() + chunkToSplit.getLength() - 1;
-        if (chunkLastIndex < lastIndex) {
-            throw new IllegalArgumentException(String.format("Incomplete chunk, expected at least last index to be %s, but we got %s", lastIndex, chunkLastIndex));
-        }
         traceSplitChunk(firstIndex, lastIndex);
         C newChunk;
         // chunkToSplit = [x0, y0] -> newChunk = [x0=firstIndex, y0]
@@ -267,7 +263,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             if (chunkIndex > maxChunkIndex) {
                 if (previousChunk.isPresent()) {
                     LOGGER.warn("Incomplete Range [{}-{}], last index found in chunk was {}", currentRange.lowerEndpoint(), currentRange.upperEndpoint(), lastIndex);
-                    splitByFirstAndLastIndex(previousChunk.get(), splitNewChunks, currentRange.lowerEndpoint(), currentRange.upperEndpoint());
+                    splitByFirstAndLastIndex(previousChunk.get(), splitNewChunks, currentRange.lowerEndpoint(), lastIndex);
                 }
                 isSplitRunning = false;
             }

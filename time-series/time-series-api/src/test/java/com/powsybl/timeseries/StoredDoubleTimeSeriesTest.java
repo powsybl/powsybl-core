@@ -351,7 +351,7 @@ class StoredDoubleTimeSeriesTest {
     }
 
     @Test
-    void splitTimeSeriesWithPartialChunkOnLastIndexException() {
+    void splitTimeSeriesWithPartialChunkOnLastIndex() {
         // Prepare the TimeSeries
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(20);
@@ -360,9 +360,19 @@ class StoredDoubleTimeSeriesTest {
             new double[]{2d, 3d, 4d, 5d, 6d, 7d});
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1);
         // Prepare the Ranges
-        List<Range<@NonNull Integer>> ranges = List.of(Range.closed(3, 8));
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> timeSeries.splitByRanges(ranges));
-        assertEquals("Incomplete chunk, expected at least last index to be 8, but we got 7", exception.getMessage());
+        List<Range<@NonNull Integer>> ranges = List.of(Range.closed(3, 200));
+        List<DoubleTimeSeries> split = timeSeries.splitByRanges(ranges);
+
+        // check there are 1 new time series
+        assertEquals(1, split.size());
+
+        // check the chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.getFirst());
+        StoredDoubleTimeSeries ts = (StoredDoubleTimeSeries) split.getFirst();
+        assertEquals(1, ts.getChunks().size());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
+        assertEquals(3, ts.getChunks().getFirst().getOffset());
+        assertEquals(5, ts.getChunks().getFirst().getLength());
     }
 
 }
