@@ -127,6 +127,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     List<T> split(int newChunkSize);
 
+    /**
+     * <p>Splits a list of chunks into sublists based on the specified ranges.</p>
+     */
     List<T> splitByRanges(List<Range<@NonNull Integer>> newChunks);
 
     void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver);
@@ -218,6 +221,18 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
     }
 
+    /**
+     * <p>Splits a list of time series into multiple lists based on the specified ranges.</p>
+     *
+     * This method takes a list of time series and a list of ranges, and splits each time series
+     * according to the ranges. The resulting split time series are then grouped into separate lists,
+     * where each list corresponds to a specific range.
+     *
+     * @param timeSeriesList The list of time series to be split.
+     * @param ranges The list of ranges used to split the time series.
+     * @return A list of lists, where each inner list contains the split time series corresponding to a specific range.
+     *
+     */
     static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> splitByRanges(List<T> timeSeriesList, List<Range<@NonNull Integer>> ranges) {
         verifyTimeSeriesList(timeSeriesList);
         verifyIndexes(getTimeSeriesIndexes(timeSeriesList));

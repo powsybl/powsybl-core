@@ -128,6 +128,14 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     protected abstract T createTimeSeries(C chunk);
 
+    /**
+     * <p>Splits a chunk into sub-chunks based on the specified first and last indices.</p>
+     *
+     * @param chunkToSplit The chunk to be split. Must not be null.
+     * @param splitChunks The list to which the resulting sub-chunks will be added.
+     * @param firstIndex The starting index (inclusive) for the split.
+     * @param lastIndex The ending index (inclusive) for the split.
+     */
     private void splitByFirstAndLastIndex(@NonNull C chunkToSplit, List<C> splitChunks, int firstIndex, int lastIndex) {
         if (chunkToSplit.getOffset() > firstIndex) {
             throw new IllegalArgumentException(String.format("Incomplete chunk, expected at least first offset to be %s, but we got %s", firstIndex, chunkToSplit.getOffset()));
@@ -222,6 +230,21 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
     }
 
+    /**
+     * <p>Splits a list of chunks into sublists based on the specified ranges.</p>
+     *
+     * This method takes a list of ranges and a list of chunks, then splits the chunks
+     * based on the provided ranges. The chunks are first sorted and checked to ensure
+     * they cover the specified ranges. Then, each chunk is split based on the ranges,
+     * and the resulting new chunks are collected into a new list.
+     *
+     * @param ranges The list of ranges to use for splitting the chunks. Each range is defined
+     *               by a pair of integers representing the start and end indices (inclusive).
+     * @return A list of new chunks created based on the specified ranges.
+     * @throws IllegalArgumentException If the ranges or chunks are null, or if the ranges are not valid.
+     * @throws IllegalStateException If the chunks do not cover the specified ranges.
+     *
+     */
     public List<T> splitByRanges(List<Range<@NonNull Integer>> ranges) {
         List<Range<@NonNull Integer>> sortedRanges = checkAndSortRanges(ranges);
         List<C> sortedChunks = getCheckedChunks(false);
