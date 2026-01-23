@@ -11,7 +11,15 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.contingency.list.ContingencyList;
-import com.powsybl.contingency.list.IdentifierContingencyListDeserializer;
+import com.powsybl.contingency.list.DefaultContingencyList;
+import com.powsybl.contingency.list.HvdcLineCriterionContingencyList;
+import com.powsybl.contingency.list.IdentifierContingencyList;
+import com.powsybl.contingency.list.InjectionCriterionContingencyList;
+import com.powsybl.contingency.list.LineCriterionContingencyList;
+import com.powsybl.contingency.list.ListOfContingencyLists;
+import com.powsybl.contingency.list.ThreeWindingsTransformerCriterionContingencyList;
+import com.powsybl.contingency.list.TieLineCriterionContingencyList;
+import com.powsybl.contingency.list.TwoWindingsTransformerCriterionContingencyList;
 
 import java.io.IOException;
 
@@ -31,40 +39,49 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
             if ("type".equals(parser.currentName())) {
                 switch (parser.nextTextValue()) {
                     case "default" -> {
-                        DefaultContingencyListDeserializer defaultContingencyListDeserializer = new DefaultContingencyListDeserializer();
-                        return defaultContingencyListDeserializer.deserialize(parser, deserializationContext);
+                        return (DefaultContingencyList) deserializationContext.findRootValueDeserializer(
+                                deserializationContext.constructType(DefaultContingencyList.class))
+                            .deserialize(parser, deserializationContext);
                     }
                     case "injectionCriterion" -> {
-                        InjectionCriterionContingencyListDeserializer injectionCriterionContingencyListDeserializer = new InjectionCriterionContingencyListDeserializer();
-                        return injectionCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                        return (InjectionCriterionContingencyList) deserializationContext.findRootValueDeserializer(
+                                deserializationContext.constructType(InjectionCriterionContingencyList.class))
+                            .deserialize(parser, deserializationContext);
                     }
                     case "hvdcCriterion" -> {
-                        HvdcLineCriterionContingencyListDeserializer hvdcLineCriterionContingencyListDeserializer = new HvdcLineCriterionContingencyListDeserializer();
-                        return hvdcLineCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                        return (HvdcLineCriterionContingencyList) deserializationContext.findRootValueDeserializer(
+                                deserializationContext.constructType(HvdcLineCriterionContingencyList.class))
+                            .deserialize(parser, deserializationContext);
                     }
                     case "lineCriterion" -> {
-                        LineCriterionContingencyListDeserializer lineCriterionContingencyListDeserializer = new LineCriterionContingencyListDeserializer();
-                        return lineCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                        return (LineCriterionContingencyList) deserializationContext.findRootValueDeserializer(
+                                deserializationContext.constructType(LineCriterionContingencyList.class))
+                            .deserialize(parser, deserializationContext);
                     }
                     case "twoWindingsTransformerCriterion" -> {
-                        TwoWindingsTransformerCriterionContingencyListDeserializer twoWindingsTransformerCriterionContingencyListDeserializer = new TwoWindingsTransformerCriterionContingencyListDeserializer();
-                        return twoWindingsTransformerCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                        return (TwoWindingsTransformerCriterionContingencyList) deserializationContext.findRootValueDeserializer(
+                                deserializationContext.constructType(TwoWindingsTransformerCriterionContingencyList.class))
+                            .deserialize(parser, deserializationContext);
                     }
                     case "threeWindingsTransformerCriterion" -> {
-                        ThreeWindingsTransformerCriterionContingencyListDeserializer threeWindingsTransformerCriterionContingencyListDeserializer = new ThreeWindingsTransformerCriterionContingencyListDeserializer();
-                        return threeWindingsTransformerCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                        return (ThreeWindingsTransformerCriterionContingencyList) deserializationContext.findRootValueDeserializer(
+                                deserializationContext.constructType(ThreeWindingsTransformerCriterionContingencyList.class))
+                            .deserialize(parser, deserializationContext);
                     }
                     case "tieLineCriterion" -> {
-                        TieLineCriterionContingencyListDeserializer tieLineCriterionContingencyListDeserializer = new TieLineCriterionContingencyListDeserializer();
-                        return tieLineCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                        return (TieLineCriterionContingencyList) deserializationContext.findRootValueDeserializer(
+                                deserializationContext.constructType(TieLineCriterionContingencyList.class))
+                            .deserialize(parser, deserializationContext);
                     }
                     case "list" -> {
-                        ListOfContingencyListsDeserializer listOfContingencyListsDeserializer = new ListOfContingencyListsDeserializer();
-                        return listOfContingencyListsDeserializer.deserialize(parser, deserializationContext);
+                        return (ListOfContingencyLists) deserializationContext.findRootValueDeserializer(
+                                deserializationContext.constructType(ListOfContingencyLists.class))
+                            .deserialize(parser, deserializationContext);
                     }
                     case "identifier" -> {
-                        IdentifierContingencyListDeserializer identifierContingencyListDeserializer = new IdentifierContingencyListDeserializer();
-                        return identifierContingencyListDeserializer.deserialize(parser, deserializationContext);
+                        return (IdentifierContingencyList) deserializationContext.findRootValueDeserializer(
+                                deserializationContext.constructType(IdentifierContingencyList.class))
+                            .deserialize(parser, deserializationContext);
                     }
                     default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
                 }

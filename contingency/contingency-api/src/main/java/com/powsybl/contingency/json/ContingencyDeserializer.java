@@ -9,7 +9,6 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -36,28 +35,30 @@ import java.util.function.Supplier;
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
-public class ContingencyDeserializer extends StdDeserializer<Contingency> implements ContextualDeserializer {
+public class ContingencyDeserializer extends StdDeserializer<Contingency>
+    implements ContextualDeserializer {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
-    private final JsonDeserializer<List<ContingencyElement>> elementDeserializer;
+    private JsonDeserializer<Object> elementDeserializer;
 
     public ContingencyDeserializer() {
         this(null);
     }
 
-    public ContingencyDeserializer(JsonDeserializer<List<ContingencyElement>> elementDeserializer) {
+    public ContingencyDeserializer(JsonDeserializer<?> elementDeserializer) {
         super(Contingency.class);
-        this.elementDeserializer = elementDeserializer;
+        this.elementDeserializer = (JsonDeserializer<Object>) elementDeserializer;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
-        JavaType elementsType = ctxt.getConfig().constructType(new TypeReference<ArrayList<ContingencyElement>>() {
-        });
-        JsonDeserializer<?> deserializer = super.findDeserializer(ctxt, elementsType, null);
-        return new ContingencyDeserializer((JsonDeserializer<List<ContingencyElement>>) deserializer);
+    public JsonDeserializer<?> createContextual(DeserializationContext deserializationContext,
+                                                BeanProperty property) throws JsonMappingException {
+        JavaType elementsType = deserializationContext.getTypeFactory()
+            .constructCollectionType(ArrayList.class, ContingencyElement.class);
+        JsonDeserializer<?> deserializer = deserializationContext.findContextualValueDeserializer(elementsType, property);
+        return new ContingencyDeserializer(deserializer);
     }
 
     @Override
@@ -74,11 +75,9 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> implem
                 case "name" -> name = parser.nextTextValue();
                 case "elements" -> {
                     parser.nextToken();
-                    if (elementDeserializer != null) {
-                        elements = elementDeserializer.deserialize(parser, deserializationContext);
-                    } else {
-                        elements = JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);
-                    }
+                    elements = elementDeserializer != null ?
+                        (List<ContingencyElement>) elementDeserializer.deserialize(parser, deserializationContext) :
+                        JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);
                 }
                 case "extensions" -> {
                     parser.nextToken();
