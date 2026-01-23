@@ -11,6 +11,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -44,12 +47,12 @@ class OperationalLimitsGroupImplTest {
         Bus bus = network.getVoltageLevel("VLHV1").getBusBreakerView().getBus("NHV1");
         Validable validable = () -> new DefaultMessageHeader("Custom validable", "fakeId");
         CustomOperationalLimitsGroup customGroup = new CustomOperationalLimitsGroup("group1", bus, null,
-                validable, "limits", "selected");
+                validable, "limits", List.of("selected"));
         customGroup.newCurrentLimits().setPermanentLimit(100.).add();
         assertFalse(updated[0]);
 
         customGroup = new CustomOperationalLimitsGroup("group1", bus, ((NetworkImpl) network).getListeners(),
-                validable, "limits", "selected");
+                validable, "limits", List.of("selected"));
         customGroup.newCurrentLimits().setPermanentLimit(1000.).add();
         assertTrue(updated[0]);
         assertEquals("Custom validable 'fakeId': ", customGroup.getValidable().getMessageHeader().toString());
@@ -57,7 +60,7 @@ class OperationalLimitsGroupImplTest {
 
     static class CustomOperationalLimitsGroup extends OperationalLimitsGroupImpl {
         public CustomOperationalLimitsGroup(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
-                                            Validable validable, String attributeName, String selectedGroupId) {
+                                            Validable validable, String attributeName, Collection<String> selectedGroupId) {
             super(id, identifiable, listeners, validable, attributeName, selectedGroupId);
         }
     }

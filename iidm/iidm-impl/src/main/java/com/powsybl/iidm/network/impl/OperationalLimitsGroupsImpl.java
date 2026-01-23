@@ -68,13 +68,27 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     public void setSelectedOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
         //TODO this is for the notifyUpdate, but is it even relevant with the new impl ?
-        OperationalLimitsGroup newSelectedLimits = getOperationalLimitsGroup(id).orElseThrow(() -> new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be part of the selected group"));
+        OperationalLimitsGroup newSelectedLimits = getSelectedOrThrow(id);
         boolean wasAlreadySelected = selectedLimitsIds.contains(id);
-        // re-insert the element, so that getSelectedOperationalLimitsGroupId returns things in the correct order (since add alone won't re-insert if already present)
-        selectedLimitsIds.remove(id);
+        cancelSelectedOperationalLimitsGroup();
         selectedLimitsIds.add(id);
         if (!wasAlreadySelected) {
             notifyUpdate(null, newSelectedLimits);
+        }
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroups(String... ids) {
+        for (String id : ids) {
+            Objects.requireNonNull(id);
+            OperationalLimitsGroup newSelectedLimits = getSelectedOrThrow(id);
+            boolean wasAlreadySelected = selectedLimitsIds.contains(id);
+            // re-insert the element with remove -> add, so that getSelectedOperationalLimitsGroupId returns things in the correct order (since add alone won't re-insert if already present)
+            selectedLimitsIds.remove(id);
+            selectedLimitsIds.add(id);
+            if (!wasAlreadySelected) {
+                notifyUpdate(null, newSelectedLimits);
+            }
         }
     }
 
@@ -183,5 +197,9 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
 
     private void notifyDeselect(String id) {
         notifyUpdate(operationalLimitsGroupById.get(id), null);
+    }
+
+    private OperationalLimitsGroup getSelectedOrThrow(String id) {
+        return getOperationalLimitsGroup(id).orElseThrow(() -> new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be part of the selected group"));
     }
 }
