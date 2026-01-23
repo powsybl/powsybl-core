@@ -363,7 +363,12 @@ The following example is a result of a security analysis with remedial action, e
 }
 ```
 
+## Implementations
+
+The following power flow implementations are supported:
+- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#security/security)
+- [Dynaflow](inv:powsybldynawo:*:*#security_analysis/index)
+
 ## Going further
 
-- Different implementations are available to run security analyses on [page](implementations.md).
 - [Run a security analysis through an iTools command](../../user/itools/security-analysis.md): Learn how to perform a security analysis from the command line.
