@@ -13,9 +13,11 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -46,29 +48,42 @@ class ProcessHelperTest {
     }
 
     @Test
-    void testWithTimeout() throws InterruptedException, IOException {
-        // process finishes in 1 second
-        when(process.exitValue()).thenThrow(new IllegalThreadStateException())
-            .thenThrow(new IllegalThreadStateException())
-            .thenReturn(0);
+    void testProcessFinishedBeforeTimeout() {
+        try {
+            when(process.waitFor(10, TimeUnit.SECONDS)).thenReturn(true);
+            when(process.exitValue()).thenReturn(0);
 
-        int exitCode = ProcessHelper.runWithTimeout(10, process);
+            int exitCode = ProcessHelper.runWithTimeout(10, process);
 
-        assertEquals(0, exitCode);
-        verify(process, never()).waitFor();
-        verify(process, times(3)).exitValue();
-        verify(process, never()).destroy();
+            assertEquals(0, exitCode);
+            verify(process, times(1)).waitFor(10, TimeUnit.SECONDS);
+            verify(process, times(1)).exitValue();
+            verify(in, times(1)).close();
+            verify(out, times(1)).close();
+            verify(err, times(1)).close();
+            verify(process, never()).destroy();
+        } catch (InterruptedException | IOException e) {
+            fail();
+        }
     }
 
     @Test
-    void testTimeouted() throws InterruptedException, IOException {
-        // process never finish
-        when(process.exitValue()).thenThrow(new IllegalThreadStateException());
+    void testTimeoutBeforeProcessFinishes() {
+        try {
+            // process never finish
+            when(process.waitFor(2, TimeUnit.SECONDS)).thenReturn(false);
 
-        int exitCode = ProcessHelper.runWithTimeout(2, process);
+            int exitCode = ProcessHelper.runWithTimeout(2, process);
 
-        assertEquals(124, exitCode);
-        verify(process, never()).waitFor();
-        verify(process, times(1)).destroy();
+            assertEquals(124, exitCode);
+            verify(process, times(1)).waitFor(2, TimeUnit.SECONDS);
+            verify(process, never()).exitValue();
+            verify(in, times(1)).close();
+            verify(out, times(1)).close();
+            verify(err, times(1)).close();
+            verify(process, times(1)).destroy();
+        } catch (InterruptedException | IOException e) {
+            fail();
+        }
     }
 }

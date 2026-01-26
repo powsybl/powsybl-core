@@ -720,7 +720,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
                 .setValue(1600.0)
                 .endTemporaryLimit();
         adder.add();
-        CurrentLimits limits1 = line.getCurrentLimits1().get();
+        CurrentLimits limits1 = line.getCurrentLimits1().orElseThrow();
 
         // Second limit
         CurrentLimitsAdder adder2 = line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits(limits1);
@@ -775,6 +775,9 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
 
         limits.setTemporaryLimitValue(5 * 60, 1750.0);
         assertEquals(1750.0, limits.getTemporaryLimit(5 * 60).getValue());
+
+        limits.setTemporaryLimitValue(5 * 60, 1750.0 + 1e-8);
+        assertEquals(1750.0, limits.getTemporaryLimit(5 * 60).getValue()); // not applied because epsilon change
 
         // Tests with invalid values
         assertEquals(1750.0, limits.getTemporaryLimit(5 * 60).getValue());
