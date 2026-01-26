@@ -21,7 +21,7 @@ Available arguments are:
 This option defines the path of the script to execute. Current, only Groovy scripts are supported.
 
 ## Groovy extensions
-The `run-script` command relies on a [plugin mechanism]() to load extensions. Those extensions provide utility functions to make the usage of PowSyBl easier through the scripts. It prevents the user from writing boilerplate code and hides the technical complexity of the framework in more user-friendly functions. PowSyBl provides the following extensions to:
+The `run-script` command relies on a plugin mechanism to load extensions. Those extensions provide utility functions to make the usage of PowSyBl easier through the scripts. It prevents the user from writing boilerplate code and hides the technical complexity of the framework in more user-friendly functions. PowSyBl provides the following extensions to:
 - [load a network from a file](#load-a-network)
 - [save a network to a file](#save-a-network)
 - [run a power flow simulation](#run-a-power-flow)
@@ -56,7 +56,7 @@ saveNetwork(format, network, parameters, file)
 ### Run a power flow
 The `LoadFlow` extension adds a `loadflow` function to run a [load flow](../../simulation/loadflow/index) simulation to a network. This function has two parameters:
 - the network object (mandatory)
-- the [load-flow parameters](../../simulation/loadflow/configuration.md#generic-parameters) (optional). If this parameter is not set, the parameters are loaded from the configuration.
+- the [load-flow parameters](../../simulation/loadflow/configuration.md#optional-properties) (optional). If this parameter is not set, the parameters are loaded from the configuration.
 
 To benefit from this feature, add `com.powsybl:powsybl-loadflow-scripting` to your classpath.
 
@@ -66,9 +66,9 @@ loadflow(network, parameters)
 ```
 
 ### Access to AFS
-The `Afs` extension adds a `afs` variable to the groovy binding that offers a facade to access data stored in [AFS](). This facade has two methods:
+The `Afs` extension adds a `afs` variable to the groovy binding that offers a facade to access data stored in [AFS](https://powsybl.readthedocs.io/projects/powsybl-afs/en/stable/). This facade has two methods:
 - `getFileSystemNames`: this method returns the names of the file system declared in the configuration
-- `getRootFolder`: this method returns the root [folder]() of the specified file system. From this root folder, it is possible to navigate in the different folders and open the different projects.
+- `getRootFolder`: this method returns the root folder of the specified file system. From this root folder, it is possible to navigate in the different folders and open the different projects.
 
 In order to benefit from this feature, add `com.powsybl:powsybl-afs-scripting` to your classpath.
 
