@@ -61,4 +61,34 @@ class TwoWindingsTransformerFortescueXmlSerDeTest extends AbstractIidmSerDeTest 
         assertEquals(fortescue.getGroundingR2(), fortescue2.getGroundingR2(), 0);
         assertEquals(fortescue.getGroundingX2(), fortescue2.getGroundingX2(), 0);
     }
+
+    @Test
+    void testXmlSerializerWithMagnetizingReactance() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(ZonedDateTime.parse("2016-12-07T11:18:52.881+01:00"));
+        var twt = network.getTwoWindingsTransformer("NGEN_NHV1");
+        assertNotNull(twt);
+        TwoWindingsTransformerFortescue fortescue = twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
+            .withRz(0.1d)
+            .withXz(2d)
+            .withFreeFluxes(false)
+            .withXm(0.5d)
+            .withConnectionType1(WindingConnectionType.Y_GROUNDED)
+            .withConnectionType2(WindingConnectionType.DELTA)
+            .withGroundingR1(0.02d)
+            .withGroundingX1(0.3d)
+            .withGroundingR2(0.04d)
+            .withGroundingX2(0.95d)
+            .add();
+
+        Network network2 = allFormatsRoundTripTest(network, "/fortescue/twoWindingsTransformerFortescueWithMagnetizingReactanceRef.xml");
+
+        TwoWindingsTransformer twt2 = network2.getTwoWindingsTransformer("NGEN_NHV1");
+        assertNotNull(twt2);
+        TwoWindingsTransformerFortescue fortescue2 = twt2.getExtension(TwoWindingsTransformerFortescue.class);
+        assertNotNull(fortescue2);
+
+        assertEquals(fortescue.isFreeFluxes(), fortescue2.isFreeFluxes());
+        assertEquals(fortescue.getXm(), fortescue2.getXm());
+    }
 }
