@@ -17,6 +17,7 @@ loadflow-results-completion-parameters.md
 load-flow-action-simulator.md
 loadflow-validation.md
 network.md
+table-formatter.md
 ```
 
 ## Modules list
@@ -45,4 +46,5 @@ network.md
 - [limit-violation-default-filter](limit-violation-default-filter.md)
 - [dynamic-security-analysis](../../simulation/dynamic_security/configuration.md#configuration)
 - [dynamic-security-analysis-default-parameters](../../simulation/dynamic_security/configuration.md#parameters)
+- [table-formatter](table-formatter.md)
 
