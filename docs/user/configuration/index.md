@@ -22,7 +22,7 @@ several properties. These properties can also be required or optional. Names in 
 ### Example
 
 **YAML configuration**
-```yml
+```yaml
 module1:
     property1a: value1
     property1b: value2
