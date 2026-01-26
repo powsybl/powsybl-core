@@ -1095,6 +1095,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean isLogUnassignedOperationalLimits() {
+            return this.logUnassignedOperationalLimits;
+        }
+
+        public Config setLogUnassignedOperationalLimits(boolean logUnassignedOperationalLimits) {
+            this.logUnassignedOperationalLimits = logUnassignedOperationalLimits;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
@@ -1127,6 +1136,7 @@ public class Conversion {
         private boolean usePreviousValuesDuringUpdate = false;
         private boolean removePropertiesAndAliasesAfterImport = false;
         private boolean useDetailedDcModel = false;
+        private boolean logUnassignedOperationalLimits = false;
     }
 
     private final CgmesModel cgmes;

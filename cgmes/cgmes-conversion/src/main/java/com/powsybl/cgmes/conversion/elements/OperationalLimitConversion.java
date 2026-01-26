@@ -11,6 +11,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -46,6 +47,21 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (isLoadingLimits()) {
             if (terminalId != null) {
                 terminal = context.terminalMapping().findForFlowLimits(terminalId);
+                if (terminal == null) {
+                    // If it is a switch Terminal we are not able to convert it
+                    CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId);
+                    if (cgmesTerminal != null && CgmesNames.SWITCH_TYPES.contains(cgmesTerminal.conductingEquipmentType())) {
+                        // note that in bus-breaker import, the Switch may not exist in IIDM if it has same from/to buses.
+                        notAssigned("Switch", cgmesTerminal.conductingEquipment());
+                        return;
+                    }
+                    // If it is a boundary Terminal we are not able to convert it
+                    Boundary boundary = context.terminalMapping().findBoundary(terminalId);
+                    if (boundary != null) {
+                        notAssigned(boundary.getDanglingLine());
+                        return;
+                    }
+                }
             }
             if (terminal != null) {
                 checkAndCreateLimitsAdder(context.terminalMapping().number(terminalId), terminal.getConnectable());
@@ -229,6 +245,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     @Override
     public boolean valid() {
+        if (notAssigned) {
+            // a "not assigned" log was already issued
+            return false;
+        }
         if (vl == null && olga == null
                 && olga1 == null
                 && olga2 == null
@@ -442,19 +462,26 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void notAssigned(Identifiable<?> eq) {
-        String type = p.getLocal(LIMIT_TYPE);
-        String typeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
-        String subclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
-        Supplier<String> reason = () -> String.format(
-                "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
-                eq != null ? className(eq) : "",
-                eq != null ? eq.getId() : "",
-                id,
-                type,
-                typeName,
-                subclass,
-                terminalId);
-        context.pending(OPERATIONAL_LIMIT, reason);
+        notAssigned(eq != null ? className(eq) : "", eq != null ? eq.getId() : "");
+    }
+
+    private void notAssigned(String className, String id) {
+        this.notAssigned = true;
+        if (context.config().isLogUnassignedOperationalLimits()) {
+            String type = p.getLocal(LIMIT_TYPE);
+            String typeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
+            String subclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
+            Supplier<String> reason = () -> String.format(
+                    "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
+                    className != null ? className : "",
+                    id != null ? id : "",
+                    id,
+                    type,
+                    typeName,
+                    subclass,
+                    terminalId);
+            context.pending(OPERATIONAL_LIMIT, reason);
+        }
     }
 
     private static String className(Identifiable<?> o) {
@@ -464,6 +491,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             s = s.substring(dot + 1);
         }
         s = s.replace("Impl", "");
+        s = s.replace("DanglingLine", "DanglingLine at boundary side");
         return s;
     }
 
@@ -576,6 +604,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private final String terminalId;
     private final String equipmentId;
     private final String limitSubclass;
+
+    private boolean notAssigned = false;
 
     private OLGA olga;
     private OLGA olga1;
