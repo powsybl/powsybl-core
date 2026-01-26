@@ -16,6 +16,7 @@ limit-violation-default-filter.md
 loadflow-results-completion-parameters.md
 load-flow-action-simulator.md
 loadflow-validation.md
+network.md
 ```
 
 ## Modules list
@@ -33,6 +34,7 @@ loadflow-validation.md
 - [import-export-parameters-default-value](import-export-parameters-default-value.md)
 - [load-flow](../../simulation/loadflow/configuration.md#implementation)
 - [load-flow-default-parameters](../../simulation/loadflow/configuration.md#optional-properties)
+- [network](network.md)
 - [open-loadflow-default-parameters](../../simulation/loadflow/configuration.md#specific-parameters) (Open Load Flow implementation of the loadflow)
 - [dynaflow-default-parameters](../../simulation/loadflow/configuration.md#specific-parameters) (Dynaflow implementation of the loadflow)
 - [load-flow-based-phase-shifter-optimizer](../../simulation/loadflow/load-flow-based-phase-shifter-optimizer.md)
