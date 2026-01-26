@@ -129,7 +129,7 @@ At startup, Powsybl looks in the configuration directories defined in the `powsy
 
 All the configuration files are stacked to allow a user to partially or totally overload the system configuration of a module.
 
-## Deprecated properties
+### Deprecated properties
 
 **itools_cache_dir**<br>
 The `itools_cache_dir` property is deprecated since V2.2.0. The `itools_cache_dir` property was an optional property that
@@ -162,6 +162,53 @@ Sometimes, it could be useful for a user to have its own logging configuration t
     </root>
 </configuration>
 ```
+
+
+## Examples
+
+### Converting a UCTE network file to XIIDM
+
+In this example, you will convert a UCTE file describing the Belgian network to XIIDM format.
+The `beTestGridForMerging.uct` file available in `<POWSYBL-CORE_DIR>/ucte/ucte-util/src/test/resources` repository will be used.
+
+Run the following command:
+```
+$ itools convert-network --input-file <POWSYBL-CORE_DIR>/ucte/ucte-util/src/test/resources/beTestGridForMerging.uct --output-file <HOME>/beTestGridForMerging --output-format XIIDM
+Generating file <POWSYBL-CORE_DIR>/beTestGridForMerging.xiidm...
+```
+
+Once the command is completed, the XIIDM file describing the Belgian network will be present as `beTestGridForMerging.xiidm` in your `HOME` repository.
+
+### Update an XIIDM network file after running a load-flow
+
+In this example, you will update an XIIDM file describing the example Eurostag network after running a load-flow using `powsybl-open-loadflow`.
+The `eurostag-tutorial-example1.xml` file available in `<POWSYBL-CORE_DIR>/iidm/iidm-serde/src/test/resources/V1_0` repository. Please note that this will permanently
+change the file. In order to keep it, you can start by copying it:
+```
+$ cp <POWSYBL-CORE_DIR>/iidm/iidm-serde/src/test/resources/V1_0/eurostag-tutorial-example1.xml <HOME>/eurostag-tutorial-example1.xiidm
+```
+
+Run the following command:
+```
+$ itools loadflow --case-file <HOME>/eurostag-tutorial-example1.xiidm --output-case-file <HOME>/eurostag-tutorial-example1.xiidm --output-case-format XIIDM
+Loading network '/home/caronali/Téléchargements/eurostag-tutorial-example1.xiidm'
+ERROR c.p.o.a.o.DistributedSlackOuterLoop - Failed to distribute slack bus active power mismatch, -1.44 MW remains
+Loadflow results:
++-------+--------+---------+
+| Ok    | Status | Metrics |
++-------+--------+---------+
+| false | FAILED | {}      |
++-------+--------+---------+
+Components results:
++---------------------+-----------------------+--------+-------------------------------------------------------------------------------------------+---------+-----------------+--------------+-------------------------+-------------------------------+
+| Connected component | Synchronous component | Status | Status text                                                                               | Metrics | Iteration count | Slack bus ID | Slack bus mismatch (MW) | Distributed Active Power (MW) |
++---------------------+-----------------------+--------+-------------------------------------------------------------------------------------------+---------+-----------------+--------------+-------------------------+-------------------------------+
+| 0                   | 0                     | FAILED | Outer loop failed: Failed to distribute slack bus active power mismatch, -1.44 MW remains | {}      | 3               | VLHV1_0      | -1,44                   | 0,00000                       |
++---------------------+-----------------------+--------+-------------------------------------------------------------------------------------------+---------+-----------------+--------------+-------------------------+-------------------------------+
+
+```
+
+Once the command is completed, the `eurostag-tutorial-example1.xiidm` file will be updated to contain post load-flow results, including calculated bus voltage, calculated bus angles and calculated flows.
 
 ## Going further
 The following links could also be useful:
