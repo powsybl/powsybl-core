@@ -180,6 +180,12 @@ public final class ValidationUtil {
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
+    public static void checkRate(Validable validable, String validableType, double rate, String fieldName) {
+        if (!Double.isNaN(rate) && (rate < 0 || rate > 1)) {
+            throw new ValidationException(validable, "Unexpected value for " + fieldName + " of " + validableType + " : " + rate + " is not included in [0, 1]");
+        }
+    }
+
     public static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, ValidationLevel validationLevel, ReportNode reportNode) {
         return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, checkValidationActionOnError(validationLevel), reportNode);
     }
