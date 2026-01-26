@@ -6,6 +6,7 @@ maxdepth: 1
 hidden: true
 ---
 commands.md
+itools-packager.md
 ```
 
 The `iTools` script provides a command-line interface to interact with PowSyBl, available under Linux and Windows (macOS is not supported yet).
