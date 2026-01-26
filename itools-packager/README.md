@@ -1,4 +1,4 @@
-itools packager 
+itools packager
 ---------------
 This Maven plugin can be used to generate an itools package with the following layout:
 ```bash
