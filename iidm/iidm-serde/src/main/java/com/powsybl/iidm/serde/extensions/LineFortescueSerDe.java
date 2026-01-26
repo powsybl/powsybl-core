@@ -49,10 +49,13 @@ public class LineFortescueSerDe extends AbstractVersionableNetworkExtensionSerDe
     public void write(LineFortescue lineFortescue, SerializerContext context) {
         context.getWriter().writeDoubleAttribute("rz", lineFortescue.getRz(), Double.NaN);
         context.getWriter().writeDoubleAttribute("xz", lineFortescue.getXz(), Double.NaN);
-        context.getWriter().writeDoubleAttribute("g1z", lineFortescue.getG1z(), Double.NaN);
-        context.getWriter().writeDoubleAttribute("g2z", lineFortescue.getG2z(), Double.NaN);
-        context.getWriter().writeDoubleAttribute("b1z", lineFortescue.getB1z(), Double.NaN);
-        context.getWriter().writeDoubleAttribute("b2z", lineFortescue.getB2z(), Double.NaN);
+        Version extVersion = getExtensionVersionToExport(context);
+        if (extVersion.isGreaterThan(Version.V_1_0)) {
+            context.getWriter().writeDoubleAttribute("g1z", lineFortescue.getG1z(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("g2z", lineFortescue.getG2z(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("b1z", lineFortescue.getB1z(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("b2z", lineFortescue.getB2z(), Double.NaN);
+        }
         context.getWriter().writeBooleanAttribute("openPhaseA", lineFortescue.isOpenPhaseA(), false);
         context.getWriter().writeBooleanAttribute("openPhaseB", lineFortescue.isOpenPhaseB(), false);
         context.getWriter().writeBooleanAttribute("openPhaseC", lineFortescue.isOpenPhaseC(), false);
@@ -62,10 +65,17 @@ public class LineFortescueSerDe extends AbstractVersionableNetworkExtensionSerDe
     public LineFortescue read(Line line, DeserializerContext context) {
         double rz = context.getReader().readDoubleAttribute("rz");
         double xz = context.getReader().readDoubleAttribute("xz");
-        double g1z = context.getReader().readDoubleAttribute("g1z");
-        double g2z = context.getReader().readDoubleAttribute("g2z");
-        double b1z = context.getReader().readDoubleAttribute("b1z");
-        double b2z = context.getReader().readDoubleAttribute("b2z");
+        double g1z = Double.NaN;
+        double g2z = Double.NaN;
+        double b1z = Double.NaN;
+        double b2z = Double.NaN;
+        Version extVersion = getExtensionVersionImported(context);
+        if (extVersion.isGreaterThan(Version.V_1_0)) {
+            g1z = context.getReader().readDoubleAttribute("g1z");
+            g2z = context.getReader().readDoubleAttribute("g2z");
+            b1z = context.getReader().readDoubleAttribute("b1z");
+            b2z = context.getReader().readDoubleAttribute("b2z");
+        }
         boolean openPhaseA = context.getReader().readBooleanAttribute("openPhaseA", false);
         boolean openPhaseB = context.getReader().readBooleanAttribute("openPhaseB", false);
         boolean openPhaseC = context.getReader().readBooleanAttribute("openPhaseC", false);
