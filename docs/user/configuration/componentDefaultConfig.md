@@ -11,12 +11,10 @@ The names of the properties are the names of Java interfaces of the powsybl fram
 
 ## Example
 In the configuration below, we define these functionalities:
- - A security analysis
  - A description of contingencies
 
-The chosen implementations are:
- - "slow" security analysis (for few contingencies), post-contingency LF based implementation
- - the contingencies expressed in Groovy DSL language
+The chosen implementation is:
+ - The contingencies expressed in Groovy DSL language
 
 **YAML configuration:**
 ```yaml
