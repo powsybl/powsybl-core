@@ -17,6 +17,7 @@ import com.powsybl.security.detectors.LoadingLimitType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -108,20 +109,23 @@ public final class LimitViolationDetection {
                                     Consumer<LimitViolation> consumer) {
         boolean overloadOnTemporary = false;
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
-            Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitsComputer, value, type);
-            if (overload != null) {
-                consumer.accept(new LimitViolation(branch.getId(),
-                        branch.getOptionalName().orElse("null"),
-                        toLimitViolationType(type),
-                        overload.getPreviousLimitName(),
-                        overload.getTemporaryLimit().getAcceptableDuration(),
-                        overload.getPreviousLimit(),
-                        overload.getLimitReductionCoefficient(),
-                        value,
-                        side));
-                overloadOnTemporary = true;
+            Collection<Overload> overloads = LimitViolationUtils.checkAllTemporaryLimits(branch, side, limitsComputer, value, type);
+            for (Overload overload : overloads) {
+                if (overload != null) {
+                    consumer.accept(new LimitViolation(branch.getId(),
+                            branch.getOptionalName().orElse("null"),
+                            toLimitViolationType(type),
+                            overload.getPreviousLimitName(),
+                            overload.getTemporaryLimit().getAcceptableDuration(),
+                            overload.getPreviousLimit(),
+                            overload.getLimitReductionCoefficient(),
+                            value,
+                            side));
+                    overloadOnTemporary = true;
+                }
             }
         }
+        //TODO change this to multiple permanent limit maybe ? unless they are all the same
         if (!overloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
             PermanentLimitCheckResult overload = LimitViolationUtils.checkPermanentLimit(branch, side, value, type, limitsComputer);
             if (overload.isOverload()) {
@@ -173,20 +177,23 @@ public final class LimitViolationDetection {
                                     Consumer<LimitViolation> consumer) {
         boolean overloadOnTemporary = false;
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
-            Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitsComputer, value, type);
-            if (overload != null) {
-                consumer.accept(new LimitViolation(transformer.getId(),
-                        transformer.getOptionalName().orElse(null),
-                        toLimitViolationType(type),
-                        overload.getPreviousLimitName(),
-                        overload.getTemporaryLimit().getAcceptableDuration(),
-                        overload.getPreviousLimit(),
-                        overload.getLimitReductionCoefficient(),
-                        value,
-                        side));
-                overloadOnTemporary = true;
+            Collection<Overload> overloads = LimitViolationUtils.checkAllTemporaryLimits(transformer, side, limitsComputer, value, type);
+            for (Overload overload: overloads) {
+                if (overload != null) {
+                    consumer.accept(new LimitViolation(transformer.getId(),
+                            transformer.getOptionalName().orElse(null),
+                            toLimitViolationType(type),
+                            overload.getPreviousLimitName(),
+                            overload.getTemporaryLimit().getAcceptableDuration(),
+                            overload.getPreviousLimit(),
+                            overload.getLimitReductionCoefficient(),
+                            value,
+                            side));
+                    overloadOnTemporary = true;
+                }
             }
         }
+        //TODO change this to multiple permanent limit maybe ? unless they are all the same
         if (!overloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
             PermanentLimitCheckResult overload = LimitViolationUtils.checkPermanentLimit(transformer, side, limitsComputer, value, type);
             if (overload.isOverload()) {

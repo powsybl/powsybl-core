@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.IdenticalLimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -43,6 +44,19 @@ public interface LimitsComputer<P, L> {
      * @return an object containing the original limits and the altered ones
      */
     Optional<LimitsContainer<L>> computeLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly);
+
+    /**
+     * <p>Retrieve the limits of <code>processable</code> corresponding to the given limits type and side for all the selected limits (can be more than one),
+     * then apply on them the modifications configured in the current {@link LimitsComputer}.</p>
+     * <p>The result of this method contains both originals and altered limits.</p>
+     * @param processable The network element for which the altered limits must be computed
+     * @param limitType The type of the limits to process
+     * @param side The side of <code>processable</code> on which the limits should be retrieved
+     * @param monitoringOnly If <code>true</code>, compute the limits to use for a monitoring only use case.
+     *                       If <code>false</code>, compute the limits to use for a monitoring + action use case.
+     * @return a collection containing the original limits and the altered ones
+     */
+    Collection<LimitsContainer<L>> computeAllSelectedLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly);
 
     /**
      * An implementation of {@link LimitsComputer} only retrieving the limits without applying modifications.

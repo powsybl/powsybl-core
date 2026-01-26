@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -45,6 +46,10 @@ public final class LimitViolationUtils {
             .orElse(null);
     }
 
+    /**
+     * @deprecated use checkAllTemporaryLimits(branch, side, limitsComputer, i, type).getFirst() for migration
+     */
+    @Deprecated(since = "7.2.0", forRemoval = true)
     public static Overload checkTemporaryLimits(Branch<?> branch, TwoSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
@@ -53,12 +58,52 @@ public final class LimitViolationUtils {
                 .orElse(null);
     }
 
+    /**
+     * @deprecated use checkAllTemporaryLimits(transformer, side, limitsComputer, i, type).getFirst() for migration
+     */
+    @Deprecated(since = "7.2.0", forRemoval = true)
     public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
         return getLimits(transformer, side, type, limitsComputer)
                 .map(limits -> getOverload(limits, i))
                 .orElse(null);
+    }
+
+    /**
+     * Checks temporary limits on all selected sets (can be multiple selected) on the given side of the branch, for the limitType
+     * @param branch the branch on which to check the limits
+     * @param side the side of the branch to check
+     * @param limitsComputer how to access the limit, refer to {@link LimitsComputer}
+     * @param i the value at the given side of the branch that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
+     * @param type the type we are checking the limit of
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     */
+    public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
+        Objects.requireNonNull(branch);
+        Objects.requireNonNull(side);
+        return limitsComputer.computeAllSelectedLimits(branch, type, side.toThreeSides(), false)
+                .stream()
+                .map(limits -> getOverload(limits, i))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Checks temporary limits on all selected sets (can be multiple selected) on the given side of the transformer, for the limitType
+     * @param transformer the transformer on which to check the limits
+     * @param side the side of the transformer to check
+     * @param limitsComputer how to access the limit, refer to {@link LimitsComputer}
+     * @param i the value at the given side of the transformer that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
+     * @param type the type we are checking the limit of
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     */
+    public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
+        Objects.requireNonNull(transformer);
+        Objects.requireNonNull(side);
+        return limitsComputer.computeAllSelectedLimits(transformer, type, side, false)
+                .stream()
+                .map(limits -> getOverload(limits, i))
+                .collect(Collectors.toList());
     }
 
     private static OverloadImpl createOverload(LoadingLimits.TemporaryLimit tl,
