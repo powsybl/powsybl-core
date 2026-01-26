@@ -336,6 +336,17 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
                         throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
             };
         }
+
+        @Override
+        public Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type) {
+            return switch (type) {
+                case CURRENT -> getAllSelectedCurrentLimits();
+                case ACTIVE_POWER -> getAllSelectedActivePowerLimits();
+                case APPARENT_POWER -> getAllSelectedApparentPowerLimits();
+                default ->
+                        throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+            };
+        }
     }
 
     private final LegImpl leg1;

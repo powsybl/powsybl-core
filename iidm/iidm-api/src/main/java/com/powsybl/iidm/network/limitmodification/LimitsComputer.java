@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.limitmodification.result.IdenticalLimitsContaine
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -66,6 +67,11 @@ public interface LimitsComputer<P, L> {
         public Optional<LimitsContainer<LoadingLimits>> computeLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
             Optional<LoadingLimits> limits = LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
             return limits.map(IdenticalLimitsContainer::new);
+        }
+
+        @Override
+        public Collection<LimitsContainer<LoadingLimits>> computeAllSelectedLimits(Identifiable<?> processable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
+            return List.of();
         }
 
         @Override

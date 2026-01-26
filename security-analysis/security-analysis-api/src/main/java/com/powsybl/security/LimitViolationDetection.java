@@ -178,7 +178,7 @@ public final class LimitViolationDetection {
         boolean overloadOnTemporary = false;
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
             Collection<Overload> overloads = LimitViolationUtils.checkAllTemporaryLimits(transformer, side, limitsComputer, value, type);
-            for (Overload overload: overloads) {
+            for (Overload overload : overloads) {
                 if (overload != null) {
                     consumer.accept(new LimitViolation(transformer.getId(),
                             transformer.getOptionalName().orElse(null),

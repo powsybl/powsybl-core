@@ -9,6 +9,8 @@ package com.powsybl.iidm.network;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
 
@@ -123,6 +125,14 @@ public interface FlowsLimitsHolder {
     }
 
     /**
+     * Get all the {@link CurrentLimits} of all the selected {@link OperationalLimitsGroup}
+     * @return a collection of {@link CurrentLimits}, one per {@link OperationalLimitsGroup} that is selected, might be empty if none is selected
+     */
+    default Collection<CurrentLimits> getAllSelectedCurrentLimits() {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getCurrentLimits);
+    }
+
+    /**
      * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup}.
      * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
      */
@@ -158,6 +168,14 @@ public interface FlowsLimitsHolder {
         return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getActivePowerLimits);
     }
 
+    /**
+     * Get all the {@link ActivePowerLimits} of all the selected {@link OperationalLimitsGroup}
+     * @return a collection of {@link ActivePowerLimits}, one per {@link OperationalLimitsGroup} that is selected, might be empty if none is selected
+     */
+    default Collection<ActivePowerLimits> getAllSelectedActivePowerLimits() {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getActivePowerLimits);
+    }
+
     //TODO do we want that ? do we want Collection<Optional<>> or just Collection<> ? If just collection what do we put when optional is empty, null ? should we do the same for current and apparent power ?
     /**
      * Get the {@link ActivePowerLimits} of all selected {@link OperationalLimitsGroup}
@@ -186,6 +204,14 @@ public interface FlowsLimitsHolder {
      */
     default Optional<ApparentPowerLimits> getApparentPowerLimits() {
         return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
+    }
+
+    /**
+     * Get all the {@link ApparentPowerLimits} of all the selected {@link OperationalLimitsGroup}
+     * @return a collection of {@link ApparentPowerLimits}, one per {@link OperationalLimitsGroup} that is selected, might be empty if none is selected
+     */
+    default Collection<ApparentPowerLimits> getAllSelectedApparentPowerLimits() {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
     /**
@@ -273,4 +299,19 @@ public interface FlowsLimitsHolder {
         ActivePowerLimitsAdder adder = newActivePowerLimits();
         return initializeFromLoadingLimits(adder, limits);
     }
+
+    /**
+     * Helper function to return an operational limit of a given type using the provided function
+     * @param operationalLimitToLoadingLimitFunction the function that will return an optional {@link LoadingLimits} from an {@link OperationalLimitsGroup}
+     * @return a collection of loadingLimits, all the same type
+     * @param <T> the type of loadingLimit
+     */
+    private <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<OperationalLimitsGroup, Optional<T>> operationalLimitToLoadingLimitFunction) {
+        return getAllSelectedOperationalLimitsGroup()
+                .stream()
+                .map(operationalLimitToLoadingLimitFunction)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
+    }
+
 }

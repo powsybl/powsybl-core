@@ -12,9 +12,7 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.limitmodification.result.AbstractDistinctLimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -265,6 +263,7 @@ public final class LimitViolationUtils {
         return transformer.getLeg(side).getLimits(type);
     }
 
+    //TODO depreciate this ? breaking change ? keep it like that ?
     public static Optional<LoadingLimits> getLoadingLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
         return switch (identifiable.getType()) {
             case LINE -> (Optional<LoadingLimits>) ((Line) identifiable).getLimits(limitType, side.toTwoSides());
@@ -275,5 +274,18 @@ public final class LimitViolationUtils {
                 (Optional<LoadingLimits>) ((ThreeWindingsTransformer) identifiable).getLeg(side).getLimits(limitType);
             default -> Optional.empty();
         };
+    }
+
+    //TODO keep the same method calls structure, or find a way to make it simpler with less recursive call to functions
+    public static Collection<LoadingLimits> getAllSelectedLoadingLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
+        Collection<? extends LoadingLimits> limits = switch (identifiable.getType()) {
+            case LINE -> ((Line) identifiable).getAllSelectedLimits(limitType, side.toTwoSides());
+            case TIE_LINE -> ((TieLine) identifiable).getAllSelectedLimits(limitType, side.toTwoSides());
+            case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getAllSelectedLimits(limitType, side.toTwoSides());
+            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getLeg(side).getAllSelectedLimits(limitType);
+            default -> Collections.emptyList();
+        };
+        //prevent unchecked type cast by copying
+        return new ArrayList<>(limits);
     }
 }

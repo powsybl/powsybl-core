@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -291,6 +292,8 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         ThreeSides getSide();
 
         Optional<? extends LoadingLimits> getLimits(LimitType type);
+
+        Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type);
 
         /**
          * Get the associated three-winding transformer.

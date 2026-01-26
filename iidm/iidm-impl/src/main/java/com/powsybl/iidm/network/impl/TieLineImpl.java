@@ -255,6 +255,11 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup1() {
+        return danglingLine1.getAllSelectedOperationalLimitsGroup();
+    }
+
+    @Override
     public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
         return danglingLine1.newOperationalLimitsGroup(id);
     }
@@ -329,6 +334,11 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2() {
         return danglingLine2.getSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup2() {
+        return danglingLine2.getAllSelectedOperationalLimitsGroup();
     }
 
     @Override
