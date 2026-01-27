@@ -67,7 +67,6 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public void setSelectedOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
-        //TODO this is for the notifyUpdate, but is it even relevant with the new impl ?
         OperationalLimitsGroup newSelectedLimits = getOperationalLimitsGroupOrThrow(id);
         boolean wasAlreadySelected = selectedLimitsIds.contains(id);
         cancelSelectedOperationalLimitsGroup();
