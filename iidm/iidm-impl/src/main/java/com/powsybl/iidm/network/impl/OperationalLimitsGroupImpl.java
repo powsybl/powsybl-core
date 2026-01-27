@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -28,9 +29,27 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
     private final String attributeName;
     private final Collection<String> selectedGroupIds;
 
+    /**
+     * @deprecated use {@link OperationalLimitsGroupImpl#OperationalLimitsGroupImpl(String, AbstractIdentifiable, String, Collection)}
+     */
+    @Deprecated(since = "7.2.0", forRemoval = true)
+    OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, String selectedGroupId) {
+        this(id, Objects.requireNonNull(identifiable), identifiable.getNetwork().getListeners(),
+                identifiable, attributeName, List.of(selectedGroupId));
+    }
+
     OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, Collection<String> selectedGroupIds) {
         this(id, Objects.requireNonNull(identifiable), identifiable.getNetwork().getListeners(),
                 identifiable, attributeName, selectedGroupIds);
+    }
+
+    /**
+     * @deprecated use {@link OperationalLimitsGroupImpl#OperationalLimitsGroupImpl(String, Identifiable, NetworkListenerList, Validable, String, Collection)}
+     */
+    @Deprecated(since = "7.2.0", forRemoval = true)
+    public OperationalLimitsGroupImpl(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
+                                      Validable validable, String attributeName, String selectedGroupId) {
+        this(id, identifiable, listeners, validable, attributeName, List.of(selectedGroupId));
     }
 
     public OperationalLimitsGroupImpl(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
