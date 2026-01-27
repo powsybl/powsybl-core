@@ -61,7 +61,6 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
             deselectOperationalLimitsGroup(id);
         }
         operationalLimitsGroupById.remove(id);
-
     }
 
     @Override
