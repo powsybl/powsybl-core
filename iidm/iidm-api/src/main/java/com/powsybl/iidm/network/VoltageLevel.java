@@ -192,7 +192,6 @@ import java.util.stream.Stream;
  *        .setId("VL1")
  *        .setTopologyKind(TopologyKind.NODE_BREAKER)
  *        .add();
- *    vl1.getNodeBreakerView().setNodeCount(8);
  *    // create busbar sections BBS1 and BBS2
  *    vl1.getNodeBreakerView().newBusbarSection()
  *        .setId("BBS1")
@@ -217,19 +216,19 @@ import java.util.stream.Stream;
  *        .setId("BR1")
  *        .setOpen(false)
  *        .setNode1(1)
- *        .setNode1(2)
+ *        .setNode2(2)
  *        .add();
  *    vl1.getNodeBreakerView().newDisconnector()
  *        .setId("DI1")
  *        .setOpen(false)
  *        .setNode1(2)
- *        .setNode1(3)
+ *        .setNode2(3)
  *        .add();
  *    vl1.getNodeBreakerView().newDisconnector()
  *        .setId("DI2")
  *        .setOpen(true)
  *        .setNode1(2)
- *        .setNode1(4)
+ *        .setNode2(4)
  *        .add();
  *    // connect load LD
  *    ...
@@ -246,7 +245,6 @@ import java.util.stream.Stream;
  *        .setId("VL2")
  *        .setTopologyKind(TopologyKind.NODE_BREAKER)
  *        .add();
- *    vl2.getNodeBreakerView().setNodeCount(3);
  *    // create busbar section BBS3
  *    vl2.getNodeBreakerView().newBusbarSection()
  *        .setId("BBS3")
