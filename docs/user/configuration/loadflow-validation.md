@@ -1,5 +1,5 @@
 # loadflow-validation
-The `loadflow-validation` module is used by the [loadflow-validation](../itools/loadflow-validation.md) command. It defines the parameters used during the validation of load flow results.
+The `loadflow-validation` module is used by the [loadflow-validation](../itools/loadflow-validation.md) command and the [load flow validation](../../grid_features/loadflow_validation.md) feature. It defines the parameters used during the validation of load flow results.
 
 ## Optional properties
 
@@ -16,7 +16,7 @@ Set the `compare-results` property to true to compare the results of 2 validatio
 The `epsilon-x` property is an optional property that defines the value used to correct the reactance in flows validation. The default value of this property is `0.1`.
 
 **load-flow-name**<br>
-The `load-flow-name` property is an optional property that defines the implementation name to use for running the load flow. If this property is not set, the default load flow implementation is used. See [Loadflow Configuration](load-flow.md) to configure the default load flow.
+The `load-flow-name` property is an optional property that defines the implementation name to use for running the load flow. If this property is not set, the default load flow implementation is used. See [Loadflow Configuration](../../simulation/loadflow/configuration.md#implementation) to configure the default load flow.
 
 **Note**: In previous PowSyBl releases (before 3.0.0), this was configured by the `load-flow-factory` property with the full classname of the implementation.
 
