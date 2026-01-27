@@ -61,7 +61,7 @@ public interface FlowsLimitsHolder {
      * Get all the selected {@link OperationalLimitsGroup}
      * @return a collection containing all selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
      */
-    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup();
+    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups();
 
     /**
      * <p>Create a new {@link OperationalLimitsGroup} with the given ID.</p>
@@ -140,7 +140,6 @@ public interface FlowsLimitsHolder {
         return getCurrentLimits().orElse(null);
     }
 
-    //TODO does it still make sense to have a default when multiple active are present ?
     /**
      * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exist.
      * Set the {@link OperationalLimitsGroup} as a selected one.</p>
@@ -184,7 +183,7 @@ public interface FlowsLimitsHolder {
      * might be empty is none is selected
      */
     default Collection<Optional<ActivePowerLimits>> getActivePowerLimitsFromId() {
-        return getAllSelectedOperationalLimitsGroup()
+        return getAllSelectedOperationalLimitsGroups()
                 .stream()
                 .map(OperationalLimitsGroup::getActivePowerLimits)
                 .toList();
@@ -307,7 +306,7 @@ public interface FlowsLimitsHolder {
      * @param <T> the type of loadingLimit
      */
     private <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<OperationalLimitsGroup, Optional<T>> operationalLimitToLoadingLimitFunction) {
-        return getAllSelectedOperationalLimitsGroup()
+        return getAllSelectedOperationalLimitsGroups()
                 .stream()
                 .map(operationalLimitToLoadingLimitFunction)
                 .flatMap(Optional::stream)

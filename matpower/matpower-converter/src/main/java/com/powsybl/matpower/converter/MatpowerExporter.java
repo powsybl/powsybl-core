@@ -483,7 +483,7 @@ public class MatpowerExporter implements Exporter {
         }
 
         @Override
-        public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup() {
+        public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
             throw new UnsupportedOperationException();
         }
 
