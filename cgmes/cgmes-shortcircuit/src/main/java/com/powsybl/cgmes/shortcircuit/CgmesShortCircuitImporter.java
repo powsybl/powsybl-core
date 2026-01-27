@@ -8,9 +8,9 @@
 
 package com.powsybl.cgmes.shortcircuit;
 
-import java.util.Objects;
-
 import com.powsybl.iidm.network.Network;
+
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

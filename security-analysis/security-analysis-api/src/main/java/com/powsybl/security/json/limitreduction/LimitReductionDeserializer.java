@@ -41,41 +41,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
     @Override
     public LimitReduction deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        JsonUtil.parseObject(parser, fieldName -> {
-            switch (fieldName) {
-                case "value" -> {
-                    parser.nextToken();
-                    context.value = parser.readValueAs(Float.class);
-                    return true;
-                }
-                case "limitType" -> {
-                    context.limitType = LimitType.valueOf(parser.nextTextValue());
-                    return true;
-                }
-                case "monitoringOnly" -> {
-                    context.monitoringOnly = parser.nextBooleanValue();
-                    return true;
-                }
-                case "contingencyContext" -> {
-                    parser.nextToken();
-                    context.contingencyContext = JsonUtil.readValue(deserializationContext, parser, ContingencyContext.class);
-                    return true;
-                }
-                case "equipmentCriteria" -> {
-                    parser.nextToken();
-                    context.networkElementCriteria = JsonUtil.readList(deserializationContext, parser, NetworkElementCriterion.class);
-                    return true;
-                }
-                case "durationCriteria" -> {
-                    parser.nextToken();
-                    context.durationCriteria = JsonUtil.readList(deserializationContext, parser, LimitDurationCriterion.class);
-                    return true;
-                }
-                default -> {
-                    return false;
-                }
-            }
-        });
+        JsonUtil.parseObject(parser, fieldName -> parseLimitReduction(parser, deserializationContext, context, fieldName));
         LimitReduction.Builder builder = LimitReduction.builder(checkAttribute(context.limitType, "limitType"),
                         checkAttribute(context.value, "value"))
                 .withMonitoringOnly(checkAttribute(context.monitoringOnly, "monitoringOnly"))
@@ -87,6 +53,43 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
             builder.withLimitDurationCriteria(context.durationCriteria);
         }
         return builder.build();
+    }
+
+    private boolean parseLimitReduction(JsonParser parser, DeserializationContext deserializationContext,
+                                        ParsingContext context, String fieldName) throws IOException {
+        switch (fieldName) {
+            case "value" -> {
+                parser.nextToken();
+                context.value = parser.readValueAs(Float.class);
+                return true;
+            }
+            case "limitType" -> {
+                context.limitType = LimitType.valueOf(parser.nextTextValue());
+                return true;
+            }
+            case "monitoringOnly" -> {
+                context.monitoringOnly = parser.nextBooleanValue();
+                return true;
+            }
+            case "contingencyContext" -> {
+                parser.nextToken();
+                context.contingencyContext = JsonUtil.readValue(deserializationContext, parser, ContingencyContext.class);
+                return true;
+            }
+            case "equipmentCriteria" -> {
+                parser.nextToken();
+                context.networkElementCriteria = JsonUtil.readList(deserializationContext, parser, NetworkElementCriterion.class);
+                return true;
+            }
+            case "durationCriteria" -> {
+                parser.nextToken();
+                context.durationCriteria = JsonUtil.readList(deserializationContext, parser, LimitDurationCriterion.class);
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
     }
 
     private static <T> T checkAttribute(T object, String attributeName) {

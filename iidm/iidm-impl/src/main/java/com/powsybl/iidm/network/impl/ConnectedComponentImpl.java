@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.components.AbstractConnectedComponent;
-import com.powsybl.commons.ref.Ref;
 
 import java.util.Objects;
 

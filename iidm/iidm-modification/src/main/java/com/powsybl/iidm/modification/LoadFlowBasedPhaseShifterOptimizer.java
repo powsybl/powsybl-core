@@ -41,6 +41,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         this(computationManager, LoadFlowBasedPhaseShifterOptimizerConfig.load());
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     private void runLoadFlow(Network network, String workingStateId) {
         try {
             String loadFlowName = config.getLoadFlowName().orElse(null);

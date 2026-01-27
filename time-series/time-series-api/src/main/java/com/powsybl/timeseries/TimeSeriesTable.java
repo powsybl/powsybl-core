@@ -183,6 +183,7 @@ public class TimeSeriesTable {
         return new TimeSeriesTable(fromVersion, toVersion, tableIndex, ByteBuffer::allocate);
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     private void initTable(List<DoubleTimeSeries> doubleTimeSeries, List<StringTimeSeries> stringTimeSeries) {
         initLock.lock();
         try {

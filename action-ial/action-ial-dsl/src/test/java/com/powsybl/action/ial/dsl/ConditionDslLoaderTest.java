@@ -65,7 +65,7 @@ class ConditionDslLoaderTest {
 
             @Override
             public boolean isActionTaken(String actionId) {
-                return actionId.equals("action");
+                return "action".equals(actionId);
             }
         }));
     }

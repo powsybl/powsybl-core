@@ -80,7 +80,9 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
         return impact;
     }
 
-    public void traverseDoubleSidedEquipment(String voltageLevelId, Terminal terminal1, Terminal terminal2, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals, String equipmentType) {
+    public void traverseDoubleSidedEquipment(String voltageLevelId, Terminal terminal1, Terminal terminal2,
+                                             Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect,
+                                             Set<Terminal> traversedTerminals, String equipmentType) {
         if (voltageLevelId != null) {
             if (voltageLevelId.equals(terminal1.getVoltageLevel().getId())) {
                 TrippingTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect, traversedTerminals);
@@ -95,7 +97,9 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
         }
     }
 
-    public void traverseDoubleSidedEquipment(String dcNodeId, DcTerminal terminal1, DcTerminal terminal2, Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect, Set<DcTerminal> traversedDcTerminals, String equipmentType) {
+    public void traverseDoubleSidedEquipment(String dcNodeId, DcTerminal terminal1, DcTerminal terminal2,
+                                             Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect,
+                                             Set<DcTerminal> traversedDcTerminals, String equipmentType) {
         if (dcNodeId != null) {
             if (dcNodeId.equals(terminal1.getDcNode().getId())) {
                 TrippingTopologyTraverser.traverse(terminal1, dcSwitchesToOpen, dcTerminalsToDisconnect, traversedDcTerminals);

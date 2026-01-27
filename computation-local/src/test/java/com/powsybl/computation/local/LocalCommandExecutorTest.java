@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -41,14 +40,10 @@ class LocalCommandExecutorTest {
     }
 
     @Test
-    void testWithoutTimeoutCall() {
+    void testWithoutTimeoutCall() throws IOException, InterruptedException {
         FakeUnixLocalCommandExecutor unixFake = new FakeUnixLocalCommandExecutor();
         FakeUnixLocalCommandExecutor winFake = new FakeUnixLocalCommandExecutor();
-        try {
-            unixFake.execute("program", Collections.emptyList(), mock(Path.class), mock(Path.class), mock(Path.class), Collections.emptyMap());
-            winFake.execute("program", Collections.emptyList(), mock(Path.class), mock(Path.class), mock(Path.class), Collections.emptyMap());
-        } catch (Exception e) {
-            fail();
-        }
+        unixFake.execute("program", Collections.emptyList(), mock(Path.class), mock(Path.class), mock(Path.class), Collections.emptyMap());
+        winFake.execute("program", Collections.emptyList(), mock(Path.class), mock(Path.class), mock(Path.class), Collections.emptyMap());
     }
 }

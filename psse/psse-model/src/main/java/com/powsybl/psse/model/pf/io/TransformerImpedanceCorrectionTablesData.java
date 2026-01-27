@@ -119,7 +119,8 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         private static class ZCorr33Data extends AbstractRecordGroup<ZCorr33> {
             ZCorr33Data() {
-                super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, "i", "t1", "f1", "t2", "f2", "t3", "f3", "t4", "f4", "t5", "f5", "t6", "f6", "t7", "f7", "t8", "f8", "t9", "f9", "t10", "f10", "t11", "f11");
+                super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES,
+                    "i", "t1", "f1", "t2", "f2", "t3", "f3", "t4", "f4", "t5", "f5", "t6", "f6", "t7", "f7", "t8", "f8", "t9", "f9", "t10", "f10", "t11", "f11");
                 withQuotedFields();
             }
 
@@ -698,10 +699,10 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         public static class ZCorr35X {
 
-            public ZCorr35X() {
+            ZCorr35X() {
             }
 
-            public ZCorr35X(int itable, double tap, double refact, double imfact) {
+            ZCorr35X(int itable, double tap, double refact, double imfact) {
                 this.itable = itable;
                 this.tap = tap;
                 this.refact = refact;

@@ -9,9 +9,9 @@ package com.powsybl.iidm.criteria.json.duration;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.iidm.criteria.duration.AllTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.IntervalTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
-import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
 
 /**
  * <p>Jackson module for serialization/deserialization of {@link com.powsybl.iidm.criteria.duration.LimitDurationCriterion}.</p>

@@ -182,7 +182,9 @@ class DanglingLineUpdateTest {
         assertDefinedActivePowerLimits(network.getDanglingLine("Breaker"), new ActivePowerLimit(91.0, 900, 109.0));
     }
 
-    private static void assertSvTogether(Network network, double acLineSegmentP, double acLineSegmentQ, double equivalentBranchP, double equivalentBranchQ, double v, double angle, double boundaryV, double boundaryAngle) {
+    private static void assertSvTogether(Network network, double acLineSegmentP, double acLineSegmentQ,
+                                         double equivalentBranchP, double equivalentBranchQ, double v, double angle,
+                                         double boundaryV, double boundaryAngle) {
         double tol = 0.0000001;
         DanglingLine acLineSegment = network.getDanglingLine("ACLineSegment");
         assertEquals(acLineSegmentP, acLineSegment.getTerminal().getP(), tol);

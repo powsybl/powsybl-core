@@ -34,7 +34,7 @@ public class NetworkElementIdListCriterionDeserializer extends AbstractNetworkEl
     }
 
     private boolean deserialize(JsonParser parser, ParsingContext parsingContext, String name) throws IOException {
-        if (name.equals("identifiers")) {
+        if ("identifiers".equals(name)) {
             parsingContext.ids = new HashSet<>(JsonUtil.parseStringArray(parser));
             return true;
         }

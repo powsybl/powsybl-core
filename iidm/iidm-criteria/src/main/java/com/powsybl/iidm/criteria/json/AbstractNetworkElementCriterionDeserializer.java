@@ -11,10 +11,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.criteria.NetworkElementCriterion;
-import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import com.powsybl.iidm.criteria.Criterion;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
+import com.powsybl.iidm.criteria.NetworkElementCriterion;
+import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

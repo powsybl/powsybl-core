@@ -337,7 +337,8 @@ public final class JsonUtil {
     }
 
     public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
-                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                             Set<String> extensionsNotFound, T extendable) throws IOException {
         return updateExtensions(parser, context, supplier::findProvider, extensionsNotFound, extendable);
     }
 
@@ -346,7 +347,8 @@ public final class JsonUtil {
      *
      * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
      */
-    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
+                                                                             SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);

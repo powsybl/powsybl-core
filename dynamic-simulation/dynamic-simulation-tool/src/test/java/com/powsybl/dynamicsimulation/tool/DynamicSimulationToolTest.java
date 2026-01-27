@@ -77,7 +77,9 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy"}, expectedOut);
 
         // Run with outputVariables
-        assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-variables-file", "/outputVariables.groovy"}, expectedOut);
+        assertCommandSuccessful(new String[]{
+            "dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-variables-file", "/outputVariables.groovy"},
+            expectedOut);
     }
 
     @Test

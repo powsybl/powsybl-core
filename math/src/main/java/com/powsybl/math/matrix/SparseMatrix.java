@@ -19,7 +19,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a></a> format.
+ * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a> format.
  * This implementation rely on a native library which is a wrapper around KLU module of
  * <a href="http://faculty.cse.tamu.edu/davis/suitesparse.html">SuiteSparse</a> project.
  *
@@ -125,21 +125,6 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         currentColumn = columnCount - 1;
     }
 
-    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, TDoubleArrayListHack values) {
-        int lastNonEmptyColumn = -1;
-        for (int column = 0; column < columnCount; column++) {
-            if (columnStart[column] != -1) {
-                if (lastNonEmptyColumn != -1) {
-                    columnValueCount[lastNonEmptyColumn] = columnStart[column] - columnStart[lastNonEmptyColumn];
-                }
-                lastNonEmptyColumn = column;
-            }
-        }
-        if (lastNonEmptyColumn != -1) {
-            columnValueCount[lastNonEmptyColumn] = values.size() - columnStart[lastNonEmptyColumn];
-        }
-    }
-
     /**
      * Create an empty sparse matrix.
      *
@@ -157,6 +142,21 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         this.columnStart[columnCount] = 0;
         rowIndices = new TIntArrayListHack(estimatedValueCount);
         values = new TDoubleArrayListHack(estimatedValueCount);
+    }
+
+    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, TDoubleArrayListHack values) {
+        int lastNonEmptyColumn = -1;
+        for (int column = 0; column < columnCount; column++) {
+            if (columnStart[column] != -1) {
+                if (lastNonEmptyColumn != -1) {
+                    columnValueCount[lastNonEmptyColumn] = columnStart[column] - columnStart[lastNonEmptyColumn];
+                }
+                lastNonEmptyColumn = column;
+            }
+        }
+        if (lastNonEmptyColumn != -1) {
+            columnValueCount[lastNonEmptyColumn] = values.size() - columnStart[lastNonEmptyColumn];
+        }
     }
 
     private static void checkSize(int rowCount, int columnCount) {

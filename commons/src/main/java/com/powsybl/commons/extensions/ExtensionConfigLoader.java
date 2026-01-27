@@ -14,7 +14,7 @@ import com.powsybl.commons.config.PlatformConfig;
  *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public interface ExtensionConfigLoader<T extends Extendable, E extends Extension<T> > extends ExtensionProvider<T, E> {
+public interface ExtensionConfigLoader<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E> {
 
     /**
      * Creates an extension instance from the provided platform configuration.

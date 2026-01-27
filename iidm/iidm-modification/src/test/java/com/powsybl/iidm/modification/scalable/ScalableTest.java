@@ -89,12 +89,7 @@ class ScalableTest {
     }
 
     private void testInvalidProportionalScalable(List<Double> percentages, List<Scalable> scalables) {
-        try {
-            Scalable.proportional(percentages, scalables);
-            fail();
-        } catch (RuntimeException ignored) {
-            // Ignored
-        }
+        assertThrows(IllegalArgumentException.class, () -> Scalable.proportional(percentages, scalables));
     }
 
     @Test

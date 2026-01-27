@@ -46,7 +46,7 @@ class InjectionObservabilityXmlTest extends AbstractIidmSerDeTest {
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);
-        InjectionObservability <Battery> injectionObservability2 = bat2.getExtension(InjectionObservability.class);
+        InjectionObservability<Battery> injectionObservability2 = bat2.getExtension(InjectionObservability.class);
         assertNotNull(injectionObservability2);
 
         assertEquals(injectionObservability.isObservable(), injectionObservability2.isObservable());
@@ -61,7 +61,8 @@ class InjectionObservabilityXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void invalidTest() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_VERSION))));
+        PowsyblException e = assertThrows(PowsyblException.class,
+            () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_VERSION))));
         assertEquals("Unknown element name 'qualityZ' in 'injectionObservability'", e.getMessage());
     }
 }

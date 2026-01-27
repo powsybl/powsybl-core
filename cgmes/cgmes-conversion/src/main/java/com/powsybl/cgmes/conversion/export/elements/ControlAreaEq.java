@@ -22,7 +22,8 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class ControlAreaEq {
     private static final String CONTROL_AREA_TYPE = CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE;
 
-    public static void write(String id, String controlAreaName, String energyIdentCodeEIC, String energyAreaId, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void write(String id, String controlAreaName, String energyIdentCodeEIC, String energyAreaId,
+                             String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("ControlArea", id, controlAreaName, cimNamespace, writer, context);
         writer.writeStartElement(euNamespace, "IdentifiedObject.energyIdentCodeEic");
         writer.writeCharacters(energyIdentCodeEIC);

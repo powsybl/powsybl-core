@@ -9,6 +9,7 @@ package com.powsybl.commons.config;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -42,35 +43,21 @@ abstract class AbstractMapModuleConfigTest {
     }
 
     protected void assertModConfig(ModuleConfig modConfig) {
-        Path p = fileSystem.getPath("/tmp");
-        Path p2 = fileSystem.getPath("/home");
 
         //  string tests
         assertEquals("hello", modConfig.getStringProperty("s"));
         assertEquals("oups", modConfig.getStringProperty("s2", "oups"));
-        try {
-            modConfig.getStringProperty("s2");
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> modConfig.getStringProperty("s2"));
 
         // int tests
         assertEquals(3, modConfig.getIntProperty("i"));
-        try {
-            modConfig.getIntProperty("i2");
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> modConfig.getIntProperty("i2"));
         assertFalse(modConfig.getOptionalIntProperty("i2").isPresent());
         assertEquals(4, modConfig.getIntProperty("i2", 4));
 
         // long tests
         assertEquals(33333333333L, modConfig.getLongProperty("l"));
-        try {
-            modConfig.getLongProperty("l2");
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> modConfig.getLongProperty("l2"));
         assertTrue(modConfig.getOptionalLongProperty("l").isPresent());
         assertFalse(modConfig.getOptionalLongProperty("l2").isPresent());
         assertEquals(33333333333L, modConfig.getLongProperty("l", 5555555555L));
@@ -78,11 +65,7 @@ abstract class AbstractMapModuleConfigTest {
 
         // boolean tests
         assertFalse(modConfig.getBooleanProperty("b"));
-        try {
-            modConfig.getBooleanProperty("b2");
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> modConfig.getBooleanProperty("b2"));
         assertFalse(modConfig.getOptionalBooleanProperty("b2").isPresent());
         assertTrue(modConfig.getBooleanProperty("b2", true));
 
@@ -93,54 +76,32 @@ abstract class AbstractMapModuleConfigTest {
 
         // double tests
         assertEquals(2.3d, modConfig.getDoubleProperty("d"), 0d);
-        try {
-            modConfig.getDoubleProperty("d2");
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> modConfig.getDoubleProperty("d2"));
         assertEquals(4.5d, modConfig.getDoubleProperty("d2", 4.5d), 0d);
 
         // string list tests
         assertEquals(ArrayList.class, modConfig.getClassProperty("c", List.class));
         assertEquals(Arrays.asList("a", "b", "c"), modConfig.getStringListProperty("sl1"));
         assertEquals(Arrays.asList("a", "b", "c"), modConfig.getStringListProperty("sl2"));
-        try {
-            modConfig.getStringListProperty("sl3");
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> modConfig.getStringListProperty("sl3"));
 
         // enum test
         assertEquals(StandardOpenOption.APPEND, modConfig.getEnumProperty("e", StandardOpenOption.class));
-        try {
-            modConfig.getEnumProperty("e2", StandardOpenOption.class);
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> modConfig.getEnumProperty("e2", StandardOpenOption.class));
 
         // enum set test
         assertEquals(EnumSet.of(StandardOpenOption.APPEND, StandardOpenOption.CREATE), modConfig.getEnumSetProperty("el", StandardOpenOption.class));
-        try {
-            modConfig.getEnumSetProperty("el2", StandardOpenOption.class);
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> modConfig.getEnumSetProperty("el2", StandardOpenOption.class));
 
         // path tests
+        Path p = fileSystem.getPath("/tmp");
         assertEquals(p, modConfig.getPathProperty("p"));
-        try {
-            modConfig.getPathProperty("p2");
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> modConfig.getPathProperty("p2"));
+        Path p2 = fileSystem.getPath("/home");
         assertFalse(modConfig.getOptionalPathProperty("p2").isPresent());
         assertEquals(Arrays.asList(p, p2), modConfig.getPathListProperty("pl"));
         assertEquals(Arrays.asList(p, p2), modConfig.getPathListProperty("pl2"));
-        try {
-            modConfig.getPathListProperty("pl3");
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> modConfig.getPathListProperty("pl3"));
         assertFalse(modConfig.getOptionalPathListProperty("pf3").isPresent());
 
         // time

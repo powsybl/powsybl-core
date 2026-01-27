@@ -390,7 +390,8 @@ public final class IidmSerDeUtil {
     /**
      * Sort internal connections first by their side one node value then by their side 2 node value.
      */
-    public static Iterable<VoltageLevel.NodeBreakerView.InternalConnection> sortedInternalConnections(Iterable<VoltageLevel.NodeBreakerView.InternalConnection> internalConnections, ExportOptions exportOptions) {
+    public static Iterable<VoltageLevel.NodeBreakerView.InternalConnection> sortedInternalConnections(Iterable<VoltageLevel.NodeBreakerView.InternalConnection> internalConnections,
+                                                                                                      ExportOptions exportOptions) {
         Objects.requireNonNull(internalConnections);
         Objects.requireNonNull(exportOptions);
         return exportOptions.isSorted() ? StreamSupport.stream(internalConnections.spliterator(), false)

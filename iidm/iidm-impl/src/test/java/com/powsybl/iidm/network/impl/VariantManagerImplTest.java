@@ -254,11 +254,7 @@ class VariantManagerImplTest {
         variantManager.setWorkingVariant("ClonedVariant1");
         // "middle" variant removing test
         variantManager.removeVariant("ClonedVariant1");
-        try {
-            assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId()); // because variant is not set
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, variantManager::getWorkingVariantId);
         assertEquals(3, variantManager.getVariantArraySize());
         assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant2"), variantManager.getVariantIds());
         assertEquals(Sets.newHashSet(0, 2), variantManager.getVariantIndexes());
@@ -382,6 +378,7 @@ class VariantManagerImplTest {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     void testMultipleSetAllowMultiThreadTrue() throws Exception {
         NetworkImpl network = (NetworkImpl) Network.create("testMultipleSetAllowMultiThreadTrue", "no-format");
         VariantManager variantManager = new VariantManagerImpl(network);

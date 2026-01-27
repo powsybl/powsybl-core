@@ -226,7 +226,8 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
         for (int position = ptc.getLowTapPosition(); position <= ptc.getHighTapPosition(); position++) {
             PhaseTapChangerStep step = ptc.getStep(position);
             ImpedanceAndAdmittance stepCharacteristics = new ImpedanceAndAdmittance(step.getR(), step.getX(), step.getG(), step.getB());
-            writeTapChanger(formatter, new TapChangerParametersForWriter(num, position, ptc.getLowTapPosition(), zb2, transformerZandY, stepCharacteristics, step.getRho(), Math.toRadians(step.getAlpha())));
+            writeTapChanger(formatter,
+                new TapChangerParametersForWriter(num, position, ptc.getLowTapPosition(), zb2, transformerZandY, stepCharacteristics, step.getRho(), Math.toRadians(step.getAlpha())));
         }
     }
 

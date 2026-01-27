@@ -72,8 +72,6 @@ class StringToIntMapperTest {
             String expectedStr = "TYPE;value1;1" + System.lineSeparator();
             try (InputStream in = Files.newInputStream(outputFile)) {
                 assertTxtEquals(expectedStr, in);
-            } catch (Exception e) {
-                fail(e);
             }
         }
     }

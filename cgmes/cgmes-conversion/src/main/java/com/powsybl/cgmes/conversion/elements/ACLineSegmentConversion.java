@@ -8,13 +8,15 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import java.util.Optional;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

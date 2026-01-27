@@ -7,8 +7,8 @@
  */
 package com.powsybl.security.converter;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TerminalNumber;
@@ -22,9 +22,9 @@ import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
-import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
 import com.powsybl.security.strategy.ConditionalActions;
+import com.powsybl.security.strategy.OperatorStrategy;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -72,7 +72,8 @@ class ExporterTest extends AbstractSerDeTest {
                 .build();
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency,
+            PostContingencyComputationStatus.CONVERGED, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
         List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
@@ -89,10 +90,18 @@ class ExporterTest extends AbstractSerDeTest {
         var opStrategyResult2 = new OperatorStrategyResult(
             new OperatorStrategy("strategyId2", ContingencyContext.specificContingency("contingency1"),
                 List.of(
-                    new ConditionalActions("stage1", new BranchThresholdCondition("Line1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.GREATER_THAN, 2.0, TwoSides.ONE), List.of("actionId3")),
-                    new ConditionalActions("stage1", new ThreeWindingsTransformerThresholdCondition("3WTransformer1", AbstractThresholdCondition.Variable.REACTIVE_POWER, AbstractThresholdCondition.ComparisonType.NOT_EQUAL, 52.0, ThreeSides.THREE), List.of("actionId3")),
-                    new ConditionalActions("stage2", new InjectionThresholdCondition("Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, 2.0), List.of("actionId3", "actionId4")),
-                    new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5")))),
+                    new ConditionalActions("stage1", new BranchThresholdCondition("Line1",
+                        AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.GREATER_THAN, 2.0, TwoSides.ONE),
+                        List.of("actionId3")),
+                    new ConditionalActions("stage1", new ThreeWindingsTransformerThresholdCondition("3WTransformer1",
+                        AbstractThresholdCondition.Variable.REACTIVE_POWER, AbstractThresholdCondition.ComparisonType.NOT_EQUAL, 52.0, ThreeSides.THREE),
+                        List.of("actionId3")),
+                    new ConditionalActions("stage2", new InjectionThresholdCondition("Gen2",
+                        AbstractThresholdCondition.Variable.ACTIVE_POWER, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, 2.0),
+                        List.of("actionId3", "actionId4")),
+                    new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1",
+                        AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO),
+                        List.of("actionId3", "actionId4", "actionId5")))),
             PostContingencyComputationStatus.CONVERGED,
             new LimitViolationsResult(Collections.emptyList()),
             new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));

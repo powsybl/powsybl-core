@@ -434,11 +434,11 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     private static boolean copyProperty(String propertyName, String property, ThreeWindingsTransformer t3w) {
         boolean copied = true;
         if (propertyName.startsWith(CGMES_OPERATIONAL_LIMIT_SET)) {
-            if (t3w.getLeg1().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
+            if (t3w.getLeg1().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> (CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()).equals(propertyName))) {
                 t3w.setProperty(propertyName, property);
-            } else if (t3w.getLeg2().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
+            } else if (t3w.getLeg2().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> (CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()).equals(propertyName))) {
                 t3w.setProperty(propertyName, property);
-            } else if (t3w.getLeg3().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> propertyName.equals(CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()))) {
+            } else if (t3w.getLeg3().getOperationalLimitsGroups().stream().anyMatch(operationalLimitsGroup -> (CGMES_OPERATIONAL_LIMIT_SET + operationalLimitsGroup.getId()).equals(propertyName))) {
                 t3w.setProperty(propertyName, property);
             } else {
                 copied = false;
@@ -515,13 +515,13 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
     private static boolean copyAlias(String alias, String aliasType, String leg, String end, ThreeWindingsTransformer t3w) {
         boolean copied = true;
-        if (aliasType.equals("CGMES.TransformerEnd" + end)) {
+        if (("CGMES.TransformerEnd" + end).equals(aliasType)) {
             t3w.addAlias(alias, "CGMES.TransformerEnd" + leg, true);
-        } else if (aliasType.equals("CGMES.Terminal" + end)) {
+        } else if (("CGMES.Terminal" + end).equals(aliasType)) {
             t3w.addAlias(alias, "CGMES.Terminal" + leg, true);
-        } else if (aliasType.equals("CGMES.RatioTapChanger1")) {
+        } else if ("CGMES.RatioTapChanger1".equals(aliasType)) {
             t3w.addAlias(alias, "CGMES.RatioTapChanger" + leg, true);
-        } else if (aliasType.equals("CGMES.PhaseTapChanger1")) {
+        } else if ("CGMES.PhaseTapChanger1".equals(aliasType)) {
             t3w.addAlias(alias, "CGMES.PhaseTapChanger" + leg, true);
         } else {
             copied = false;

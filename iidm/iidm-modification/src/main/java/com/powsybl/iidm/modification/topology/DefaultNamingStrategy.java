@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.iidm.network.*;
 import com.google.auto.service.AutoService;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 

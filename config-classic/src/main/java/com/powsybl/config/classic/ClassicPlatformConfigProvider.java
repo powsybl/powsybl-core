@@ -7,6 +7,14 @@
  */
 package com.powsybl.config.classic;
 
+import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.EnvironmentModuleConfigRepository;
+import com.powsybl.commons.config.ModuleConfigRepository;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.PlatformConfigProvider;
+import com.powsybl.commons.config.PlatformEnv;
+import com.powsybl.commons.config.StackedModuleConfigRepository;
+
 import java.io.File;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -15,15 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import com.powsybl.commons.config.ModuleConfigRepository;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.config.PlatformConfigProvider;
-import com.powsybl.commons.config.PlatformEnv;
-import com.powsybl.commons.config.EnvironmentModuleConfigRepository;
-import com.powsybl.commons.config.StackedModuleConfigRepository;
-
-import com.google.auto.service.AutoService;
 
 /**
  * The classic powsybl PlatformConfig provider. It uses System Properties to
