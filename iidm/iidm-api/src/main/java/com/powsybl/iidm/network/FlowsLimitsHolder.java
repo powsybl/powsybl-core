@@ -44,6 +44,7 @@ public interface FlowsLimitsHolder {
 
     /**
      * Get the {@link OperationalLimitsGroup} corresponding to an ID.
+     * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
      * @return the {@link OperationalLimitsGroup} of the given ID if any, an empty {@link Optional} otherwise.
      */
     Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id);
@@ -125,6 +126,16 @@ public interface FlowsLimitsHolder {
     }
 
     /**
+     * Get the {@link CurrentLimits} of the {@link OperationalLimitsGroup} corresponding to <code>id</code>
+     * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
+     * @return a {@link Optional} containing the {@link CurrentLimits} of the {@link OperationalLimitsGroup} corresponding to the id if it exists,
+     * an empty {@link Optional} otherwise,
+     */
+    default Optional<CurrentLimits> getCurrentLimitsFromId(String id) {
+        return getOperationalLimitsGroup(id).flatMap(OperationalLimitsGroup::getCurrentLimits);
+    }
+
+    /**
      * Get all the {@link CurrentLimits} of all the selected {@link OperationalLimitsGroup}
      * @return a collection of {@link CurrentLimits}, one per {@link OperationalLimitsGroup} that is selected, might be empty if none is selected
      */
@@ -168,25 +179,21 @@ public interface FlowsLimitsHolder {
     }
 
     /**
+     * Get the {@link ActivePowerLimits} of the {@link OperationalLimitsGroup} corresponding to <code>id</code>
+     * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
+     * @return a {@link Optional} containing the {@link ActivePowerLimits} of the {@link OperationalLimitsGroup} corresponding to the id if it exists,
+     * an empty {@link Optional} otherwise,
+     */
+    default Optional<ActivePowerLimits> getActivePowerLimitsFromId(String id) {
+        return getOperationalLimitsGroup(id).flatMap(OperationalLimitsGroup::getActivePowerLimits);
+    }
+
+    /**
      * Get all the {@link ActivePowerLimits} of all the selected {@link OperationalLimitsGroup}
      * @return a collection of {@link ActivePowerLimits}, one per {@link OperationalLimitsGroup} that is selected, might be empty if none is selected
      */
     default Collection<ActivePowerLimits> getAllSelectedActivePowerLimits() {
         return getAllSelectedLoadingLimits(OperationalLimitsGroup::getActivePowerLimits);
-    }
-
-    //TODO do we want that ? do we want Collection<Optional<>> or just Collection<> ? If just collection what do we put when optional is empty, null ? should we do the same for current and apparent power ?
-    /**
-     * Get the {@link ActivePowerLimits} of all selected {@link OperationalLimitsGroup}
-     * @return a collection containing the ActivePowerLimits of each OperationalLimitsGroup (if it exists) that is currently selected,
-     * an empty {@link Optional} otherwise,
-     * might be empty is none is selected
-     */
-    default Collection<Optional<ActivePowerLimits>> getActivePowerLimitsFromId() {
-        return getAllSelectedOperationalLimitsGroups()
-                .stream()
-                .map(OperationalLimitsGroup::getActivePowerLimits)
-                .toList();
     }
 
     /**
@@ -203,6 +210,16 @@ public interface FlowsLimitsHolder {
      */
     default Optional<ApparentPowerLimits> getApparentPowerLimits() {
         return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
+    }
+
+    /**
+     * Get the {@link ApparentPowerLimits} of the {@link OperationalLimitsGroup} corresponding to <code>id</code>
+     * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
+     * @return a {@link Optional} containing the {@link ApparentPowerLimits} of the {@link OperationalLimitsGroup} corresponding to the id if it exists,
+     * an empty {@link Optional} otherwise,
+     */
+    default Optional<ApparentPowerLimits> getApparentPowerLimitsFromId(String id) {
+        return getOperationalLimitsGroup(id).flatMap(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
     /**
