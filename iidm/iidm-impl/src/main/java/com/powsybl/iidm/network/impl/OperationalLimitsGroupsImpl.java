@@ -68,7 +68,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     public void setSelectedOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
         //TODO this is for the notifyUpdate, but is it even relevant with the new impl ?
-        OperationalLimitsGroup newSelectedLimits = getSelectedOrThrow(id);
+        OperationalLimitsGroup newSelectedLimits = getOperationalLimitsGroupOrThrow(id);
         boolean wasAlreadySelected = selectedLimitsIds.contains(id);
         cancelSelectedOperationalLimitsGroup();
         selectedLimitsIds.add(id);
@@ -81,7 +81,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     public void addSelectedOperationalLimitsGroups(String... ids) {
         for (String id : ids) {
             Objects.requireNonNull(id);
-            OperationalLimitsGroup newSelectedLimits = getSelectedOrThrow(id);
+            OperationalLimitsGroup newSelectedLimits = getOperationalLimitsGroupOrThrow(id);
             boolean wasAlreadySelected = selectedLimitsIds.contains(id);
             // re-insert the element with remove -> add, so that getSelectedOperationalLimitsGroupId returns things in the correct order (since add alone won't re-insert if already present)
             selectedLimitsIds.remove(id);
@@ -199,7 +199,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
         notifyUpdate(operationalLimitsGroupById.get(id), null);
     }
 
-    private OperationalLimitsGroup getSelectedOrThrow(String id) {
-        return getOperationalLimitsGroup(id).orElseThrow(() -> new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be part of the selected group"));
+    private OperationalLimitsGroup getOperationalLimitsGroupOrThrow(String id) {
+        return getOperationalLimitsGroup(id).orElseThrow(() -> new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be part of the selected groups"));
     }
 }
