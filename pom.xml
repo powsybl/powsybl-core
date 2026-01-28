@@ -110,6 +110,7 @@
         <commonsmath3.version>3.6.1</commonsmath3.version>
         <commonstext.version>1.13.1</commonstext.version>
         <ejml.version>0.44.0</ejml.version>
+        <fastcsv.version>4.0.0</fastcsv.version>
         <!-- findbugs cannot be updated until graphviz is updated/replaced since findbugs groupdId changed -->
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
@@ -744,6 +745,11 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commonsio.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.siegmar</groupId>
+                <artifactId>fastcsv</artifactId>
+                <version>${fastcsv.version}</version>
             </dependency>
             <dependency>
                 <groupId>gov.nist.math</groupId>
