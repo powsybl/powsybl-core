@@ -7,76 +7,100 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PsseTransformerWinding extends PsseVersioned {
-    @NullString(nulls = {"null"})
-    @Parsed
+
     private double windv = Double.NaN;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double nomv = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double ang = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int cod = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int cont = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     @Revision(since = 35)
     private int node = 0;
 
-    @NullString(nulls = {"null"})
-    @Parsed
     private double rma = Double.NaN;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double rmi = Double.NaN;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double vma = Double.NaN;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double vmi = Double.NaN;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int ntp = 33;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int tab = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double cr = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double cx = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double cnxa = 0;
+
+    public static PsseTransformerWinding fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        return fromRecord(rec, version, headers, "");
+    }
+
+    public static PsseTransformerWinding fromRecord(CsvRecord rec, PsseVersion version, String[] headers, String headerSuffix) {
+        PsseTransformerWinding psseTransformerWinding = new PsseTransformerWinding();
+        psseTransformerWinding.setWindv(parseDoubleFromRecord(rec, Double.NaN, headers, "windv" + headerSuffix));
+        psseTransformerWinding.setNomv(parseDoubleFromRecord(rec, 0.0, headers, "nomv" + headerSuffix));
+        psseTransformerWinding.setAng(parseDoubleFromRecord(rec, 0.0, headers, "ang" + headerSuffix));
+        psseTransformerWinding.setCod(parseIntFromRecord(rec, 0, headers, "cod" + headerSuffix));
+        psseTransformerWinding.setCont(parseIntFromRecord(rec, 0, headers, "cont" + headerSuffix));
+        if (version.getMajorNumber() >= 35) {
+            psseTransformerWinding.setNode(parseIntFromRecord(rec, 0, headers, "node" + headerSuffix));
+        }
+        psseTransformerWinding.setRma(parseDoubleFromRecord(rec, Double.NaN, headers, "rma" + headerSuffix));
+        psseTransformerWinding.setRmi(parseDoubleFromRecord(rec, Double.NaN, headers, "rmi" + headerSuffix));
+        psseTransformerWinding.setVma(parseDoubleFromRecord(rec, Double.NaN, headers, "vma" + headerSuffix));
+        psseTransformerWinding.setVmi(parseDoubleFromRecord(rec, Double.NaN, headers, "vmi" + headerSuffix));
+        psseTransformerWinding.setNtp(parseIntFromRecord(rec, 33, headers, "ntp" + headerSuffix));
+        psseTransformerWinding.setTab(parseIntFromRecord(rec, 0, headers, "tab" + headerSuffix));
+        psseTransformerWinding.setCr(parseDoubleFromRecord(rec, 0.0, headers, "cr" + headerSuffix));
+        psseTransformerWinding.setCx(parseDoubleFromRecord(rec, 0.0, headers, "cx" + headerSuffix));
+        psseTransformerWinding.setCnxa(parseDoubleFromRecord(rec, 0.0, headers, "cnxa" + headerSuffix));
+        return psseTransformerWinding;
+    }
+
+    public static String[] toRecord(PsseTransformerWinding psseTransformerWinding, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            Optional<String> optionalValue = psseTransformerWinding.headerToString(headers[i]);
+            if (optionalValue.isEmpty()) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = optionalValue.get();
+        }
+        return row;
+    }
+
+    public Optional<String> headerToString(String header) {
+        return switch (header) {
+            case "windv" -> Optional.of(String.valueOf(getWindv()));
+            case "nomv" -> Optional.of(String.valueOf(getNomv()));
+            case "ang" -> Optional.of(String.valueOf(getAng()));
+            case "cod" -> Optional.of(String.valueOf(getCod()));
+            case "cont" -> Optional.of(String.valueOf(getCont()));
+            case "node" -> Optional.of(String.valueOf(getNode()));
+            case "rma" -> Optional.of(String.valueOf(getRma()));
+            case "rmi" -> Optional.of(String.valueOf(getRmi()));
+            case "vma" -> Optional.of(String.valueOf(getVma()));
+            case "vmi" -> Optional.of(String.valueOf(getVmi()));
+            case "ntp" -> Optional.of(String.valueOf(getNtp()));
+            case "tab" -> Optional.of(String.valueOf(getTab()));
+            case "cr" -> Optional.of(String.valueOf(getCr()));
+            case "cx" -> Optional.of(String.valueOf(getCx()));
+            case "cnxa" -> Optional.of(String.valueOf(getCnxa()));
+            default -> Optional.empty();
+        };
+    }
 
     public double getWindv() {
         return windv;
