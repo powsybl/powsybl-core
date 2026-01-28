@@ -245,7 +245,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         // Sort the ranges and the chunks
         List<Range<@NonNull Integer>> sortedRanges = checkAndSortRanges(ranges);
         List<C> sortedChunks = getCheckedChunks(false);
-        checkForChunksInRanges(ranges, sortedChunks);
+        checkForChunksInRanges(sortedRanges, sortedChunks);
 
         // Split the chunks based on the ranges
         List<C> splitNewChunks = new ArrayList<>();
