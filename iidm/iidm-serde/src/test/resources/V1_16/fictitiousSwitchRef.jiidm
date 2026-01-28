@@ -341,7 +341,6 @@
         "energySource" : "HYDRO",
         "minP" : 0.0,
         "maxP" : 70.0,
-        "voltageRegulatorOn" : false,
         "targetP" : 0.0,
         "targetV" : 0.0,
         "targetQ" : 0.0,
@@ -358,14 +357,15 @@
           } ]
         },
         "voltageRegulation" : {
-          "targetValue" : 0.0
+          "targetValue" : 0.0,
+          "mode" : "REACTIVE_POWER",
+          "regulating" : true
         }
       }, {
         "id" : "CC",
         "energySource" : "HYDRO",
         "minP" : 0.0,
         "maxP" : 80.0,
-        "voltageRegulatorOn" : false,
         "targetP" : 0.0,
         "targetV" : 0.0,
         "targetQ" : 0.0,
@@ -382,14 +382,15 @@
           } ]
         },
         "voltageRegulation" : {
-          "targetValue" : 0.0
+          "targetValue" : 0.0,
+          "mode" : "REACTIVE_POWER",
+          "regulating" : true
         }
       }, {
         "id" : "CD",
         "energySource" : "HYDRO",
         "minP" : 0.0,
         "maxP" : 35.0,
-        "voltageRegulatorOn" : true,
         "targetP" : 21.789589,
         "targetV" : 236.44736,
         "targetQ" : -20.701546,
@@ -408,7 +409,9 @@
           } ]
         },
         "voltageRegulation" : {
-          "targetValue" : 236.44736
+          "targetValue" : 236.44736,
+          "mode" : "VOLTAGE",
+          "regulating" : true
         }
       } ],
       "loads" : [ {

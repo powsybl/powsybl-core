@@ -13,10 +13,10 @@
                 <iidm:switch id="VL1-Sw-2-5-1 " name="Sw-T3wToBus3Bus4" kind="BREAKER" retained="false" open="false" node1="2" node2="5"/>
                 <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5,6,7"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="false" targetP="232.392" targetV="146.28" targetQ="-16.549" node="7">
+            <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="232.392" targetV="146.28" targetQ="-16.549" node="7">
                 <iidm:regulatingTerminal id="VL1-Busbar-2"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
-                <iidm:voltageRegulation targetValue="146.28"/>
+                <iidm:voltageRegulation targetValue="-16.549" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
             <iidm:lccConverterStation id="LccConverter-1-EATL P1     " name="EATL P1     " lossFactor="0.0" powerFactor="0.7273804" node="6"/>
         </iidm:voltageLevel>

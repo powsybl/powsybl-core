@@ -13,4 +13,8 @@ package com.powsybl.iidm.network.regulation;
 public interface VoltageRegulationHolder {
 
     VoltageRegulation getVoltageRegulation();
+
+    VoltageRegulation newAndReplaceVoltageRegulation();
+
+    void removeVoltageRegulation();
 }

@@ -14,6 +14,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -129,9 +131,18 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         boolean regulatingOn = findRegulatingOn(cgmesData, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED);
 
         generator.setTargetP(getTargetP(updatedPowerFlow, generator, context))
-                .setTargetQ(getTargetQ(updatedPowerFlow, generator, context))
-                .setTargetV(targetV)
-                .setVoltageRegulatorOn(regulatingOn && regulationCapability && isValidTargetV(targetV));
+                .setTargetQ(getTargetQ(updatedPowerFlow, generator, context));
+//                .setTargetV(targetV)
+            // TODO MSA how to regulate with reactive mode
+//                .getVoltageRegulation().setRegulating(regulatingOn && regulationCapability && isValidTargetV(targetV))
+//                .setVoltageRegulatorOn(regulatingOn && regulationCapability && isValidTargetV(targetV));
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        if (voltageRegulation == null) {
+            voltageRegulation = generator.newAndReplaceVoltageRegulation();
+        }
+        voltageRegulation.setMode(RegulationMode.VOLTAGE);
+        voltageRegulation.setTargetValue(targetV);
+        voltageRegulation.setRegulating(regulatingOn && regulationCapability && isValidTargetV(targetV));
     }
 
     private static double getTargetP(PowerFlow updatedPowerFlow, Generator generator, Context context) {

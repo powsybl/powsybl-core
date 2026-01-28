@@ -21,7 +21,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 
 import com.powsybl.math.graph.TraverseResult;
@@ -361,11 +360,10 @@ public final class EquipmentExport {
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
             String cgmesOriginalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
-            RemoteReactivePowerControl rrpc = generator.getExtension(RemoteReactivePowerControl.class);
-            String mode = CgmesExportUtil.getGeneratorRegulatingControlMode(generator, rrpc);
+            String mode = CgmesExportUtil.getGeneratorRegulatingControlMode(generator);
             Terminal regulatingTerminal;
             if (mode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                regulatingTerminal = rrpc.getRegulatingTerminal();
+                regulatingTerminal = generator.getRegulatingTerminal();
             } else if (context.isExportGeneratorsInLocalRegulationMode()) {
                 regulatingTerminal = generator.getTerminal();
             } else {

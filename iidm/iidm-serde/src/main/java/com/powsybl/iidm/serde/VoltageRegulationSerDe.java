@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
@@ -21,8 +22,8 @@ public final class VoltageRegulationSerDe {
     public static final String TARGET_VALUE = "targetValue";
     public static final String TARGET_DEADBAND = "targetDeadband";
     public static final String SLOPE = "slope";
-    // TODO MSA ADD TERMINAL REF
-    // TODO MSA ADD RegulationMode
+    // TODO MSA ADD Terminal
+    public static final String MODE = "mode";
     public static final String REGULATING = "regulating";
 
     private VoltageRegulationSerDe() { }
@@ -45,12 +46,18 @@ public final class VoltageRegulationSerDe {
         writer.writeDoubleAttribute(TARGET_VALUE, voltageRegulation.getTargetValue());
 //        writer.writeDoubleAttribute(TARGET_DEADBAND, voltageRegulation.getTargetDeadband());
 //        writer.writeDoubleAttribute(SLOPE, voltageRegulation.getSlope());
-//        writer.writeBooleanAttribute(REGULATING, voltageRegulation.isRegulating());
+        writer.writeEnumAttribute(MODE, voltageRegulation.getMode());
+        writer.writeBooleanAttribute(REGULATING, voltageRegulation.isRegulating());
     }
 
     public static void readVoltageRegulation(VoltageRegulationHolder holder, NetworkDeserializerContext context) {
         Double targetValue = context.getReader().readDoubleAttribute(TARGET_VALUE);
-        holder.getVoltageRegulation().setTargetValue(targetValue);
+        RegulationMode mode = context.getReader().readEnumAttribute(MODE, RegulationMode.class);
+        boolean isRegulating = context.getReader().readBooleanAttribute(REGULATING);
         context.getReader().readEndNode();
+        VoltageRegulation voltageRegulation = holder.newAndReplaceVoltageRegulation();
+        voltageRegulation.setTargetValue(targetValue);
+        voltageRegulation.setMode(mode);
+        voltageRegulation.setRegulating(isRegulating);
     }
 }

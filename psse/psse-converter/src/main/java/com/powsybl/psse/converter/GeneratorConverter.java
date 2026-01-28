@@ -93,6 +93,11 @@ class GeneratorConverter extends AbstractConverter {
         generator.setTargetV(targetV)
             .setRegulatingTerminal(regulatingTerminal)
             .setVoltageRegulatorOn(voltageRegulatorOn);
+        if (voltageRegulatorOn) {
+            generator.getVoltageRegulation().setTargetValue(targetV);
+        } else {
+//            generator.getVoltageRegulation().setTargetValue(targetQ);
+        }
     }
 
     private static boolean defineVoltageRegulatorOn(PsseBus psseBus) {
