@@ -7,12 +7,11 @@
  */
 package com.powsybl.timeseries.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.timeseries.ast.NodeCalc;
-
-import java.io.IOException;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -24,7 +23,7 @@ public class NodeCalcJsonSerializer extends StdSerializer<NodeCalc> {
     }
 
     @Override
-    public void serialize(NodeCalc node, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(NodeCalc node, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         NodeCalc.writeJson(node, jsonGenerator);
     }
 }

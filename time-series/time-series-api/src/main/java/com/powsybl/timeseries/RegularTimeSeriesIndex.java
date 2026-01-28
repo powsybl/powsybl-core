@@ -7,13 +7,11 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import org.threeten.extra.Interval;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
@@ -92,41 +90,37 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     public static RegularTimeSeriesIndex parseJson(JsonParser parser) {
         Objects.requireNonNull(parser);
         JsonToken token;
-        try {
-            Instant startInstant = null;
-            Instant endInstant = null;
-            Duration timeStep = null;
-            while ((token = parser.nextToken()) != null) {
-                switch (token) {
-                    case FIELD_NAME -> {
-                        String fieldName = parser.currentName();
-                        switch (fieldName) {
-                            // Precision in ms
-                            case "startTime" -> startInstant = Instant.ofEpochMilli(parser.nextLongValue(-1));
-                            case "endTime" -> endInstant = Instant.ofEpochMilli(parser.nextLongValue(-1));
-                            case "spacing" -> timeStep = Duration.ofMillis(parser.nextLongValue(-1));
-                            // Precision in ns
-                            case "startInstant" -> startInstant = parseNanoTokenToInstant(parser);
-                            case "endInstant" -> endInstant = parseNanoTokenToInstant(parser);
-                            case "timeStep" -> timeStep = Duration.ofNanos(parser.nextLongValue(-1));
-                            default -> throw new IllegalStateException("Unexpected field " + fieldName);
-                        }
-                    }
-                    case END_OBJECT -> {
-                        if (startInstant == null || endInstant == null || timeStep == null) {
-                            throw new IllegalStateException("Incomplete regular time series index json");
-                        }
-                        return new RegularTimeSeriesIndex(startInstant, endInstant, timeStep);
-                    }
-                    default -> {
-                        // Do nothing
+        Instant startInstant = null;
+        Instant endInstant = null;
+        Duration timeStep = null;
+        while ((token = parser.nextToken()) != null) {
+            switch (token) {
+                case PROPERTY_NAME -> {
+                    String fieldName = parser.currentName();
+                    switch (fieldName) {
+                        // Precision in ms
+                        case "startTime" -> startInstant = Instant.ofEpochMilli(parser.nextLongValue(-1));
+                        case "endTime" -> endInstant = Instant.ofEpochMilli(parser.nextLongValue(-1));
+                        case "spacing" -> timeStep = Duration.ofMillis(parser.nextLongValue(-1));
+                        // Precision in ns
+                        case "startInstant" -> startInstant = parseNanoTokenToInstant(parser);
+                        case "endInstant" -> endInstant = parseNanoTokenToInstant(parser);
+                        case "timeStep" -> timeStep = Duration.ofNanos(parser.nextLongValue(-1));
+                        default -> throw new IllegalStateException("Unexpected field " + fieldName);
                     }
                 }
+                case END_OBJECT -> {
+                    if (startInstant == null || endInstant == null || timeStep == null) {
+                        throw new IllegalStateException("Incomplete regular time series index json");
+                    }
+                    return new RegularTimeSeriesIndex(startInstant, endInstant, timeStep);
+                }
+                default -> {
+                    // Do nothing
+                }
             }
-            throw new IllegalStateException("Should not happen");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
+        throw new IllegalStateException("Should not happen");
     }
 
     /**
@@ -219,21 +213,17 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     @Override
     public void writeJson(JsonGenerator generator, ExportFormat timeFormat) {
         Objects.requireNonNull(generator);
-        try {
-            generator.writeStartObject();
-            if (timeFormat == ExportFormat.MILLISECONDS) {
-                generator.writeNumberField("startTime", startInstant.toEpochMilli());
-                generator.writeNumberField("endTime", endInstant.toEpochMilli());
-                generator.writeNumberField("spacing", timeStep.toMillis());
-            } else {
-                generator.writeNumberField("startInstant", new BigInteger(writeInstantToNanoString(startInstant)));
-                generator.writeNumberField("endInstant", new BigInteger(writeInstantToNanoString(endInstant)));
-                generator.writeNumberField("timeStep", timeStep.toNanos());
-            }
-            generator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        generator.writeStartObject();
+        if (timeFormat == ExportFormat.MILLISECONDS) {
+            generator.writeNumberProperty("startTime", startInstant.toEpochMilli());
+            generator.writeNumberProperty("endTime", endInstant.toEpochMilli());
+            generator.writeNumberProperty("spacing", timeStep.toMillis());
+        } else {
+            generator.writeNumberProperty("startInstant", new BigInteger(writeInstantToNanoString(startInstant)));
+            generator.writeNumberProperty("endInstant", new BigInteger(writeInstantToNanoString(endInstant)));
+            generator.writeNumberProperty("timeStep", timeStep.toNanos());
         }
+        generator.writeEndObject();
     }
 
     @Override
@@ -271,7 +261,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         return "RegularTimeSeriesIndex(startInstant=" + startInstant + ", endInstant=" + endInstant + ", timeStep=" + timeStep + ")";
     }
 
-    private static Instant parseNanoTokenToInstant(JsonParser parser) throws IOException {
+    private static Instant parseNanoTokenToInstant(JsonParser parser) {
         // The next token contains the value
         parser.nextToken();
 

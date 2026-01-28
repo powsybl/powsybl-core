@@ -7,16 +7,16 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.BusBreakerViolationLocation;
 import com.powsybl.security.NodeBreakerViolationLocation;
 import com.powsybl.security.ViolationLocation;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
     }
 
     @Override
-    public ViolationLocation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public ViolationLocation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String voltageLevelId = null;
         List<String> busIds = new ArrayList<>();
         List<Integer> nodes = new ArrayList<>();
@@ -51,7 +51,7 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
                     break;
 
                 case VOLTAGE_LEVEL_ID:
-                    voltageLevelId = parser.nextTextValue();
+                    voltageLevelId = parser.nextStringValue();
                     break;
 
                 case NODES:

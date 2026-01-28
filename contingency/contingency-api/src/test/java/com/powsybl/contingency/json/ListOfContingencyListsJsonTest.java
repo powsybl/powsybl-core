@@ -7,8 +7,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.Contingency;
@@ -23,6 +21,8 @@ import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,11 +100,11 @@ class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            ContingencyJsonModule module = new ContingencyJsonModule();
-            objectMapper.registerModule(module);
+            JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+                .addModule(new ContingencyJsonModule())
+                .build();
 
-            return (T) objectMapper.readValue(is, clazz);
+            return jsonMapper.readValue(is, clazz);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -115,11 +115,11 @@ class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            ObjectMapper mapper = JsonUtil.createObjectMapper();
-            ContingencyJsonModule module = new ContingencyJsonModule();
-            mapper.registerModule(module);
+            JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+                .addModule(new ContingencyJsonModule())
+                .build();
 
-            ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+            ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(os, object);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -7,11 +7,10 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.AbstractLoadActionBuilder;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
@@ -22,13 +21,13 @@ public abstract class AbstractLoadActionBuilderDeserializer<T extends AbstractLo
         super(vc);
     }
 
-    protected boolean deserializeCommonAttributes(JsonParser jsonParser, T builder, String name) throws IOException {
+    protected boolean deserializeCommonAttributes(JsonParser jsonParser, T builder, String name) throws JacksonException {
         switch (name) {
             case "id":
-                builder.withId(jsonParser.nextTextValue());
+                builder.withId(jsonParser.nextStringValue());
                 return true;
             case "loadId", "danglingLineId":
-                builder.withNetworkElementId(jsonParser.nextTextValue());
+                builder.withNetworkElementId(jsonParser.nextStringValue());
                 return true;
             case "relativeValue":
                 jsonParser.nextToken();

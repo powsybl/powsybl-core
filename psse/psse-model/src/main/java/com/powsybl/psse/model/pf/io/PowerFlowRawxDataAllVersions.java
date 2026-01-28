@@ -7,8 +7,6 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseException;
@@ -17,6 +15,9 @@ import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.LegacyTextReader;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,7 +68,7 @@ public class PowerFlowRawxDataAllVersions implements PowerFlowData {
         throw new PsseException("RawXDataCommon does not know how to write complete data file. Specific version instance is required");
     }
 
-    protected JsonNode networkNode(InputStream stream) throws IOException {
-        return new ObjectMapper().readTree(stream).get("network");
+    protected JsonNode networkNode(InputStream stream) throws JacksonException {
+        return new JsonMapper().readTree(stream).get("network");
     }
 }

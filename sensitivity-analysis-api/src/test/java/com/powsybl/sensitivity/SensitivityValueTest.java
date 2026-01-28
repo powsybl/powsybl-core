@@ -7,13 +7,13 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 
@@ -38,22 +38,23 @@ class SensitivityValueTest extends AbstractSerDeTest {
     @Test
     void testJson() throws IOException {
         SensitivityValue value = new SensitivityValue(0, 0, 1d, 2d);
-        ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
-        roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityValue.class, objectMapper), "/valueRef.json");
+        JsonMapper jsonMapper = JsonSensitivityAnalysisParameters.createJsonMapper();
+        roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, jsonMapper),
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityValue.class, jsonMapper), "/valueRef.json");
     }
 
     @Test
-    void testJsonWhenContingencyIndexIsMinus1() throws JsonProcessingException {
+    void testJsonWhenContingencyIndexIsMinus1() throws JacksonException {
         SensitivityValue value = new SensitivityValue(0, -1, 1d, 2d);
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new SensitivityJsonModule());
-        String sensitivityValueString = objectMapper.writeValueAsString(value);
+        JsonMapper jsonMapper = JsonMapper.builder()
+            .addModule(new SensitivityJsonModule())
+            .build();
+        String sensitivityValueString = jsonMapper.writeValueAsString(value);
 
         // When the contingency index is -1 it should not be present in the json
         assertFalse(sensitivityValueString.contains("contingencyIndex"));
 
-        SensitivityValue value2 = objectMapper.readValue(sensitivityValueString, SensitivityValue.class);
+        SensitivityValue value2 = jsonMapper.readValue(sensitivityValueString, SensitivityValue.class);
         assertEquals(value.getContingencyIndex(), value2.getContingencyIndex());
 
     }

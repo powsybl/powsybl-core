@@ -7,8 +7,8 @@
  */
 package com.powsybl.powerfactory.model;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.*;
@@ -57,18 +57,14 @@ public class StudyCase extends AbstractPowerFactoryData {
 
     static StudyCase parseJson(JsonParser parser) {
         ParsingContext context = new ParsingContext();
-        try {
-            parser.nextToken();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        parser.nextToken();
         JsonUtil.parseObject(parser, fieldName -> switch (fieldName) {
             case "name" -> {
-                context.name = parser.nextTextValue();
+                context.name = parser.nextStringValue();
                 yield true;
             }
             case "time" -> {
-                context.time = Instant.parse(parser.nextTextValue());
+                context.time = Instant.parse(parser.nextStringValue());
                 yield true;
             }
             case "classes" -> {
@@ -104,23 +100,23 @@ public class StudyCase extends AbstractPowerFactoryData {
     }
 
     @Override
-    public void writeJson(JsonGenerator generator) throws IOException {
+    public void writeJson(JsonGenerator generator) {
         generator.writeStartObject();
 
-        generator.writeStringField("name", name);
-        generator.writeStringField("time", time.toString());
+        generator.writeStringProperty("name", name);
+        generator.writeStringProperty("time", time.toString());
 
         DataScheme scheme = DataScheme.build(elmNets);
         scheme.writeJson(generator);
 
-        generator.writeFieldName("objects");
+        generator.writeName("objects");
         generator.writeStartArray();
         for (DataObject obj : index.getRootDataObjects()) {
             obj.writeJson(generator);
         }
         generator.writeEndArray();
 
-        generator.writeFieldName("elmNets");
+        generator.writeName("elmNets");
         generator.writeStartArray();
         for (DataObject elmNet : elmNets) {
             generator.writeNumber(elmNet.getId());

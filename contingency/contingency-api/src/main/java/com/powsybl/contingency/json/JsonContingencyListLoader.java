@@ -8,11 +8,11 @@
 
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.contingency.list.ContingencyListLoader;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,9 +30,9 @@ public class JsonContingencyListLoader implements ContingencyListLoader {
 
     @Override
     public ContingencyList load(String name, InputStream stream) throws IOException {
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-        objectMapper.registerModule(new ContingencyJsonModule());
-
-        return objectMapper.readValue(stream, ContingencyList.class);
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new ContingencyJsonModule())
+            .build();
+        return jsonMapper.readValue(stream, ContingencyList.class);
     }
 }

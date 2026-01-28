@@ -7,7 +7,7 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.powsybl.commons.json.JsonUtil;
 
 /**

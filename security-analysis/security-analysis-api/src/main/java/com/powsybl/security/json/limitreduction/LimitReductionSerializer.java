@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json.limitreduction;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.limitreduction.LimitReduction;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
@@ -24,20 +23,20 @@ public class LimitReductionSerializer extends StdSerializer<LimitReduction> {
     }
 
     @Override
-    public void serialize(LimitReduction limitReduction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LimitReduction limitReduction, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("value", limitReduction.getValue());
-        jsonGenerator.writeStringField("limitType", limitReduction.getLimitType().name());
-        jsonGenerator.writeBooleanField("monitoringOnly", limitReduction.isMonitoringOnly());
+        jsonGenerator.writeNumberProperty("value", limitReduction.getValue());
+        jsonGenerator.writeStringProperty("limitType", limitReduction.getLimitType().name());
+        jsonGenerator.writeBooleanProperty("monitoringOnly", limitReduction.isMonitoringOnly());
 
-        serializerProvider.defaultSerializeField("contingencyContext",
+        serializationContext.defaultSerializeProperty("contingencyContext",
                 limitReduction.getContingencyContext(), jsonGenerator);
         if (!limitReduction.getNetworkElementCriteria().isEmpty()) {
-            serializerProvider.defaultSerializeField("equipmentCriteria",
+            serializationContext.defaultSerializeProperty("equipmentCriteria",
                     limitReduction.getNetworkElementCriteria(), jsonGenerator);
         }
         if (!limitReduction.getDurationCriteria().isEmpty()) {
-            serializerProvider.defaultSerializeField("durationCriteria",
+            serializationContext.defaultSerializeProperty("durationCriteria",
                     limitReduction.getDurationCriteria(), jsonGenerator);
         }
 

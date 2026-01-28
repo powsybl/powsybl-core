@@ -7,16 +7,17 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
         }
     }
 
-    private PssePowerFlowModel read(InputStream stream, Context context) throws IOException {
+    private PssePowerFlowModel read(InputStream stream, Context context) throws JacksonException, IOException {
         JsonNode networkNode = networkNode(stream);
         context.setNetworkNode(networkNode);
         PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(null, context);
@@ -90,11 +91,12 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
         }
     }
 
-    private void write(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) throws IOException {
-        try (JsonGenerator generator = new JsonFactory().createGenerator(outputStream).setPrettyPrinter(new DefaultPrettyPrinter())) {
+    private void write(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) throws JacksonException {
+        JsonMapper mapper = JsonUtil.createJsonMapper();
+        try (JsonGenerator generator = mapper.writerWithDefaultPrettyPrinter().createGenerator(outputStream)) {
             context.setJsonGenerator(generator);
             generator.writeStartObject();
-            generator.writeFieldName("network");
+            generator.writeName("network");
             generator.writeStartObject();
             generator.flush();
 

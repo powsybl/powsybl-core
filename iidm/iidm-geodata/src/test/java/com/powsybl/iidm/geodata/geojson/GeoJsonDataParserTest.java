@@ -7,8 +7,7 @@
  */
 package com.powsybl.iidm.geodata.geojson;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
 import com.powsybl.iidm.geodata.geojson.dto.CoordinatesDto;
 import com.powsybl.iidm.geodata.geojson.dto.FeatureCollectionDto;
 import com.powsybl.iidm.geodata.geojson.dto.FeatureDto;
@@ -16,6 +15,7 @@ import com.powsybl.iidm.geodata.geojson.dto.LineStringDto;
 import com.powsybl.iidm.geodata.geojson.dto.MultiLineStringDto;
 import com.powsybl.iidm.geodata.geojson.dto.PointDto;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -25,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class GeoJsonDataParserTest {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = new JsonMapper();
 
     @Test
-    void coordinatesSerdeTest() throws JsonProcessingException {
+    void coordinatesSerdeTest() throws JacksonException {
         // Coordinates
         CoordinatesDto coordinates = new CoordinatesDto(1, 2, 3);
         String json = MAPPER.writeValueAsString(coordinates);
@@ -50,7 +50,7 @@ class GeoJsonDataParserTest {
     }
 
     @Test
-    void pointTest() throws JsonProcessingException {
+    void pointTest() throws JacksonException {
         // Point
         PointDto point = new PointDto(1, 2, 3);
         String json = MAPPER.writeValueAsString(point);
@@ -66,7 +66,7 @@ class GeoJsonDataParserTest {
     }
 
     @Test
-    void lineStringTest() throws JsonProcessingException {
+    void lineStringTest() throws JacksonException {
         // LineString
         LineStringDto lineString = new LineStringDto(List.of(new CoordinatesDto(1, 2),
             new CoordinatesDto(3, 4),
@@ -81,7 +81,7 @@ class GeoJsonDataParserTest {
     }
 
     @Test
-    void multiLineStringTest() throws JsonProcessingException {
+    void multiLineStringTest() throws JacksonException {
         // MultiLineString
         double[][][] expectedCoordinates = {{{1, 2}, {3, 4}, {5, 6}}, {{7, 8}, {9, 10}, {11, 12}}};
         MultiLineStringDto multiLineString = new MultiLineStringDto(expectedCoordinates);
@@ -100,7 +100,7 @@ class GeoJsonDataParserTest {
     }
 
     @Test
-    void featureTest() throws JsonProcessingException {
+    void featureTest() throws JacksonException {
         // LineString
         LineStringDto lineString = new LineStringDto(List.of(new CoordinatesDto(1, 2),
             new CoordinatesDto(3, 4),
@@ -115,7 +115,7 @@ class GeoJsonDataParserTest {
     }
 
     @Test
-    void featureCollectionTest() throws JsonProcessingException {
+    void featureCollectionTest() throws JacksonException {
         // LineString
         LineStringDto lineString = new LineStringDto(List.of(new CoordinatesDto(1, 2),
             new CoordinatesDto(3, 4),

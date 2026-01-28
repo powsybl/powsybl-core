@@ -7,14 +7,13 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.BranchFault;
 import com.powsybl.shortcircuit.Fault;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
@@ -26,18 +25,18 @@ public class FaultSerializer extends StdSerializer<Fault> {
     }
 
     @Override
-    public void serialize(Fault fault, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(Fault fault, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("type", fault.getType().name());
-        jsonGenerator.writeStringField("id", fault.getId());
-        jsonGenerator.writeStringField("elementId", fault.getElementId());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "r", fault.getRToGround());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "x", fault.getXToGround());
-        jsonGenerator.writeStringField("connection", fault.getConnectionType().name());
-        jsonGenerator.writeStringField("faultType", fault.getFaultType().name());
+        jsonGenerator.writeStringProperty("type", fault.getType().name());
+        jsonGenerator.writeStringProperty("id", fault.getId());
+        jsonGenerator.writeStringProperty("elementId", fault.getElementId());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "r", fault.getRToGround());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "x", fault.getXToGround());
+        jsonGenerator.writeStringProperty("connection", fault.getConnectionType().name());
+        jsonGenerator.writeStringProperty("faultType", fault.getFaultType().name());
         if (fault.getType() == Fault.Type.BRANCH) {
-            JsonUtil.writeOptionalDoubleField(jsonGenerator, "proportionalLocation", ((BranchFault) fault).getProportionalLocation());
+            JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "proportionalLocation", ((BranchFault) fault).getProportionalLocation());
         }
 
         jsonGenerator.writeEndObject();

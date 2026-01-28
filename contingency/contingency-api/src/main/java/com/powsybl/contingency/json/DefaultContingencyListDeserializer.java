@@ -8,15 +8,15 @@
 
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.list.DefaultContingencyList;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,16 +29,16 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
         super(DefaultContingencyList.class);
     }
 
-    public DefaultContingencyList deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    public DefaultContingencyList deserialize(JsonParser parser, DeserializationContext ctx) throws JacksonException {
         String name = null;
         List<Contingency> contingencies = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "version" -> parser.nextToken();
-                case "name" -> name = parser.nextTextValue();
+                case "name" -> name = parser.nextStringValue();
                 case "type" -> {
-                    if (!parser.nextTextValue().equals(DefaultContingencyList.TYPE)) {
+                    if (!parser.nextStringValue().equals(DefaultContingencyList.TYPE)) {
                         throw new IllegalStateException("type should be: " + DefaultContingencyList.TYPE);
                     }
                 }

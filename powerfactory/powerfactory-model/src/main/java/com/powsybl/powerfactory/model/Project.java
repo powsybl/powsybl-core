@@ -7,8 +7,8 @@
  */
 package com.powsybl.powerfactory.model;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.*;
@@ -47,15 +47,11 @@ public class Project extends AbstractPowerFactoryData {
 
     static Project parseJson(JsonParser parser) {
         ParsingContext context = new ParsingContext();
-        try {
-            parser.nextToken();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        parser.nextToken();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
                 case "name":
-                    context.name = parser.nextTextValue();
+                    context.name = parser.nextStringValue();
                     return true;
                 case "classes":
                     context.scheme = DataScheme.parseJson(parser);
@@ -84,15 +80,15 @@ public class Project extends AbstractPowerFactoryData {
     }
 
     @Override
-    public void writeJson(JsonGenerator generator) throws IOException {
+    public void writeJson(JsonGenerator generator) {
         generator.writeStartObject();
 
-        generator.writeStringField("name", name);
+        generator.writeStringProperty("name", name);
 
         DataScheme scheme = DataScheme.build(rootObject);
         scheme.writeJson(generator);
 
-        generator.writeFieldName("rootObject");
+        generator.writeName("rootObject");
         rootObject.writeJson(generator);
 
         generator.writeEndObject();

@@ -7,17 +7,18 @@
  */
 package com.powsybl.commons.extensions;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.json.JsonUtil;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +36,7 @@ public class FooDeserializer extends StdDeserializer<Foo> {
     }
 
     @Override
-    public Foo deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public Foo deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
         List<Extension<Foo>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -49,16 +50,18 @@ public class FooDeserializer extends StdDeserializer<Foo> {
         return foo;
     }
 
-    static Foo read(InputStream stream) throws IOException {
-        ObjectMapper mapper = JsonUtil.createObjectMapper();
+    static Foo read(InputStream stream) throws JacksonException {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Foo.class, new FooDeserializer());
-        mapper.registerModule(module);
+        JsonMapper mapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(module)
+            .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+            .build();
         return mapper.readValue(stream, Foo.class);
     }
 
     @Override
-    public Foo deserialize(JsonParser parser, DeserializationContext context, Foo initFoo) throws IOException {
+    public Foo deserialize(JsonParser parser, DeserializationContext context, Foo initFoo) throws JacksonException {
         List<Extension<Foo>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -71,11 +74,12 @@ public class FooDeserializer extends StdDeserializer<Foo> {
         return initFoo;
     }
 
-    static Foo update(InputStream stream, Foo foo) throws IOException {
-        ObjectMapper mapper = JsonUtil.createObjectMapper();
+    static Foo update(InputStream stream, Foo foo) throws JacksonException {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Foo.class, new FooDeserializer());
-        mapper.registerModule(module);
+        JsonMapper mapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(module)
+            .build();
         return mapper.readerForUpdating(foo).readValue(stream);
     }
 }

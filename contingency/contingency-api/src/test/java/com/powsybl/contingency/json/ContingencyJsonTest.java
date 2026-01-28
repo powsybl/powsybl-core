@@ -7,12 +7,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -25,6 +19,13 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,11 +84,11 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            ContingencyJsonModule module = new ContingencyJsonModule();
-            objectMapper.registerModule(module);
+            JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+                .addModule(new ContingencyJsonModule())
+                .build();
 
-            return (T) objectMapper.readValue(is, clazz);
+            return (T) jsonMapper.readValue(is, clazz);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -106,11 +107,11 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            ObjectMapper mapper = JsonUtil.createObjectMapper();
-            ContingencyJsonModule module = new ContingencyJsonModule();
-            mapper.registerModule(module);
+            JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+                .addModule(new ContingencyJsonModule())
+                .build();
 
-            ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+            ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(os, object);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -273,13 +274,13 @@ class ContingencyJsonTest extends AbstractSerDeTest {
     public static class DummySerializer implements ExtensionJsonSerializer<Contingency, DummyExtension> {
 
         @Override
-        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeEndObject();
         }
 
         @Override
-        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
             return new DummyExtension();
         }
 

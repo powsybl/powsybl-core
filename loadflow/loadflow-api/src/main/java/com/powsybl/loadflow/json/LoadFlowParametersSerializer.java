@@ -7,14 +7,13 @@
  */
 package com.powsybl.loadflow.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
@@ -26,33 +25,33 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
     }
 
     @Override
-    public void serialize(LoadFlowParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LoadFlowParameters parameters, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
 
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", LoadFlowParameters.VERSION);
-        jsonGenerator.writeStringField("voltageInitMode", parameters.getVoltageInitMode().name());
-        jsonGenerator.writeBooleanField("transformerVoltageControlOn", parameters.isTransformerVoltageControlOn());
-        jsonGenerator.writeBooleanField("phaseShifterRegulationOn", parameters.isPhaseShifterRegulationOn());
-        jsonGenerator.writeBooleanField("useReactiveLimits", parameters.isUseReactiveLimits());
-        jsonGenerator.writeBooleanField("twtSplitShuntAdmittance", parameters.isTwtSplitShuntAdmittance());
-        jsonGenerator.writeBooleanField("shuntCompensatorVoltageControlOn", parameters.isShuntCompensatorVoltageControlOn());
-        jsonGenerator.writeBooleanField("readSlackBus", parameters.isReadSlackBus());
-        jsonGenerator.writeBooleanField("writeSlackBus", parameters.isWriteSlackBus());
-        jsonGenerator.writeBooleanField("dc", parameters.isDc());
-        jsonGenerator.writeBooleanField("distributedSlack", parameters.isDistributedSlack());
-        jsonGenerator.writeStringField("balanceType", parameters.getBalanceType().name());
-        jsonGenerator.writeBooleanField("dcUseTransformerRatio", parameters.isDcUseTransformerRatio());
-        jsonGenerator.writeArrayFieldStart("countriesToBalance");
+        jsonGenerator.writeStringProperty("version", LoadFlowParameters.VERSION);
+        jsonGenerator.writeStringProperty("voltageInitMode", parameters.getVoltageInitMode().name());
+        jsonGenerator.writeBooleanProperty("transformerVoltageControlOn", parameters.isTransformerVoltageControlOn());
+        jsonGenerator.writeBooleanProperty("phaseShifterRegulationOn", parameters.isPhaseShifterRegulationOn());
+        jsonGenerator.writeBooleanProperty("useReactiveLimits", parameters.isUseReactiveLimits());
+        jsonGenerator.writeBooleanProperty("twtSplitShuntAdmittance", parameters.isTwtSplitShuntAdmittance());
+        jsonGenerator.writeBooleanProperty("shuntCompensatorVoltageControlOn", parameters.isShuntCompensatorVoltageControlOn());
+        jsonGenerator.writeBooleanProperty("readSlackBus", parameters.isReadSlackBus());
+        jsonGenerator.writeBooleanProperty("writeSlackBus", parameters.isWriteSlackBus());
+        jsonGenerator.writeBooleanProperty("dc", parameters.isDc());
+        jsonGenerator.writeBooleanProperty("distributedSlack", parameters.isDistributedSlack());
+        jsonGenerator.writeStringProperty("balanceType", parameters.getBalanceType().name());
+        jsonGenerator.writeBooleanProperty("dcUseTransformerRatio", parameters.isDcUseTransformerRatio());
+        jsonGenerator.writeArrayPropertyStart("countriesToBalance");
         for (Country arg : parameters.getCountriesToBalance()) {
             jsonGenerator.writeString(arg.name());
         }
         jsonGenerator.writeEndArray();
-        jsonGenerator.writeStringField("componentMode", parameters.getComponentMode().name());
-        jsonGenerator.writeBooleanField("hvdcAcEmulation", parameters.isHvdcAcEmulation());
-        jsonGenerator.writeNumberField("dcPowerFactor", parameters.getDcPowerFactor());
+        jsonGenerator.writeStringProperty("componentMode", parameters.getComponentMode().name());
+        jsonGenerator.writeBooleanProperty("hvdcAcEmulation", parameters.isHvdcAcEmulation());
+        jsonGenerator.writeNumberProperty("dcPowerFactor", parameters.getDcPowerFactor());
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers()::get);
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializationContext, JsonLoadFlowParameters.getExtensionSerializers()::get);
 
         jsonGenerator.writeEndObject();
     }

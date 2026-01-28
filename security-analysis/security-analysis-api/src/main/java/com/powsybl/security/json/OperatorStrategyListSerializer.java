@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.strategy.OperatorStrategyList;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import static com.powsybl.security.strategy.OperatorStrategyList.VERSION;
 
@@ -26,10 +25,10 @@ public class OperatorStrategyListSerializer extends StdSerializer<OperatorStrate
     }
 
     @Override
-    public void serialize(OperatorStrategyList operatorStrategyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(OperatorStrategyList operatorStrategyList, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", VERSION);
-        serializerProvider.defaultSerializeField("operatorStrategies", operatorStrategyList.getOperatorStrategies(), jsonGenerator);
+        jsonGenerator.writeStringProperty("version", VERSION);
+        serializationContext.defaultSerializeProperty("operatorStrategies", operatorStrategyList.getOperatorStrategies(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

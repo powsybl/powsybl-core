@@ -7,14 +7,13 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -75,13 +74,13 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, "l",
                                                          SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                          false, ContingencyContext.all());
-        ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
-        roundTripTest(factor, (factor1, jsonFile) -> JsonUtil.writeJson(jsonFile, factor1, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityFactor.class, objectMapper), "/factorRef.json");
+        JsonMapper jsonMapper = JsonSensitivityAnalysisParameters.createJsonMapper();
+        roundTripTest(factor, (factor1, jsonFile) -> JsonUtil.writeJson(jsonFile, factor1, jsonMapper),
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityFactor.class, jsonMapper), "/factorRef.json");
     }
 
     @Test
-    void testNullVariableSet() throws IOException {
+    void testNullVariableSet() {
         String json = """
             {
               "functionType": "BUS_VOLTAGE",
@@ -92,8 +91,8 @@ class SensitivityFactorTest extends AbstractSerDeTest {
             }
             """;
 
-        JsonFactory factory = new JsonFactory();
-        JsonParser parser = factory.createParser(new StringReader(json));
+        JsonMapper jsonMapper = JsonUtil.createJsonMapper();
+        JsonParser parser = jsonMapper.createParser(new StringReader(json));
         parser.nextToken();
         Exception e = assertThrows(NullPointerException.class, () -> SensitivityFactor.parseJson(parser));
         assertEquals("Parameter variableSet is missing", e.getMessage());

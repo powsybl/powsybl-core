@@ -7,14 +7,13 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.security.strategy.OperatorStrategy;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -26,16 +25,16 @@ public class OperatorStrategySerializer extends StdSerializer<OperatorStrategy> 
     }
 
     @Override
-    public void serialize(OperatorStrategy operatorStrategy, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(OperatorStrategy operatorStrategy, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("id", operatorStrategy.getId());
+        jsonGenerator.writeStringProperty("id", operatorStrategy.getId());
         ContingencyContext contingencyContext = operatorStrategy.getContingencyContext();
-        jsonGenerator.writeStringField("contingencyContextType", contingencyContext.getContextType().name());
+        jsonGenerator.writeStringProperty("contingencyContextType", contingencyContext.getContextType().name());
         if (contingencyContext.getContingencyId() != null) {
-            jsonGenerator.writeStringField("contingencyId", contingencyContext.getContingencyId());
+            jsonGenerator.writeStringProperty("contingencyId", contingencyContext.getContingencyId());
         }
-        serializerProvider.defaultSerializeField("conditionalActions", operatorStrategy.getConditionalActions(), jsonGenerator);
-        JsonUtil.writeExtensions(operatorStrategy, jsonGenerator, serializerProvider);
+        serializationContext.defaultSerializeProperty("conditionalActions", operatorStrategy.getConditionalActions(), jsonGenerator);
+        JsonUtil.writeExtensions(operatorStrategy, jsonGenerator, serializationContext);
         jsonGenerator.writeEndObject();
     }
 }

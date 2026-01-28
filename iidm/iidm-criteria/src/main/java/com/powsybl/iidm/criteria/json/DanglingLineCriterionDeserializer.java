@@ -7,15 +7,14 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.DanglingLineCriterion;
 import com.powsybl.iidm.criteria.SingleCountryCriterion;
 import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * <p>Deserializer for {@link DanglingLineCriterion} objects.</p>
@@ -27,7 +26,7 @@ public class DanglingLineCriterionDeserializer extends AbstractNetworkElementCri
     }
 
     @Override
-    public DanglingLineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public DanglingLineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = new AbstractNetworkElementCriterionDeserializer.ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 DanglingLineCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.SINGLE_NOMINAL_VOLTAGE));
