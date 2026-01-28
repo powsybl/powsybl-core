@@ -45,6 +45,13 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
     void setFreeFluxes(boolean freeFluxes);
 
     /**
+     * The magnetizing reactance of the two-winding transformer, if not considered as infinite.
+     */
+    double getXm();
+
+    void setXm(double xm);
+
+    /**
      * Get the winding connection type of transformer side 1, see {@link WindingConnectionType}).
      */
     WindingConnectionType getConnectionType1();
