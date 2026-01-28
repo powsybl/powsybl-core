@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.impl.regulation.VoltageRegulationImpl;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -229,5 +230,18 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public VoltageRegulation getVoltageRegulation() {
         return this.voltageRegulation;
+    }
+
+    @Override
+    public VoltageRegulation newAndReplaceVoltageRegulation() {
+        this.voltageRegulation = VoltageRegulationImpl.builder()
+            .setNetwork(getNetwork().getRef())
+            .build();
+        return this.voltageRegulation;
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+        this.voltageRegulation = null;
     }
 }

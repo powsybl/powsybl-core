@@ -6,9 +6,9 @@
                 <iidm:bus id="B1" name="BUS-1   100" v="104.0" angle="0.0"/>
                 <iidm:bus id="B4" name="BUS-4   100" v="102.49999999999999" angle="-2.216"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B1-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="71.64102" targetV="104.0" targetQ="27.04592" bus="B1" connectableBus="B1">
+            <iidm:generator id="B1-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" targetP="71.64102" targetV="104.0" targetQ="27.04592" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="-99990.0" maxQ="999900.0"/>
-                <iidm:voltageRegulation targetValue="104.0"/>
+                <iidm:voltageRegulation targetValue="104.0" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T4-1-0" r="0.0" x="5.76" g="0.0" b="0.0" ratedU1="100.0" ratedU2="100.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL1" bus2="B1" connectableBus2="B1" voltageLevelId2="VL1">
@@ -23,9 +23,9 @@
                 <iidm:bus id="B2" name="BUS-2   100" v="102.49999999999999" angle="9.28"/>
                 <iidm:bus id="B7" name="BUS-7   100" v="102.49999999999999" angle="3.7197"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B2-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="163.0" targetV="102.49999999999999" targetQ="6.65366" bus="B2" connectableBus="B2">
+            <iidm:generator id="B2-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" targetP="163.0" targetV="102.49999999999999" targetQ="6.65366" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-99990.0" maxQ="999900.0"/>
-                <iidm:voltageRegulation targetValue="102.49999999999999"/>
+                <iidm:voltageRegulation targetValue="102.49999999999999" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T7-2-0" r="0.0" x="6.25" g="0.0" b="0.0" ratedU1="100.0" ratedU2="100.0" bus1="B7" connectableBus1="B7" voltageLevelId1="VL2" bus2="B2" connectableBus2="B2" voltageLevelId2="VL2">
@@ -40,9 +40,9 @@
                 <iidm:bus id="B3" name="BUS-3   100" v="102.49999999999999" angle="4.6647"/>
                 <iidm:bus id="B9" name="BUS-9   100" v="103.2" angle="1.9667"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B3-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="85.0" targetV="102.49999999999999" targetQ="-10.8597" bus="B3" connectableBus="B3">
+            <iidm:generator id="B3-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" targetP="85.0" targetV="102.49999999999999" targetQ="-10.8597" bus="B3" connectableBus="B3">
                 <iidm:minMaxReactiveLimits minQ="-99990.0" maxQ="999900.0"/>
-                <iidm:voltageRegulation targetValue="102.49999999999999"/>
+                <iidm:voltageRegulation targetValue="102.49999999999999" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T9-3-0" r="0.0" x="5.86" g="0.0" b="0.0" ratedU1="100.0" ratedU2="100.0" bus1="B9" connectableBus1="B9" voltageLevelId1="VL3" bus2="B3" connectableBus2="B3" voltageLevelId2="VL3">

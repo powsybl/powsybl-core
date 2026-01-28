@@ -16,9 +16,9 @@
                 <iidm:switch id="VL1-Sw-4-6-1 " name="                                        " kind="BREAKER" retained="false" open="false" node1="4" node2="6"/>
                 <iidm:bus v="220.0" angle="0.0" nodes="1,2,3,4,5,6"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="B1-G2 " energySource="OTHER" minP="0.5" maxP="37.15" voltageRegulatorOn="false" targetP="0.0" targetQ="0.0" node="4">
+            <iidm:generator id="B1-G2 " energySource="OTHER" minP="0.5" maxP="37.15" targetP="0.0" targetQ="0.0" node="4">
                 <iidm:minMaxReactiveLimits minQ="-10.83" maxQ="10.83"/>
-                <iidm:voltageRegulation/>
+                <iidm:voltageRegulation targetValue="0.0" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -62,9 +62,9 @@
                 <iidm:switch id="VL3-Sw-9-16-1 " name="                                        " kind="DISCONNECTOR" retained="false" open="true" node1="9" node2="16"/>
                 <iidm:bus v="15.0" angle="0.0" nodes="9,10,11,12,13,14,15,16"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="B3-G1 " energySource="OTHER" minP="0.5" maxP="37.83" voltageRegulatorOn="false" targetP="0.0" targetQ="0.0" node="12">
+            <iidm:generator id="B3-G1 " energySource="OTHER" minP="0.5" maxP="37.83" targetP="0.0" targetQ="0.0" node="12">
                 <iidm:minMaxReactiveLimits minQ="-11.03" maxQ="11.03"/>
-                <iidm:voltageRegulation/>
+                <iidm:voltageRegulation targetValue="0.0" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
             <iidm:shunt id="B3-SwSH1 " sectionCount="1" voltageRegulatorOn="false" node="13">
                 <iidm:shuntNonLinearModel>

@@ -15,8 +15,9 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +98,10 @@ public class RegulatingControlMappingForGenerators {
                 .mapForVoltageControl(control.cgmesTerminal, context)
                 .orElse(gen.getTerminal());
 
-        gen.setRegulatingTerminal(regulatingTerminal);
+        VoltageRegulation voltageRegulation = gen.newAndReplaceVoltageRegulation();
+        voltageRegulation.setTerminal(regulatingTerminal);
+        voltageRegulation.setMode(RegulationMode.VOLTAGE);
+        voltageRegulation.setRegulating(false);
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
@@ -122,10 +126,10 @@ public class RegulatingControlMappingForGenerators {
             return false;
         }
 
-        gen.newExtension(RemoteReactivePowerControlAdder.class)
-                .withRegulatingTerminal(mappedRegulatingTerminal.getTerminal())
-                .withEnabled(false)
-                .add();
+        VoltageRegulation voltageRegulation = gen.newAndReplaceVoltageRegulation();
+        voltageRegulation.setTerminal(mappedRegulatingTerminal.getTerminal());
+        voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
+        voltageRegulation.setRegulating(false);
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {

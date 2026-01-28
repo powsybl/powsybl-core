@@ -228,7 +228,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
             return this;
         }
 
-        public VoltageRegulationImpl build() {
+        public VoltageRegulation build() {
             if (mode == null) {
 //                throw new IllegalArgumentException("Invalid VoltageRegulation: mode must be defined.");
             }
