@@ -346,8 +346,18 @@ class StoredDoubleTimeSeriesTest {
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1);
         // Prepare the Ranges
         List<Range<@NonNull Integer>> ranges = List.of(Range.closed(1, 4));
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> timeSeries.splitByRanges(ranges));
-        assertEquals("Incomplete chunk, expected at least first offset to be 1, but we got 2", exception.getMessage());
+        List<DoubleTimeSeries> split = timeSeries.splitByRanges(ranges);
+
+        // check there are 1 new time series
+        assertEquals(1, split.size());
+
+        // check the chunk
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.getFirst());
+        StoredDoubleTimeSeries ts = (StoredDoubleTimeSeries) split.getFirst();
+        assertEquals(1, ts.getChunks().size());
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
+        assertEquals(2, ts.getChunks().getFirst().getOffset());
+        assertEquals(3, ts.getChunks().getFirst().getLength());
     }
 
     @Test

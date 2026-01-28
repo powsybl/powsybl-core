@@ -128,7 +128,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     List<T> split(int newChunkSize);
 
     /**
-     * <p>Splits a list of chunks into sublists based on the specified ranges.</p>
+     * Splits a list of chunks into sublists based on the specified ranges.
      */
     List<T> splitByRanges(List<Range<@NonNull Integer>> newChunks);
 
