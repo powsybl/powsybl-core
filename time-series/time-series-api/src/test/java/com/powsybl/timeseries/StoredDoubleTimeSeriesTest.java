@@ -336,7 +336,7 @@ class StoredDoubleTimeSeriesTest {
     }
 
     @Test
-    void splitTimeSeriesWithPartialChunkOnFirstIndexException() {
+    void splitTimeSeriesWithPartialChunkOnFirstIndex() {
         // Prepare the TimeSeries
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(20);

@@ -137,9 +137,6 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
      * @param lastIndex The ending index (inclusive) for the split.
      */
     private void splitByFirstAndLastIndex(@NonNull C chunkToSplit, List<C> splitChunks, int firstIndex, int lastIndex) {
-        if (chunkToSplit.getOffset() > firstIndex) {
-            throw new IllegalArgumentException(String.format("Incomplete chunk, expected at least first offset to be %s, but we got %s", firstIndex, chunkToSplit.getOffset()));
-        }
         traceSplitChunk(firstIndex, lastIndex);
         C newChunk;
         // chunkToSplit = [x0, y0] -> newChunk = [x0=firstIndex, y0]
