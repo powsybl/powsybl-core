@@ -48,4 +48,20 @@ public interface LineFortescue extends Extension<Line> {
     boolean isOpenPhaseC();
 
     void setOpenPhaseC(boolean openPhaseC);
+
+    double getB1z();
+
+    void setB1z(double b1z);
+
+    double getB2z();
+
+    void setB2z(double b2z);
+
+    double getG1z();
+
+    void setG1z(double g1z);
+
+    double getG2z();
+
+    void setG2z(double g2z);
 }
