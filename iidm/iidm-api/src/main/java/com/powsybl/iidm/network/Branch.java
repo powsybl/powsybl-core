@@ -144,10 +144,11 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1();
 
     /**
-     * Get all the selected {@link OperationalLimitsGroup} on side 1.
+     * Get all the selected {@link OperationalLimitsGroup} on the given <code>side</code>.
+     * @param side the side to get the limits on
      * @return all the selected {@link OperationalLimitsGroup} on side 1, might be empty if none is selected
      */
-    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup1();
+    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side);
 
     /**
      * <p>Create a new {@link OperationalLimitsGroup} on side 1 with the given ID.</p>
@@ -187,14 +188,6 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     /**
-     * Get all the {@link CurrentLimits} of all the selected {@link OperationalLimitsGroup} on side 1.
-     * @return a collection of {@link CurrentLimits} for all the selected {@link OperationalLimitsGroup} on side 1, might be empty if none is selected
-     */
-    default Collection<CurrentLimits> getAllSelectedCurrentLimits1() {
-        return getAllSelectedLoadingLimits1(OperationalLimitsGroup::getCurrentLimits);
-    }
-
-    /**
      * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1.
      * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
      */
@@ -208,14 +201,6 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     default Optional<ActivePowerLimits> getActivePowerLimits1() {
         return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getActivePowerLimits);
-    }
-
-    /**
-     * Get all the {@link ActivePowerLimits} of all the selected {@link OperationalLimitsGroup} on side 1.
-     * @return a collection of {@link ActivePowerLimits} for all the selected {@link OperationalLimitsGroup} on side 1, might be empty if none is selected
-     */
-    default Collection<ActivePowerLimits> getAllSelectedActivePowerLimits1() {
-        return getAllSelectedLoadingLimits1(OperationalLimitsGroup::getActivePowerLimits);
     }
 
     /**
@@ -234,10 +219,6 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
-    default Collection<ApparentPowerLimits> getAllSelectedApparentPowerLimits1() {
-        return getAllSelectedLoadingLimits1(OperationalLimitsGroup::getApparentPowerLimits);
-    }
-
     /**
      * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 1.
      * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
@@ -252,8 +233,8 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @return a collection of loadingLimits, all the same type
      * @param <T> the type of loadingLimit
      */
-    private <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits1(Function<OperationalLimitsGroup, Optional<T>> operationalLimitToLoadingLimitFunction) {
-        return getAllSelectedOperationalLimitsGroup1()
+    private <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<OperationalLimitsGroup, Optional<T>> operationalLimitToLoadingLimitFunction, TwoSides side) {
+        return getAllSelectedOperationalLimitsGroups(side)
                 .stream()
                 .map(operationalLimitToLoadingLimitFunction)
                 .flatMap(Optional::stream)
@@ -401,12 +382,6 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2();
 
     /**
-     * Get all the selected {@link OperationalLimitsGroup} on side 2.
-     * @return all the selected {@link OperationalLimitsGroup} on side 2, might be empty if none is selected
-     */
-    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup2();
-
-    /**
      * <p>Create a new {@link OperationalLimitsGroup} on side 2 with the given ID.</p>
      * <p>If a group of the given ID already exists, it is replaced silently.</p>
      * @return the newly created group {@link OperationalLimitsGroup}.
@@ -444,14 +419,6 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     /**
-     * Get all the {@link CurrentLimits} of all the selected {@link OperationalLimitsGroup} on side 2.
-     * @return a collection of {@link CurrentLimits} for all the selected {@link OperationalLimitsGroup} on side 2, might be empty if none is selected
-     */
-    default Collection<CurrentLimits> getAllSelectedCurrentLimits2() {
-        return getAllSelectedLoadingLimits2(OperationalLimitsGroup::getCurrentLimits);
-    }
-
-    /**
      * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2.
      * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
      */
@@ -465,14 +432,6 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     default Optional<ActivePowerLimits> getActivePowerLimits2() {
         return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getActivePowerLimits);
-    }
-
-    /**
-     * Get all the {@link ActivePowerLimits} of all the selected {@link OperationalLimitsGroup} on side 2.
-     * @return a collection of {@link ActivePowerLimits} for all the selected {@link OperationalLimitsGroup} on side 2, might be empty if none is selected
-     */
-    default Collection<ActivePowerLimits> getAllSelectedActivePowerLimits2() {
-        return getAllSelectedLoadingLimits2(OperationalLimitsGroup::getActivePowerLimits);
     }
 
     /**
@@ -491,30 +450,12 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
-    default Collection<ApparentPowerLimits> getAllSelectedApparentPowerLimits2() {
-        return getAllSelectedLoadingLimits2(OperationalLimitsGroup::getApparentPowerLimits);
-    }
-
     /**
      * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 2.
      * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
      */
     default ApparentPowerLimits getNullableApparentPowerLimits2() {
         return getApparentPowerLimits2().orElse(null);
-    }
-
-    /**
-     * Helper function to return an operational limit of a given type using the provided function on the side two
-     * @param operationalLimitToLoadingLimitFunction the function that will return an optional {@link LoadingLimits} from an {@link OperationalLimitsGroup}
-     * @return a collection of loadingLimits, all the same type
-     * @param <T> the type of loadingLimit
-     */
-    private <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits2(Function<OperationalLimitsGroup, Optional<T>> operationalLimitToLoadingLimitFunction) {
-        return getAllSelectedOperationalLimitsGroup2()
-                .stream()
-                .map(operationalLimitToLoadingLimitFunction)
-                .flatMap(Optional::stream)
-                .collect(Collectors.toList());
     }
 
     /**
@@ -604,10 +545,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     default Collection<CurrentLimits> getAllSelectedCurrentLimits(TwoSides side) {
-        return switch (side) {
-            case ONE -> getAllSelectedCurrentLimits1();
-            case TWO -> getAllSelectedCurrentLimits2();
-        };
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getCurrentLimits, side);
     }
 
     default Optional<ActivePowerLimits> getActivePowerLimits(TwoSides side) {
@@ -618,10 +556,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     default Collection<ActivePowerLimits> getAllSelectedActivePowerLimits(TwoSides side) {
-        return switch (side) {
-            case ONE -> getAllSelectedActivePowerLimits1();
-            case TWO -> getAllSelectedActivePowerLimits2();
-        };
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getActivePowerLimits, side);
     }
 
     default Optional<ApparentPowerLimits> getApparentPowerLimits(TwoSides side) {
@@ -632,10 +567,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     default Collection<ApparentPowerLimits> getAllSelectedApparentPowerLimits(TwoSides side) {
-        return switch (side) {
-            case ONE -> getAllSelectedApparentPowerLimits1();
-            case TWO -> getAllSelectedApparentPowerLimits2();
-        };
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getApparentPowerLimits, side);
     }
 
     //TODO deprecate this ?

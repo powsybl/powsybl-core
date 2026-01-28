@@ -78,8 +78,11 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup1() {
-        return getOperationalLimitsHolder1().getAllSelectedOperationalLimitsGroups();
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+        return switch (side) {
+            case ONE -> getOperationalLimitsHolder1().getAllSelectedOperationalLimitsGroups();
+            case TWO -> getOperationalLimitsHolder2().getAllSelectedOperationalLimitsGroups();
+        };
     }
 
     @Override
@@ -161,11 +164,6 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2() {
         return getOperationalLimitsHolder2().getSelectedOperationalLimitsGroup();
-    }
-
-    @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroup2() {
-        return getOperationalLimitsHolder2().getAllSelectedOperationalLimitsGroups();
     }
 
     @Override
