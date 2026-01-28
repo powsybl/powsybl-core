@@ -308,17 +308,17 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         return localChunkIndex;
     }
 
-    private void checkForChunksInRanges(List<Range<@NonNull Integer>> ranges, List<C> sortedChunks) {
-        if (ranges.isEmpty() || sortedChunks.isEmpty()) {
+    private void checkForChunksInRanges(List<Range<@NonNull Integer>> sortRanges, List<C> sortedChunks) {
+        if (sortRanges.isEmpty() || sortedChunks.isEmpty()) {
             throw new IllegalArgumentException("Ranges or chunks are empty");
         }
-        int minRangeIndex = ranges.getFirst().lowerEndpoint();
-        int maxRangeIndex = ranges.getLast().upperEndpoint();
+        int minRangeIndex = sortRanges.getFirst().lowerEndpoint();
+        int maxRangeIndex = sortRanges.getLast().upperEndpoint();
         int minChunkIndex = sortedChunks.getFirst().getOffset();
         C lastChunk = sortedChunks.getLast();
         int maxChunkIndex = lastChunk.getOffset() + lastChunk.getLength() - 1;
         if (maxRangeIndex < minChunkIndex || minRangeIndex > maxChunkIndex) {
-            throw new IllegalArgumentException(String.format("No chunk found for ranges %s", ranges));
+            throw new IllegalArgumentException(String.format("No chunk found for ranges %s", sortRanges));
         }
     }
 
