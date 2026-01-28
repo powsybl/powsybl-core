@@ -256,9 +256,15 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
         return Collections.nCopies(chunkCount, this);
     }
 
+    /**
+     * <p>Splits the current time series into multiple time series based on the specified ranges.</p>
+     *
+     * This method creates a list of time series where each time series in the list is a copy of the original time series.<br/>
+     * The number of copies is determined by the number of ranges provided.
+     */
     @Override
-    public List<DoubleTimeSeries> splitByRanges(List<Range<@NonNull Integer>> newChunks) {
-        int chunkCount = newChunks.size();
+    public List<DoubleTimeSeries> splitByRanges(List<Range<@NonNull Integer>> ranges) {
+        int chunkCount = ranges.size();
         return Collections.nCopies(chunkCount, this);
     }
 
