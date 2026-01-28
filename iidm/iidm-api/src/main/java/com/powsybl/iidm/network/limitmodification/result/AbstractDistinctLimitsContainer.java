@@ -11,12 +11,19 @@ package com.powsybl.iidm.network.limitmodification.result;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractDistinctLimitsContainer<H extends L, L> implements LimitsContainer<L> {
+    private final String operationalLimitsGroupId;
     private final H limits;
     private final L originalLimits;
 
-    protected AbstractDistinctLimitsContainer(H limits, L originalLimits) {
+    protected AbstractDistinctLimitsContainer(H limits, L originalLimits, String operationalLimitsGroupId) {
         this.limits = limits;
         this.originalLimits = originalLimits;
+        this.operationalLimitsGroupId = operationalLimitsGroupId;
+    }
+
+    @Override
+    public String getOperationalLimitsGroupId() {
+        return operationalLimitsGroupId;
     }
 
     @Override

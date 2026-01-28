@@ -22,10 +22,7 @@ import com.powsybl.iidm.network.limitmodification.result.IdenticalLimitsContaine
 import com.powsybl.security.limitreduction.computation.AbstractLimitsReducer;
 import com.powsybl.security.limitreduction.computation.AbstractLimitsReducerCreator;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static com.powsybl.contingency.ContingencyContextType.*;
 
@@ -50,23 +47,35 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     }
 
     @Override
-    protected Optional<LimitsContainer<L>> computeUncachedLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
+    protected Collection<LimitsContainer<L>> computeUncachedLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
+        NetworkElement networkElement = Objects.requireNonNull(asNetworkElement(processable));
         OriginalLimitsGetter<P, L> originalLimitsGetter = Objects.requireNonNull(getOriginalLimitsGetter());
-        Optional<L> originalLimits = originalLimitsGetter.getLimits(processable, limitType, side);
-        if (reductionsForThisContingency.isEmpty() || originalLimits.isEmpty()) {
+        AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> limitsReducerCreator = Objects.requireNonNull(getLimitsReducerCreator());
+
+        HashMap<String, L> originalLimitsByGroupId = originalLimitsGetter.getLimits(processable, limitType, side);
+        Collection<LimitsContainer<L>> limitsContainers = HashSet.newHashSet(3);
+
+        for (Map.Entry<String, L> entry : originalLimitsByGroupId.entrySet()) {
+            limitsContainers.add(computeUncacheLimit(networkElement, entry.getKey(), entry.getValue(),
+                    limitsReducerCreator, limitType, side, monitoringOnly));
+        }
+        // Cache the value to avoid recomputing it
+        putInCache(processable, limitType, side, monitoringOnly, limitsContainers);
+        return limitsContainers;
+    }
+
+    private LimitsContainer<L> computeUncacheLimit(NetworkElement networkElement, String groupId, L originalLimits,
+                                                   AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> limitsReducerCreator,
+                                                   LimitType limitType, ThreeSides side, boolean monitoringOnly) {
+        if (reductionsForThisContingency.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
-            return originalLimits.map(IdenticalLimitsContainer::new);
+            return new IdenticalLimitsContainer<>(originalLimits, groupId);
         }
 
-        AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> limitsReducerCreator = Objects.requireNonNull(getLimitsReducerCreator());
-        NetworkElement networkElement = Objects.requireNonNull(asNetworkElement(processable));
-        AbstractLimitsReducer<L> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
+        AbstractLimitsReducer<L> limitsReducer = limitsReducerCreator.create(networkElement.getId(), groupId, originalLimits);
         updateLimitReducer(limitsReducer, networkElement, limitType, side, monitoringOnly);
 
-        LimitsContainer<L> limitsContainer = limitsReducer.getLimits();
-        // Cache the value to avoid recomputing it
-        putInCache(processable, limitType, side, monitoringOnly, limitsContainer);
-        return Optional.of(limitsContainer);
+        return limitsReducer.getLimits();
     }
 
     /**
@@ -167,6 +176,6 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
      * @param <L> Generic type for the limits to retrieve
      */
     protected interface OriginalLimitsGetter<P, L> {
-        Optional<L> getLimits(P e, LimitType limitType, ThreeSides side);
+        HashMap<String, L> getLimits(P e, LimitType limitType, ThreeSides side);
     }
 }

@@ -17,6 +17,8 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
  */
 public interface LimitsContainer<L> {
 
+    String getOperationalLimitsGroupId();
+
     L getLimits();
 
     L getOriginalLimits();

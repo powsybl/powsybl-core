@@ -57,8 +57,9 @@ class DefaultReducedLimitsContainerTest {
 
     @Test
     void defaultReducedLimitsContainerTest() {
-        DefaultReducedLimitsContainer container = new DefaultReducedLimitsContainer(reducedLimits, originalLimits);
+        DefaultReducedLimitsContainer container = new DefaultReducedLimitsContainer(reducedLimits, originalLimits, "groupId");
         assertTrue(container.isDistinct());
+        assertEquals("groupId", container.getOperationalLimitsGroupId());
         assertEquals(originalLimits, container.getOriginalLimits());
         assertEquals(reducedLimits, container.getLimits());
         assertEquals(800., container.getLimits().getPermanentLimit(), 0.01);

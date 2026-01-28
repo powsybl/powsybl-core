@@ -80,7 +80,7 @@ public final class LimitViolationUtils {
     public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
-        return limitsComputer.computeAllSelectedLimits(branch, type, side.toThreeSides(), false)
+        return limitsComputer.computeLimits(branch, type, side.toThreeSides(), false)
                 .stream()
                 .map(limits -> getOverload(limits, i))
                 .collect(Collectors.toList());
@@ -98,7 +98,7 @@ public final class LimitViolationUtils {
     public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
-        return limitsComputer.computeAllSelectedLimits(transformer, type, side, false)
+        return limitsComputer.computeLimits(transformer, type, side, false)
                 .stream()
                 .map(limits -> getOverload(limits, i))
                 .collect(Collectors.toList());
@@ -243,8 +243,22 @@ public final class LimitViolationUtils {
         return checkTemporaryLimits(transformer, side, computer, getValueForLimit(transformer.getTerminal(side), type), type);
     }
 
-    public static Optional<? extends LimitsContainer<LoadingLimits>> getLimits(Identifiable<?> transformer, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
-        return computer.computeLimits(transformer, type, side, false);
+    public static Optional<? extends LimitsContainer<LoadingLimits>> getLimits(Identifiable<?> identifiable, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+        Optional<String> groupId = switch (identifiable.getType()) {
+            case LINE, TWO_WINDINGS_TRANSFORMER, TIE_LINE -> {
+                Branch<?> branch = (Branch<?>) identifiable;
+                yield side.toTwoSides() == TwoSides.ONE ? branch.getSelectedOperationalLimitsGroupId1() : branch.getSelectedOperationalLimitsGroupId2();
+            }
+            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getLeg(side).getSelectedOperationalLimitsGroupId();
+            default -> Optional.empty();
+        };
+        return groupId.flatMap(s -> computer.computeLimits(identifiable, type, side, false).stream()
+                .filter(container -> s.equals(container.getOperationalLimitsGroupId()))
+                .findFirst());
+    }
+
+    public static Collection<? extends LimitsContainer<LoadingLimits>> getAllLimits(Identifiable<?> identifiable, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+        return computer.computeLimits(identifiable, type, side, false);
     }
 
     /**
@@ -288,4 +302,13 @@ public final class LimitViolationUtils {
         //prevent unchecked type cast by copying
         return new ArrayList<>(limits);
     }
+
+    public static Collection<OperationalLimitsGroup> getAllSelectedLimitsGroups(Identifiable<?> identifiable, ThreeSides side) {
+        return switch (identifiable.getType()) {
+            case LINE, TWO_WINDINGS_TRANSFORMER, TIE_LINE -> ((Branch<?>) identifiable).getAllSelectedOperationalLimitsGroups(side.toTwoSides());
+            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getLeg(side).getAllSelectedOperationalLimitsGroups();
+            default -> List.of();
+        };
+    }
+
 }
