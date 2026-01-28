@@ -36,7 +36,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public OperationalLimitsGroupImpl newOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
-        OperationalLimitsGroupImpl newLimits = new OperationalLimitsGroupImpl(id, identifiable, attributeName, selectedLimitsIds);
+        OperationalLimitsGroupImpl newLimits = new OperationalLimitsGroupImpl(id, identifiable, attributeName, selectedLimitsIds::contains);
         OperationalLimitsGroup oldLimits = operationalLimitsGroupById.put(id, newLimits);
         if (selectedLimitsIds.contains(id)) {
             notifyUpdate(oldLimits, newLimits);
