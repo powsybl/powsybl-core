@@ -13,21 +13,41 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BusAdder;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.BusbarSectionAdder;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
-import com.powsybl.math.graph.*;
-import gnu.trove.TCollections;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
-import org.anarres.graphviz.builder.*;
+import com.powsybl.math.graph.DefaultUndirectedGraphListener;
+import com.powsybl.math.graph.TraversalType;
+import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.math.graph.Traverser;
+import com.powsybl.math.graph.UndirectedGraph;
+import com.powsybl.math.graph.UndirectedGraphImpl;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import org.anarres.graphviz.builder.GraphVizAttribute;
+import org.anarres.graphviz.builder.GraphVizEdge;
+import org.anarres.graphviz.builder.GraphVizGraph;
+import org.anarres.graphviz.builder.GraphVizNode;
+import org.anarres.graphviz.builder.GraphVizScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +59,28 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static com.powsybl.commons.util.fastutil.FastUtilUtils.grep;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -261,7 +296,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         private void traverse(int n, boolean[] encountered, Predicate<SwitchImpl> terminate, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus) {
             if (!encountered[n]) {
-                final TIntArrayList nodes = new TIntArrayList(1);
+                final ExtendedIntArrayList nodes = new ExtendedIntArrayList(1);
                 nodes.add(n);
                 Traverser traverser = (n1, e, n2) -> {
                     SwitchImpl aSwitch = graph.getEdgeObject(e);
@@ -282,7 +317,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 String busId = Identifiables.getUniqueId(NAMING_STRATEGY.getId(voltageLevel, nodes), getNetwork().getIndex()::contains);
                 CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
                 for (int i = 0; i < nodes.size(); i++) {
-                    int n2 = nodes.getQuick(i);
+                    int n2 = nodes.getInt(i);
                     NodeTerminal terminal2 = graph.getVertexObject(n2);
                     if (terminal2 != null) {
                         terminals.add(terminal2);
@@ -294,14 +329,14 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             }
         }
 
-        private void addBus(TIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
+        private void addBus(ExtendedIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
                             String busId, CopyOnWriteArrayList<NodeTerminal> terminals) {
             String busName = NAMING_STRATEGY.getName(voltageLevel, nodes);
             Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
             CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals, getBusFromTerminal);
             id2bus.put(busId, bus);
             for (int i = 0; i < nodes.size(); i++) {
-                node2bus[nodes.getQuick(i)] = bus;
+                node2bus[nodes.getInt(i)] = bus;
             }
         }
 
@@ -457,18 +492,18 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private interface BusChecker {
 
-        boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals);
+        boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, ExtendedIntArrayList nodes, List<NodeTerminal> terminals);
     }
 
     private static final class CalculatedBusChecker implements BusChecker {
 
         @Override
-        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, ExtendedIntArrayList nodes, List<NodeTerminal> terminals) {
             int feederCount = 0;
             int branchCount = 0;
             int busbarSectionCount = 0;
             for (int i = 0; i < nodes.size(); i++) {
-                int node = nodes.get(i);
+                int node = nodes.getInt(i);
                 TerminalExt terminal = graph.getVertexObject(node);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
@@ -494,27 +529,27 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private static final class CalculatedBusBreakerChecker implements BusChecker {
         @Override
-        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, ExtendedIntArrayList nodes, List<NodeTerminal> terminals) {
             return !nodes.isEmpty();
         }
     }
 
     private interface BusNamingStrategy {
 
-        String getId(VoltageLevel voltageLevel, TIntArrayList nodes);
+        String getId(VoltageLevel voltageLevel, ExtendedIntArrayList nodes);
 
-        String getName(VoltageLevel voltageLevel, TIntArrayList nodes);
+        String getName(VoltageLevel voltageLevel, ExtendedIntArrayList nodes);
     }
 
     private static final class LowestNodeNumberBusNamingStrategy implements BusNamingStrategy {
 
         @Override
-        public String getId(VoltageLevel voltageLevel, TIntArrayList nodes) {
+        public String getId(VoltageLevel voltageLevel, ExtendedIntArrayList nodes) {
             return voltageLevel.getId() + "_" + nodes.min();
         }
 
         @Override
-        public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
+        public String getName(VoltageLevel voltageLevel, ExtendedIntArrayList nodes) {
             return voltageLevel.getOptionalName().map(name -> name + "_" + nodes.min()).orElse(null);
         }
     }
@@ -642,14 +677,14 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
 
-        private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
-        private final TIntObjectMap<TDoubleArrayList> fictitiousQ0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
+        private final Int2ObjectMap<ExtendedDoubleArrayList> fictitiousP0ByNode = Int2ObjectMaps.synchronize(new Int2ObjectOpenHashMap<>());
+        private final Int2ObjectMap<ExtendedDoubleArrayList> fictitiousQ0ByNode = Int2ObjectMaps.synchronize(new Int2ObjectOpenHashMap<>());
 
         @Override
         public double getFictitiousP0(int node) {
-            TDoubleArrayList fictP0 = fictitiousP0ByNode.get(node);
+            ExtendedDoubleArrayList fictP0 = fictitiousP0ByNode.get(node);
             if (fictP0 != null) {
-                return fictP0.get(getNetwork().getVariantIndex());
+                return fictP0.getDouble(getNetwork().getVariantIndex());
             }
             return 0.0;
         }
@@ -659,13 +694,10 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (Double.isNaN(p0)) {
                 throw new ValidationException(voltageLevel, "undefined value cannot be set as fictitious p0");
             }
-            TDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(node);
+            ExtendedDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(node);
             if (p0ByVariant == null) {
                 int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
-                p0ByVariant = new TDoubleArrayList(variantArraySize);
-                for (int i = 0; i < variantArraySize; i++) {
-                    p0ByVariant.add(0.0);
-                }
+                p0ByVariant = new ExtendedDoubleArrayList(variantArraySize, 0.0);
                 synchronized (fictitiousP0ByNode) {
                     fictitiousP0ByNode.put(node, p0ByVariant);
                 }
@@ -674,21 +706,18 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             double oldValue = p0ByVariant.set(getNetwork().getVariantIndex(), p0);
             String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
             getNetwork().getListeners().notifyUpdate(voltageLevel, "fictitiousP0", variantId, oldValue, p0);
-            TIntSet toRemove = clearFictitiousInjections(fictitiousP0ByNode);
+            IntSet toRemove = clearFictitiousInjections(fictitiousP0ByNode);
             synchronized (fictitiousP0ByNode) {
-                toRemove.forEach(n -> {
-                    fictitiousP0ByNode.remove(n);
-                    return true;
-                });
+                toRemove.forEach(fictitiousP0ByNode::remove);
             }
             return this;
         }
 
         @Override
         public double getFictitiousQ0(int node) {
-            TDoubleArrayList fictQ0 = fictitiousQ0ByNode.get(node);
+            ExtendedDoubleArrayList fictQ0 = fictitiousQ0ByNode.get(node);
             if (fictQ0 != null) {
-                return fictQ0.get(getNetwork().getVariantIndex());
+                return fictQ0.getDouble(getNetwork().getVariantIndex());
             }
             return 0.0;
         }
@@ -698,13 +727,10 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (Double.isNaN(q0)) {
                 throw new ValidationException(voltageLevel, "undefined value cannot be set as fictitious q0");
             }
-            TDoubleArrayList q0ByVariant = fictitiousQ0ByNode.get(node);
+            ExtendedDoubleArrayList q0ByVariant = fictitiousQ0ByNode.get(node);
             if (q0ByVariant == null) {
                 int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
-                q0ByVariant = new TDoubleArrayList(variantArraySize);
-                for (int i = 0; i < variantArraySize; i++) {
-                    q0ByVariant.add(0.0);
-                }
+                q0ByVariant = new ExtendedDoubleArrayList(variantArraySize, 0.0);
                 synchronized (fictitiousQ0ByNode) {
                     fictitiousQ0ByNode.put(node, q0ByVariant);
                 }
@@ -713,12 +739,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             double oldValue = q0ByVariant.set(getNetwork().getVariantIndex(), q0);
             String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
             getNetwork().getListeners().notifyUpdate(voltageLevel, "fictitiousQ0", variantId, oldValue, q0);
-            TIntSet toRemove = clearFictitiousInjections(fictitiousQ0ByNode);
+            IntSet toRemove = clearFictitiousInjections(fictitiousQ0ByNode);
             synchronized (fictitiousQ0ByNode) {
-                toRemove.forEach(n -> {
-                    fictitiousQ0ByNode.remove(n);
-                    return true;
-                });
+                toRemove.forEach(fictitiousQ0ByNode::remove);
             }
             return this;
         }
@@ -934,17 +957,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
     };
 
-    private static TIntSet clearFictitiousInjections(TIntObjectMap<TDoubleArrayList> fictitiousInjectionsByNode) {
-        TIntSet toRemove = new TIntHashSet(fictitiousInjectionsByNode.keySet());
-        fictitiousInjectionsByNode.forEachEntry((node, value) -> {
-            value.forEach(inj -> {
-                if (inj != 0.0) {
-                    toRemove.remove(node);
-                }
-                return true;
-            });
-            return true;
-        });
+    private static IntSet clearFictitiousInjections(Int2ObjectMap<ExtendedDoubleArrayList> fictitiousInjectionsByNode) {
+        IntSet toRemove = new IntOpenHashSet(fictitiousInjectionsByNode.keySet());
+        fictitiousInjectionsByNode.forEach((node, value) -> value.forEach(inj -> {
+            if (inj != 0.0) {
+                toRemove.remove((int) node);
+            }
+        }));
         return toRemove;
     }
 
@@ -1230,16 +1249,16 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         // find all paths starting from the current terminal to a busbar section that does not contain an open switch
         // that is not of the type of switch the user wants to operate
         // Paths are already sorted by the number of open switches and by the size of the paths
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
-            Comparator.comparing((TIntArrayList o) -> o.grep(idx -> SwitchPredicates.IS_OPEN.test(graph.getEdgeObject(idx))).size())
-                .thenComparing(TIntArrayList::size));
+        List<IntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
+            Comparator.comparing((IntArrayList o) -> grep(o, idx -> SwitchPredicates.IS_OPEN.test(graph.getEdgeObject(idx))).size())
+                .thenComparing(List::size));
         if (!paths.isEmpty()) {
             // the shortest path is the best
-            TIntArrayList shortestPath = paths.get(0);
+            IntArrayList shortestPath = paths.get(0);
 
             // close all open switches on the path
             for (int i = 0; i < shortestPath.size(); i++) {
-                int e = shortestPath.get(i);
+                int e = shortestPath.getInt(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
                 if (SwitchPredicates.IS_OPEN.test(sw)) {
                     // Since the paths were constructed using the method checkNonClosableSwitches, only operable switches can be open
@@ -1285,13 +1304,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         int node = ((NodeTerminal) terminal).getNode();
         // find all paths starting from the current terminal to a terminal that does not contain an open switch
-        List<TIntArrayList> paths = graph.findAllPaths(node, Objects::nonNull, SwitchPredicates.IS_OPEN);
+        List<IntArrayList> paths = graph.findAllPaths(node, Objects::nonNull, SwitchPredicates.IS_OPEN);
         if (paths.isEmpty()) {
             return false;
         }
 
         // Each path is visited and for each, the first openable switch found is added in the set of switches to open
-        for (TIntArrayList path : paths) {
+        for (IntArrayList path : paths) {
             // Identify the first openable switch on the path
             if (!identifySwitchToOpenPath(path, isSwitchOpenable, switchForDisconnection)) {
                 // If no such switch was found, return false immediately
@@ -1308,9 +1327,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
      * @param switchesToOpen set of switches to be opened
      * @return true if the path can be opened, else false
      */
-    boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
+    boolean identifySwitchToOpenPath(IntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
         for (int i = 0; i < path.size(); i++) {
-            int e = path.get(i);
+            int e = path.getInt(i);
             SwitchImpl sw = graph.getEdgeObject(e);
             if (isSwitchOpenable.test(sw)) {
                 switchesToOpen.add(sw);
