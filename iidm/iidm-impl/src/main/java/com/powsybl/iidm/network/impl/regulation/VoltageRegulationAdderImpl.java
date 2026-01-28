@@ -10,9 +10,7 @@ package com.powsybl.iidm.network.impl.regulation;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.NetworkImpl;
-import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
-import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
+import com.powsybl.iidm.network.regulation.*;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
@@ -67,7 +65,7 @@ public class VoltageRegulationAdderImpl<T extends VoltageRegulationAdder<T>> imp
     @Override
     public T addVoltageRegulation() {
         // TODO MSA Add check
-        VoltageRegulationImpl voltageRegulation = voltageRegulationBuilder
+        VoltageRegulation voltageRegulation = voltageRegulationBuilder
             .setNetwork(this.network)
             .build();
         parent.setVoltageRegulation(voltageRegulation);

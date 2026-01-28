@@ -857,7 +857,8 @@ public final class ValidationUtil {
                 validationLevel = checkOperationalLimitsGroups(validable, danglingLine.getOperationalLimitsGroups(), validationLevel, actionOnError, reportNode);
             } else if (identifiable instanceof Generator generator) {
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), actionOnError, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), actionOnError, reportNode));
+//                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulation(validable, generator.getVoltageRegulation(), actionOnError, reportNode));
             } else if (identifiable instanceof HvdcLine hvdcLine) {
                 validationLevel = ValidationLevel.min(validationLevel, checkConvertersMode(validable, hvdcLine.getConvertersMode(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkHvdcActivePowerSetpoint(validable, hvdcLine.getActivePowerSetpoint(), actionOnError, reportNode));
@@ -906,11 +907,12 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    public static ValidationLevel checkVoltageRegulation(Validable validable) {
-        if (validable instanceof VoltageRegulation) {
-
+    public static ValidationLevel checkVoltageRegulation(Validable validable, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode) {
+        if (voltageRegulation != null) {
+            // TODO MSA
+            return ValidationLevel.STEADY_STATE_HYPOTHESIS;
         }
-        return ValidationLevel.MINIMUM_VALUE;
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
     private static ValidationLevel checkOperationalLimitsGroup(Validable validable, OperationalLimitsGroup operationalLimitsGroup, ValidationLevel previous, ActionOnError actionOnError, ReportNode reportNode) {

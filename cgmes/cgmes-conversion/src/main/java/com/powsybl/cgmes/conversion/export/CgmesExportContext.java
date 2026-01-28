@@ -479,7 +479,7 @@ public class CgmesExportContext {
 
     private static boolean hasRegulatingControlCapability(Generator generator) {
         return generator.getExtension(RemoteReactivePowerControl.class) != null
-                || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
+                || generator.getVoltageRegulation() != null && generator.getVoltageRegulation().isRegulating() && hasReactiveCapability(generator);
     }
 
     private static boolean hasReactiveCapability(Generator generator) {

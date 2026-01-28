@@ -28,7 +28,6 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -1305,7 +1304,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
-            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            network.getGenerator("GEN").getVoltageRegulation().setTerminal(null);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
 
@@ -1313,7 +1312,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createWithRemoteReactiveGenerator();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
-            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
 
@@ -1324,7 +1323,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network.getGenerator("GEN").setVoltageRegulatorOn(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
-            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            network.getGenerator("GEN").getVoltageRegulation().setTerminal(null);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
             network.getGenerator("GEN").setVoltageRegulatorOn(true);
@@ -1338,9 +1337,9 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network.getGenerator("GEN").setVoltageRegulatorOn(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
-            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
             network.getGenerator("GEN").setVoltageRegulatorOn(true);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
@@ -1774,7 +1773,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 shuntCompensator.setSectionCount(0);
             } else if (identifiable instanceof Generator) {
                 Generator generator = (Generator) identifiable;
-                generator.setVoltageRegulatorOn(false);
+                generator.newAndReplaceVoltageRegulation();
                 generator.setTargetV(Double.NaN);
                 generator.setTargetP(Double.NaN);
                 generator.setTargetQ(Double.NaN);

@@ -9,9 +9,9 @@
                 <iidm:switch id="VL13_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
                 <iidm:bus v="423.9999694824219" angle="0.0" nodes="0,1,2,3"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="50.22999954223633" voltageRegulatorOn="true" targetP="50.22999954223633" targetV="423.9999771118164" targetQ="0.0" node="3">
+            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="50.22999954223633" targetP="50.22999954223633" targetV="423.9999771118164" targetQ="0.0" node="3">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
-                <iidm:voltageRegulation targetValue="423.9999771118164"/>
+                <iidm:voltageRegulation targetValue="423.9999771118164" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

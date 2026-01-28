@@ -11,12 +11,12 @@
                 <iidm:switch id="generator1Disconnector1" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="6"/>
                 <iidm:switch id="generator1Breaker1" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="1"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="generator1" energySource="NUCLEAR" minP="200.0" maxP="900.0" voltageRegulatorOn="true" targetP="900.0" targetV="380.0" node="5">
+            <iidm:generator id="generator1" energySource="NUCLEAR" minP="200.0" maxP="900.0" targetP="900.0" targetV="380.0" node="5">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="200.0" minQ="300.0" maxQ="500.0"/>
                     <iidm:point p="900.0" minQ="300.0" maxQ="500.0"/>
                 </iidm:reactiveCapabilityCurve>
-                <iidm:voltageRegulation targetValue="380.0"/>
+                <iidm:voltageRegulation targetValue="380.0" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
             <iidm:load id="load1" loadType="UNDEFINED" p0="10.0" q0="3.0" node="2"/>
         </iidm:voltageLevel>

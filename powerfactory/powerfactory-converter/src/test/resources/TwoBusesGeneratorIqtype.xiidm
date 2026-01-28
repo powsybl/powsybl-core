@@ -15,9 +15,9 @@
                 <iidm:switch id="VL4_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
                 <iidm:internalConnection node1="0" node2="2"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="sym_B_1" energySource="OTHER" minP="0.0" maxP="250.0" voltageRegulatorOn="true" targetP="25.0" targetV="224.399995803833" targetQ="10.0" node="2">
+            <iidm:generator id="sym_B_1" energySource="OTHER" minP="0.0" maxP="250.0" targetP="25.0" targetV="224.399995803833" targetQ="10.0" node="2">
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="100.0"/>
-                <iidm:voltageRegulation targetValue="224.399995803833"/>
+                <iidm:voltageRegulation targetValue="224.399995803833" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

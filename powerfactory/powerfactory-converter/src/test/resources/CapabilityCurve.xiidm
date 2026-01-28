@@ -8,7 +8,7 @@
                 <iidm:switch id="VL10_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
                 <iidm:bus v="423.9999694824219" angle="0.0" nodes="0,1,2"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="50.470001220703125" voltageRegulatorOn="true" targetP="50.470001220703125" targetV="423.9999771118164" targetQ="0.0" node="2">
+            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="50.470001220703125" targetP="50.470001220703125" targetV="423.9999771118164" targetQ="0.0" node="2">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-250.0" maxQ="353.273193359375"/>
                     <iidm:point p="81.0" minQ="-220.0" maxQ="347.785400390625"/>
@@ -18,7 +18,7 @@
                     <iidm:point p="405.0" minQ="-100.0" maxQ="196.15049743652344"/>
                     <iidm:point p="450.0" minQ="-80.0" maxQ="0.0"/>
                 </iidm:reactiveCapabilityCurve>
-                <iidm:voltageRegulation targetValue="423.9999771118164"/>
+                <iidm:voltageRegulation targetValue="423.9999771118164" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

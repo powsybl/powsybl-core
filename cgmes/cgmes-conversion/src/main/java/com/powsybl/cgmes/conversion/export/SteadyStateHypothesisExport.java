@@ -20,7 +20,6 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -413,14 +412,13 @@ public final class SteadyStateHypothesisExport {
             double target;
             String targetValueUnitMultiplier;
             boolean enabled;
-            RemoteReactivePowerControl rrpc = g.getExtension(RemoteReactivePowerControl.class);
-            String generatorMode = CgmesExportUtil.getGeneratorRegulatingControlMode(g, rrpc);
+            String generatorMode = CgmesExportUtil.getGeneratorRegulatingControlMode(g);
             if (generatorMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                target = rrpc.getTargetQ();
+                target = g.getVoltageRegulation().getTargetValue();
                 targetValueUnitMultiplier = "M";
-                enabled = rrpc.isEnabled();
+                enabled = g.getVoltageRegulation().isRegulating();
             } else {
-                target = g.getTargetV();
+                target = g.getVoltageRegulation().getTargetValue();
                 if (context.isExportGeneratorsInLocalRegulationMode()) {
                     double remoteNominalV = g.getRegulatingTerminal().getVoltageLevel().getNominalV();
                     double localNominalV = g.getTerminal().getVoltageLevel().getNominalV();

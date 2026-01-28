@@ -36,7 +36,7 @@ public abstract class AbstractMultiVariantNetworkTest {
         manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, SECOND_VARIANT);
         manager.setWorkingVariant(SECOND_VARIANT);
         final Generator generator = network.getGenerator("GEN");
-        generator.setVoltageRegulatorOn(false);
+        generator.getVoltageRegulation().setRegulating(false);
         assertFalse(generator.isVoltageRegulatorOn());
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertTrue(generator.isVoltageRegulatorOn());
@@ -53,10 +53,10 @@ public abstract class AbstractMultiVariantNetworkTest {
         final Generator generator = network.getGenerator("GEN");
 
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        generator.setVoltageRegulatorOn(true);
+        generator.getVoltageRegulation().setRegulating(true);
 
         manager.setWorkingVariant(SECOND_VARIANT);
-        generator.setVoltageRegulatorOn(false);
+        generator.getVoltageRegulation().setRegulating(false);
 
         final boolean[] voltageRegulatorOnInitialVariant = new boolean[1];
         final boolean[] voltageRegulatorOnSecondVariant = new boolean[1];

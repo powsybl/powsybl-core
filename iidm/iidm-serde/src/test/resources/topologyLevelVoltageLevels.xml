@@ -38,13 +38,13 @@
                 <iidm:switch id="btrf18" name="btrf18" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_1" bus2="vl1_33"/>
                 <iidm:switch id="bline11_2" name="bline11_2" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl1_0" bus2="vl1_35"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" bus="vl1_6" connectableBus="vl1_6">
+            <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" targetP="10.0" targetQ="10.0" bus="vl1_6" connectableBus="vl1_6">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
-                <iidm:voltageRegulation/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:generator id="gen2" name="gen2" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" bus="vl1_10" connectableBus="vl1_10">
+            <iidm:generator id="gen2" name="gen2" energySource="OTHER" minP="0.0" maxP="20.0"  targetP="10.0" targetQ="10.0" bus="vl1_10" connectableBus="vl1_10">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
-                <iidm:voltageRegulation/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
             <iidm:load id="load1" name="load1" loadType="UNDEFINED" p0="10.0" q0="10.0" bus="vl1_4" connectableBus="vl1_4"/>
             <iidm:load id="load2" name="load2" loadType="UNDEFINED" p0="10.0" q0="10.0" bus="vl1_8" connectableBus="vl1_8"/>
@@ -73,9 +73,9 @@
                 <iidm:switch id="btrf27" name="btrf27" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl2_0" bus2="vl2_19"/>
                 <iidm:switch id="btrf28" name="btrf28" fictitious="true" kind="BREAKER" retained="true" open="false" bus1="vl2_1" bus2="vl2_21"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="gen4" name="gen4" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" bus="vl2_4" connectableBus="vl2_4">
+            <iidm:generator id="gen4" name="gen4" energySource="OTHER" minP="0.0" maxP="20.0" targetP="10.0" targetQ="10.0" bus="vl2_4" connectableBus="vl2_4">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
-                <iidm:voltageRegulation/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
             <iidm:load id="load3" name="load3" loadType="UNDEFINED" p0="10.0" q0="10.0" bus="vl2_2" connectableBus="vl2_2"/>
         </iidm:voltageLevel>

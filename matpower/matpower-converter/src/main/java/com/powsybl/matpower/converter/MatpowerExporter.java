@@ -17,6 +17,7 @@ import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.matpower.model.*;
 import org.apache.commons.math3.complex.Complex;
@@ -803,7 +804,9 @@ public class MatpowerExporter implements Exporter {
 
     // matpower only supports local control, all remote control will be localized with the defined targetVpu
     private static double findTargetVpu(Generator generator) {
-        return generator.getTargetV() / generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
+        double targetV = generator.getVoltageRegulation() != null && generator.getVoltageRegulation().isRegulating() && generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE ?
+            generator.getVoltageRegulation().getTargetValue() : generator.getTargetV();
+        return targetV / generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
     }
 
     private void findStaticVarCompensatorGenerators(Network network, Context context) {

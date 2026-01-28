@@ -155,7 +155,8 @@ class GeneratorUpdateTest {
         double tol = 0.0000001;
         assertEquals(targetP, generator.getTargetP(), tol);
         assertEquals(targetQ, generator.getTargetQ(), tol);
-        assertEquals(targetV, generator.getTargetV(), tol);
+        double targetValue = generator.getVoltageRegulation() != null ? generator.getVoltageRegulation().getTargetValue() : generator.getTargetV();
+        assertEquals(targetV, targetValue, tol);
         assertEquals(isRegulatingOn, generator.isVoltageRegulatorOn());
 
         ActivePowerControl<Generator> activePowerControl = generator.getExtension(ActivePowerControl.class);

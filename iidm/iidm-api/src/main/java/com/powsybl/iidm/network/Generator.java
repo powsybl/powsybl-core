@@ -190,13 +190,14 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
     @Deprecated(forRemoval = true)
     Generator setRegulatingTerminal(Terminal regulatingTerminal);
 
+    double getRemoteTargetV();
+
     /**
      * Get the voltage target in kV.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
-    @Deprecated(forRemoval = true)
     double getTargetV();
 
     /**

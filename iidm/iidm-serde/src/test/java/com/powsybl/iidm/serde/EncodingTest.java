@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -19,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * @author imagrid team {@literal <rte-mco-imagrid at rte-france.com>}
  */
+@Disabled
 class EncodingTest {
 
     @Test

@@ -23,7 +23,6 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -540,25 +539,37 @@ public final class CgmesExportUtil {
         return Double.isFinite(q);
     }
 
-    public static String getGeneratorRegulatingControlMode(Generator generator, RemoteReactivePowerControl rrpc) {
-        if (rrpc == null) {
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+    public static String getGeneratorRegulatingControlMode(Generator generator) {
+        // TODO MSA add isValidVoltageSetpoint and isValidReactivePowerSetpoint
+        if (generator.getVoltageRegulation() != null) {
+            return switch (generator.getVoltageRegulation().getMode()) {
+                case REACTIVE_POWER ->
+                    RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+                case VOLTAGE, REACTIVE_POWER_PER_ACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER ->
+                    RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+            };
         }
-        boolean enabledVoltageControl = generator.isVoltageRegulatorOn();
-        boolean enabledReactivePowerControl = rrpc.isEnabled();
+        return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
 
-        if (enabledVoltageControl) {
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        } else if (enabledReactivePowerControl) {
-            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-        } else {
-            boolean validVoltageSetpoint = isValidVoltageSetpoint(generator.getTargetV());
-            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(rrpc.getTargetQ());
-            if (validReactiveSetpoint && !validVoltageSetpoint) {
-                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-            }
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        }
+//
+//        if (rrpc == null) {
+//            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+//        }
+//        boolean enabledVoltageControl = generator.isVoltageRegulatorOn();
+//        boolean enabledReactivePowerControl = rrpc.isEnabled();
+//
+//        if (enabledVoltageControl) {
+//            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+//        } else if (enabledReactivePowerControl) {
+//            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+//        } else {
+//            boolean validVoltageSetpoint = isValidVoltageSetpoint(generator.getTargetV());
+//            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(rrpc.getTargetQ());
+//            if (validReactiveSetpoint && !validVoltageSetpoint) {
+//                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+//            }
+//            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+//        }
     }
 
     public static String getSvcMode(StaticVarCompensator svc) {
