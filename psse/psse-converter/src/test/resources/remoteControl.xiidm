@@ -122,9 +122,10 @@
                 <iidm:bus id="B6" name="Bus 6" v="84.1782931" angle="-8.23300073"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B6-G1" energySource="OTHER" minP="0.0" maxP="-0.0" targetP="0.0" targetV="232.3" targetQ="-89.0" bus="B6" connectableBus="B6">
-                <iidm:regulatingTerminal id="B5-L1"/>
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="24.0"/>
-                <iidm:voltageRegulation targetValue="232.3" mode="VOLTAGE" regulating="true"/>
+                <iidm:voltageRegulation targetValue="232.3" mode="VOLTAGE" regulating="true">
+                    <iidm:terminal id="B5-L1"/>
+                </iidm:voltageRegulation>
             </iidm:generator>
             <iidm:load id="B6-L1" loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B6" connectableBus="B6"/>
         </iidm:voltageLevel>

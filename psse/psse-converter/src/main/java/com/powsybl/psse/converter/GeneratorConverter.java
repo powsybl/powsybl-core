@@ -91,8 +91,10 @@ class GeneratorConverter extends AbstractConverter {
         }
 
         generator.setTargetV(targetV)
-            .setRegulatingTerminal(regulatingTerminal)
             .setVoltageRegulatorOn(voltageRegulatorOn);
+        if (generator != regulatingTerminal.getConnectable()) {
+            generator.setRegulatingTerminal(regulatingTerminal);
+        }
         if (voltageRegulatorOn) {
             generator.getVoltageRegulation().setTargetValue(targetV);
         } else {
