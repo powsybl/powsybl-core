@@ -8,12 +8,15 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.regulation.VoltageRegulationImpl;
+import com.powsybl.iidm.network.regulation.*;
+import com.powsybl.iidm.network.impl.regulation.VoltageRegulationAdderImpl;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> implements GeneratorAdder {
+class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> implements GeneratorAdder, VoltageRegulationAdder<GeneratorAdder> {
 
     private EnergySource energySource = EnergySource.OTHER;
 
@@ -22,6 +25,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     private double maxP = Double.NaN;
 
     private TerminalExt regulatingTerminal;
+
+    private VoltageRegulation voltageRegulation;
 
     private Boolean voltageRegulatorOn;
 
@@ -115,6 +120,16 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
+    public VoltageRegulationBuilder<GeneratorAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(this, getNetworkRef());
+    }
+
+    @Override
+    public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
+        this.voltageRegulation = voltageRegulation;
+    }
+
+    @Override
     public GeneratorImpl add() {
         NetworkImpl network = getNetwork();
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
@@ -129,18 +144,22 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel(),
                 network.getReportNodeContext().getReportNode()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ,
-                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+//        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ,
+//                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
+        if (this.voltageRegulation == null) {
+            this.voltageRegulation = createVoltageRegulation();
+        }
+        ValidationUtil.checkVoltageRegulation(this, this.getVoltageRegulation(), null, network.getReportNodeContext().getReportNode());
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
-                                    voltageRegulatorOn, regulatingTerminal,
-                                    targetP, targetQ, targetV, equivalentLocalTargetV,
-                                    ratedS, isCondenser);
+                                    voltageRegulation,
+                                    targetP, targetQ, targetV,
+                                    ratedS, isCondenser, equivalentLocalTargetV);
         generator.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(generator);
@@ -148,4 +167,30 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         return generator;
     }
 
+    public VoltageRegulation getVoltageRegulation() {
+        return voltageRegulation;
+    }
+
+    private VoltageRegulation createVoltageRegulation() {
+        // Common attributes
+        VoltageRegulationImpl.Builder builder = VoltageRegulationImpl.builder()
+            .setNetwork(getNetworkRef())
+            .setTerminal(this.regulatingTerminal);
+        // VOLTAGE case
+        if (Boolean.TRUE.equals(this.voltageRegulatorOn) && !Double.isNaN(this.targetV)) {
+            builder.setRegulating(true)
+                .setMode(RegulationMode.VOLTAGE)
+                .setTargetValue(this.targetV);
+//            this.targetV = Double.NaN;
+            return builder.build();
+            // REACTIVE Power case
+        } else if (!Double.isNaN(this.targetQ)) {
+            builder.setRegulating(true)
+                .setMode(RegulationMode.REACTIVE_POWER)
+                .setTargetValue(this.targetQ);
+//            this.targetQ = Double.NaN;
+            return builder.build();
+        }
+        return null;
+    }
 }

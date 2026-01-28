@@ -17,14 +17,17 @@
                 <iidm:bus v="18.719999313354492" angle="2.994687080383301" nodes="3,4,5,6"/>
                 <iidm:bus v="18.360000610351562" angle="-14.669854164123535" nodes="7,8,9"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="1404.0" voltageRegulatorOn="true" targetP="1404.0" targetV="18.719999313354492" targetQ="0.0" node="1">
+            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="1404.0" targetP="1404.0" targetV="18.719999313354492" targetQ="0.0" node="1">
                 <iidm:minMaxReactiveLimits minQ="-9900.0009765625" maxQ="9900.0009765625"/>
+                <iidm:voltageRegulation targetValue="18.719999313354492" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:generator id="sym_2_1" energySource="OTHER" minP="0.0" maxP="1404.0" voltageRegulatorOn="true" targetP="1404.0" targetV="18.719999313354492" targetQ="0.0" node="4">
+            <iidm:generator id="sym_2_1" energySource="OTHER" minP="0.0" maxP="1404.0" targetP="1404.0" targetV="18.719999313354492" targetQ="0.0" node="4">
                 <iidm:minMaxReactiveLimits minQ="-9900.0009765625" maxQ="9900.0009765625"/>
+                <iidm:voltageRegulation targetValue="18.719999313354492" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:generator id="sym_3_1" energySource="OTHER" minP="0.0" maxP="800.0" voltageRegulatorOn="true" targetP="800.0" targetV="18.359999656677246" targetQ="0.0" node="8">
+            <iidm:generator id="sym_3_1" energySource="OTHER" minP="0.0" maxP="800.0" targetP="800.0" targetV="18.359999656677246" targetQ="0.0" node="8">
                 <iidm:minMaxReactiveLimits minQ="-9900.00390625" maxQ="9900.00390625"/>
+                <iidm:voltageRegulation targetValue="18.359999656677246" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL35" nominalV="500.0" topologyKind="NODE_BREAKER">
@@ -51,8 +54,9 @@
                 <iidm:bus v="497.94464111328125" angle="-19.73024559020996" nodes="5,6,7,8,11,12"/>
                 <iidm:bus v="500.0" angle="0.0" nodes="13,14,15,16,17"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="sym_6_1" energySource="OTHER" minP="0.0" maxP="9796.6845703125" voltageRegulatorOn="true" targetP="9796.6845703125" targetV="500.0" targetQ="0.0" node="16">
+            <iidm:generator id="sym_6_1" energySource="OTHER" minP="0.0" maxP="9796.6845703125" targetP="9796.6845703125" targetV="500.0" targetQ="0.0" node="16">
                 <iidm:minMaxReactiveLimits minQ="-9900.0" maxQ="9900.0"/>
+                <iidm:voltageRegulation targetValue="500.0" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
             <iidm:load id="lod_4_1" loadType="UNDEFINED" p0="1400.0" q0="100.0" node="2"/>
             <iidm:load id="lod_5_1" loadType="UNDEFINED" p0="2000.0" q0="100.0" node="8"/>

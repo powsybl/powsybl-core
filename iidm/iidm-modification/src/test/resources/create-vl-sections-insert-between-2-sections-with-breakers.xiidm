@@ -55,14 +55,17 @@
                 <iidm:switch id="VL1_BREAKER_65_66" kind="BREAKER" retained="true" open="true" node1="65" node2="66"/>
                 <iidm:switch id="VL1_DISCONNECTOR_66_5" kind="DISCONNECTOR" retained="false" open="true" node1="66" node2="5"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="GEN_1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="31">
+            <iidm:generator id="GEN_1" energySource="OTHER" minP="0.0" maxP="100.0" targetP="100.0" targetV="400.0" node="31">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation targetValue="400.0" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:generator id="GEN_2" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="41">
+            <iidm:generator id="GEN_2" energySource="OTHER" minP="0.0" maxP="100.0" targetP="100.0" targetV="400.0" node="41">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation targetValue="400.0" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:generator id="GEN_3" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" node="51">
+            <iidm:generator id="GEN_3" energySource="OTHER" minP="0.0" maxP="100.0" targetP="100.0" targetV="400.0" node="51">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation targetValue="400.0" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
