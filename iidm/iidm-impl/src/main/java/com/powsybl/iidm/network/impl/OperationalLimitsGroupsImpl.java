@@ -198,6 +198,6 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     }
 
     private OperationalLimitsGroup getOperationalLimitsGroupOrThrow(String id) {
-        return getOperationalLimitsGroup(id).orElseThrow(() -> new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be part of the selected groups"));
+        return getOperationalLimitsGroup(id).orElseThrow(() -> new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be part of the selected groups."));
     }
 }
