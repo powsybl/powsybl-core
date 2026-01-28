@@ -5,7 +5,7 @@ The grid model contains enough data to basically describe supported components a
 The extensions are a way to add additional structured data to a piece of equipment to extend its features.
 The extensions can be attached to any objects of a network or to the network itself.
 
-Some extensions are mono-variant, meaning the data are identical for all the variants of the network. However, some of them are multi-variants to allow a different value for each variant of the network. It's typically the case for the [LoadDetail](#load-detail) extension that give the distribution of the constant part and the thermosensitive part of the consumption. 
+Some extensions are mono-variant, meaning the data are identical for all the variants of the network. However, some of them are multi-variants to allow a different value for each variant of the network. It's typically the case for the [LoadDetail](#load-detail) extension that give the distribution of the constant part and the thermosensitive part of the consumption.
 
 Note that some extensions provided by PowSyBl aren't supported in the [persistent implementation of IIDM](https://github.com/powsybl/powsybl-network-store-server).
 
@@ -21,7 +21,7 @@ This extension is used to configure the participation factor of the generator, t
 | droop                | double  | None (repartition key) | no       | -             | The participation factor equals maxP / droop                                          |
 | participation factor | double  | None (repartition key) | no       | -             | Defines the participation factor explicitly                                           |
 | max targetP          | double  | MW                     | no       | -             | If defined, this limit is used for slack distribution instead of the generator's maxP |
-| min targetP          | double  | MW                     | no       | -             | if defined, this limit is used for slack distribution instead of the generator's minP |             
+| min targetP          | double  | MW                     | no       | -             | if defined, this limit is used for slack distribution instead of the generator's minP |
 
 Here is how to add an active power control extension to a generator:
 ```java
@@ -52,7 +52,7 @@ Here is how to add a manual frequency restoration reserve extension to an inject
 generator.newExtension(ManualFrequencyRestorationReserve.class)
     .withParticipate(true)
     .add();
-       
+
 ```
 
 (branch-observability-extension)=
@@ -163,7 +163,7 @@ The DiscreteMeasurement class characteristics are the following:
 
 This is an extension dedicated to DC line in order to model AC emulation. For a VSC converter station operating in AC emulation, its active power setpoint is given by
 
-$$P = P0 + k~(ph1 - ph2)$$  
+$$P = P0 + k~(ph1 - ph2)$$
 
 | Attribute | Type    | Unit         | Required | Default value | Description                          |
 |-----------|---------|--------------|----------|---------------|--------------------------------------|
@@ -174,7 +174,7 @@ $$P = P0 + k~(ph1 - ph2)$$
 (hvdc-operator-active-power-range-extension)=
 ## HVDC operator active power range
 
-This extension enables to replace the operational limits of a DC line in AC emulation. In that case, the VSC converter stations min active power and max active power are not used. 
+This extension enables to replace the operational limits of a DC line in AC emulation. In that case, the VSC converter stations min active power and max active power are not used.
 
 (generator-enstoe-category-extension)=
 ## Generator ENTSO-E category
@@ -210,7 +210,7 @@ generator.newExtension(GeneratorStartupAdder.class)
 (generator-short-circuit)=
 ## Generator short-circuit
 
-This extension models the generator data used for short-circuit calculations. Depending on the type of short-circuit study to be 
+This extension models the generator data used for short-circuit calculations. Depending on the type of short-circuit study to be
 performed, either the transient or the sub-transient reactance should be filled. The reactance of the step-up transformer should be
 filled if the generator has a transformer that is not directly modeled in the network.
 This extension should be used in addition to the [GeneratorFortescue extension](#generator-fortescue) for asymmetrical short-circuit calculations.
@@ -237,7 +237,7 @@ generator.newExtension(GeneratorShortCircuitAdder.class)
 
 This extension models the battery data used for short-circuit calculations.
 Depending on the type of short-circuit study to be performed, either the transient or the sub-transient reactance should
-be filled. The step-up transformer reactance should be filled if the battery has a transformer that is not directly 
+be filled. The step-up transformer reactance should be filled if the battery has a transformer that is not directly
 modeled on the network.
 
 | Attribute              | Type   | Unit | Required | Default value | Description                                   |
@@ -430,7 +430,7 @@ In balanced conditions given the load at bus:
 
 $$ S_{1i_{Load}}=P_{Load}+j.Q_{Load} $$
 
-We must verify:  
+We must verify:
 
 $$ 0 = -S_{1i_{Load}} +\sum_{j=\delta(i)}^{} S_{1ij} $$
 
@@ -762,7 +762,7 @@ This extension is used to model voltage control of static VAR compensators. This
 
 When this extension is present and the slope greater than zero, the reactive output of the static VAR compensator is defined by:
 
-$$Q = \dfrac{VoltageSetpoint - V}{slope}$$  
+$$Q = \dfrac{VoltageSetpoint - V}{slope}$$
 where $V$ is the voltage at regulating terminal and $VoltageSetpoint$ the target value in voltage given as attribute in a static VAR compensator.
 
 Here is how to add a voltage per reactive power control extension to a static VAR compensator:
