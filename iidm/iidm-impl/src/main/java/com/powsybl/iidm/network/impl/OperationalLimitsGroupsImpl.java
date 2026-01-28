@@ -12,8 +12,8 @@ import com.powsybl.iidm.network.*;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -68,7 +68,8 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
         Objects.requireNonNull(id);
         OperationalLimitsGroup newSelectedLimits = getOperationalLimitsGroupOrThrow(id);
         boolean wasAlreadySelected = selectedLimitsIds.contains(id);
-        cancelSelectedOperationalLimitsGroup();
+        //exclude notification on the id of the group we are about to select
+        cancelSelectedOperationalLimitsGroupNotifyFilter(s -> s.equals(id));
         selectedLimitsIds.add(id);
         if (!wasAlreadySelected) {
             notifyUpdate(null, newSelectedLimits);
@@ -92,10 +93,14 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
 
     @Override
     public void cancelSelectedOperationalLimitsGroup() {
-        Stream<String> selectedLimitsIdsStream = selectedLimitsIds.stream();
+        //do not exclude anything
+        cancelSelectedOperationalLimitsGroupNotifyFilter(String::isEmpty);
+    }
+
+    private void cancelSelectedOperationalLimitsGroupNotifyFilter(Predicate<String> doNotNotify) {
+        //only keep those we want to notify, take a doNotNotify because it's easier to mention those we want to exclude
+        selectedLimitsIds.stream().filter(Predicate.not(doNotNotify)).forEach(this::notifyDeselect);
         selectedLimitsIds.clear();
-        //notify update that nothing is selected anymore
-        selectedLimitsIdsStream.forEach(this::notifyDeselect);
     }
 
     @Override
