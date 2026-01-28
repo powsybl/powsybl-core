@@ -24,6 +24,15 @@ public interface OperationalLimitsGroup extends PropertiesHolder {
 
     Optional<ApparentPowerLimits> getApparentPowerLimits();
 
+    default Optional<? extends LoadingLimits> getLoadingLimits(LimitType limitType) {
+        return switch (limitType) {
+            case CURRENT -> getCurrentLimits();
+            case ACTIVE_POWER -> getActivePowerLimits();
+            case APPARENT_POWER -> getApparentPowerLimits();
+            default -> throw new UnsupportedOperationException("Unsupported limitType for this element: " + limitType);
+        };
+    }
+
     CurrentLimitsAdder newCurrentLimits();
 
     ActivePowerLimitsAdder newActivePowerLimits();

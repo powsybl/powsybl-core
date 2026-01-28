@@ -9,6 +9,8 @@ package com.powsybl.iidm.network;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
 
@@ -142,6 +144,13 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1();
 
     /**
+     * Get all the selected {@link OperationalLimitsGroup} on the given <code>side</code>.
+     * @param side the side to get the limits on
+     * @return all the selected {@link OperationalLimitsGroup} on side 1, might be empty if none is selected
+     */
+    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side);
+
+    /**
      * <p>Create a new {@link OperationalLimitsGroup} on side 1 with the given ID.</p>
      * <p>If a group of the given ID already exists, it is replaced silently.</p>
      * @return the newly created group {@link OperationalLimitsGroup}.
@@ -216,6 +225,20 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     default ApparentPowerLimits getNullableApparentPowerLimits1() {
         return getApparentPowerLimits1().orElse(null);
+    }
+
+    /**
+     * Helper function to return an operational limit of a given type using the provided function on the side one
+     * @param operationalLimitToLoadingLimitFunction the function that will return an optional {@link LoadingLimits} from an {@link OperationalLimitsGroup}
+     * @return a collection of loadingLimits, all the same type
+     * @param <T> the type of loadingLimit
+     */
+    private <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<OperationalLimitsGroup, Optional<T>> operationalLimitToLoadingLimitFunction, TwoSides side) {
+        return getAllSelectedOperationalLimitsGroups(side)
+                .stream()
+                .map(operationalLimitToLoadingLimitFunction)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -521,11 +544,19 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         };
     }
 
+    default Collection<CurrentLimits> getAllSelectedCurrentLimits(TwoSides side) {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getCurrentLimits, side);
+    }
+
     default Optional<ActivePowerLimits> getActivePowerLimits(TwoSides side) {
         return switch (side) {
             case ONE -> getActivePowerLimits1();
             case TWO -> getActivePowerLimits2();
         };
+    }
+
+    default Collection<ActivePowerLimits> getAllSelectedActivePowerLimits(TwoSides side) {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getActivePowerLimits, side);
     }
 
     default Optional<ApparentPowerLimits> getApparentPowerLimits(TwoSides side) {
@@ -535,6 +566,11 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         };
     }
 
+    default Collection<ApparentPowerLimits> getAllSelectedApparentPowerLimits(TwoSides side) {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getApparentPowerLimits, side);
+    }
+
+    //TODO deprecate this ?
     default Optional<? extends LoadingLimits> getLimits(LimitType type, TwoSides side) {
         return switch (type) {
             case CURRENT -> getCurrentLimits(side);
@@ -542,6 +578,16 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
             case APPARENT_POWER -> getApparentPowerLimits(side);
             default ->
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+        };
+    }
+
+    default Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type, TwoSides side) {
+        return switch (type) {
+            case CURRENT -> getAllSelectedCurrentLimits(side);
+            case ACTIVE_POWER -> getAllSelectedActivePowerLimits(side);
+            case APPARENT_POWER -> getAllSelectedApparentPowerLimits(side);
+            default ->
+                    throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         };
     }
 

@@ -12,9 +12,8 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.limitmodification.result.AbstractDistinctLimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -45,6 +44,10 @@ public final class LimitViolationUtils {
             .orElse(null);
     }
 
+    /**
+     * @deprecated use checkAllTemporaryLimits(branch, side, limitsComputer, i, type).getFirst() for migration
+     */
+    @Deprecated(since = "7.2.0", forRemoval = true)
     public static Overload checkTemporaryLimits(Branch<?> branch, TwoSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
@@ -53,12 +56,52 @@ public final class LimitViolationUtils {
                 .orElse(null);
     }
 
+    /**
+     * @deprecated use checkAllTemporaryLimits(transformer, side, limitsComputer, i, type).getFirst() for migration
+     */
+    @Deprecated(since = "7.2.0", forRemoval = true)
     public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
         return getLimits(transformer, side, type, limitsComputer)
                 .map(limits -> getOverload(limits, i))
                 .orElse(null);
+    }
+
+    /**
+     * Checks temporary limits on all selected sets (can be multiple selected) on the given side of the branch, for the limitType
+     * @param branch the branch on which to check the limits
+     * @param side the side of the branch to check
+     * @param limitsComputer how to access the limit, refer to {@link LimitsComputer}
+     * @param i the value at the given side of the branch that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
+     * @param type the type we are checking the limit of
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     */
+    public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
+        Objects.requireNonNull(branch);
+        Objects.requireNonNull(side);
+        return limitsComputer.computeLimits(branch, type, side.toThreeSides(), false)
+                .stream()
+                .map(limits -> getOverload(limits, i))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Checks temporary limits on all selected sets (can be multiple selected) on the given side of the transformer, for the limitType
+     * @param transformer the transformer on which to check the limits
+     * @param side the side of the transformer to check
+     * @param limitsComputer how to access the limit, refer to {@link LimitsComputer}
+     * @param i the value at the given side of the transformer that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
+     * @param type the type we are checking the limit of
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     */
+    public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
+        Objects.requireNonNull(transformer);
+        Objects.requireNonNull(side);
+        return limitsComputer.computeLimits(transformer, type, side, false)
+                .stream()
+                .map(limits -> getOverload(limits, i))
+                .collect(Collectors.toList());
     }
 
     private static OverloadImpl createOverload(LoadingLimits.TemporaryLimit tl,
@@ -200,8 +243,22 @@ public final class LimitViolationUtils {
         return checkTemporaryLimits(transformer, side, computer, getValueForLimit(transformer.getTerminal(side), type), type);
     }
 
-    public static Optional<? extends LimitsContainer<LoadingLimits>> getLimits(Identifiable<?> transformer, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
-        return computer.computeLimits(transformer, type, side, false);
+    public static Optional<? extends LimitsContainer<LoadingLimits>> getLimits(Identifiable<?> identifiable, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+        Optional<String> groupId = switch (identifiable.getType()) {
+            case LINE, TWO_WINDINGS_TRANSFORMER, TIE_LINE -> {
+                Branch<?> branch = (Branch<?>) identifiable;
+                yield side.toTwoSides() == TwoSides.ONE ? branch.getSelectedOperationalLimitsGroupId1() : branch.getSelectedOperationalLimitsGroupId2();
+            }
+            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getLeg(side).getSelectedOperationalLimitsGroupId();
+            default -> Optional.empty();
+        };
+        return groupId.flatMap(s -> computer.computeLimits(identifiable, type, side, false).stream()
+                .filter(container -> s.equals(container.getOperationalLimitsGroupId()))
+                .findFirst());
+    }
+
+    public static Collection<? extends LimitsContainer<LoadingLimits>> getAllLimits(Identifiable<?> identifiable, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+        return computer.computeLimits(identifiable, type, side, false);
     }
 
     /**
@@ -220,6 +277,7 @@ public final class LimitViolationUtils {
         return transformer.getLeg(side).getLimits(type);
     }
 
+    //TODO depreciate this ? breaking change ? keep it like that ?
     public static Optional<LoadingLimits> getLoadingLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
         return switch (identifiable.getType()) {
             case LINE -> (Optional<LoadingLimits>) ((Line) identifiable).getLimits(limitType, side.toTwoSides());
@@ -231,4 +289,26 @@ public final class LimitViolationUtils {
             default -> Optional.empty();
         };
     }
+
+    //TODO keep the same method calls structure, or find a way to make it simpler with less recursive call to functions
+    public static Collection<LoadingLimits> getAllSelectedLoadingLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
+        Collection<? extends LoadingLimits> limits = switch (identifiable.getType()) {
+            case LINE -> ((Line) identifiable).getAllSelectedLimits(limitType, side.toTwoSides());
+            case TIE_LINE -> ((TieLine) identifiable).getAllSelectedLimits(limitType, side.toTwoSides());
+            case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getAllSelectedLimits(limitType, side.toTwoSides());
+            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getLeg(side).getAllSelectedLimits(limitType);
+            default -> Collections.emptyList();
+        };
+        //prevent unchecked type cast by copying
+        return new ArrayList<>(limits);
+    }
+
+    public static Collection<OperationalLimitsGroup> getAllSelectedLimitsGroups(Identifiable<?> identifiable, ThreeSides side) {
+        return switch (identifiable.getType()) {
+            case LINE, TWO_WINDINGS_TRANSFORMER, TIE_LINE -> ((Branch<?>) identifiable).getAllSelectedOperationalLimitsGroups(side.toTwoSides());
+            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getLeg(side).getAllSelectedOperationalLimitsGroups();
+            default -> List.of();
+        };
+    }
+
 }
