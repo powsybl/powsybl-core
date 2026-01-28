@@ -331,7 +331,7 @@ This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
 
 (three-winding-transformer-fortescue)=
-## Two-winding Transformer Fortescue
+## Three-winding Transformer Fortescue
 
 This extension models the homopolar three-winding transformer data to be used for asymmetrical short-circuit calculations.
 The data is described by leg.
