@@ -340,9 +340,9 @@ The attributes of the extension are structured as follows:
 
 | Attribute     | Type         | Unit | Required | Default value | Description                                             |
 |---------------|--------------|------|----------|---------------|---------------------------------------------------------|
-| legFortescue1 | LegFortescue | -    | no       | -             | The data on the leg 1 of the three-winding transformer  |
-| legFortescue1 | LegFortescue | -    | no       | -             | The data on the leg 1 of the three-winding transformer  |
-| legFortescue1 | LegFortescue | -    | no       | -             | The data on the leg 1 of the three-winding transformer  | 
+| leg1 | LegFortescue | -    | no       | -             | The data on the leg 1 of the three-winding transformer  |
+| leg2 | LegFortescue | -    | no       | -             | The data on the leg 2 of the three-winding transformer  |
+| leg3 | LegFortescue | -    | no       | -             | The data on the leg 3 of the three-winding transformer  | 
 
 With LegFortescue being defined as follows:
 
