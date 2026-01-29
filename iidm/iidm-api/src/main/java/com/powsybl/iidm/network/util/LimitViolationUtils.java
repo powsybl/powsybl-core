@@ -113,8 +113,10 @@ public final class LimitViolationUtils {
                                                double limitReductionValue) {
         double limit = previousLimit;
         double reduction = limitReductionValue;
+        String operationalLimitsGroupId = "";
         if (limitsContainer != null && limitsContainer.isDistinct()) {
             AbstractDistinctLimitsContainer<?, ?> container = (AbstractDistinctLimitsContainer<?, ?>) limitsContainer;
+            operationalLimitsGroupId = limitsContainer.getOperationalLimitsGroupId();
             if (isFirstTemporaryLimit) {
                 limit = container.getOriginalPermanentLimit();
                 reduction = container.getPermanentLimitReduction();
@@ -124,8 +126,8 @@ public final class LimitViolationUtils {
             }
         }
         return tl != null ?
-            new OverloadImpl(tl, previousLimitName, limit, reduction) :
-            new OverloadImpl(previousLimitName, limit, reduction);
+            new OverloadImpl(tl, previousLimitName, limit, reduction, operationalLimitsGroupId) :
+            new OverloadImpl(previousLimitName, limit, reduction, operationalLimitsGroupId);
     }
 
     private static OverloadImpl getOverload(LoadingLimits limits, double i, double limitReductionValue) {
