@@ -12,7 +12,6 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 /**

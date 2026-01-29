@@ -234,7 +234,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     }
 
     /**
-     * Helper function to return an operational limit of a given type using the provided function on the side one
+     * Helper function to return all the limits of this branch's <code>side</code>, of a given type using the provided function to get it from each {@link OperationalLimitsGroup}
      * @param operationalLimitToLoadingLimitFunction the function that will return an optional {@link LoadingLimits} from an {@link OperationalLimitsGroup}
      * @return a collection of loadingLimits, all the same type
      * @param <T> the type of loadingLimit
@@ -550,6 +550,13 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         };
     }
 
+    /**
+     * Get all the limits of type {@link LimitType#CURRENT} on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param side the side on which to get the limits
+     * @return a collection of all the current limits of this branch on the given <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected
+     */
     default Collection<CurrentLimits> getAllSelectedCurrentLimits(TwoSides side) {
         return getAllSelectedLoadingLimits(OperationalLimitsGroup::getCurrentLimits, side);
     }
@@ -561,6 +568,13 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         };
     }
 
+    /**
+     * Get all the limits of type {@link LimitType#ACTIVE_POWER} on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param side the side on which to get the limits
+     * @return a collection of all the active power limits of this branch on the given <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected
+     */
     default Collection<ActivePowerLimits> getAllSelectedActivePowerLimits(TwoSides side) {
         return getAllSelectedLoadingLimits(OperationalLimitsGroup::getActivePowerLimits, side);
     }
@@ -572,11 +586,17 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         };
     }
 
+    /**
+     * Get all the limits of type {@link LimitType#APPARENT_POWER} on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param side the side on which to get the limits
+     * @return a collection of all the apparent power limits of this branch on the given <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected
+     */
     default Collection<ApparentPowerLimits> getAllSelectedApparentPowerLimits(TwoSides side) {
         return getAllSelectedLoadingLimits(OperationalLimitsGroup::getApparentPowerLimits, side);
     }
 
-    //TODO deprecate this ?
     default Optional<? extends LoadingLimits> getLimits(LimitType type, TwoSides side) {
         return switch (type) {
             case CURRENT -> getCurrentLimits(side);
@@ -587,6 +607,14 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         };
     }
 
+    /**
+     * Get all the limits of the given <code>type</code>, on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param type the type of the limit, refer to {@link LimitType}
+     * @param side the side on which to get the limits
+     * @return a collection of all the <code>type</code> limits of this branch on the <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected. Might be empty if none is selected.
+     */
     default Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type, TwoSides side) {
         return switch (type) {
             case CURRENT -> getAllSelectedCurrentLimits(side);

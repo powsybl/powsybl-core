@@ -293,6 +293,13 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
 
         Optional<? extends LoadingLimits> getLimits(LimitType type);
 
+        /**
+         * Get all the limits of the given <code>type</code> on this leg,
+         * for all the {@link OperationalLimitsGroup} that are selected
+         * @param type the type of the limit, refer to {@link LimitType}
+         * @return a collection of all the <code>type</code> limits on this leg,
+         * one for each {@link OperationalLimitsGroup} that is selected. Might be empty if none is selected
+         */
         Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type);
 
         /**

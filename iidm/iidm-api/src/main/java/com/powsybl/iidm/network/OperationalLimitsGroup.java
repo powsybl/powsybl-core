@@ -24,6 +24,12 @@ public interface OperationalLimitsGroup extends PropertiesHolder {
 
     Optional<ApparentPowerLimits> getApparentPowerLimits();
 
+    /**
+     * Get the {@link LoadingLimits} corresponding to the given <code>limitType</code> (see {@link LimitType} for all types)
+     * Throws an {@link UnsupportedOperationException} if a limit of the given type cannot be defined
+     * @param limitType the type of limit we want
+     * @return the limit corresponding to the <code>limitType</code> if any exist, otherwise an empty {@link Optional}
+     */
     default Optional<? extends LoadingLimits> getLoadingLimits(LimitType limitType) {
         return switch (limitType) {
             case CURRENT -> getCurrentLimits();
