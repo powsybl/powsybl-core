@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -84,7 +83,7 @@ public final class LimitViolationUtils {
         return limitsComputer.computeLimits(branch, type, side.toThreeSides(), false)
                 .stream()
                 .map(limits -> getOverload(limits, i))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -102,7 +101,7 @@ public final class LimitViolationUtils {
         return limitsComputer.computeLimits(transformer, type, side, false)
                 .stream()
                 .map(limits -> getOverload(limits, i))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static OverloadImpl createOverload(LoadingLimits.TemporaryLimit tl,

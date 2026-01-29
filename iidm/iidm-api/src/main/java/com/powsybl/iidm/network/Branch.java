@@ -10,7 +10,6 @@ package com.powsybl.iidm.network;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
 
@@ -238,7 +237,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
                 .stream()
                 .map(operationalLimitToLoadingLimitFunction)
                 .flatMap(Optional::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
