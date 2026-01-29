@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" id="testCase11" caseDate="2022-07-26T13:56:23.057+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="testCase11" caseDate="2022-07-26T13:56:23.057+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:dcNode id="dcNode1" nominalV="500.0"/>
     <iidm:dcNode id="dcNode2" nominalV="500.0"/>
     <iidm:substation id="subst" name="subst" country="FR">
