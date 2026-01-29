@@ -19,14 +19,14 @@ public interface LegFortescue {
     void setFreeFluxes(boolean freeFluxes);
 
     /**
-     * The zero sequence resistance of the leg.
+     * The zero-sequence resistance of the leg.
      */
     double getRz();
 
     void setRz(double rz);
 
     /**
-     * The zero sequence reactance of the leg.
+     * The zero-sequence reactance of the leg.
      */
     double getXz();
 
