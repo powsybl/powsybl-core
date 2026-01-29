@@ -12,6 +12,7 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -82,6 +83,14 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return switch (side) {
             case ONE -> getOperationalLimitsHolder1().getAllSelectedOperationalLimitsGroups();
             case TWO -> getOperationalLimitsHolder2().getAllSelectedOperationalLimitsGroups();
+        };
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side) {
+        return switch (side) {
+            case ONE -> getOperationalLimitsHolder1().getAllSelectedOperationalLimitsGroupIds();
+            case TWO -> getOperationalLimitsHolder2().getAllSelectedOperationalLimitsGroupIds();
         };
     }
 

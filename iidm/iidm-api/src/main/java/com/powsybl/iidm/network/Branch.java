@@ -144,10 +144,17 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     /**
      * Get all the selected {@link OperationalLimitsGroup} on the given <code>side</code>.
-     * @param side the side to get the limits on
-     * @return all the selected {@link OperationalLimitsGroup} on side 1, might be empty if none is selected
+     * @param side the side to get the group limits on
+     * @return all the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
      */
     Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side);
+
+    /**
+     * Get the id of all the selected {@link OperationalLimitsGroup} on the given <code>side</code>
+     * @param side the side to get the id of the group limits on
+     * @return all the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
+     */
+    Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side);
 
     /**
      * <p>Create a new {@link OperationalLimitsGroup} on side 1 with the given ID.</p>
