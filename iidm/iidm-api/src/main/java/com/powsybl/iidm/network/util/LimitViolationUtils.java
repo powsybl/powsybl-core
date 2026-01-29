@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.limitmodification.result.AbstractDistinctLimitsC
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -277,25 +278,19 @@ public final class LimitViolationUtils {
         return transformer.getLeg(side).getLimits(type);
     }
 
-    //TODO depreciate this ? breaking change ? keep it like that ?
     public static Optional<LoadingLimits> getLoadingLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
-        return switch (identifiable.getType()) {
-            case LINE -> (Optional<LoadingLimits>) ((Line) identifiable).getLimits(limitType, side.toTwoSides());
-            case TIE_LINE -> (Optional<LoadingLimits>) ((TieLine) identifiable).getLimits(limitType, side.toTwoSides());
-            case TWO_WINDINGS_TRANSFORMER ->
-                (Optional<LoadingLimits>) ((TwoWindingsTransformer) identifiable).getLimits(limitType, side.toTwoSides());
+        Optional<? extends LoadingLimits> limit = switch (identifiable.getType()) {
+            case LINE, TIE_LINE, TWO_WINDINGS_TRANSFORMER -> ((Branch<?>) identifiable).getLimits(limitType, side.toTwoSides());
             case THREE_WINDINGS_TRANSFORMER ->
-                (Optional<LoadingLimits>) ((ThreeWindingsTransformer) identifiable).getLeg(side).getLimits(limitType);
+                ((ThreeWindingsTransformer) identifiable).getLeg(side).getLimits(limitType);
             default -> Optional.empty();
         };
+        return limit.map(Function.identity());
     }
 
-    //TODO keep the same method calls structure, or find a way to make it simpler with less recursive call to functions
     public static Collection<LoadingLimits> getAllSelectedLoadingLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
         Collection<? extends LoadingLimits> limits = switch (identifiable.getType()) {
-            case LINE -> ((Line) identifiable).getAllSelectedLimits(limitType, side.toTwoSides());
-            case TIE_LINE -> ((TieLine) identifiable).getAllSelectedLimits(limitType, side.toTwoSides());
-            case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getAllSelectedLimits(limitType, side.toTwoSides());
+            case LINE, TIE_LINE, TWO_WINDINGS_TRANSFORMER -> ((Branch<?>) identifiable).getAllSelectedLimits(limitType, side.toTwoSides());
             case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getLeg(side).getAllSelectedLimits(limitType);
             default -> Collections.emptyList();
         };
