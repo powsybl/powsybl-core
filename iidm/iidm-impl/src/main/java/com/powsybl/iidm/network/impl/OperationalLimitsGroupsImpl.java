@@ -69,7 +69,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
         OperationalLimitsGroup newSelectedLimits = getOperationalLimitsGroupOrThrow(id);
         boolean wasAlreadySelected = selectedLimitsIds.contains(id);
         //exclude notification on the id of the group we are about to select
-        cancelSelectedOperationalLimitsGroupNotifyFilter(s -> s.equals(id));
+        cancelSelectedOperationalLimitsGroup(id::equals);
         selectedLimitsIds.add(id);
         if (!wasAlreadySelected) {
             notifyUpdate(null, newSelectedLimits);
@@ -94,10 +94,10 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public void cancelSelectedOperationalLimitsGroup() {
         //do not exclude anything
-        cancelSelectedOperationalLimitsGroupNotifyFilter(String::isEmpty);
+        cancelSelectedOperationalLimitsGroup(String::isEmpty);
     }
 
-    private void cancelSelectedOperationalLimitsGroupNotifyFilter(Predicate<String> doNotNotify) {
+    private void cancelSelectedOperationalLimitsGroup(Predicate<String> doNotNotify) {
         //only keep those we want to notify, take a doNotNotify because it's easier to mention those we want to exclude
         selectedLimitsIds.stream().filter(Predicate.not(doNotNotify)).forEach(this::notifyDeselect);
         selectedLimitsIds.clear();
