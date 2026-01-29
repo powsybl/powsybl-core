@@ -272,7 +272,7 @@ class CgmesExportTest {
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
             BoundaryLine actual = networkFromCgmes.getBoundaryLine("DL");
             assertNotNull(actual);
-            checkDanglingLineParams(expected, actual);
+            checkBoundaryLineParams(expected, actual);
             Generator generator = networkFromCgmes.getGenerator("BAT");
             assertNotNull(generator);
             assertEquals(battery.getTargetP(), generator.getTargetP(), 0.0);
@@ -283,7 +283,7 @@ class CgmesExportTest {
     }
 
     @Test
-    void testFromIidmDanglingLineBusBranchNotBoundary() throws IOException {
+    void testFromIidmBoundaryLineBusBranchNotBoundary() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
         // If we do not provide this information,
@@ -299,17 +299,17 @@ class CgmesExportTest {
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
             Line actual = networkFromCgmes.getLine("DL");
             assertNotNull(actual);
-            checkDanglingLineParams(expected, actual);
+            checkBoundaryLineParams(expected, actual);
             // The dangling line was exported as an ACLS plus an equivalent injection.
             // Equivalent injections inside an IGM are mapped to generators,
             // So we have to check that there is a generator at side 2 (boundary) of the line
-            checkDanglingLineEquivalentInjection(expected, actual);
+            checkBoundaryLineEquivalentInjection(expected, actual);
             checkFictitiousContainerAtBoundary(expected, actual);
         }
     }
 
     @Test
-    void testFromIidmDanglingLineNodeBreaker() throws IOException {
+    void testFromIidmBoundaryLineNodeBreaker() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
 
@@ -342,12 +342,12 @@ class CgmesExportTest {
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
             BoundaryLine actual = networkFromCgmes.getBoundaryLine("DL");
             assertNotNull(actual);
-            checkDanglingLineParams(expected, actual);
+            checkBoundaryLineParams(expected, actual);
         }
     }
 
     @Test
-    void testFromIidmDanglingLineNodeBreakerNoBoundaries() throws IOException {
+    void testFromIidmBoundaryLineNodeBreakerNoBoundaries() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
         // If we do not add boundary information
@@ -368,10 +368,10 @@ class CgmesExportTest {
             BoundaryLine actualBoundaryLine = networkFromCgmes.getBoundaryLine("DL");
             assertNull(actualBoundaryLine);
             Line actual = networkFromCgmes.getLine("DL");
-            checkDanglingLineParams(expected, actual);
+            checkBoundaryLineParams(expected, actual);
             // non-network end is always exported with terminal sequence 2
             // at that node there should be only the equipment corresponding to the equivalent injection
-            checkDanglingLineEquivalentInjection(expected, actual);
+            checkBoundaryLineEquivalentInjection(expected, actual);
             checkFictitiousContainerAtBoundary(expected, actual);
         }
     }
@@ -519,7 +519,7 @@ class CgmesExportTest {
         }
     }
 
-    private static void checkDanglingLineParams(BoundaryLine expected, BoundaryLine actual) {
+    private static void checkBoundaryLineParams(BoundaryLine expected, BoundaryLine actual) {
         assertEquals(expected.getR(), actual.getR(), EPSILON);
         assertEquals(expected.getX(), actual.getX(), EPSILON);
         assertEquals(expected.getG(), actual.getG(), EPSILON);
@@ -528,7 +528,7 @@ class CgmesExportTest {
         assertEquals(expected.getQ0(), actual.getQ0(), EPSILON);
     }
 
-    private static void checkDanglingLineParams(BoundaryLine expected, Line actual) {
+    private static void checkBoundaryLineParams(BoundaryLine expected, Line actual) {
         assertEquals(expected.getR(), actual.getR(), EPSILON);
         assertEquals(expected.getX(), actual.getX(), EPSILON);
         assertEquals(expected.getG(), actual.getG1() + actual.getG2(), EPSILON);
@@ -545,7 +545,7 @@ class CgmesExportTest {
         assertTrue(actual.getTerminal2().getVoltageLevel().getSubstation().orElseThrow().getNameOrId().startsWith("fictS_"));
     }
 
-    private static void checkDanglingLineEquivalentInjection(BoundaryLine expected, Line actual) {
+    private static void checkBoundaryLineEquivalentInjection(BoundaryLine expected, Line actual) {
         Connectable<?> eqAtEnd2 = actual.getTerminal2().getBusView().getBus().getConnectedTerminalStream()
                 .filter(t -> t.getConnectable() != actual)
                 .findFirst()

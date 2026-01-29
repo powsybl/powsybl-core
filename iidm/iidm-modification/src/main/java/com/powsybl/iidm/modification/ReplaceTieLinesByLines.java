@@ -111,7 +111,7 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
                 line.addAlias(pairingKey, "pairingKey");
             }
             LOG.info("Removed tie line {} and associated dangling lines {} and {} with pairing key {}. Created line {}", line.getId(), dl1Id, dl2Id, pairingKey, line.getId());
-            removedTieLineAndAssociatedDanglingLines(reportNode, line.getId(), dl1Id, dl2Id, pairingKey);
+            removedTieLineAndAssociatedBoundaryLines(reportNode, line.getId(), dl1Id, dl2Id, pairingKey);
             createdLineReport(reportNode, line.getId());
         }
     }
@@ -122,12 +122,12 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
         if (!dl1.getExtensions().isEmpty()) {
             String extensions = dl1.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
             LOG.warn("Extension [{}] of dangling line {} will be lost", extensions, dl1Id);
-            lostDanglingLineExtensions(reportNode, extensions, dl1Id);
+            lostBoundaryLineExtensions(reportNode, extensions, dl1Id);
         }
         if (!dl2.getExtensions().isEmpty()) {
             String extensions = dl2.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
             LOG.warn("Extension [{}] of dangling line {} will be lost", extensions, dl2Id);
-            lostDanglingLineExtensions(reportNode, extensions, dl2Id);
+            lostBoundaryLineExtensions(reportNode, extensions, dl2Id);
         }
         if (!tl.getExtensions().isEmpty()) {
             String extensions = tl.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));

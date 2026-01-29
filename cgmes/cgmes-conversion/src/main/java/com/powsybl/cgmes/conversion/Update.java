@@ -131,20 +131,20 @@ public final class Update {
         context.popReportNode();
     }
 
-    static void updateDanglingLines(Network network, Context context) {
+    static void updateBoundaryLines(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.DANGLING_LINE.name()));
-        network.getBoundaryLines().forEach(danglingLine -> updateDanglingLine(danglingLine, context));
+        network.getBoundaryLines().forEach(danglingLine -> updateBoundaryLine(danglingLine, context));
         context.popReportNode();
     }
 
-    private static void updateDanglingLine(BoundaryLine boundaryLine, Context context) {
+    private static void updateBoundaryLine(BoundaryLine boundaryLine, Context context) {
         String originalClass = boundaryLine.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
         switch (originalClass) {
             case CgmesNames.AC_LINE_SEGMENT -> ACLineSegmentConversion.update(boundaryLine, context);
             case CgmesNames.POWER_TRANSFORMER -> TwoWindingsTransformerConversion.update(boundaryLine, context);
             case CgmesNames.EQUIVALENT_BRANCH -> EquivalentBranchConversion.update(boundaryLine, context);
             case CgmesNames.SWITCH -> SwitchConversion.update(boundaryLine, getSwitchPropertyBag(boundaryLine.getId(), context), context);
-            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for DanglingLine: " + boundaryLine.getId());
+            default -> throw new ConversionException(UNEXPECTED_ORIGINAL_CLASS + originalClass + " for BoundaryLine: " + boundaryLine.getId());
         }
     }
 
@@ -205,7 +205,7 @@ public final class Update {
     }
 
     // In some TYNDP there are three or more acLineSegments at the boundary node, only two connected.
-    static void createTieLinesWhenThereAreMoreThanTwoDanglingLinesAtBoundaryNodeDuringUpdate(Network network, Context context) {
+    static void createTieLinesWhenThereAreMoreThanTwoBoundaryLinesAtBoundaryNodeDuringUpdate(Network network, Context context) {
         context.pushReportNode(CgmesReports.convertingDuringUpdateElementTypeReport(context.getReportNode(), IdentifiableType.TIE_LINE.name()));
         TieLineConversion.createDuringUpdate(network, context);
         context.popReportNode();

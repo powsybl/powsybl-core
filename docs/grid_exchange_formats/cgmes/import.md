@@ -136,7 +136,7 @@ The mapping of an `EquivalentInjection` depends on its location relative to the 
 
 If the `EquivalentInjection` is outside the boundary area, it will be mapped to a PowSyBl `Generator`.
 
-If the `EquivalentInjection` is at the boundary area, its regulating voltage data will be mapped to the generation data inside the PowSyBl `DanglingLine` created at the boundary point and its values for `P`, `Q` will be used to define the DanglingLine `P0`, `Q0`. Please note that the said `DanglingLine` can be created from an [`ACLineSegment`](#aclinesegment), a [`Switch`](#switch-switch-breaker-disconnector-loadbreakswitch-protectedswitch-grounddisconnector),
+If the `EquivalentInjection` is at the boundary area, its regulating voltage data will be mapped to the generation data inside the PowSyBl `BoundaryLine` created at the boundary point and its values for `P`, `Q` will be used to define the BoundaryLine `P0`, `Q0`. Please note that the said `BoundaryLine` can be created from an [`ACLineSegment`](#aclinesegment), a [`Switch`](#switch-switch-breaker-disconnector-loadbreakswitch-protectedswitch-grounddisconnector),
 an [`EquivalentBranch`](#equivalentbranch) or a [`PowerTransformer`](#powertransformer).
 
 Attributes of the PowSyBl generator or of the PowSyBl dangling line generation are created as such:
@@ -156,12 +156,12 @@ If the `ACLineSegment` is outside the boundary area, it will be mapped to a PowS
 If the `ACLineSegment` is completely inside the boundary area, if the boundaries are not imported, it is ignored. Otherwise, it is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line).
 
 If the `ACLineSegment` has one side inside the boundary area and one side outside the boundary area, the importer checks if another branch is connected to the same [`TopologicalNode`](#topologicalnode) in the boundary area.
-- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
+- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line).
+- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `ACLineSegments` will be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-  - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `ACLineSegments` will be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - Otherwise, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
 
 If the `ACLineSegment` is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line):
 - `R` is copied from CGMES `r`
@@ -171,7 +171,7 @@ If the `ACLineSegment` is mapped to a PowSyBl [`Line`](../../grid_model/network_
 - `B1` is calculated as half of CGMES `bch`
 - `B2` is calculated as half of CGMES `bch`
 
-If the `ACLineSegment` is mapped to an unpaired PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line):
+If the `ACLineSegment` is mapped to an unpaired PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line):
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
 - `G` is copied from CGMES `gch` if defined, `0.0` otherwise
@@ -180,7 +180,7 @@ If the `ACLineSegment` is mapped to an unpaired PowSyBl [`DanglingLine`](../../g
 - `P0` is copied from CGMES `P` of the terminal at boundary side
 - `Q0` is copied from CGMES `Q` of the terminal at boundary side
 
-If the `ACLineSegment` is mapped to a paired PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line):
+If the `ACLineSegment` is mapped to a paired PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line):
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
 - `G1` is `0.0` is the dangling line is on side `ONE` of the Tie Line. If the dangling line is on side `TWO` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
@@ -199,12 +199,12 @@ If the `EquivalentBranch` is outside the boundary area, it will be mapped to a P
 If the `EquivalentBranch` is completely inside the boundary area, if the boundaries are not imported, it is ignored. Otherwise, it is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line).
 
 If the `EquivalentBranch` has one side inside the boundary area and one side outside the boundary area, the importer checks if another branch is connected to the same [`TopologicalNode`](#topologicalnode) in the boundary area.
-- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
+- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line).
+- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches connected with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-  - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - If there are only two branches connected with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - Otherwise, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
 
 If the `EquivalentBranch` is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line):
 - `R` is copied from CGMES `r`
@@ -214,7 +214,7 @@ If the `EquivalentBranch` is mapped to a PowSyBl [`Line`](../../grid_model/netwo
 - `B1` is `0.0`
 - `B2` is `0.0`
 
-If the `EquivalentBranch` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line):
+If the `EquivalentBranch` is mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line):
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
 - `G` is `0.0`
@@ -323,7 +323,7 @@ OperationalLimits model a specification of limits associated with equipments.
 A CGMES `OperationalLimitSet` is a set of `OperationalLimit` associated with equipment or terminal. It is mapped to a PowSyBl [`OperationalLimitsGroup`](../../grid_model/additional.md#limit-group-collection).
 
 Just like CGMES allows to attach multiple `OperationalLimitSet` on the same equipment or terminal, PowSyBl stores a collection of `OperationalLimitsGroup` for every 
-[`Line`](../../grid_model/network_subnetwork.md#line) side, [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) and [`ThreeWindingTransformer.Leg`](../../grid_model/network_subnetwork.md#three-winding-transformer-leg).
+[`Line`](../../grid_model/network_subnetwork.md#line) side, [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line) and [`ThreeWindingTransformer.Leg`](../../grid_model/network_subnetwork.md#three-winding-transformer-leg).
 
 The same way a CGMES `OperationalLimitSet` may contain `OperationalLimit` of different subclasses, a PowSyBl `OperationalLimitsGroup` may have multipe non-null `LoadingLimits`.
 
@@ -359,21 +359,21 @@ Please note that in this case, if `PowerTransformerEnds` are in different substa
 If a `PowerTransformer` has two `PowerTransformerEnds`, both completely inside the boundary area, and if the boundary area is not imported, the `PowerTransformer` is ignored. Otherwise, it is mapped to a PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer).
 
 If the `PowerTransformer` has one `PowerTransformerEnd` inside the boundary area and the other outside the boundary area, the importer checks if another branch is connected to the same [`TopologicalNode`](#topologicalnode) in the boundary area.
-- If there is no other connected to this `TopologicalNode`, it is mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there is one or more other branches connected to this `TopologicalNode` and they are all in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
+- If there is no other connected to this `TopologicalNode`, it is mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line).
+- If there is one or more other branches connected to this `TopologicalNode` and they are all in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-  - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - Otherwise, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
 
 In every case, a `PowerTransformer` with two `PowerTransformerEnds` is mapped to an intermediary model that corresponds to a PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer).
 For more information about this conversion, please look at the classes [`InterpretedT2xModel`](https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/elements/transformers/InterpretedT2xModel.java)
 and [`ConvertedT2xModel`](https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/elements/transformers/ConvertedT2xModel.java).
 
-If the `PowerTransformer` is finally mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line), its structural attributes (`R`, `X`, `G` and `B`) are calculated from the intermediary model's attributes, and the ratio from its ratio tap changer and/or its phase tap changer.
+If the `PowerTransformer` is finally mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line), its structural attributes (`R`, `X`, `G` and `B`) are calculated from the intermediary model's attributes, and the ratio from its ratio tap changer and/or its phase tap changer.
 `P0` and `Q0` are set from CGMES `P` and `Q` values at boundary side; `PairingKey` is copied from the name of the `TopologicalNode` or the `ConnectivityNode` (respectively in `NODE-BREAKER` or `BUS-BRANCH`) inside boundaries.
 
-If the `PowerTransformer` is finally mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line), its attributes are calculated using a standard $$\pi$$ model with distributed parameters.
+If the `PowerTransformer` is finally mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line), its attributes are calculated using a standard $$\pi$$ model with distributed parameters.
 
 #### PowerTransformer with three PowerTransformerEnds
 
@@ -427,14 +427,14 @@ If the CGMES `Switch` has its ends in different voltage levels inside the same I
 The created PowSyBl `Switch` has its attributes defined as described above.
 
 If the `Switch` has one side inside the boundary area and the other side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#topologicalnode) in the boundary area.
-- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
+- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line).
+- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-  - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - Otherwise, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#dangling-line).
 
-If the CGMES `Switch` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line), its attributes are as described below:
+If the CGMES `Switch` is mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line), its attributes are as described below:
 - `R`, `X`, `G`, `B` are `0.0`;
 - `PairingKey` is copied from the name of the `TopologicalNode` or the `ConnectivityNode` (respectively in `NODE-BREAKER` or `BUS-BRANCH`) inside boundaries;
 - `P0` is copied from CGMES `P` of the terminal at boundary side;

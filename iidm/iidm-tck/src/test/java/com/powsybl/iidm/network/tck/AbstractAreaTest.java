@@ -533,7 +533,7 @@ public abstract class AbstractAreaTest {
                 .add();
         AreaBoundaryAdder areaBoundaryAdder = controlAreaA.newAreaBoundary().setBoundary(boundaryLine.getBoundary()).setAc(true);
         Throwable e = assertThrows(PowsyblException.class, areaBoundaryAdder::add);
-        assertEquals("Boundary of DanglingLinesub1_dl cannot be added to Area ControlArea_A boundaries. It does not belong to the same network or subnetwork.", e.getMessage());
+        assertEquals("Boundary of BoundaryLinesub1_dl cannot be added to Area ControlArea_A boundaries. It does not belong to the same network or subnetwork.", e.getMessage());
     }
 
     @Test

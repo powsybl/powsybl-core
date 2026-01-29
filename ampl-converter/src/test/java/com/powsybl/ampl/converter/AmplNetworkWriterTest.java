@@ -370,7 +370,7 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
     }
 
     @Test
-    void writeDanglingLines() throws IOException {
+    void writeBoundaryLines() throws IOException {
         Network network = BoundaryLineNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();

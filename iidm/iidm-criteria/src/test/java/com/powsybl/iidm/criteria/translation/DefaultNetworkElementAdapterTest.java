@@ -69,10 +69,10 @@ public class DefaultNetworkElementAdapterTest {
     }
 
     @Test
-    void testDanglingLine() {
-        BoundaryLine boundaryLine = mockDanglingLine("testDanglingLine", Country.FR, 225.);
+    void testBoundaryLine() {
+        BoundaryLine boundaryLine = mockBoundaryLine("testBoundaryLine", Country.FR, 225.);
         DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(boundaryLine);
-        assertEquals("testDanglingLine", networkElement.getId());
+        assertEquals("testBoundaryLine", networkElement.getId());
         assertEquals(Country.FR, networkElement.getCountry().orElseThrow());
         assertEquals(Country.FR, networkElement.getCountry1().orElseThrow());
         assertTrue(networkElement.getCountry2().isEmpty());
@@ -188,7 +188,7 @@ public class DefaultNetworkElementAdapterTest {
         return tieLine;
     }
 
-    public static BoundaryLine mockDanglingLine(String id, Country country, double nominalVoltage) {
+    public static BoundaryLine mockBoundaryLine(String id, Country country, double nominalVoltage) {
         Substation substation1 = Mockito.mock(Substation.class);
         Mockito.when(substation1.getNullableCountry()).thenReturn(country);
 

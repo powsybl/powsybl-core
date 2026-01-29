@@ -71,9 +71,9 @@ public final class CgmesReports {
                 .add();
     }
 
-    public static ReportNode fixingDanglingLinesIssuesReport(ReportNode reportNode) {
+    public static ReportNode fixingBoundaryLinesIssuesReport(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.cgmes.conversion.fixingDanglingLinesIssues")
+                .withMessageTemplate("core.cgmes.conversion.fixingBoundaryLinesIssues")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -199,9 +199,9 @@ public final class CgmesReports {
                 .add();
     }
 
-    public static void multipleUnpairedDanglingLinesAtSameBoundaryReport(ReportNode reportNode, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
+    public static void multipleUnpairedBoundaryLinesAtSameBoundaryReport(ReportNode reportNode, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.cgmes.conversion.multipleUnpairedDanglingLinesAtSameBoundary")
+                .withMessageTemplate("core.cgmes.conversion.multipleUnpairedBoundaryLinesAtSameBoundary")
                 .withUntypedValue("danglingLineId", danglingLineId)
                 .withUntypedValue("p0", p0)
                 .withUntypedValue("q0", q0)

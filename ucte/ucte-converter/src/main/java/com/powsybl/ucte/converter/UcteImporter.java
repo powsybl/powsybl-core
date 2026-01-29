@@ -318,7 +318,7 @@ public class UcteImporter implements Importer {
         addElementNameProperty(ucteLine, dl);
         addGeographicalNameProperty(xnode, dl);
         addXnodeStatusProperty(xnode, dl);
-        addDanglingLineCouplerProperty(ucteLine, dl);
+        addBoundaryLineCouplerProperty(ucteLine, dl);
     }
 
     private static void createCoupler(UcteNetworkExt ucteNetwork, Network network,
@@ -797,7 +797,7 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static BoundaryLine getMatchingDanglingLine(BoundaryLine dl1, Map<String, List<BoundaryLine>> danglingLinesByPairingKey) {
+    private static BoundaryLine getMatchingBoundaryLine(BoundaryLine dl1, Map<String, List<BoundaryLine>> danglingLinesByPairingKey) {
         String otherPairingKey = dl1.getPairingKey();
         List<BoundaryLine> matchingBoundaryLines = danglingLinesByPairingKey.get(otherPairingKey)
                 .stream().filter(dl -> dl != dl1)
@@ -882,7 +882,7 @@ public class UcteImporter implements Importer {
         properties.put(STATUS_PROPERTY_KEY + X_NODE, boundaryLine.getProperty(STATUS_PROPERTY_KEY + X_NODE));
     }
 
-    private static void addDanglingLineCouplerProperty(UcteLine ucteLine, BoundaryLine boundaryLine) {
+    private static void addBoundaryLineCouplerProperty(UcteLine ucteLine, BoundaryLine boundaryLine) {
         switch (ucteLine.getStatus()) {
             case BUSBAR_COUPLER_IN_OPERATION,
                  BUSBAR_COUPLER_OUT_OF_OPERATION:
@@ -945,7 +945,7 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void mergeDanglingLines(UcteNetwork ucteNetwork, Network network) {
+    private static void mergeBoundaryLines(UcteNetwork ucteNetwork, Network network) {
         Map<String, List<BoundaryLine>> danglingLinesByPairingKey = new HashMap<>();
         for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             danglingLinesByPairingKey.computeIfAbsent(dl.getPairingKey(), code -> new ArrayList<>()).add(dl);
@@ -954,13 +954,13 @@ public class UcteImporter implements Importer {
         Set<BoundaryLine> boundaryLinesToProcesses = Sets.newHashSet(network.getBoundaryLines(BoundaryLineFilter.ALL));
         while (!boundaryLinesToProcesses.isEmpty()) {
             BoundaryLine dlToProcess = boundaryLinesToProcesses.iterator().next();
-            BoundaryLine dlMatchingDlToProcess = getMatchingDanglingLine(dlToProcess, danglingLinesByPairingKey);
+            BoundaryLine dlMatchingDlToProcess = getMatchingBoundaryLine(dlToProcess, danglingLinesByPairingKey);
 
             if (dlMatchingDlToProcess != null) {
                 // lexical sort to always end up with same merge line id
-                boolean switchDanglingLinesOrder = dlToProcess.getId().compareTo(dlMatchingDlToProcess.getId()) > 0;
-                BoundaryLine dlAtSideOne = switchDanglingLinesOrder ? dlMatchingDlToProcess : dlToProcess;
-                BoundaryLine dlAtSideTwo = switchDanglingLinesOrder ? dlToProcess : dlMatchingDlToProcess;
+                boolean switchBoundaryLinesOrder = dlToProcess.getId().compareTo(dlMatchingDlToProcess.getId()) > 0;
+                BoundaryLine dlAtSideOne = switchBoundaryLinesOrder ? dlMatchingDlToProcess : dlToProcess;
+                BoundaryLine dlAtSideTwo = switchBoundaryLinesOrder ? dlToProcess : dlMatchingDlToProcess;
 
                 createTieLine(ucteNetwork, network, dlAtSideOne, dlAtSideTwo);
 
@@ -1028,7 +1028,7 @@ public class UcteImporter implements Importer {
                 createLines(ucteNetwork, network);
                 createTransformers(ucteNetwork, network, ucteFileName, combinePhaseAngleRegulation);
 
-                mergeDanglingLines(ucteNetwork, network);
+                mergeBoundaryLines(ucteNetwork, network);
 
                 if (createAreas) {
                     createAreas(network, areaDcXnodes);

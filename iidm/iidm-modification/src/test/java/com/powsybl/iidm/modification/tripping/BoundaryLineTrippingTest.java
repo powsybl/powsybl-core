@@ -49,6 +49,6 @@ class BoundaryLineTrippingTest extends AbstractTrippingTest {
     @Test
     void testGetName() {
         AbstractNetworkModification networkModification = new BoundaryLineTripping("ID");
-        assertEquals("DanglingLineTripping", networkModification.getName());
+        assertEquals("BoundaryLineTripping", networkModification.getName());
     }
 }

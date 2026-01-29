@@ -134,18 +134,18 @@ All area interchange values use the load sign convention: positive values indica
 **Characteristics of an AreaBoundary**
 
 An area boundary is modeled by an `AreaBoundary` instance.
-It is composed of either DanglingLine Boundary or a Terminal, and boolean telling if the area boundary
+It is composed of either BoundaryLine Boundary or a Terminal, and boolean telling if the area boundary
 is to be considered as AC or DC.
 
 The `Ac` flag is informative and is present to support the use case where boundaries are defined on AC components even though
-the boundary is related to an HVDC link. An example for this is a DanglingLine (which is an AC equipment) that may actually represent
+the boundary is related to an HVDC link. An example for this is a BoundaryLine (which is an AC equipment) that may actually represent
 an HVDC interconnection that is not explicitly described in the network model. This information is used when computing area interchanges,
 which are then separated for AC and DC parts.
 
 | Attribute  | Unit | Description                                                                 |
 |------------|------|-----------------------------------------------------------------------------|
 | $Area$     |      | The area of this boundary                                                   |
-| $Boundary$ |      | Boundary of a DanglingLine (mutually exclusive with the Terminal attribute) |
+| $Boundary$ |      | Boundary of a BoundaryLine (mutually exclusive with the Terminal attribute) |
 | $Terminal$ |      | Terminal of an equipment (mutually exclusive with the Boundary attribute)   |
 | $Ac$       |      | True if AreaBoundary is to be considered AC, false otherwise                |
 
@@ -297,7 +297,7 @@ a [reactive capability curve](./additional.md#reactive-capability-curve).
 
 (dangling-line)=
 ## Dangling line
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DanglingLine.html)
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BoundaryLine.html)
 
 A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a dangling line, which represents the part of that boundary line which is located in it. A dangling line is thus a passive or active component that aggregates a line chunk and a constant power injection in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, were the other network fully described.
 

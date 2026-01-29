@@ -101,7 +101,7 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     }
 
     @Test
-    void testDanglingLineExport() throws IOException {
+    void testBoundaryLineExport() throws IOException {
         Network network = BoundaryLineNetworkFactory.create();
 
         exporter.export(network, properties, dataSource);

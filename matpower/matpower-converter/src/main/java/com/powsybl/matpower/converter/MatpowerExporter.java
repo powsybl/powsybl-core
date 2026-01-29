@@ -755,7 +755,7 @@ public class MatpowerExporter implements Exporter {
         createTransformerLegs(network, model, context);
     }
 
-    private void findDanglingLineGenerators(Network network, Context context) {
+    private void findBoundaryLineGenerators(Network network, Context context) {
         for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
@@ -1122,7 +1122,7 @@ public class MatpowerExporter implements Exporter {
         createBranches(network, model, context);
         findGenerators(network, context);
         findStaticVarCompensatorGenerators(network, context);
-        findDanglingLineGenerators(network, context);
+        findBoundaryLineGenerators(network, context);
         createDcLines(network, model, context);
 
         createGeneratorsAndDefinePVBuses(model, context);

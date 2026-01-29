@@ -34,12 +34,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public abstract class AbstractLimitViolationDetectionTest {
     protected static Network networkWithFixedLimits;
-    protected static Network networkWithFixedLimitsOnDanglingLines;
+    protected static Network networkWithFixedLimitsOnBoundaryLines;
     protected static Network networkWithCurrentLimitsOn3WT;
     protected static Network networkWithApparentLimitsOn3WT;
     protected static Network networkWithActiveLimitsOn3WT;
     private static Network networkWithFixedCurrentLimits;
-    private static Network networkWithFixedCurrentLimitsOnDanglingLines;
+    private static Network networkWithFixedCurrentLimitsOnBoundaryLines;
     private static Network networkWithVoltageAngleLimit;
     protected List<LimitViolation> violationsCollector;
 
@@ -47,8 +47,8 @@ public abstract class AbstractLimitViolationDetectionTest {
     static void setUpClass() {
         networkWithFixedCurrentLimits = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         networkWithFixedLimits = EurostagTutorialExample1Factory.createWithFixedLimits();
-        networkWithFixedCurrentLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedCurrentLimitsOnDanglingLines();
-        networkWithFixedLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedLimitsOnDanglingLines();
+        networkWithFixedCurrentLimitsOnBoundaryLines = EurostagTutorialExample1Factory.createWithFixedCurrentLimitsOnBoundaryLines();
+        networkWithFixedLimitsOnBoundaryLines = EurostagTutorialExample1Factory.createWithFixedLimitsOnBoundaryLines();
         networkWithVoltageAngleLimit = EurostagTutorialExample1Factory.createWithVoltageAngleLimit();
         networkWithCurrentLimitsOn3WT = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         networkWithApparentLimitsOn3WT = ThreeWindingsTransformerNetworkFactory.createWithApparentPowerLimits();
@@ -146,7 +146,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void detectPermanentLimitOverloadOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         checkCurrent(tieLine1, TwoSides.TWO, 1101, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -163,7 +163,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     @Test
     void testLimitReductionOnCurrentPermanentLimitOnTieLine() {
         final double i = 460;
-        TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         Optional<? extends LoadingLimits> line1Limits = tieLine1.getBoundaryLine(TwoSides.ONE).getCurrentLimits();
         assertTrue(line1Limits.isPresent()
                 && line1Limits.get().getTemporaryLimits().isEmpty()
@@ -187,7 +187,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void detectTemporaryLimitOverloadOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         checkCurrent(tieLine1, TwoSides.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -202,7 +202,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void detectHighestTemporaryLimitOverloadOnSide1OfTieLine2() {
-        TieLine tieLine2 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_2");
+        TieLine tieLine2 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_2");
         checkCurrent(tieLine2, TwoSides.ONE, 1250, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
@@ -384,7 +384,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void detectAllActivePowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
 
         checkActivePower(tieLine1, TwoSides.TWO, 1201, violationsCollector::add);
 
@@ -399,7 +399,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void detectAllApparentPowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
 
         checkApparentPower(tieLine1, TwoSides.TWO, 1201, violationsCollector::add);
 
@@ -414,7 +414,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void testCheckLimitViolationUnsupportedVoltageOnTieLine() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         assertThrows(UnsupportedOperationException.class, () -> checkLimitViolation(tieLine1, TwoSides.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE, 1.0));
     }
 

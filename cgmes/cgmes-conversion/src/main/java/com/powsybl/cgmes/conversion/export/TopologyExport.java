@@ -303,10 +303,10 @@ public final class TopologyExport {
         writeBusTopologicalNodes(network, cimNamespace, writer, context);
         writeDcTopologicalNodes(network, cimNamespace, writer, context);
         // We create topological nodes for boundary side of dangling lines that are not mapped to an external boundary node
-        writeDanglingLineTopologicalNodes(network, cimNamespace, writer, context);
+        writeBoundaryLineTopologicalNodes(network, cimNamespace, writer, context);
     }
 
-    private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeBoundaryLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNodeId == null) {

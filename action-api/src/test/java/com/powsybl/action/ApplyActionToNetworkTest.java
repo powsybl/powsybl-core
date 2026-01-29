@@ -98,7 +98,7 @@ class ApplyActionToNetworkTest {
 
         assertEquals(10.0, boundaryLine.getP0());
         BoundaryLineAction action = new BoundaryLineActionBuilder().withId("id")
-                .withDanglingLineId("NHV1_XNODE1")
+                .withBoundaryLineId("NHV1_XNODE1")
                 .withRelativeValue(false)
                 .withActivePowerValue(5.0)
                 .build();
@@ -107,7 +107,7 @@ class ApplyActionToNetworkTest {
 
         assertEquals(4.0, boundaryLine.getQ0());
         BoundaryLineAction action2 = new BoundaryLineActionBuilder().withId("id")
-                .withDanglingLineId("NHV1_XNODE1")
+                .withBoundaryLineId("NHV1_XNODE1")
                 .withRelativeValue(true)
                 .withReactivePowerValue(2.0)
                 .build();

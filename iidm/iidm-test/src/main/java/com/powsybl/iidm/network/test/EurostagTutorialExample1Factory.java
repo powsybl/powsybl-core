@@ -559,11 +559,11 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
-    public static Network createWithFixedCurrentLimitsOnDanglingLines() {
-        return createWithFixedCurrentLimitsOnDanglingLines(NetworkFactory.findDefault());
+    public static Network createWithFixedCurrentLimitsOnBoundaryLines() {
+        return createWithFixedCurrentLimitsOnBoundaryLines(NetworkFactory.findDefault());
     }
 
-    public static Network createWithFixedCurrentLimitsOnDanglingLines(NetworkFactory networkFactory) {
+    public static Network createWithFixedCurrentLimitsOnBoundaryLines(NetworkFactory networkFactory) {
         Network network = createWithTieLines(networkFactory);
 
         network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
@@ -631,11 +631,11 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
-    public static Network createWithFixedLimitsOnDanglingLines() {
-        return createWithFixedLimitsOnDanglingLines(NetworkFactory.findDefault());
+    public static Network createWithFixedLimitsOnBoundaryLines() {
+        return createWithFixedLimitsOnBoundaryLines(NetworkFactory.findDefault());
     }
 
-    public static Network createWithFixedLimitsOnDanglingLines(NetworkFactory networkFactory) {
+    public static Network createWithFixedLimitsOnBoundaryLines(NetworkFactory networkFactory) {
         Network network = createWithTieLines(networkFactory);
 
         network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
@@ -857,8 +857,8 @@ public final class EurostagTutorialExample1Factory {
         Network network = createWithTieLines(networkFactory);
 
         // createWithTieLines sets non-zero G for dangling lines, while the load flow solution included is for zero G.
-        // Here we set all DanglingLine's G to zero. Doing this the DanglingLine's P and Q at boundary side (calculated by iIDM)
-        // are consistent with included load flow results. In particular, flows of the 2 DanglingLines of a tie-line are consistent
+        // Here we set all BoundaryLine's G to zero. Doing this the BoundaryLine's P and Q at boundary side (calculated by iIDM)
+        // are consistent with included load flow results. In particular, flows of the 2 BoundaryLines of a tie-line are consistent
         // (verifying dl1.getBoundary().getP() ~= -1.0 * dl2.getBoundary().getP())
         network.getBoundaryLineStream().forEach(dl -> dl.setG(0.0));
 

@@ -100,7 +100,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         if (context.config().convertBoundary()) {
             convertToSwitch().setRetained(true);
         } else {
-            warnDanglingLineCreated();
+            warnBoundaryLineCreated();
             String eqInstance = p.get("graph");
             boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, CgmesNames.SWITCH);
             boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
@@ -118,7 +118,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         };
     }
 
-    private void warnDanglingLineCreated() {
+    private void warnBoundaryLineCreated() {
         fixed("Dangling line with low impedance", "Connected to a boundary node");
     }
 

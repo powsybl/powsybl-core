@@ -12,8 +12,8 @@ import com.powsybl.action.BoundaryLineAction;
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class DanglingLineActionSerializer extends AbstractLoadActionSerializer<BoundaryLineAction> {
-    public DanglingLineActionSerializer() {
+public class BoundaryLineActionSerializer extends AbstractLoadActionSerializer<BoundaryLineAction> {
+    public BoundaryLineActionSerializer() {
         super(BoundaryLineAction.class);
     }
 

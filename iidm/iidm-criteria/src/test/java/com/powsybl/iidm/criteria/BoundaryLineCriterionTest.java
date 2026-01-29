@@ -18,7 +18,7 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-import static com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapterTest.mockDanglingLine;
+import static com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapterTest.mockBoundaryLine;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -103,7 +103,7 @@ class BoundaryLineCriterionTest {
     }
 
     protected static NetworkElement createBoundaryLine(String id, Country country, double nominalVoltage) {
-        BoundaryLine boundaryLine = mockDanglingLine(id, country, nominalVoltage);
+        BoundaryLine boundaryLine = mockBoundaryLine(id, country, nominalVoltage);
         return new DefaultNetworkElementAdapter(boundaryLine);
     }
 }

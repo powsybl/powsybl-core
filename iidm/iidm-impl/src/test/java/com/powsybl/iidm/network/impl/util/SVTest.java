@@ -25,7 +25,7 @@ class SVTest {
 
     @Test
     void testOlfRealNetwork() {
-        Network network = createNodeBreakerDanglingLineNetwork();
+        Network network = createNodeBreakerBoundaryLineNetwork();
         svOlfDataToNetwork(network);
 
         Line line = network.getLine("Line-2-2");
@@ -68,7 +68,7 @@ class SVTest {
 
     @Test
     void testDcOlfRealNetwork() {
-        Network network = createNodeBreakerDanglingLineNetwork();
+        Network network = createNodeBreakerBoundaryLineNetwork();
         svDcOlfDataToNetwork(network);
 
         Line line = network.getLine("Line-2-2");
@@ -129,13 +129,13 @@ class SVTest {
         dl.getTerminal().setP(70.0);
     }
 
-    private static Network createNodeBreakerDanglingLineNetwork() {
-        return createNodeBreakerDanglingLineNetwork(NetworkFactory.findDefault());
+    private static Network createNodeBreakerBoundaryLineNetwork() {
+        return createNodeBreakerBoundaryLineNetwork(NetworkFactory.findDefault());
     }
 
-    private static Network createNodeBreakerDanglingLineNetwork(NetworkFactory networkFactory) {
+    private static Network createNodeBreakerBoundaryLineNetwork(NetworkFactory networkFactory) {
 
-        Network network = networkFactory.createNetwork("twoBusesWithLineAndDanglingLine", "test");
+        Network network = networkFactory.createNetwork("twoBusesWithLineAndBoundaryLine", "test");
         double vn = 225.0;
 
         // First substation
@@ -281,7 +281,7 @@ class SVTest {
     }
 
     @Test
-    void testWithZeroImpedanceDanglingLineWithGeneration() {
+    void testWithZeroImpedanceBoundaryLineWithGeneration() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.createWithGeneration();
         BoundaryLine boundaryLine = network.getBoundaryLine("DL");
@@ -298,7 +298,7 @@ class SVTest {
     }
 
     @Test
-    void testWithZeroImpedanceDanglingLineWithoutGeneration() {
+    void testWithZeroImpedanceBoundaryLineWithoutGeneration() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.create();
         BoundaryLine boundaryLine = network.getBoundaryLine("DL");
@@ -315,7 +315,7 @@ class SVTest {
     }
 
     @Test
-    void testWithZeroImpedanceDanglingLineWithoutGenerationWithNaNV() {
+    void testWithZeroImpedanceBoundaryLineWithoutGenerationWithNaNV() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.create();
         BoundaryLine boundaryLine = network.getBoundaryLine("DL");

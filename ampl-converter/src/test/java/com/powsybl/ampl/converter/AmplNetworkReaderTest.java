@@ -144,7 +144,7 @@ class AmplNetworkReaderTest {
     }
 
     @Test
-    void readDanglingLines() throws IOException {
+    void readBoundaryLines() throws IOException {
         Network network = BoundaryLineNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 

@@ -152,32 +152,32 @@ public interface Scalable {
     }
 
     /**
-     * create DanglingLineScalable with id.
+     * create BoundaryLineScalable with id.
      * The generator scaling convention is used by default.
      */
-    static BoundaryLineScalable onDanglingLine(String id) {
+    static BoundaryLineScalable onBoundaryLine(String id) {
         return new BoundaryLineScalable(id);
     }
 
     /**
-     * create DanglingLineScalable with id and the scaling convention that will be used.
+     * create BoundaryLineScalable with id and the scaling convention that will be used.
      */
-    static BoundaryLineScalable onDanglingLine(String id, ScalingConvention scalingConvention) {
+    static BoundaryLineScalable onBoundaryLine(String id, ScalingConvention scalingConvention) {
         return new BoundaryLineScalable(id, scalingConvention);
     }
 
     /**
-     * create DanglingLineScalable with id, min and max power values for scaling.
+     * create BoundaryLineScalable with id, min and max power values for scaling.
      * The generator scaling convention is used by default.
      */
-    static BoundaryLineScalable onDanglingLine(String id, double minValue, double maxValue) {
+    static BoundaryLineScalable onBoundaryLine(String id, double minValue, double maxValue) {
         return new BoundaryLineScalable(id, minValue, maxValue);
     }
 
     /**
-     * create DanglingLineScalable with id, min and max power values for scaling and the scaling convention that will be used.
+     * create BoundaryLineScalable with id, min and max power values for scaling and the scaling convention that will be used.
      */
-    static BoundaryLineScalable onDanglingLine(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
+    static BoundaryLineScalable onBoundaryLine(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
         return new BoundaryLineScalable(id, minValue, maxValue, scalingConvention);
     }
 

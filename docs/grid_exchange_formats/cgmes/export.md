@@ -222,9 +222,9 @@ PowSyBl [`BusbarSection`](../../grid_model/network_subnetwork.md#busbar-section)
 <span style="color: red">TODO details</span>
 
 (cgmes-dangling-line-export)=
-### DanglingLine
+### BoundaryLine
 
-PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) is exported as several CGMES network objects.
+PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#dangling-line) is exported as several CGMES network objects.
 Each dangling line will be exported as one `EquivalentInjection` and one `ACLineSegment`.
 
 <span style="color: red">TODO details</span>

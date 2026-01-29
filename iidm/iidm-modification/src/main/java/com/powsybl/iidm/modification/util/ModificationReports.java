@@ -82,9 +82,9 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void removedTieLineAndAssociatedDanglingLines(ReportNode reportNode, String tieLineId, String danglingLineId1, String danglingLineId2, String pairingKey) {
+    public static void removedTieLineAndAssociatedBoundaryLines(ReportNode reportNode, String tieLineId, String danglingLineId1, String danglingLineId2, String pairingKey) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.removedTieLineAndAssociatedDanglingLines")
+                .withMessageTemplate("core.iidm.modification.removedTieLineAndAssociatedBoundaryLines")
                 .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
                 .withUntypedValue("danglingLineId1", danglingLineId1)
                 .withUntypedValue("danglingLineId2", danglingLineId2)
@@ -371,9 +371,9 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void lostDanglingLineExtensions(ReportNode reportNode, String extensions, String danglingLineId) {
+    public static void lostBoundaryLineExtensions(ReportNode reportNode, String extensions, String danglingLineId) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.lostDanglingLineExtensions")
+                .withMessageTemplate("core.iidm.modification.lostBoundaryLineExtensions")
                 .withUntypedValue(EXTENSIONS, extensions)
                 .withUntypedValue("danglingLineId", danglingLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)

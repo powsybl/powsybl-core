@@ -98,7 +98,7 @@ final class ScalableTestNetwork {
         return network;
     }
 
-    static Network createNetworkWithDanglingLine() {
+    static Network createNetworkWithBoundaryLine() {
         Network network = Network.create("network", "test");
         Substation s = network.newSubstation()
                 .setId("s")
@@ -191,7 +191,7 @@ final class ScalableTestNetwork {
         return network;
     }
 
-    static Network createNetworkwithDanglingLineAndBattery() {
+    static Network createNetworkwithBoundaryLineAndBattery() {
         Network network = Network.create("network", "test");
 
         // Substation

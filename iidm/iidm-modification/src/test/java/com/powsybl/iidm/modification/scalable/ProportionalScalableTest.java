@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode.*;
-import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithDanglingLineAndBattery;
+import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithBoundaryLineAndBattery;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_DISTRIBUTION;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
@@ -45,13 +45,13 @@ class ProportionalScalableTest {
     private Scalable s;
     private Scalable unknownGenerator;
     private Scalable unknownLoad;
-    private Scalable unknownDanglingLine;
+    private Scalable unknownBoundaryLine;
     private Scalable dl1;
 
     @BeforeEach
     void setUp() {
 
-        network = createNetworkwithDanglingLineAndBattery();
+        network = createNetworkwithBoundaryLineAndBattery();
         g1 = Scalable.onGenerator("g1");
         g2 = Scalable.onGenerator("g2");
         g3 = Scalable.onGenerator("g3", -10, 80);
@@ -62,8 +62,8 @@ class ProportionalScalableTest {
         l2 = Scalable.onLoad("l2", 20, 80);
         l3 = Scalable.onLoad("l3", -50, 100);
         unknownLoad = Scalable.onLoad("unknown");
-        unknownDanglingLine = Scalable.onDanglingLine("unknown");
-        dl1 = Scalable.onDanglingLine("dl1", 20, 80);
+        unknownBoundaryLine = Scalable.onBoundaryLine("unknown");
+        dl1 = Scalable.onBoundaryLine("dl1", 20, 80);
 
 //        reset();
     }
@@ -71,7 +71,7 @@ class ProportionalScalableTest {
     private void reset() {
 
         Scalable.stack(g1, g2, g3).reset(network);
-        Scalable.stack(l1, l2, s, unknownGenerator, unknownLoad, unknownDanglingLine, dl1).reset(network);
+        Scalable.stack(l1, l2, s, unknownGenerator, unknownLoad, unknownBoundaryLine, dl1).reset(network);
         l3.reset(network);
     }
 
@@ -358,7 +358,7 @@ class ProportionalScalableTest {
 
         // Error raised
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(danglinglineList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN));
-        assertEquals("Variable MinP inconsistent with injection type class com.powsybl.iidm.network.impl.DanglingLineImpl", e0.getMessage());
+        assertEquals("Variable MinP inconsistent with injection type class com.powsybl.iidm.network.impl.BoundaryLineImpl", e0.getMessage());
 
         // Error raised
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> Scalable.proportional(loadList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN));

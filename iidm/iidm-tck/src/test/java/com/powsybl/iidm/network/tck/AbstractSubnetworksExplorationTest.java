@@ -597,7 +597,7 @@ public abstract class AbstractSubnetworksExplorationTest {
     }
 
     @Test
-    public void testExploreDanglingLines() {
+    public void testExploreBoundaryLines() {
         var expectedIdsForSubnetwork1 = List.of(id("danglingLine1", ID_1),
                 id("danglingLine2", ID_1),
                 id("danglingLine3", ID_1));

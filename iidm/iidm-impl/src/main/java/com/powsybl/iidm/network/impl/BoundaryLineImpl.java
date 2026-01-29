@@ -60,7 +60,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         GenerationImpl attach(BoundaryLineImpl danglingLine) {
             if (this.danglingLine != null) {
-                throw new IllegalStateException("DanglingLine.Generation already attached to " + this.danglingLine.getId());
+                throw new IllegalStateException("BoundaryLine.Generation already attached to " + this.danglingLine.getId());
             }
 
             this.danglingLine = Objects.requireNonNull(danglingLine);

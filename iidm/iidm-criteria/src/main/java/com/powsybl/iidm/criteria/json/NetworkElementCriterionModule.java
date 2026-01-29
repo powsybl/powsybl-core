@@ -28,7 +28,7 @@ public class NetworkElementCriterionModule extends SimpleModule {
 
         addDeserializer(Criterion.class, new CriterionDeserializer());
         addDeserializer(LineCriterion.class, new LineCriterionDeserializer());
-        addDeserializer(BoundaryLineCriterion.class, new DanglingLineCriterionDeserializer());
+        addDeserializer(BoundaryLineCriterion.class, new BoundaryLineCriterionDeserializer());
         addDeserializer(TieLineCriterion.class, new TieLineCriterionDeserializer());
         addDeserializer(TwoWindingsTransformerCriterion.class, new TwoWindingsTransformerCriterionDeserializer());
         addDeserializer(ThreeWindingsTransformerCriterion.class, new ThreeWindingsTransformerCriterionDeserializer());

@@ -187,7 +187,7 @@ public class AmplNetworkWriter {
             }
             // voltage level associated to dangling lines middle bus
             for (BoundaryLine dl : getSortedIdentifiables(network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED))) {
-                columnsExporter.writeDanglingLineVoltageLevelToFormatter(formatter, dl);
+                columnsExporter.writeBoundaryLineVoltageLevelToFormatter(formatter, dl);
                 addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl)),
                     dl);
             }
@@ -227,7 +227,7 @@ public class AmplNetworkWriter {
 
             writeThreeWindingsTransformerMiddleBuses(context, formatter);
 
-            writeDanglingLineMiddleBuses(context, formatter);
+            writeBoundaryLineMiddleBuses(context, formatter);
 
             if (config.isExportXNodes()) {
                 writeTieLineMiddleBuses(context, formatter);
@@ -281,12 +281,12 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
+    private void writeBoundaryLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
         for (BoundaryLine dl : getSortedIdentifiables(network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED))) {
             int middleCcNum = getBoundaryLineMiddleBusComponentNum(context, dl);
             if (connectedComponentToExport(middleCcNum)) {
                 context.busIdsToExport.add(AmplUtil.getBoundaryLineMiddleBusId(dl));
-                columnsExporter.writeDanglingLineMiddleBusesToFormatter(formatter, dl, middleCcNum);
+                columnsExporter.writeBoundaryLineMiddleBusesToFormatter(formatter, dl, middleCcNum);
             }
         }
     }
@@ -320,7 +320,7 @@ public class AmplNetworkWriter {
 
             writeThreeWindingsTransformers(context, formatter);
 
-            writeDanglingLines(context, formatter);
+            writeBoundaryLines(context, formatter);
         }
     }
 
@@ -428,7 +428,7 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeDanglingLines(AmplExportContext context, TableFormatter formatter) throws IOException {
+    private void writeBoundaryLines(AmplExportContext context, TableFormatter formatter) throws IOException {
         for (BoundaryLine dl : getSortedIdentifiables(network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED))) {
             Terminal t = dl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
@@ -439,7 +439,7 @@ public class AmplNetworkWriter {
                 String middleVlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
                 context.voltageLevelIdsToExport.add(vl.getId());
                 context.voltageLevelIdsToExport.add(middleVlId);
-                columnsExporter.writeDanglingLineToFormatter(formatter, dl);
+                columnsExporter.writeBoundaryLineToFormatter(formatter, dl);
                 addExtensions(mapper.getInt(AmplSubset.BRANCH, dl.getId()), dl);
             }
         }
@@ -536,7 +536,7 @@ public class AmplNetworkWriter {
                 if (!exportLoad(context, middleBusId)) {
                     skipped.add(dl.getId());
                 } else {
-                    columnsExporter.writeDanglingLineLoadToFormatter(formatter, dl);
+                    columnsExporter.writeBoundaryLineLoadToFormatter(formatter, dl);
                 }
             }
             if (!skipped.isEmpty()) {

@@ -585,7 +585,7 @@ public class CgmesImport implements Importer {
                                 p,
                                 IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
                                 defaultValueConfig))
-                .setDisconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected(
+                .setDisconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected(
                         Parameter.readBoolean(
                                 getFormat(),
                                 p,

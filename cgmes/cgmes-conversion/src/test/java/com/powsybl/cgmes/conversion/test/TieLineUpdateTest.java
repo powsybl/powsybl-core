@@ -24,15 +24,15 @@ class TieLineUpdateTest {
 
     private static final String DIR = "/update/tie-line/";
 
-    // When there are more than two ACLineSegments connected to a boundary node, one DanglingLine is created for each ACLineSegment.
+    // When there are more than two ACLineSegments connected to a boundary node, one BoundaryLine is created for each ACLineSegment.
     // If the EQ and SSH files are imported together, a TieLine is created when there are exactly two ACLineSegments connected to the boundary node.
     // However, if EQ and SSH are imported separately, no TieLines are created in this configuration, because the connected status is only available
     // in the SSH file and no equipment is created during the update process.
     // In the tests, only the characteristics of the permanent TieLine are verified.
-    private static void assertEqCount(Network network, int tieLines, int pairedDanglingLines) {
+    private static void assertEqCount(Network network, int tieLines, int pairedBoundaryLines) {
         assertEquals(tieLines, network.getTieLineCount());
         assertEquals(5, network.getBoundaryLineCount());
-        assertEquals(pairedDanglingLines, network.getBoundaryLineStream().filter(BoundaryLine::isPaired).count());
+        assertEquals(pairedBoundaryLines, network.getBoundaryLineStream().filter(BoundaryLine::isPaired).count());
     }
 
     @Test

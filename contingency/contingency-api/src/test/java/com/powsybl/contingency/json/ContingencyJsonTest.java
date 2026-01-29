@@ -67,7 +67,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
                                              .addShuntCompensator("SC")
                                              .addStaticVarCompensator("SVC")
                                              .addBusbarSection("BBS1")
-                                             .addDanglingLine("DL1")
+                                             .addBoundaryLine("DL1")
                                              .addLine("LINE1")
                                              .addTwoWindingsTransformer("TRANSFO1")
                                              .addThreeWindingsTransformer("TWT3")
@@ -206,7 +206,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readJsonListWithTieLineAndDanglingLineContingency() throws IOException {
+    void readJsonListWithTieLineAndBoundaryLineContingency() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         ContingencyList contingencyList = ContingencyList.load(fileSystem.getPath("/contingenciesWithDlAndTl.json"));
         assertEquals("list", contingencyList.getName());

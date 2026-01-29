@@ -436,7 +436,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     public void writeCurrentLimits(TableFormatter formatter) throws IOException {
         writeBranchCurrentLimits(formatter);
         writeThreeWindingsTransformerCurrentLimits(formatter);
-        writeDanglingLineCurrentLimits(formatter);
+        writeBoundaryLineCurrentLimits(formatter);
     }
 
     @Override
@@ -579,7 +579,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         }
     }
 
-    private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
+    private void writeBoundaryLineCurrentLimits(TableFormatter formatter) throws IOException {
         for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             String branchId = dl.getId();
             Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
@@ -704,7 +704,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineMiddleBusesToFormatter(TableFormatter formatter, BoundaryLine dl,
+    public void writeBoundaryLineMiddleBusesToFormatter(TableFormatter formatter, BoundaryLine dl,
                                                         int middleCcNum) throws IOException {
         Terminal t = dl.getTerminal();
         Bus b = AmplUtil.getBus(dl.getTerminal());
@@ -733,13 +733,13 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell(middleBusId);
 
         // Add cells if necessary
-        addAdditionalCellsDanglingLineMiddleBuses(formatterHelper, dl, middleCcNum);
+        addAdditionalCellsBoundaryLineMiddleBuses(formatterHelper, dl, middleCcNum);
 
         // Write the cells
         formatterHelper.write();
     }
 
-    public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, BoundaryLine dl,
+    public void addAdditionalCellsBoundaryLineMiddleBuses(TableFormatterHelper formatterHelper, BoundaryLine dl,
                                                           int middleCcNum) {
         // Nothing to do here
     }
@@ -977,7 +977,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
+    public void writeBoundaryLineToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
         String id = dl.getId();
         Terminal t = dl.getTerminal();
         VoltageLevel vl = t.getVoltageLevel();
@@ -1214,7 +1214,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineLoadToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
+    public void writeBoundaryLineLoadToFormatter(TableFormatter formatter, BoundaryLine dl) throws IOException {
         String middleBusId = AmplUtil.getBoundaryLineMiddleBusId(dl);
         String id = dl.getId();
         int num = mapper.getInt(AmplSubset.LOAD, id);
@@ -1436,7 +1436,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeDanglingLineVoltageLevelToFormatter(TableFormatter formatter,
+    public void writeBoundaryLineVoltageLevelToFormatter(TableFormatter formatter,
                                                          BoundaryLine dl) throws IOException {
         String vlId = AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl);
         int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
@@ -1460,13 +1460,13 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell("");
 
         // Add cells if necessary
-        addAdditionalCellsDanglingLineVoltageLevel(formatterHelper, dl);
+        addAdditionalCellsBoundaryLineVoltageLevel(formatterHelper, dl);
 
         // Write the cells
         formatterHelper.write();
     }
 
-    public void addAdditionalCellsDanglingLineVoltageLevel(TableFormatterHelper formatterHelper,
+    public void addAdditionalCellsBoundaryLineVoltageLevel(TableFormatterHelper formatterHelper,
                                                            BoundaryLine dl) {
         // Nothing to do here
     }

@@ -192,7 +192,7 @@ public abstract class AbstractBoundaryLineTest {
     }
 
     @Test
-    public void duplicateDanglingLine() {
+    public void duplicateBoundaryLine() {
         createBoundaryLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
         assertNotNull(network.getBoundaryLine(DUPLICATE));
         PowsyblException e = assertThrows(PowsyblException.class, () -> createBoundaryLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code"));

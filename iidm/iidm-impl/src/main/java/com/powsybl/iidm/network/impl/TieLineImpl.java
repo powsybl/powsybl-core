@@ -141,13 +141,13 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public void remove(boolean updateDanglingLines) {
+    public void remove(boolean updateBoundaryLines) {
         NetworkImpl network = getNetwork();
         network.getListeners().notifyBeforeRemoval(this);
 
-        if (updateDanglingLines) {
-            updateDanglingLine(danglingLine1);
-            updateDanglingLine(danglingLine2);
+        if (updateBoundaryLines) {
+            updateBoundaryLine(danglingLine1);
+            updateBoundaryLine(danglingLine2);
         }
 
         // Remove dangling lines
@@ -179,7 +179,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     public boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
-            getTerminalsOfDanglingLines(side),
+            getTerminalsOfBoundaryLines(side),
             isTypeSwitchToOperate,
             getNetwork().getReportNodeContext().getReportNode());
     }
@@ -198,12 +198,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     public boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
-            getTerminalsOfDanglingLines(side),
+            getTerminalsOfBoundaryLines(side),
             isSwitchOpenable,
             getNetwork().getReportNodeContext().getReportNode());
     }
 
-    private List<Terminal> getTerminalsOfDanglingLines(TwoSides side) {
+    private List<Terminal> getTerminalsOfBoundaryLines(TwoSides side) {
         return side == null ? List.of(getTerminal1(), getTerminal2()) : switch (side) {
             case ONE -> List.of(getTerminal1());
             case TWO -> List.of(getTerminal2());
@@ -476,7 +476,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return BranchUtil.getValueForLimit(t, type);
     }
 
-    private static void updateDanglingLine(BoundaryLine boundaryLine) {
+    private static void updateBoundaryLine(BoundaryLine boundaryLine) {
         // Only update if we have values
         if (!Double.isNaN(boundaryLine.getBoundary().getP())) {
             boundaryLine.setP0(-boundaryLine.getBoundary().getP());

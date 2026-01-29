@@ -330,14 +330,14 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), parameters);
         var frArea = network.getArea("FR");
         var beArea = network.getArea("BE");
-        var frDanglingLine1 = network.getBoundaryLine("FFFFFF11 XXXXXX11 1");
-        var frDanglingLine2 = network.getBoundaryLine("FFFFFF11 XXXXXX12 1");
-        var beDanglingLine1 = network.getBoundaryLine("BBBBBB11 XXXXXX11 1");
-        var beDanglingLine2 = network.getBoundaryLine("BBBBBB11 XXXXXX12 1");
-        assertFalse(frArea.getAreaBoundary(frDanglingLine1.getBoundary()).isAc());
-        assertTrue(frArea.getAreaBoundary(frDanglingLine2.getBoundary()).isAc());
-        assertFalse(beArea.getAreaBoundary(beDanglingLine1.getBoundary()).isAc());
-        assertTrue(beArea.getAreaBoundary(beDanglingLine2.getBoundary()).isAc());
+        var frBoundaryLine1 = network.getBoundaryLine("FFFFFF11 XXXXXX11 1");
+        var frBoundaryLine2 = network.getBoundaryLine("FFFFFF11 XXXXXX12 1");
+        var beBoundaryLine1 = network.getBoundaryLine("BBBBBB11 XXXXXX11 1");
+        var beBoundaryLine2 = network.getBoundaryLine("BBBBBB11 XXXXXX12 1");
+        assertFalse(frArea.getAreaBoundary(frBoundaryLine1.getBoundary()).isAc());
+        assertTrue(frArea.getAreaBoundary(frBoundaryLine2.getBoundary()).isAc());
+        assertFalse(beArea.getAreaBoundary(beBoundaryLine1.getBoundary()).isAc());
+        assertTrue(beArea.getAreaBoundary(beBoundaryLine2.getBoundary()).isAc());
     }
 
     @Test

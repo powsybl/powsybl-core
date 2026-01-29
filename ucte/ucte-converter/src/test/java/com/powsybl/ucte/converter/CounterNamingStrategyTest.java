@@ -167,7 +167,7 @@ class CounterNamingStrategyTest {
     }
 
     @Test
-    void testDanglingLineElementIds() {
+    void testBoundaryLineElementIds() {
         strategy.initializeNetwork(network);
         BoundaryLine dl1 = network.getBoundaryLine("DL1");
         BoundaryLine dl2 = network.getBoundaryLine("DL2");

@@ -114,7 +114,7 @@ public class UcteExporter implements Exporter {
         // If it is connected this way, we could conclude it is a YNode
     }
 
-    private static boolean isDanglingLineYNode(BoundaryLine boundaryLine) {
+    private static boolean isBoundaryLineYNode(BoundaryLine boundaryLine) {
         return isYNode(boundaryLine.getTerminal().getBusBreakerView().getConnectableBus());
     }
 
@@ -159,7 +159,7 @@ public class UcteExporter implements Exporter {
             });
             voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, context));
         }));
-        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(danglingLine -> convertDanglingLine(ucteNetwork, danglingLine, context));
+        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(danglingLine -> convertBoundaryLine(ucteNetwork, danglingLine, context));
         network.getLines().forEach(line -> convertLine(ucteNetwork, line, context));
         network.getTieLines().forEach(tieLine -> convertTieLine(ucteNetwork, tieLine, context));
         network.getTwoWindingsTransformers().forEach(transformer -> convertTwoWindingsTransformer(ucteNetwork, transformer, context));
@@ -298,7 +298,7 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Create a {@link UcteNode} object from a DanglingLine and add it to the {@link UcteNetwork}.
+     * Create a {@link UcteNode} object from a BoundaryLine and add it to the {@link UcteNetwork}.
      *
      * @param ucteNetwork The target network in ucte
      * @param boundaryLine The danglingLine used to create the XNode
@@ -486,8 +486,8 @@ public class UcteExporter implements Exporter {
      * @param boundaryLine The danglingLine to convert to UCTE
      * @param context The context used to store temporary data during the conversion
      */
-    private static void convertDanglingLine(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
-        LOGGER.trace("Converting DanglingLine {}", boundaryLine.getId());
+    private static void convertBoundaryLine(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
+        LOGGER.trace("Converting BoundaryLine {}", boundaryLine.getId());
 
         // Create XNode
         convertXNode(ucteNetwork, boundaryLine, context);
@@ -495,8 +495,8 @@ public class UcteExporter implements Exporter {
         // Always create the XNode,
         // But do not export the dangling line if it was related to a YNode
         // The corresponding transformer will be connected to the XNode
-        if (isDanglingLineYNode(boundaryLine)) {
-            LOGGER.warn("Ignoring DanglingLine at YNode in the export {}", boundaryLine.getId());
+        if (isBoundaryLineYNode(boundaryLine)) {
+            LOGGER.warn("Ignoring BoundaryLine at YNode in the export {}", boundaryLine.getId());
             return;
         }
 

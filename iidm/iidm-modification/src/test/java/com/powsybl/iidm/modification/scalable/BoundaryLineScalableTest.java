@@ -19,7 +19,7 @@ import java.util.List;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.GENERATOR;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.LOAD;
-import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkWithDanglingLine;
+import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkWithBoundaryLine;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -37,14 +37,14 @@ class BoundaryLineScalableTest {
 
     @BeforeEach
     void setUp() {
-        network = createNetworkWithDanglingLine();
-        dl2 = Scalable.onDanglingLine("dl2");
+        network = createNetworkWithBoundaryLine();
+        dl2 = Scalable.onBoundaryLine("dl2");
 
         dl3 = new BoundaryLineScalable("dl2", 20, 100);
         dl4 = new BoundaryLineScalable("dl2", -10, 100);
 
-        dl5 = Scalable.onDanglingLine("dl2", ScalingConvention.LOAD);
-        dl6 = Scalable.onDanglingLine("dl2", 20, 100, ScalingConvention.LOAD);
+        dl5 = Scalable.onBoundaryLine("dl2", ScalingConvention.LOAD);
+        dl6 = Scalable.onBoundaryLine("dl2", 20, 100, ScalingConvention.LOAD);
     }
 
     @Test
@@ -83,7 +83,7 @@ class BoundaryLineScalableTest {
     }
 
     @Test
-    void testDanglingLineScaleLoadConvention() {
+    void testBoundaryLineScaleLoadConvention() {
         //test with ScalingConvention.LOAD
         convention = LOAD;
         ScalingParameters parameters = new ScalingParameters().setScalingConvention(convention);
@@ -98,7 +98,7 @@ class BoundaryLineScalableTest {
     }
 
     @Test
-    void testDanglingLineScaleGeneratorConvention() {
+    void testBoundaryLineScaleGeneratorConvention() {
         //test with ScalingConvention.GENERATOR
         //test with default maxValue = Double.MAX_VALUE and minValue = -Double.MAX_VALUE
         BoundaryLine boundaryLine = network.getBoundaryLine("dl2");
@@ -145,7 +145,7 @@ class BoundaryLineScalableTest {
     }
 
     @Test
-    void testReconnectDanglingLine() {
+    void testReconnectBoundaryLine() {
         BoundaryLine boundaryLine = network.getBoundaryLine("dl2");
         boundaryLine.getTerminal().disconnect();
         assertFalse(boundaryLine.getTerminal().isConnected());

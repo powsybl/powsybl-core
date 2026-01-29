@@ -32,7 +32,7 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
     }
 
     @Test
-    void testDanglingLine() throws IOException {
+    void testBoundaryLine() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         var tl = network.getTieLine("NHV1_NHV2_1");
         tl.getBoundaryLine1().newExtension(CgmesBoundaryLineBoundaryNodeAdder.class)

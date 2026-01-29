@@ -30,23 +30,23 @@ class MergeTest {
 
     @Test
     void mergeNodeBreakerTestNPE() throws IOException {
-        Network n1 = createNetworkWithDanglingLine("1");
-        Network n2 = createNetworkWithDanglingLine("2");
+        Network n1 = createNetworkWithBoundaryLine("1");
+        Network n2 = createNetworkWithBoundaryLine("2");
 
         logVoltageLevel("Network 1 first voltage level", n1.getVoltageLevels().iterator().next());
         Network merge = Network.merge(n1, n2);
         // If we try to get connected components directly on the merged network,
         // A Null Pointer Exception happens in AbstractConnectable.notifyUpdate:
-        // There is a CalculatedBus that has a terminal that refers to the removed DanglingLine
-        // DanglingLine object has VoltageLevel == null,
+        // There is a CalculatedBus that has a terminal that refers to the removed BoundaryLine
+        // BoundaryLine object has VoltageLevel == null,
         // NPE comes from trying to getNetwork() using VoltageLevel to notify a change in connected components
         checkConnectedComponents(merge);
     }
 
     @Test
     void mergeNodeBreakerTestPass1() {
-        Network n1 = createNetworkWithDanglingLine("1");
-        Network n2 = createNetworkWithDanglingLine("2");
+        Network n1 = createNetworkWithBoundaryLine("1");
+        Network n2 = createNetworkWithBoundaryLine("2");
 
         // The test passes if we do not log voltage level (exportTopology)
         Network merge = Network.merge(n1, n2);
@@ -55,8 +55,8 @@ class MergeTest {
 
     @Test
     void mergeNodeBreakerTestPass2() throws IOException {
-        Network n1 = createNetworkWithDanglingLine("1");
-        Network n2 = createNetworkWithDanglingLine("2");
+        Network n1 = createNetworkWithBoundaryLine("1");
+        Network n2 = createNetworkWithBoundaryLine("2");
 
         logVoltageLevel("Network 1 first voltage level", n1.getVoltageLevels().iterator().next());
         // The test also passes if we "force" the connected component calculation before merge
@@ -77,7 +77,7 @@ class MergeTest {
         n.getBusView().getBuses().forEach(b -> assertEquals(0, b.getConnectedComponent().getNum()));
     }
 
-    private static Network createNetworkWithDanglingLine(String nid) {
+    private static Network createNetworkWithBoundaryLine(String nid) {
         Network n = NetworkTest1Factory.create(nid);
         VoltageLevel vl = n.getVoltageLevel(id("voltageLevel1", nid));
         BoundaryLine dl = vl.newBoundaryLine()

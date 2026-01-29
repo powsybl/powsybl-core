@@ -464,7 +464,7 @@ public final class CgmesExportUtil {
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
     }
 
-    public static List<BoundaryLine> getBoundaryDanglingLines(Network network) {
+    public static List<BoundaryLine> getBoundaryBoundaryLines(Network network) {
         return network.getBoundaryElements().stream()
                 .filter(BoundaryLine.class::isInstance)
                 .map(BoundaryLine.class::cast)

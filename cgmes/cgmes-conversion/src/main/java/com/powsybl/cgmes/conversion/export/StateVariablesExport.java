@@ -393,7 +393,7 @@ public final class StateVariablesExport {
         Map<String, Double> equivalentInjectionTerminalP = new HashMap<>();
         Map<String, Double> equivalentInjectionTerminalQ = new HashMap<>();
         network.getBoundaryLines(BoundaryLineFilter.ALL).forEach(dl -> {
-            // DanglingLine's attributes will be created to store calculated flows on the boundary side
+            // BoundaryLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
                 writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
             }

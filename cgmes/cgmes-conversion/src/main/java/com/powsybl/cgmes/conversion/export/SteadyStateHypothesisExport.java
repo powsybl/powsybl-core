@@ -125,7 +125,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeTerminalForDanglingLines(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+    private static void writeTerminalForBoundaryLines(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             // Terminal for equivalent injection at boundary is always connected
             if (dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal") != null) {
@@ -164,7 +164,7 @@ public final class SteadyStateHypothesisExport {
             }
         }
         writeTerminalForSwitches(network, cimNamespace, writer, context);
-        writeTerminalForDanglingLines(network, cimNamespace, writer, context);
+        writeTerminalForBoundaryLines(network, cimNamespace, writer, context);
         // If we are performing an updated export, write recorded busbar section terminals as connected
         if (!context.isExportEquipment()) {
             writeTerminalForBuses(network, cimNamespace, writer, context);

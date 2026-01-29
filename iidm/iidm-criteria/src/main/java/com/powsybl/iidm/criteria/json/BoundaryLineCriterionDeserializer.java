@@ -21,8 +21,8 @@ import java.io.IOException;
  * <p>Deserializer for {@link BoundaryLineCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class DanglingLineCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<BoundaryLineCriterion> {
-    public DanglingLineCriterionDeserializer() {
+public class BoundaryLineCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<BoundaryLineCriterion> {
+    public BoundaryLineCriterionDeserializer() {
         super(BoundaryLineCriterion.class);
     }
 

@@ -126,12 +126,12 @@ class DefaultNetworkReducerTest {
     }
 
     @Test
-    void testDanglingLine() {
+    void testBoundaryLine() {
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
 
         NetworkReducer reducer = NetworkReducer.builder()
                 .withNetworkPredicate(IdentifierNetworkPredicate.of("P2"))
-                .withDanglingLines(true)
+                .withBoundaryLines(true)
                 .build();
 
         reducer.reduce(network);

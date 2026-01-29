@@ -18,9 +18,9 @@ import java.io.IOException;
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class DanglingLineActionBuilderBuilderDeserializer extends AbstractLoadActionBuilderDeserializer<BoundaryLineActionBuilder> {
+public class BoundaryLineActionBuilderDeserializer extends AbstractLoadActionBuilderDeserializer<BoundaryLineActionBuilder> {
 
-    public DanglingLineActionBuilderBuilderDeserializer() {
+    public BoundaryLineActionBuilderDeserializer() {
         super(BoundaryLineActionBuilder.class);
     }
 

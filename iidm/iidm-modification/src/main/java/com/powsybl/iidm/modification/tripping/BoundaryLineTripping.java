@@ -22,7 +22,7 @@ public class BoundaryLineTripping extends AbstractInjectionTripping {
 
     @Override
     public String getName() {
-        return "DanglingLineTripping";
+        return "BoundaryLineTripping";
     }
 
     @Override
