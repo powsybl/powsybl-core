@@ -119,7 +119,7 @@ class TwoWindingsTransformerFortescueXmlSerDeTest extends AbstractIidmSerDeTest 
         Network network2 = allFormatsRoundTripTest(network, "/fortescue/twoWindingsTransformerFortescueRef_V1_0.xml",
             new ExportOptions()
                 .addExtensionVersion(TwoWindingsTransformerFortescue.NAME, "1.0")
-                .setVersion(IidmVersion.V_1_14.toString(".")));
+                .setVersion(IidmVersion.V_1_15.toString(".")));
 
         TwoWindingsTransformer twt2 = network2.getTwoWindingsTransformer("NGEN_NHV1");
         assertNotNull(twt2);
