@@ -85,7 +85,7 @@ class LineFortescueXmlSerDeTest extends AbstractIidmSerDeTest {
         Network network2 = allFormatsRoundTripTest(network, "/fortescue/lineFortescueRef_V1_0.xml",
             new ExportOptions()
                 .addExtensionVersion(LineFortescue.NAME, "1.0")
-                .setVersion(IidmVersion.V_1_14.toString(".")));
+                .setVersion(IidmVersion.V_1_15.toString(".")));
 
         Line l2 = network2.getLine("NHV1_NHV2_1");
         assertNotNull(l2);
