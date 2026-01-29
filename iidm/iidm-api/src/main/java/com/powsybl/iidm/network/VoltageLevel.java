@@ -169,7 +169,7 @@ import java.util.stream.Stream;
  * </div>
  * The node/breaker topology model is stored inside the voltage level as a graph
  * where connection nodes are the vertices and switches are the edges.
- * <p>The next diagram shows how to map the subtation topology to a graph.
+ * <p>The next diagram shows how to map the substation topology to a graph.
  * <div>
  *    <object data="doc-files/nodeBreakerTopologyGraph.svg" type="image/svg+xml"></object>
  * </div>
@@ -179,9 +179,9 @@ import java.util.stream.Stream;
  * connection nodes. Voltage level VL2 has 3 nodes, line LN is connected to
  * node 1, busbar section BBS3 to node 2. Transformer TR is connected
  * to node 8 of voltage level 400Kv and node 3 of voltage level 225Kv. Plain
- * edges represent closed switches. Dashed edges reprensent opened switches.
+ * edges represent closed switches. Dashed edges represent opened switches.
  * Green edges will disappear during the bus/breaker topology computation
- * whereas pink edges (like in this case 3<->4) will be retained whatever their
+ * whereas pink edges (like in this case 3 {@literal <->} 4) will be retained whatever their
  * position are (see {@link Switch#isRetained()}).
  * <p>The following code shows how to create the substation with a node/breaker
  *   topology model.
@@ -273,7 +273,7 @@ import java.util.stream.Stream;
  * </pre>
  *
  * <p>The following diagram shows computed bus/breaker topology. Compared to
- * node/breaker topology, only remains equipements (GN, LD, TR, LN), and switches
+ * node/breaker topology, only remains equipments (GN, LD, TR, LN), and switches
  * flagged as retained (BR3). Equipments are now connected through buses
  * (B1 and B2).
  * <div>
@@ -306,7 +306,7 @@ import java.util.stream.Stream;
  * </pre>
  *
  * <p>The following diagram shows computed bus topology. Compared to bus/breaker
- * topology, there is no switches anymore. Only remains equipements (GN, LD, TR, LN)
+ * topology, there is no switches anymore. Only remains equipments (GN, LD, TR, LN)
  * connected through buses.
  * <div>
  *    <object data="doc-files/busTopology.svg" type="image/svg+xml"></object>
@@ -318,7 +318,7 @@ import java.util.stream.Stream;
  *    // VL1 contains 1 buses in the bus view
  *    Iterator&lt;Bus&gt; itB = vl1.getBusView().getBuses();
  *
- *    // the bus connects all the equipements of voltage level VL1
+ *    // the bus connects all the equipments of voltage level VL1
  *    Bus b1 = itB.next();
  * </pre>
  * <h3>Creating a substation with a bus/breaker topology model:</h3>
@@ -402,19 +402,43 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     interface NodeBreakerView {
 
+        /**
+         * Returns the fictitious active power injection to the node if set, or 0. The value is in MW and uses the load sign convention (a positive value has the same effect as a load connected to the node)
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * @param node the node to which the fictitious load is connected.
+         */
         default double getFictitiousP0(int node) {
             return 0.0;
         }
 
+        /**
+         * If supported by the implementation, adds a fictitious active power injection to the node using the load sign convention (a positive value has the same effect as a load connected to the node)
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * The method has no effect if the NodeBreakerView implementation does not support fictitious injections.
+         * @param node the node to which the fictitious load is connected.
+         * @param p0 fictitious load in MW, using the load sign convention.
+         */
         default NodeBreakerView setFictitiousP0(int node, double p0) {
             // do nothing
             return this;
         }
 
+        /**
+         * Returns the fictitious reactive power injection to the node if set, or 0. The value is in MVar and uses the load sign convention (a positive value has the same effect as a load connected to the node)
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * @param node the node to which the fictitious load is connected.
+         */
         default double getFictitiousQ0(int node) {
             return 0.0;
         }
 
+        /**
+         * If supported by the implementation, adds a fictitious reactive power injection to the node using the load sign convention (a positive value has the same effect as a load connected to the node)
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * The method has no effect if the NodeBreakerView implementation does not support fictitious injections.
+         * @param node the node to which the fictitious load is connected.
+         * @param q0 fictitious load in MVar, using the load sign convention.
+         */
         default NodeBreakerView setFictitiousQ0(int node, double q0) {
             // do nothing
             return this;
@@ -1407,7 +1431,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     void convertToTopology(TopologyKind newTopologyKind);
 
     /**
-     * Print an ASCII representation of the topology on the standard ouput.
+     * Print an ASCII representation of the topology on the standard output.
      */
     void printTopology();
 

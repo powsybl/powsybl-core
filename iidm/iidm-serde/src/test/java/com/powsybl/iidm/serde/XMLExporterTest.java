@@ -57,7 +57,7 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream(NODE_BREAKER_FILE));
         Properties properties = new Properties();
         properties.put(VOLTAGE_LEVELS_BUS_BREAKER, "vl1,vl2,vl3");
-        properties.put(VOLTAGE_LEVELS_BUS_BRANCH, "vl3"); // vl3 is not unique and will be ignored
+        properties.put(VOLTAGE_LEVELS_BUS_BRANCH, "vl3,VL_DC_Converter"); // vl3 is not unique and will be ignored
         exporterTest(network, () -> getClass().getResourceAsStream("/topologyLevelVoltageLevels.xml"), properties);
     }
 
@@ -96,7 +96,7 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void exportOldVersionWithoutNewExtensions() throws IOException {
+    void exportOldVersionWithoutNewExtensions() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Path workingDir = fileSystem.getPath("/working-dir");
         Network network = EurostagTutorialExample1Factory.create();
