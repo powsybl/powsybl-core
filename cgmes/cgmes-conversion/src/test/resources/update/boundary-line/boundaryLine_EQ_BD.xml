@@ -4,7 +4,7 @@
     <md:Model.created>2024-06-28T11:00:00Z</md:Model.created>
     <md:Model.scenarioTime>2024-06-28T11:00:00Z</md:Model.scenarioTime>
     <md:Model.version>1</md:Model.version>
-    <md:Model.description>All types of DanglingLines</md:Model.description>
+    <md:Model.description>All types of BoundaryLines</md:Model.description>
     <md:Model.profile>http://iec.ch/TC57/ns/CIM/EquipmentBoundary-EU/3.0</md:Model.profile>
     <md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
   </md:FullModel>

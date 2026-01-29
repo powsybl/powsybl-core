@@ -70,7 +70,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
         BoundaryLineCriterion empty = new BoundaryLineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
-                NetworkElementCriterionModuleTest::readDanglingLineCriteria,
+                NetworkElementCriterionModuleTest::readBoundaryLineCriteria,
                 "/criterion/dangling-line-criteria.json");
     }
 
@@ -154,7 +154,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
         return convert(readCriteria(jsonFile, new TypeReference<List<TieLineCriterion>>() { }));
     }
 
-    private static List<NetworkElementCriterion> readDanglingLineCriteria(Path jsonFile) {
+    private static List<NetworkElementCriterion> readBoundaryLineCriteria(Path jsonFile) {
         return convert(readCriteria(jsonFile, new TypeReference<List<BoundaryLineCriterion>>() { }));
     }
 

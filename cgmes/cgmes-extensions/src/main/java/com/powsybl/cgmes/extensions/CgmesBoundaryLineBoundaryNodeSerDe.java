@@ -18,9 +18,9 @@ import com.powsybl.iidm.network.BoundaryLine;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class CgmesDanglingLineBoundaryNodeSerDe extends AbstractExtensionSerDe<BoundaryLine, CgmesBoundaryLineBoundaryNode> {
+public class CgmesBoundaryLineBoundaryNodeSerDe extends AbstractExtensionSerDe<BoundaryLine, CgmesBoundaryLineBoundaryNode> {
 
-    public CgmesDanglingLineBoundaryNodeSerDe() {
+    public CgmesBoundaryLineBoundaryNodeSerDe() {
         super("cgmesDanglingLineBoundaryNode", "network", CgmesBoundaryLineBoundaryNode.class,
                 "cgmesDanglingLineBoundaryNode.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_dangling_line_boundary_node/1_0", "cdlbn");

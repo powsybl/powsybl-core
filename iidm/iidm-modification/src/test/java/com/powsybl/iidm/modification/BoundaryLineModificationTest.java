@@ -51,7 +51,7 @@ class BoundaryLineModificationTest {
     @Test
     void testGetName() {
         AbstractNetworkModification networkModification = new BoundaryLineModification("ID", 10., 10.);
-        assertEquals("DanglingLineModification", networkModification.getName());
+        assertEquals("BoundaryLineModification", networkModification.getName());
     }
 
     @Test

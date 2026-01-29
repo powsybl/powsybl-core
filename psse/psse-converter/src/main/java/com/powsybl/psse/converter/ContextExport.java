@@ -123,7 +123,7 @@ final class ContextExport {
             }
         }
 
-        void addDanglingLineBusI(BoundaryLine boundaryLine, int busI) {
+        void addBoundaryLineBusI(BoundaryLine boundaryLine, int busI) {
             this.danglingLineBusI.put(boundaryLine, busI);
         }
 

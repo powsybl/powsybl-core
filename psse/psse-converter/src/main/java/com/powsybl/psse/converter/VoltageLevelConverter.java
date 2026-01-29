@@ -264,7 +264,7 @@ class VoltageLevelConverter extends AbstractConverter {
     private static void createBusBranchContextExportForFullExport(VoltageLevel voltageLevel, ContextExport contextExport) {
         voltageLevel.getBusView().getBuses().forEach(bus -> contextExport.getFullExport().addBusIBusView(contextExport.getFullExport().getNewPsseBusI(), bus));
         voltageLevel.getBoundaryLineStream().filter(danglingLine -> !danglingLine.isPaired())
-                .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
+                .forEach(danglingLine -> contextExport.getFullExport().addBoundaryLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
     }
 
     private static void createBusBranchContextExportForUpdating(VoltageLevel voltageLevel, ContextExport contextExport) {
@@ -343,7 +343,7 @@ class VoltageLevelConverter extends AbstractConverter {
         });
 
         voltageLevel.getBoundaryLineStream().filter(danglingLine -> !danglingLine.isPaired())
-                .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
+                .forEach(danglingLine -> contextExport.getFullExport().addBoundaryLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
 
         // add isolated nodes, associated with terminals not previously considered
         Set<Integer> mergedSet = connectedSetsBySwitchesAndInternalConnections.stream().flatMap(Set::stream).collect(Collectors.toSet());

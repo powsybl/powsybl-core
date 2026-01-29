@@ -43,7 +43,7 @@ public class BoundaryLineModification extends AbstractLoadModification {
 
     @Override
     public String getName() {
-        return "DanglingLineModification";
+        return "BoundaryLineModification";
     }
 
     public String getBoundaryLineId() {
@@ -55,7 +55,7 @@ public class BoundaryLineModification extends AbstractLoadModification {
                       ReportNode reportNode) {
         BoundaryLine boundaryLine = network.getBoundaryLine(getBoundaryLineId());
         if (boundaryLine == null) {
-            logOrThrow(throwException, "DanglingLine '" + getBoundaryLineId() + "' not found");
+            logOrThrow(throwException, "BoundaryLine '" + getBoundaryLineId() + "' not found");
             return;
         }
         getP0().ifPresent(value -> boundaryLine.setP0((isRelativeValue() ? boundaryLine.getP0() : 0) + value));

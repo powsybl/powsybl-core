@@ -32,11 +32,11 @@ class BoundaryLineConverter extends AbstractConverter {
     static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         List<BoundaryLine> unPairedBoundaryLines = network.getBoundaryLineStream().filter(danglingLine -> !danglingLine.isPaired()).toList();
         if (!unPairedBoundaryLines.isEmpty()) {
-            createUnpairedDanglingLines(unPairedBoundaryLines, psseModel, contextExport, perUnitContext);
+            createUnpairedBoundaryLines(unPairedBoundaryLines, psseModel, contextExport, perUnitContext);
         }
     }
 
-    private static void createUnpairedDanglingLines(List<BoundaryLine> unPairedBoundaryLines, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+    private static void createUnpairedBoundaryLines(List<BoundaryLine> unPairedBoundaryLines, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         unPairedBoundaryLines.forEach(danglingLine -> {
             PsseBus psseBus = createBoundaryLineBus(danglingLine, contextExport);
             psseModel.addBuses(Collections.singletonList(psseBus));
