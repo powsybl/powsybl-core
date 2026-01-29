@@ -24,7 +24,7 @@ public class LineFortescueSerDe extends AbstractVersionableNetworkExtensionSerDe
 
     public enum Version implements SerDeVersion<Version> {
         V_1_0("/xsd/lineFortescue_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/line_fortescue/1_0",
-            new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_15),
+            new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_16),
         V_1_1("/xsd/lineFortescue_V1_1.xsd", "http://www.powsybl.org/schema/iidm/ext/line_fortescue/1_1",
             new VersionNumbers(1, 1), IidmVersion.V_1_0, null);
 
