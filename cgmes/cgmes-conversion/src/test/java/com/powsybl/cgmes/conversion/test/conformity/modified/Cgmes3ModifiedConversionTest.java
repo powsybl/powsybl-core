@@ -92,7 +92,7 @@ class Cgmes3ModifiedConversionTest {
         assertEquals(63.9583, networkBase.getBoundaryLine(line3Id).getQ0(), 1e-4);
 
         // We have prepared a modified case where lines 4 and 5 both connect to the same node
-        // p0, q0 is adjusted for connected dangling lines
+        // p0, q0 is adjusted for connected boundary lines
         // p0, q0 of the disconnected is not modified
         Network network3dls = Network.read(CgmesConformity3ModifiedCatalog.microGridBE3BoundaryLinesSameBoundary1Disconnected().dataSource(), importParams);
         assertEquals(nodeGY11, Conversion.getBoundaryLineBoundaryNode(network3dls.getBoundaryLine(line5Id)));

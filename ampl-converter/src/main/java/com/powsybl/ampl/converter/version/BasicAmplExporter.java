@@ -726,8 +726,8 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell(middleCcNum)
             .addCell(v)
             .addCell(theta)
-            .addCell(0.0) // 0 MW injected at dangling line internal bus
-            .addCell(0.0) // 0 MVar injected at dangling line internal bus
+            .addCell(0.0) // 0 MW injected at boundary line internal bus
+            .addCell(0.0) // 0 MVar injected at boundary line internal bus
             .addCell(faultNum)
             .addCell(actionNum)
             .addCell(middleBusId);
@@ -887,7 +887,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             int xNodeVoltageLevelNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, xnodeVoltageLevelId);
 
             if (bus1Num == xNodeBusNum || bus2Num == xNodeBusNum) {
-                LOGGER.warn("Skipping tie line '{}': one of the dangling line has its bus as a pairing key.", id);
+                LOGGER.warn("Skipping tie line '{}': one of the boundary line has its bus as a pairing key.", id);
                 return;
             }
 
@@ -1001,7 +1001,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double patl = getPermanentLimit(dl.getCurrentLimits().orElse(null));
 
         if (busNum == middleBusNum) { // Not sure if this condition might occur
-            LOGGER.warn("Skipping dangling line '{}': the pairing key refers to its bus.", id);
+            LOGGER.warn("Skipping boundary line '{}': the pairing key refers to its bus.", id);
             return;
         }
 

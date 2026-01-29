@@ -127,7 +127,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context) && isClosed, context);
     }
 
-    // In the danglingLines, the status of the terminal on the boundary side cannot be explicitly represented.
+    // In the boundaryLines, the status of the terminal on the boundary side cannot be explicitly represented.
     // Instead, it is implicitly indicated by setting both active and reactive power to zero.
     // Then, we assume that the previous value is always false
     private static boolean defaultOpen(BoundaryLine boundaryLine, Context context) {

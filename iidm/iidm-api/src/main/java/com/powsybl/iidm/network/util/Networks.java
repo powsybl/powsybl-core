@@ -454,8 +454,8 @@ public final class Networks {
     /**
      * This method replaces the "input" values used for load flow calculation by their solved values returned by the
      * load flow calculation. This includes the tap position of tap changers, the section count of shunt compensators,
-     * the active and reactive power flow on generators, batteries, loads and on the generation part of a dangling line
-     * and the voltage on generators and dangling lines.
+     * the active and reactive power flow on generators, batteries, loads and on the generation part of a boundary line
+     * and the voltage on generators and boundary lines.
      */
     public static void applySolvedValues(Network network) {
         network.getTwoWindingsTransformerStream().forEach(TwoWindingsTransformer::applySolvedValues);

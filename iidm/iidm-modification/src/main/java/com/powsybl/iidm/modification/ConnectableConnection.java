@@ -26,7 +26,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.connectable
  * <ul>
  *     <li>Connectables by connecting their terminals</li>
  *     <li>HVDC lines by connecting the terminals of their converter stations</li>
- *     <li>Tie lines by connecting the terminals of their underlying dangling lines</li>
+ *     <li>Tie lines by connecting the terminals of their underlying boundary lines</li>
  * </ul>
  * <p>The user can specify a side of the element to connect. If no side is specified, the network modification will
  * try to connect every side.</p>

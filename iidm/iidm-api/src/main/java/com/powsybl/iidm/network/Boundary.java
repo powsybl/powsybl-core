@@ -38,7 +38,7 @@ public interface Boundary {
     double getI();
 
     /**
-     * Get the danglingLine the boundary is associated to.
+     * Get the boundaryLine the boundary is associated to.
      */
     BoundaryLine getBoundaryLine();
 

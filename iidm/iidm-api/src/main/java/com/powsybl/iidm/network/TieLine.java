@@ -13,8 +13,8 @@ import java.util.function.Predicate;
  * A tie line is an AC line sharing power between two neighbouring regional grids. It is constituted of two {@link BoundaryLine}
  * <p>
  * The tie line is always oriented in the same way, <br>
- * The network model node of the danglingLine1 is always at end 1. <br>
- * The network model node of the danglingLine2 is always at end 2. <br>
+ * The network model node of the boundaryLine1 is always at end 1. <br>
+ * The network model node of the boundaryLine2 is always at end 2. <br>
  * </p>
  * As there is no injection at the boundary node, by applying kron reduction, this node can be
  * removed getting an equivalent branch between both network model nodes.
@@ -100,22 +100,22 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     String getPairingKey();
 
     /**
-     * Get first dangling line of this tie line
+     * Get first boundary line of this tie line
      */
     BoundaryLine getBoundaryLine1();
 
     /**
-     * Get second dangling line of this tie line
+     * Get second boundary line of this tie line
      */
     BoundaryLine getBoundaryLine2();
 
     /**
-     * Get the dangling line of this tie line corresponding to the given side
+     * Get the boundary line of this tie line corresponding to the given side
      */
     BoundaryLine getBoundaryLine(TwoSides side);
 
     /**
-     * Get the dangling line of this tie line corresponding to the given voltage level
+     * Get the boundary line of this tie line corresponding to the given voltage level
      */
     BoundaryLine getBoundaryLine(String voltageLevelId);
 
@@ -127,7 +127,7 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     void remove();
 
     /**
-     * Remove the tie line with an update of underlying dangling lines to reflect the tie line flows.
+     * Remove the tie line with an update of underlying boundary lines to reflect the tie line flows.
      */
     void remove(boolean updateBoundaryLines);
 

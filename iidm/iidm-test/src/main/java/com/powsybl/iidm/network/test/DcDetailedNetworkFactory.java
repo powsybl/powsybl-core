@@ -71,7 +71,7 @@ public final class DcDetailedNetworkFactory {
     }
 
     /**
-     * Creates a simple one bus AC (sub)network with dangling lines.
+     * Creates a simple one bus AC (sub)network with boundary lines.
      * <br/>
      * Example with FR and one xNode where FR exports 200 MW:
      * <pre>

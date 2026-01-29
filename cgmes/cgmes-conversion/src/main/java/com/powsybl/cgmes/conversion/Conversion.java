@@ -306,8 +306,8 @@ public class Conversion {
             removeProperties(t3w.getLeg3().getOperationalLimitsGroups());
         });
 
-        network.getBoundaryLines().forEach(danglingLine ->
-                removeProperties(danglingLine.getOperationalLimitsGroups()));
+        network.getBoundaryLines().forEach(boundaryLine ->
+                removeProperties(boundaryLine.getOperationalLimitsGroups()));
     }
 
     private static void removeProperties(Collection<OperationalLimitsGroup> operationalLimitsGroupCollection) {
@@ -367,7 +367,7 @@ public class Conversion {
         }
 
         updateBoundaryLines(network, updateContext);
-        // Fix dangling lines issues
+        // Fix boundary lines issues
         updateContext.pushReportNode(CgmesReports.fixingBoundaryLinesIssuesReport(reportNode));
         handleDangingLineDisconnectedAtBoundary(network, updateContext);
         adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(network, updateContext);
@@ -391,7 +391,7 @@ public class Conversion {
 
     /**
      * Retrieve the Collection of OperationalLimitGroups for identifiable that have flow limits
-     * (branch, dangling line, 3w-transformer).
+     * (branch, boundary line, 3w-transformer).
      * If the collection has only one element, it gets to be the identifiable's selectedGroup.
      * If there is more than one element in the collection, don't set any as selected.
      * @param context The conversion's Context.
@@ -433,7 +433,7 @@ public class Conversion {
             for (BoundaryLine dl : network.getBoundaryLines()) {
                 if (!isBoundaryTerminalConnected(dl, context) && dl.getTerminal().isConnected()) {
                     LOG.warn("BoundaryLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                    CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
+                    CgmesReports.boundaryLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
                     dl.getTerminal().disconnect();
                 }
             }
@@ -445,22 +445,22 @@ public class Conversion {
                 .filter(dl -> dl.getTerminal().isConnected())
                 .collect(groupingBy(Conversion::getBoundaryLineBoundaryNode))
                 .values().stream()
-                // Only perform adjustment for the groups with more than one connected dangling line
+                // Only perform adjustment for the groups with more than one connected boundary line
                 .filter(dls -> dls.size() > 1)
                 .forEach(dls -> adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(dls, context));
     }
 
     private void adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(List<BoundaryLine> dls, Context context) {
-        // All dangling lines will have same value for p0, q0. Take it from the first one
+        // All boundary lines will have same value for p0, q0. Take it from the first one
         double p0 = dls.get(0).getP0();
         double q0 = dls.get(0).getQ0();
-        // Divide this value between all connected dangling lines
-        // This method is called only if there is more than 1 connected dangling line
+        // Divide this value between all connected boundary lines
+        // This method is called only if there is more than 1 connected boundary line
         long count = dls.size();
         final double p0Adjusted = p0 / count;
         final double q0Adjusted = q0 / count;
         dls.forEach(dl -> {
-            LOG.warn("Multiple unpaired BoundaryLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for dangling line {}.", p0, q0, p0Adjusted, q0Adjusted, dl.getId());
+            LOG.warn("Multiple unpaired BoundaryLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for boundary line {}.", p0, q0, p0Adjusted, q0Adjusted, dl.getId());
             CgmesReports.multipleUnpairedBoundaryLinesAtSameBoundaryReport(context.getReportNode(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
             dl.setP0(p0Adjusted);
             dl.setQ0(q0Adjusted);
@@ -791,10 +791,10 @@ public class Conversion {
     }
 
     // Supported conversions:
-    // Only one Line (--> create dangling line)
-    // Only one Switch (--> create dangling line with z0)
-    // Only one Transformer (--> create dangling line)
-    // Only one EquivalentBranch (--> create dangling line)
+    // Only one Line (--> create boundary line)
+    // Only one Switch (--> create boundary line with z0)
+    // Only one Transformer (--> create boundary line)
+    // Only one EquivalentBranch (--> create boundary line)
     // Any combination of Line, Switch, Transformer and EquivalentBranch
 
     private void convertEquipmentAtBoundaryNode(Context context, String node) {
@@ -812,10 +812,10 @@ public class Conversion {
             convertTwoEquipmentsAtBoundaryNode(context, node, beqs.get(0), beqs.get(1));
         } else {
             // In some TYNDPs, there are three or more AcLineSegments at the boundary node, but only two are connected.
-            // Here, a danglingLine is created for each segment, and later, in the method
+            // Here, a boundaryLine is created for each segment, and later, in the method
             // createTieLinesWhenThereAreMoreThanTwoBoundaryLinesAtBoundaryNodeDuringUpdate,
-            // a tieLine is created using only the two connected danglingLines
-            context.fixed(node, "More than two AcLineSegments at boundary: only dangling lines are created." +
+            // a tieLine is created using only the two connected boundaryLines
+            context.fixed(node, "More than two AcLineSegments at boundary: only boundary lines are created." +
                     " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
             beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
         }

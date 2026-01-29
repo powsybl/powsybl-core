@@ -122,11 +122,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     /**
-     * Create the LoadingLimitsAdder for the given dangling line and the given limit set + subclass.
+     * Create the LoadingLimitsAdder for the given boundary line and the given limit set + subclass.
      * @param limitSubclass The subclass of the OperationalLimit.
      * @param limitSetId The set containing the OperationalLimit.
      * @param limitSetName The name of the set containing the OperationalLimit.
-     * @param dl The dangling line to which the OperationalLimit applies.
+     * @param dl The boundary line to which the OperationalLimit applies.
      */
     private void createLimitsAdder(String limitSubclass, String limitSetId, String limitSetName, BoundaryLine dl) {
         OperationalLimitsGroup limitsGroup = dl.getOperationalLimitsGroup(limitSetId).orElseGet(() -> {

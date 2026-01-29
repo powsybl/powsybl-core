@@ -36,7 +36,7 @@ public final class TieLineConversion {
         Optional<BoundaryLine> dl2 = conversion2.getBoundaryLine();
 
         if (dl1.isPresent() && dl2.isPresent()) {
-            // there can be several dangling lines linked to same x-node in one IGM for planning purposes
+            // there can be several boundary lines linked to same x-node in one IGM for planning purposes
             // in this case, we don't merge them
             // please note that only one of them should be connected
             String regionName1 = obtainRegionName(dl1.get().getTerminal().getVoltageLevel());
@@ -46,9 +46,9 @@ public final class TieLineConversion {
             String pairingKey2 = dl2.get().getPairingKey();
 
             if (!(pairingKey1 != null && pairingKey1.equals(pairingKey2))) {
-                context.ignored(node, "Both dangling lines do not have the same pairingKey: we do not consider them as a merged line");
+                context.ignored(node, "Both boundary lines do not have the same pairingKey: we do not consider them as a merged line");
             } else if (regionName1 != null && regionName1.equals(regionName2)) {
-                context.ignored(node, "Both dangling lines are in the same region: we do not consider them as a merged line");
+                context.ignored(node, "Both boundary lines are in the same region: we do not consider them as a merged line");
             } else if (dl2.get().getId().compareTo(dl1.get().getId()) >= 0) {
                 convertToTieLine(context, dl1.get(), dl2.get());
             } else {
@@ -72,11 +72,11 @@ public final class TieLineConversion {
 
     public static void createDuringUpdate(Network network, Context context) {
         network.getBoundaryLineStream()
-                .filter(danglingLine -> !danglingLine.isPaired())
+                .filter(boundaryLine -> !boundaryLine.isPaired())
                 .collect(Collectors.groupingBy(BoundaryLine::getPairingKey))
-                .values().forEach(danglingLinesList -> {
-                    List<BoundaryLine> connectedBoundaryLines = danglingLinesList.stream()
-                            .filter(danglingLine -> isConnected(danglingLine, context))
+                .values().forEach(boundaryLinesList -> {
+                    List<BoundaryLine> connectedBoundaryLines = boundaryLinesList.stream()
+                            .filter(boundaryLine -> isConnected(boundaryLine, context))
                             .sorted(Comparator.comparing(Identifiable::getId)).toList();
 
                     if (connectedBoundaryLines.size() == 2 && !isSameRegion(connectedBoundaryLines.get(0), connectedBoundaryLines.get(1))) {
@@ -86,7 +86,7 @@ public final class TieLineConversion {
     }
 
     // We use the raw terminal connected attribute received in CGMES because in nodeBreaker models,
-    // depending on the configuration, this information is not reflected in the terminal status of the danglingLine
+    // depending on the configuration, this information is not reflected in the terminal status of the boundaryLine
     private static boolean isConnected(BoundaryLine boundaryLine, Context context) {
         return boundaryLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1)
                 .map(context::cgmesTerminal)

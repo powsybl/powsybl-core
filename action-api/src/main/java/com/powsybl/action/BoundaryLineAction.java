@@ -25,22 +25,22 @@ public class BoundaryLineAction extends AbstractLoadAction {
 
     public static final String NAME = "DANGLING_LINE";
 
-    private final String danglingLineId;
+    private final String boundaryLineId;
 
     /**
      * @param id                 the id of the action.
-     * @param danglingLineId     the id of the dangling line on which the action would be applied.
-     * @param relativeValue      True if the dangling line P0 and/or Q0 variation is relative, False if absolute.
-     * @param activePowerValue   The new dangling line P0 (MW) if relativeValue equals False, otherwise the relative variation of dangling line P0 (MW).
-     * @param reactivePowerValue The new dangling line Q0 (MVar) if relativeValue equals False, otherwise the relative variation of dangling line Q0 (MVar).
+     * @param boundaryLineId     the id of the boundary line on which the action would be applied.
+     * @param relativeValue      True if the boundary line P0 and/or Q0 variation is relative, False if absolute.
+     * @param activePowerValue   The new boundary line P0 (MW) if relativeValue equals False, otherwise the relative variation of boundary line P0 (MW).
+     * @param reactivePowerValue The new boundary line Q0 (MVar) if relativeValue equals False, otherwise the relative variation of boundary line Q0 (MVar).
      */
-    BoundaryLineAction(String id, String danglingLineId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
+    BoundaryLineAction(String id, String boundaryLineId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
         super(id, relativeValue, activePowerValue, reactivePowerValue);
-        this.danglingLineId = Objects.requireNonNull(danglingLineId);
+        this.boundaryLineId = Objects.requireNonNull(boundaryLineId);
     }
 
     public String getBoundaryLineId() {
-        return danglingLineId;
+        return boundaryLineId;
     }
 
     @Override
@@ -70,11 +70,11 @@ public class BoundaryLineAction extends AbstractLoadAction {
             return false;
         }
         BoundaryLineAction that = (BoundaryLineAction) o;
-        return Objects.equals(danglingLineId, that.danglingLineId);
+        return Objects.equals(boundaryLineId, that.boundaryLineId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), danglingLineId);
+        return Objects.hash(super.hashCode(), boundaryLineId);
     }
 }

@@ -18,27 +18,27 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
- * Simple {@link NetworkModification} for a dangling line.
+ * Simple {@link NetworkModification} for a boundary line.
  *
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
 public class BoundaryLineModification extends AbstractLoadModification {
 
-    private final String danglingLineId;
+    private final String boundaryLineId;
 
     /**
-     * @param danglingLineId    the id of the dangling line on which the action would be applied.
-     * @param relativeValue True if the dangling line P0 and/or Q0 variation is relative, False if absolute.
-     * @param p0                The new dangling line P0 (MW) if relativeValue equals False, otherwise the relative variation of dangling line P0 (MW).
-     * @param q0                The new dangling line Q0 (MVar) if relativeValue equals False, otherwise the relative variation of dangling line Q0 (MVar).
+     * @param boundaryLineId    the id of the boundary line on which the action would be applied.
+     * @param relativeValue True if the boundary line P0 and/or Q0 variation is relative, False if absolute.
+     * @param p0                The new boundary line P0 (MW) if relativeValue equals False, otherwise the relative variation of boundary line P0 (MW).
+     * @param q0                The new boundary line Q0 (MVar) if relativeValue equals False, otherwise the relative variation of boundary line Q0 (MVar).
      */
-    public BoundaryLineModification(String danglingLineId, boolean relativeValue, Double p0, Double q0) {
+    public BoundaryLineModification(String boundaryLineId, boolean relativeValue, Double p0, Double q0) {
         super(p0, q0, relativeValue);
-        this.danglingLineId = Objects.requireNonNull(danglingLineId);
+        this.boundaryLineId = Objects.requireNonNull(boundaryLineId);
     }
 
-    public BoundaryLineModification(String danglingLineId, Double targetP0, Double targetQ0) {
-        this(danglingLineId, false, targetP0, targetQ0);
+    public BoundaryLineModification(String boundaryLineId, Double targetP0, Double targetQ0) {
+        this(boundaryLineId, false, targetP0, targetQ0);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class BoundaryLineModification extends AbstractLoadModification {
     }
 
     public String getBoundaryLineId() {
-        return danglingLineId;
+        return boundaryLineId;
     }
 
     @Override

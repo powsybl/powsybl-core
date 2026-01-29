@@ -68,7 +68,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     @Override
     public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
         // This is a hack to save in the naming strategy an identifier for something comes as an alias of an identifiable
-        // Equivalent injections of dangling lines
+        // Equivalent injections of boundary lines
         // Transformer ends of power transformers
         // Tap changers of power transformers
         String id;

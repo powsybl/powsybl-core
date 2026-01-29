@@ -100,7 +100,7 @@ public class BoundaryLineData {
     }
 
     public static boolean zeroImpedance(BoundaryLine parent) {
-        // Simple way to deal with zero impedance dangling line.
+        // Simple way to deal with zero impedance boundary line.
         return parent.getR() == 0.0 && parent.getX() == 0.0;
     }
 }

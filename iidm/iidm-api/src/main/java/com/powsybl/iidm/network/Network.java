@@ -1028,38 +1028,38 @@ public interface Network extends Container<Network> {
     ShuntCompensator getShuntCompensator(String id);
 
     /**
-     * Get all dangling lines corresponding to given filter.
+     * Get all boundary lines corresponding to given filter.
      */
     Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get all dangling lines.
+     * Get all boundary lines.
      */
     default Iterable<BoundaryLine> getBoundaryLines() {
         return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get the dangling lines corresponding to given filter.
+     * Get the boundary lines corresponding to given filter.
      */
     Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get all the dangling lines.
+     * Get all the boundary lines.
      */
     default Stream<BoundaryLine> getBoundaryLineStream() {
         return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get the dangling line count.
+     * Get the boundary line count.
      */
     int getBoundaryLineCount();
 
     /**
-     * Get a dangling line.
+     * Get a boundary line.
      *
-     * @param id the id or an alias of the dangling line
+     * @param id the id or an alias of the boundary line
      */
     BoundaryLine getBoundaryLine(String id);
 

@@ -332,7 +332,7 @@ public abstract class AbstractAreaTest {
 
     @Test
     public void testWithDc() {
-        // remove entirely control area B, set one dangling line AC, the other one DC
+        // remove entirely control area B, set one boundary line AC, the other one DC
         controlAreaB.remove();
         regionAB.remove();
         tieLine1.remove();

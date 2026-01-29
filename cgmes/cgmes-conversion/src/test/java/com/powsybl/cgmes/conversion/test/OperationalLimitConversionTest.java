@@ -123,7 +123,7 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         Network network = readCgmesResources(DIR, "limitsets_associated_to_terminals_EQ.xml",
                 "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
-        // OperationalLimitSet on dangling line terminal is imported smoothly.
+        // OperationalLimitSet on boundary line terminal is imported smoothly.
         assertNotNull(network.getBoundaryLine("DL"));
         assertTrue(network.getBoundaryLine("DL").getCurrentLimits().isPresent());
 
@@ -156,7 +156,7 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         Network network = readCgmesResources(DIR, "limitsets_associated_to_equipments_EQ.xml",
                 "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
-        // OperationalLimitSet on dangling line is imported on its single extremity.
+        // OperationalLimitSet on boundary line is imported on its single extremity.
         assertNotNull(network.getBoundaryLine("DL"));
         assertTrue(network.getBoundaryLine("DL").getCurrentLimits().isPresent());
 

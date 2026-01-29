@@ -113,7 +113,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(parameters);
 
         if (parameters.getIgnoredInjectionIds().contains(id)) {
-            LOGGER.info("Scaling parameters' injections to be ignored contains dangling line {}, discarded from scaling", id);
+            LOGGER.info("Scaling parameters' injections to be ignored contains boundary line {}, discarded from scaling", id);
             return 0;
         }
 

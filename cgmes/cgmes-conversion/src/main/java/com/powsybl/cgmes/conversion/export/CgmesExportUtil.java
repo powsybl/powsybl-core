@@ -453,7 +453,7 @@ public final class CgmesExportUtil {
     public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
         Connectable<?> c = t.getConnectable();
-        // For dangling lines terminal id is always stored at TERMINAL1 alias,
+        // For boundary lines terminal id is always stored at TERMINAL1 alias,
         // it doesn't matter if it is paired or not
         if (c instanceof BoundaryLine) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;

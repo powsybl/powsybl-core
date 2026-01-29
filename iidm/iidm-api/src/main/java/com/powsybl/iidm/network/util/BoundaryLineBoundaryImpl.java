@@ -18,7 +18,7 @@ import static com.powsybl.iidm.network.util.BoundaryLineData.zeroImpedance;
  */
 public class BoundaryLineBoundaryImpl implements Boundary {
     // Notes about SV utility class usage here:
-    // - side represents the network side, which is always Side.ONE for a dangling line.
+    // - side represents the network side, which is always Side.ONE for a boundary line.
     // - BoundaryLine model has shunt admittance on network side only, hence splitShuntAdmittance argument in SV methods must be set to false.
 
     private final BoundaryLine parent;
@@ -123,8 +123,8 @@ public class BoundaryLineBoundaryImpl implements Boundary {
     }
 
     private static boolean useHypothesis(BoundaryLine parent) {
-        // We prefer to use P0 and Q0 if the dangling line is not paired and P0 and Q0 are valid, but we cannot retrieve
-        // P, Q, angle and voltage at boundary if the dangling line has a generation part: a previous global load flow
+        // We prefer to use P0 and Q0 if the boundary line is not paired and P0 and Q0 are valid, but we cannot retrieve
+        // P, Q, angle and voltage at boundary if the boundary line has a generation part: a previous global load flow
         // run is needed, especially if the generation is regulating voltage.
         // This could be improved later.
         return !parent.isPaired() && valid(parent.getP0(), parent.getQ0()) && parent.getGeneration() == null;

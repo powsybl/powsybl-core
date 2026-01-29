@@ -172,7 +172,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        // One equivalent injection for every dangling line
+        // One equivalent injection for every boundary line
         List<String> exported = new ArrayList<>();
 
         for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {

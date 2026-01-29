@@ -237,7 +237,7 @@ class CgmesExportTest {
 
     @Test
     void testFromIidmBusBranch() throws IOException {
-        // If we want to export an IIDM that contains dangling lines,
+        // If we want to export an IIDM that contains boundary lines,
         // we will have to rely on some external boundaries definition
 
         Network network = BoundaryLineNetworkFactory.create();
@@ -246,7 +246,7 @@ class CgmesExportTest {
         Battery battery = merged.getBattery("BAT");
 
         // Before exporting, we have to define to which point
-        // in the external boundary definition we want to associate this dangling line
+        // in the external boundary definition we want to associate this boundary line
         // For this test we chose the Conformity MicroGrid BaseCase
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         String boundaryTN = "d4affe50316740bdbbf4ae9c7cbf3cfd";
@@ -284,7 +284,7 @@ class CgmesExportTest {
 
     @Test
     void testFromIidmBoundaryLineBusBranchNotBoundary() throws IOException {
-        // If we want to export an IIDM that contains dangling lines,
+        // If we want to export an IIDM that contains boundary lines,
         // we will have to rely on some external boundaries definition
         // If we do not provide this information,
         // we will re-import it as a regular line
@@ -300,7 +300,7 @@ class CgmesExportTest {
             Line actual = networkFromCgmes.getLine("DL");
             assertNotNull(actual);
             checkBoundaryLineParams(expected, actual);
-            // The dangling line was exported as an ACLS plus an equivalent injection.
+            // The boundary line was exported as an ACLS plus an equivalent injection.
             // Equivalent injections inside an IGM are mapped to generators,
             // So we have to check that there is a generator at side 2 (boundary) of the line
             checkBoundaryLineEquivalentInjection(expected, actual);
@@ -310,14 +310,14 @@ class CgmesExportTest {
 
     @Test
     void testFromIidmBoundaryLineNodeBreaker() throws IOException {
-        // If we want to export an IIDM that contains dangling lines,
+        // If we want to export an IIDM that contains boundary lines,
         // we will have to rely on some external boundaries definition
 
         Network network = BoundaryLineNetworkFactory.create();
         BoundaryLine expected = network.getBoundaryLine("DL");
 
         // Before exporting, we have to define to which point
-        // in the external boundary definition we want to associate this dangling line
+        // in the external boundary definition we want to associate this boundary line
         // For this test we chose the Conformity MicroGrid BaseCase
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         String boundaryCN = "b675a570-cb6e-11e1-bcee-406c8f32ef58";
@@ -348,11 +348,11 @@ class CgmesExportTest {
 
     @Test
     void testFromIidmBoundaryLineNodeBreakerNoBoundaries() throws IOException {
-        // If we want to export an IIDM that contains dangling lines,
+        // If we want to export an IIDM that contains boundary lines,
         // we will have to rely on some external boundaries definition
         // If we do not add boundary information
-        // a node in the same voltage level of the dangling line will be created
-        // and the re-imported network will not see it as a dangling line,
+        // a node in the same voltage level of the boundary line will be created
+        // and the re-imported network will not see it as a boundary line,
         // but as a regular transmission line
 
         Network network = BoundaryLineNetworkFactory.create();

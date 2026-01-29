@@ -5,7 +5,7 @@ This module is used to extract a portion of a network on an area of interest def
 ## Define an area of interest
 
 The network reduction is relying on a `NetworkPredicate` instance, to define an area of interest (i.e., a list of equipments to keep in the network after the reduction). 
-The equipments outside this area are removed, and the lines, transformers and HVDC lines connecting voltage levels inside and outside this area will be replaced by injections (loads or dangling lines, depending on the implementation).
+The equipments outside this area are removed, and the lines, transformers and HVDC lines connecting voltage levels inside and outside this area will be replaced by injections (loads or boundary lines, depending on the implementation).
 
 
 Before doing the reduction, one has to define the area of interest, using the `com.powsybl.iidm.reducer.NetworkPredicate` interface. This interface declares two methods:
@@ -94,7 +94,7 @@ PowSyBl provides a default implementation of this interface, but you can provide
 
 The `com.powsybl.iidm.reducer.DefaultNetworkReducer` class is the PowSyBl implementation of the `NetworkReducer` interface.
 
-It replaces the lines in the _border_ group by [loads](../grid_model/network_subnetwork.md#load) or [dangling lines](../grid_model/network_subnetwork.md#dangling-line) depending on the [options](#options), the two-winding transformers and the HVDC lines by [loads](../grid_model/network_subnetwork.md#load).
+It replaces the lines in the _border_ group by [loads](../grid_model/network_subnetwork.md#load) or [boundary lines](../grid_model/network_subnetwork.md#boundary-line) depending on the [options](#options), the two-winding transformers and the HVDC lines by [loads](../grid_model/network_subnetwork.md#load).
 
 The three-winding transformers are replaced by a [load](../grid_model/network_subnetwork.md#load) if only one connected voltage level is kept. If two out of three connected voltage levels are kept, the third one is automatically added by the `DefaultNetworkReducer` to the voltage levels to keep.
 
@@ -108,9 +108,9 @@ If the branch is disconnected, $P_0$ and $Q_0$ are set to `NaN`.
 The connectivity information (node or bus depending on the voltage level topology) is kept.
 However, the operational limits and extensions from the original branch are not retained.
 
-##### Replacements by dangling lines
+##### Replacements by boundary lines
 
-The dangling line created in place of a line has the same ID and name as the replaced line. The resistance and reactance of the dangling line are equals to half of the resistance and reactance of the replaced line (we consider that the line is cut in the middle). 
+The boundary line created in place of a line has the same ID and name as the replaced line. The resistance and reactance of the boundary line are equals to half of the resistance and reactance of the replaced line (we consider that the line is cut in the middle). 
 The conductance and susceptance are set to the $G_1$ and $B_1$ or to $G_2$ and $B_2$, depending on which side is kept in the network. 
 
 The $P_0$ and $Q_0$ are set to the $P$ and $Q$ of the corresponding terminal, depending on which side is kept in the network. If the line is disconnected, $P_0$ and $Q_0$ are set to `NaN`. 
@@ -123,11 +123,11 @@ The network reduction can be configured by passing a `com.powsybl.iidm.reducer.R
 
 ##### withBoundaryLines
 
-This option defines whether the equipments in the _border_ group are replaced by dangling lines or by loads. If this option is set to `false`, which is the default value, the equipments are exclusively replaced by loads.
+This option defines whether the equipments in the _border_ group are replaced by boundary lines or by loads. If this option is set to `false`, which is the default value, the equipments are exclusively replaced by loads.
 
 ##### Examples
 
-The following example shows how to create a new `ReductionOptions` instance to do replacements by dangling lines.
+The following example shows how to create a new `ReductionOptions` instance to do replacements by boundary lines.
 ```java
 ReductionOptions options = new ReductionOptions();
 options.withBoundaryLines(true);

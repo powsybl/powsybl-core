@@ -23,11 +23,11 @@ import org.apache.commons.math3.complex.ComplexUtils;
 public class SV {
 
     /**
-     * In this class, lines, two windings transformers and dangling lines can be considered as equivalent branches.
+     * In this class, lines, two windings transformers and boundary lines can be considered as equivalent branches.
      * <p><div>
      * <object data="doc-files/SV.svg" type="image/svg+xml">
      * </object> </div>
-     * For dangling lines, side ONE is always on network's side and side TWO is always on boundary's side. <br>
+     * For boundary lines, side ONE is always on network's side and side TWO is always on boundary's side. <br>
      * @param p active power flow on the side of the branch we consider.
      * @param q reactive power flow on the side of the branch we consider
      * @param u voltage on the side of the branch we consider.

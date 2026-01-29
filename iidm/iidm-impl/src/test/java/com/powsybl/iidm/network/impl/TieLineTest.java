@@ -609,8 +609,8 @@ class TieLineTest {
     }
 
     // We define an error by value to adjust the case. The error is calculated by difference between
-    // the calculated value with both models, the initial model of the case and the current model of the danglingLine
-    // Errors are due to the danglingLine model (it does not allow shunt admittance at both ends)
+    // the calculated value with both models, the initial model of the case and the current model of the boundaryLine
+    // Errors are due to the boundaryLine model (it does not allow shunt admittance at both ends)
     private static boolean compare(SV sv, NodeSv nodeSv, LineSv lineSv, TwoSides boundarySide, SV initialModelSv) {
         double tol = 0.00001;
         double errorP = initialModelSv.getP() - sv.getP();
@@ -633,8 +633,8 @@ class TieLineTest {
     }
 
     // We define an error to adjust the case. The error is calculated by difference between
-    // the calculated value with both models, the initial model of the case and the current model of the danglingLine
-    // Errors are due to the danglingLine model (it does not allow shunt admittance at both ends)
+    // the calculated value with both models, the initial model of the case and the current model of the boundaryLine
+    // Errors are due to the boundaryLine model (it does not allow shunt admittance at both ends)
     private static boolean compare(double expected, double actual, double initialActual) {
         double tol = 0.00001;
         double error = initialActual - actual;

@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 /**
- * A dangling line to model boundaries (X nodes).
- * <p>A dangling line is a component that aggregates a line chunk and a constant
+ * A boundary line to model boundaries (X nodes).
+ * <p>A boundary line is a component that aggregates a line chunk and a constant
  * power injection (fixed p0, q0).
  * <div>
- *    <object data="doc-files/danglingLine.svg" type="image/svg+xml"></object>
+ *    <object data="doc-files/boundaryLine.svg" type="image/svg+xml"></object>
  * </div>
  *
  * <p>
@@ -42,7 +42,7 @@ import java.util.Optional;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">Unique identifier of the dangling line</td>
+ *             <td style="border: 1px solid black">Unique identifier of the boundary line</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">Name</td>
@@ -50,7 +50,7 @@ import java.util.Optional;
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">Human-readable name of the dangling line</td>
+ *             <td style="border: 1px solid black">Human-readable name of the boundary line</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">P0</td>
@@ -106,12 +106,12 @@ import java.util.Optional;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">no</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The dangling line's pairing key</td>
+ *             <td style="border: 1px solid black">The boundary line's pairing key</td>
  *         </tr>
  *     </tbody>
  * </table>
  *
- * <p>To create a dangling line, see {@link BoundaryLineAdder}
+ * <p>To create a boundary line, see {@link BoundaryLineAdder}
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
@@ -275,13 +275,13 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
     }
 
     /**
-     * Get the pairing key corresponding to this dangling line in the case
+     * Get the pairing key corresponding to this boundary line in the case
      * where the line is a boundary, return null otherwise.
      */
     String getPairingKey();
 
     /**
-     * Set a pairing key corresponding to this dangling line only if the dangling line is not paired,
+     * Set a pairing key corresponding to this boundary line only if the boundary line is not paired,
      * throw exception otherwise.
      */
     BoundaryLine setPairingKey(String pairingKey);

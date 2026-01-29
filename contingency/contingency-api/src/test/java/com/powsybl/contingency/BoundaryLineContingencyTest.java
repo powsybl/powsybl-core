@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class BoundaryLineContingencyTest {
     @Test
     void test() {
-        Contingency contingency = Contingency.danglingLine("id");
+        Contingency contingency = Contingency.boundaryLine("id");
         assertEquals("id", contingency.getId());
         assertEquals(1, contingency.getElements().size());
 
@@ -44,7 +44,7 @@ class BoundaryLineContingencyTest {
     @Test
     void test2() {
         Network network = BoundaryLineNetworkFactory.create();
-        ContingencyList contingencyList = ContingencyList.of(Contingency.danglingLine("DL"), Contingency.danglingLine("unknown"));
+        ContingencyList contingencyList = ContingencyList.of(Contingency.boundaryLine("DL"), Contingency.boundaryLine("unknown"));
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
 

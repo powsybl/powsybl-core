@@ -46,18 +46,18 @@ class CgmesConformity3ConversionTest {
         assertNotEquals("unknown", nl.getId());
         int nSubNL = nl.getSubstationCount();
         int nDlNL = nl.getBoundaryLineCount();
-        // Both networks have the same number of dangling lines
+        // Both networks have the same number of boundary lines
         assertEquals(nDlBE, nDlNL);
 
         Network merge = Network.merge(be, nl);
         int nSub = merge.getSubstationCount();
         assertEquals(nSubBE + nSubNL, nSub);
         long nTl = merge.getTieLineCount();
-        // All dangling lines must have been converted to tie lines
+        // All boundary lines must have been converted to tie lines
         assertEquals(nDlBE, nTl);
 
         for (TieLine tl : merge.getTieLines()) {
-            // The danglingLine1 and danglingLine1.boundary.dl must be the same object
+            // The boundaryLine1 and boundaryLine1.boundary.dl must be the same object
             // Both should correspond to objects at my level of merging
             assertEquals(tl.getBoundaryLine1(), tl.getBoundaryLine1().getBoundary().getBoundaryLine());
             assertEquals(tl.getBoundaryLine2(), tl.getBoundaryLine2().getBoundary().getBoundaryLine());

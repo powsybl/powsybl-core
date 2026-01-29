@@ -30,19 +30,19 @@ class BoundaryLineConverter extends AbstractConverter {
     }
 
     static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        List<BoundaryLine> unPairedBoundaryLines = network.getBoundaryLineStream().filter(danglingLine -> !danglingLine.isPaired()).toList();
+        List<BoundaryLine> unPairedBoundaryLines = network.getBoundaryLineStream().filter(boundaryLine -> !boundaryLine.isPaired()).toList();
         if (!unPairedBoundaryLines.isEmpty()) {
             createUnpairedBoundaryLines(unPairedBoundaryLines, psseModel, contextExport, perUnitContext);
         }
     }
 
     private static void createUnpairedBoundaryLines(List<BoundaryLine> unPairedBoundaryLines, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        unPairedBoundaryLines.forEach(danglingLine -> {
-            PsseBus psseBus = createBoundaryLineBus(danglingLine, contextExport);
+        unPairedBoundaryLines.forEach(boundaryLine -> {
+            PsseBus psseBus = createBoundaryLineBus(boundaryLine, contextExport);
             psseModel.addBuses(Collections.singletonList(psseBus));
-            psseModel.addNonTransformerBranches(Collections.singletonList(createBoundaryLineBranch(danglingLine, psseBus.getI(), contextExport, perUnitContext)));
-            createBoundaryLineLoad(danglingLine, psseBus.getI(), contextExport).ifPresent(psseLoad -> psseModel.addLoads(Collections.singletonList(psseLoad)));
-            createBoundaryLineGenerator(danglingLine, psseBus.getI(), contextExport, perUnitContext).ifPresent(psseGenerator -> psseModel.addGenerators(Collections.singletonList(psseGenerator)));
+            psseModel.addNonTransformerBranches(Collections.singletonList(createBoundaryLineBranch(boundaryLine, psseBus.getI(), contextExport, perUnitContext)));
+            createBoundaryLineLoad(boundaryLine, psseBus.getI(), contextExport).ifPresent(psseLoad -> psseModel.addLoads(Collections.singletonList(psseLoad)));
+            createBoundaryLineGenerator(boundaryLine, psseBus.getI(), contextExport, perUnitContext).ifPresent(psseGenerator -> psseModel.addGenerators(Collections.singletonList(psseGenerator)));
         });
         psseModel.replaceAllBuses(psseModel.getBuses().stream().sorted(Comparator.comparingInt(PsseBus::getI)).toList());
         psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());

@@ -414,7 +414,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
     /**
      * Creates a new contingency on the dangline line whose id is given
      */
-    public static Contingency danglingLine(String id) {
+    public static Contingency boundaryLine(String id) {
         return builder(id).addBoundaryLine(id).build();
     }
 

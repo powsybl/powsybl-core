@@ -130,7 +130,7 @@ public class AmplNetworkWriter {
     private static int getBoundaryLineMiddleBusComponentNum(AmplExportContext context, BoundaryLine dl) {
         Bus b = AmplUtil.getBus(dl.getTerminal());
         int middleCcNum;
-        // if the connection bus of the dangling line is null or not in the main cc, the middle bus is
+        // if the connection bus of the boundary line is null or not in the main cc, the middle bus is
         // obviously not in the main cc
         if (b != null) {
             middleCcNum = ConnectedComponents.getCcNum(b);
@@ -185,7 +185,7 @@ public class AmplNetworkWriter {
                 addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL,
                     AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt)), twt);
             }
-            // voltage level associated to dangling lines middle bus
+            // voltage level associated to boundary lines middle bus
             for (BoundaryLine dl : getSortedIdentifiables(network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED))) {
                 columnsExporter.writeBoundaryLineVoltageLevelToFormatter(formatter, dl);
                 addExtensions(mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getBoundaryLineMiddleVoltageLevelId(dl)),

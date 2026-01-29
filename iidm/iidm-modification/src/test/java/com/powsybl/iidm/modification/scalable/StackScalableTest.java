@@ -221,7 +221,7 @@ class StackScalableTest {
         double volumeAsked = 100.;
         variationDone = stackScalable.scale(network, volumeAsked, scalingParameters);
         scalingReport(reportNode,
-            "generators, loads and dangling lines",
+            "generators, loads and boundary lines",
                 "STACKING",
             scalingParameters.getScalingType(),
             volumeAsked, variationDone);

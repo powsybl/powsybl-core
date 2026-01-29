@@ -96,7 +96,7 @@ class UcteImporterTest {
         assertEquals("Test 2WT 2", network.getBranch("B_SU1_11 B_SU1_21 1").getProperty("elementName"));
         // Test tie line
         // cannot refer to side of tieline directly cause order of half lines may change
-        // at import : due to HashSet iterator on dangling lines ?
+        // at import : due to HashSet iterator on boundary lines ?
         TieLine tieLine1 = network.getTieLineStream()
                 .filter(line -> line.getBoundaryLine1().getId().contains("XB__F_11 B_SU1_11 1") || line.getBoundaryLine2().getId().contains("XB__F_11 B_SU1_11 1")).findAny().orElseThrow();
         String expectedElementName1 = tieLine1.getBoundaryLine1().getId().contains("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";

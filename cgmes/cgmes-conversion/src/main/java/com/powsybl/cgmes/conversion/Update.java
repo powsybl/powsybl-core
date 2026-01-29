@@ -133,7 +133,7 @@ public final class Update {
 
     static void updateBoundaryLines(Network network, Context context) {
         context.pushReportNode(CgmesReports.updatingElementTypeReport(context.getReportNode(), IdentifiableType.DANGLING_LINE.name()));
-        network.getBoundaryLines().forEach(danglingLine -> updateBoundaryLine(danglingLine, context));
+        network.getBoundaryLines().forEach(boundaryLine -> updateBoundaryLine(boundaryLine, context));
         context.popReportNode();
     }
 

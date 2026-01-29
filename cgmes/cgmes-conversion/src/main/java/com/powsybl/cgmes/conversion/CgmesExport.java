@@ -94,8 +94,8 @@ public class CgmesExport implements Exporter {
      * <p>Assuming the given network is an IGM (Individual Grid Model),
      * create a control area of type interchange from its current boundaries.</p>
      *
-     * <p>An area boundary is created for each dangling line in the model.
-     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     * <p>An area boundary is created for each boundary line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of boundary lines.</p>
      *
      * <p>The location of reference data (boundaries files) is determined based on the configuration for the CGMES export module.
      * The reference data may provide the area EIC code and additional characteristics for the boundaries: if it is AC or DC.
@@ -113,8 +113,8 @@ public class CgmesExport implements Exporter {
      * <p>Assuming the given network is an IGM (Individual Grid Model),
      * create a control area of type interchange from its current boundaries.</p>
      *
-     * <p>An area boundary is created for each dangling line in the model.
-     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     * <p>An area boundary is created for each boundary line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of boundary lines.</p>
      *
      * <p>The location of reference data (boundaries files) is determined based on the based on the parameters passed
      * and the configuration for the CGMES export module.

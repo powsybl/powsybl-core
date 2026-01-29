@@ -287,7 +287,7 @@ public final class TopologyExport {
         if (boundaryId != null) {
             writeTerminal(boundaryId, topologicalNode, cimNamespace, writer, context);
         }
-        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) { // check if the equivalent injection terminal has already been written (if several dangling lines linked to same X-node)
+        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) { // check if the equivalent injection terminal has already been written (if several boundary lines linked to same X-node)
             writeTerminal(equivalentInjectionTerminalId, topologicalNode, cimNamespace, writer, context);
             exported.add(equivalentInjectionTerminalId);
         }
@@ -302,7 +302,7 @@ public final class TopologyExport {
     private static void writeTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeBusTopologicalNodes(network, cimNamespace, writer, context);
         writeDcTopologicalNodes(network, cimNamespace, writer, context);
-        // We create topological nodes for boundary side of dangling lines that are not mapped to an external boundary node
+        // We create topological nodes for boundary side of boundary lines that are not mapped to an external boundary node
         writeBoundaryLineTopologicalNodes(network, cimNamespace, writer, context);
     }
 
@@ -316,7 +316,7 @@ public final class TopologyExport {
                 // If the EQ has also been exported, a fictitious container should have been created
                 String containerId = context.getFictitiousContainerFor(dl);
                 if (containerId == null) {
-                    // As a last resort, we create the TN in the same container of the dangling line
+                    // As a last resort, we create the TN in the same container of the boundary line
                     LOG.error("Dangling line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
                                     " Dangling line {} is considered entirely inside voltage level {}",
                             dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());

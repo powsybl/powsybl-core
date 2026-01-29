@@ -110,7 +110,7 @@ so we have to create substations and voltage levels from the node description an
 Two nodes are in the same substation if they have the same geographical spot (the 1st-6th character of the node code)
 or are connected by a two-winding transformer, a coupler or a low-impedance line.
 Two nodes are in the same voltage level if their code only differs by the eighth character (busbars identifier).  
-**Note:** We do not create a substation, a voltage level or a bus for X-nodes. They are converted to [dangling lines](../../grid_model/network_subnetwork.md#dangling-line).
+**Note:** We do not create a substation, a voltage level or a bus for X-nodes. They are converted to [boundary lines](../../grid_model/network_subnetwork.md#boundary-line).
 
 For nodes with a valid active or reactive load, a [load](../../grid_model/network_subnetwork.md#load) is created.
 Its ID is equal to the ID of the bus post-fixed by `_load`.
@@ -149,9 +149,9 @@ The susceptance of the UCTE line is split in two, to initialize `B1` and `B2` wi
 If the current limits are defined, a permanent limit is created for both ends of the line.
 The element name of the UCTE line is stored in the `elementName` property.
 
-The lines connected between a read node and an X-node are converted into a [dangling line](../../grid_model/network_subnetwork.md#dangling-line).
-In IIDM, a dangling line is a line segment connected to a constant load.
-The sum of the active load and generation (rep. reactive) is computed to initialize the `P0` (resp. `Q0`) of the dangling line.
+The lines connected between a read node and an X-node are converted into a [boundary line](../../grid_model/network_subnetwork.md#boundary-line).
+In IIDM, a boundary line is a line segment connected to a constant load.
+The sum of the active load and generation (rep. reactive) is computed to initialize the `P0` (resp. `Q0`) of the boundary line.
 The element name of the UCTE line is stored in the `elementName` property and the geographical name of the X-node is stored in the `geographicalName` property.
 
 (ucte-two-winding-transformer-conversion)=
@@ -162,8 +162,8 @@ The element name of the transformer is stored in the `elementName` property and 
 
 If a two-winding transformer is connected between a real node and an X-node, a fictitious intermediate voltage level is created,
 with a single bus called a Y-node. This new voltage level is created in the same substation as the real node.
-The transformer is created between the real node and the new Y-node, and the X-node is converted into a dangling line.
-The only difference with a classic X-node conversion, is that the electrical characteristic are hold by the transformer and set to `0` for the dangling line,
+The transformer is created between the real node and the new Y-node, and the X-node is converted into a boundary line.
+The only difference with a classic X-node conversion, is that the electrical characteristic are hold by the transformer and set to `0` for the boundary line,
 except for the reactance that is set to $0.05\space\Omega$.
 
 **TODO**: insert a schema

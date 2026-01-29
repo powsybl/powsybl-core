@@ -293,7 +293,7 @@ public final class StateVariablesExport {
     private static List<TopologicalIsland> buildIslands(Network network, CgmesExportContext context) {
         Map<String, TopologicalIsland> islands = new HashMap<>();
         for (Bus b : network.getBusBreakerView().getBuses()) {
-            // Adds the topological node of the bus and of any dangling line connected to this bus (QoCDC 4.0)
+            // Adds the topological node of the bus and of any boundary line connected to this bus (QoCDC 4.0)
             List<String> topologicalNodeIds = new ArrayList<>();
             String busTnId = context.getNamingStrategy().getCgmesId(b);
             topologicalNodeIds.add(busTnId);
@@ -619,7 +619,7 @@ public final class StateVariablesExport {
             });
         }
 
-        // RK: For dangling lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
+        // RK: For boundary lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
         // If it is disconnected on the boundary side, it might not appear on the SV file.
     }
 

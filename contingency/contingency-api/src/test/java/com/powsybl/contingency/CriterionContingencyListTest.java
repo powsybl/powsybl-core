@@ -504,7 +504,7 @@ class CriterionContingencyListTest {
 
     @Test
     void testBoundaryLines() {
-        // dangling lines
+        // boundary lines
         Network network = BoundaryLineNetworkFactory.create();
         SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(

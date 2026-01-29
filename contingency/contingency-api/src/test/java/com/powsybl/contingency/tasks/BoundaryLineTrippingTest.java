@@ -33,7 +33,7 @@ class BoundaryLineTrippingTest {
     void dlTrippingTest() {
         assertTrue(network.getBoundaryLine("DL").getTerminal().isConnected());
 
-        Contingency contingency = Contingency.danglingLine("DL");
+        Contingency contingency = Contingency.boundaryLine("DL");
 
         NetworkModification task = contingency.toModification();
         task.apply(network);

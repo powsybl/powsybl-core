@@ -81,7 +81,7 @@ class MergeTest {
         Network n = NetworkTest1Factory.create(nid);
         VoltageLevel vl = n.getVoltageLevel(id("voltageLevel1", nid));
         BoundaryLine dl = vl.newBoundaryLine()
-                .setId(id("danglingLineb", nid))
+                .setId(id("boundaryLineb", nid))
                 .setNode(6)
                 .setR(1.0)
                 .setX(0.1)
@@ -89,7 +89,7 @@ class MergeTest {
                 .setB(0.001)
                 .setP0(10)
                 .setQ0(1)
-                // Same pairing key for dangling lines
+                // Same pairing key for boundary lines
                 .setPairingKey("X")
                 .add();
         vl.getNodeBreakerView().newBreaker()

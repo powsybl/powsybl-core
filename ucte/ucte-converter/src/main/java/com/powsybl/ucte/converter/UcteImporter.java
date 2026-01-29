@@ -270,7 +270,7 @@ public class UcteImporter implements Importer {
     private static void createBoundaryLine(UcteLine ucteLine, boolean connected,
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
                                            Network network) {
-        LOGGER.trace("Create dangling line '{}' (X-node='{}')", ucteLine.getId(), xnode.getCode());
+        LOGGER.trace("Create boundary line '{}' (X-node='{}')", ucteLine.getId(), xnode.getCode());
 
         double p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
         double q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
@@ -648,7 +648,7 @@ public class UcteImporter implements Importer {
 
         UcteNode ucteXnode = ucteNetwork.getNode(xNodeCode);
 
-        LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to X-node '{}')",
+        LOGGER.warn("Create small impedance boundary line '{}{}' (transformer connected to X-node '{}')",
                 xNodeName, yNodeName, ucteXnode.getCode());
 
         double p0 = isValueValid(ucteXnode.getActiveLoad()) ? ucteXnode.getActiveLoad() : 0;
@@ -656,7 +656,7 @@ public class UcteImporter implements Importer {
         double targetP = isValueValid(ucteXnode.getActivePowerGeneration()) ? ucteXnode.getActivePowerGeneration() : 0;
         double targetQ = isValueValid(ucteXnode.getReactivePowerGeneration()) ? ucteXnode.getReactivePowerGeneration() : 0;
 
-        // create a small impedance dangling line connected to the YNODE
+        // create a small impedance boundary line connected to the YNODE
         BoundaryLine yBoundaryLine = yVoltageLevel.newBoundaryLine()
                 .setId(xNodeName + " " + yNodeName)
                 .setBus(yNodeName)
@@ -797,9 +797,9 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static BoundaryLine getMatchingBoundaryLine(BoundaryLine dl1, Map<String, List<BoundaryLine>> danglingLinesByPairingKey) {
+    private static BoundaryLine getMatchingBoundaryLine(BoundaryLine dl1, Map<String, List<BoundaryLine>> boundaryLinesByPairingKey) {
         String otherPairingKey = dl1.getPairingKey();
-        List<BoundaryLine> matchingBoundaryLines = danglingLinesByPairingKey.get(otherPairingKey)
+        List<BoundaryLine> matchingBoundaryLines = boundaryLinesByPairingKey.get(otherPairingKey)
                 .stream().filter(dl -> dl != dl1)
                 .toList();
         if (matchingBoundaryLines.isEmpty()) {
@@ -819,7 +819,7 @@ public class UcteImporter implements Importer {
             if (connectedMatchingBoundaryLines.size() == 1) {
                 return connectedMatchingBoundaryLines.get(0);
             } else {
-                throw new UcteException("More that 2 connected dangling lines have the same pairing key " + dl1.getPairingKey());
+                throw new UcteException("More that 2 connected boundary lines have the same pairing key " + dl1.getPairingKey());
             }
         }
     }
@@ -946,15 +946,15 @@ public class UcteImporter implements Importer {
     }
 
     private static void mergeBoundaryLines(UcteNetwork ucteNetwork, Network network) {
-        Map<String, List<BoundaryLine>> danglingLinesByPairingKey = new HashMap<>();
+        Map<String, List<BoundaryLine>> boundaryLinesByPairingKey = new HashMap<>();
         for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
-            danglingLinesByPairingKey.computeIfAbsent(dl.getPairingKey(), code -> new ArrayList<>()).add(dl);
+            boundaryLinesByPairingKey.computeIfAbsent(dl.getPairingKey(), code -> new ArrayList<>()).add(dl);
         }
 
         Set<BoundaryLine> boundaryLinesToProcesses = Sets.newHashSet(network.getBoundaryLines(BoundaryLineFilter.ALL));
         while (!boundaryLinesToProcesses.isEmpty()) {
             BoundaryLine dlToProcess = boundaryLinesToProcesses.iterator().next();
-            BoundaryLine dlMatchingDlToProcess = getMatchingBoundaryLine(dlToProcess, danglingLinesByPairingKey);
+            BoundaryLine dlMatchingDlToProcess = getMatchingBoundaryLine(dlToProcess, boundaryLinesByPairingKey);
 
             if (dlMatchingDlToProcess != null) {
                 // lexical sort to always end up with same merge line id

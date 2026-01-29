@@ -78,11 +78,11 @@ public final class AmplUtil {
     }
 
     public static String getBoundaryLineMiddleBusId(BoundaryLine dl) {
-        return dl.getId(); // same id as the dangling line
+        return dl.getId(); // same id as the boundary line
     }
 
     public static String getBoundaryLineMiddleVoltageLevelId(BoundaryLine dl) {
-        return dl.getId(); // same id as the dangling line
+        return dl.getId(); // same id as the boundary line
     }
 
     public static void fillMapper(StringToIntMapper<AmplSubset> mapper, Network network) {

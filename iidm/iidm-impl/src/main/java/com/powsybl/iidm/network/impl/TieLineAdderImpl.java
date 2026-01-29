@@ -53,18 +53,18 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
     public TieLineImpl add() {
         String id = checkAndGetUniqueId();
         if (dl1Id == null || dl2Id == null) {
-            throw new ValidationException(this, "undefined dangling line");
+            throw new ValidationException(this, "undefined boundary line");
         }
         BoundaryLineImpl dl1 = network.getBoundaryLine(dl1Id);
         BoundaryLineImpl dl2 = network.getBoundaryLine(dl2Id);
         if (dl1 == null || dl2 == null) {
-            throw new ValidationException(this, dl1Id + " and/or " + dl2Id + " are not dangling lines in the network");
+            throw new ValidationException(this, dl1Id + " and/or " + dl2Id + " are not boundary lines in the network");
         }
         if (dl1 == dl2) {
-            throw new ValidationException(this, "danglingLine1 and danglingLine2 are identical (" + dl1.getId() + ")");
+            throw new ValidationException(this, "boundaryLine1 and boundaryLine2 are identical (" + dl1.getId() + ")");
         }
         if (dl1.getTieLine().isPresent() || dl2.getTieLine().isPresent()) {
-            throw new ValidationException(this, "danglingLine1 (" + dl1Id + ") and/or danglingLine2 (" + dl2Id + ") already has a tie line");
+            throw new ValidationException(this, "boundaryLine1 (" + dl1Id + ") and/or boundaryLine2 (" + dl2Id + ") already has a tie line");
         }
         if (dl1.getPairingKey() != null && dl2.getPairingKey() != null && !Objects.equals(dl1.getPairingKey(), dl2.getPairingKey())) {
             throw new ValidationException(this, "pairingKey is not consistent");
@@ -72,7 +72,7 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
         VoltageLevelExt voltageLevel1 = dl1.getTerminal().getVoltageLevel();
         VoltageLevelExt voltageLevel2 = dl2.getTerminal().getVoltageLevel();
         if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetworkId()) || !subnetwork.equals(voltageLevel2.getSubnetworkId()))) {
-            throw new ValidationException(this, "The involved dangling lines are not in the subnetwork '" +
+            throw new ValidationException(this, "The involved boundary lines are not in the subnetwork '" +
                     subnetwork + "'. Create this tie line from the parent network '" + getNetwork().getId() + "'");
         }
 

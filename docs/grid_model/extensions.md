@@ -459,7 +459,7 @@ The Measurement class characteristics are the following:
 ## Operating status
 
 This is an extension of `Identifiable`, but it is restricted to some identifiable types: busbar sections, all branches,
-three-winding transformers, HVDC line and a dangling line. The status could be:
+three-winding transformers, HVDC line and a boundary line. The status could be:
 - `IN_OPERATION`: equipment in service.
 - `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
 - `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.

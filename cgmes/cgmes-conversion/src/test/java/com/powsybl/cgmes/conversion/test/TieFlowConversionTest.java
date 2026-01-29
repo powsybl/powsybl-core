@@ -129,7 +129,7 @@ class TieFlowConversionTest {
             LOG.info("Boundary to find connectableId {} identifiableType {}", connectableId, identifiableType);
             controlArea.getAreaBoundaryStream()
                     .filter(b -> b.getBoundary().isPresent())
-                    .forEach(b -> LOG.info("Boundary inside cgmesControlArea danglingLineId {}}",
+                    .forEach(b -> LOG.info("Boundary inside cgmesControlArea boundaryLineId {}}",
                         b.getBoundary().get().getBoundaryLine().getId()));
         }
         return ok;

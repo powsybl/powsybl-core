@@ -1147,36 +1147,36 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getShuntCompensatorCount();
 
     /**
-     * Get a builder to create a new dangling line.
+     * Get a builder to create a new boundary line.
      */
     BoundaryLineAdder newBoundaryLine();
 
     /**
-     * Get the dangling lines in this voltage level which correspond to given filter.
+     * Get the boundary lines in this voltage level which correspond to given filter.
      */
     Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get all dangling lines in this voltage level.
+     * Get all boundary lines in this voltage level.
      */
     default Iterable<BoundaryLine> getBoundaryLines() {
         return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get the dangling lines in this voltage level which correspond to given filter.
+     * Get the boundary lines in this voltage level which correspond to given filter.
      */
     Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
 
    /**
-     * Get all dangling lines in this voltage level.
+     * Get all boundary lines in this voltage level.
      */
     default Stream<BoundaryLine> getBoundaryLineStream() {
         return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get dangling line count.
+     * Get boundary line count.
      */
     int getBoundaryLineCount();
 

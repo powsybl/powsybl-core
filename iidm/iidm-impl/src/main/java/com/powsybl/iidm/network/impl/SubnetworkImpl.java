@@ -1082,10 +1082,10 @@ public class SubnetworkImpl extends AbstractNetwork {
     public Set<Identifiable<?>> getBoundaryElements() {
         // transformers cannot link different subnetworks for the moment.
         Stream<Line> lines = getNetwork().getLineStream().filter(i -> i.getParentNetwork() == getNetwork());
-        Stream<BoundaryLine> danglingLineStream = getBoundaryLineStream();
+        Stream<BoundaryLine> boundaryLineStream = getBoundaryLineStream();
         Stream<HvdcLine> hvdcLineStream = getNetwork().getHvdcLineStream().filter(i -> i.getParentNetwork() == getNetwork());
 
-        return Stream.of(lines, danglingLineStream, hvdcLineStream)
+        return Stream.of(lines, boundaryLineStream, hvdcLineStream)
                 .flatMap(Function.identity())
                 .map(o -> (Identifiable<?>) o)
                 .filter(this::isBoundaryElement)

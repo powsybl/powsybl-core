@@ -63,7 +63,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     }
 
     @Test
-    void danglingLineCriterionRoundTripTest() throws IOException {
+    void boundaryLineCriterionRoundTripTest() throws IOException {
         BoundaryLineCriterion criterion = new BoundaryLineCriterion("criterion6", new SingleCountryCriterion(List.of(Country.FR, Country.DE)),
                 new SingleNominalVoltageCriterion(
                         VoltageInterval.between(80., 100., true, true)));

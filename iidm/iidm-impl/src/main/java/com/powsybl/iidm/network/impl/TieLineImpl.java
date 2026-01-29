@@ -36,8 +36,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public Network getParentNetwork() {
-        Network subnetwork1 = danglingLine1.getParentNetwork();
-        Network subnetwork2 = danglingLine2.getParentNetwork();
+        Network subnetwork1 = boundaryLine1.getParentNetwork();
+        Network subnetwork2 = boundaryLine2.getParentNetwork();
         if (subnetwork1 == subnetwork2) {
             return subnetwork1;
         }
@@ -49,9 +49,9 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return "Tie Line";
     }
 
-    private BoundaryLineImpl danglingLine1;
+    private BoundaryLineImpl boundaryLine1;
 
-    private BoundaryLineImpl danglingLine2;
+    private BoundaryLineImpl boundaryLine2;
 
     private final Ref<NetworkImpl> networkRef;
 
@@ -63,28 +63,28 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     void attachBoundaryLines(BoundaryLineImpl dl1, BoundaryLineImpl dl2) {
-        this.danglingLine1 = attach(dl1);
-        this.danglingLine2 = attach(dl2);
+        this.boundaryLine1 = attach(dl1);
+        this.boundaryLine2 = attach(dl2);
     }
 
-    private BoundaryLineImpl attach(BoundaryLineImpl danglingLine) {
-        danglingLine.setTieLine(this);
-        return danglingLine;
+    private BoundaryLineImpl attach(BoundaryLineImpl boundaryLine) {
+        boundaryLine.setTieLine(this);
+        return boundaryLine;
     }
 
     @Override
     public String getPairingKey() {
-        return Optional.ofNullable(danglingLine1.getPairingKey()).orElseGet(() -> danglingLine2.getPairingKey());
+        return Optional.ofNullable(boundaryLine1.getPairingKey()).orElseGet(() -> boundaryLine2.getPairingKey());
     }
 
     @Override
     public BoundaryLineImpl getBoundaryLine1() {
-        return danglingLine1;
+        return boundaryLine1;
     }
 
     @Override
     public BoundaryLineImpl getBoundaryLine2() {
-        return danglingLine2;
+        return boundaryLine2;
     }
 
     @Override
@@ -94,45 +94,45 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public BoundaryLine getBoundaryLine(String voltageLevelId) {
-        if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return danglingLine1;
+        if (boundaryLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return boundaryLine1;
         }
-        if (danglingLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return danglingLine2;
+        if (boundaryLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return boundaryLine2;
         }
         return null;
     }
 
-    // danglingLine1 and danglingLine2 are dangling lines, so the transmission impedance of the equivalent branch is symmetric
+    // boundaryLine1 and boundaryLine2 are boundary lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getR() {
-        return TieLineUtil.getR(danglingLine1, danglingLine2);
+        return TieLineUtil.getR(boundaryLine1, boundaryLine2);
     }
 
-    // danglingLine1 and danglingLine2 are dangling lines, so the transmission impedance of the equivalent branch is symmetric
+    // boundaryLine1 and boundaryLine2 are boundary lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getX() {
-        return TieLineUtil.getX(danglingLine1, danglingLine2);
+        return TieLineUtil.getX(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getG1() {
-        return TieLineUtil.getG1(danglingLine1, danglingLine2);
+        return TieLineUtil.getG1(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getB1() {
-        return TieLineUtil.getB1(danglingLine1, danglingLine2);
+        return TieLineUtil.getB1(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getG2() {
-        return TieLineUtil.getG2(danglingLine1, danglingLine2);
+        return TieLineUtil.getG2(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getB2() {
-        return TieLineUtil.getB2(danglingLine1, danglingLine2);
+        return TieLineUtil.getB2(boundaryLine1, boundaryLine2);
     }
 
     @Override
@@ -146,13 +146,13 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         network.getListeners().notifyBeforeRemoval(this);
 
         if (updateBoundaryLines) {
-            updateBoundaryLine(danglingLine1);
-            updateBoundaryLine(danglingLine2);
+            updateBoundaryLine(boundaryLine1);
+            updateBoundaryLine(boundaryLine2);
         }
 
-        // Remove dangling lines
-        danglingLine1.removeTieLine();
-        danglingLine2.removeTieLine();
+        // Remove boundary lines
+        boundaryLine1.removeTieLine();
+        boundaryLine2.removeTieLine();
 
         // invalidate components
         network.getConnectedComponentsManager().invalidate();
@@ -212,12 +212,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public TerminalExt getTerminal1() {
-        return danglingLine1.getTerminal();
+        return boundaryLine1.getTerminal();
     }
 
     @Override
     public TerminalExt getTerminal2() {
-        return danglingLine2.getTerminal();
+        return boundaryLine2.getTerminal();
     }
 
     @Override
@@ -236,52 +236,52 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public Optional<String> getSelectedOperationalLimitsGroupId1() {
-        return danglingLine1.getSelectedOperationalLimitsGroupId();
+        return boundaryLine1.getSelectedOperationalLimitsGroupId();
     }
 
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
-        return danglingLine1.getOperationalLimitsGroups();
+        return boundaryLine1.getOperationalLimitsGroups();
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id) {
-        return danglingLine1.getOperationalLimitsGroup(id);
+        return boundaryLine1.getOperationalLimitsGroup(id);
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1() {
-        return danglingLine1.getSelectedOperationalLimitsGroup();
+        return boundaryLine1.getSelectedOperationalLimitsGroup();
     }
 
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
-        return danglingLine1.newOperationalLimitsGroup(id);
+        return boundaryLine1.newOperationalLimitsGroup(id);
     }
 
     @Override
     public void setSelectedOperationalLimitsGroup1(String id) {
-        danglingLine1.setSelectedOperationalLimitsGroup(id);
+        boundaryLine1.setSelectedOperationalLimitsGroup(id);
     }
 
     @Override
     public void removeOperationalLimitsGroup1(String id) {
-        danglingLine1.removeOperationalLimitsGroup(id);
+        boundaryLine1.removeOperationalLimitsGroup(id);
     }
 
     @Override
     public void cancelSelectedOperationalLimitsGroup1() {
-        danglingLine1.cancelSelectedOperationalLimitsGroup();
+        boundaryLine1.cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
     public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1() {
-        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup();
+        return boundaryLine1.getOrCreateSelectedOperationalLimitsGroup();
     }
 
     @Override
     public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2() {
-        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup();
+        return boundaryLine2.getOrCreateSelectedOperationalLimitsGroup();
     }
 
     /**
@@ -290,7 +290,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+        return boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
     /**
@@ -299,7 +299,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
+        return boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     /**
@@ -308,47 +308,47 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
+        return boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
-        return danglingLine2.getOperationalLimitsGroups();
+        return boundaryLine2.getOperationalLimitsGroups();
     }
 
     @Override
     public Optional<String> getSelectedOperationalLimitsGroupId2() {
-        return danglingLine2.getSelectedOperationalLimitsGroupId();
+        return boundaryLine2.getSelectedOperationalLimitsGroupId();
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id) {
-        return danglingLine2.getOperationalLimitsGroup(id);
+        return boundaryLine2.getOperationalLimitsGroup(id);
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2() {
-        return danglingLine2.getSelectedOperationalLimitsGroup();
+        return boundaryLine2.getSelectedOperationalLimitsGroup();
     }
 
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup2(String id) {
-        return danglingLine2.newOperationalLimitsGroup(id);
+        return boundaryLine2.newOperationalLimitsGroup(id);
     }
 
     @Override
     public void setSelectedOperationalLimitsGroup2(String id) {
-        danglingLine2.setSelectedOperationalLimitsGroup(id);
+        boundaryLine2.setSelectedOperationalLimitsGroup(id);
     }
 
     @Override
     public void removeOperationalLimitsGroup2(String id) {
-        danglingLine2.removeOperationalLimitsGroup(id);
+        boundaryLine2.removeOperationalLimitsGroup(id);
     }
 
     @Override
     public void cancelSelectedOperationalLimitsGroup2() {
-        danglingLine2.cancelSelectedOperationalLimitsGroup();
+        boundaryLine2.cancelSelectedOperationalLimitsGroup();
     }
 
     /**
@@ -357,7 +357,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+        return boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
     /**
@@ -366,7 +366,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
+        return boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     /**
@@ -375,7 +375,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
+        return boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override

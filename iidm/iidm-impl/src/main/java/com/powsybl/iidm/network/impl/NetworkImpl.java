@@ -1257,7 +1257,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
         checkMergeability(otherNetwork);
 
-        // try to find dangling lines couples
+        // try to find boundary lines couples
         List<BoundaryLinePair> lines = new ArrayList<>();
         Map<String, List<BoundaryLine>> dl1byPairingKey = new HashMap<>();
 
@@ -1345,10 +1345,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             l.dl1Id = dl1.getId();
             l.dl2Id = dl2.getId();
             l.aliases = new HashMap<>();
-            // No need to merge properties or aliases because we keep the original dangling lines after merge
+            // No need to merge properties or aliases because we keep the original boundary lines after merge
             boundaryLinePairs.add(l);
 
-            if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
+            if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename boundary lines
                 ((BoundaryLineImpl) dl1).replaceId(l.dl1Id + "_1");
                 ((BoundaryLineImpl) dl2).replaceId(l.dl2Id + "_2");
                 l.dl1Id = dl1.getId();
@@ -1364,7 +1364,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private void replaceBoundaryLineByTieLine(List<BoundaryLinePair> lines) {
         for (BoundaryLinePair boundaryLinePair : lines) {
-            LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
+            LOGGER.debug("Creating tie line '{}' between boundary line couple '{}' and '{}",
                     boundaryLinePair.id, boundaryLinePair.dl1Id, boundaryLinePair.dl2Id);
             TieLineImpl l = newTieLine()
                     .setId(boundaryLinePair.id)

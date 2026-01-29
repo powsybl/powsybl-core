@@ -414,7 +414,7 @@ public class CgmesExportContext {
         if (c instanceof BoundaryLine) {
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
             if (terminalId == null) {
-                // Legacy: in previous versions, dangling line terminals were recorded in a different alias
+                // Legacy: in previous versions, boundary line terminals were recorded in a different alias
                 // read it, remove it and store in the standard alias for equipment terminal (Terminal1)
                 terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
                 if (terminalId != null) {

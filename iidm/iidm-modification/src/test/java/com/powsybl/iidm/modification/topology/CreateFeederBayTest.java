@@ -245,11 +245,11 @@ class CreateFeederBayTest extends AbstractModificationTest {
         assertTrue(unusedOrderPositionsAfter0.isPresent());
         assertEquals(81, (int) unusedOrderPositionsAfter0.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter0.get().getMaximum());
-        int danglingLinePositionOrder = unusedOrderPositionsAfter0.get().getMinimum();
+        int boundaryLinePositionOrder = unusedOrderPositionsAfter0.get().getMinimum();
         NetworkModification addBoundaryLineModification = new CreateFeederBayBuilder()
                 .withInjectionAdder(boundaryLineAdder)
                 .withBusOrBusbarSectionId("bbs5")
-                .withInjectionPositionOrder(danglingLinePositionOrder)
+                .withInjectionPositionOrder(boundaryLinePositionOrder)
                 .withInjectionDirection(BOTTOM)
                 .build();
         addBoundaryLineModification.apply(network);

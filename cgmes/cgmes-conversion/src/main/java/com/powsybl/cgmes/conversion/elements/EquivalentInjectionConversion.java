@@ -37,10 +37,10 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             // If we find an Equivalent Injection at a boundary
             // we will decide later what to do with it
             //
-            // If finally a dangling line is created at the boundary node
+            // If finally a boundary line is created at the boundary node
             // and the equivalent injection is regulating voltage
             // we will have to transfer regulating voltage data
-            // from the equivalent injection to the dangling line
+            // from the equivalent injection to the boundary line
             context.boundary().addEquivalentInjectionAtNode(this.p, nodeId());
         }
     }
@@ -52,13 +52,13 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         convertToGenerator();
     }
 
-    // A dangling line has been created at the boundary node of the equivalent injection
+    // A boundary line has been created at the boundary node of the equivalent injection
     public BoundaryLine convertOverBoundaryLine(BoundaryLineAdder adder) {
         boolean regulationCapability = p.asBoolean(CgmesNames.REGULATION_CAPABILITY, false);
         BoundaryLine dl;
         if (regulationCapability) {
             // If this equivalent injection is regulating voltage,
-            // map it over the dangling line 'virtual generator'
+            // map it over the boundary line 'virtual generator'
             dl = adder
                     .setP0(Double.NaN)
                     .setQ0(Double.NaN)
@@ -73,7 +73,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                     .add();
         } else {
             // Map all the observed flows to the 'virtual load'
-            // of the dangling line
+            // of the boundary line
             dl = adder
                     .setP0(Double.NaN)
                     .setQ0(Double.NaN)
@@ -81,7 +81,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         }
         // We do not call addAliasesAndProperties(dl) !
         // Because we do not want to add this equivalent injection
-        // terminal id as a generic "Terminal" alias of the dangling line,
+        // terminal id as a generic "Terminal" alias of the boundary line,
         // Terminal1 and Terminal2 aliases should be used for
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal

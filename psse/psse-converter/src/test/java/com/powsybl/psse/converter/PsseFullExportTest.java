@@ -464,10 +464,10 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .add();
     }
 
-    private static BoundaryLine createBoundaryLine(VoltageLevel voltageLevel, String danglingLineId, int node, double p0, double q0, String pairingKey) {
+    private static BoundaryLine createBoundaryLine(VoltageLevel voltageLevel, String boundaryLineId, int node, double p0, double q0, String pairingKey) {
         return voltageLevel.newBoundaryLine()
-                .setId(danglingLineId)
-                .setName(danglingLineId)
+                .setId(boundaryLineId)
+                .setName(boundaryLineId)
                 .setNode(node)
                 .setR(10.0)
                 .setX(90.0)

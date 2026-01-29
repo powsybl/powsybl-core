@@ -8,7 +8,7 @@
 package com.powsybl.iidm.criteria;
 
 /**
- * <p>{@link NetworkElementCriterion} on dangling lines.</p>
+ * <p>{@link NetworkElementCriterion} on boundary lines.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class BoundaryLineCriterion extends AbstractNetworkElementEquipmentCriterion {

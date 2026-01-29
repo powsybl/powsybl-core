@@ -62,8 +62,8 @@ public abstract class AbstractBoundaryLineTest {
         double b = 40.0;
         double p0 = 50.0;
         double q0 = 60.0;
-        String id = "danglingId";
-        String name = "danlingName";
+        String id = "boundaryId";
+        String name = "boundaryName";
         String pairingKey = "code";
         String newPairingKey = "new_code";
         voltageLevel.newBoundaryLine()
@@ -139,8 +139,8 @@ public abstract class AbstractBoundaryLineTest {
     @Test
     public void testDefaultValuesBoundaryLine() {
         voltageLevel.newBoundaryLine()
-                .setId("danglingId")
-                .setName("DanglingName")
+                .setId("boundaryId")
+                .setName("BoundaryName")
                 .setR(10.0)
                 .setX(20.0)
                 .setP0(30.0)
@@ -149,7 +149,7 @@ public abstract class AbstractBoundaryLineTest {
                 .setBus(BUS_VL_ID)
                 .add();
 
-        BoundaryLine boundaryLine = network.getBoundaryLine("danglingId");
+        BoundaryLine boundaryLine = network.getBoundaryLine("boundaryId");
         assertEquals(0.0, boundaryLine.getG(), 0.0);
         assertEquals(0.0, boundaryLine.getB(), 0.0);
     }
@@ -258,7 +258,7 @@ public abstract class AbstractBoundaryLineTest {
         double b = 0.0;
         double p0 = 0.0;
         double q0 = 0.0;
-        String id = "danglingId";
+        String id = "boundaryId";
         String name = "danlingName";
         String pairingKey = "code";
         BoundaryLineAdder adder = voltageLevel.newBoundaryLine()
