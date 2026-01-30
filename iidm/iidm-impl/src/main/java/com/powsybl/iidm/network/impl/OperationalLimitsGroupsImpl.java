@@ -58,7 +58,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     public void removeOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
         if (selectedLimitsIds.contains(id)) {
-            deselectOperationalLimitsGroup(id);
+            deselectOperationalLimitsGroups(id);
         }
         operationalLimitsGroupById.remove(id);
     }
@@ -149,9 +149,11 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     }
 
     @Override
-    public void deselectOperationalLimitsGroup(String id) {
-        selectedLimitsIds.remove(id);
-        notifyDeselect(id);
+    public void deselectOperationalLimitsGroups(String... ids) {
+        for (String id : ids) {
+            selectedLimitsIds.remove(id);
+            notifyDeselect(id);
+        }
     }
 
     /**

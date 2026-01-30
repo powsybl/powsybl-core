@@ -26,7 +26,7 @@ public interface FlowsLimitsHolder {
 
     /**
      * <p>Get the ID of the last {@link OperationalLimitsGroup} set as selected (either by {@link #setSelectedOperationalLimitsGroup(String)} or any other mean).</p>
-     * <p>If the last selected was deselected (using {@link #deselectOperationalLimitsGroup(String)}),
+     * <p>If the last selected was deselected (using {@link #deselectOperationalLimitsGroups(String...)} (String)}),
      * then this will return the ID of the OperationalLimitsGroup selected before that if any (this logic can be repeated, if the two previously selected are not selected anymore, gets the 3rd, the 4th, etc...),
      * otherwise an empty {@link Optional}</p>
      * @return the ID of the last selected {@link OperationalLimitsGroup} from all the selected groups if any,
@@ -74,7 +74,7 @@ public interface FlowsLimitsHolder {
      * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as the only selected one. If other groups were also selected, they are all deselected</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
      * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.</p>
-     * To deselect a selected group, use {@link #deselectOperationalLimitsGroup(String)}.
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)}.
      * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
      * To have multiple groups selected instead of a single one, use {@link #addSelectedOperationalLimitsGroups(String...)}
      * @param id an ID of {@link OperationalLimitsGroup}
@@ -85,7 +85,7 @@ public interface FlowsLimitsHolder {
      * <p>Set the {@link OperationalLimitsGroup} corresponding to the given IDs as selected. If other groups were also selected, they are still selected</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
      * <p>Throw an {@link NullPointerException} if any ID is <code>null</code>.</p>
-     * To deselect a selected group, use {@link #deselectOperationalLimitsGroup(String)}.
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)} (String)}.
      * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
      * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup(String)}
      * @param ids the IDs of one or more {@link OperationalLimitsGroup}
@@ -102,19 +102,19 @@ public interface FlowsLimitsHolder {
     /**
      * <p>Deselect all the selected {@link OperationalLimitsGroup}.</p>
      * <p>After calling this method, no {@link OperationalLimitsGroup} is selected.</p>
-     * To deselect a specific {@link OperationalLimitsGroup}, use {@link #deselectOperationalLimitsGroup(String)}
+     * To deselect a specific {@link OperationalLimitsGroup}, use {@link #deselectOperationalLimitsGroups(String...)}
      */
     void cancelSelectedOperationalLimitsGroup();
 
     /**
-     * <p>Deselect the {@link OperationalLimitsGroup} corresponding to <code>id</code>.</p>
+     * <p>Deselect the {@link OperationalLimitsGroup} corresponding to all the <code>ids</code>.</p>
      * <p>If the {@link OperationalLimitsGroup} exists but is not selected, this method will do nothing</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group</p>
      * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
      * To deselect all {@link OperationalLimitsGroup}, use {@link #cancelSelectedOperationalLimitsGroup()}
-     * @param id the ID of the group to remove from the selected
+     * @param ids the ID of the groups to remove from the selected
      */
-    void deselectOperationalLimitsGroup(String id);
+    void deselectOperationalLimitsGroups(String... ids);
 
     /**
      * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup}.

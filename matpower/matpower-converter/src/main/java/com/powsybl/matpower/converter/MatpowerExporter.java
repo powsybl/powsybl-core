@@ -488,7 +488,7 @@ public class MatpowerExporter implements Exporter {
         }
 
         @Override
-        public void deselectOperationalLimitsGroup(String id) {
+        public void deselectOperationalLimitsGroups(String... ids) {
             throw new UnsupportedOperationException();
         }
 
