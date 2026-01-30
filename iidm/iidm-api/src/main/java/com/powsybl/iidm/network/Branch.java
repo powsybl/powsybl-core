@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
 
@@ -142,6 +143,20 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1();
 
     /**
+     * Get all the selected {@link OperationalLimitsGroup} on the given <code>side</code>.
+     * @param side the side to get the group limits on
+     * @return all the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
+     */
+    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side);
+
+    /**
+     * Get the id of all the selected {@link OperationalLimitsGroup} on the given <code>side</code>
+     * @param side the side to get the id of the group limits on
+     * @return all the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
+     */
+    Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side);
+
+    /**
      * <p>Create a new {@link OperationalLimitsGroup} on side 1 with the given ID.</p>
      * <p>If a group of the given ID already exists, it is replaced silently.</p>
      * @return the newly created group {@link OperationalLimitsGroup}.
@@ -149,13 +164,24 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     OperationalLimitsGroup newOperationalLimitsGroup1(String id);
 
     /**
-     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as as the selected one on side 1.</p>
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as the selected one on side 1.</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
      * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.
      * To reset the selected group, use {@link #cancelSelectedOperationalLimitsGroup1}.</p>
      * @param id an ID of {@link OperationalLimitsGroup}
      */
     void setSelectedOperationalLimitsGroup1(String id);
+
+    /**
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given IDs as selected on side 1. If other groups were also selected, they are still selected</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
+     * <p>Throw an {@link NullPointerException} if any ID is <code>null</code>.</p>
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups1(String...)}.
+     * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup1()}
+     * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup1(String)}
+     * @param ids the IDs of one or more {@link OperationalLimitsGroup}
+     */
+    void addSelectedOperationalLimitsGroups1(String... ids);
 
     /**
      * <p>Remove the {@link OperationalLimitsGroup} corresponding to the given ID on side 1.</p>
@@ -169,6 +195,16 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * <p>After calling this method, no {@link OperationalLimitsGroup} is selected on side 1.</p>
      */
     void cancelSelectedOperationalLimitsGroup1();
+
+    /**
+     * <p>Deselect the {@link OperationalLimitsGroup} corresponding to all the <code>ids</code> on side 1.</p>
+     * <p>If the {@link OperationalLimitsGroup} exists but is not selected, this method will do nothing</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group</p>
+     * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
+     * To deselect all {@link OperationalLimitsGroup}, use {@link #cancelSelectedOperationalLimitsGroup1()}
+     * @param ids the ID of the groups to remove from the selected
+     */
+    void deselectOperationalLimitsGroups1(String... ids);
 
     /**
      * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1.
@@ -216,6 +252,20 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     default ApparentPowerLimits getNullableApparentPowerLimits1() {
         return getApparentPowerLimits1().orElse(null);
+    }
+
+    /**
+     * Helper function to return all the limits of this branch's <code>side</code>, of a given type using the provided function to get it from each {@link OperationalLimitsGroup}
+     * @param operationalLimitToLoadingLimitFunction the function that will return an optional {@link LoadingLimits} from an {@link OperationalLimitsGroup}
+     * @return a collection of loadingLimits, all the same type
+     * @param <T> the type of loadingLimit
+     */
+    private <T extends LoadingLimits> Collection<T> getAllSelectedLoadingLimits(Function<OperationalLimitsGroup, Optional<T>> operationalLimitToLoadingLimitFunction, TwoSides side) {
+        return getAllSelectedOperationalLimitsGroups(side)
+                .stream()
+                .map(operationalLimitToLoadingLimitFunction)
+                .flatMap(Optional::stream)
+                .toList();
     }
 
     /**
@@ -375,6 +425,17 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     void setSelectedOperationalLimitsGroup2(String id);
 
     /**
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given IDs as selected on side 2. If other groups were also selected, they are still selected</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
+     * <p>Throw an {@link NullPointerException} if any ID is <code>null</code>.</p>
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups2(String...)}.
+     * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup2()}
+     * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup2(String)}
+     * @param ids the IDs of one or more {@link OperationalLimitsGroup}
+     */
+    void addSelectedOperationalLimitsGroups2(String... ids);
+
+    /**
      * <p>Remove the {@link OperationalLimitsGroup} corresponding to the given ID on side 2.</p>
      * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.
      * @param id an ID of {@link OperationalLimitsGroup}
@@ -386,6 +447,16 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * <p>After calling this method, no {@link OperationalLimitsGroup} is selected on side 2.</p>
      */
     void cancelSelectedOperationalLimitsGroup2();
+
+    /**
+     * <p>Deselect the {@link OperationalLimitsGroup} corresponding to all the <code>ids</code> on side 2.</p>
+     * <p>If the {@link OperationalLimitsGroup} exists but is not selected, this method will do nothing</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group</p>
+     * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
+     * To deselect all {@link OperationalLimitsGroup}, use {@link #cancelSelectedOperationalLimitsGroup2()}
+     * @param ids the ID of the groups to remove from the selected
+     */
+    void deselectOperationalLimitsGroups2(String... ids);
 
     /**
      * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2.
@@ -521,11 +592,33 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         };
     }
 
+    /**
+     * Get all the limits of type {@link LimitType#CURRENT} on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param side the side on which to get the limits
+     * @return a collection of all the current limits of this branch on the given <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected
+     */
+    default Collection<CurrentLimits> getAllSelectedCurrentLimits(TwoSides side) {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getCurrentLimits, side);
+    }
+
     default Optional<ActivePowerLimits> getActivePowerLimits(TwoSides side) {
         return switch (side) {
             case ONE -> getActivePowerLimits1();
             case TWO -> getActivePowerLimits2();
         };
+    }
+
+    /**
+     * Get all the limits of type {@link LimitType#ACTIVE_POWER} on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param side the side on which to get the limits
+     * @return a collection of all the active power limits of this branch on the given <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected
+     */
+    default Collection<ActivePowerLimits> getAllSelectedActivePowerLimits(TwoSides side) {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getActivePowerLimits, side);
     }
 
     default Optional<ApparentPowerLimits> getApparentPowerLimits(TwoSides side) {
@@ -535,6 +628,17 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         };
     }
 
+    /**
+     * Get all the limits of type {@link LimitType#APPARENT_POWER} on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param side the side on which to get the limits
+     * @return a collection of all the apparent power limits of this branch on the given <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected
+     */
+    default Collection<ApparentPowerLimits> getAllSelectedApparentPowerLimits(TwoSides side) {
+        return getAllSelectedLoadingLimits(OperationalLimitsGroup::getApparentPowerLimits, side);
+    }
+
     default Optional<? extends LoadingLimits> getLimits(LimitType type, TwoSides side) {
         return switch (type) {
             case CURRENT -> getCurrentLimits(side);
@@ -542,6 +646,24 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
             case APPARENT_POWER -> getApparentPowerLimits(side);
             default ->
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+        };
+    }
+
+    /**
+     * Get all the limits of the given <code>type</code>, on the <code>side</code> of this branch,
+     * for the {@link OperationalLimitsGroup} that are selected
+     * @param type the type of the limit, refer to {@link LimitType}
+     * @param side the side on which to get the limits
+     * @return a collection of all the <code>type</code> limits of this branch on the <code>side</code>,
+     * one for each {@link OperationalLimitsGroup} that is selected. Might be empty if none is selected.
+     */
+    default Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type, TwoSides side) {
+        return switch (type) {
+            case CURRENT -> getAllSelectedCurrentLimits(side);
+            case ACTIVE_POWER -> getAllSelectedActivePowerLimits(side);
+            case APPARENT_POWER -> getAllSelectedApparentPowerLimits(side);
+            default ->
+                    throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         };
     }
 

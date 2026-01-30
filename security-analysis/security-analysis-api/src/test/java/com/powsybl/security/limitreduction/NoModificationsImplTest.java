@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,17 +27,21 @@ class NoModificationsImplTest {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         LimitsComputer<Identifiable<?>, LoadingLimits> computer = LimitsComputer.NO_MODIFICATIONS;
 
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
-        assertTrue(optLimits.isPresent());
-        assertEquals(500, optLimits.get().getLimits().getPermanentLimit(), 0.01);
-        assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
-        assertFalse(optLimits.get().isDistinct());
+        Collection<LimitsContainer<LoadingLimits>> limits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
+        assertFalse(limits.isEmpty());
+        var limitsContainer = limits.stream().findFirst().orElseThrow();
+        assertEquals("DEFAULT", limitsContainer.getOperationalLimitsGroupId());
+        assertEquals(500, limitsContainer.getLimits().getPermanentLimit(), 0.01);
+        assertEquals(500, limitsContainer.getOriginalLimits().getPermanentLimit(), 0.01);
+        assertFalse(limitsContainer.isDistinct());
 
-        optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, true);
-        assertTrue(optLimits.isPresent());
-        checkLimitsOnSide2(optLimits.get().getLimits());
-        checkLimitsOnSide2(optLimits.get().getOriginalLimits());
-        assertFalse(optLimits.get().isDistinct());
+        limits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, true);
+        limitsContainer = limits.stream().findFirst().orElseThrow();
+        assertFalse(limits.isEmpty());
+        assertEquals("DEFAULT", limitsContainer.getOperationalLimitsGroupId());
+        checkLimitsOnSide2(limitsContainer.getLimits());
+        checkLimitsOnSide2(limitsContainer.getOriginalLimits());
+        assertFalse(limitsContainer.isDistinct());
     }
 
     private void checkLimitsOnSide2(LoadingLimits limits) {

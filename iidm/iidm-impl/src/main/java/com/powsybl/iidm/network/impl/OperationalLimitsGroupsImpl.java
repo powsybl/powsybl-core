@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.*;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -21,7 +23,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
 
     private final String attributeName;
-    private String selectedLimitsId = null;
+    private final LinkedHashSet<String> selectedLimitsIds = new LinkedHashSet<>();
 
     private final Map<String, OperationalLimitsGroupImpl> operationalLimitsGroupById = new LinkedHashMap<>();
     private final AbstractIdentifiable<?> identifiable;
@@ -34,9 +36,9 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public OperationalLimitsGroupImpl newOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
-        OperationalLimitsGroupImpl newLimits = new OperationalLimitsGroupImpl(id, identifiable, attributeName, selectedLimitsId);
+        OperationalLimitsGroupImpl newLimits = new OperationalLimitsGroupImpl(id, identifiable, attributeName, selectedLimitsIds::contains);
         OperationalLimitsGroup oldLimits = operationalLimitsGroupById.put(id, newLimits);
-        if (id.equals(selectedLimitsId)) {
+        if (selectedLimitsIds.contains(id)) {
             notifyUpdate(oldLimits, newLimits);
         }
         return newLimits;
@@ -55,46 +57,55 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public void removeOperationalLimitsGroup(String id) {
         Objects.requireNonNull(id);
-        OperationalLimitsGroup oldLimits = operationalLimitsGroupById.remove(id);
-        if (id.equals(selectedLimitsId)) {
-            setSelectedOperationalLimitsGroupNullableId(null);
-            notifyUpdate(oldLimits, null);
+        if (selectedLimitsIds.contains(id)) {
+            deselectOperationalLimitsGroups(id);
         }
+        operationalLimitsGroupById.remove(id);
     }
 
     @Override
     public void setSelectedOperationalLimitsGroup(String id) {
-        setSelectedOperationalLimitsGroupNullableId(Objects.requireNonNull(id));
+        Objects.requireNonNull(id);
+        OperationalLimitsGroup newSelectedLimits = getOperationalLimitsGroupOrThrow(id);
+        boolean wasAlreadySelected = selectedLimitsIds.contains(id);
+        //exclude notification on the id of the group we are about to select
+        cancelSelectedOperationalLimitsGroup(id::equals);
+        selectedLimitsIds.add(id);
+        if (!wasAlreadySelected) {
+            notifyUpdate(null, newSelectedLimits);
+        }
     }
 
-    private void setSelectedOperationalLimitsGroupNullableId(String id) {
-        if (Objects.equals(id, selectedLimitsId)) {
-            return;
+    @Override
+    public void addSelectedOperationalLimitsGroups(String... ids) {
+        for (String id : ids) {
+            Objects.requireNonNull(id);
+            OperationalLimitsGroup newSelectedLimits = getOperationalLimitsGroupOrThrow(id);
+            boolean wasAlreadySelected = selectedLimitsIds.contains(id);
+            // re-insert the element with remove -> add, so that getSelectedOperationalLimitsGroupId returns things in the correct order (since add alone won't re-insert if already present)
+            selectedLimitsIds.remove(id);
+            selectedLimitsIds.add(id);
+            if (!wasAlreadySelected) {
+                notifyUpdate(null, newSelectedLimits);
+            }
         }
-
-        // Update selected group id in the groups
-        operationalLimitsGroupById.values().forEach(o -> o.setSelectedGroupId(id));
-
-        OperationalLimitsGroup newDefaultLimits = id == null ? null :
-                getOperationalLimitsGroup(id).orElseThrow(() -> new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be the default one"));
-
-        Optional<OperationalLimitsGroup> oldDefaultLimits = getSelectedOperationalLimitsGroup();
-        selectedLimitsId = id;
-        oldDefaultLimits.ifPresent(olg -> notifyUpdate(olg, newDefaultLimits));
     }
 
     @Override
     public void cancelSelectedOperationalLimitsGroup() {
-        setSelectedOperationalLimitsGroupNullableId(null);
+        //do not exclude anything
+        cancelSelectedOperationalLimitsGroup(String::isEmpty);
+    }
+
+    private void cancelSelectedOperationalLimitsGroup(Predicate<String> doNotNotify) {
+        //only keep those we want to notify, take a doNotNotify because it's easier to mention those we want to exclude
+        selectedLimitsIds.stream().filter(Predicate.not(doNotNotify)).forEach(this::notifyDeselect);
+        selectedLimitsIds.clear();
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
-        return getSelectedOperationalLimitsGroupImpl().map(Function.identity());
-    }
-
-    private Optional<OperationalLimitsGroupImpl> getSelectedOperationalLimitsGroupImpl() {
-        return Optional.ofNullable(selectedLimitsId).flatMap(this::getOperationalLimitsGroupImpl);
+        return getSelectedOperationalLimitsGroupId().map(operationalLimitsGroupById::get);
     }
 
     @Override
@@ -104,18 +115,45 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
 
     @Override
     public Optional<String> getSelectedOperationalLimitsGroupId() {
-        return Optional.ofNullable(selectedLimitsId);
+        if (selectedLimitsIds.isEmpty()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(selectedLimitsIds.getLast());
+        }
     }
 
     @Override
     public OperationalLimitsGroupImpl getOrCreateSelectedOperationalLimitsGroup() {
-        return getSelectedOperationalLimitsGroupImpl().orElseGet(() -> {
-            String groupId = DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
-            OperationalLimitsGroupImpl group = Optional.ofNullable(operationalLimitsGroupById.get(groupId))
-                    .orElseGet(() -> newOperationalLimitsGroup(groupId));
+        String groupId = DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+        if (operationalLimitsGroupById.containsKey(groupId)) {
+            return operationalLimitsGroupById.get(groupId);
+        } else {
+            OperationalLimitsGroupImpl newDefault = newOperationalLimitsGroup(groupId);
             setSelectedOperationalLimitsGroup(groupId);
-            return group;
-        });
+            return newDefault;
+        }
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+        return Collections.unmodifiableSet(selectedLimitsIds);
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+        return operationalLimitsGroupById.entrySet()
+                .stream()
+                .filter(e -> selectedLimitsIds.contains(e.getKey()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups(String... ids) {
+        for (String id : ids) {
+            selectedLimitsIds.remove(id);
+            notifyDeselect(id);
+        }
     }
 
     /**
@@ -160,5 +198,13 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
         ApparentPowerLimits oldApparentPowerLimits = Optional.ofNullable(oldValue).flatMap(OperationalLimitsGroup::getApparentPowerLimits).orElse(null);
         ApparentPowerLimits newApparentPowerLimits = Optional.ofNullable(newValue).flatMap(OperationalLimitsGroup::getApparentPowerLimits).orElse(null);
         identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + LimitType.APPARENT_POWER, oldApparentPowerLimits, newApparentPowerLimits);
+    }
+
+    private void notifyDeselect(String id) {
+        notifyUpdate(operationalLimitsGroupById.get(id), null);
+    }
+
+    private OperationalLimitsGroup getOperationalLimitsGroupOrThrow(String id) {
+        return getOperationalLimitsGroup(id).orElseThrow(() -> new PowsyblException("No operational limits group is associated to id " + id + " so this id can't be part of the selected groups."));
     }
 }
