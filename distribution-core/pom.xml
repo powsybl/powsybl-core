@@ -529,14 +529,6 @@
                 <configuration>
                     <packageName>powsybl</packageName>
                     <javaXmx>8G</javaXmx>
-                    <copyToEtc>
-                        <files>
-                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_3.xsd</file>
-                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_2.xsd</file>
-                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_1.xsd</file>
-                            <file>${project.basedir}/../iidm/iidm-serde/src/main/resources/xsd/iidm_V1_0.xsd</file>
-                        </files>
-                    </copyToEtc>
                 </configuration>
             </plugin>
         </plugins>
