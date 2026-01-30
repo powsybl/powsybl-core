@@ -8,6 +8,7 @@
 package com.powsybl.commons.extensions;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 
 /**
  * Loads an extension from platform configuration.
@@ -20,4 +21,8 @@ public interface ExtensionConfigLoader<T extends Extendable, E extends Extension
      * Creates an extension instance from the provided platform configuration.
      */
     E load(PlatformConfig platformConfig);
+
+    default E load(PlatformConfig platformConfig, ReportNode reportNode) {
+        throw new UnsupportedOperationException();
+    }
 }
