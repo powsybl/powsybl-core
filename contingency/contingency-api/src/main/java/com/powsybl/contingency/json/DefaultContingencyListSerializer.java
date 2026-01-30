@@ -8,12 +8,11 @@
 
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.contingency.list.DefaultContingencyList;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -25,10 +24,10 @@ public class DefaultContingencyListSerializer extends StdSerializer<DefaultConti
     }
 
     @Override
-    public void serialize(DefaultContingencyList contingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(DefaultContingencyList contingencyList, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
         CriterionContingencyListSerializer.serializeCommonHeadAttributes(contingencyList, jsonGenerator);
-        serializerProvider.defaultSerializeField("contingencies", contingencyList.getContingencies(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("contingencies", contingencyList.getContingencies(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

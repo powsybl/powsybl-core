@@ -7,13 +7,18 @@
  */
 package com.powsybl.psse.model.io;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.DefaultIndenter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.psse.model.PsseException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.PrettyPrinter;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.util.DefaultIndenter;
+import tools.jackson.core.util.DefaultPrettyPrinter;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,7 +48,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         }
         // Use Jackson streaming API to skip contents until wanted node is found
         JsonFactory jsonFactory = new JsonFactory();
-        try (JsonParser parser = jsonFactory.createParser(reader.getBufferedReader())) {
+        try (JsonParser parser = jsonFactory.createParser(ObjectReadContext.empty(), reader.getBufferedReader())) {
             JsonNode node = readJsonNode(parser);
             String[] actualFieldNames = readFieldNames(node);
             List<String> records = readRecords(node);
@@ -75,15 +80,14 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         throw new PsseException("Generic record group cannot be written as head record");
     }
 
-    private JsonNode readJsonNode(JsonParser parser) throws IOException {
+    private JsonNode readJsonNode(JsonParser parser) {
         Objects.requireNonNull(parser);
-        ObjectMapper mapper = new ObjectMapper();
-        parser.setCodec(mapper);
+        JsonMapper mapper = JsonUtil.createJsonMapper();
         String nodeName = recordGroup.getIdentification().getJsonNodeName();
         while (!parser.isClosed()) {
             parser.nextToken();
             if (nodeName.equals(parser.currentName())) {
-                return mapper.convertValue(parser.readValueAsTree().get("caseid"), JsonNode.class);
+                return mapper.readTree(parser).get("caseid");
             }
         }
         throw new PsseException("Json node not found: " + nodeName);
@@ -113,7 +117,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         }
         List<String> fields = new ArrayList<>();
         for (JsonNode f : fieldsNode) {
-            fields.add(f.asText());
+            fields.add(f.asString());
         }
         return fields.toArray(new String[0]);
     }
@@ -166,45 +170,41 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         if (pp instanceof DefaultPrettyPrinter defaultPrettyPrinter) {
             dpp = defaultPrettyPrinter;
         }
-        try {
-            g.writeFieldName(recordGroup.identification.getJsonNodeName());
+        g.writeName(recordGroup.identification.getJsonNodeName());
 
-            // Fields
-            g.writeStartObject();
-            // List of fields is pretty printed in a single line
-            if (dpp != null) {
-                dpp.indentArraysWith(DefaultPrettyPrinter.FixedSpaceIndenter.instance);
-            }
-            g.writeArrayFieldStart("fields");
-            for (String field : fields) {
-                g.writeString(field);
-            }
-            g.writeEndArray();
-
-            // Data is pretty printed depending on type of record group
-            // Table Data objects write every record in a separate line
-            if (dpp != null) {
-                dpp.indentArraysWith(recordGroup.identification.getJsonObjectType() == PARAMETER_SET
-                    ? DefaultPrettyPrinter.FixedSpaceIndenter.instance
-                    : DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-            }
-            g.writeArrayFieldStart("data");
-            for (String s : data) {
-                if (recordGroup.identification.getJsonObjectType() == DATA_TABLE) {
-                    g.writeStartArray();
-                }
-                g.writeRaw(" ");
-                g.writeRaw(s);
-                if (recordGroup.identification.getJsonObjectType() == DATA_TABLE) {
-                    g.writeEndArray();
-                }
-            }
-            g.writeEndArray();
-
-            g.writeEndObject();
-            g.flush();
-        } catch (IOException e) {
-            throw new PsseException("Writing PSSE", e);
+        // Fields
+        g.writeStartObject();
+        // List of fields is pretty printed in a single line
+        if (dpp != null) {
+            dpp.indentArraysWith(DefaultPrettyPrinter.FixedSpaceIndenter.instance());
         }
+        g.writeArrayPropertyStart("fields");
+        for (String field : fields) {
+            g.writeString(field);
+        }
+        g.writeEndArray();
+
+        // Data is pretty printed depending on type of record group
+        // Table Data objects write every record in a separate line
+        if (dpp != null) {
+            dpp.indentArraysWith(recordGroup.identification.getJsonObjectType() == PARAMETER_SET
+                ? DefaultPrettyPrinter.FixedSpaceIndenter.instance()
+                : DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+        }
+        g.writeArrayPropertyStart("data");
+        for (String s : data) {
+            if (recordGroup.identification.getJsonObjectType() == DATA_TABLE) {
+                g.writeStartArray();
+            }
+            g.writeRaw(" ");
+            g.writeRaw(s);
+            if (recordGroup.identification.getJsonObjectType() == DATA_TABLE) {
+                g.writeEndArray();
+            }
+        }
+        g.writeEndArray();
+
+        g.writeEndObject();
+        g.flush();
     }
 }

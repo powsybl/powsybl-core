@@ -12,8 +12,8 @@ package com.powsybl.commons.extensions;
  */
 public class FooExt extends AbstractExtension<Foo> {
 
-    private final boolean value;
-    private final String value2;
+    private boolean value;
+    private String value2;
 
     public FooExt(boolean value, String value2) {
         this.value = value;
@@ -38,5 +38,13 @@ public class FooExt extends AbstractExtension<Foo> {
 
     public String getValue2() {
         return value2;
+    }
+
+    public void setValue(boolean value) {
+        this.value = value;
+    }
+
+    public void setValue2(String value2) {
+        this.value2 = value2;
     }
 }

@@ -7,15 +7,15 @@
  */
 package com.powsybl.commons.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.AbstractTreeDataWriter;
 import com.powsybl.commons.json.JsonUtil.Context;
 import com.powsybl.commons.json.JsonUtil.ContextType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectWriter;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
@@ -32,11 +32,11 @@ public class JsonWriter extends AbstractTreeDataWriter {
 
     private final Deque<Context> contextQueue = new ArrayDeque<>();
 
-    public JsonWriter(OutputStream os, boolean indent, String rootVersion, Map<String, String> singleNameToArrayNameMap) throws IOException {
-        this.jsonGenerator = JsonUtil.createJsonFactory().createGenerator(os);
-        if (indent) {
-            jsonGenerator.useDefaultPrettyPrinter();
-        }
+    public JsonWriter(OutputStream os, boolean indent, String rootVersion, Map<String, String> singleNameToArrayNameMap) throws JacksonException {
+        ObjectWriter writer = indent ?
+            JsonUtil.createJsonMapper().writerWithDefaultPrettyPrinter() :
+            JsonUtil.createJsonMapper().writer();
+        this.jsonGenerator = writer.createGenerator(os);
         this.rootVersion = Objects.requireNonNull(rootVersion);
         this.singleNameToArrayNameMap = Objects.requireNonNull(singleNameToArrayNameMap);
     }
@@ -53,62 +53,50 @@ public class JsonWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeEndNodes() {
-        try {
-            Context context = Objects.requireNonNull(contextQueue.pop());
-            if (context.getType() != ContextType.ARRAY) {
-                throw new IllegalStateException();
-            }
-            if (context.getFieldName() != null) {
-                jsonGenerator.writeEndArray();
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        Context context = Objects.requireNonNull(contextQueue.pop());
+        if (context.getType() != ContextType.ARRAY) {
+            throw new IllegalStateException();
+        }
+        if (context.getFieldName() != null) {
+            jsonGenerator.writeEndArray();
         }
     }
 
     @Override
     public void writeStartNode(String namespace, String name) {
-        try {
-            Context context = contextQueue.peekFirst();
-            if (context != null) {
-                if (context.getType() == ContextType.ARRAY) {
-                    if (context.getFieldName() == null) {
-                        String arrayFieldName = singleNameToArrayNameMap.get(name);
-                        if (arrayFieldName == null) {
-                            throw new PowsyblException(String.format("Cannot write start node %s with unknown corresponding array name", name));
-                        }
-                        context.setFieldName(arrayFieldName);
-                        jsonGenerator.writeFieldName(arrayFieldName);
-                        jsonGenerator.writeStartArray();
+        Context context = contextQueue.peekFirst();
+        if (context != null) {
+            if (context.getType() == ContextType.ARRAY) {
+                if (context.getFieldName() == null) {
+                    String arrayFieldName = singleNameToArrayNameMap.get(name);
+                    if (arrayFieldName == null) {
+                        throw new PowsyblException(String.format("Cannot write start node %s with unknown corresponding array name", name));
                     }
-                } else if (context.getType() == ContextType.OBJECT) {
-                    jsonGenerator.writeFieldName(name);
+                    context.setFieldName(arrayFieldName);
+                    jsonGenerator.writeName(arrayFieldName);
+                    jsonGenerator.writeStartArray();
                 }
-                jsonGenerator.writeStartObject();
-            } else {
-                jsonGenerator.writeStartObject();
-                writeStringAttribute(VERSION, rootVersion);
-                writeExtensionVersions();
+            } else if (context.getType() == ContextType.OBJECT) {
+                jsonGenerator.writeName(name);
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            jsonGenerator.writeStartObject();
+        } else {
+            jsonGenerator.writeStartObject();
+            writeStringAttribute(VERSION, rootVersion);
+            writeExtensionVersions();
         }
         contextQueue.push(new Context(ContextType.OBJECT, name));
     }
 
-    private void writeExtensionVersions() throws IOException {
+    private void writeExtensionVersions() throws JacksonException {
         if (!extensionVersions.isEmpty()) {
-            jsonGenerator.writeFieldName(EXTENSION_VERSIONS);
+            jsonGenerator.writeName(EXTENSION_VERSIONS);
             jsonGenerator.writeStartArray();
             extensionVersions.forEach((extensionName, version) -> {
-                try {
-                    jsonGenerator.writeStartObject();
-                    writeStringAttribute("extensionName", extensionName);
-                    writeStringAttribute(VERSION, version);
-                    jsonGenerator.writeEndObject();
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
+                jsonGenerator.writeStartObject();
+                writeStringAttribute("extensionName", extensionName);
+                writeStringAttribute(VERSION, version);
+                jsonGenerator.writeEndObject();
             });
             jsonGenerator.writeEndArray();
         }
@@ -116,11 +104,7 @@ public class JsonWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeEndNode() {
-        try {
-            jsonGenerator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        jsonGenerator.writeEndObject();
         contextQueue.pop();
     }
 
@@ -136,34 +120,22 @@ public class JsonWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeStringAttribute(String name, String value) {
-        try {
-            if (value != null) {
-                jsonGenerator.writeStringField(name, value);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        if (value != null) {
+            jsonGenerator.writeStringProperty(name, value);
         }
     }
 
     @Override
     public void writeFloatAttribute(String name, float value) {
-        try {
-            if (!Float.isNaN(value)) {
-                jsonGenerator.writeNumberField(name, value);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        if (!Float.isNaN(value)) {
+            jsonGenerator.writeNumberProperty(name, value);
         }
     }
 
     @Override
     public void writeDoubleAttribute(String name, double value) {
-        try {
-            if (!Double.isNaN(value)) {
-                jsonGenerator.writeNumberField(name, value);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        if (!Double.isNaN(value)) {
+            jsonGenerator.writeNumberProperty(name, value);
         }
     }
 
@@ -176,11 +148,7 @@ public class JsonWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeIntAttribute(String name, int value) {
-        try {
-            jsonGenerator.writeNumberField(name, value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        jsonGenerator.writeNumberProperty(name, value);
     }
 
     @Override
@@ -192,33 +160,25 @@ public class JsonWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeIntArrayAttribute(String name, Collection<Integer> values) {
-        try {
-            if (!values.isEmpty()) {
-                jsonGenerator.writeFieldName(name);
-                jsonGenerator.writeStartArray();
-                for (int value : values) {
-                    jsonGenerator.writeNumber(value);
-                }
-                jsonGenerator.writeEndArray();
+        if (!values.isEmpty()) {
+            jsonGenerator.writeName(name);
+            jsonGenerator.writeStartArray();
+            for (int value : values) {
+                jsonGenerator.writeNumber(value);
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            jsonGenerator.writeEndArray();
         }
     }
 
     @Override
     public void writeStringArrayAttribute(String name, Collection<String> values) {
-        try {
-            if (!values.isEmpty()) {
-                jsonGenerator.writeFieldName(name);
-                jsonGenerator.writeStartArray();
-                for (String value : values) {
-                    jsonGenerator.writeString(value);
-                }
-                jsonGenerator.writeEndArray();
+        if (!values.isEmpty()) {
+            jsonGenerator.writeName(name);
+            jsonGenerator.writeStartArray();
+            for (String value : values) {
+                jsonGenerator.writeString(value);
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            jsonGenerator.writeEndArray();
         }
     }
 
@@ -231,11 +191,7 @@ public class JsonWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeBooleanAttribute(String name, boolean value) {
-        try {
-            jsonGenerator.writeBooleanField(name, value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        jsonGenerator.writeBooleanProperty(name, value);
     }
 
     @Override
@@ -247,10 +203,6 @@ public class JsonWriter extends AbstractTreeDataWriter {
 
     @Override
     public void close() {
-        try {
-            jsonGenerator.close();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        jsonGenerator.close();
     }
 }

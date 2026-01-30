@@ -7,9 +7,9 @@
  */
 package com.powsybl.timeseries.ast;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
@@ -50,10 +50,10 @@ public class TimeSeriesNameNodeCalc implements NodeCalc {
 
     @Override
     public void writeJson(JsonGenerator generator) throws IOException {
-        generator.writeStringField(NAME, timeSeriesName);
+        generator.writeStringProperty(NAME, timeSeriesName);
     }
 
-    static NodeCalc parseJson(JsonParser parser) throws IOException {
+    static NodeCalc parseJson(JsonParser parser) {
         JsonToken token = parser.nextToken();
         if (token != null) {
             if (token == JsonToken.VALUE_STRING) {

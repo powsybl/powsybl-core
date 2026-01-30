@@ -7,14 +7,13 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.AbstractTapChangerTapPositionActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -25,13 +24,13 @@ public abstract class AbstractTapChangerTapPositionActionBuilderDeserializer<T e
         super(vc);
     }
 
-    protected boolean deserializeCommonAttributes(JsonParser jsonParser, T builder, String name, String version) throws IOException {
+    protected boolean deserializeCommonAttributes(JsonParser jsonParser, T builder, String name, String version) throws JacksonException {
         switch (name) {
             case "id":
-                builder.withId(jsonParser.nextTextValue());
+                builder.withId(jsonParser.nextStringValue());
                 return true;
             case "transformerId":
-                builder.withTransformerId(jsonParser.nextTextValue());
+                builder.withTransformerId(jsonParser.nextStringValue());
                 return true;
             case "value":
                 JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "Tag: value", version, "1.0");
@@ -48,16 +47,16 @@ public abstract class AbstractTapChangerTapPositionActionBuilderDeserializer<T e
                 builder.withRelativeValue(jsonParser.getValueAsBoolean());
                 return true;
             case "side":
-                builder.withSide(ThreeSides.valueOf(jsonParser.nextTextValue()));
+                builder.withSide(ThreeSides.valueOf(jsonParser.nextStringValue()));
                 return true;
             default:
                 return false;
         }
     }
 
-    protected void checkFields(T builder, JsonParser jsonParser) throws JsonMappingException {
+    protected void checkFields(T builder, JsonParser jsonParser) throws DatabindException {
         if (builder.isRelativeValue() == null) {
-            throw JsonMappingException.from(jsonParser, "for phase tap changer tap position action relative value field can't be null");
+            throw DatabindException.from(jsonParser, "for phase tap changer tap position action relative value field can't be null");
         }
     }
 }

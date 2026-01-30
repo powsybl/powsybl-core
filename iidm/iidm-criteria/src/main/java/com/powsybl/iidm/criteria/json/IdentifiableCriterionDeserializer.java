@@ -7,8 +7,6 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.AtLeastOneCountryCriterion;
@@ -16,8 +14,9 @@ import com.powsybl.iidm.criteria.AtLeastOneNominalVoltageCriterion;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.IdentifiableCriterion;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * <p>Deserializer for {@link IdentifiableCriterion} objects.</p>
@@ -29,7 +28,7 @@ public class IdentifiableCriterionDeserializer extends AbstractNetworkElementCri
     }
 
     @Override
-    public IdentifiableCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public IdentifiableCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext parsingContext = new ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 IdentifiableCriterion.TYPE, CriterionType.AT_LEAST_ONE_COUNTRY, CriterionType.AT_LEAST_ONE_NOMINAL_VOLTAGE));

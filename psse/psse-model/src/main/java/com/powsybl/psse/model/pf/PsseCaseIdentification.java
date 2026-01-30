@@ -7,16 +7,15 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.univocity.parsers.annotations.Format;
 import com.univocity.parsers.annotations.Parsed;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  *
@@ -130,9 +129,9 @@ public class PsseCaseIdentification {
         }
     }
 
-    private static final class RevisionSerializer extends JsonSerializer<Float> {
+    private static final class RevisionSerializer extends ValueSerializer<Float> {
         @Override
-        public void serialize(Float value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+        public void serialize(Float value, JsonGenerator generator, SerializationContext provider) throws JacksonException {
             String rev = PsseVersion.fromRevision(value).toString();
             generator.writeRawValue(rev);
         }

@@ -7,16 +7,15 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.action.HvdcAction;
 import com.powsybl.action.HvdcActionBuilder;
-
-import java.io.IOException;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.HvdcLine;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -28,20 +27,20 @@ public class HvdcActionBuilderDeserializer extends StdDeserializer<HvdcActionBui
     }
 
     @Override
-    public HvdcActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public HvdcActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         HvdcActionBuilder hvdcActionBuilder = new HvdcActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
-                    if (!HvdcAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + HvdcAction.NAME);
+                    if (!HvdcAction.NAME.equals(jsonParser.nextStringValue())) {
+                        throw DatabindException.from(jsonParser, "Expected type " + HvdcAction.NAME);
                     }
                     return true;
                 case "id":
-                    hvdcActionBuilder.withId(jsonParser.nextTextValue());
+                    hvdcActionBuilder.withId(jsonParser.nextStringValue());
                     return true;
                 case "hvdcId":
-                    hvdcActionBuilder.withHvdcId(jsonParser.nextTextValue());
+                    hvdcActionBuilder.withHvdcId(jsonParser.nextStringValue());
                     return true;
                 case "acEmulationEnabled":
                     jsonParser.nextToken();
@@ -52,7 +51,7 @@ public class HvdcActionBuilderDeserializer extends StdDeserializer<HvdcActionBui
                     hvdcActionBuilder.withActivePowerSetpoint(jsonParser.getValueAsDouble());
                     return true;
                 case "converterMode":
-                    hvdcActionBuilder.withConverterMode(HvdcLine.ConvertersMode.valueOf(jsonParser.nextTextValue()));
+                    hvdcActionBuilder.withConverterMode(HvdcLine.ConvertersMode.valueOf(jsonParser.nextStringValue()));
                     return true;
                 case "droop":
                     jsonParser.nextToken();

@@ -7,14 +7,13 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 
-import java.io.IOException;
 import java.nio.DoubleBuffer;
 import java.time.Duration;
 import java.time.Instant;
@@ -67,7 +66,7 @@ class DoubleDataChunkTest {
     }
 
     @Test
-    void compressTest() throws IOException {
+    void compressTest() {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[] {1d, 2d, 2d, 2d, 2d, 3d});
         DoubleDataChunk maybeCompressedChunk = chunk.tryToCompress();
         assertInstanceOf(CompressedDoubleDataChunk.class, maybeCompressedChunk);
@@ -97,17 +96,18 @@ class DoubleDataChunkTest {
         assertEquals(jsonRef, JsonUtil.toJson(compressedChunk::writeJson));
 
         // test json with object mapper
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new TimeSeriesJsonModule());
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new TimeSeriesJsonModule())
+            .build();
 
-        List<DoubleDataChunk> chunks = objectMapper.readValue(objectMapper.writeValueAsString(Arrays.asList(chunk, compressedChunk)),
-                                                               TypeFactory.defaultInstance().constructCollectionType(List.class, DoubleDataChunk.class));
+        List<DoubleDataChunk> chunks = jsonMapper.readValue(jsonMapper.writeValueAsString(Arrays.asList(chunk, compressedChunk)),
+                                                               TypeFactory.createDefaultInstance().constructCollectionType(List.class, DoubleDataChunk.class));
         assertEquals(2, chunks.size());
         assertEquals(chunk, chunks.get(0));
         assertEquals(compressedChunk, chunks.get(1));
 
         // check base class (DataChunk) deserializer
-        assertInstanceOf(DoubleDataChunk.class, objectMapper.readValue(objectMapper.writeValueAsString(chunk), DataChunk.class));
+        assertInstanceOf(DoubleDataChunk.class, jsonMapper.readValue(jsonMapper.writeValueAsString(chunk), DataChunk.class));
 
         // stream test
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:30:00Z"),
@@ -139,13 +139,13 @@ class DoubleDataChunkTest {
     }
 
     @Test
-    void compressFailureTest() throws IOException {
+    void compressFailureTest() {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[] {1d, 2d, 2d, 3d});
         assertSame(chunk, chunk.tryToCompress());
     }
 
     @Test
-    void uncompressedSplitTest() throws IOException {
+    void uncompressedSplitTest() {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[]{1d, 2d, 3d});
         try {
             chunk.splitAt(1);
@@ -169,7 +169,7 @@ class DoubleDataChunkTest {
     }
 
     @Test
-    void compressedSplitTest() throws IOException {
+    void compressedSplitTest() {
         // index  0   1   2   3   4   5
         // value  NaN 1   1   2   2   2
         //            [-------]   [---]

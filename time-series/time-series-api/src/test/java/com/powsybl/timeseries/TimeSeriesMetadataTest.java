@@ -7,22 +7,24 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -30,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TimeSeriesMetadataTest {
 
     @Test
-    void test() throws IOException {
+    void test() {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"),
                                                                      Duration.ofMinutes(15));
         ImmutableMap<String, String> tags = ImmutableMap.of("var1", "value1");
@@ -67,21 +69,22 @@ class TimeSeriesMetadataTest {
         assertEquals(metadata, metadata2);
 
         // test json with object mapper
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new TimeSeriesJsonModule());
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new TimeSeriesJsonModule())
+            .build();
 
-        assertEquals(metadata, objectMapper.readValue(objectMapper.writeValueAsString(metadata), TimeSeriesMetadata.class));
+        assertEquals(metadata, jsonMapper.readValue(jsonMapper.writeValueAsString(metadata), TimeSeriesMetadata.class));
 
         // test with a list of metadata
-        List<TimeSeriesMetadata> metadataList = objectMapper.readValue(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(Arrays.asList(metadata, metadata)),
-                                                                       TypeFactory.defaultInstance().constructCollectionType(List.class, TimeSeriesMetadata.class));
+        List<TimeSeriesMetadata> metadataList = jsonMapper.readValue(jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(Arrays.asList(metadata, metadata)),
+                                                                       TypeFactory.createDefaultInstance().constructCollectionType(List.class, TimeSeriesMetadata.class));
         assertEquals(2, metadataList.size());
         assertEquals(metadata, metadataList.get(0));
         assertEquals(metadata, metadataList.get(1));
     }
 
     @Test
-    void testIrregularIndex() throws IOException {
+    void testIrregularIndex() {
         TimeSeriesIndex index = IrregularTimeSeriesIndex.create(
             Instant.parse("2015-01-01T00:00:00Z"),
             Instant.parse("2015-01-02T00:00:00Z"),

@@ -79,9 +79,10 @@ class PostContingencyResultTest extends AbstractSerDeTest {
     void write(PostContingencyResult postContingencyResult, Path jsonFile) {
         try {
             OutputStream out = Files.newOutputStream(jsonFile);
-            JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule())
-                .registerModule(new ActionJsonModule())
+            JsonUtil.createJsonMapperBuilder()
+                .addModule(new SecurityAnalysisJsonModule())
+                .addModule(new ActionJsonModule())
+                .build()
                 .writerWithDefaultPrettyPrinter()
                 .writeValue(out, postContingencyResult);
         } catch (IOException e) {
@@ -91,9 +92,10 @@ class PostContingencyResultTest extends AbstractSerDeTest {
 
     PostContingencyResult read(Path jsonFile) {
         try {
-            return JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule())
-                .registerModule(new ActionJsonModule())
+            return JsonUtil.createJsonMapperBuilder()
+                .addModule(new SecurityAnalysisJsonModule())
+                .addModule(new ActionJsonModule())
+                .build()
                 .readerFor(PostContingencyResult.class)
                 .readValue(Files.newInputStream(jsonFile));
         } catch (IOException e) {

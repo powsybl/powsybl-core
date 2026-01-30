@@ -7,14 +7,13 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-
-import java.io.IOException;
 
 /**
  * Json serializer for sensitivity analysis parameters
@@ -28,21 +27,21 @@ public class SensitivityAnalysisParametersSerializer extends StdSerializer<Sensi
     }
 
     @Override
-    public void serialize(SensitivityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(SensitivityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
 
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", SensitivityAnalysisParameters.VERSION);
+        jsonGenerator.writeStringProperty("version", SensitivityAnalysisParameters.VERSION);
 
-        jsonGenerator.writeFieldName("load-flow-parameters");
-        JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
+        jsonGenerator.writeName("load-flow-parameters");
+        JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializationContext);
 
-        jsonGenerator.writeNumberField("flow-flow-sensitivity-value-threshold", parameters.getFlowFlowSensitivityValueThreshold());
-        jsonGenerator.writeNumberField("voltage-voltage-sensitivity-value-threshold", parameters.getVoltageVoltageSensitivityValueThreshold());
-        jsonGenerator.writeNumberField("flow-voltage-sensitivity-value-threshold", parameters.getFlowVoltageSensitivityValueThreshold());
-        jsonGenerator.writeNumberField("angle-flow-sensitivity-value-threshold", parameters.getAngleFlowSensitivityValueThreshold());
+        jsonGenerator.writeNumberProperty("flow-flow-sensitivity-value-threshold", parameters.getFlowFlowSensitivityValueThreshold());
+        jsonGenerator.writeNumberProperty("voltage-voltage-sensitivity-value-threshold", parameters.getVoltageVoltageSensitivityValueThreshold());
+        jsonGenerator.writeNumberProperty("flow-voltage-sensitivity-value-threshold", parameters.getFlowVoltageSensitivityValueThreshold());
+        jsonGenerator.writeNumberProperty("angle-flow-sensitivity-value-threshold", parameters.getAngleFlowSensitivityValueThreshold());
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get);
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializationContext, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get);
 
         jsonGenerator.writeEndObject();
     }

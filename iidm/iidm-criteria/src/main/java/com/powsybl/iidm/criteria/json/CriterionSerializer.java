@@ -7,13 +7,13 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,54 +27,54 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
     }
 
     @Override
-    public void serialize(Criterion criterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(Criterion criterion, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", criterion.getType().toString());
+        jsonGenerator.writeStringProperty("type", criterion.getType().toString());
         switch (criterion.getType()) {
             case AT_LEAST_ONE_COUNTRY:
-                serializerProvider.defaultSerializeField("countries",
+                serializationContext.defaultSerializeProperty("countries",
                         ((AtLeastOneCountryCriterion) criterion).getCountries().stream().map(Country::toString).collect(Collectors.toList()),
                         jsonGenerator);
                 break;
             case SINGLE_COUNTRY:
-                serializerProvider.defaultSerializeField("countries",
+                serializationContext.defaultSerializeProperty("countries",
                         ((SingleCountryCriterion) criterion).getCountries().stream().map(Country::toString).collect(Collectors.toList()),
                         jsonGenerator);
                 break;
             case TWO_COUNTRY:
-                serializerProvider.defaultSerializeField("countries1",
+                serializationContext.defaultSerializeProperty("countries1",
                         ((TwoCountriesCriterion) criterion).getCountries1().stream().map(Country::toString).collect(Collectors.toList()),
                         jsonGenerator);
-                serializerProvider.defaultSerializeField("countries2",
+                serializationContext.defaultSerializeProperty("countries2",
                         ((TwoCountriesCriterion) criterion).getCountries2().stream().map(Country::toString).collect(Collectors.toList()),
                         jsonGenerator);
                 break;
             case AT_LEAST_ONE_NOMINAL_VOLTAGE:
                 AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion = (AtLeastOneNominalVoltageCriterion) criterion;
-                serializerProvider.defaultSerializeField("voltageInterval", atLeastOneNominalVoltageCriterion.getVoltageInterval(), jsonGenerator);
+                serializationContext.defaultSerializeProperty("voltageInterval", atLeastOneNominalVoltageCriterion.getVoltageInterval(), jsonGenerator);
                 break;
             case SINGLE_NOMINAL_VOLTAGE:
                 SingleNominalVoltageCriterion singleNominalVoltageCriterion = (SingleNominalVoltageCriterion) criterion;
-                serializerProvider.defaultSerializeField("voltageInterval", singleNominalVoltageCriterion.getVoltageInterval(), jsonGenerator);
+                serializationContext.defaultSerializeProperty("voltageInterval", singleNominalVoltageCriterion.getVoltageInterval(), jsonGenerator);
                 break;
             case TWO_NOMINAL_VOLTAGE:
-                serializeTwoWindingsVoltageCriterion((TwoNominalVoltageCriterion) criterion, jsonGenerator, serializerProvider);
+                serializeTwoWindingsVoltageCriterion((TwoNominalVoltageCriterion) criterion, jsonGenerator, serializationContext);
                 break;
             case THREE_NOMINAL_VOLTAGE:
-                serializeThreeNominalVoltageCriterion((ThreeNominalVoltageCriterion) criterion, jsonGenerator, serializerProvider);
+                serializeThreeNominalVoltageCriterion((ThreeNominalVoltageCriterion) criterion, jsonGenerator, serializationContext);
                 break;
             case PROPERTY:
-                jsonGenerator.writeStringField("propertyKey", ((PropertyCriterion) criterion).getPropertyKey());
-                serializerProvider.defaultSerializeField("propertyValue",
+                jsonGenerator.writeStringProperty("propertyKey", ((PropertyCriterion) criterion).getPropertyKey());
+                serializationContext.defaultSerializeProperty("propertyValue",
                         ((PropertyCriterion) criterion).getPropertyValues(),
                         jsonGenerator);
-                jsonGenerator.writeStringField("equipmentToCheck", ((PropertyCriterion) criterion).getEquipmentToCheck().toString());
+                jsonGenerator.writeStringProperty("equipmentToCheck", ((PropertyCriterion) criterion).getEquipmentToCheck().toString());
                 if (((PropertyCriterion) criterion).getSideToCheck() != null) {
-                    jsonGenerator.writeStringField("sideToCheck", ((PropertyCriterion) criterion).getSideToCheck().toString());
+                    jsonGenerator.writeStringProperty("sideToCheck", ((PropertyCriterion) criterion).getSideToCheck().toString());
                 }
                 break;
             case REGEX:
-                jsonGenerator.writeStringField("regex", ((RegexCriterion) criterion).getRegex());
+                jsonGenerator.writeStringProperty("regex", ((RegexCriterion) criterion).getRegex());
                 break;
             default:
                 throw new IllegalArgumentException("type " + criterion.getType().toString() + " not known");
@@ -82,29 +82,29 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeTwoWindingsVoltageCriterion(TwoNominalVoltageCriterion twoNominalVoltageCriterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    private static void serializeTwoWindingsVoltageCriterion(TwoNominalVoltageCriterion twoNominalVoltageCriterion, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         Optional<VoltageInterval> optInterval = twoNominalVoltageCriterion.getVoltageInterval1();
         if (optInterval.isPresent()) {
-            serializerProvider.defaultSerializeField("voltageInterval1", optInterval.get(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("voltageInterval1", optInterval.get(), jsonGenerator);
         }
         optInterval = twoNominalVoltageCriterion.getVoltageInterval2();
         if (optInterval.isPresent()) {
-            serializerProvider.defaultSerializeField("voltageInterval2", optInterval.get(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("voltageInterval2", optInterval.get(), jsonGenerator);
         }
     }
 
-    private static void serializeThreeNominalVoltageCriterion(ThreeNominalVoltageCriterion threeNominalVoltageCriterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    private static void serializeThreeNominalVoltageCriterion(ThreeNominalVoltageCriterion threeNominalVoltageCriterion, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         Optional<VoltageInterval> optInterval = threeNominalVoltageCriterion.getVoltageInterval1();
         if (optInterval.isPresent()) {
-            serializerProvider.defaultSerializeField("voltageInterval1", optInterval.get(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("voltageInterval1", optInterval.get(), jsonGenerator);
         }
         optInterval = threeNominalVoltageCriterion.getVoltageInterval2();
         if (optInterval.isPresent()) {
-            serializerProvider.defaultSerializeField("voltageInterval2", optInterval.get(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("voltageInterval2", optInterval.get(), jsonGenerator);
         }
         optInterval = threeNominalVoltageCriterion.getVoltageInterval3();
         if (optInterval.isPresent()) {
-            serializerProvider.defaultSerializeField("voltageInterval3", optInterval.get(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("voltageInterval3", optInterval.get(), jsonGenerator);
         }
     }
 }

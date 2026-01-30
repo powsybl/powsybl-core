@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.results.PreContingencyResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -24,11 +23,11 @@ public class PreContingencyResultSerializer extends StdSerializer<PreContingency
     }
 
     @Override
-    public void serialize(PreContingencyResult preContingencyResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(PreContingencyResult preContingencyResult, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        serializerProvider.defaultSerializeField("status", preContingencyResult.getStatus(), jsonGenerator);
-        serializerProvider.defaultSerializeField("limitViolationsResult", preContingencyResult.getLimitViolationsResult(), jsonGenerator);
-        serializerProvider.defaultSerializeField("networkResult", preContingencyResult.getNetworkResult(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("status", preContingencyResult.getStatus(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("limitViolationsResult", preContingencyResult.getLimitViolationsResult(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("networkResult", preContingencyResult.getNetworkResult(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

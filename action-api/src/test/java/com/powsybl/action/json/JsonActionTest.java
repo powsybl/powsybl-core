@@ -12,12 +12,14 @@ import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementId
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import tools.jackson.core.JacksonException;
 
 import java.io.*;
 import java.util.*;
 
 import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonActionTest extends AbstractSerDeTest {
@@ -108,15 +110,15 @@ public class JsonActionTest extends AbstractSerDeTest {
     @Test
     void wrongActions() throws IOException {
         try (final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json")) {
-            assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action relative value field can't be null\n" +
-                " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
-                ActionList.readJsonInputStream(inputStream)).getMessage());
+            JacksonException exception = assertThrows(JacksonException.class, () -> ActionList.readJsonInputStream(inputStream));
+            assertThat(exception.getMessage())
+                .contains("for phase tap changer tap position action relative value field can't be null")
+                .contains("through reference chain: java.util.ArrayList[0]");
         }
 
         try (final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json")) {
-            assertTrue(assertThrows(UncheckedIOException.class, () -> ActionList
-                .readJsonInputStream(inputStream3))
-                .getMessage()
+            JacksonException exception = assertThrows(JacksonException.class, () -> ActionList.readJsonInputStream(inputStream3));
+            assertTrue(exception.getMessage()
                 .contains("actions. Tag: value is not valid for version 1.1. Version should be <= 1.0"));
         }
     }
