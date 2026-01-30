@@ -188,11 +188,14 @@ public final class LimitViolationDetection {
         Collection<LimitsContainer<LoadingLimits>> allLoadingLimits = limitsComputer.computeLimits(transformer, type, side, false);
         Set<String> temporaryOverloadIds;
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
-            //get all the temporary overloads, and also use the consumer on them as we go
+            //get all the temporary overloads and send them through the consumer
             Collection<Overload> overloadOnTemporary = allLoadingLimits.stream()
                     .map(limits -> LimitViolationUtils.getOverload(limits, value))
                     .flatMap(Optional::stream)
-                    .peek(overload -> consumer.accept(
+                    .toList();
+
+            overloadOnTemporary.forEach(
+                    overload -> consumer.accept(
                             new LimitViolation(transformer.getId(),
                                     transformer.getOptionalName().orElse("null"),
                                     toLimitViolationType(type),
@@ -201,9 +204,10 @@ public final class LimitViolationDetection {
                                     overload.getPreviousLimit(),
                                     overload.getLimitReductionCoefficient(),
                                     value,
-                                    side)
-                    ))
-                    .toList();
+                                    side
+                            )
+                    )
+            );
             temporaryOverloadIds = overloadOnTemporary.stream().map(Overload::getOperationalLimitsGroupId).collect(Collectors.toSet());
         } else {
             //cannot set it at start since the filter after will complain that this Set is not effectively final

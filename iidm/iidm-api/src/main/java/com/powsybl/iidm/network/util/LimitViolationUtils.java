@@ -118,15 +118,17 @@ public final class LimitViolationUtils {
         double limit = previousLimit;
         double reduction = limitReductionValue;
         String operationalLimitsGroupId = "";
-        if (limitsContainer != null && limitsContainer.isDistinct()) {
-            AbstractDistinctLimitsContainer<?, ?> container = (AbstractDistinctLimitsContainer<?, ?>) limitsContainer;
+        if (limitsContainer != null) {
             operationalLimitsGroupId = limitsContainer.getOperationalLimitsGroupId();
-            if (isFirstTemporaryLimit) {
-                limit = container.getOriginalPermanentLimit();
-                reduction = container.getPermanentLimitReduction();
-            } else {
-                limit = container.getOriginalTemporaryLimit(previousAcceptableDuration);
-                reduction = container.getTemporaryLimitReduction(previousAcceptableDuration);
+            if (limitsContainer.isDistinct()) {
+                AbstractDistinctLimitsContainer<?, ?> container = (AbstractDistinctLimitsContainer<?, ?>) limitsContainer;
+                if (isFirstTemporaryLimit) {
+                    limit = container.getOriginalPermanentLimit();
+                    reduction = container.getPermanentLimitReduction();
+                } else {
+                    limit = container.getOriginalTemporaryLimit(previousAcceptableDuration);
+                    reduction = container.getTemporaryLimitReduction(previousAcceptableDuration);
+                }
             }
         }
         return tl != null ?
