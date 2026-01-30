@@ -679,17 +679,20 @@ public abstract class AbstractAcDcConverterTest {
 
         // test cannot create Converter across subnetwork1 & subnetwork2
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Subnet2' are in different networks 'subnetwork1' and 'subnetwork2'", e1.getMessage());
+        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Subnet2' are in different networks 'subnetwork1' and 'subnetwork2'",
+            e1.getMessage());
 
         // test cannot create Converter in subnetwork1 referencing nodes of subnetwork2
         adder.setDcNode1(dcNode1Subnet2.getId()).setDcNode2(dcNode2Subnet2.getId());
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet2' and 'dcNode2Subnet2' are in network 'subnetwork2' but DC Equipment is in 'subnetwork1'", e2.getMessage());
+        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet2' and 'dcNode2Subnet2' are in network 'subnetwork2' but DC Equipment is in 'subnetwork1'",
+            e2.getMessage());
 
         // test cannot create Converter in subnetwork1 referencing nodes of netWithSubnet
         adder.setDcNode1(dcNode1Subnet1.getId()).setDcNode2(dcNode1Root.getId());
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Root' are in different networks 'subnetwork1' and 'test'", e3.getMessage());
+        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Root' are in different networks 'subnetwork1' and 'test'",
+            e3.getMessage());
     }
 
     @Test

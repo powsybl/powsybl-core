@@ -29,7 +29,7 @@ public class UcteTransformer extends UcteElement {
         this.conductance = conductance;
     }
 
-   /**
+    /**
      * Gets element id.
      * <p>Node 1 is non-regulated winding.
      * <p>Node 2 is regulated winding.

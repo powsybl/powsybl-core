@@ -200,7 +200,8 @@ public class SensitivityFactor {
     public static List<SensitivityFactor> createMatrix(SensitivityFunctionType functionType, Collection<String> functionIds,
                                                        SensitivityVariableType variableType, Collection<String> variableIds,
                                                        boolean variableSet, ContingencyContext contingencyContext) {
-        return functionIds.stream().flatMap(functionId -> variableIds.stream().map(variableId -> new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext)))
-                .collect(Collectors.toList());
+        return functionIds.stream()
+            .flatMap(functionId -> variableIds.stream().map(variableId -> new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext)))
+            .collect(Collectors.toList());
     }
 }

@@ -7,18 +7,17 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.security.PostContingencyComputationStatus;
+import com.powsybl.security.results.PostContingencyResult;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.powsybl.security.PostContingencyComputationStatus;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import com.powsybl.contingency.Contingency;
-import com.powsybl.security.results.PostContingencyResult;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *

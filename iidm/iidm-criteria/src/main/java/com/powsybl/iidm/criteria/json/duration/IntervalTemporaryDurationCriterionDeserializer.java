@@ -42,41 +42,7 @@ public class IntervalTemporaryDurationCriterionDeserializer extends StdDeseriali
     @Override
     public IntervalTemporaryDurationCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        JsonUtil.parsePolymorphicObject(parser, name -> {
-            switch (name) {
-                case "type" -> {
-                    readAndCheckType(LimitDurationType.TEMPORARY, TemporaryDurationCriterionType.INTERVAL, parser);
-                    return true;
-                }
-                case "version" -> {
-                    parser.nextTextValue();
-                    return true;
-                }
-                case "lowBound" -> {
-                    parser.nextToken();
-                    context.lowBound = parser.getValueAsInt();
-                    return true;
-                }
-                case "lowClosed" -> {
-                    parser.nextToken();
-                    context.lowClosed = parser.getValueAsBoolean();
-                    return true;
-                }
-                case "highBound" -> {
-                    parser.nextToken();
-                    context.highBound = parser.getValueAsInt();
-                    return true;
-                }
-                case "highClosed" -> {
-                    parser.nextToken();
-                    context.highClosed = parser.getValueAsBoolean();
-                    return true;
-                }
-                default -> {
-                    return false;
-                }
-            }
-        });
+        JsonUtil.parsePolymorphicObject(parser, name -> parseIntervalTemporaryDurationCriterion(parser, context, name));
         IntervalTemporaryDurationCriterion.Builder builder = IntervalTemporaryDurationCriterion.builder();
         if (checkBoundData(context.lowBound, context.lowClosed, "lowBound", "lowClosed", MISSING_BOUND_ATTRIBUTE_MESSAGE)) {
             builder.setLowBound(context.lowBound, context.lowClosed);
@@ -85,5 +51,41 @@ public class IntervalTemporaryDurationCriterionDeserializer extends StdDeseriali
             builder.setHighBound(context.highBound, context.highClosed);
         }
         return builder.build();
+    }
+
+    private boolean parseIntervalTemporaryDurationCriterion(JsonParser parser, ParsingContext context, String name) throws IOException {
+        switch (name) {
+            case "type" -> {
+                readAndCheckType(LimitDurationType.TEMPORARY, TemporaryDurationCriterionType.INTERVAL, parser);
+                return true;
+            }
+            case "version" -> {
+                parser.nextTextValue();
+                return true;
+            }
+            case "lowBound" -> {
+                parser.nextToken();
+                context.lowBound = parser.getValueAsInt();
+                return true;
+            }
+            case "lowClosed" -> {
+                parser.nextToken();
+                context.lowClosed = parser.getValueAsBoolean();
+                return true;
+            }
+            case "highBound" -> {
+                parser.nextToken();
+                context.highBound = parser.getValueAsInt();
+                return true;
+            }
+            case "highClosed" -> {
+                parser.nextToken();
+                context.highClosed = parser.getValueAsBoolean();
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
     }
 }

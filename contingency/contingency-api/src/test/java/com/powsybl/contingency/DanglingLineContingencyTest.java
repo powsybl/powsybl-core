@@ -9,9 +9,9 @@ package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.list.ContingencyList;
+import com.powsybl.iidm.modification.tripping.DanglingLineTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import com.powsybl.iidm.modification.tripping.DanglingLineTripping;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

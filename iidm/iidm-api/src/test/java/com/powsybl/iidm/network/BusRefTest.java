@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -78,19 +79,12 @@ class BusRefTest {
 
         Identifiable branch = mock(Branch.class);
         when(network.getIdentifiable(eq("branchId"))).thenReturn(branch);
-        try {
-            new IdBasedBusRef("branchId").resolve(network, TopologyLevel.BUS_BRANCH);
-            fail();
-        } catch (Exception e) {
-            assertEquals("branchId is not a bus or injection.", e.getMessage());
-        }
+        IdBasedBusRef idBasedBusRef = new IdBasedBusRef("branchId");
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> idBasedBusRef.resolve(network, TopologyLevel.BUS_BRANCH));
+        assertEquals("branchId is not a bus or injection.", e1.getMessage());
 
-        try {
-            new IdBasedBusRef("branchId").resolve(network, TopologyLevel.NODE_BREAKER);
-            fail();
-        } catch (Exception e) {
-            assertEquals("NODE_BREAKER is not supported in resolve a BusRef.", e.getMessage());
-        }
+        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () -> idBasedBusRef.resolve(network, TopologyLevel.NODE_BREAKER));
+        assertEquals("NODE_BREAKER is not supported in resolve a BusRef.", e2.getMessage());
     }
 
     @Test

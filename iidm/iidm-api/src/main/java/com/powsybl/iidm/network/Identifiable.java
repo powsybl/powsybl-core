@@ -7,9 +7,10 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.*;
-
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extendable;
+
+import java.util.*;
 
 /**
  * An object that is part of the network model and that is identified uniquely
@@ -46,7 +47,7 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I>, 
     /**
      * Get the alias of the object with a given alias type if it exists. Else return an empty optional.
      *
-     * @throws {@link com.powsybl.commons.PowsyblException} if the aliasType is null or empty
+     * @throws PowsyblException if the aliasType is null or empty
      */
     default Optional<String> getAliasFromType(String aliasType) {
         return Optional.empty();

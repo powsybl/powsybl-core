@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.ActionBuilder;
+import com.powsybl.action.MultipleActionsAction;
 import com.powsybl.action.MultipleActionsActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.action.MultipleActionsAction;
 
 import java.io.IOException;
 

@@ -20,10 +20,12 @@ public final class SwitchPredicates {
 
     private SwitchPredicates() { }
 
-    public static final Predicate<Switch> IS_NONFICTIONAL_CLOSED_BREAKER = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen() && !switchObject.isFictitious();
+    public static final Predicate<Switch> IS_NONFICTIONAL_CLOSED_BREAKER = switchObject -> switchObject != null
+        && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen() && !switchObject.isFictitious();
     public static final Predicate<Switch> IS_NONFICTIONAL_BREAKER = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isFictitious();
     public static final Predicate<Switch> IS_CLOSED_BREAKER = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER && !switchObject.isOpen();
-    public static final Predicate<Switch> IS_BREAKER_OR_DISCONNECTOR = switchObject -> switchObject != null && (switchObject.getKind() == SwitchKind.BREAKER || switchObject.getKind() == SwitchKind.DISCONNECTOR);
+    public static final Predicate<Switch> IS_BREAKER_OR_DISCONNECTOR = switchObject -> switchObject != null
+        && (switchObject.getKind() == SwitchKind.BREAKER || switchObject.getKind() == SwitchKind.DISCONNECTOR);
     public static final Predicate<Switch> IS_OPEN_DISCONNECTOR = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.DISCONNECTOR && switchObject.isOpen();
     public static final Predicate<Switch> IS_BREAKER = switchObject -> switchObject != null && switchObject.getKind() == SwitchKind.BREAKER;
     public static final Predicate<Switch> IS_NONFICTIONAL = switchObject -> switchObject != null && !switchObject.isFictitious();

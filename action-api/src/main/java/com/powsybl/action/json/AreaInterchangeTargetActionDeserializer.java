@@ -29,27 +29,29 @@ public class AreaInterchangeTargetActionDeserializer extends StdDeserializer<Are
     @Override
     public AreaInterchangeTargetActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         AreaInterchangeTargetActionBuilder builder = new AreaInterchangeTargetActionBuilder();
-        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            switch (name) {
-                case "type":
-                    if (!AreaInterchangeTargetAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + AreaInterchangeTargetAction.NAME);
-                    }
-                    return true;
-                case "id":
-                    builder.withId(jsonParser.nextTextValue());
-                    return true;
-                case "areaId":
-                    builder.withAreaId(jsonParser.nextTextValue());
-                    return true;
-                case "interchangeTarget":
-                    jsonParser.nextToken();
-                    builder.withTarget(jsonParser.getValueAsDouble());
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> parseAreaInterchangeTargetAction(jsonParser, builder, name));
         return builder;
+    }
+
+    private boolean parseAreaInterchangeTargetAction(JsonParser jsonParser, AreaInterchangeTargetActionBuilder builder, String name) throws IOException {
+        switch (name) {
+            case "type":
+                if (!AreaInterchangeTargetAction.NAME.equals(jsonParser.nextTextValue())) {
+                    throw JsonMappingException.from(jsonParser, "Expected type " + AreaInterchangeTargetAction.NAME);
+                }
+                return true;
+            case "id":
+                builder.withId(jsonParser.nextTextValue());
+                return true;
+            case "areaId":
+                builder.withAreaId(jsonParser.nextTextValue());
+                return true;
+            case "interchangeTarget":
+                jsonParser.nextToken();
+                builder.withTarget(jsonParser.getValueAsDouble());
+                return true;
+            default:
+                return false;
+        }
     }
 }

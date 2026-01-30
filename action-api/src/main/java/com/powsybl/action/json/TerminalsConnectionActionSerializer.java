@@ -10,9 +10,9 @@ package com.powsybl.action.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.action.TerminalsConnectionAction;
 
 import java.io.IOException;
 import java.util.Optional;

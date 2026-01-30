@@ -12,5 +12,5 @@ package com.powsybl.action.ial.dsl;
  */
 public enum RuleType {
     APPLY,
-    TEST;
+    TEST
 }

@@ -32,6 +32,6 @@ public interface RecordGroupIdentification {
 
     enum JsonObjectType {
         PARAMETER_SET,
-        DATA_TABLE;
+        DATA_TABLE
     }
 }

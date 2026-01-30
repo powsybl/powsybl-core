@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.modification.tripping;
 
+import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.modification.NetworkModificationList;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

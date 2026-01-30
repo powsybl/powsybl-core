@@ -17,7 +17,7 @@ public record PropertiesUpdateNetworkEvent(String id, String key, PropertyUpdate
     public enum PropertyUpdateType {
         ADDED,
         REMOVED,
-        REPLACED;
+        REPLACED
     }
 
     public PropertiesUpdateNetworkEvent {

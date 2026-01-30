@@ -17,11 +17,11 @@ class ScalableAdapter extends AbstractScalable {
 
     private final String id;
 
-    public ScalableAdapter(String id) {
+    ScalableAdapter(String id) {
         this.id = Objects.requireNonNull(id);
     }
 
-    public ScalableAdapter(Injection<?> injection) {
+    ScalableAdapter(Injection<?> injection) {
         Objects.requireNonNull(injection);
         this.id = injection.getId();
     }

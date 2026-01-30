@@ -8,12 +8,11 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.Optional;
-
+import com.powsybl.iidm.network.Country;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Country;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -27,11 +26,11 @@ public final class CountryConversion {
         if (gr == null) {
             return Optional.empty();
         }
-        if (gr.equals("D1")
-            || gr.equals("D2")
-            || gr.equals("D4")
-            || gr.equals("D7")
-            || gr.equals("D8")) {
+        if ("D1".equals(gr)
+            || "D2".equals(gr)
+            || "D4".equals(gr)
+            || "D7".equals(gr)
+            || "D8".equals(gr)) {
             return Optional.of(Country.DE);
         }
         try {

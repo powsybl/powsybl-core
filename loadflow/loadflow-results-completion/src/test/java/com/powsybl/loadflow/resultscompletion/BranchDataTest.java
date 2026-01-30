@@ -7,11 +7,10 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import com.powsybl.iidm.network.util.BranchData;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.iidm.network.util.BranchData;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *

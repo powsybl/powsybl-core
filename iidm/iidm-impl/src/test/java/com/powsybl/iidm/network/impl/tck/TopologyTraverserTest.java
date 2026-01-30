@@ -29,18 +29,18 @@ class TopologyTraverserTest extends AbstractTopologyTraverserTest {
         List<Pair<String, Integer>> visited1 = getVisitedList(startGNbv, s -> s != null && s.getId().equals("BR2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
         assertEquals(List.of(Pair.of("G", 0), Pair.of("BBS1", 0)), visited1);
 
-        List<Pair<String, Integer>>visited2 = getVisitedList(startGNbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        List<Pair<String, Integer>> visited2 = getVisitedList(startGNbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
         assertEquals(List.of(Pair.of("G", 0)), visited2);
 
-        List<Pair<String, Integer>>visited3 = getVisitedList(startGNbv, s -> TraverseResult.CONTINUE,
+        List<Pair<String, Integer>> visited3 = getVisitedList(startGNbv, s -> TraverseResult.CONTINUE,
             t -> t.getConnectable() instanceof BusbarSection ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
         assertEquals(List.of(Pair.of("G", 0), Pair.of("BBS1", 0)), visited3);
 
         Terminal startLBbv = network.getLoad("LD2").getTerminal();
-        List<Pair<String, Integer>>visited4 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        List<Pair<String, Integer>> visited4 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
         assertEquals(List.of(Pair.of("LD2", 0)), visited4);
 
-        List<Pair<String, Integer>>visited5 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE,
+        List<Pair<String, Integer>> visited5 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE,
             t -> t.getConnectable().getId().equals("L2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
         assertEquals(List.of(Pair.of("LD2", 0), Pair.of("L2", 1)), visited5);
     }

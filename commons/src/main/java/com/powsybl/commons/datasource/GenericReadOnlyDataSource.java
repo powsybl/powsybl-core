@@ -119,7 +119,7 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
         for (ReadOnlyDataSource dataSource : dataSources) {
             try {
                 names.addAll(dataSource.listNames(regex));
-            } catch (Exception x) {
+            } catch (IOException ignored) {
                 // Nothing
             }
         }

@@ -7,14 +7,13 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
+import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.*;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
-import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.*;
 
 @AutoService(SecurityAnalysisProvider.class)
 public class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {

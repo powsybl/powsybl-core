@@ -22,7 +22,9 @@ class VersionTest {
         String mavenProjectVersion = "1.0.0";
         String gitVersion = "abc123";
         String gitBranch = "main";
-        long buildTimestamp = 1707312507024L; // no formatting is done but the raw number value (milliseconds since January 1, 1970, 00:00:00 GMT) is used (https://www.mojohaus.org/buildnumber-maven-plugin/create-timestamp-mojo.html#timestampFormat)
+        /* no formatting is done but the raw number value (milliseconds since January 1, 1970, 00:00:00 GMT) is used
+        (https://www.mojohaus.org/buildnumber-maven-plugin/create-timestamp-mojo.html#timestampFormat) */
+        long buildTimestamp = 1707312507024L;
         AbstractVersion version = new AbstractVersion(repositoryName, mavenProjectVersion, gitVersion, gitBranch, buildTimestamp) { };
         Map<String, String> versionMap = version.toMap();
 

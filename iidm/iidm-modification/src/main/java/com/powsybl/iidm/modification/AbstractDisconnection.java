@@ -63,9 +63,11 @@ public abstract class AbstractDisconnection extends AbstractConnectDisconnectMod
         }
 
         if (hasBeenDisconnected) {
-            LOG.info("Identifiable {} has been disconnected ({} disconnection) {}.", identifiableId, isPlanned ? "planned" : "unplanned", side == null ? "on each side" : "on side " + side.getNum());
+            LOG.info("Identifiable {} has been disconnected ({} disconnection) {}.",
+                identifiableId, isPlanned ? "planned" : "unplanned", side == null ? "on each side" : "on side " + side.getNum());
         } else {
-            LOG.info("Identifiable {} has NOT been disconnected ({} disconnection) {}.", identifiableId, isPlanned ? "planned" : "unplanned", side == null ? "on each side" : "on side " + side.getNum());
+            LOG.info("Identifiable {} has NOT been disconnected ({} disconnection) {}.",
+                identifiableId, isPlanned ? "planned" : "unplanned", side == null ? "on each side" : "on side " + side.getNum());
         }
         identifiableDisconnectionReport(reportNode, identifiable, hasBeenDisconnected, isPlanned, side);
     }

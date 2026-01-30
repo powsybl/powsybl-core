@@ -15,13 +15,13 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.GeneratorContingency;
 import com.powsybl.contingency.HvdcLineContingency;
 import com.powsybl.contingency.list.*;
+import com.powsybl.iidm.criteria.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
 import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
-import com.powsybl.iidm.criteria.*;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.IdentifiableType;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

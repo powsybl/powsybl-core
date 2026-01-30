@@ -1056,7 +1056,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
             StringBuilder builder = new StringBuilder();
             builder.append(bus.getId())
                     .append(" [");
-            for (Iterator<TerminalExt> it = bus.getConnectedTerminals().iterator(); it.hasNext(); ) {
+            for (Iterator<TerminalExt> it = bus.getConnectedTerminals().iterator(); it.hasNext();) {
                 TerminalExt terminal = it.next();
                 builder.append(dict != null ? dict.getShortId(terminal.getConnectable().getId()) : terminal.getConnectable().getId());
                 if (it.hasNext()) {

@@ -662,8 +662,10 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     /**
-     * This method is called by {@link #findAllPaths(int, Predicate, Predicate)} or {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
-     * For each adjacent edges for which the pathCanceled returns {@literal false}, traverse the other vertex calling {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
+     * This method is called by {@link #findAllPaths(int, Predicate, Predicate)} or
+     * {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
+     * For each adjacent edges for which the pathCanceled returns {@literal false}, traverse the other vertex calling
+     * {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
      *
      * @param v the current vertex
      * @param pathComplete a function that returns true when the target vertex is found.

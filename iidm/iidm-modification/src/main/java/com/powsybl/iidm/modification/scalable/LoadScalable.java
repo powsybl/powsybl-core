@@ -63,7 +63,6 @@ public class LoadScalable extends AbstractInjectionScalable {
         }
     }
 
-
     /**
      * {@inheritDoc}
      *

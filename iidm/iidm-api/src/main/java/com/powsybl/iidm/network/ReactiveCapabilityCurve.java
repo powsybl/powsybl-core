@@ -33,7 +33,8 @@ import java.util.Collection;
  * |
  *</pre>
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
- * @see Generator,Battery
+ * @see Generator
+ * @see Battery
  */
 public interface ReactiveCapabilityCurve extends ReactiveLimits {
 
@@ -41,7 +42,7 @@ public interface ReactiveCapabilityCurve extends ReactiveLimits {
      * A point of the reactive capability curve, for a given active power the
      * minimal and the maximal value for the reactive power.
      */
-    public interface Point {
+    interface Point {
 
         double getP();
 

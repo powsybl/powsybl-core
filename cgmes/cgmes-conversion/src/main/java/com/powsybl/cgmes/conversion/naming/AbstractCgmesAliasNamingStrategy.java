@@ -73,7 +73,9 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         // Tap changers of power transformers
         String id;
         if (identifiable instanceof DanglingLine dl) {
-            id = identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+            id = identifiable.getAliasFromType(aliasType)
+                .or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType)))
+                .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
         } else {
             id = identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
         }

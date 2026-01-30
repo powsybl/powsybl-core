@@ -334,7 +334,8 @@ class TransformerUpdateTest {
         }
     }
 
-    private static void assertDefinedApparentPowerLimits(ThreeWindingsTransformer t3w, ApparentPowerLimit apparentPowerLimit1, ApparentPowerLimit apparentPowerLimit2, ApparentPowerLimit apparentPowerLimit3) {
+    private static void assertDefinedApparentPowerLimits(ThreeWindingsTransformer t3w,
+                                                         ApparentPowerLimit apparentPowerLimit1, ApparentPowerLimit apparentPowerLimit2, ApparentPowerLimit apparentPowerLimit3) {
 
         assertDefinedApparentPowerLimitsSide(t3w.getLeg1(), apparentPowerLimit1);
         assertDefinedApparentPowerLimitsSide(t3w.getLeg2(), apparentPowerLimit2);

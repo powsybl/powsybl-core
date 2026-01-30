@@ -66,7 +66,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         MILLIS,
         MICROS,
         NANOS,
-        FRACTIONS_OF_SECOND;
+        FRACTIONS_OF_SECOND
     }
 
     TimeSeriesMetadata getMetadata();

@@ -10,10 +10,7 @@ package com.powsybl.matpower.model;
 /**
  * Branch data
  *
- * <p>
  * @see <a href="https://matpower.org/doc/">https://matpower.org/doc/</a>
- * </p>
- *
  * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 public class MBranch {

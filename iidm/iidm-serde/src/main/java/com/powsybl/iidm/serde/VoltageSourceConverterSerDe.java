@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.VoltageSourceConverterAdder;
-import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}

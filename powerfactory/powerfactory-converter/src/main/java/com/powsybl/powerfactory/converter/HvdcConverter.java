@@ -7,8 +7,8 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
@@ -116,7 +116,7 @@ class HvdcConverter extends AbstractConverter {
                 .filter(e -> !Objects.equals(elmVsc, e.getKey()))
                 .map(Map.Entry::getValue)
                 .flatMap(Collection::stream)
-                // Recheck that elmTerm is different from the given one
+            // Recheck that elmTerm is different from the given one
             .filter(otherElmTerm -> !elmTerm.equals(otherElmTerm) && isElmTermConnectedToLne(otherElmTerm, elmLne))
             .findFirst();
     }

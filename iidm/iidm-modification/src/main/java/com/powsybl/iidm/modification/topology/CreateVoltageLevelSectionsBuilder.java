@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.modification.topology.CreateVoltageLevelSections.SwitchParameters;
+import com.powsybl.iidm.network.SwitchKind;
 
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer_externe at rte-france.com>}

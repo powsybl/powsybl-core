@@ -69,8 +69,8 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
         try {
             boolean append = false;
             return ds.newOutputStream(fileNameFromContextName(cname), append);
-        } catch (IOException x) {
-            throw new TripleStoreException(String.format("New output stream %s in data source %s", cname, ds), x);
+        } catch (IOException e) {
+            throw new TripleStoreException(String.format("New output stream %s in data source %s", cname, ds), e);
         }
     }
 
@@ -103,7 +103,7 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
         @Override
         public void write(int b) {
             byte[] bytes = new byte[1];
-            bytes[0] = (byte) (b & 0xff);
+            bytes[0] = (byte) (b & 0xFF);
             line = line + new String(bytes);
             if (line.endsWith(System.lineSeparator())) {
                 line = line.substring(0, line.length() - 1);

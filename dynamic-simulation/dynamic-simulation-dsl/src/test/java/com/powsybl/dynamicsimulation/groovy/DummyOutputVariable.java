@@ -17,7 +17,7 @@ import java.util.Objects;
  */
 record DummyOutputVariable(String id, String variable, OutputType type) implements OutputVariable {
 
-    public DummyOutputVariable(String id, String variable, OutputType type) {
+    DummyOutputVariable(String id, String variable, OutputType type) {
         this.id = Objects.requireNonNull(id);
         this.variable = Objects.requireNonNull(variable);
         this.type = Objects.requireNonNull(type);

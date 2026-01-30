@@ -209,22 +209,32 @@ public interface Scalable {
         return new ProportionalScalable(Collections.singletonList(percentage), Collections.singletonList(scalable));
     }
 
-    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1,
+                                             double percentage2, Scalable scalable2) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2),
                                         Arrays.asList(scalable1, scalable2));
     }
 
-    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1,
+                                             double percentage2, Scalable scalable2,
+                                             double percentage3, Scalable scalable3) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3),
                                         Arrays.asList(scalable1, scalable2, scalable3));
     }
 
-    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3, double percentage4, Scalable scalable4) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1,
+                                             double percentage2, Scalable scalable2,
+                                             double percentage3, Scalable scalable3,
+                                             double percentage4, Scalable scalable4) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3, percentage4),
                                         Arrays.asList(scalable1, scalable2, scalable3, scalable4));
     }
 
-    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3, double percentage4, Scalable scalable4, double percentage5, Scalable scalable5) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1,
+                                             double percentage2, Scalable scalable2,
+                                             double percentage3, Scalable scalable3,
+                                             double percentage4, Scalable scalable4,
+                                             double percentage5, Scalable scalable5) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3, percentage4, percentage5),
                                         Arrays.asList(scalable1, scalable2, scalable3, scalable4, scalable5));
     }

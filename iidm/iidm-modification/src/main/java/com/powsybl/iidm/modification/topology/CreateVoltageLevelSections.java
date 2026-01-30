@@ -50,23 +50,32 @@ import static java.lang.Math.abs;
  */
 public class CreateVoltageLevelSections extends AbstractNetworkModification {
 
-    private final String referenceBusbarSectionId;  // Reference busbar section id
+    // Reference busbar section id
+    private final String referenceBusbarSectionId;
 
-    private final boolean createTheBusbarSectionsAfterTheReferenceBusbarSection;   // create the new busbar sections after(true) or before(false) the reference busbar section
+    // create the new busbar sections after(true) or before(false) the reference busbar section
+    private final boolean createTheBusbarSectionsAfterTheReferenceBusbarSection;
 
-    private final boolean createOnAllParallelBusbars;  // Create the new busbar sections on all busbars(true) or only on the busbar of the reference busbar section(false)
+    // Create the new busbar sections on all busbars(true) or only on the busbar of the reference busbar section(false)
+    private final boolean createOnAllParallelBusbars;
 
-    private final SwitchKind leftSwitchKind;  // Create only a disconnector(SwitchKind.DISCONNECTOR) or a breaker surrounded by 2 disconnectors(SwitchKind.BREAKER), left to the new busbar sections created
+    // Create only a disconnector(SwitchKind.DISCONNECTOR) or a breaker surrounded by 2 disconnectors(SwitchKind.BREAKER), left to the new busbar sections created
+    private final SwitchKind leftSwitchKind;
 
-    private final SwitchKind rightSwitchKind;  // Create only a disconnector(SwitchKind.DISCONNECTOR) or a breaker surrounded by 2 disconnectors(SwitchKind.BREAKER), right to the new busbar sections created
+    // Create only a disconnector(SwitchKind.DISCONNECTOR) or a breaker surrounded by 2 disconnectors(SwitchKind.BREAKER), right to the new busbar sections created
+    private final SwitchKind rightSwitchKind;
 
-    private final boolean leftSwitchFictitious;  // Fictitious(true) or not(false) for the new switches created, left to the new busbar sections created
+    // Fictitious(true) or not(false) for the new switches created, left to the new busbar sections created
+    private final boolean leftSwitchFictitious;
 
-    private final boolean rightSwitchFictitious; // Fictitious(true) or not(false) for the new switches created, right to the new busbar sections created
+    // Fictitious(true) or not(false) for the new switches created, right to the new busbar sections created
+    private final boolean rightSwitchFictitious;
 
-    private final boolean leftSwitchOpen;  // Open(true) or not(false) for the new switches created, left to the new busbar sections created
+    // Open(true) or not(false) for the new switches created, left to the new busbar sections created
+    private final boolean leftSwitchOpen;
 
-    private final boolean rightSwitchOpen; // Open(true) or not(false) for the new switches created, right to the new busbar sections created
+    // Open(true) or not(false) for the new switches created, right to the new busbar sections created
+    private final boolean rightSwitchOpen;
 
     private final String switchPrefixId;
 
@@ -280,7 +289,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         private BusbarSection foundBusbarSection;
         private final List<Switch> switchesEncountered = new ArrayList<>();
 
-        public BusbarSectionFinderTraverser(String startingBusBarSectionId, int busbarIndex, int sectionIndex) {
+        BusbarSectionFinderTraverser(String startingBusBarSectionId, int busbarIndex, int sectionIndex) {
             this.startingBusBarSectionId = startingBusBarSectionId;
             this.busbarIndex = busbarIndex;
             this.sectionIndex = sectionIndex;

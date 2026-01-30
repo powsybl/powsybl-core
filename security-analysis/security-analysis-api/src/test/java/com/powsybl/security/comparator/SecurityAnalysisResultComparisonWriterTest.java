@@ -7,8 +7,12 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationType;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -18,13 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import com.powsybl.iidm.network.TwoSides;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  *
@@ -168,21 +167,9 @@ class SecurityAnalysisResultComparisonWriterTest {
 
     @Test
     void nullInput() {
-        try {
-            comparisonWriter.write((Boolean) null, null, true);
-            fail();
-        } catch (Exception ignored) {
-        }
-        try {
-            comparisonWriter.write((LimitViolation) null, null, true);
-            fail();
-        } catch (Exception ignored) {
-        }
-        try {
-            comparisonWriter.write((List<String>) null, null, true);
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(IllegalArgumentException.class, () -> comparisonWriter.write((Boolean) null, null, true));
+        assertThrows(IllegalArgumentException.class, () -> comparisonWriter.write((LimitViolation) null, null, true));
+        assertThrows(IllegalArgumentException.class, () -> comparisonWriter.write((List<String>) null, null, true));
     }
 
 }

@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import com.powsybl.iidm.network.*;
-import com.powsybl.commons.ref.Ref;
 
 /**
  *

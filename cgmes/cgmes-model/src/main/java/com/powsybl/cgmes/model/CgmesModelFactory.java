@@ -71,15 +71,15 @@ public final class CgmesModelFactory {
     private static String obtainCimNamespace(ReadOnlyDataSource ds, ReadOnlyDataSource dsBoundary) {
         try {
             return new CgmesOnDataSource(ds).cimNamespace();
-        } catch (CgmesModelException x) {
+        } catch (CgmesModelException e) {
             if (dsBoundary != null) {
                 try {
                     return new CgmesOnDataSource(dsBoundary).cimNamespace();
-                } catch (CgmesModelException x2) {
-                    throw x;
+                } catch (CgmesModelException exception) {
+                    throw e;
                 }
             } else {
-                throw x;
+                throw e;
             }
         }
     }
