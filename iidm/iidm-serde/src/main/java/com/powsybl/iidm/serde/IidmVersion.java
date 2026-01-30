@@ -14,8 +14,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.ITESLA_DOMAIN;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.POWSYBL_DOMAIN;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -84,6 +83,15 @@ public enum IidmVersion {
         return "iidm_equipment_V" + toString("_") + ".xsd";
     }
 
+    public static IidmVersion of(String version, String separator) {
+        Objects.requireNonNull(version);
+        return Stream.of(IidmVersion.values())
+                .filter(v -> version.equals(v.toString(separator)))
+                .findFirst() // there can only be 0 or exactly 1 match
+                .orElseThrow(() -> new PowsyblException("IIDM Version " + version + " is not supported. Max supported version: "
+                        + CURRENT_IIDM_VERSION.toString(separator)));
+    }
+
     public static IidmVersion fromNamespaceURI(String namespaceURI) {
         String version = namespaceURI.substring(namespaceURI.lastIndexOf('/') + 1);
         IidmVersion v = of(version, "_");
@@ -98,11 +106,4 @@ public enum IidmVersion {
         return v;
     }
 
-    public static IidmVersion of(String version, String separator) {
-        Objects.requireNonNull(version);
-        return Stream.of(IidmVersion.values())
-                .filter(v -> version.equals(v.toString(separator)))
-                .findFirst() // there can only be 0 or exactly 1 match
-                .orElseThrow(() -> new PowsyblException("Version " + version + " is not supported."));
-    }
 }
