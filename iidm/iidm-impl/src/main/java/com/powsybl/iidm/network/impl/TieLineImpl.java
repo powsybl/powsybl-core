@@ -281,6 +281,11 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public void addSelectedOperationalLimitsGroups1(String... ids) {
+        danglingLine1.addSelectedOperationalLimitsGroups(ids);
+    }
+
+    @Override
     public void removeOperationalLimitsGroup1(String id) {
         danglingLine1.removeOperationalLimitsGroup(id);
     }
@@ -288,6 +293,11 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Override
     public void cancelSelectedOperationalLimitsGroup1() {
         danglingLine1.cancelSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups1(String... ids) {
+        danglingLine1.deselectOperationalLimitsGroups(ids);
     }
 
     @Override
@@ -358,6 +368,11 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public void addSelectedOperationalLimitsGroups2(String... ids) {
+        danglingLine2.addSelectedOperationalLimitsGroups(ids);
+    }
+
+    @Override
     public void removeOperationalLimitsGroup2(String id) {
         danglingLine2.removeOperationalLimitsGroup(id);
     }
@@ -365,6 +380,11 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Override
     public void cancelSelectedOperationalLimitsGroup2() {
         danglingLine2.cancelSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups2(String... ids) {
+        danglingLine2.deselectOperationalLimitsGroups(ids);
     }
 
     /**

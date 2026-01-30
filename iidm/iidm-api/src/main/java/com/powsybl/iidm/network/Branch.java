@@ -164,13 +164,24 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     OperationalLimitsGroup newOperationalLimitsGroup1(String id);
 
     /**
-     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as as the selected one on side 1.</p>
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given ID as the selected one on side 1.</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
      * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.
      * To reset the selected group, use {@link #cancelSelectedOperationalLimitsGroup1}.</p>
      * @param id an ID of {@link OperationalLimitsGroup}
      */
     void setSelectedOperationalLimitsGroup1(String id);
+
+    /**
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given IDs as selected on side 1. If other groups were also selected, they are still selected</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
+     * <p>Throw an {@link NullPointerException} if any ID is <code>null</code>.</p>
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups1(String...)}.
+     * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup1()}
+     * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup1(String)}
+     * @param ids the IDs of one or more {@link OperationalLimitsGroup}
+     */
+    void addSelectedOperationalLimitsGroups1(String... ids);
 
     /**
      * <p>Remove the {@link OperationalLimitsGroup} corresponding to the given ID on side 1.</p>
@@ -184,6 +195,16 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * <p>After calling this method, no {@link OperationalLimitsGroup} is selected on side 1.</p>
      */
     void cancelSelectedOperationalLimitsGroup1();
+
+    /**
+     * <p>Deselect the {@link OperationalLimitsGroup} corresponding to all the <code>ids</code> on side 1.</p>
+     * <p>If the {@link OperationalLimitsGroup} exists but is not selected, this method will do nothing</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group</p>
+     * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
+     * To deselect all {@link OperationalLimitsGroup}, use {@link #cancelSelectedOperationalLimitsGroup1()}
+     * @param ids the ID of the groups to remove from the selected
+     */
+    void deselectOperationalLimitsGroups1(String... ids);
 
     /**
      * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1.
@@ -404,6 +425,17 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     void setSelectedOperationalLimitsGroup2(String id);
 
     /**
+     * <p>Set the {@link OperationalLimitsGroup} corresponding to the given IDs as selected on side 2. If other groups were also selected, they are still selected</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
+     * <p>Throw an {@link NullPointerException} if any ID is <code>null</code>.</p>
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups2(String...)}.
+     * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup2()}
+     * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup2(String)}
+     * @param ids the IDs of one or more {@link OperationalLimitsGroup}
+     */
+    void addSelectedOperationalLimitsGroups2(String... ids);
+
+    /**
      * <p>Remove the {@link OperationalLimitsGroup} corresponding to the given ID on side 2.</p>
      * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.
      * @param id an ID of {@link OperationalLimitsGroup}
@@ -415,6 +447,16 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * <p>After calling this method, no {@link OperationalLimitsGroup} is selected on side 2.</p>
      */
     void cancelSelectedOperationalLimitsGroup2();
+
+    /**
+     * <p>Deselect the {@link OperationalLimitsGroup} corresponding to all the <code>ids</code> on side 2.</p>
+     * <p>If the {@link OperationalLimitsGroup} exists but is not selected, this method will do nothing</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group</p>
+     * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
+     * To deselect all {@link OperationalLimitsGroup}, use {@link #cancelSelectedOperationalLimitsGroup2()}
+     * @param ids the ID of the groups to remove from the selected
+     */
+    void deselectOperationalLimitsGroups2(String... ids);
 
     /**
      * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2.
