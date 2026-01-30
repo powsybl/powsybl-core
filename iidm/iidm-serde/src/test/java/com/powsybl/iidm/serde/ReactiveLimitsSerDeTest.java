@@ -26,4 +26,13 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
 
         allFormatsRoundTripTest(ReactiveLimitsTestNetworkFactory.create(), "reactiveLimitsRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
+
+    @Test
+    void roundTripTestWithShape() throws IOException {
+
+        allFormatsRoundTripFromVersionedXmlTest("reactiveLimitsShapeRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        allFormatsRoundTripTest(ReactiveLimitsTestNetworkFactory.createWithShape(), "reactiveLimitsShapeRoundTripRef.xml", CURRENT_IIDM_VERSION);
+    }
+
 }
