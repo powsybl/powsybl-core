@@ -22,8 +22,8 @@ Besides dynamic models configuration, the dynamic security analysis requires the
 The dynamic security analysis produces the same outputs as the standard one. All outputs can be found [here](../security/index.md#outputs).
 
 ## Implementations
-For the moment, the only available implementation is provided by `powsybl-dynawo`, which links PowSyBl with [Dynaωo](http://dynawo.org) open source suite:
-- [Dynaωo](inv:powsybldynawo:*:*#dynamic_security_analysis/index)
+
+For the moment, the only available implementation is provided by [`powsybl-dynawo`](inv:powsybldynawo:*:*#dynamic_security_analysis/index), which links PowSyBl with [Dynaωo](http://dynawo.org) open source suite.
 
 ## Going further
 - Security analysis [Action DSL](../security/action-dsl.md).

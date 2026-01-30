@@ -116,10 +116,10 @@ $ cp <INSTALL_DIR>/resources/config/config.yml <HOME>/.itools/config.yml
 
 This step is not mandatory **if you already have a custom configuration file and the necessary configuration modules are filled**.
 
-**powsybl_config_dirs:**<br>
+**powsybl_config_dirs**<br>
 This is an optional property that defines the list of the folders where the configuration files are located. If this property is not set, the configuration files are read from `<USER_HOME>/.itools` and `<ITOOLS_PREFIX>/etc` folders. Note that the order of the folder is really import as the PowSyBl configuration is stackable.
 
-**powsybl_config_name:**<br>
+**powsybl_config_name**<br>
 This is an optional property that defines the base name of the configuration files. The default value for this property is `config`.
 
 **java_xmx**<br>
