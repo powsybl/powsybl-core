@@ -9,7 +9,11 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
@@ -19,10 +23,23 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> {
+public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> implements ContextualDeserializer {
+
+    private final JsonDeserializer<Object> typeDeserializer;
 
     public ContingencyElementDeserializer() {
+        this(null);
+    }
+
+    public ContingencyElementDeserializer(JsonDeserializer<?> typeDeserializer) {
         super(ContingencyElement.class);
+        this.typeDeserializer = (JsonDeserializer<Object>) typeDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        JsonDeserializer<?> deser = ctxt.findContextualValueDeserializer(ctxt.constructType(ContingencyElementType.class), property);
+        return new ContingencyElementDeserializer(deser);
     }
 
     @Override
@@ -37,7 +54,9 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case "voltageLevelId" -> voltageLevelId = parser.nextTextValue();
                 case "type" -> {
                     parser.nextToken();
-                    type = JsonUtil.readValue(ctx, parser, ContingencyElementType.class);
+                    type = typeDeserializer != null ?
+                        (ContingencyElementType) typeDeserializer.deserialize(parser, ctx) :
+                        JsonUtil.readValue(ctx, parser, ContingencyElementType.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
