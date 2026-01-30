@@ -337,21 +337,21 @@ Optional:
 
 - $P0$ and $Q0$ are the active and reactive power setpoints
 - $R$, $X$, $G$ and $B$ correspond to a fraction of the original line and have to be consistent with the declared length of the
-  dangling line.
+  dangling line (see example below).
 
-Regarding the values of $R$, $X$, $G$ and $B$, the fraction corresponds to the fraction of length of the dangling line compared to the original line. For example, if we have:
-- a line $D$, with length $L$ and two dangling lines $D_1$ and $D_2$ such as $D = D_1 + D_2$
-- $D_1$ with length $L_1 = k_1L$ with $k_1 = 1/4$
-- $D_2$ with length $L_2 = k_2L$ with $k_2 = 3/4$
+**_Example:_**
+Considering a line $D$ of length $L$, composed of two dangling lines $D_1$ and $D_2$ of lengths $L_1 = k_1L$
+and $L_2 = k_2L$ such as $L = L_1 + L_2$. Then the characteristics of the dangling lines are:
+- $R_1 = k_1R$ and $R_2 = k_2R$,
+- $X_1 = k_1X$ and $X_2 = k_2X$,
+- $G_1 = k_1G$ and $G_2 = k_2G$,
+- $B_1 = k_1B$ and $B_2 = k_2B$,
 
-Then we will have for the dangling lines respectively:
-- $R_1 = k_1R$, $X_1 = k_1X$, $G_1 = k_1G$, $B_1 = k_1B$
-- $R_2 = k_2R$, $X_2 = k_2X$, $G_2 = k_2G$, $B_2 = k_2B$
+_Note that if we had only $D_1$ without $D_2$, the previous relation between $D$ and $D_1$ would still hold._
 
-Note that if we had only $D_1$ without $D_2$, the previous relation between $D$ and $D_1$ would still hold.
-
-In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined beside the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line for both UCTE or CIM-CGMES formats.
-This key is used for the merge of two dangling lines into a [TieLine](#tie-line).
+In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined
+beside the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line,
+as a [TieLine](#tie-line), for both UCTE or CIM-CGMES formats.
 
 A dangling line has a `Boundary` object that emulates a terminal located at boundary side. A dangling line is a connectable
 with a single terminal located on the network side, but sometimes we need state variables such as active or reactive powers on
