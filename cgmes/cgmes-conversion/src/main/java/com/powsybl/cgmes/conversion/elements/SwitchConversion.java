@@ -43,12 +43,12 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             ignored("end buses are the same bus " + busId(1));
             return false;
         }
-        if ((isBoundary(1) || isBoundary(2)) && LOG.isWarnEnabled()) {
-            LOG.warn("Switch {} has at least one end in the boundary", id);
-            LOG.warn("    busId1, voltageLevel1 : {} {}", busId(1), voltageLevel(1).orElse(null));
-            LOG.warn("    side 1 is boundary    : {}", isBoundary(1));
-            LOG.warn("    busId2, voltageLevel2 : {} {}", busId(2), voltageLevel(2).orElse(null));
-            LOG.warn("    side 2 is boundary    : {}", isBoundary(2));
+        if ((isBoundary(1) || isBoundary(2)) && LOG.isDebugEnabled()) {
+            LOG.debug("Switch {} has at least one end in the boundary", id);
+            LOG.debug("    busId1, voltageLevel1 : {} {}", busId(1), voltageLevel(1).orElse(null));
+            LOG.debug("    side 1 is boundary    : {}", isBoundary(1));
+            LOG.debug("    busId2, voltageLevel2 : {} {}", busId(2), voltageLevel(2).orElse(null));
+            LOG.debug("    side 2 is boundary    : {}", isBoundary(2));
         }
         return true;
     }
@@ -119,7 +119,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private void warnDanglingLineCreated() {
-        fixed("Dangling line with low impedance", "Connected to a boundary node");
+        fixed("Converted as a dangling line with zero impedance", "Connected to a boundary node");
     }
 
     public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {

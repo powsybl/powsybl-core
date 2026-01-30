@@ -620,6 +620,12 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 USE_DETAILED_DC_MODEL_PARAMETER,
+                                defaultValueConfig))
+                .setLogUnassignedOperationalLimits(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                LOG_UNASSIGNED_OPERATIONAL_LIMITS_PARAMETER,
                                 defaultValueConfig));
 
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
@@ -698,6 +704,7 @@ public class CgmesImport implements Importer {
     public static final String USE_PREVIOUS_VALUES_DURING_UPDATE = "iidm.import.cgmes.use-previous-values-during-update";
     public static final String REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT = "iidm.import.cgmes.remove-properties-and-aliases-after-import";
     public static final String USE_DETAILED_DC_MODEL = "iidm.import.cgmes.use-detailed-dc-model";
+    public static final String LOG_UNASSIGNED_OPERATIONAL_LIMITS = "iidm.import.cgmes.log-unassigned-operational-limits";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -829,6 +836,12 @@ public class CgmesImport implements Importer {
             "Use detailed DC model",
             Boolean.FALSE);
 
+    private static final Parameter LOG_UNASSIGNED_OPERATIONAL_LIMITS_PARAMETER = new Parameter(
+            LOG_UNASSIGNED_OPERATIONAL_LIMITS,
+            ParameterType.BOOLEAN,
+            "Log unassigned cim:OperationalLimit-s",
+            Boolean.FALSE);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
@@ -851,7 +864,8 @@ public class CgmesImport implements Importer {
             CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
             USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER,
             REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER,
-            USE_DETAILED_DC_MODEL_PARAMETER);
+            USE_DETAILED_DC_MODEL_PARAMETER,
+            LOG_UNASSIGNED_OPERATIONAL_LIMITS_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;
