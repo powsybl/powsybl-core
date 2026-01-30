@@ -66,6 +66,17 @@ public class GeneratorStartupSerDe extends AbstractVersionableNetworkExtensionSe
         double plannedOutageRate = context.getReader().readDoubleAttribute("plannedOutageRate");
         double forcedOutageRate = context.getReader().readDoubleAttribute("forcedOutageRate");
         context.getReader().readEndNode();
+        // compatibility
+        if (plannedOutageRate > 1) {
+            plannedOutageRate = 1;
+        } else if (plannedOutageRate < 0) {
+            plannedOutageRate = 0;
+        }
+        if (forcedOutageRate > 1) {
+            forcedOutageRate = 1;
+        } else if (forcedOutageRate < 0) {
+            forcedOutageRate = 0;
+        }
         return generator.newExtension(GeneratorStartupAdder.class)
                 .withPlannedActivePowerSetpoint(plannedActivePowerSetpoint)
                 .withStartupCost(startUpCost)
