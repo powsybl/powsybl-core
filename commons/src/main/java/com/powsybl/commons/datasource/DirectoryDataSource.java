@@ -12,6 +12,7 @@ import com.google.re2j.Pattern;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -126,7 +127,7 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         // Consider only files in the given folder, do not go into folders
         Pattern p = Pattern.compile(regex);
         int maxDepth = 1;
-        try (Stream<Path> paths = Files.walk(directory, maxDepth)) {
+        try (Stream<Path> paths = Files.walk(directory, maxDepth, FileVisitOption.FOLLOW_LINKS)) {
             var filenames = paths
                     .filter(Files::isRegularFile)
                     .map(Path::getFileName)
