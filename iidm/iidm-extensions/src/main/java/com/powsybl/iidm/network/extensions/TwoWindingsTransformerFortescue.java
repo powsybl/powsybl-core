@@ -24,14 +24,14 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
     }
 
     /**
-     * The zero sequence resistance of the two windings transformer.
+     * The zero-sequence resistance of the two-winding transformer.
      */
     double getRz();
 
     void setRz(double rz);
 
     /**
-     * The zero sequence reactance of the two windings transformer.
+     * The zero-sequence reactance of the two-winding transformer.
      */
     double getXz();
 

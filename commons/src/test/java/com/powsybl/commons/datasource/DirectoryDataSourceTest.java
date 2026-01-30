@@ -16,12 +16,14 @@ import org.junit.jupiter.params.provider.Arguments;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -168,5 +170,25 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         String filename = "a".repeat(100) + "!";
         Files.createFile(testDir.resolve(filename));
         return new DirectoryDataSource(testDir, "");
+    }
+
+    @Test
+    void testSymbolicLink() throws IOException {
+        // Create a folder with a file
+        Path realPath = testDir.resolve("realPath");
+        Files.createDirectories(realPath);
+        Files.createFile(fileSystem.getPath(realPath + "/test_file.txt"));
+
+        // Create a symbolic link to the real path
+        Path symbolicPath = testDir.resolve("symbolicPath");
+        Files.createSymbolicLink(symbolicPath, realPath);
+
+        // Create two data sources
+        DirectoryDataSource datasourceOnRealPath = new DirectoryDataSource(realPath, "test_file");
+        DirectoryDataSource datasourceOnSymbolicPath = new DirectoryDataSource(symbolicPath, "test_file");
+        assertEquals(1, datasourceOnRealPath.listNames(".*").size());
+        assertEquals(1, datasourceOnSymbolicPath.listNames(".*").size());
+        assertTrue(datasourceOnRealPath.listNames(".*").contains("test_file.txt"));
+        assertTrue(datasourceOnSymbolicPath.listNames(".*").contains("test_file.txt"));
     }
 }
