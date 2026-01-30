@@ -7,7 +7,11 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -15,11 +19,27 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseOwner {
 
-    @Parsed(field = {"i", "iowner"})
     private int i;
-
-    @Parsed(field = {"owname", "owner"}, defaultNullRead = "            ")
     private String owname;
+
+    public static PsseOwner fromRecord(CsvRecord rec, String[] headers) {
+        PsseOwner psseOwner = new PsseOwner();
+        psseOwner.setI(parseIntFromRecord(rec, headers, "i", "iowner"));
+        psseOwner.setOwname(parseStringFromRecord(rec, "            ", headers, "owname", "owner"));
+        return psseOwner;
+    }
+
+    public static String[] toRecord(PsseOwner psseOwner, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "iowner" -> String.valueOf(psseOwner.getI());
+                case "owname", "owner" -> psseOwner.getOwname();
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;

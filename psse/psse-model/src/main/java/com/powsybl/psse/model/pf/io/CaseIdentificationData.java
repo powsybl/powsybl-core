@@ -7,9 +7,17 @@
  */
 package com.powsybl.psse.model.pf.io;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import com.powsybl.psse.model.io.*;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.LegacyTextReader;
+import com.powsybl.psse.model.io.RecordGroupIOJson;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
+import com.powsybl.psse.model.io.Util;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -20,7 +28,8 @@ import java.util.List;
 
 import static com.powsybl.psse.model.io.FileFormat.JSON;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_1;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_2;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -52,10 +61,10 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
             String line = reader.readUntilFindingARecordLineNotEmpty();
             context.detectDelimiter(line);
 
+            // Read the 3 lines and concatenate them to form a single line
+            String fullLine = String.join(String.valueOf(context.getDelimiter()), line, reader.readLine(), reader.readLine());
             String[] headers = recordGroup.fieldNames(context.getVersion());
-            PsseCaseIdentification caseIdentification = recordGroup.parseSingleRecord(line, headers, context);
-            caseIdentification.setTitle1(reader.readLine());
-            caseIdentification.setTitle2(reader.readLine());
+            PsseCaseIdentification caseIdentification = recordGroup.parseSingleRecord(fullLine, headers, context);
 
             context.setFieldNames(recordGroup.getIdentification(), headers);
             context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
@@ -100,7 +109,26 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
 
         @Override
         public PsseCaseIdentification readHead(LegacyTextReader reader, Context context) throws IOException {
-            PsseCaseIdentification caseIdentification = read(reader, context).get(0);
+            if (reader == null) {
+                JsonNode jsonNode = context.getNetworkNode().get(recordGroup.getIdentification().getJsonNodeName());
+                return getPsseCaseIdentification(jsonNode, context);
+            }
+            JsonFactory jsonFactory = new JsonFactory();
+            try (JsonParser parser = jsonFactory.createParser(reader.getBufferedReader())) {
+                JsonNode jsonNode = readJsonNode(parser);
+                return getPsseCaseIdentification(jsonNode, context);
+            }
+        }
+
+        private PsseCaseIdentification getPsseCaseIdentification(JsonNode jsonNode, Context context) {
+            // Field names
+            String[] actualFieldNames = readFieldNames(jsonNode);
+            context.setFieldNames(recordGroup.getIdentification(), actualFieldNames);
+
+            // Case Identification
+            List<String> records = readRecords(jsonNode);
+            context.detectDelimiter(records.getFirst());
+            PsseCaseIdentification caseIdentification = recordGroup.parseSingleRecord(records.getFirst(), actualFieldNames, context);
             context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
             return caseIdentification;
         }
