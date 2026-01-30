@@ -223,7 +223,11 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
             if (!context.getFilter().test(sc)) {
                 continue;
             }
-            ShuntSerDe.INSTANCE.write(sc, vl, context);
+            if (context.getVersion().compareTo(IidmVersion.V_1_16) >= 0) {
+                ShuntCompensatorSerDe.INSTANCE.write(sc, vl, context);
+            } else {
+                ShuntSerDe.INSTANCE.write(sc, vl, context);
+            }
         }
         context.getWriter().writeEndNodes();
     }
@@ -344,6 +348,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 case BatterySerDe.ROOT_ELEMENT_NAME -> BatterySerDe.INSTANCE.read(vl, context);
                 case LoadSerDe.ROOT_ELEMENT_NAME -> LoadSerDe.INSTANCE.read(vl, context);
                 case ShuntSerDe.ROOT_ELEMENT_NAME -> ShuntSerDe.INSTANCE.read(vl, context);
+                case ShuntCompensatorSerDe.ROOT_ELEMENT_NAME -> ShuntCompensatorSerDe.INSTANCE.read(vl, context);
                 case DanglingLineSerDe.ROOT_ELEMENT_NAME -> DanglingLineSerDe.INSTANCE.read(vl, context);
                 case StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME -> StaticVarCompensatorSerDe.INSTANCE.read(vl, context);
                 case VscConverterStationSerDe.ROOT_ELEMENT_NAME -> VscConverterStationSerDe.INSTANCE.read(vl, context);
