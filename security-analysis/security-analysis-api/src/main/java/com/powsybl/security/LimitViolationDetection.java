@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.util.PermanentLimitCheckResult;
 import com.powsybl.security.detectors.LoadingLimitType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +115,9 @@ public final class LimitViolationDetection {
             Collection<Overload> overloadOnTemporary = allLoadingLimits.stream()
                     .map(limits -> LimitViolationUtils.getOverload(limits, value))
                     .flatMap(Optional::stream)
-                    .peek(overload -> consumer.accept(
+                    .toList();
+            overloadOnTemporary.forEach(
+                    overload -> consumer.accept(
                             new LimitViolation(branch.getId(),
                                     branch.getOptionalName().orElse("null"),
                                     toLimitViolationType(type),
@@ -124,8 +127,8 @@ public final class LimitViolationDetection {
                                     overload.getLimitReductionCoefficient(),
                                     value,
                                     side)
-                    ))
-                    .toList();
+                    )
+            );
             temporaryOverloadIds = overloadOnTemporary.stream().map(Overload::getOperationalLimitsGroupId).collect(Collectors.toSet());
         } else {
             //cannot set it at start since the filter after will complain that this Set is not effectively final
@@ -137,6 +140,7 @@ public final class LimitViolationDetection {
             allLoadingLimits.stream()
                     .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
+                    .filter(PermanentLimitCheckResult::isOverload)
                     .forEach(overload -> {
                         double limit = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
                         consumer.accept(new LimitViolation(branch.getId(),
@@ -219,6 +223,7 @@ public final class LimitViolationDetection {
             allLoadingLimits.stream()
                     .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
+                    .filter(PermanentLimitCheckResult::isOverload)
                     .forEach(overload -> {
                         double limit = transformer.getLeg(side).getLimits(type).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
                         consumer.accept(new LimitViolation(transformer.getId(),
