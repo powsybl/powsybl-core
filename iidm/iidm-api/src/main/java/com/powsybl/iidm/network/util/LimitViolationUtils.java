@@ -53,6 +53,7 @@ public final class LimitViolationUtils {
         Objects.requireNonNull(side);
         return getLimits(branch, side.toThreeSides(), type, limitsComputer)
                 .map(limits -> getOverload(limits, i))
+                .flatMap(Function.identity())
                 .orElse(null);
     }
 
@@ -65,6 +66,7 @@ public final class LimitViolationUtils {
         Objects.requireNonNull(side);
         return getLimits(transformer, side, type, limitsComputer)
                 .map(limits -> getOverload(limits, i))
+                .flatMap(Function.identity())
                 .orElse(null);
     }
 
@@ -83,6 +85,7 @@ public final class LimitViolationUtils {
         return limitsComputer.computeLimits(branch, type, side.toThreeSides(), false)
                 .stream()
                 .map(limits -> getOverload(limits, i))
+                .flatMap(Optional::stream)
                 .toList();
     }
 
@@ -101,6 +104,7 @@ public final class LimitViolationUtils {
         return limitsComputer.computeLimits(transformer, type, side, false)
                 .stream()
                 .map(limits -> getOverload(limits, i))
+                .flatMap(Optional::stream)
                 .toList();
     }
 
@@ -153,10 +157,10 @@ public final class LimitViolationUtils {
         return null;
     }
 
-    private static Overload getOverload(LimitsContainer<LoadingLimits> limitsContainer, double i) {
+    public static Optional<Overload> getOverload(LimitsContainer<LoadingLimits> limitsContainer, double i) {
         double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
-            return null;
+            return Optional.empty();
         }
         Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
         String previousLimitName = PERMANENT_LIMIT_NAME;
@@ -166,7 +170,7 @@ public final class LimitViolationUtils {
         LoadingLimits.TemporaryLimit lastTemporaryLimit = null;
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
             if (i >= previousLimit && i < tl.getValue()) {
-                return createOverload(tl, previousLimit, previousLimitName, limitsContainer, isFirstTemporaryLimit, previousAcceptableDuration, 1);
+                return Optional.of(createOverload(tl, previousLimit, previousLimitName, limitsContainer, isFirstTemporaryLimit, previousAcceptableDuration, 1));
             }
             isFirstTemporaryLimit = false;
             previousLimitName = tl.getName();
@@ -175,12 +179,12 @@ public final class LimitViolationUtils {
             lastTemporaryLimit = tl;
         }
         if (lastTemporaryLimit != null && i >= lastTemporaryLimit.getValue()) {
-            return createOverload(null, previousLimit, previousLimitName, limitsContainer, temporaryLimits.size() == 1, previousAcceptableDuration, 1);
+            return Optional.of(createOverload(null, previousLimit, previousLimitName, limitsContainer, temporaryLimits.size() == 1, previousAcceptableDuration, 1));
         }
-        return null;
+        return Optional.empty();
     }
 
-    private static PermanentLimitCheckResult checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i) {
+    public static PermanentLimitCheckResult checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i) {
         return checkPermanentLimitIfAny(limitsContainer, i, 1);
     }
 
