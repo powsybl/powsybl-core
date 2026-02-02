@@ -35,9 +35,9 @@ class GeneratorStartUpSerDeTest {
         assertEquals(600.0, generatorStartup.getPlannedActivePowerSetpoint());
         assertEquals(5.0, generatorStartup.getStartupCost());
         assertEquals(10.0, generatorStartup.getMarginalCost());
-        // planned outage rate is greater than 1 so it is set to 1
+        // planned outage rate is greater than MAX_RATE so it is set to MAX_RATE
         assertEquals(MAX_RATE, generatorStartup.getPlannedOutageRate());
-        // forced outage rate is smaller than 0 so it is set to 0
+        // forced outage rate is smaller than MIN_RATE so it is set to MIN_RATE
         assertEquals(MIN_RATE, generatorStartup.getForcedOutageRate());
     }
 }
