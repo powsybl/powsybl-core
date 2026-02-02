@@ -16,6 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import static com.powsybl.iidm.network.ComponentConstants.MAX_RATE;
+import static com.powsybl.iidm.network.ComponentConstants.MIN_RATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -34,8 +36,8 @@ class GeneratorStartUpSerDeTest {
         assertEquals(5.0, generatorStartup.getStartupCost());
         assertEquals(10.0, generatorStartup.getMarginalCost());
         // planned outage rate is greater than 1 so it is set to 1
-        assertEquals(1, generatorStartup.getPlannedOutageRate());
+        assertEquals(MAX_RATE, generatorStartup.getPlannedOutageRate());
         // forced outage rate is smaller than 0 so it is set to 0
-        assertEquals(0, generatorStartup.getForcedOutageRate());
+        assertEquals(MIN_RATE, generatorStartup.getForcedOutageRate());
     }
 }
