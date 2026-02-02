@@ -27,7 +27,7 @@ public final class CgmesConformity1NetworkCatalog {
     private static final String VOLTAGE_LEVEL_ID_2 = "d0486169-2205-40b2-895e-b672ecb9e5fc";
     private static final String BUS_ID_1 = "f70f6bad-eb8d-4b8f-8431-4ab93581514e";
     private static final String BUS_ID_2 = "99b219f3-4593-428b-a4da-124a54630178";
-    private static final String DANGLING_LINE_ID_1 = "17086487-56ba-4979-b8de-064025a6b4da";
+    private static final String BOUNDARY_LINE_ID_1 = "17086487-56ba-4979-b8de-064025a6b4da";
     private static final String SHUNT_ID_1 = "002b0a40-3957-46db-b84a-30420083558f";
     private static final String TWT_ID_1 = "b94318f6-6d24-4f56-96b9-df2531ad6543";
     private static final String TWT_ID_2 = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
@@ -143,7 +143,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .add();
 
         vlAnvers220.newBoundaryLine()
-                .setId(DANGLING_LINE_ID_1)
+                .setId(BOUNDARY_LINE_ID_1)
                 .setName("BE-Line_1")
                 .setConnectableBus(busAnvers220.getId())
                 .setBus(busAnvers220.getId())
@@ -319,7 +319,7 @@ public final class CgmesConformity1NetworkCatalog {
         busBrussels10.setAngle(-7.057180);
         // TODO Consider lines that are touching boundaries
         // expected.newLine()
-        // .setId(DANGLING_LINE_ID_1)
+        // .setId(BOUNDARY_LINE_ID_1)
         // .add();
         Line lineBE2 = network.newLine()
                 .setId("b58bf21a-096a-4dae-9a01-3f03b60c24c7")
@@ -829,7 +829,7 @@ public final class CgmesConformity1NetworkCatalog {
     public static Network microBaseCaseBE() {
         String modelId = "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73";
         Network network = microBE(modelId);
-        BoundaryLine be1 = network.getBoundaryLine(DANGLING_LINE_ID_1);
+        BoundaryLine be1 = network.getBoundaryLine(BOUNDARY_LINE_ID_1);
         be1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1443)
                 .beginTemporaryLimit()
                     .setName("CL-4")
@@ -1054,7 +1054,7 @@ public final class CgmesConformity1NetworkCatalog {
         network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")
                 .setP0(-86.814383)
                 .setQ0(4.958972);
-        network.getBoundaryLine(DANGLING_LINE_ID_1)
+        network.getBoundaryLine(BOUNDARY_LINE_ID_1)
                 .setP0(-89.462903)
                 .setQ0(1.519011)
                 .getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()

@@ -1430,7 +1430,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        return identifiable.getType() == IdentifiableType.DANGLING_LINE && !((BoundaryLine) identifiable).isPaired();
+        return identifiable.getType() == IdentifiableType.BOUNDARY_LINE && !((BoundaryLine) identifiable).isPaired();
     }
 
     @Override

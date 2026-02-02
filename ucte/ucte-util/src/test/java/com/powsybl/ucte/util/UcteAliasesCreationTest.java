@@ -32,7 +32,7 @@ class UcteAliasesCreationTest {
     void checkAliasesCreationWhenImportingMergedFile() {
         Network network = loadNetworkFromResourceFile("/uxTestGridForMerging.uct");
 
-        // Dangling lines are there but paired
+        // Boundary lines are there but paired
         assertNotNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
         assertTrue(network.getBoundaryLine("BBBBBB11 XXXXXX11 1").isPaired());
         assertNotNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1"));

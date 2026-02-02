@@ -50,7 +50,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             if (terminal != null) {
                 checkAndCreateLimitsAdder(context.terminalMapping().number(terminalId), terminal.getConnectable());
             } else if (equipmentId != null) {
-                // The equipment may be a Branch, a Dangling line, a Switch ...
+                // The equipment may be a Branch, a Boundary line, a Switch ...
                 Identifiable<?> identifiable = context.network().getIdentifiable(equipmentId);
                 checkAndCreateLimitsAdder(-1, identifiable);
             }

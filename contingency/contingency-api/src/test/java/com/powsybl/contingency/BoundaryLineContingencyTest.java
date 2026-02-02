@@ -30,7 +30,7 @@ class BoundaryLineContingencyTest {
 
         BoundaryLineContingency dlContingency = new BoundaryLineContingency("id");
         assertEquals("id", dlContingency.getId());
-        assertEquals(ContingencyElementType.DANGLING_LINE, dlContingency.getType());
+        assertEquals(ContingencyElementType.BOUNDARY_LINE, dlContingency.getType());
 
         assertNotNull(dlContingency.toModification());
         assertInstanceOf(BoundaryLineTripping.class, dlContingency.toModification());

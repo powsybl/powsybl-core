@@ -102,7 +102,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
                 case BRANCH -> checkBranchContingency(this, (BranchContingency) element, network);
                 case HVDC_LINE -> checkHvdcLineContingency(this, (HvdcLineContingency) element, network);
                 case BUSBAR_SECTION -> checkBusbarSectionContingency(this, (BusbarSectionContingency) element, network);
-                case DANGLING_LINE -> checkBoundaryLineContingency(this, (BoundaryLineContingency) element, network);
+                case BOUNDARY_LINE, DANGLING_LINE -> checkBoundaryLineContingency(this, (BoundaryLineContingency) element, network);
                 case LINE -> checkLineContingency(this, (LineContingency) element, network);
                 case TWO_WINDINGS_TRANSFORMER ->
                     checkTwoWindingsTransformerContingency(this, (TwoWindingsTransformerContingency) element, network);
@@ -215,7 +215,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     private static boolean checkBoundaryLineContingency(Contingency contingency, BoundaryLineContingency element, Network network) {
         if (network.getBoundaryLine(element.getId()) == null) {
-            LOGGER.warn("Dangling line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            LOGGER.warn("Boundary line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }
         return true;

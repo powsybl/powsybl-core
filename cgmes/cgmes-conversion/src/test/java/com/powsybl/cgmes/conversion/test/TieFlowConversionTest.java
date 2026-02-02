@@ -41,7 +41,7 @@ class TieFlowConversionTest {
         Area controlArea = n.getAreas().iterator().next();
         assertEquals(1, controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).count());
         assertEquals(2, controlArea.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent()).count());
-        assertTrue(containsTerminal(controlArea, "044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
+        assertTrue(containsTerminal(controlArea, "044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.BOUNDARY_LINE));
     }
 
     @Test
@@ -54,7 +54,7 @@ class TieFlowConversionTest {
         Area controlArea = n.getAreas().iterator().next();
         assertEquals(0, controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).count());
         assertEquals(3, controlArea.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent()).count());
-        assertTrue(containsBoundary(controlArea, "044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
+        assertTrue(containsBoundary(controlArea, "044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.BOUNDARY_LINE));
     }
 
     @Test
@@ -67,7 +67,7 @@ class TieFlowConversionTest {
         Area controlArea = n.getAreas().iterator().next();
         assertEquals(4, controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).count());
         assertEquals(1, controlArea.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent()).count());
-        assertTrue(containsBoundary(controlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
+        assertTrue(containsBoundary(controlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.BOUNDARY_LINE));
     }
 
     @Test
@@ -80,7 +80,7 @@ class TieFlowConversionTest {
         Area controlArea = n.getAreas().iterator().next();
         assertEquals(5, controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).count());
         assertEquals(0, controlArea.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent()).count());
-        assertTrue(containsTerminal(controlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
+        assertTrue(containsTerminal(controlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.BOUNDARY_LINE));
     }
 
     @Test

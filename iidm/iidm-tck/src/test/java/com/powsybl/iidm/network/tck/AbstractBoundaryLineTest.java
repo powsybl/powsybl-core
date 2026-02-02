@@ -81,7 +81,7 @@ public abstract class AbstractBoundaryLineTest {
                     .add();
         BoundaryLine boundaryLine = network.getBoundaryLine(id);
         // adder
-        assertEquals(IdentifiableType.DANGLING_LINE, boundaryLine.getType());
+        assertEquals(IdentifiableType.BOUNDARY_LINE, boundaryLine.getType());
         assertEquals(r, boundaryLine.getR(), 0.0);
         assertEquals(x, boundaryLine.getX(), 0.0);
         assertEquals(g, boundaryLine.getG(), 0.0);

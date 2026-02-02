@@ -294,7 +294,7 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
 
     @Override
     default IdentifiableType getType() {
-        return IdentifiableType.DANGLING_LINE;
+        return IdentifiableType.BOUNDARY_LINE;
     }
 
     default void applySolvedValues() {

@@ -113,7 +113,7 @@ public class CgmesGLExporter {
         LinePositionExporter positionExporter = new LinePositionExporter(tripleStore, context);
         LOG.info("Exporting Lines Position");
         network.getLineStream().forEach(positionExporter::exportPosition);
-        LOG.info("Exporting Dangling Lines Position");
+        LOG.info("Exporting Boundary Lines Position");
         network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).forEach(positionExporter::exportPosition);
     }
 

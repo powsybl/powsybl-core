@@ -317,7 +317,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     @Override
     protected String getTypeDescription() {
-        return "Dangling line";
+        return "Boundary line";
     }
 
     @Override

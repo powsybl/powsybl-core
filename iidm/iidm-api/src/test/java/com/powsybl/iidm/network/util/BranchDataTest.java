@@ -189,7 +189,7 @@ class BranchDataTest {
     @Test
     void testBoundaryLineDifferentY() {
         BranchTestCase t = lineEnd2Disconnected();
-        t.branch.id = "Dangling-Y1-Y2-different";
+        t.branch.id = "Boundary-Y1-Y2-different";
         // End 1 admittance to ground has different value of End 2
         t.branch.end1.b = t.branch.end2.b * 2;
 
@@ -218,7 +218,7 @@ class BranchDataTest {
         BranchTestCase t = new BranchTestCase();
         t.config.convertAsTransformer = false;
 
-        t.branch.id = "Dangling";
+        t.branch.id = "Boundary";
         t.branch.end1.ratedU = 380;
         t.branch.end2.ratedU = 380;
         t.branch.end1.r = 5;

@@ -411,7 +411,7 @@ public class Conversion {
             }
         });
 
-        // Set selected limits group for Dangling lines
+        // Set selected limits group for Boundary lines
         context.network().getBoundaryLineStream().forEach(dl -> {
             Collection<OperationalLimitsGroup> limitsHolder = dl.getOperationalLimitsGroups();
             if (limitsHolder.size() == 1) {
@@ -474,7 +474,7 @@ public class Conversion {
             node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
         }
         if (node == null) {
-            LOG.warn("Dangling line {} does not have a boundary node identifier.", dl.getId());
+            LOG.warn("Boundary line {} does not have a boundary node identifier.", dl.getId());
             node = "unknown";
         }
         return node;

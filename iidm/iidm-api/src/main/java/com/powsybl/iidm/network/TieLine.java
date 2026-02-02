@@ -72,7 +72,7 @@ import java.util.function.Predicate;
  *
  * <p>
  * A tie line is created by matching two {@link BoundaryLine} with the same pairing key. <br>
- * We have two Dangling Lines within the Tie Line. <br>
+ * We have two Boundary Lines within the Tie Line. <br>
  * </p>
  *
  * <p>

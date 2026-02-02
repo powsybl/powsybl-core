@@ -40,7 +40,7 @@ class BoundaryLineCriterionTest {
 
     @Test
     void typeTest() {
-        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.DANGLING_LINE,
+        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.BOUNDARY_LINE,
                 new BoundaryLineCriterion(null, null).getNetworkElementCriterionType());
     }
 

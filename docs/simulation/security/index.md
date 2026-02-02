@@ -45,7 +45,7 @@ contingencies are:
 - Busbar section contingency for node/breaker topologies
 - Line, two-winding transformer and tie line contingencies (branch contingency)
 - Three-winding transformer contingency
-- Dangling line contingency
+- Boundary line contingency
 - HVDC line contingency
 - Battery contingency
 - Shunt Compensator contingency

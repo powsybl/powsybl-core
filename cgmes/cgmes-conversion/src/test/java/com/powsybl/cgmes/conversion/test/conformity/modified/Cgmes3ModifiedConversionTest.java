@@ -70,7 +70,7 @@ class Cgmes3ModifiedConversionTest {
 
     @Test
     void testMultipleUnpairedLinesAtSameBoundary() {
-        // Dangling lines at Brussels substation
+        // Boundary lines at Brussels substation
         final String line5Id = "b18cd1aa-7808-49b9-a7cf-605eaf07b006";
         final String line4Id = "ed0c5d75-4a54-43c8-b782-b20d7431630b";
         final String line3Id = "78736387-5f60-4832-b3fe-d50daf81b0a6";

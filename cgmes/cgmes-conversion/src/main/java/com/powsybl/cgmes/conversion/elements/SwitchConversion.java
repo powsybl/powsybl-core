@@ -119,7 +119,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private void warnBoundaryLineCreated() {
-        fixed("Dangling line with low impedance", "Connected to a boundary node");
+        fixed("Boundary line with low impedance", "Connected to a boundary node");
     }
 
     public static void update(BoundaryLine boundaryLine, PropertyBag cgmesData, Context context) {

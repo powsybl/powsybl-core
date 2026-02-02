@@ -589,7 +589,7 @@ public class CgmesImport implements Importer {
                         Parameter.readBoolean(
                                 getFormat(),
                                 p,
-                                DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+                                DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
                                 defaultValueConfig))
                 .setMissingPermanentLimitPercentage(
                         Parameter.readDouble(
@@ -690,7 +690,7 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
-    public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-boundary-line-if-boundary-side-is-disconnected";
+    public static final String DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-boundary-line-if-boundary-side-is-disconnected";
     public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.cgmes.missing-permanent-limit-percentage";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
@@ -781,8 +781,8 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Force import of CGMES node/breaker models as bus/breaker",
             Boolean.FALSE);
-    public static final Parameter DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER = new Parameter(
-            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED,
+    public static final Parameter DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER = new Parameter(
+            DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED,
             ParameterType.BOOLEAN,
             "Force disconnection of boundary line network side if boundary side is disconnected",
             Boolean.TRUE);
@@ -844,7 +844,7 @@ public class CgmesImport implements Importer {
             DECODE_ESCAPED_IDENTIFIERS_PARAMETER,
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
             IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
-            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+            DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER,
             MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,

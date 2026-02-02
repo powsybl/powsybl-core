@@ -823,12 +823,12 @@ class CgmesConformity1ModifiedConversionTest {
     void microGridBELineDisconnectedAtBoundaryNode() {
         String dlId = "17086487-56ba-4979-b8de-064025a6b4da";
 
-        importParams.setProperty(CgmesImport.DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED, "true");
+        importParams.setProperty(CgmesImport.DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED, "true");
         Network be0 = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELineDisconnectedAtBoundaryNode().dataSource(), importParams);
         Bus bus0 = be0.getBoundaryLine(dlId).getTerminal().getBusView().getBus();
         assertNull(bus0);
 
-        importParams.setProperty(CgmesImport.DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED, "false");
+        importParams.setProperty(CgmesImport.DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED, "false");
         Network be1 = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELineDisconnectedAtBoundaryNode().dataSource(), importParams);
         Bus bus1 = be1.getBoundaryLine(dlId).getTerminal().getBusView().getBus();
         assertNotNull(bus1);

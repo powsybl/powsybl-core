@@ -212,7 +212,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                         .setG(gch)
                         .setB(bch)
                         .setPairingKey(findPairingKey(boundaryNode)))
-                .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
+                .orElseThrow(() -> new CgmesModelException("Boundary line " + id + " has no container"));
         identify(dlAdder);
         connectWithOnlyEq(dlAdder, modelSide);
         Optional<EquivalentInjectionConversion> equivalentInjectionConversion = getEquivalentInjectionConversionForBoundaryLine(context, boundaryNode, eqInstance);
@@ -240,8 +240,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
         Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn));
         setBoundaryNodeInfo(boundaryNode, dl);
-        // In a Dangling Line the CGMES side and the IIDM side may not be the same
-        // Dangling lines in IIDM only have one terminal, one side
+        // In a Boundary Line the CGMES side and the IIDM side may not be the same
+        // Boundary lines in IIDM only have one terminal, one side
         context.convertedTerminalWithOnlyEq(terminalId(modelSide), dl.getTerminal(), 1);
 
         dl.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
@@ -281,8 +281,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return cgmesTerminalId != null ? Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)) : Optional.empty();
     }
 
-    // In a Dangling Line the CGMES side and the IIDM side may not be the same
-    // Dangling lines in IIDM only have one terminal, one side
+    // In a Boundary Line the CGMES side and the IIDM side may not be the same
+    // Boundary lines in IIDM only have one terminal, one side
     // We do not have SSH values at the model side, it is a line flow. We take directly SV values
 
     protected static void computeFlowsOnModelSide(BoundaryLine boundaryLine, Context context) {

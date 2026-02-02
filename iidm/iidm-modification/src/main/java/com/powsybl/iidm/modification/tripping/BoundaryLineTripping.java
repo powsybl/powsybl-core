@@ -29,7 +29,7 @@ public class BoundaryLineTripping extends AbstractInjectionTripping {
     protected BoundaryLine getInjection(Network network) {
         BoundaryLine injection = network.getBoundaryLine(id);
         if (injection == null) {
-            throw new PowsyblException("Dangling line '" + id + "' not found");
+            throw new PowsyblException("Boundary line '" + id + "' not found");
         }
 
         return injection;

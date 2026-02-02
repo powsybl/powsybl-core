@@ -121,7 +121,7 @@ class BoundaryLineScalableTest {
         assertEquals(0, boundaryLine.getP0(), 1e-3);
         assertEquals(0, dl3.scale(network, -40), 1e-3);
 
-        //test DanglingLieScalable with negative minValue
+        //test BoundaryLieScalable with negative minValue
         dl4.reset(network);
         assertEquals(0, boundaryLine.getP0(), 1e-3);
         assertEquals(10, dl4.scale(network, 20), 1e-3);

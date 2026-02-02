@@ -296,19 +296,19 @@ a [reactive capability curve](./additional.md#reactive-capability-curve).
 - [Measurements](extensions.md#measurements)
 
 (boundary-line)=
-## Dangling line
+## Boundary line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BoundaryLine.html)
 
 A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a boundary line, which represents the part of that boundary line which is located in it. A boundary line is thus a passive or active component that aggregates a line chunk and a constant power injection in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, were the other network fully described.
 
-![Dangling line model](img/boundary-line.svg){width="50%" align=center class="only-light"}
-![Dangling line model](img/dark_mode/boundary-line.svg){width="50%" align=center class="only-dark"}
+![Boundary line model](img/boundary-line.svg){width="50%" align=center class="only-light"}
+![Boundary line model](img/dark_mode/boundary-line.svg){width="50%" align=center class="only-dark"}
 
 A generation part, at boundary side can also be modeled with a constant active power injection and a constant reactive power injection if the generation part of the boundary line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal cannot be set, it is necessary for the boundary side of the boundary line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the boundary line follows the classical generator sign convention.
 
 Resulting flows at the boundary line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
 
-Dangling lines are key objects for merging networks. Merging will be described soon [here](TODO).
+Boundary lines are key objects for merging networks. Merging will be described soon [here](TODO).
 
 **Characteristics**
 
@@ -349,7 +349,7 @@ are automatically computed using information from the terminal of the boundary l
 
 **Available extensions**
 
-- [CGMES Dangling Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-boundary-line-boundary-node)
+- [CGMES Boundary Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-boundary-line-boundary-node)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)

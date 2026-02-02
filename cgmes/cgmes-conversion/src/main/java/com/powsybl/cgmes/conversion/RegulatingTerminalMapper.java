@@ -364,10 +364,10 @@ public final class RegulatingTerminalMapper {
          * the terminal will only be accepted if it is a boundaryLine
          */
         private static Optional<Terminal> best(Terminal terminalEnd1, Terminal terminalEnd2) {
-            if (terminalEnd1 != null && terminalEnd1.getConnectable().getType() == IdentifiableType.DANGLING_LINE) {
+            if (terminalEnd1 != null && terminalEnd1.getConnectable().getType() == IdentifiableType.BOUNDARY_LINE) {
                 return Optional.of(terminalEnd1);
             }
-            if (terminalEnd2 != null && terminalEnd2.getConnectable().getType() == IdentifiableType.DANGLING_LINE) {
+            if (terminalEnd2 != null && terminalEnd2.getConnectable().getType() == IdentifiableType.BOUNDARY_LINE) {
                 return Optional.of(terminalEnd2);
             }
             return Optional.empty();

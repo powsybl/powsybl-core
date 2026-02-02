@@ -36,7 +36,7 @@ public class DefaultNetworkElementAdapterTest {
 
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
-        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.BOUNDARY_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
@@ -60,7 +60,7 @@ public class DefaultNetworkElementAdapterTest {
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
-        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.BOUNDARY_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
@@ -83,7 +83,7 @@ public class DefaultNetworkElementAdapterTest {
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.BOUNDARY_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
@@ -105,7 +105,7 @@ public class DefaultNetworkElementAdapterTest {
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
-        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.BOUNDARY_LINE));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
@@ -126,7 +126,7 @@ public class DefaultNetworkElementAdapterTest {
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
-        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.BOUNDARY_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
@@ -200,7 +200,7 @@ public class DefaultNetworkElementAdapterTest {
         Mockito.when(terminal.getVoltageLevel()).thenReturn(voltageLevel);
 
         BoundaryLine boundaryLine = Mockito.mock(BoundaryLine.class);
-        Mockito.when(boundaryLine.getType()).thenReturn(IdentifiableType.DANGLING_LINE);
+        Mockito.when(boundaryLine.getType()).thenReturn(IdentifiableType.BOUNDARY_LINE);
         Mockito.when(boundaryLine.getId()).thenReturn(id);
         Mockito.when(boundaryLine.getTerminal()).thenReturn(terminal);
         return boundaryLine;

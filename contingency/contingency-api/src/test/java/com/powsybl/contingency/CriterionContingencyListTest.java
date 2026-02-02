@@ -510,7 +510,7 @@ class CriterionContingencyListTest {
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(
                 VoltageInterval.between(90.0, 130.0, true, false));
         InjectionCriterionContingencyList contingencyList = new InjectionCriterionContingencyList("list2",
-                IdentifiableType.DANGLING_LINE, countriesCriterion, nominalVoltageCriterion,
+                IdentifiableType.BOUNDARY_LINE, countriesCriterion, nominalVoltageCriterion,
                 Collections.emptyList(), null);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());

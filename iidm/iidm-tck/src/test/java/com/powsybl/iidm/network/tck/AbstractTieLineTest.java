@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
  */
 public abstract class AbstractTieLineTest {
 
-    private static final String DANGLING1_NAME = "dl1_name";
+    private static final String BOUNDARY1_NAME = "dl1_name";
 
     private static final String INVALID = "invalid";
 
@@ -70,7 +70,7 @@ public abstract class AbstractTieLineTest {
                 .setBus("busA")
                 .setId("hl1")
                 .setEnsureIdUnicity(true)
-                .setName(DANGLING1_NAME)
+                .setName(BOUNDARY1_NAME)
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setR(r)
@@ -111,7 +111,7 @@ public abstract class AbstractTieLineTest {
         assertEquals(IdentifiableType.TIE_LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getPairingKey());
         assertEquals("hl1", tieLine.getBoundaryLine1().getId());
-        assertEquals(DANGLING1_NAME, tieLine.getBoundaryLine1().getOptionalName().orElse(null));
+        assertEquals(BOUNDARY1_NAME, tieLine.getBoundaryLine1().getOptionalName().orElse(null));
         assertEquals("hl2", tieLine.getBoundaryLine2().getId());
         assertEquals("hl1", tieLine.getBoundaryLine(voltageLevelA.getId()).getId());
         assertEquals("hl2", tieLine.getBoundaryLine(voltageLevelB.getId()).getId());
@@ -212,7 +212,7 @@ public abstract class AbstractTieLineTest {
         BoundaryLine dl1 = voltageLevelA.newBoundaryLine()
                 .setBus("busA")
                 .setId("hl1")
-                .setName(DANGLING1_NAME)
+                .setName(BOUNDARY1_NAME)
                 .setR(10.0)
                 .setX(20.0)
                 .setB(80.0)
@@ -262,7 +262,7 @@ public abstract class AbstractTieLineTest {
     public void boundaryLineIdNull() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithBoundaryline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
                 6.5, 8.5, "code"));
-        assertTrue(e.getMessage().contains("Dangling line id is not set"));
+        assertTrue(e.getMessage().contains("Boundary line id is not set"));
     }
 
     @Test
@@ -407,7 +407,7 @@ public abstract class AbstractTieLineTest {
         BoundaryLine dl1 = voltageLevelA.newBoundaryLine()
                 .setBus("busA")
                 .setId(boundaryLineId)
-                .setName(DANGLING1_NAME)
+                .setName(BOUNDARY1_NAME)
                 .setR(r)
                 .setX(x)
                 .setB(b)

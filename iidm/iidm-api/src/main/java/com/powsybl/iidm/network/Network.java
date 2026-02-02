@@ -1778,7 +1778,7 @@ public interface Network extends Container<Network> {
             case SWITCH -> getSwitchStream().map(Function.identity());
             case TWO_WINDINGS_TRANSFORMER -> getTwoWindingsTransformerStream().map(Function.identity());
             case THREE_WINDINGS_TRANSFORMER -> getThreeWindingsTransformerStream().map(Function.identity());
-            case DANGLING_LINE -> getBoundaryLineStream(BoundaryLineFilter.ALL).map(Function.identity());
+            case BOUNDARY_LINE -> getBoundaryLineStream(BoundaryLineFilter.ALL).map(Function.identity());
             case LINE -> getLineStream().map(Function.identity());
             case TIE_LINE -> getTieLineStream().map(Function.identity());
             case LOAD -> getLoadStream().map(Function.identity());

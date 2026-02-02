@@ -1075,7 +1075,7 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private static boolean isSplittable(Identifiable<?> identifiable) {
-        return identifiable.getType() == IdentifiableType.DANGLING_LINE;
+        return identifiable.getType() == IdentifiableType.BOUNDARY_LINE;
     }
 
     @Override
@@ -1097,7 +1097,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         return switch (identifiable.getType()) {
             case LINE, TIE_LINE -> isBoundary((Branch<?>) identifiable);
             case HVDC_LINE -> isBoundary((HvdcLine) identifiable);
-            case DANGLING_LINE -> isBoundary((BoundaryLine) identifiable);
+            case BOUNDARY_LINE -> isBoundary((BoundaryLine) identifiable);
             default -> false;
         };
     }

@@ -616,7 +616,7 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static List<Integer> getTwoOtherBusesPreservingOrder(Identifiable<?> identifiable, List<Terminal> terminals, NodeBusR nodeBusR, ContextExport contextExport) {
         List<Integer> buses = new ArrayList<>();
-        if (identifiable.getType() == IdentifiableType.DANGLING_LINE) {
+        if (identifiable.getType() == IdentifiableType.BOUNDARY_LINE) {
             // busJ associated with boundary side of the boundary lines
             buses.add(contextExport.getFullExport().getBusI((BoundaryLine) identifiable).orElseThrow());
         } else {

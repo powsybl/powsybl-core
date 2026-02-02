@@ -77,7 +77,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
             AbstractConnectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
                 case BUSBAR_SECTION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER,
-                     THREE_WINDINGS_TRANSFORMER, DANGLING_LINE, GROUND -> {
+                     THREE_WINDINGS_TRANSFORMER, BOUNDARY_LINE, GROUND -> {
                     // skip
                 }
                 case GENERATOR, BATTERY, LOAD, HVDC_CONVERTER_STATION -> {
@@ -100,7 +100,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         for (TerminalExt terminal : getConnectedTerminals()) {
             AbstractConnectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
-                case BUSBAR_SECTION, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, DANGLING_LINE, GROUND -> {
+                case BUSBAR_SECTION, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, BOUNDARY_LINE, GROUND -> {
                     // skip
                 }
                 case GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, HVDC_CONVERTER_STATION -> {
@@ -290,7 +290,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     visitor.visitThreeWindingsTransformer(thwt, side);
                 }
                 case LOAD -> visitor.visitLoad((LoadImpl) connectable);
-                case DANGLING_LINE -> visitor.visitBoundaryLine((BoundaryLineImpl) connectable);
+                case BOUNDARY_LINE -> visitor.visitBoundaryLine((BoundaryLineImpl) connectable);
                 case STATIC_VAR_COMPENSATOR -> visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
                 case HVDC_CONVERTER_STATION -> visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
                 case GROUND -> visitor.visitGround((GroundImpl) connectable);

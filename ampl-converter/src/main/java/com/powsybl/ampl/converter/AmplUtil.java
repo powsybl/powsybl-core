@@ -107,7 +107,7 @@ public final class AmplUtil {
         // Three windings transformers
         fillThreeWindingsTransformers(mapper, network);
 
-        // Dangling lines
+        // Boundary lines
         fillBoundaryLines(mapper, network);
 
         // loads

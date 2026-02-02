@@ -121,7 +121,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
 
         double done = 0;
         if (dl == null) {
-            LOGGER.warn("Dangling line {} not found", id);
+            LOGGER.warn("Boundary line {} not found", id);
             return done;
         }
 
@@ -131,7 +131,7 @@ public class BoundaryLineScalable extends AbstractInjectionScalable {
                 t.connect();
                 LOGGER.info("Connecting {}", dl.getId());
             } else {
-                LOGGER.info("Dangling line {} is not connected, discarded from scaling", dl.getId());
+                LOGGER.info("Boundary line {} is not connected, discarded from scaling", dl.getId());
                 return 0.;
             }
         }

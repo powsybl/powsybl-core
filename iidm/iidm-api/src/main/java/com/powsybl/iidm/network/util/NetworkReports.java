@@ -18,8 +18,8 @@ import java.util.Objects;
  */
 public final class NetworkReports {
 
-    private static final String DANGLING_LINE_ID_1 = "boundaryLineId1";
-    private static final String DANGLING_LINE_ID_2 = "boundaryLineId2";
+    private static final String BOUNDARY_LINE_ID_1 = "boundaryLineId1";
+    private static final String BOUNDARY_LINE_ID_2 = "boundaryLineId2";
 
     private NetworkReports() {
     }
@@ -69,9 +69,9 @@ public final class NetworkReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.InconsistentPropertyValues")
                 .withUntypedValue("propertyName", propertyName)
-                .withUntypedValue(DANGLING_LINE_ID_1, boundaryLineId1)
+                .withUntypedValue(BOUNDARY_LINE_ID_1, boundaryLineId1)
                 .withUntypedValue("propertyValue1", propertyValue1)
-                .withUntypedValue(DANGLING_LINE_ID_2, boundaryLineId2)
+                .withUntypedValue(BOUNDARY_LINE_ID_2, boundaryLineId2)
                 .withUntypedValue("propertyValue2", propertyValue2)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
                 .add();
@@ -81,8 +81,8 @@ public final class NetworkReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.MoveCommonAlias")
                 .withUntypedValue("alias", alias)
-                .withUntypedValue(DANGLING_LINE_ID_1, boundaryLineId1)
-                .withUntypedValue(DANGLING_LINE_ID_2, boundaryLineId2)
+                .withUntypedValue(BOUNDARY_LINE_ID_1, boundaryLineId1)
+                .withUntypedValue(BOUNDARY_LINE_ID_2, boundaryLineId2)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
                 .add();
     }
@@ -92,8 +92,8 @@ public final class NetworkReports {
                 .withMessageTemplate("core.iidm.network.PropertyOnlyOnOneSide")
                 .withUntypedValue("propertyName", propertyName)
                 .withUntypedValue("side", emptySide)
-                .withUntypedValue(DANGLING_LINE_ID_1, boundaryLineId1)
-                .withUntypedValue(DANGLING_LINE_ID_2, boundaryLineId2)
+                .withUntypedValue(BOUNDARY_LINE_ID_1, boundaryLineId1)
+                .withUntypedValue(BOUNDARY_LINE_ID_2, boundaryLineId2)
                 .withUntypedValue("propertyValue", propertyValue)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
                 .add();
@@ -104,9 +104,9 @@ public final class NetworkReports {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.InconsistentAliasTypes")
                 .withUntypedValue("alias", alias)
-                .withUntypedValue(DANGLING_LINE_ID_1, boundaryLineId1)
+                .withUntypedValue(BOUNDARY_LINE_ID_1, boundaryLineId1)
                 .withUntypedValue("type1", type1)
-                .withUntypedValue(DANGLING_LINE_ID_2, boundaryLineId2)
+                .withUntypedValue(BOUNDARY_LINE_ID_2, boundaryLineId2)
                 .withUntypedValue("type2", type2)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -117,8 +117,8 @@ public final class NetworkReports {
                 .withMessageTemplate("core.iidm.network.InconsistentAliasValues")
                 .withUntypedValue("alias1", alias1)
                 .withUntypedValue("alias2", alias2)
-                .withUntypedValue(DANGLING_LINE_ID_1, boundaryLineId1)
-                .withUntypedValue(DANGLING_LINE_ID_2, boundaryLineId2)
+                .withUntypedValue(BOUNDARY_LINE_ID_1, boundaryLineId1)
+                .withUntypedValue(BOUNDARY_LINE_ID_2, boundaryLineId2)
                 .withUntypedValue("type", type)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();

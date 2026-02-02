@@ -311,7 +311,7 @@ This modification ensures that the connectivity of the network is preserved whil
 ### Bus tripping
 <span style="color: red">TODO</span>
 
-### Dangling line tripping
+### Boundary line tripping
 <span style="color: red">TODO</span>
 
 ### Generator tripping
@@ -376,7 +376,7 @@ It is possible to specify a side of the element to connect. If no side is specif
 
 Class: `ConnectableConnection`
 
-### Dangling line
+### Boundary line
 This modification is used to update the active and reactive powers of the load part of a boundary line.
 
 If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.  
