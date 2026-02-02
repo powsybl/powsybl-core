@@ -19,6 +19,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.powsybl.iidm.network.ComponentConstants.MAX_RATE;
+import static com.powsybl.iidm.network.ComponentConstants.MIN_RATE;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.REACTIVE_POWER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.VOLTAGE;
 
@@ -181,7 +183,7 @@ public final class ValidationUtil {
     }
 
     public static void checkRate(Validable validable, String validableType, double rate, String fieldName) {
-        if (!Double.isNaN(rate) && (rate < 0 || rate > 1)) {
+        if (!Double.isNaN(rate) && (rate < MIN_RATE || rate > MAX_RATE)) {
             throw new ValidationException(validable, "Unexpected value for " + fieldName + " of " + validableType + " : " + rate + " is not included in [0, 1]");
         }
     }
