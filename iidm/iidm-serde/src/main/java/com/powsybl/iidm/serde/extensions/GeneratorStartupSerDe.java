@@ -63,20 +63,9 @@ public class GeneratorStartupSerDe extends AbstractVersionableNetworkExtensionSe
         double plannedActivePowerSetpoint = context.getReader().readDoubleAttribute(getPlannedActivePowerSetpointName(extensionVersionImported));
         double startUpCost = context.getReader().readDoubleAttribute(getStartupCostName(extensionVersionImported));
         double marginalCost = context.getReader().readDoubleAttribute("marginalCost");
-        double plannedOutageRate = context.getReader().readDoubleAttribute("plannedOutageRate");
-        double forcedOutageRate = context.getReader().readDoubleAttribute("forcedOutageRate");
+        double plannedOutageRate = readOutageRate(context, "plannedOutageRate");
+        double forcedOutageRate = readOutageRate(context, "forcedOutageRate");
         context.getReader().readEndNode();
-        // compatibility
-        if (plannedOutageRate > 1) {
-            plannedOutageRate = 1;
-        } else if (plannedOutageRate < 0) {
-            plannedOutageRate = 0;
-        }
-        if (forcedOutageRate > 1) {
-            forcedOutageRate = 1;
-        } else if (forcedOutageRate < 0) {
-            forcedOutageRate = 0;
-        }
         return generator.newExtension(GeneratorStartupAdder.class)
                 .withPlannedActivePowerSetpoint(plannedActivePowerSetpoint)
                 .withStartupCost(startUpCost)
@@ -84,6 +73,17 @@ public class GeneratorStartupSerDe extends AbstractVersionableNetworkExtensionSe
                 .withPlannedOutageRate(plannedOutageRate)
                 .withForcedOutageRate(forcedOutageRate)
                 .add();
+    }
+
+    private double readOutageRate(DeserializerContext context, String attributeName) {
+        double outageRate = context.getReader().readDoubleAttribute(attributeName);
+        // compatibility
+        if (outageRate > 1) {
+            outageRate = 1.0;
+        } else if (outageRate < 0) {
+            outageRate = 0.0;
+        }
+        return outageRate;
     }
 
     private static String getStartupCostName(Version extensionVersionToExport) {
