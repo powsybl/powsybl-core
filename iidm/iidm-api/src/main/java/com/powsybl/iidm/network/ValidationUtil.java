@@ -184,7 +184,8 @@ public final class ValidationUtil {
 
     public static void checkRate(Validable validable, String validableType, double rate, String fieldName) {
         if (!Double.isNaN(rate) && (rate < MIN_RATE || rate > MAX_RATE)) {
-            throw new ValidationException(validable, String.format("Unexpected value for %s of %s : %f is not included in [%d, %d]", fieldName, validableType, rate, MIN_RATE, MAX_RATE));
+            throw new ValidationException(validable, "Unexpected value for " + fieldName + " of " + validableType + " : "
+                    + rate + " is not included in [" + MIN_RATE + ", " + MAX_RATE + "]");
         }
     }
 

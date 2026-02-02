@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
+import static com.powsybl.iidm.network.ComponentConstants.MAX_RATE;
+import static com.powsybl.iidm.network.ComponentConstants.MIN_RATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -55,19 +57,19 @@ public abstract class AbstractGeneratorStartupTest {
         // test adder
         GeneratorStartupAdder adder = generator.newExtension(GeneratorStartupAdder.class).withForcedOutageRate(2);
         String messageAdder = assertThrows(ValidationException.class, adder::add).getMessage();
-        assertEquals("Generator 'GEN': Unexpected value for forced outage rate of GeneratorStartup : 2.0 is not included in [0, 1]", messageAdder);
+        assertEquals("Generator 'GEN': Unexpected value for forced outage rate of GeneratorStartup : 2.0 is not included in [" + MIN_RATE + ", " + MAX_RATE + "]", messageAdder);
 
         adder = generator.newExtension(GeneratorStartupAdder.class).withForcedOutageRate(-1);
         messageAdder = assertThrows(ValidationException.class, adder::add).getMessage();
-        assertEquals("Generator 'GEN': Unexpected value for forced outage rate of GeneratorStartup : -1.0 is not included in [0, 1]", messageAdder);
+        assertEquals("Generator 'GEN': Unexpected value for forced outage rate of GeneratorStartup : -1.0 is not included in [" + MIN_RATE + ", " + MAX_RATE + "]", messageAdder);
 
         adder = generator.newExtension(GeneratorStartupAdder.class).withPlannedOutageRate(2);
         messageAdder = assertThrows(ValidationException.class, adder::add).getMessage();
-        assertEquals("Generator 'GEN': Unexpected value for planned outage rate of GeneratorStartup : 2.0 is not included in [0, 1]", messageAdder);
+        assertEquals("Generator 'GEN': Unexpected value for planned outage rate of GeneratorStartup : 2.0 is not included in [" + MIN_RATE + ", " + MAX_RATE + "]", messageAdder);
 
         adder = generator.newExtension(GeneratorStartupAdder.class).withPlannedOutageRate(-1);
         messageAdder = assertThrows(ValidationException.class, adder::add).getMessage();
-        assertEquals("Generator 'GEN': Unexpected value for planned outage rate of GeneratorStartup : -1.0 is not included in [0, 1]", messageAdder);
+        assertEquals("Generator 'GEN': Unexpected value for planned outage rate of GeneratorStartup : -1.0 is not included in [" + MIN_RATE + ", " + MAX_RATE + "]", messageAdder);
 
         GeneratorStartup startup = generator.newExtension(GeneratorStartupAdder.class)
                 .withPlannedActivePowerSetpoint(600.0)
@@ -78,15 +80,15 @@ public abstract class AbstractGeneratorStartupTest {
                 .add();
         // test setter
         String message = assertThrows(ValidationException.class, () -> startup.setPlannedOutageRate(-1.0)).getMessage();
-        assertEquals("Generator 'GEN': Unexpected value for planned outage rate of GeneratorStartup : -1.0 is not included in [0, 1]", message);
+        assertEquals("Generator 'GEN': Unexpected value for planned outage rate of GeneratorStartup : -1.0 is not included in [" + MIN_RATE + ", " + MAX_RATE + "]", message);
 
         message = assertThrows(ValidationException.class, () -> startup.setPlannedOutageRate(2.0)).getMessage();
-        assertEquals("Generator 'GEN': Unexpected value for planned outage rate of GeneratorStartup : 2.0 is not included in [0, 1]", message);
+        assertEquals("Generator 'GEN': Unexpected value for planned outage rate of GeneratorStartup : 2.0 is not included in [" + MIN_RATE + ", " + MAX_RATE + "]", message);
 
         message = assertThrows(ValidationException.class, () -> startup.setForcedOutageRate(-1.0)).getMessage();
-        assertEquals("Generator 'GEN': Unexpected value for forced outage rate of GeneratorStartup : -1.0 is not included in [0, 1]", message);
+        assertEquals("Generator 'GEN': Unexpected value for forced outage rate of GeneratorStartup : -1.0 is not included in [" + MIN_RATE + ", " + MAX_RATE + "]", message);
 
         message = assertThrows(ValidationException.class, () -> startup.setForcedOutageRate(2.0)).getMessage();
-        assertEquals("Generator 'GEN': Unexpected value for forced outage rate of GeneratorStartup : 2.0 is not included in [0, 1]", message);
+        assertEquals("Generator 'GEN': Unexpected value for forced outage rate of GeneratorStartup : 2.0 is not included in [" + MIN_RATE + ", " + MAX_RATE + "]", message);
     }
 }
