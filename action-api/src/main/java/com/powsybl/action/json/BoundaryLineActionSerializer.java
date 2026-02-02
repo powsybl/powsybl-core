@@ -19,7 +19,7 @@ public class BoundaryLineActionSerializer extends AbstractLoadActionSerializer<B
 
     @Override
     protected String getElementIdAttributeName() {
-        return "danglingLineId";
+        return "boundaryLineId";
     }
 
     @Override

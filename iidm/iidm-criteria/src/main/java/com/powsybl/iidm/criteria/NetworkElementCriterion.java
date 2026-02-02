@@ -17,7 +17,8 @@ public interface NetworkElementCriterion {
     enum NetworkElementCriterionType {
         LINE("lineCriterion"),
         TIE_LINE("tieLineCriterion"),
-        BOUNDARY_LINE("danglingLineCriterion"),
+        DANGLING_LINE("danglingLineCriterion"),
+        BOUNDARY_LINE("boundaryLineCriterion"),
         TWO_WINDINGS_TRANSFORMER("twoWindingsTransformerCriterion"),
         THREE_WINDINGS_TRANSFORMER("threeWindingsTransformerCriterion"),
         IDENTIFIABLE("identifiableCriterion"),
@@ -34,7 +35,7 @@ public interface NetworkElementCriterion {
         }
     }
 
-    String VERSION = "1.0";
+    String VERSION = "1.1";
 
     static String getVersion() {
         return VERSION;

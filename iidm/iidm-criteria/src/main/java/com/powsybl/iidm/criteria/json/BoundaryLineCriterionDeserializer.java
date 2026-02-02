@@ -10,8 +10,9 @@ package com.powsybl.iidm.criteria.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.BoundaryLineCriterion;
+import com.powsybl.iidm.criteria.Criterion.CriterionType;
+import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import com.powsybl.iidm.criteria.SingleCountryCriterion;
 import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
 
@@ -28,12 +29,27 @@ public class BoundaryLineCriterionDeserializer extends AbstractNetworkElementCri
 
     @Override
     public BoundaryLineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = new AbstractNetworkElementCriterionDeserializer.ParsingContext();
-        JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
-                BoundaryLineCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.SINGLE_NOMINAL_VOLTAGE));
+        AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = fillParsingContext(parser, deserializationContext,
+                BoundaryLineCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.SINGLE_NOMINAL_VOLTAGE);
 
         return new BoundaryLineCriterion(parsingContext.name,
                 (SingleCountryCriterion) parsingContext.countryCriterion,
                 (SingleNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
+    }
+
+    @Override
+    protected void checkType(ParsingContext parsingCtx, NetworkElementCriterionType expectedCriterionType) {
+        String version = parsingCtx.version;
+        String type = parsingCtx.type;
+        String expectedType;
+        if (JsonUtil.compareVersions(version, "1.1") >= 0) {
+            expectedType = "boundaryLineCriterion";
+        } else {
+            expectedType = "danglingLineCriterion";
+        }
+        if (!type.equals(expectedType)) {
+            throw new IllegalStateException(String.format("'type' is expected to be '%s' but encountered value was '%s'",
+                    expectedType, type));
+        }
     }
 }

@@ -93,7 +93,7 @@ public class JsonActionTest extends AbstractSerDeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/ActionFileTestV1.0.json", "/ActionFileTestV1.1.json"})
+    @ValueSource(strings = {"/ActionFileTestV1.0.json", "/ActionFileTestV1.1.json", "/ActionFileTestV1.2.json"})
     void actionsReadOldVersion(String path) {
         ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream(path));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {

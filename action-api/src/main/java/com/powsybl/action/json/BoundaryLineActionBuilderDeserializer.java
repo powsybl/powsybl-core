@@ -28,13 +28,16 @@ public class BoundaryLineActionBuilderDeserializer extends AbstractLoadActionBui
     public BoundaryLineActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         BoundaryLineActionBuilder builder = new BoundaryLineActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, builder, name);
+            String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
+            boolean found = deserializeCommonAttributes(jsonParser, builder, name, version);
             if (found) {
                 return true;
             }
             if (name.equals("type")) {
                 String type = jsonParser.nextTextValue();
-                if (!BoundaryLineAction.NAME.equals(type)) {
+                if ("DANGLING_LINE".equals(type)) {
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "element type", version, "1.2");
+                } else if (!BoundaryLineAction.NAME.equals(type)) {
                     throw JsonMappingException.from(jsonParser, "Expected type :" + BoundaryLineAction.NAME + " got : " + type);
                 }
                 return true;

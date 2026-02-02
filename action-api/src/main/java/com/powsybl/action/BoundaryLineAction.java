@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 public class BoundaryLineAction extends AbstractLoadAction {
 
-    public static final String NAME = "DANGLING_LINE";
+    public static final String NAME = "BOUNDARY_LINE";
 
     private final String boundaryLineId;
 

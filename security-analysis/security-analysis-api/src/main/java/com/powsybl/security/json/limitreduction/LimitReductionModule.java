@@ -45,6 +45,7 @@ public class LimitReductionModule extends SimpleModule {
         registerNamedSubtype(TieLineCriterion.class, TieLineCriterion.TYPE.getName(),
                 new NetworkElementEquipmentCriterionSerializer<>(TieLineCriterion.class),
                 new TieLineCriterionDeserializer());
+        registerSubtypes(new NamedType(BoundaryLineCriterion.class, "danglingLineCriterion"));
         registerNamedSubtype(BoundaryLineCriterion.class, BoundaryLineCriterion.TYPE.getName(),
                 new NetworkElementEquipmentCriterionSerializer<>(BoundaryLineCriterion.class),
                 new BoundaryLineCriterionDeserializer());
