@@ -14,7 +14,7 @@ public interface VoltageRegulationHolder {
 
     VoltageRegulation getVoltageRegulation();
 
-    VoltageRegulation newAndReplaceVoltageRegulation();
+    VoltageRegulationMsaAdder newVoltageRegulation();
 
     void removeVoltageRegulation();
 }

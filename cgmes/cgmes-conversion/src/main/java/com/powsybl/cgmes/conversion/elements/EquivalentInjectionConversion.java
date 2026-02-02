@@ -138,7 +138,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 //                .setVoltageRegulatorOn(regulatingOn && regulationCapability && isValidTargetV(targetV));
         VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
         if (voltageRegulation == null) {
-            voltageRegulation = generator.newAndReplaceVoltageRegulation();
+            voltageRegulation = generator.newVoltageRegulation().add();
         }
         voltageRegulation.setMode(RegulationMode.VOLTAGE);
         voltageRegulation.setTargetValue(targetV);

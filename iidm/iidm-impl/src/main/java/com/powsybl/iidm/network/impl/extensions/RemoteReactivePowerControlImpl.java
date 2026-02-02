@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import com.powsybl.iidm.network.impl.TerminalExt;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,14 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
                     + getExtendable().getParentNetwork().getId() + ")");
         }
         ((TerminalExt) regulatingTerminal).getReferrerManager().register(this);
+        if (generator.getVoltageRegulation() == null) {
+            generator.newVoltageRegulation()
+                .setTargetValue(targetQ)
+                .setMode(RegulationMode.REACTIVE_POWER)
+                .setRegulating(enabled)
+                .setTerminal(regulatingTerminal)
+                .add();
+        }
     }
 
     @Override

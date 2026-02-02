@@ -10,9 +10,10 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.*;
+
+import java.util.function.Consumer;
 
 /**
  * @author Matthieu Saur {@literal <matthieu.saur at rte-france.com>}
@@ -60,27 +61,28 @@ public final class VoltageRegulationSerDe {
 
     public static void readVoltageRegulation(VoltageRegulationHolder holder, NetworkDeserializerContext context, Network network) {
         // Read attributes
-        Double targetValue = context.getReader().readDoubleAttribute(TARGET_VALUE);
-        Double targetDeadband = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
-        Double slope = context.getReader().readDoubleAttribute(SLOPE);
+        double targetValue = context.getReader().readDoubleAttribute(TARGET_VALUE);
+        double targetDeadband = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
+        double slope = context.getReader().readDoubleAttribute(SLOPE);
         RegulationMode mode = context.getReader().readEnumAttribute(MODE, RegulationMode.class);
         boolean isRegulating = context.getReader().readBooleanAttribute(REGULATING);
         // Create new Voltage Regulation
-        VoltageRegulation voltageRegulation = holder.newAndReplaceVoltageRegulation();
-        voltageRegulation.setTargetValue(targetValue);
-        voltageRegulation.setTargetDeadband(targetDeadband);
-        voltageRegulation.setSlope(slope);
-        voltageRegulation.setMode(mode);
-        voltageRegulation.setRegulating(isRegulating);
+        VoltageRegulation voltageRegulation = holder.newVoltageRegulation()
+            .setTargetValue(targetValue)
+            .setTargetDeadband(targetDeadband)
+            .setSlope(slope)
+            .setMode(mode)
+            .setRegulating(isRegulating)
+            .add();
         // Read Sub Elements
-        readSubElements(context, network, voltageRegulation);
+        readSubElements(context, network, voltageRegulation::setTerminal);
         // THE END
     }
 
-    private static void readSubElements(NetworkDeserializerContext context, Network network, VoltageRegulation voltageRegulation) {
+    private static void readSubElements(NetworkDeserializerContext context, Network network, Consumer<Terminal> setTerminal) {
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals(TERMINAL)) {
-                TerminalRefSerDe.readTerminalRef(context, network, voltageRegulation::setTerminal);
+                TerminalRefSerDe.readTerminalRef(context, network, setTerminal);
             } else {
                 throw new PowsyblException("Unknown sub element name '" + elementName + "' in 'voltageRegulation'");
             }

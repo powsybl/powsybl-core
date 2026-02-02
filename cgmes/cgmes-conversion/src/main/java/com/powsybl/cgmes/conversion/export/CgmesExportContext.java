@@ -20,7 +20,6 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -478,8 +477,9 @@ public class CgmesExportContext {
     }
 
     private static boolean hasRegulatingControlCapability(Generator generator) {
-        return generator.getExtension(RemoteReactivePowerControl.class) != null
-                || generator.getVoltageRegulation() != null && generator.getVoltageRegulation().isRegulating() && hasReactiveCapability(generator);
+        return generator.getVoltageRegulation() != null
+            && generator.getVoltageRegulation().isRegulating()
+            && hasReactiveCapability(generator);
     }
 
     private static boolean hasReactiveCapability(Generator generator) {

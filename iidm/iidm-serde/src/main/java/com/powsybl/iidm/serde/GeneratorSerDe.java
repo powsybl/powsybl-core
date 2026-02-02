@@ -8,7 +8,6 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
@@ -118,59 +117,10 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         });
     }
 
-    private void readAndSetTargetQByVersion(NetworkDeserializerContext context, final GeneratorAdder adder, final double targetQ, final boolean voltageRegulatorOn) {
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
-            // Voltage regulation case so we can set the TargetQ
-            if (voltageRegulatorOn) {
-                adder.setTargetQ(targetQ);
-            }
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> adder.setTargetQ(targetQ));
-    }
-
     private void readAndSetVoltageRegulatorOnByVersion(NetworkDeserializerContext context, final GeneratorAdder adder) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
             boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
             adder.setVoltageRegulatorOn(voltageRegulatorOn);
         });
-    }
-
-    private void readAndSetTargetVByVersion(NetworkDeserializerContext context, final GeneratorAdder adder, final double targetV, final boolean voltageRegulatorOn, final double equivalentLocalTargetV) {
-        // From 1_0 to 1_14
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_14, context, () -> adder.setTargetV(targetV));
-        // From 1_15 to 1_15
-        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_15, IidmVersion.V_1_15, context, () ->
-            adder.setTargetV(targetV, equivalentLocalTargetV));
-        // From 1_0 to 1_15
-//        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
-//            // Voltage regulation case so we use VoltageRegulation
-//            if (!voltageRegulatorOn) {
-//                adder.setTargetV(targetV);
-//            }
-//        });
-        // From 1_16 to infinite
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> adder.setTargetV(targetV));
-    }
-
-    private void createVoltageRegulation(GeneratorAdder adder, boolean voltageRegulatorOn, double targetV, double targetQ) {
-        // VOLTAGE case
-        if (Boolean.TRUE.equals(voltageRegulatorOn) && !Double.isNaN(targetV)) {
-            adder.newVoltageRegulation()
-//                .setNetwork(getNetworkRef()) // TODO MSA to add
-//                .setTerminal(this.regulatingTerminal); // TODO MSA to add
-                .setRegulating(true)
-                .setMode(RegulationMode.VOLTAGE)
-                .setTargetValue(targetV)
-                .addVoltageRegulation();
-            // REACTIVE Power case
-        } else if (!Double.isNaN(targetQ)) {
-            adder.newVoltageRegulation()
-//                .setNetwork(getNetworkRef()) // TODO MSA to add
-//                .setTerminal(this.regulatingTerminal); // TODO MSA to add
-                .setRegulating(true)
-                .setMode(RegulationMode.REACTIVE_POWER)
-                .setTargetValue(targetQ)
-                .addVoltageRegulation();
-        }
     }
 }

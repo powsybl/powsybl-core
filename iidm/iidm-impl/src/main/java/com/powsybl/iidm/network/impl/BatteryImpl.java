@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.impl.regulation.VoltageRegulationImpl;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationMsaAdder;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -18,7 +19,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  *
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
-public class BatteryImpl extends AbstractConnectable<Battery> implements Battery, ReactiveLimitsOwner {
+public class BatteryImpl extends AbstractConnectable<Battery> implements Battery, ReactiveLimitsOwner, VoltageRegulationOwner {
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
@@ -30,7 +31,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private double maxP;
 
-    private VoltageRegulation voltageRegulation;
+    private VoltageRegulationImpl voltageRegulation;
 
     BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, double targetP, double targetQ, double minP, double maxP) {
         super(ref, id, name, fictitious);
@@ -233,11 +234,13 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     @Override
-    public VoltageRegulation newAndReplaceVoltageRegulation() {
-        this.voltageRegulation = VoltageRegulationImpl.builder()
-            .setNetwork(getNetwork().getRef())
-            .build();
-        return this.voltageRegulation;
+    public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
+        this.voltageRegulation = (VoltageRegulationImpl) voltageRegulation;
+    }
+
+    @Override
+    public VoltageRegulationMsaAdder newVoltageRegulation() {
+        return new VoltageRegulationMsaAdderImpl<>(this);
     }
 
     @Override

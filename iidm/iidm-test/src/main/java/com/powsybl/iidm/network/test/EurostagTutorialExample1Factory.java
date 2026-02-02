@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
 
 import java.time.ZonedDateTime;
 
@@ -1131,21 +1130,23 @@ public final class EurostagTutorialExample1Factory {
     }
 
     private static Network addReactiveGenerator(Network network, Terminal terminal) {
-        VoltageRegulation voltageRegulation = network.getGenerator("GEN")
-            .newAndReplaceVoltageRegulation();
-        voltageRegulation.setTargetValue(200d);
-        voltageRegulation.setTerminal(terminal);
-        voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
-        voltageRegulation.setRegulating(true);
+        network.getGenerator("GEN")
+            .newVoltageRegulation()
+            .setTargetValue(200d)
+            .setTerminal(terminal)
+            .setMode(RegulationMode.REACTIVE_POWER)
+            .setRegulating(true)
+            .add();
         return network;
     }
 
     private static Network addRemoteVoltageGenerator(Network network) {
-        VoltageRegulation voltageRegulation = network.getGenerator("GEN").newAndReplaceVoltageRegulation();
-        voltageRegulation.setMode(RegulationMode.VOLTAGE);
-        voltageRegulation.setRegulating(true);
-        voltageRegulation.setTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1());
-        voltageRegulation.setTargetValue(399d);
+        network.getGenerator("GEN").newVoltageRegulation()
+            .setMode(RegulationMode.VOLTAGE)
+            .setRegulating(true)
+            .setTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
+            .setTargetValue(399d)
+            .add();
         return network;
     }
 

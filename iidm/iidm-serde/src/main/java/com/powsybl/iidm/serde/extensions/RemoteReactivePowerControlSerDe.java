@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
@@ -49,6 +50,14 @@ public class RemoteReactivePowerControlSerDe extends AbstractExtensionSerDe<Gene
         boolean enabled = context.getReader().readBooleanAttribute("enabled");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
         Terminal terminal = TerminalRefSerDe.readTerminal(networkContext, extendable.getNetwork());
+        if (extendable.getVoltageRegulation() == null || extendable.getVoltageRegulation().getMode() != RegulationMode.VOLTAGE) {
+            extendable.newVoltageRegulation()
+                .setMode(RegulationMode.REACTIVE_POWER)
+                .setRegulating(enabled)
+                .setTargetValue(targetQ)
+                .setTerminal(terminal)
+                .add();
+        }
         return extendable.newExtension(RemoteReactivePowerControlAdder.class)
                 .withEnabled(enabled)
                 .withTargetQ(targetQ)
