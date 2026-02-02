@@ -27,6 +27,64 @@ An `iTools` package is constituted of:
 - a `lib` directory containing C++ libraries
 - a `share/java` directory containing Java libraries
 
+## Installation
+
+It is possible to install a basic PowSyBl distribution and to start running iTools commands from the binaries or from the sources
+
+### Install from the binaries
+
+To use the executable tool provided with the `powsybl-distribution` repository, follow these steps:
+- Download the zip folder from the latest released version of [powsybl-distribution](https://github.com/powsybl/powsybl-distribution/releases)
+- Unzip the downloaded package
+- Add `<INSTALL_DIR>/powsybl-distribution-<LATEST_VERSION>/bin` to your environment variable `PATH`.
+
+### Install from the sources
+
+To generate the executable tool from the sources, follow these steps:
+- Download the [powsybl-distribution](https://github.com/powsybl/powsybl-distribution) sources
+- Checkout the latest stable version by referencing the tag
+- Generate the executable with the maven command
+
+```
+$ git clone https://github.com/powsybl/powsybl-distribution.git
+$ cd powsybl-distribution
+$ git checkout tags/<LATEST_RELEASE_TAG> -b latest-release
+$ mvn clean package
+```
+
+The distribution is generated in the `target` folder.  
+- Add `<INSTALL_DIR>/powsybl-distribution-<LATEST_VERSION>/bin` to your environment variable `PATH`.
+
+### Test your installation
+
+Launch the `itools --help` command in your terminal to check that everything went smoothly.
+
+```
+$> itools --help
+usage: itools [OPTIONS] COMMAND [ARGS]
+
+Available options are:
+    --config-name <CONFIG_NAME>   Override configuration file name
+
+Available commands are:
+
+Computation:
+    compare-security-analysis-results        Compare security analysis results
+    loadflow                                 Run loadflow
+    loadflow-validation                      Validate load-flow results of a network
+    security-analysis                        Run security analysis
+
+Data conversion:
+    convert-network                          convert a network from one format to another
+
+Misc:
+    plugins-info                             List the available plugins
+
+Script:
+    run-script                               run script (only groovy is supported)
+
+```
+
 ## Usage
 The `iTools` script is available in the `bin` directory.
 ```
@@ -40,11 +98,12 @@ Available commands are:
 ...
 ```
 
-`--config-name`  
+`--config-name`<br>
 Use this option to overload the default base name for the configuration file. It overrides the [powsybl_config_name](#powsybl_config_name) property defined in the `itools.conf` file.
 
 (itools-configuration)=
-### Configuration
+## Configuration
+
 The `iTools` script reads its configuration from the `<ITOOLS_PREFIX>/etc/itools.conf` [property file](https://en.wikipedia.org/wiki/.properties). The properties defined in this file are used to configure the Java Virtual Machine.
 
 **Example of itools.conf file:**
@@ -59,15 +118,26 @@ powsybl_config_name=config
 java_xmx=8G
 ```
 
-**powsybl_config_dirs:** This is an optional property that defines the list of the folders where the configuration files are located. If this property is not set, the configuration files are read from `<USER_HOME>/.itools` and `<ITOOLS_PREFIX>/etc` folders. Note that the order of the folder is really import as the PowSyBl configuration is [stackable]().
+You can set a default configuration `config.yml` by copying the provided configuration file in your `<HOME>/.itools` repository (note that you will need to create this repository if it does not exist):
 
-<a class="heading" id="powsybl_config_name"/>**powsybl_config_name:** This is an optional property that defines the base name of the configuration files. The default value for this property is `config`.
+```
+$ mkdir <HOME>/.itools
+$ cp <INSTALL_DIR>/resources/config/config.yml <HOME>/.itools/config.yml
+```
 
-**java_xmx:** This is an optional property that defines the maximum size of the memory allocation pool of the JVM. The default value for this property is 8 gigabytes.
+This step is not mandatory **if you already have a custom configuration file and the necessary configuration modules are filled**.
 
-The list of the deprecated properties is available [here]()
+**powsybl_config_dirs:**<br>
+This is an optional property that defines the list of the folders where the configuration files are located. If this property is not set, the configuration files are read from `<USER_HOME>/.itools` and `<ITOOLS_PREFIX>/etc` folders. Note that the order of the folder is really import as the PowSyBl configuration is stackable.
 
-### Logging
+(powsybl_config_name)=
+**powsybl_config_name:**<br>
+This is an optional property that defines the base name of the configuration files. The default value for this property is `config`.
+
+**java_xmx:**<br>
+This is an optional property that defines the maximum size of the memory allocation pool of the JVM. The default value for this property is 8 gigabytes.
+
+## Logging
 The `iTools` script uses [logback](https://logback.qos.ch/) as a logging framework. To configure the logging framework, edit the `<ITOOLS_HOME>/etc/logback-itools.xml` configuration file. Please refer to the [logback manual](https://logback.qos.ch/manual/index.html) for the available logging options.
 
 Sometimes, it could be useful for a user to have its own logging configuration to filter unexpected logs or to have more details for some features. The simplest way to proceed is to copy the global configuration file in the `<USER_HOME>/.itools` folder and then customize it.
@@ -89,7 +159,7 @@ Sometimes, it could be useful for a user to have its own logging configuration t
 
 (itools-available-commands)=
 ## Available commands
-The `iTools` script relies on a [plugin mechanism](): the commands are discovered at runtime and depend on the jars present in the `share/java` folder.
+The `iTools` script relies on a plugin mechanism: the commands are discovered at runtime and depend on the jars present in the `share/java` folder.
 
 | Command                                                                     | Theme           | Description                                   |
 |-----------------------------------------------------------------------------|-----------------|-----------------------------------------------|
@@ -100,7 +170,7 @@ The `iTools` script relies on a [plugin mechanism](): the commands are discovere
 | [dynamic-simulation](dynamic-simulation.md)                                 | Computation     | Run a dynamic simulation                      |
 | [loadflow](loadflow.md)                                                     | Computation     | Run a power flow simulation                   |
 | [loadflow-validation](loadflow-validation.md)                               | Computation     | Validate load flow results on a network       |
-| [run-script](run-script.md)                                                 | Script          | Run a script on top of PowSyBl                | 
+| [run-script](run-script.md)                                                 | Script          | Run a script on top of PowSyBl                |
 | [security-analysis](./security-analysis.md)                                 | Computation     | Run a security analysis                       |
 | [dynamic-security-analysis](./dynamic-security-analysis.md)                 | Computation     | Run a dynamic security analysis               |
 | [sensitivity-computation](sensitivity-computation.md)                       | Computation     | Run a sensitivity analysis                    |

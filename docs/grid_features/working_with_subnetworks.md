@@ -2,14 +2,14 @@
 
 ## Concept of subnetwork
 
-It is sometimes useful to work on an aggregated network containing the data of several networks. But you may also want to remember their structure to later work on the individual networks. 
+It is sometimes useful to work on an aggregated network containing the data of several networks. But you may also want to remember their structure to later work on the individual networks.
 
 This is the case, for instance, when working with multi-country CGMES archives. They are imported as a single network on which it is possible to run a load flow, but at export, one EQ file per country should be generated.
 
 To manage this, PowSyBl has a concept of subnetwork:
 - Subnetworks are also networks (i.e. they are `Network` objects).
 - A network can have several subnetworks.
-- There is maximum 2 levels of networks: the main network, and possibly some subnetworks directly inside the main network. Subnetworks cannot contain subnetworks.  
+- There is maximum 2 levels of networks: the main network, and possibly some subnetworks directly inside the main network. Subnetworks cannot contain subnetworks.
 - Each network element (substation, voltage level, ...) can be in the main network or in a subnetwork.
 - Each network element has 2 methods to retrieve:
   - the main network: `Identifiable.getNetwork()`;
@@ -66,7 +66,7 @@ of the subnetworks ("subnetwork1" or "subnetwork2") using the same methods of th
 
 ## Detaching a subnetwork
 
-It is possible to "detach" a subnetwork from its main network with the following instruction: 
+It is possible to "detach" a subnetwork from its main network with the following instruction:
 
 ```java
 Network n = subnetwork.detach();
@@ -78,7 +78,7 @@ and `subnetwork` is empty (all its content is transferred into `n`).
 The boundary elements, i.e. the elements linking the subnetwork to an external voltage level (it could be lines, HVDC lines or tie lines),
 are split if possible. If not, the detach operation will fail.
 
-Some checks are performed which may prevent the detach method to work:   
+Some checks are performed which may prevent the detach method to work:
 - Only subnetworks can be detached.
 - There should not be un-splittable boundary elements.
 - The main network should not be multi-variant.

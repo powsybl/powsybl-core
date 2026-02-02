@@ -1,6 +1,6 @@
 # Network reduction
 
-This module is used to extract a portion of a network on an area of interest defined by the user. 
+This module is used to extract a portion of a network on an area of interest defined by the user.
 
 ## Define an area of interest
 
@@ -102,9 +102,9 @@ The three-winding transformers are replaced by a [load](../grid_model/network_su
 
 ##### Replacements by loads
 
-The load created in place of a branch has the same ID and name as the replaced branch. 
-The type of the load is set as `FICTITIOUS` and its $P_0$ and $Q_0$ are set to the $P$ and $Q$ of the relevant terminal, depending on which side is kept in the network. 
-If the branch is disconnected, $P_0$ and $Q_0$ are set to `NaN`. 
+The load created in place of a branch has the same ID and name as the replaced branch.
+The type of the load is set as `FICTITIOUS` and its $P_0$ and $Q_0$ are set to the $P$ and $Q$ of the relevant terminal, depending on which side is kept in the network.
+If the branch is disconnected, $P_0$ and $Q_0$ are set to `NaN`.
 The connectivity information (node or bus depending on the voltage level topology) is kept.
 However, the operational limits and extensions from the original branch are not retained.
 
@@ -113,7 +113,7 @@ However, the operational limits and extensions from the original branch are not 
 The boundary line created in place of a line has the same ID and name as the replaced line. The resistance and reactance of the boundary line are equals to half of the resistance and reactance of the replaced line (we consider that the line is cut in the middle). 
 The conductance and susceptance are set to the $G_1$ and $B_1$ or to $G_2$ and $B_2$, depending on which side is kept in the network. 
 
-The $P_0$ and $Q_0$ are set to the $P$ and $Q$ of the corresponding terminal, depending on which side is kept in the network. If the line is disconnected, $P_0$ and $Q_0$ are set to `NaN`. 
+The $P_0$ and $Q_0$ are set to the $P$ and $Q$ of the corresponding terminal, depending on which side is kept in the network. If the line is disconnected, $P_0$ and $Q_0$ are set to `NaN`.
 The connectivity information (node or bus depending on the voltage level topology) is kept.
 However, the operational limits and extensions from the original branch are not retained.
 
@@ -230,7 +230,7 @@ We have to configure the groovy post-processor in your configuration file:
 ```yaml
 import:
     postProcessors: groovyScript
-    
+
 groovy-post-processor:
     script: /home/user/network-reduction.groovy
 ```

@@ -81,7 +81,7 @@ Notations:
 
 |         Check         |         Consequence         |
 |:---------------------:|:---------------------------:|
-| $X \in [-0.05, 0.05]$ |       $X = \pm 0.05$        | 
+| $X \in [-0.05, 0.05]$ |       $X = \pm 0.05$        |
 |  Current limit $<0$   | Current limit value ignored |
 
 ### Regulations
@@ -126,7 +126,7 @@ The power plant type is converted to an [energy source]() value (see the mapping
 |      Nuclear (N)      |      Nuclear       |
 |      Lignite (L)      |      Thermal       |
 |     Hard coal (C)     |      Thermal       |
-|        Gas (G)        |      Thermal       | 
+|        Gas (G)        |      Thermal       |
 |        Oil (O)        |      Thermal       |
 |       Wind (W)        |        Wind        |
 |      Further (F)      |       Other        |
@@ -217,7 +217,7 @@ Each country present results in the creation of an Area in the IIDM model with:
 - Area **Boundaries**: all BoundaryLines in the Country
 
 By default, all Area Boundaries are flagged as AC, because the UCTE-DEF format does not have any HVDC explicit description.
-To specify which boundaries should be considered as DC in the conversion, you may supply a list of X-nodes IDs in the 
+To specify which boundaries should be considered as DC in the conversion, you may supply a list of X-nodes IDs in the
 [`ucte.import.areas-dc-xnodes` option](#ucteimportareas-dc-xnodes).
 
 **Note:** Creating areas for German subregions / TSOs is not supported today (D2, D4, D7, D8).

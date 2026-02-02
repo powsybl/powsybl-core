@@ -987,18 +987,11 @@ public final class EquipmentExport {
             // New Equivalent Injection
             writeBoundaryLineEquivalentInjection(boundaryLine, cimNamespace, baseVoltageId, connectivityNodeId, exported, writer, context);
 
-            // Cast the boundaryLine to an AcLineSegment
+            // Cast the danglingLine to an AcLineSegment
             AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(boundaryLine), boundaryLine.getNameOrId(),
                     context.getBaseVoltageByNominalVoltage(boundaryLine.getTerminal().getVoltageLevel().getNominalV()).getId(),
                     boundaryLine.getR(), boundaryLine.getX(), boundaryLine.getG(), boundaryLine.getB(), cimNamespace, writer, context);
             writeFlowsLimits(boundaryLine, exportedTerminalId(mapTerminal2Id, boundaryLine.getTerminal()), cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-            boundaryLine.getAliasFromType("CGMES." + TERMINAL_BOUNDARY).ifPresent(terminalBdId -> {
-                try {
-                    writeFlowsLimits(boundaryLine, terminalBdId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
         }
     }
 
