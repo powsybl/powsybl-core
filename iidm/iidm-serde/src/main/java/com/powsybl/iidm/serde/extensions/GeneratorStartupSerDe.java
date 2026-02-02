@@ -16,6 +16,9 @@ import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import com.powsybl.iidm.serde.IidmVersion;
 
+import static com.powsybl.iidm.network.ComponentConstants.MAX_RATE;
+import static com.powsybl.iidm.network.ComponentConstants.MIN_RATE;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -78,10 +81,10 @@ public class GeneratorStartupSerDe extends AbstractVersionableNetworkExtensionSe
     private double readOutageRate(DeserializerContext context, String attributeName) {
         double outageRate = context.getReader().readDoubleAttribute(attributeName);
         // compatibility
-        if (outageRate > 1) {
-            outageRate = 1.0;
-        } else if (outageRate < 0) {
-            outageRate = 0.0;
+        if (outageRate > MAX_RATE) {
+            outageRate = MAX_RATE;
+        } else if (outageRate < MIN_RATE) {
+            outageRate = MIN_RATE;
         }
         return outageRate;
     }
