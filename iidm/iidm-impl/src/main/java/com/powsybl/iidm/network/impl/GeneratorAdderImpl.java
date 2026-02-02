@@ -177,18 +177,16 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
             .setNetwork(getNetworkRef())
             .setTerminal(this.regulatingTerminal);
         // VOLTAGE case
-        if (Boolean.TRUE.equals(this.voltageRegulatorOn) && !Double.isNaN(this.targetV)) {
+        if (Boolean.TRUE.equals(this.voltageRegulatorOn)) {
             builder.setRegulating(true)
                 .setMode(RegulationMode.VOLTAGE)
                 .setTargetValue(this.targetV);
-//            this.targetV = Double.NaN;
             return builder.build();
             // REACTIVE Power case
         } else if (!Double.isNaN(this.targetQ)) {
             builder.setRegulating(true)
                 .setMode(RegulationMode.REACTIVE_POWER)
                 .setTargetValue(this.targetQ);
-//            this.targetQ = Double.NaN;
             return builder.build();
         }
         return null;
