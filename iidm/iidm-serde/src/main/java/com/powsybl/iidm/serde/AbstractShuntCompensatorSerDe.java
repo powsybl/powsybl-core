@@ -101,9 +101,21 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
         assertWriteCompatibility(context);
         OptionalInt sectionCount = sc.findSectionCount();
         OptionalInt solvedSectionCount = sc.findSolvedSectionCount();
+        assertModelCompatibility(rootElementName, sc, context);
+        writeLegacySectionAttributes(sc, solvedSectionCount, context);
+        writeSectionCountAttributes(sectionCount, solvedSectionCount, context);
+        writeRegulationAttributes(rootElementName, sc, context);
+        writeNodeOrBus(null, sc.getTerminal(), context);
+        writePowerAttributes(sc, context);
+    }
+
+    private static void assertModelCompatibility(String rootElementName, ShuntCompensator sc, NetworkSerializerContext context) {
         if (ShuntCompensatorModelType.NON_LINEAR == sc.getModelType()) {
             IidmSerDeUtil.assertMinimumVersion(rootElementName, SHUNT_NON_LINEAR_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
         }
+    }
+
+    private static void writeLegacySectionAttributes(ShuntCompensator sc, OptionalInt solvedSectionCount, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_2, context, () -> {
             ShuntCompensatorModel model = sc.getModel();
             double bPerSection = model instanceof ShuntCompensatorLinearModel shuntCompensatorLinearModel ? shuntCompensatorLinearModel.getBPerSection() : sc.getB();
@@ -120,7 +132,9 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
             int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? solvedSectionCount.orElse(sc.getSectionCount()) : 1;
             context.getWriter().writeIntAttribute("currentSectionCount", currentSectionCount);
         });
+    }
 
+    private static void writeSectionCountAttributes(OptionalInt sectionCount, OptionalInt solvedSectionCount, NetworkSerializerContext context) {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
             IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
                 OptionalInt sectionCountToWrite = solvedSectionCount.isPresent() ? solvedSectionCount : sectionCount;
@@ -131,12 +145,17 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
                 context.getWriter().writeOptionalIntAttribute("solvedSectionCount", solvedSectionCount.isPresent() ? solvedSectionCount.getAsInt() : null);
             });
         });
+    }
+
+    private static void writeRegulationAttributes(String rootElementName, ShuntCompensator sc, NetworkSerializerContext context) {
         IidmSerDeUtil.writeBooleanAttributeFromMinimumVersion(rootElementName, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, "targetV", sc.getTargetV(),
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
         IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, "targetDeadband",
                 sc.getTargetDeadband(), IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
-        writeNodeOrBus(null, sc.getTerminal(), context);
+    }
+
+    private static void writePowerAttributes(ShuntCompensator sc, NetworkSerializerContext context) {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_9, context, () -> context.getWriter().writeDoubleAttribute("p", sc.getTerminal().getP(), Double.NaN));
         context.getWriter().writeDoubleAttribute("q", sc.getTerminal().getQ(), Double.NaN);
     }
