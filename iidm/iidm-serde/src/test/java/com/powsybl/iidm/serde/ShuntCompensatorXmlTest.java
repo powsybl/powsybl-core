@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -103,18 +104,16 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void shouldRejectShuntOldTagName() {
+        //Given (XIIDM and JIIDM format)
+        InputStream xmlInputStream = getVersionedNetworkAsStream("shuntOldTagName.xml", IidmVersion.V_1_16);
+        InputStream jsonInputStream = getVersionedNetworkAsStream("shuntOldTagName.jiidm", IidmVersion.V_1_16);
         //When
-        //Read XIIDM
-        PowsyblException exception1 = assertThrows(PowsyblException.class,
-                () -> NetworkSerDe.read(getVersionedNetworkAsStream("shuntOldTagName.xml", IidmVersion.V_1_16)));
-        //Read JIIDM
-        ImportOptions importOptions = new ImportOptions().setFormat(TreeDataFormat.JSON);
-        PowsyblException exception2 = assertThrows(PowsyblException.class,
-                () -> NetworkSerDe.read(getVersionedNetworkAsStream("shuntOldTagName.jiidm", IidmVersion.V_1_16), importOptions, null));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> {
+            NetworkSerDe.read(xmlInputStream);
+            NetworkSerDe.read(jsonInputStream, new ImportOptions().setFormat(TreeDataFormat.JSON), null);
+        });
         //Then
-        String expectedErrorMessage = "shunt is not supported for IIDM version 1.16. IIDM version should be <= 1.15";
-        assertEquals(expectedErrorMessage, exception1.getMessage());
-        assertEquals(expectedErrorMessage, exception2.getMessage());
+        assertThat(exception.getMessage()).isEqualTo("shunt is not supported for IIDM version 1.16. IIDM version should be <= 1.15");
     }
 
     @Test
@@ -127,8 +126,9 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         NetworkSerDe.write(network, exportOptions, xml);
         //Then
         String content = Files.readString(xml, StandardCharsets.UTF_8);
-        assertThat(content).contains("<iidm:shuntCompensator ");
-        assertThat(content).doesNotContain("<iidm:shunt ");
+        assertThat(content)
+                .contains("<iidm:shuntCompensator ")
+                .doesNotContain("<iidm:shunt ");
     }
 
     @Test
@@ -141,8 +141,9 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         NetworkSerDe.write(network, exportOptions, xml);
         //Then
         String content = Files.readString(xml, StandardCharsets.UTF_8);
-        assertThat(content).contains("shuntCompensators");
-        assertThat(content).doesNotContain("shunts");
+        assertThat(content)
+                .contains("shuntCompensators")
+                .doesNotContain("shunts");
     }
 
     @Test
@@ -155,8 +156,9 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         NetworkSerDe.write(network, exportOptions, xml);
         String content = Files.readString(xml, StandardCharsets.UTF_8);
         //Then
-        assertThat(content).contains("<iidm:shunt ");
-        assertThat(content).doesNotContain("<iidm:shuntCompensator ");
+        assertThat(content)
+                .contains("<iidm:shunt ")
+                .doesNotContain("<iidm:shuntCompensator ");
     }
 
     @Test
@@ -169,8 +171,9 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         NetworkSerDe.write(network, exportOptions, xml);
         String content = Files.readString(xml, StandardCharsets.UTF_8);
         //Then
-        assertThat(content).contains("shunts");
-        assertThat(content).doesNotContain("shuntCompensators");
+        assertThat(content)
+                .contains("shunts")
+                .doesNotContain("shuntCompensators");
     }
 
     private void write(Network network, String version) {
