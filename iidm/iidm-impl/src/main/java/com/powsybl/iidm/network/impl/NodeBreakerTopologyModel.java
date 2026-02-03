@@ -28,6 +28,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 import org.anarres.graphviz.builder.*;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -641,6 +642,8 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
 
+        private final MutableBoolean hasFictitiousP0 = new MutableBoolean(false);
+        private final MutableBoolean hasFictitiousQ0 = new MutableBoolean(false);
         private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
         private final TIntObjectMap<TDoubleArrayList> fictitiousQ0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
 
@@ -697,6 +700,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
 
         @Override
+        public boolean hasFictitiousP0() {
+            return hasFictitiousP0.get();
+        }
+
+        @Override
         public double getFictitiousP0(int node) {
             TDoubleArrayList fictP0 = fictitiousP0ByNode.get(node);
             if (fictP0 != null) {
@@ -710,6 +718,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (Double.isNaN(p0)) {
                 throw new ValidationException(voltageLevel, "undefined value cannot be set as fictitious p0");
             }
+            hasFictitiousP0.setTrue();
             TDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(node);
             if (p0ByVariant == null) {
                 int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
@@ -736,6 +745,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
 
         @Override
+        public boolean hasFictitiousQ0() {
+            return hasFictitiousP0.get();
+        }
+
+        @Override
         public double getFictitiousQ0(int node) {
             TDoubleArrayList fictQ0 = fictitiousQ0ByNode.get(node);
             if (fictQ0 != null) {
@@ -749,6 +763,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (Double.isNaN(q0)) {
                 throw new ValidationException(voltageLevel, "undefined value cannot be set as fictitious q0");
             }
+            hasFictitiousQ0.setTrue();
             TDoubleArrayList q0ByVariant = fictitiousQ0ByNode.get(node);
             if (q0ByVariant == null) {
                 int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();

@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2016-2026, RTE (https://www.rte-france.com)
+/**
+ * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -151,6 +151,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getFictitiousP0() {
         checkValidity();
+        if (!voltageLevel.getNodeBreakerView().hasFictitiousP0()) {
+            return 0.0;
+        }
         return getCalculatedBusNodes()
                 .mapToDouble(n -> voltageLevel.getNodeBreakerView().getFictitiousP0(n))
                 .reduce(0.0, Double::sum);
@@ -170,6 +173,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getFictitiousQ0() {
         checkValidity();
+        if (!voltageLevel.getNodeBreakerView().hasFictitiousQ0()) {
+            return 0.0;
+        }
         return getCalculatedBusNodes()
                 .mapToDouble(n -> voltageLevel.getNodeBreakerView().getFictitiousQ0(n))
                 .reduce(0.0, Double::sum);
