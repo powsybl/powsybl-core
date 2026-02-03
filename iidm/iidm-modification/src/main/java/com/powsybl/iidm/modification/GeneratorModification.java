@@ -73,16 +73,16 @@ public class GeneratorModification extends AbstractNetworkModification {
                     targetValue = getPlausibleTargetV(g);
                 }
                 g.newVoltageRegulation()
-                    .setTargetValue(targetValue)
-                    .setRegulating(true)
-                    .setMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(targetValue)
+                    .withRegulating(true)
+                    .withMode(RegulationMode.VOLTAGE)
                     .add();
                 g.setVoltageRegulatorOn(true);
             } else {
                 g.newVoltageRegulation()
-                    .setTargetValue(modifs.getTargetQ())
-                    .setRegulating(true)
-                    .setMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(modifs.getTargetQ())
+                    .withRegulating(true)
+                    .withMode(RegulationMode.REACTIVE_POWER)
                     .add();
                 g.setVoltageRegulatorOn(false);
             }

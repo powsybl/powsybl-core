@@ -9,9 +9,7 @@ package com.powsybl.iidm.network.impl.regulation;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.DefaultMessageHeader;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -24,7 +22,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     private TerminalExt terminal;
     private RegulationMode mode;
-    private final Ref<? extends VariantManagerHolder> network;
+    private final Ref<NetworkImpl> network;
     // attributes depending on the variant
     private final TDoubleArrayList targetValue;
     private final TDoubleArrayList targetDeadband;
@@ -128,6 +126,10 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         }
     }
 
+    public static VoltageRegulationBuilderImpl newVoltageRegulation() {
+        return new VoltageRegulationBuilderImpl();
+    }
+
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         targetValue.ensureCapacity(targetValue.size() + number);
@@ -182,66 +184,6 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
     @Override
     public MessageHeader getMessageHeader() {
         return new DefaultMessageHeader("TYPE", "MSAID");
-    }
-
-    public static class Builder {
-        private Double targetValue = Double.NaN;
-        private Double targetDeadband = Double.NaN;
-        private Double slope = Double.NaN;
-        private Terminal terminal = null;
-        private RegulationMode mode = null;
-        private boolean regulating = false;
-        private Ref<NetworkImpl> network = null;
-
-        public Builder setTargetValue(Double targetValue) {
-            this.targetValue = targetValue;
-            return this;
-        }
-
-        public Builder setTargetDeadband(Double targetDeadband) {
-            this.targetDeadband = targetDeadband;
-            return this;
-        }
-
-        public Builder setSlope(Double slope) {
-            this.slope = slope;
-            return this;
-        }
-
-        public Builder setTerminal(Terminal terminal) {
-            this.terminal = terminal;
-            return this;
-        }
-
-        public Builder setMode(RegulationMode mode) {
-            this.mode = mode;
-            return this;
-        }
-
-        public Builder setRegulating(boolean regulating) {
-            this.regulating = regulating;
-            return this;
-        }
-
-        public Builder setNetwork(Ref<NetworkImpl> network) {
-            this.network = network;
-            return this;
-        }
-
-        public VoltageRegulation build() {
-            if (mode == null) {
-//                throw new IllegalArgumentException("Invalid VoltageRegulation: mode must be defined.");
-            }
-            if (terminal == null) {
-//                throw new IllegalArgumentException("Invalid VoltageRegulation: terminal must be defined.");
-            }
-            return new VoltageRegulationImpl(network, targetValue, targetDeadband, slope, terminal, mode, regulating);
-        }
-
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     private double getTargetValue(RegulationMode expectedMode) {

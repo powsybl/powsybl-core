@@ -52,10 +52,10 @@ public class RemoteReactivePowerControlSerDe extends AbstractExtensionSerDe<Gene
         Terminal terminal = TerminalRefSerDe.readTerminal(networkContext, extendable.getNetwork());
         if (extendable.getVoltageRegulation() == null || extendable.getVoltageRegulation().getMode() != RegulationMode.VOLTAGE) {
             extendable.newVoltageRegulation()
-                .setMode(RegulationMode.REACTIVE_POWER)
-                .setRegulating(enabled)
-                .setTargetValue(targetQ)
-                .setTerminal(terminal)
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withRegulating(enabled)
+                .withTargetValue(targetQ)
+                .withTerminal(terminal)
                 .add();
         }
         return extendable.newExtension(RemoteReactivePowerControlAdder.class)

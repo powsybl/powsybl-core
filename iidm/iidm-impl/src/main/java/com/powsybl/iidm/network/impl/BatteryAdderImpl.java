@@ -9,19 +9,18 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
-import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.impl.regulation.VoltageRegulationAdderImpl;
-import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
+import com.powsybl.iidm.network.regulation.*;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@inheritDoc}
  *
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
-public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> implements BatteryAdder, VoltageRegulationAdder<BatteryAdder> {
+public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> implements BatteryAdder {
 
     private double targetP = Double.NaN;
 
@@ -106,12 +105,27 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     }
 
     @Override
-    public VoltageRegulationBuilder<BatteryAdder> newVoltageRegulation() {
+    public VoltageRegulationAdder<BatteryAdder> newVoltageRegulation() {
         return new VoltageRegulationAdderImpl<>(this, getNetworkRef());
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+        this.voltageRegulation = null;
     }
 
     @Override
     public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
         this.voltageRegulation = voltageRegulation;
+    }
+
+    @Override
+    public VoltageRegulation getVoltageRegulation() {
+        return this.voltageRegulation;
+    }
+
+    @Override
+    public Set<RegulationMode> getAllowedRegulationModes() {
+        return Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
     }
 }

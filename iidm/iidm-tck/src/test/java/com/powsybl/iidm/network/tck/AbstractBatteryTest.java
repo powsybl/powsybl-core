@@ -291,12 +291,12 @@ public abstract class AbstractBatteryTest {
             .setTargetP(100.0)
             .setTargetQ(50.0)
             .newVoltageRegulation()
-                .setMode(regulationMode)
-                .setTargetValue(targetValue)
-                .setRegulating(regulating)
-                .setTerminal(terminal)
-                .setSlope(slope)
-                .addVoltageRegulation()
+                .withMode(regulationMode)
+                .withTargetValue(targetValue)
+                .withRegulating(regulating)
+                .withTerminal(terminal)
+                .withSlope(slope)
+                .add()
             .add();
         // THEN
         Battery battery = network.getBattery("BAT12987");

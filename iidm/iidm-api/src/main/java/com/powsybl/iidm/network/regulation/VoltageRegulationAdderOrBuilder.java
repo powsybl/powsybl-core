@@ -7,11 +7,22 @@
  */
 package com.powsybl.iidm.network.regulation;
 
+import com.powsybl.iidm.network.Terminal;
+
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public interface VoltageRegulationAdder<P extends VoltageRegulationHolder<P>> extends VoltageRegulationAdderOrBuilder<VoltageRegulationAdder<P>> {
+public interface VoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>> {
 
-    P add();
+    T withTargetValue(double targetValue);
 
+    T withTargetDeadband(double targetDeadband);
+
+    T withSlope(double slope);
+
+    T withTerminal(Terminal terminal);
+
+    T withMode(RegulationMode mode);
+
+    T withRegulating(boolean regulating);
 }

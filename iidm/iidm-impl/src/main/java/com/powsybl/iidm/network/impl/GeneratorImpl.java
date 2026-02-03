@@ -9,14 +9,17 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.regulation.VoltageRegulationAdderImpl;
 import com.powsybl.iidm.network.regulation.*;
 import com.powsybl.iidm.network.impl.regulation.VoltageRegulationImpl;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.Set;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class GeneratorImpl extends AbstractConnectable<Generator> implements Generator, ReactiveLimitsOwner, VoltageRegulationOwner {
+class GeneratorImpl extends AbstractConnectable<Generator> implements Generator, ReactiveLimitsOwner {
 
     private final Ref<? extends VariantManagerHolder> network;
 
@@ -56,13 +59,6 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.minP = minP;
         this.maxP = maxP;
         this.voltageRegulation = (VoltageRegulationImpl) voltageRegulation;
-//        VoltageRegulationImpl.builder()
-//            .setTargetValue(targetV)
-//            .setTerminal(regulatingTerminal)
-//            .setMode(RegulationMode.VOLTAGE)
-//            .setRegulating(voltageRegulatorOn)
-//            .setNetwork(network)
-//            .build();
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.ratedS = ratedS;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -130,7 +126,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return this.voltageRegulation != null // TODO MSA would be better with AND operator and this.voltageRegulation != null
+        return this.voltageRegulation != null
             && RegulationMode.VOLTAGE == this.voltageRegulation.getMode()
             && this.voltageRegulation.isRegulating();
     }
@@ -355,8 +351,19 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         return "Generator";
     }
 
+    @Override
     public VoltageRegulationImpl getVoltageRegulation() {
         return voltageRegulation;
+    }
+
+    @Override
+    public VoltageRegulationAdder<Generator> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(this, getNetwork().getRef());
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+        this.voltageRegulation = null;
     }
 
     @Override
@@ -365,13 +372,8 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public VoltageRegulationMsaAdder newVoltageRegulation() {
-        return new VoltageRegulationMsaAdderImpl<>(this);
-    }
-
-    @Override
-    public void removeVoltageRegulation() {
-        this.voltageRegulation = null;
+    public Set<RegulationMode> getAllowedRegulationModes() {
+        return Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
     }
 
 }

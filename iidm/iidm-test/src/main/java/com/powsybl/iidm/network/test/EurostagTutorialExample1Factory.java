@@ -1132,20 +1132,20 @@ public final class EurostagTutorialExample1Factory {
     private static Network addReactiveGenerator(Network network, Terminal terminal) {
         network.getGenerator("GEN")
             .newVoltageRegulation()
-            .setTargetValue(200d)
-            .setTerminal(terminal)
-            .setMode(RegulationMode.REACTIVE_POWER)
-            .setRegulating(true)
+            .withTargetValue(200d)
+            .withTerminal(terminal)
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withRegulating(true)
             .add();
         return network;
     }
 
     private static Network addRemoteVoltageGenerator(Network network) {
         network.getGenerator("GEN").newVoltageRegulation()
-            .setMode(RegulationMode.VOLTAGE)
-            .setRegulating(true)
-            .setTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
-            .setTargetValue(399d)
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(true)
+            .withTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
+            .withTargetValue(399d)
             .add();
         return network;
     }

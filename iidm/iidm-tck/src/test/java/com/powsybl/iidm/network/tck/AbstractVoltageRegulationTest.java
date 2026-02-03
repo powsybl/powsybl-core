@@ -34,10 +34,10 @@ public abstract class AbstractVoltageRegulationTest {
         double targetV = 24.1;
         Generator generator = createGeneratorAdder(10.0, false, 20.0)
             .newVoltageRegulation()
-                .setMode(mode)
-                .setRegulating(regulating)
-                .setTargetValue(targetV)
-                .addVoltageRegulation()
+                .withMode(mode)
+                .withRegulating(regulating)
+                .withTargetValue(targetV)
+                .add()
             .add();
         assertNotNull(generator);
         VoltageRegulation voltageRegulation = generator.getVoltageRegulation();

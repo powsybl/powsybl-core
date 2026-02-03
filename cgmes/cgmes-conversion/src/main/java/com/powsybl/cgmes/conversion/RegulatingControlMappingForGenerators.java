@@ -98,9 +98,9 @@ public class RegulatingControlMappingForGenerators {
                 .orElse(gen.getTerminal());
 
         gen.newVoltageRegulation()
-            .setMode(RegulationMode.VOLTAGE)
-            .setTerminal(regulatingTerminal)
-            .setRegulating(false)
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(regulatingTerminal)
+            .withRegulating(false)
             .add();
 
         // add qPercent as an extension
@@ -127,9 +127,9 @@ public class RegulatingControlMappingForGenerators {
         }
 
         gen.newVoltageRegulation()
-            .setTerminal(mappedRegulatingTerminal.getTerminal())
-            .setMode(RegulationMode.REACTIVE_POWER)
-            .setRegulating(false)
+            .withTerminal(mappedRegulatingTerminal.getTerminal())
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withRegulating(false)
             .add();
 
         // add qPercent as an extension

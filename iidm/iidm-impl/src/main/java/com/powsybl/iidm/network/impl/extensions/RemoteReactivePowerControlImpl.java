@@ -53,10 +53,10 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
         ((TerminalExt) regulatingTerminal).getReferrerManager().register(this);
         if (generator.getVoltageRegulation() == null) {
             generator.newVoltageRegulation()
-                .setTargetValue(targetQ)
-                .setMode(RegulationMode.REACTIVE_POWER)
-                .setRegulating(enabled)
-                .setTerminal(regulatingTerminal)
+                .withTargetValue(targetQ)
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withRegulating(enabled)
+                .withTerminal(regulatingTerminal)
                 .add();
         }
     }

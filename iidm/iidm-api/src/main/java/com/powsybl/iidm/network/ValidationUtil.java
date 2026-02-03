@@ -9,15 +9,16 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.network.util.NetworkReports;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.REACTIVE_POWER;
@@ -907,12 +908,58 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    public static ValidationLevel checkVoltageRegulation(Validable validable, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode) {
+    public static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode) {
         if (voltageRegulation != null) {
-            // TODO MSA
-            return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+            // CHECK Regulation MODE
+            if (voltageRegulation.getMode() == null) {
+                throw new ValidationException(owner, "TODO MSA add log/exception -> Modes must not be null");
+            }
+            Set<RegulationMode> allowedModes = getAllowedRegulatingModes(owner);
+            if (!allowedModes.contains(voltageRegulation.getMode())) {
+                throw new ValidationException(owner, "TODO MSA add log/exception -> Modes allowed for XXXX : [allowedModes]");
+            }
+            // CHECK SLOPE attribute
+            Set<RegulationMode> slopeMode = Set.of(RegulationMode.VOLTAGE_PER_REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+            if (voltageRegulation.getSlope() == null && !slopeMode.contains(voltageRegulation.getMode())
+                || voltageRegulation.getSlope() != null && slopeMode.contains(voltageRegulation.getMode())) {
+                throw new ValidationException(owner, "TODO MSA add log/exception -> slope must not be null");
+            }
+            // CHECK Target Deadband attribute
+            if ((owner instanceof RatioTapChanger || owner instanceof ShuntCompensator)
+                && voltageRegulation.getTargetValue() == null) {
+                throw new ValidationException(owner, "TODO MSA add log/exception -> targetDeadband must not be null for RatioTapChanger/ShuntCompensator");
+            }
+            // CHECK Target Value attribute
+            if (voltageRegulation.getTargetValue() == null) {
+                throw new ValidationException(owner, "TODO MSA add log/exception -> targetValue must not be null");
+            }
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    private static @NonNull Set<RegulationMode> getAllowedRegulatingModes(@NonNull Validable owner) {
+        if (owner instanceof VoltageRegulationHolder<?> voltageRegulationHolder) {
+            return voltageRegulationHolder.getAllowedRegulationModes();
+        }
+        throw new ValidationException(owner, "TODO MSA add log/exception -> class XXX is not a valid class for the voltageRegulation");
+//
+//        return switch (owner) {
+//            case Generator ignored ->
+//                Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+//            case GeneratorAdder ignored ->
+//                Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+//            case Battery battery -> Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
+//            case RatioTapChanger ratioTapChanger -> Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
+//            case VscConverterStation vscConverterStation ->
+//                Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
+//            case VoltageSourceConverter voltageSourceConverter ->
+//                Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
+//            case ShuntCompensator shuntCompensator -> Set.of(RegulationMode.VOLTAGE);
+//            case StaticVarCompensator staticVarCompensator ->
+//                Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER, RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
+//            case null, default ->
+//                throw new ValidationException(owner, "TODO MSA add log/exception -> class XXX is not a valid class for the voltageRegulation");
+//        };
     }
 
     private static ValidationLevel checkOperationalLimitsGroup(Validable validable, OperationalLimitsGroup operationalLimitsGroup, ValidationLevel previous, ActionOnError actionOnError, ReportNode reportNode) {

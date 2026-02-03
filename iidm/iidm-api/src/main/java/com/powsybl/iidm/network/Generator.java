@@ -135,7 +135,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve
  */
-public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, VoltageRegulationHolder {
+public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, VoltageRegulationHolder<Generator> {
 
     /**
      * Get the energy source.

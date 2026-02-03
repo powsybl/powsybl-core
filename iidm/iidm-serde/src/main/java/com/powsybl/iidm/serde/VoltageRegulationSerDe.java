@@ -59,7 +59,7 @@ public final class VoltageRegulationSerDe {
         TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
     }
 
-    public static void readVoltageRegulation(VoltageRegulationHolder holder, NetworkDeserializerContext context, Network network) {
+    public static void readVoltageRegulation(VoltageRegulationHolder<?> holder, NetworkDeserializerContext context, Network network) {
         // Read attributes
         double targetValue = context.getReader().readDoubleAttribute(TARGET_VALUE);
         double targetDeadband = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
@@ -68,12 +68,13 @@ public final class VoltageRegulationSerDe {
         boolean isRegulating = context.getReader().readBooleanAttribute(REGULATING);
         // Create new Voltage Regulation
         VoltageRegulation voltageRegulation = holder.newVoltageRegulation()
-            .setTargetValue(targetValue)
-            .setTargetDeadband(targetDeadband)
-            .setSlope(slope)
-            .setMode(mode)
-            .setRegulating(isRegulating)
-            .add();
+            .withTargetValue(targetValue)
+            .withTargetDeadband(targetDeadband)
+            .withSlope(slope)
+            .withMode(mode)
+            .withRegulating(isRegulating)
+            .add()
+            .getVoltageRegulation();
         // Read Sub Elements
         readSubElements(context, network, voltageRegulation::setTerminal);
         // THE END

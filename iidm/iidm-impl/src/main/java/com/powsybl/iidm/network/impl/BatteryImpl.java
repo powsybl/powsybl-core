@@ -9,17 +9,19 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.impl.regulation.VoltageRegulationAdderImpl;
 import com.powsybl.iidm.network.impl.regulation.VoltageRegulationImpl;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
-import com.powsybl.iidm.network.regulation.VoltageRegulationMsaAdder;
+import com.powsybl.iidm.network.regulation.*;
 import gnu.trove.list.array.TDoubleArrayList;
+
+import java.util.Set;
 
 /**
  * {@inheritDoc}
  *
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
-public class BatteryImpl extends AbstractConnectable<Battery> implements Battery, ReactiveLimitsOwner, VoltageRegulationOwner {
+public class BatteryImpl extends AbstractConnectable<Battery> implements Battery, ReactiveLimitsOwner {
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
@@ -234,17 +236,22 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     @Override
-    public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.voltageRegulation = (VoltageRegulationImpl) voltageRegulation;
-    }
-
-    @Override
-    public VoltageRegulationMsaAdder newVoltageRegulation() {
-        return new VoltageRegulationMsaAdderImpl<>(this);
+    public VoltageRegulationAdder<Battery> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(this, getNetwork().getRef());
     }
 
     @Override
     public void removeVoltageRegulation() {
         this.voltageRegulation = null;
+    }
+
+    @Override
+    public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
+        this.voltageRegulation = (VoltageRegulationImpl) voltageRegulation;
+    }
+
+    @Override
+    public Set<RegulationMode> getAllowedRegulationModes() {
+        return Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
     }
 }

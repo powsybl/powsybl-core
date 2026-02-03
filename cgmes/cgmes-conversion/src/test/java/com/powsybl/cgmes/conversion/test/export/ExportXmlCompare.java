@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.model.CgmesNames;
 
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
@@ -97,16 +96,8 @@ final class ExportXmlCompare {
     }
 
     static boolean compareEQNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
-//        Source control = Input.fromStream(expected).build();
-//        Source test = Input.fromStream(actual).build();
-        String control = null;
-        String test = null;
-        try {
-            control = new String(expected.readAllBytes(), StandardCharsets.UTF_8);
-            test = new String(actual.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Source control = Input.fromStream(expected).build();
+        Source test = Input.fromStream(actual).build();
         Diff diff = DiffBuilder
                 .compare(control)
                 .withTest(test)
