@@ -401,13 +401,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     interface NodeBreakerView {
 
         /**
-         * Returns true if any node has a non-zero fictitious active power injection.
-         */
-        default boolean hasFictitiousP0() {
-            return false;
-        }
-
-        /**
          * Returns the fictitious active power injection to the node if set, or 0. The value is in MW and uses the load sign convention (a positive value has the same effect as a load connected to the node)
          * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
          * @param node the node to which the fictitious load is connected.
@@ -426,13 +419,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         default NodeBreakerView setFictitiousP0(int node, double p0) {
             // do nothing
             return this;
-        }
-
-        /**
-         * Returns true if any node has a non-zero fictitious reactive power injection.
-         */
-        default boolean hasFictitiousQ0() {
-            return false;
         }
 
         /**
