@@ -104,7 +104,7 @@ public final class LimitViolationDetection {
                 : terminal.getI();
     }
 
-    static void checkLimitViolation(Branch<?> branch, TwoSides side, double value, LimitType type,
+    public static void checkLimitViolation(Branch<?> branch, TwoSides side, double value, LimitType type,
                                     Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
                                     Consumer<LimitViolation> consumer) {
         //TODO monitoring at false ?
@@ -185,7 +185,7 @@ public final class LimitViolationDetection {
         checkLimitViolation(transformer, side, i, LimitType.CURRENT, currentLimitTypes, limitsComputer, consumer);
     }
 
-    static void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value,
+    public static void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value,
                                     LimitType type, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
                                     Consumer<LimitViolation> consumer) {
         //TODO monitoring at false ?
