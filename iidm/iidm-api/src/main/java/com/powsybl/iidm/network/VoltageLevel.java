@@ -400,6 +400,9 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     interface NodeBreakerView {
 
+        /**
+         * Returns true if any node has a non-zero fictitious active power injection.
+         */
         default boolean hasFictitiousP0() {
             return false;
         }
@@ -425,6 +428,9 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             return this;
         }
 
+        /**
+         * Returns true if any node has a non-zero fictitious reactive power injection.
+         */
         default boolean hasFictitiousQ0() {
             return false;
         }
