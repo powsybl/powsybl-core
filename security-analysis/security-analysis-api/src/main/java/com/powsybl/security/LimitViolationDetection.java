@@ -107,6 +107,7 @@ public final class LimitViolationDetection {
     public static void checkLimitViolation(Branch<?> branch, TwoSides side, double value, LimitType type,
                                     Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
                                     Consumer<LimitViolation> consumer) {
+        Objects.requireNonNull(side);
         //TODO monitoring at false ?
         Collection<LimitsContainer<LoadingLimits>> allLoadingLimits = limitsComputer.computeLimits(branch, type, side.toThreeSides(), false);
         Set<String> temporaryOverloadIds;
@@ -120,13 +121,16 @@ public final class LimitViolationDetection {
                     overload -> consumer.accept(
                             new LimitViolation(branch.getId(),
                                     branch.getOptionalName().orElse("null"),
+                                    overload.getOperationalLimitsGroupId(),
                                     toLimitViolationType(type),
                                     overload.getPreviousLimitName(),
                                     overload.getTemporaryLimit().getAcceptableDuration(),
                                     overload.getPreviousLimit(),
                                     overload.getLimitReductionCoefficient(),
                                     value,
-                                    side)
+                                    side.toThreeSides(),
+                                    null
+                            )
                     )
             );
             temporaryOverloadIds = overloadOnTemporary.stream().map(Overload::getOperationalLimitsGroupId).collect(Collectors.toSet());
@@ -141,17 +145,19 @@ public final class LimitViolationDetection {
                     .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
                     .filter(PermanentLimitCheckResult::isOverload)
-                    .forEach(overload -> {
-                        double limit = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
+                    .forEach(permanentLimitCheckResult -> {
                         consumer.accept(new LimitViolation(branch.getId(),
                                 branch.getOptionalName().orElse(null),
+                                permanentLimitCheckResult.operationalLimitsGroupId(),
                                 toLimitViolationType(type),
                                 LimitViolationUtils.PERMANENT_LIMIT_NAME,
                                 Integer.MAX_VALUE,
-                                limit,
-                                overload.limitReductionValue(),
+                                permanentLimitCheckResult.permanentLimitValue(),
+                                permanentLimitCheckResult.limitReductionValue(),
                                 value,
-                                side));
+                                side.toThreeSides(),
+                                null
+                        ));
                     });
         }
     }
@@ -202,13 +208,15 @@ public final class LimitViolationDetection {
                     overload -> consumer.accept(
                             new LimitViolation(transformer.getId(),
                                     transformer.getOptionalName().orElse("null"),
+                                    overload.getOperationalLimitsGroupId(),
                                     toLimitViolationType(type),
                                     overload.getPreviousLimitName(),
                                     overload.getTemporaryLimit().getAcceptableDuration(),
                                     overload.getPreviousLimit(),
                                     overload.getLimitReductionCoefficient(),
                                     value,
-                                    side
+                                    side,
+                                    null
                             )
                     )
             );
@@ -224,17 +232,20 @@ public final class LimitViolationDetection {
                     .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
                     .filter(PermanentLimitCheckResult::isOverload)
-                    .forEach(overload -> {
+                    .forEach(permanentLimitCheckResult -> {
                         double limit = transformer.getLeg(side).getLimits(type).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
                         consumer.accept(new LimitViolation(transformer.getId(),
                                 transformer.getOptionalName().orElse(null),
+                                permanentLimitCheckResult.operationalLimitsGroupId(),
                                 toLimitViolationType(type),
                                 LimitViolationUtils.PERMANENT_LIMIT_NAME,
                                 Integer.MAX_VALUE,
                                 limit,
-                                overload.limitReductionValue(),
+                                permanentLimitCheckResult.limitReductionValue(),
                                 value,
-                                side));
+                                side,
+                                null
+                        ));
                     });
         }
     }

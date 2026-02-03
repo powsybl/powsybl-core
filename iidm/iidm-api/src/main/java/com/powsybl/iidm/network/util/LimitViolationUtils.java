@@ -192,13 +192,15 @@ public final class LimitViolationUtils {
 
     private static PermanentLimitCheckResult checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
         double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
+        double originalPermanentLimit = limitsContainer.getOriginalLimits().getPermanentLimit();
+        String opGroupId = limitsContainer.getOperationalLimitsGroupId();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
-            return new PermanentLimitCheckResult(false, limitReductionValue);
+            return new PermanentLimitCheckResult(false, Double.NaN, limitReductionValue, opGroupId);
         }
         if (i >= permanentLimit * limitReductionValue) {
-            return new PermanentLimitCheckResult(true, limitsContainer.isDistinct() ? ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() : limitReductionValue);
+            return new PermanentLimitCheckResult(true, originalPermanentLimit, limitsContainer.isDistinct() ? ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() : limitReductionValue, opGroupId);
         }
-        return new PermanentLimitCheckResult(false, limitReductionValue);
+        return new PermanentLimitCheckResult(false, originalPermanentLimit, limitReductionValue, opGroupId);
     }
 
     public static boolean checkPermanentLimit(Branch<?> branch, TwoSides side, double limitReductionValue, double i, LimitType type) {
@@ -210,7 +212,7 @@ public final class LimitViolationUtils {
     public static PermanentLimitCheckResult checkPermanentLimit(Branch<?> branch, TwoSides side, double i, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
         return getLimits(branch, side.toThreeSides(), type, computer)
                 .map(l -> checkPermanentLimitIfAny(l, i))
-                .orElse(new PermanentLimitCheckResult(false, 1.0));
+                .orElse(new PermanentLimitCheckResult(false, Double.NaN, 1.0, ""));
     }
 
     public static boolean checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double i, LimitType type) {
