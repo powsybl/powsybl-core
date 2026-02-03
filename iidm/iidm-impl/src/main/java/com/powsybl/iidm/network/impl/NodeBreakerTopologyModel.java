@@ -645,19 +645,23 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
         private final TIntObjectMap<TDoubleArrayList> fictitiousQ0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
 
-        @Override
-        public boolean hasFictitiousP0() {
-            if (fictitiousP0ByNode.isEmpty()) {
+        private boolean hasFictitiousInjection(TIntObjectMap<TDoubleArrayList> fictitiousInjectionsByNode) {
+            if (fictitiousInjectionsByNode.isEmpty()) {
                 return false;
             }
             int variantIndex = getNetwork().getVariantIndex();
-            for (int node : fictitiousP0ByNode.keys()) {
-                TDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(node);
-                if (p0ByVariant != null && p0ByVariant.get(variantIndex) != 0.0) {
+            for (int node : fictitiousInjectionsByNode.keys()) {
+                TDoubleArrayList fictitiousInjectionByVariant = fictitiousInjectionsByNode.get(node);
+                if (fictitiousInjectionByVariant != null && fictitiousInjectionByVariant.get(variantIndex) != 0.0) {
                     return true;
                 }
             }
             return false;
+        }
+
+        @Override
+        public boolean hasFictitiousP0() {
+            return hasFictitiousInjection(fictitiousP0ByNode);
         }
 
         @Override
@@ -701,17 +705,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public boolean hasFictitiousQ0() {
-            if (fictitiousQ0ByNode.isEmpty()) {
-                return false;
-            }
-            int variantIndex = getNetwork().getVariantIndex();
-            for (int node : fictitiousQ0ByNode.keys()) {
-                TDoubleArrayList p0ByVariant = fictitiousQ0ByNode.get(node);
-                if (p0ByVariant != null && p0ByVariant.get(variantIndex) != 0.0) {
-                    return true;
-                }
-            }
-            return false;
+            return hasFictitiousInjection(fictitiousQ0ByNode);
         }
 
         @Override
