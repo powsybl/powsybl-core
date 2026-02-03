@@ -23,6 +23,7 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writeNodeOrBus;
 /**
  * Abstract class for serializing/deserializing shunt compensator
  *
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Samir Romdhani {@literal <samir.romdhani_externe at rte-france.com>}
  */
 abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {

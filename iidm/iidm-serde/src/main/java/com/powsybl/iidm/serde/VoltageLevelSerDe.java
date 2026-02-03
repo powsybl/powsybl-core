@@ -347,7 +347,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 case GeneratorSerDe.ROOT_ELEMENT_NAME -> GeneratorSerDe.INSTANCE.read(vl, context);
                 case BatterySerDe.ROOT_ELEMENT_NAME -> BatterySerDe.INSTANCE.read(vl, context);
                 case LoadSerDe.ROOT_ELEMENT_NAME -> LoadSerDe.INSTANCE.read(vl, context);
-                case ShuntSerDe.ROOT_ELEMENT_NAME -> ShuntSerDe.INSTANCE.read(vl, context);
+                case ShuntSerDe.ROOT_ELEMENT_NAME -> ShuntSerDe.INSTANCE.read(vl, context); // For backward compatibility with IIDM versions < 1.16
                 case ShuntCompensatorSerDe.ROOT_ELEMENT_NAME -> ShuntCompensatorSerDe.INSTANCE.read(vl, context);
                 case DanglingLineSerDe.ROOT_ELEMENT_NAME -> DanglingLineSerDe.INSTANCE.read(vl, context);
                 case StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME -> StaticVarCompensatorSerDe.INSTANCE.read(vl, context);

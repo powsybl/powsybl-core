@@ -8,7 +8,10 @@
 package com.powsybl.iidm.serde;
 
 /**
+ * Maintain support for Shunt, Backward compatibility for <= IIDM 1.15
+ *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Samir Romdhani {@literal <samir.romdhani_externe at rte-france.com>}
  */
 final class ShuntSerDe extends AbstractShuntCompensatorSerDe {
 
