@@ -580,6 +580,43 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
+    public <C> List<C> getConnectedComponents(Predicate<E> isTraversable, ConnectedComponentCollector<C, V> collector) {
+        Objects.requireNonNull(isTraversable);
+        Objects.requireNonNull(collector);
+
+        List<C> components = new ArrayList<>();
+        boolean[] encountered = new boolean[vertices.size()];
+
+        for (int v = 0; v < vertices.size(); v++) {
+            Vertex<V> vertex = vertices.get(v);
+            if (vertex != null && !encountered[v]) {
+                C component = collector.createComponent();
+
+                collector.addVertex(component, v, vertex.getObject());
+
+                traverse(v, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
+                    E edgeObject = edges.get(e).getObject();
+                    if (edgeObject == null || isTraversable.test(edgeObject)) {
+                        if (!encountered[v2]) {
+                            Vertex<V> destVertex = vertices.get(v2);
+                            if (destVertex != null) {
+                                collector.addVertex(component, v2, destVertex.getObject());
+                            }
+                        }
+                        return TraverseResult.CONTINUE;
+                    }
+                    return TraverseResult.TERMINATE_PATH;
+                }, encountered);
+
+                if (collector.isComponentValid(component)) {
+                    components.add(component);
+                }
+            }
+        }
+        return components;
+    }
+
+    @Override
     public boolean traverse(int v, TraversalType traversalType, Traverser traverser) {
         boolean[] encountered = new boolean[vertices.size()];
         Arrays.fill(encountered, false);

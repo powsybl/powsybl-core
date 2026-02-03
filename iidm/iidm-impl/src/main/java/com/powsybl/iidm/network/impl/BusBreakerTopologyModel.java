@@ -16,10 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
-import com.powsybl.math.graph.TraversalType;
-import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.math.graph.UndirectedGraphImpl;
-import com.powsybl.math.graph.UndirectedGraphListener;
+import com.powsybl.math.graph.*;
 import org.anarres.graphviz.builder.GraphVizAttribute;
 import org.anarres.graphviz.builder.GraphVizEdge;
 import org.anarres.graphviz.builder.GraphVizGraph;
@@ -34,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -230,30 +228,31 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
             // mapping between configured buses and merged buses
             Map<ConfiguredBus, MergedBus> mapping = new IdentityHashMap<>();
+            AtomicInteger busNum = new AtomicInteger(0);
 
-            boolean[] encountered = new boolean[graph.getVertexCapacity()];
-            Arrays.fill(encountered, false);
-            int busNum = 0;
-            for (int v : graph.getVertices()) {
-                if (!encountered[v]) {
-                    final Set<ConfiguredBus> busSet = new LinkedHashSet<>(1);
-                    busSet.add(graph.getVertexObject(v));
-                    graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
-                        SwitchImpl aSwitch = graph.getEdgeObject(e);
-                        if (aSwitch.isOpen()) {
-                            return TraverseResult.TERMINATE_PATH;
-                        } else {
-                            busSet.add(graph.getVertexObject(v2));
-                            return TraverseResult.CONTINUE;
-                        }
-                    }, encountered);
-                    if (isBusValid(busSet)) {
-                        MergedBus mergedBus = createMergedBus(busNum++, busSet);
-                        mergedBuses.put(mergedBus.getId(), mergedBus);
-                        busSet.forEach(bus -> mapping.put(bus, mergedBus));
+            graph.getConnectedComponents(
+                sw -> !sw.isOpen(),
+                new UndirectedGraph.ConnectedComponentCollector<Set<ConfiguredBus>, ConfiguredBus>() {
+                    @Override
+                    public Set<ConfiguredBus> createComponent() {
+                        return new LinkedHashSet<>(1);
+                    }
+
+                    @Override
+                    public void addVertex(Set<ConfiguredBus> component, int vertexIndex, ConfiguredBus bus) {
+                        component.add(bus);
+                    }
+
+                    @Override
+                    public boolean isComponentValid(Set<ConfiguredBus> component) {
+                        return isBusValid(component);
                     }
                 }
-            }
+            ).forEach(busSet -> {
+                MergedBus mergedBus = createMergedBus(busNum.getAndIncrement(), busSet);
+                mergedBuses.put(mergedBus.getId(), mergedBus);
+                busSet.forEach(bus -> mapping.put(bus, mergedBus));
+            });
 
             variants.get().cache = new BusCache(mergedBuses, mapping);
         }
@@ -293,7 +292,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     final CalculatedBusTopology calculatedBusTopology
-            = new CalculatedBusTopology();
+        = new CalculatedBusTopology();
 
     private static final class VariantImpl implements Variant {
 
