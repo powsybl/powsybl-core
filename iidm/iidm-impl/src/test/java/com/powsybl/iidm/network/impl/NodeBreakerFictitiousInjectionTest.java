@@ -5,8 +5,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NodeBreakerFictitiousInjectionTest {
 
@@ -14,13 +13,20 @@ public class NodeBreakerFictitiousInjectionTest {
     void testHasFictitiousP0AndFictitiousQ0() {
         Network network = NetworkTest1Factory.create();
         Bus bus = network.getVoltageLevel("voltageLevel1").getBusBreakerView().getBus("voltageLevel1_0");
+
         bus.setFictitiousP0(10);
         bus.setFictitiousQ0(20);
-        assertTrue(((VoltageLevelImpl) network.getVoltageLevel("voltageLevel1")).getNodeBreakerView().hasFictitiousP0());
-        assertTrue(((VoltageLevelImpl) network.getVoltageLevel("voltageLevel1")).getNodeBreakerView().hasFictitiousQ0());
+        VoltageLevelImpl vl = ((VoltageLevelImpl) network.getVoltageLevel("voltageLevel1"));
+        assertTrue(vl.getNodeBreakerView().hasFictitiousP0());
+        assertTrue(vl.getNodeBreakerView().hasFictitiousQ0());
+        assertEquals(10, bus.getFictitiousP0());
+        assertEquals(20, bus.getFictitiousQ0());
+
         bus.setFictitiousP0(0.0);
         bus.setFictitiousQ0(0.0);
-        assertFalse(((VoltageLevelImpl) network.getVoltageLevel("voltageLevel1")).getNodeBreakerView().hasFictitiousP0());
-        assertFalse(((VoltageLevelImpl) network.getVoltageLevel("voltageLevel1")).getNodeBreakerView().hasFictitiousP0());
+        assertFalse(vl.getNodeBreakerView().hasFictitiousP0());
+        assertFalse(vl.getNodeBreakerView().hasFictitiousQ0());
+        assertEquals(0, bus.getFictitiousP0());
+        assertEquals(0, bus.getFictitiousQ0());
     }
 }
