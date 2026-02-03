@@ -77,7 +77,7 @@ public final class BusbarSectionFinderTraverser {
     }
 
     private static BusbarSectionResult searchAllBusbars(List<BusbarSectionResult> results) {
-            return results.stream().min(Comparator.comparingInt(BusbarSectionResult::depth)
+        return results.stream().min(Comparator.comparingInt(BusbarSectionResult::depth)
                     .thenComparing(BusbarSectionResult::busbarSectionId)).orElse(null);
     }
 
