@@ -179,7 +179,7 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertNotNull(network.getSwitch("SW"));
 
         // Verify that 3 OperationalLimitSet are exported back to CGMES:
-        // 1 for the dangling line, 1 per extremity of the ACLineSegment.
+        // 1 for the boundary line, 1 per extremity of the ACLineSegment.
         String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
         assertEquals(3, getElementCount(eqFile, "OperationalLimitSet"));
         assertOperationalLimitSetTerminal(eqFile, "OLS_ACL", "T_ACL_1");
