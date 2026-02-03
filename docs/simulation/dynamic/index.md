@@ -24,7 +24,7 @@ The inputs of a dynamic simulation are the following:
 (dynamic-models-configuration)=
 ### Dynamic models configuration
 The dynamic models may be provided through a groovy script thanks to the `GroovyDynamicModelsSupplier` provided in powsybl-dynamic-simulation-dsl artifact. Note that the syntax of this groovy script is specific to each simulator.
-See [Dynawo dynamic model configuration](inv:powsybldynawo:*:*#dynamic_simulation/dynamic-models-configuration) for Dynawo specific DSL and others configuration methods. 
+See [Dynawo dynamic model configuration](inv:powsybldynawo:*:*#dynamic_simulation/dynamic-models-configuration) for Dynawo specific DSL and others configuration methods.
 
 (event-models-configuration)=
 ### Event models configuration

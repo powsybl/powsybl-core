@@ -1,4 +1,4 @@
-itools packager 
+itools packager
 ---------------
 This Maven plugin can be used to generate an itools package with the following layout:
 ```bash
@@ -18,6 +18,9 @@ This Maven plugin can be used to generate an itools package with the following l
     share
         java
             <jars of the project classpath>
+    <additional files to be placed at package root>
+    LICENSE.txt
+    THIRD-PARTY.txt
 ```
 
 Here is how to configure itools package Maven plugin in your project
@@ -61,6 +64,13 @@ Here is how to configure itools package Maven plugin in your project
                             <file>...</file>
                         </files>
                     </copyToEtc>
+                    <copyToPackageRoot>
+                        <files>
+                            <file>...</file>
+                        </files>
+                    </copyToPackageRoot>
+                    <licenseFile>LICENSE.txt</licenseFile>
+                    <thirdPartyFile>THIRD-PARTY.txt</thirdPartyFile>
                 </configuration>
             </plugin>
         </plugins>
@@ -71,5 +81,6 @@ Here is how to configure itools package Maven plugin in your project
 - archiveName is optional, packageName is used as default value.
 - packageType is optional, "zip" is the default value. It can be either zip or tgz.
 - javaXmx, mpiTasks and mpiHosts are used to generate itools.conf, are all optional and default values are respectively 8G, 2 and localhost.
-- additional binaries, libraries and configurations file can be added to the package using optional copyToBin, copyToLib and copyToEtc tags.
-- all of the jars with compile and runtime scope will be included in the package
+- additional binaries, libraries, configurations, package files can be added to the package using optional copyToBin, copyToLib, copyToEtc, copyToPackageRoot tags.
+- licenseFile and thirdPartyFile are optional. If not provided, the packager will look for LICENSE, LICENSE.txt, THIRD-PARTY, THIRD-PARTY.txt in the project directory as well as its parent directory.
+- all the jars with compile and runtime scope will be included in the package

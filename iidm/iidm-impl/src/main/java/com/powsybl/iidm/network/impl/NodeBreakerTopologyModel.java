@@ -881,12 +881,12 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public Stream<Switch> getSwitchStream() {
-            return graph.getEdgeObjectStream().map(Function.identity());
+            return graph.getEdgeObjectStream().filter(Objects::nonNull).map(Function.identity());
         }
 
         @Override
         public int getSwitchCount() {
-            return graph.getEdgeCount();
+            return (int) graph.getEdgeObjectStream().filter(Objects::nonNull).count();
         }
 
         @Override

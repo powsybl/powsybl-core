@@ -18,9 +18,6 @@ SELECT *
 { GRAPH ?graph {
     ?FullModel
         a md:FullModel ;
-        md:Model.scenarioTime ?scenarioTime ;
-        md:Model.created ?created ;
-        md:Model.version ?version ;
         md:Model.modelingAuthoritySet ?modelingAuthoritySet .
     {
     SELECT ?FullModel (group_concat(?profile; separator=" ") as ?profileList)
@@ -28,7 +25,6 @@ SELECT *
                 ?FullModel md:Model.profile ?profile .
         } GROUP BY ?FullModel
     }
-    OPTIONAL { ?FullModel md:Model.description ?description }
     OPTIONAL {
         SELECT ?FullModel (group_concat(?dependentOn; separator=" ") as ?dependentOnList)
             WHERE {
@@ -41,6 +37,10 @@ SELECT *
                     ?FullModel md:Model.Supersedes ?supersedes .
             } GROUP BY ?FullModel
     }
+    OPTIONAL { ?FullModel md:Model.description ?description }
+    OPTIONAL { ?FullModel md:Model.scenarioTime ?scenarioTime }
+    OPTIONAL { ?FullModel md:Model.created ?created }
+    OPTIONAL { ?FullModel md:Model.version ?version }
 }}
 
 # query: modelIds
