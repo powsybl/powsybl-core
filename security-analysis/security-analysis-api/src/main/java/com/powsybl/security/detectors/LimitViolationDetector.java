@@ -10,12 +10,13 @@ package com.powsybl.security.detectors;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
-import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetection;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.limitreduction.SimpleLimitsComputer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -460,20 +461,13 @@ public interface LimitViolationDetector {
      * @return <code>true</code> if no overload was detected, <code>false</code> otherwise.
      */
     default boolean checkTemporary(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReductionValue, value, type);
-        if (overload != null) {
-            consumer.accept(new LimitViolation(branch.getId(),
-                    branch.getOptionalName().orElse(null),
-                    toLimitViolationType(type),
-                    overload.getPreviousLimitName(),
-                    overload.getTemporaryLimit().getAcceptableDuration(),
-                    overload.getPreviousLimit(),
-                    limitReductionValue,
-                    value,
-                    side));
-            return false;
+        List<LimitViolation> limitViolationCollector = new ArrayList<>();
+        LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitReductionValue);
+        LimitViolationDetection.checkLimitViolation(branch, side, value, type, Set.of(LoadingLimitType.TATL), limitsComputer, limitViolationCollector::add);
+        for (LimitViolation limitViolation : limitViolationCollector) {
+            consumer.accept(limitViolation);
         }
-        return true;
+        return limitViolationCollector.isEmpty();
     }
 
     /**
@@ -481,19 +475,12 @@ public interface LimitViolationDetector {
      * @return <code>true</code> if no overload was detected, <code>false</code> otherwise.
      */
     default boolean checkTemporary(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReductionValue, value, type);
-        if (overload != null) {
-            consumer.accept(new LimitViolation(transformer.getId(),
-                    transformer.getOptionalName().orElse(null),
-                    toLimitViolationType(type),
-                    overload.getPreviousLimitName(),
-                    overload.getTemporaryLimit().getAcceptableDuration(),
-                    overload.getPreviousLimit(),
-                    limitReductionValue,
-                    value,
-                    side));
-            return false;
+        List<LimitViolation> limitViolationCollector = new ArrayList<>();
+        LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitReductionValue);
+        LimitViolationDetection.checkLimitViolation(transformer, side, value, type, Set.of(LoadingLimitType.TATL), limitsComputer, limitViolationCollector::add);
+        for (LimitViolation limitViolation : limitViolationCollector) {
+            consumer.accept(limitViolation);
         }
-        return true;
+        return limitViolationCollector.isEmpty();
     }
 }
