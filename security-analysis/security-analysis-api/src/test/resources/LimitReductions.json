@@ -10,11 +10,11 @@
     },
     "equipmentCriteria" : [ {
       "type" : "identifierCriterion",
-      "version" : "1.0",
+      "version" : "1.1",
       "identifiers" : [ "NHV1_NHV2_1" ]
     }, {
       "type" : "lineCriterion",
-      "version" : "1.0",
+      "version" : "1.1",
       "countryCriterion" : {
         "type" : "TWO_COUNTRY",
         "countries1" : [ "FR" ],
@@ -31,21 +31,21 @@
       }
     }, {
       "type" : "twoWindingsTransformerCriterion",
-      "version" : "1.0",
+      "version" : "1.1",
       "countryCriterion" : {
         "type" : "SINGLE_COUNTRY",
         "countries" : [ "FR", "BE" ]
       }
     }, {
       "type" : "threeWindingsTransformerCriterion",
-      "version" : "1.0",
+      "version" : "1.1",
       "countryCriterion" : {
         "type" : "SINGLE_COUNTRY",
         "countries" : [ "FR", "BE" ]
       }
     }, {
       "type" : "tieLineCriterion",
-      "version" : "1.0",
+      "version" : "1.1",
       "nominalVoltageCriterion" : {
         "type" : "TWO_NOMINAL_VOLTAGE",
         "voltageInterval1" : {
@@ -56,8 +56,8 @@
         }
       }
     }, {
-      "type" : "danglingLineCriterion",
-      "version" : "1.0",
+      "type" : "boundaryLineCriterion",
+      "version" : "1.1",
       "nominalVoltageCriterion" : {
         "type" : "SINGLE_NOMINAL_VOLTAGE",
         "voltageInterval" : {
@@ -84,7 +84,7 @@
     },
     "equipmentCriteria" : [ {
       "type" : "identifierCriterion",
-      "version" : "1.0",
+      "version" : "1.1",
       "identifiers" : [ "NHV1_NHV2_2" ]
     } ],
     "durationCriteria" : [ {
@@ -111,7 +111,7 @@
     },
     "equipmentCriteria" : [ {
       "type" : "identifiableCriterion",
-      "version" : "1.0",
+      "version" : "1.1",
       "countryCriterion" : {
         "type" : "AT_LEAST_ONE_COUNTRY",
         "countries" : [ "FR" ]

@@ -671,6 +671,7 @@ public final class NetworkSerDe {
                 Map.entry(BusSerDe.ARRAY_ELEMENT_NAME, BusSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BusbarSectionSerDe.ARRAY_ELEMENT_NAME, BusbarSectionSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ConnectableSerDeUtil.TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME, ConnectableSerDeUtil.TEMPORARY_LIMITS_ROOT_ELEMENT_NAME),
+                Map.entry(BoundaryLineSerDe.ARRAY_ELEMENT_NAME, BoundaryLineSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(DanglingLineSerDe.ARRAY_ELEMENT_NAME, DanglingLineSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(DcNodeSerDe.ARRAY_ELEMENT_NAME, DcNodeSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(DcGroundSerDe.ARRAY_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME),

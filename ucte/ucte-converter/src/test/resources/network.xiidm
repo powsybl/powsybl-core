@@ -14,18 +14,18 @@
             <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
             </iidm:generator>
-            <iidm:danglingLine id="DL1" name="Dangling Line 1" p0="100.0" q0="50.0" r="1.7" x="16.1" g="0.00001" b="0.000016" generationMinP="-1" generationMaxP="100" generationVoltageRegulationOn="false" generationTargetP="50" generationTargetQ="10"
+            <iidm:boundaryLine id="DL1" name="Dangling Line 1" p0="100.0" q0="50.0" r="1.7" x="16.1" g="0.00001" b="0.000016" generationMinP="-1" generationMaxP="100" generationVoltageRegulationOn="false" generationTargetP="50" generationTargetQ="10"
                                bus="NGEN2" connectableBus="NGEN2">
                 <iidm:minMaxReactiveLimits minQ="-1000.0" maxQ="1000.0"/>
-            </iidm:danglingLine>
-            <iidm:danglingLine id="DL2" name="Dangling Line 1" p0="100.0" q0="50.0" r="1.7" x="16.1" g="0.00001" b="0.000016" generationMinP="-1" generationMaxP="100" generationVoltageRegulationOn="false" generationTargetP="50" generationTargetQ="10"
+            </iidm:boundaryLine>
+            <iidm:boundaryLine id="DL2" name="Dangling Line 1" p0="100.0" q0="50.0" r="1.7" x="16.1" g="0.00001" b="0.000016" generationMinP="-1" generationMaxP="100" generationVoltageRegulationOn="false" generationTargetP="50" generationTargetQ="10"
                                bus="NGEN2" connectableBus="NGEN2" pairingKey="X0000011">
                 <iidm:minMaxReactiveLimits minQ="-1000.0" maxQ="1000.0"/>
-            </iidm:danglingLine>
-            <iidm:danglingLine id="DL3" name="Dangling Line 1" p0="100.0" q0="50.0" r="1.7" x="16.1" g="0.00001" b="0.000016" generationMinP="-1" generationMaxP="100" generationVoltageRegulationOn="false" generationTargetP="50" generationTargetQ="10"
+            </iidm:boundaryLine>
+            <iidm:boundaryLine id="DL3" name="Dangling Line 1" p0="100.0" q0="50.0" r="1.7" x="16.1" g="0.00001" b="0.000016" generationMinP="-1" generationMaxP="100" generationVoltageRegulationOn="false" generationTargetP="50" generationTargetQ="10"
                                bus="NGEN2" connectableBus="NGEN2" pairingKey="X000001$fgnjfn1">
                 <iidm:minMaxReactiveLimits minQ="-1000.0" maxQ="1000.0"/>
-            </iidm:danglingLine>
+            </iidm:boundaryLine>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VLHV1" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
