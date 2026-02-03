@@ -13,10 +13,7 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.math.graph.TraversalType;
-import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.math.graph.UndirectedGraphImpl;
-import com.powsybl.math.graph.UndirectedGraphListener;
+import com.powsybl.math.graph.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -239,29 +236,31 @@ public class DcTopologyModel implements MultiVariantObject {
             // mapping between DC nodes ID and DC buses
             Map<String, DcBusImpl> dcNodeIdToDcBus = new HashMap<>();
 
-            boolean[] encountered = new boolean[graph.getVertexCapacity()];
-            Arrays.fill(encountered, false);
-            for (int v : graph.getVertices()) {
-                if (!encountered[v]) {
-                    final Set<DcNodeImpl> dcNodeSet = new LinkedHashSet<>(1);
-                    dcNodeSet.add(graph.getVertexObject(v));
-                    graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
-                        DcSwitchImpl dcSwitch = graph.getEdgeObject(e);
-                        if (dcSwitch.isOpen()) {
-                            return TraverseResult.TERMINATE_PATH;
-                        } else {
-                            dcNodeSet.add(graph.getVertexObject(v2));
-                            return TraverseResult.CONTINUE;
-                        }
-                    }, encountered);
+            graph.getConnectedComponents(
+                sw -> !sw.isOpen(),
+                new UndirectedGraph.ConnectedComponentCollector<Set<DcNodeImpl>, DcNodeImpl>() {
 
-                    if (isDcBusValid(dcNodeSet)) {
-                        DcBusImpl dcBus = createDcBus(dcNodeSet);
-                        dcBuses.put(dcBus.getId(), dcBus);
-                        dcNodeSet.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
+                    @Override
+                    public Set<DcNodeImpl> createComponent() {
+                        return new LinkedHashSet<>(1);
+                    }
+
+                    @Override
+                    public void addVertex(Set<DcNodeImpl> component, int vertexIndex, DcNodeImpl dcNode) {
+                        component.add(dcNode);
+                    }
+
+                    @Override
+                    public boolean isComponentValid(Set<DcNodeImpl> component) {
+                        return isDcBusValid(component);
                     }
                 }
-            }
+
+            ).forEach(dcNodeSet -> {
+                DcBusImpl dcBus = createDcBus(dcNodeSet);
+                dcBuses.put(dcBus.getId(), dcBus);
+                dcNodeSet.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
+            });
 
             variants.get().cache = new DcBusCache(dcBuses, dcNodeIdToDcBus);
             return variants.get().cache;

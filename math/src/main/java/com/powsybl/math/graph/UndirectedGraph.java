@@ -331,6 +331,18 @@ public interface UndirectedGraph<V, E> {
      */
     boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] verticesEncountered);
 
+    <C> List<C> getConnectedComponents(Predicate<E> isTraversable, ConnectedComponentCollector<C, V> collector);
+
+    interface ConnectedComponentCollector<C, V> {
+        C createComponent();
+
+        void addVertex(C component, int vertexIndex, V vertexObject);
+
+        default boolean isComponentValid(C component) {
+            return true;
+        }
+    }
+
     /**
      * Traverse the entire graph, starting at the specified vertex v.
      * This method allocates a boolean array and calls {@link #traverse(int, TraversalType, Traverser, boolean[])}.
