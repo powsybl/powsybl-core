@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2016-2026, RTE (https://www.rte-france.com)
+/**
+ * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -696,19 +696,23 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             allocateVariantArrayElementForFictitiousValues(fictitiousQ0ByNode, indexes, sourceIndex);
         }
 
-        @Override
-        public boolean hasFictitiousP0() {
-            if (fictitiousP0ByNode.isEmpty()) {
+        private boolean hasFictitiousInjection(TIntObjectMap<TDoubleArrayList> fictitiousInjectionsByNode) {
+            if (fictitiousInjectionsByNode.isEmpty()) {
                 return false;
             }
             int variantIndex = getNetwork().getVariantIndex();
-            for (int node : fictitiousP0ByNode.keys()) {
-                TDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(node);
-                if (p0ByVariant != null && p0ByVariant.get(variantIndex) != 0.0) {
+            for (int node : fictitiousInjectionsByNode.keys()) {
+                TDoubleArrayList fictitiousInjectionByVariant = fictitiousInjectionsByNode.get(node);
+                if (fictitiousInjectionByVariant != null && fictitiousInjectionByVariant.get(variantIndex) != 0.0) {
                     return true;
                 }
             }
             return false;
+        }
+
+        @Override
+        public boolean hasFictitiousP0() {
+            return hasFictitiousInjection(fictitiousP0ByNode);
         }
 
         @Override
@@ -752,17 +756,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public boolean hasFictitiousQ0() {
-            if (fictitiousQ0ByNode.isEmpty()) {
-                return false;
-            }
-            int variantIndex = getNetwork().getVariantIndex();
-            for (int node : fictitiousQ0ByNode.keys()) {
-                TDoubleArrayList p0ByVariant = fictitiousQ0ByNode.get(node);
-                if (p0ByVariant != null && p0ByVariant.get(variantIndex) != 0.0) {
-                    return true;
-                }
-            }
-            return false;
+            return hasFictitiousInjection(fictitiousQ0ByNode);
         }
 
         @Override
