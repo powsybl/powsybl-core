@@ -651,12 +651,10 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 return false;
             }
             int variantIndex = getNetwork().getVariantIndex();
-            for (int i = 0; i < fictitiousP0ByNode.size(); i++) {
-                TDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(i);
-                if (p0ByVariant != null) {
-                    if (p0ByVariant.get(variantIndex) != 0.0) {
-                        return true;
-                    }
+            for (int node : fictitiousP0ByNode.keys()) {
+                TDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(node);
+                if (p0ByVariant != null && p0ByVariant.get(variantIndex) != 0.0) {
+                    return true;
                 }
             }
             return false;
@@ -707,12 +705,10 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 return false;
             }
             int variantIndex = getNetwork().getVariantIndex();
-            for (int i = 0; i < fictitiousQ0ByNode.size(); i++) {
-                TDoubleArrayList q0ByVariant = fictitiousQ0ByNode.get(i);
-                if (q0ByVariant != null) {
-                    if (q0ByVariant.get(variantIndex) != 0.0) {
-                        return true;
-                    }
+            for (int node : fictitiousQ0ByNode.keys()) {
+                TDoubleArrayList p0ByVariant = fictitiousQ0ByNode.get(node);
+                if (p0ByVariant != null && p0ByVariant.get(variantIndex) != 0.0) {
+                    return true;
                 }
             }
             return false;
