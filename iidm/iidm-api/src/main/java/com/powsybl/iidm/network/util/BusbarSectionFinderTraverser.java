@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
@@ -14,7 +15,11 @@ import com.powsybl.math.graph.TraverseResult;
 import java.util.*;
 
 /**
- * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
+ *
+ * Class that provides a traverser to find which busbar section a terminal (connectable) belongs to.
+ * it only works in Node Breaker view
+ *
+ * @author Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
  */
 public final class BusbarSectionFinderTraverser {
 
@@ -26,37 +31,54 @@ public final class BusbarSectionFinderTraverser {
 
     public record BusbarSectionResult(String busbarSectionId, int depth, SwitchInfo lastSwitch, boolean allClosedSwitch) { }
 
+    /**
+     * find the busbar section Id that a terminal (connectable) belongs to.
+     */
     public static String findBusbarSectionId(Terminal terminal) {
+        checkIsNodeBreakerView(terminal.getVoltageLevel());
         BusbarSectionResult result = getBusbarSectionResult(terminal);
-        return result != null ? result.busbarSectionId() : terminal.getVoltageLevel().getNodeBreakerView().getBusbarSections().iterator().next().getId();
-    }
-
-    public static BusbarSectionResult getBusbarSectionResult(Terminal terminal) {
-        int startNode = terminal.getNodeBreakerView().getNode();
-        List<BusbarSectionResult> allResults = searchAllBusbars(terminal.getVoltageLevel(), startNode);
-        if (allResults.isEmpty()) {
+        if (result != null) {
+            return result.busbarSectionId();
+        }
+        if (terminal.getVoltageLevel().getNodeBreakerView().getBusbarSections() == null) {
             return null;
         }
-        return selectBestBusbar(allResults);
+        BusbarSection busbarSection = terminal.getVoltageLevel().getNodeBreakerView().getBusbarSections().iterator().next();
+        return busbarSection == null ? null : busbarSection.getId();
+    }
+
+    /**
+     * provide information on the connexion between a terminal (connectable) and its busbar section.
+     */
+    public static BusbarSectionResult getBusbarSectionResult(Terminal terminal) {
+        checkIsNodeBreakerView(terminal.getVoltageLevel());
+        int startNode = terminal.getNodeBreakerView().getNode();
+        List<BusbarSectionResult> allResults = searchAllBusbars(terminal.getVoltageLevel(), startNode);
+        return allResults.isEmpty() ? null : selectBestBusbar(allResults);
     }
 
     private static BusbarSectionResult selectBestBusbar(List<BusbarSectionResult> results) {
         List<BusbarSectionResult> withAllClosedSwitch = results.stream().filter(r -> r.allClosedSwitch).toList();
+        // all closed switch
         if (!withAllClosedSwitch.isEmpty()) {
-            return withAllClosedSwitch.stream().min(Comparator.comparingInt(BusbarSectionResult::depth)
-                    .thenComparing(BusbarSectionResult::busbarSectionId)).orElse(null);
+            return searchAllBusbars(withAllClosedSwitch);
         }
+        // closed switch
         List<BusbarSectionResult> withClosedSwitch = results.stream().filter(r -> r.lastSwitch() != null && !r.lastSwitch().isOpen()).toList();
         if (!withClosedSwitch.isEmpty()) {
-            return withClosedSwitch.stream().min(Comparator.comparingInt(BusbarSectionResult::depth)
-                    .thenComparing(BusbarSectionResult::busbarSectionId)).orElse(null);
+            return searchAllBusbars(withClosedSwitch);
         }
+        // open switch
         List<BusbarSectionResult> withOpenSwitch = results.stream().filter(r -> r.lastSwitch() != null && r.lastSwitch().isOpen()).toList();
         if (!withOpenSwitch.isEmpty()) {
-            return withOpenSwitch.stream().min(Comparator.comparingInt(BusbarSectionResult::depth)
-                    .thenComparing(BusbarSectionResult::busbarSectionId)).orElse(null);
+            return searchAllBusbars(withOpenSwitch);
         }
         return results.getFirst();
+    }
+
+    private static BusbarSectionResult searchAllBusbars(List<BusbarSectionResult> results) {
+            return results.stream().min(Comparator.comparingInt(BusbarSectionResult::depth)
+                    .thenComparing(BusbarSectionResult::busbarSectionId)).orElse(null);
     }
 
     private static List<BusbarSectionResult> searchAllBusbars(VoltageLevel voltageLevel, int startNode) {
@@ -71,8 +93,8 @@ public final class BusbarSectionFinderTraverser {
                 if (terminal.getVoltageLevel() != voltageLevel) {
                     return TraverseResult.TERMINATE_PATH;
                 }
-                NodeState currentNodeState = visitedNodes.get(terminal.getNodeBreakerView().getNode());
                 if (terminal.getConnectable() instanceof BusbarSection busbarSection) {
+                    NodeState currentNodeState = visitedNodes.get(terminal.getNodeBreakerView().getNode());
                     if (currentNodeState != null) {
                         results.add(new BusbarSectionResult(busbarSection.getId(), currentNodeState.depth, lastSwitch, currentNodeState.allClosed));
                     }
@@ -98,5 +120,11 @@ public final class BusbarSectionFinderTraverser {
             }
         }, TraversalType.BREADTH_FIRST);
         return results;
+    }
+
+    private static void checkIsNodeBreakerView(VoltageLevel voltageLevel) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new PowsyblException("BusbarSectionFinderTraverser only works with Node Breaker view and voltage level " + voltageLevel.getId() + " is not in this topology kind");
+        }
     }
 }
