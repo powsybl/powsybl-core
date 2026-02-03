@@ -22,16 +22,12 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject, Validable {
         /**
          * Returns true if any node has a non-zero fictitious active power injection.
          */
-        default boolean hasFictitiousP0() {
-            return false;
-        }
+        boolean hasFictitiousP0();
 
         /**
          * Returns true if any node has a non-zero fictitious reactive power injection.
          */
-        default boolean hasFictitiousQ0() {
-            return false;
-        }
+        boolean hasFictitiousQ0();
 
     }
 
