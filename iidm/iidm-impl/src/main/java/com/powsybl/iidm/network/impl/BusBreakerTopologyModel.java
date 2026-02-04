@@ -231,7 +231,13 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
             AtomicInteger busNum = new AtomicInteger(0);
 
             graph.getConnectedComponents(
-                sw -> !sw.isOpen(),
+                (v1, e, v2) -> {
+                    SwitchImpl sw = graph.getEdgeObject(e);
+                    if (sw != null && sw.isOpen()) {
+                        return TraverseResult.TERMINATE_PATH;
+                    }
+                    return TraverseResult.CONTINUE;
+                },
                 new UndirectedGraph.ConnectedComponentCollector<Set<ConfiguredBus>, ConfiguredBus>() {
                     @Override
                     public Set<ConfiguredBus> createComponent() {

@@ -331,7 +331,7 @@ public interface UndirectedGraph<V, E> {
      */
     boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] verticesEncountered);
 
-    <C> List<C> getConnectedComponents(Predicate<E> isTraversable, ConnectedComponentCollector<C, V> collector);
+    <C> List<C> getConnectedComponents(Traverser traverser, ConnectedComponentCollector<C, V> collector);
 
     interface ConnectedComponentCollector<C, V> {
         C createComponent();

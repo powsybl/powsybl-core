@@ -279,7 +279,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
 
             graph.getConnectedComponents(
-                sw -> !terminate.test(sw),
+                (v1, e, v2) -> {
+                    SwitchImpl sw = graph.getEdgeObject(e);
+                    if (sw != null && terminate.test(sw)) {
+                        return TraverseResult.TERMINATE_PATH;
+                    }
+                    return TraverseResult.CONTINUE;
+                },
                 new UndirectedGraph.ConnectedComponentCollector<TIntArrayList, NodeTerminal>() {
                     @Override
                     public TIntArrayList createComponent() {

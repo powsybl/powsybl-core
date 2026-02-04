@@ -237,7 +237,13 @@ public class DcTopologyModel implements MultiVariantObject {
             Map<String, DcBusImpl> dcNodeIdToDcBus = new HashMap<>();
 
             graph.getConnectedComponents(
-                sw -> !sw.isOpen(),
+                (v1, e, v2) -> {
+                    DcSwitchImpl sw = graph.getEdgeObject(e);
+                    if (sw != null && sw.isOpen()) {
+                        return TraverseResult.TERMINATE_PATH;
+                    }
+                    return TraverseResult.CONTINUE;
+                },
                 new UndirectedGraph.ConnectedComponentCollector<Set<DcNodeImpl>, DcNodeImpl>() {
 
                     @Override

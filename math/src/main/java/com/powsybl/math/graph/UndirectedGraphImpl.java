@@ -580,8 +580,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public <C> List<C> getConnectedComponents(Predicate<E> isTraversable, ConnectedComponentCollector<C, V> collector) {
-        Objects.requireNonNull(isTraversable);
+    public <C> List<C> getConnectedComponents(Traverser traverser, ConnectedComponentCollector<C, V> collector) {
+        Objects.requireNonNull(traverser);
         Objects.requireNonNull(collector);
 
         List<C> components = new ArrayList<>();
@@ -595,17 +595,14 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 collector.addVertex(component, v, vertex.getObject());
 
                 traverse(v, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
-                    E edgeObject = edges.get(e).getObject();
-                    if (edgeObject == null || isTraversable.test(edgeObject)) {
-                        if (!encountered[v2]) {
-                            Vertex<V> destVertex = vertices.get(v2);
-                            if (destVertex != null) {
-                                collector.addVertex(component, v2, destVertex.getObject());
-                            }
+                    TraverseResult result = traverser.traverse(v1, e, v2);
+                    if (result == TraverseResult.CONTINUE && !encountered[v2]) {
+                        Vertex<V> destVertex = vertices.get(v2);
+                        if (destVertex != null) {
+                            collector.addVertex(component, v2, destVertex.getObject());
                         }
-                        return TraverseResult.CONTINUE;
                     }
-                    return TraverseResult.TERMINATE_PATH;
+                    return result;
                 }, encountered);
 
                 components.add(component);
