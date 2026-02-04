@@ -16,7 +16,7 @@ public class NodeBreakerFictitiousInjectionTest {
 
         bus.setFictitiousP0(10);
         bus.setFictitiousQ0(20);
-        VoltageLevelImpl vl = ((VoltageLevelImpl) network.getVoltageLevel("voltageLevel1"));
+        VoltageLevelImpl vl = (VoltageLevelImpl) network.getVoltageLevel("voltageLevel1");
         assertTrue(vl.getNodeBreakerView().hasFictitiousP0());
         assertTrue(vl.getNodeBreakerView().hasFictitiousQ0());
         assertEquals(10, bus.getFictitiousP0());
