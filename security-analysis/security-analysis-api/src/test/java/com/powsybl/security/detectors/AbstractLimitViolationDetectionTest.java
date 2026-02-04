@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.util.LimitViolationUtils.PERMANENT_LIMIT_NAME;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -34,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public abstract class AbstractLimitViolationDetectionTest {
     protected static Network networkWithFixedLimits;
-    protected static Network networkWithMultipleSelectedFixedLimits;
     protected static Network networkWithFixedLimitsOnDanglingLines;
     protected static Network networkWithCurrentLimitsOn3WT;
     protected static Network networkWithApparentLimitsOn3WT;
@@ -47,7 +47,6 @@ public abstract class AbstractLimitViolationDetectionTest {
     @BeforeAll
     static void setUpClass() {
         networkWithFixedCurrentLimits = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        networkWithMultipleSelectedFixedLimits = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         networkWithFixedLimits = EurostagTutorialExample1Factory.createWithFixedLimits();
         networkWithFixedCurrentLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedCurrentLimitsOnDanglingLines();
         networkWithFixedLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedLimitsOnDanglingLines();
@@ -452,25 +451,6 @@ public abstract class AbstractLimitViolationDetectionTest {
                 });
     }
 
-    @Test
-    void detectTemporaryCurrentLimitOverloadMultipleSelected1() {
-        Line line = networkWithMultipleSelectedFixedLimits.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
-        checkCurrent(line, TwoSides.ONE, 600, violationsCollector::add);
-        Assertions.assertThat(violationsCollector)
-                .hasSize(2)
-                .anySatisfy(l -> {
-                    assertEquals(500, l.getLimit(), 0d);
-                    assertSame(ThreeSides.ONE, l.getSide());
-                    assertEquals(Integer.MAX_VALUE, l.getAcceptableDuration(), 0d);
-                })
-                .anySatisfy(l -> {
-                    assertEquals(300, l.getLimit(), 0d);
-                    assertSame(ThreeSides.ONE, l.getSide());
-                    assertEquals(2400, l.getAcceptableDuration(), 0d);
-                });
-
-    }
-
     @ParameterizedTest
     @MethodSource("provideDetectCurrentLimitArguments")
     void detectCurrentLimit(Network network, String limitsSetId, double currentValue, ExpectedResults expected) {
@@ -561,4 +541,35 @@ public abstract class AbstractLimitViolationDetectionTest {
                 Arguments.of(network, case3, 130., new ExpectedResults("TL", 120., 0)) // over the highest temp limit (TL)
         );
     }
+
+    @ParameterizedTest
+    @MethodSource("provideDetectCurrentLimitMultipleActivatedGroupsArguments")
+    void detectTemporaryCurrentLimitOverloadMultipleSelectedOnLine(Network network, String lineId, double currentValue, List<MultipleActiveExpectedResults> expectedResults) {
+        Line line = network.getLine(lineId);
+        checkCurrent(line, TwoSides.ONE, currentValue, violationsCollector::add);
+        Assertions.assertThat(violationsCollector)
+                .extracting(
+                        LimitViolation::getValue,
+                        LimitViolation::getLimit,
+                        LimitViolation::getAcceptableDuration
+                )
+                .containsExactlyInAnyOrderElementsOf(expectedResults.stream()
+                        .map(r -> tuple(r.value, r.limit, r.acceptableDuration))
+                        .toList());
+    }
+
+    private record MultipleActiveExpectedResults(double value, double limit, Integer acceptableDuration) { }
+
+    private static Stream<Arguments> provideDetectCurrentLimitMultipleActivatedGroupsArguments() {
+        String line1 = EurostagTutorialExample1Factory.NHV1_NHV2_1;
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        return Stream.of(
+                Arguments.of(network, line1, 250, List.of()),
+                Arguments.of(network, line1, 350, List.of(new MultipleActiveExpectedResults(350, 300, 2400))),
+                Arguments.of(network, line1, 600, List.of(
+                        new MultipleActiveExpectedResults(600, 300, 2400),
+                        new MultipleActiveExpectedResults(600, 500, Integer.MAX_VALUE)))
+        );
+    }
+
 }
