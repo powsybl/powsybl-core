@@ -585,19 +585,19 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public <C> List<C> getConnectedComponents(Traverser traverser, ConnectedComponentCollector<C> collector) {
+    public <C> List<C> getConnectedComponents(Traverser traverser, UndirectedGraph.ConnectedComponentCollector<C> collector) {
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(collector);
 
-        List<C> components = new ArrayList<>();
         boolean[] encounteredVertices = new boolean[vertices.size()];
         boolean[] encounteredEdges = new boolean[edges.size()];
+        List<C> components = new ArrayList<>(vertices.size());
 
         for (int v = 0; v < vertices.size(); v++) {
             Vertex<V> vertex = vertices.get(v);
+
             if (vertex != null && !encounteredVertices[v]) {
                 C component = collector.createComponent();
-
                 collector.addVertex(component, v);
 
                 traverse(v, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
@@ -607,7 +607,6 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                     }
                     return result;
                 }, encounteredVertices, encounteredEdges);
-
                 components.add(component);
             }
         }

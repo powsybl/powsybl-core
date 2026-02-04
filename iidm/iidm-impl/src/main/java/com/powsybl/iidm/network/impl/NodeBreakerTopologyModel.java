@@ -278,26 +278,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             Map<String, CalculatedBus> id2bus = new LinkedHashMap<>();
             CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
 
-            graph.getConnectedComponents(
-                (v1, e, v2) -> {
-                    SwitchImpl sw = graph.getEdgeObject(e);
-                    if (sw != null && terminate.test(sw)) {
-                        return TraverseResult.TERMINATE_PATH;
-                    }
-                    return TraverseResult.CONTINUE;
-                },
-                new UndirectedGraph.ConnectedComponentCollector<TIntArrayList>() {
-                    @Override
-                    public TIntArrayList createComponent() {
-                        return new TIntArrayList(1);
-                    }
-
-                    @Override
-                    public void addVertex(TIntArrayList nodes, int nodeIndex) {
-                        nodes.add(nodeIndex);
-                    }
+            graph.getConnectedComponents((v1, e, v2) -> {
+                SwitchImpl sw = graph.getEdgeObject(e);
+                if (sw != null && terminate.test(sw)) {
+                    return TraverseResult.TERMINATE_PATH;
                 }
-            ).stream().filter(nodes -> {
+                return TraverseResult.CONTINUE;
+            }).forEach(nodes -> {
                 CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
                 for (int i = 0; i < nodes.size(); i++) {
                     NodeTerminal terminal = graph.getVertexObject(nodes.getQuick(i));
@@ -305,22 +292,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                         terminals.add(terminal);
                     }
                 }
-                return getBusChecker().isValid(graph, nodes, terminals);
-            }).forEach(nodes -> {
-                String busId = Identifiables.getUniqueId(
-                    NAMING_STRATEGY.getId(voltageLevel, nodes),
-                    getNetwork().getIndex()::contains
-                );
-                CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
-                for (int i = 0; i < nodes.size(); i++) {
-                    int nodeIndex = nodes.getQuick(i);
-                    NodeTerminal terminal = graph.getVertexObject(nodeIndex);
-                    if (terminal != null) {
-                        terminals.add(terminal);
-                    }
+                if (getBusChecker().isValid(graph, nodes, terminals)) {
+                    String busId = Identifiables.getUniqueId(
+                        NAMING_STRATEGY.getId(voltageLevel, nodes),
+                        getNetwork().getIndex()::contains
+                    );
+                    addBus(nodes, id2bus, node2bus, busId, terminals);
                 }
-
-                addBus(nodes, id2bus, node2bus, busId, terminals);
             });
 
             busCache = new BusCache(node2bus, id2bus);

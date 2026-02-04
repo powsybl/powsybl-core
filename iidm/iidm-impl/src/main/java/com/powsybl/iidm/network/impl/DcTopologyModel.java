@@ -245,7 +245,6 @@ public class DcTopologyModel implements MultiVariantObject {
                     return TraverseResult.CONTINUE;
                 },
                 new UndirectedGraph.ConnectedComponentCollector<Set<DcNodeImpl>>() {
-
                     @Override
                     public Set<DcNodeImpl> createComponent() {
                         return new LinkedHashSet<>(1);
@@ -259,7 +258,6 @@ public class DcTopologyModel implements MultiVariantObject {
                         }
                     }
                 }
-
             ).stream().filter(CalculatedDcBusTopology::isDcBusValid).forEach(dcNodeSet -> {
                 DcBusImpl dcBus = createDcBus(dcNodeSet);
                 dcBuses.put(dcBus.getId(), dcBus);
