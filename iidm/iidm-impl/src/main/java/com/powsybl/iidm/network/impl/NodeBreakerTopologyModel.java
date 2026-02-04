@@ -286,14 +286,14 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                     }
                     return TraverseResult.CONTINUE;
                 },
-                new UndirectedGraph.ConnectedComponentCollector<TIntArrayList, NodeTerminal>() {
+                new UndirectedGraph.ConnectedComponentCollector<TIntArrayList>() {
                     @Override
                     public TIntArrayList createComponent() {
                         return new TIntArrayList(1);
                     }
 
                     @Override
-                    public void addVertex(TIntArrayList nodes, int nodeIndex, NodeTerminal terminal) {
+                    public void addVertex(TIntArrayList nodes, int nodeIndex) {
                         nodes.add(nodeIndex);
                     }
                 }

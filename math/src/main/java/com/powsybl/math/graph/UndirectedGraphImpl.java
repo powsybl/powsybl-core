@@ -540,7 +540,6 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices) {
         checkVertex(v);
-        Objects.requireNonNull(traverser);
         Objects.requireNonNull(encounteredVertices);
 
         if (encounteredVertices.length < vertices.size()) {
@@ -548,6 +547,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
 
         boolean[] encounteredEdges = new boolean[edges.size()];
+        return traverse(v, traversalType, traverser, encounteredVertices, encounteredEdges);
+    }
+
+    private boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices, boolean[] encounteredEdges) {
+        Objects.requireNonNull(traverser);
+
         TIntArrayList[] adjacencyList = getAdjacencyList();
         boolean keepGoing = true;
 
@@ -580,30 +585,28 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public <C> List<C> getConnectedComponents(Traverser traverser, ConnectedComponentCollector<C, V> collector) {
+    public <C> List<C> getConnectedComponents(Traverser traverser, ConnectedComponentCollector<C> collector) {
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(collector);
 
         List<C> components = new ArrayList<>();
-        boolean[] encountered = new boolean[vertices.size()];
+        boolean[] encounteredVertices = new boolean[vertices.size()];
+        boolean[] encounteredEdges = new boolean[edges.size()];
 
         for (int v = 0; v < vertices.size(); v++) {
             Vertex<V> vertex = vertices.get(v);
-            if (vertex != null && !encountered[v]) {
+            if (vertex != null && !encounteredVertices[v]) {
                 C component = collector.createComponent();
 
-                collector.addVertex(component, v, vertex.getObject());
+                collector.addVertex(component, v);
 
                 traverse(v, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
                     TraverseResult result = traverser.traverse(v1, e, v2);
-                    if (result == TraverseResult.CONTINUE && !encountered[v2]) {
-                        Vertex<V> destVertex = vertices.get(v2);
-                        if (destVertex != null) {
-                            collector.addVertex(component, v2, destVertex.getObject());
-                        }
+                    if (result == TraverseResult.CONTINUE && !encounteredVertices[v2]) {
+                        collector.addVertex(component, v2);
                     }
                     return result;
-                }, encountered);
+                }, encounteredVertices, encounteredEdges);
 
                 components.add(component);
             }

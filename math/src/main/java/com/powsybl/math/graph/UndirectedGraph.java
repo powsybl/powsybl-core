@@ -328,15 +328,17 @@ public interface UndirectedGraph<V, E> {
      *                           </ul>
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
+     * @deprecated Use {@link #getConnectedComponents(Traverser, ConnectedComponentCollector)} or {@link #traverse(int, TraversalType, Traverser)} instead.
      */
+    @Deprecated(since = "7.2.0")
     boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] verticesEncountered);
 
-    <C> List<C> getConnectedComponents(Traverser traverser, ConnectedComponentCollector<C, V> collector);
+    <C> List<C> getConnectedComponents(Traverser traverser, ConnectedComponentCollector<C> collector);
 
-    interface ConnectedComponentCollector<C, V> {
+    interface ConnectedComponentCollector<C> {
         C createComponent();
 
-        void addVertex(C component, int vertexIndex, V vertexObject);
+        void addVertex(C component, int vertexIndex);
     }
 
     /**

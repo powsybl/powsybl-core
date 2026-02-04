@@ -238,15 +238,18 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
                     }
                     return TraverseResult.CONTINUE;
                 },
-                new UndirectedGraph.ConnectedComponentCollector<Set<ConfiguredBus>, ConfiguredBus>() {
+                new UndirectedGraph.ConnectedComponentCollector<Set<ConfiguredBus>>() {
                     @Override
                     public Set<ConfiguredBus> createComponent() {
                         return new LinkedHashSet<>(1);
                     }
 
                     @Override
-                    public void addVertex(Set<ConfiguredBus> component, int vertexIndex, ConfiguredBus bus) {
-                        component.add(bus);
+                    public void addVertex(Set<ConfiguredBus> component, int vertexIndex) {
+                        ConfiguredBus bus = graph.getVertexObject(vertexIndex);
+                        if (bus != null) {
+                            component.add(bus);
+                        }
                     }
                 }
             ).stream().filter(this::isBusValid).forEach(busSet -> {

@@ -244,7 +244,7 @@ public class DcTopologyModel implements MultiVariantObject {
                     }
                     return TraverseResult.CONTINUE;
                 },
-                new UndirectedGraph.ConnectedComponentCollector<Set<DcNodeImpl>, DcNodeImpl>() {
+                new UndirectedGraph.ConnectedComponentCollector<Set<DcNodeImpl>>() {
 
                     @Override
                     public Set<DcNodeImpl> createComponent() {
@@ -252,8 +252,11 @@ public class DcTopologyModel implements MultiVariantObject {
                     }
 
                     @Override
-                    public void addVertex(Set<DcNodeImpl> component, int vertexIndex, DcNodeImpl dcNode) {
-                        component.add(dcNode);
+                    public void addVertex(Set<DcNodeImpl> component, int vertexIndex) {
+                        DcNodeImpl dcNode = graph.getVertexObject(vertexIndex);
+                        if (dcNode != null) {
+                            component.add(dcNode);
+                        }
                     }
                 }
 
