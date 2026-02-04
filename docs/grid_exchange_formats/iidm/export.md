@@ -20,20 +20,20 @@ The `iidm.export.xml.anonymised` property is an optional property that defines w
 
 **iidm.export.xml.topology-level**<br>
 The `iidm.export.xml.topology-level` property is an optional property that defines the most detailed topology in which the XIIDM exporter can export the network. The topology level can be:
-- `NODE_BREAKER`: the voltage levels are exported using the [Node/Breaker view](). Voltage levels described in Bus/Breaker topology are exported using the [Bus/Breaker view]().
-- `BUS_BREAKER`: all voltage levels are all exported using the [Bus/Breaker view]()
-- `BUS_BRANCH`:  all voltage levels are exported using the [Bus view]()
+- `NODE_BREAKER`: the voltage levels are exported using the Node/Breaker view. Voltage levels described in Bus/Breaker topology are exported using the Bus/Breaker view.
+- `BUS_BREAKER`: all voltage levels are all exported using the Bus/Breaker view
+- `BUS_BRANCH`:  all voltage levels are exported using the Bus view
 
 The default value is `NODE_BREAKER` to export all voltage levels in the same level of details than the one they are described.
 
 **iidm.export.xml.topology-level.voltage-levels.node-breaker**<br>
-The `iidm.export.xml.topology-level.voltage-levels.node-breaker` property is an optional property that defines a list of voltage level IDs to be exported using the [Node/Breaker view]() by the IIDM exporter. Note: if the voltage level is described using a lower detailed topology (Bus/Breaker or Bus/Branch), it will be exported using the Bus/Breaker (or Bus/Branch) view (Node/Breaker is not possible since the voltage level has not enough details).
+The `iidm.export.xml.topology-level.voltage-levels.node-breaker` property is an optional property that defines a list of voltage level IDs to be exported using the Node/Breaker view by the IIDM exporter. Note: if the voltage level is described using a lower detailed topology (Bus/Breaker or Bus/Branch), it will be exported using the Bus/Breaker (or Bus/Branch) view (Node/Breaker is not possible since the voltage level has not enough details).
 
 **iidm.export.xml.topology-level.voltage-levels.bus-breaker**<br>
-The `iidm.export.xml.topology-level.voltage-levels.bus-breaker` property is an optional property that defines a list of voltage level IDs to be exported using the [Bus/Breaker view]() by the IIDM exporter.
+The `iidm.export.xml.topology-level.voltage-levels.bus-breaker` property is an optional property that defines a list of voltage level IDs to be exported using the Bus/Breaker view by the IIDM exporter.
 
 **iidm.export.xml.topology-level.voltage-levels.bus-branch**<br>
-The `iidm.export.xml.topology-level.voltage-levels.bus-branch` property is an optional property that defines a list of voltage level IDs to be exported using the [Bus/Branch view]() by the IIDM exporter.
+The `iidm.export.xml.topology-level.voltage-levels.bus-branch` property is an optional property that defines a list of voltage level IDs to be exported using the Bus/Branch view by the IIDM exporter.
 
 **iidm.export.xml.throw-exception-if-extension-not-found**<br>
 The `iidm.export.xml.throw-exception-if-extension-not-found` property is an optional property that defines whether the XIIDM exporter throws an exception if the network contains an unknown or unserializable extension or if it just ignores it. Its default value is `false`.
