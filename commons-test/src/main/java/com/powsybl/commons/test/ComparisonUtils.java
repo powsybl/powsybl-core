@@ -17,6 +17,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,6 +54,22 @@ public final class ComparisonUtils {
     public static void assertTxtEquals(InputStream expected, InputStream actual) {
         try {
             assertTxtEquals(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void assertMismatch(InputStream expected, InputStream actual) {
+        try {
+            byte[] expectedBytes = expected.readAllBytes();
+            byte[] actualBytes = actual.readAllBytes();
+            int mismatch = Arrays.mismatch(expectedBytes, actualBytes);
+            assertEquals(-1L, mismatch, "Mismatch byte " + mismatch);
+            if (mismatch == -1L) {
+                System.out.println("Files are identical.");
+            } else {
+                System.out.println("Mismatch found at byte position: " + mismatch);
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -98,6 +115,14 @@ public final class ComparisonUtils {
     public static void assertTxtEquals(String expected, String actual) {
         String expectedStr = TestUtil.normalizeLineSeparator(expected);
         String actualStr = TestUtil.normalizeLineSeparator(actual);
+
+        // FIXME ensure it ends with exactly one newline
+        if (!expectedStr.endsWith("\n")) {
+            expectedStr += "\n";
+        }
+        if (!actualStr.endsWith("\n")) {
+            actualStr += "\n";
+        }
         assertEquals(expectedStr, actualStr);
     }
 
