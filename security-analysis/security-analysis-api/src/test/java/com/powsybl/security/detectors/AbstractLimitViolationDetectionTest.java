@@ -568,7 +568,31 @@ public abstract class AbstractLimitViolationDetectionTest {
                 Arguments.of(network, line1, 350, List.of(new MultipleActiveExpectedResults(350, 300, 2400))),
                 Arguments.of(network, line1, 600, List.of(
                         new MultipleActiveExpectedResults(600, 300, 2400),
-                        new MultipleActiveExpectedResults(600, 500, Integer.MAX_VALUE)))
+                        new MultipleActiveExpectedResults(600, 500, Integer.MAX_VALUE))),
+                Arguments.of(network, line1, 812, List.of(
+                        new MultipleActiveExpectedResults(812, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(812, 700, 30)
+                )),
+                Arguments.of(network, line1, 1150, List.of(
+                        new MultipleActiveExpectedResults(1150, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1150, 1100, 600),
+                        new MultipleActiveExpectedResults(1150, 700, 30)
+                )),
+                Arguments.of(network, line1, 1400, List.of(
+                        new MultipleActiveExpectedResults(1400, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1400, 1200, 60),
+                        new MultipleActiveExpectedResults(1400, 700, 30)
+                )),
+                Arguments.of(network, line1, 1550, List.of(
+                        new MultipleActiveExpectedResults(1550, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1550, 1500, 0),
+                        new MultipleActiveExpectedResults(1550, 700, 30)
+                )),
+                Arguments.of(network, line1, 1601, List.of(
+                        new MultipleActiveExpectedResults(1601, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1601, 1500, 0),
+                        new MultipleActiveExpectedResults(1601, 1600, 0)
+                ))
         );
     }
 
