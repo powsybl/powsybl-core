@@ -8,8 +8,7 @@
                 <iidm:bus id="C_0" v="234.40912" angle="0.0"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="N" nominalV="225.0" lowVoltageLimit="220.0" highVoltageLimit="245.00002"
-                           topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="N" nominalV="225.0" lowVoltageLimit="220.0" highVoltageLimit="245.00002" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="N_0" v="236.44736" angle="15.250391"/>
                 <iidm:bus id="N_3"/>
@@ -28,9 +27,7 @@
                     <iidm:point p="80.0" minQ="-53.514" maxQ="36.4"/>
                 </iidm:reactiveCapabilityCurve>
             </iidm:generator>
-            <iidm:generator id="CD" energySource="HYDRO" minP="0.0" maxP="35.0" voltageRegulatorOn="true"
-                            targetP="21.789589" targetV="236.44736" targetQ="-20.701546" bus="N_0" connectableBus="N_0"
-                            p="-21.789589" q="20.693394">
+            <iidm:generator id="CD" energySource="HYDRO" minP="0.0" maxP="35.0" voltageRegulatorOn="true" targetP="21.789589" targetV="236.44736" targetQ="-20.701546" bus="N_0" connectableBus="N_0" p="-21.789589" q="20.693394">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-20.6" maxQ="18.1"/>
                     <iidm:point p="35.0" minQ="-21.725" maxQ="6.3500004"/>
