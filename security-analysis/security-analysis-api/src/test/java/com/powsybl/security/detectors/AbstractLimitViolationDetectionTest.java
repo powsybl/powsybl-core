@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public abstract class AbstractLimitViolationDetectionTest {
     protected static Network networkWithFixedLimits;
+    protected static Network networkWithMultipleSelectedFixedLimits;
     protected static Network networkWithFixedLimitsOnDanglingLines;
     protected static Network networkWithCurrentLimitsOn3WT;
     protected static Network networkWithApparentLimitsOn3WT;
@@ -46,6 +47,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     @BeforeAll
     static void setUpClass() {
         networkWithFixedCurrentLimits = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        networkWithMultipleSelectedFixedLimits = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         networkWithFixedLimits = EurostagTutorialExample1Factory.createWithFixedLimits();
         networkWithFixedCurrentLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedCurrentLimitsOnDanglingLines();
         networkWithFixedLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedLimitsOnDanglingLines();
@@ -450,6 +452,25 @@ public abstract class AbstractLimitViolationDetectionTest {
                 });
     }
 
+    @Test
+    void detectTemporaryCurrentLimitOverloadMultipleSelected1() {
+        Line line = networkWithMultipleSelectedFixedLimits.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        checkCurrent(line, TwoSides.ONE, 600, violationsCollector::add);
+        Assertions.assertThat(violationsCollector)
+                .hasSize(2)
+                .anySatisfy(l -> {
+                    assertEquals(500, l.getLimit(), 0d);
+                    assertSame(ThreeSides.ONE, l.getSide());
+                    assertEquals(Integer.MAX_VALUE, l.getAcceptableDuration(), 0d);
+                })
+                .anySatisfy(l -> {
+                    assertEquals(300, l.getLimit(), 0d);
+                    assertSame(ThreeSides.ONE, l.getSide());
+                    assertEquals(2400, l.getAcceptableDuration(), 0d);
+                });
+
+    }
+
     @ParameterizedTest
     @MethodSource("provideDetectCurrentLimitArguments")
     void detectCurrentLimit(Network network, String limitsSetId, double currentValue, ExpectedResults expected) {
@@ -540,5 +561,4 @@ public abstract class AbstractLimitViolationDetectionTest {
                 Arguments.of(network, case3, 130., new ExpectedResults("TL", 120., 0)) // over the highest temp limit (TL)
         );
     }
-
 }
