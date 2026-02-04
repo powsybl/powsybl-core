@@ -249,14 +249,9 @@ public class DcTopologyModel implements MultiVariantObject {
                     public void addVertex(Set<DcNodeImpl> component, int vertexIndex, DcNodeImpl dcNode) {
                         component.add(dcNode);
                     }
-
-                    @Override
-                    public boolean isComponentValid(Set<DcNodeImpl> component) {
-                        return isDcBusValid(component);
-                    }
                 }
 
-            ).forEach(dcNodeSet -> {
+            ).stream().filter(CalculatedDcBusTopology::isDcBusValid).forEach(dcNodeSet -> {
                 DcBusImpl dcBus = createDcBus(dcNodeSet);
                 dcBuses.put(dcBus.getId(), dcBus);
                 dcNodeSet.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));

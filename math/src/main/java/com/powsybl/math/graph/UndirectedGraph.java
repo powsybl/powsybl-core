@@ -337,10 +337,6 @@ public interface UndirectedGraph<V, E> {
         C createComponent();
 
         void addVertex(C component, int vertexIndex, V vertexObject);
-
-        default boolean isComponentValid(C component) {
-            return true;
-        }
     }
 
     /**

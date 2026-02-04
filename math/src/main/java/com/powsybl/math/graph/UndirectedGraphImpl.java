@@ -608,9 +608,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                     return TraverseResult.TERMINATE_PATH;
                 }, encountered);
 
-                if (collector.isComponentValid(component)) {
-                    components.add(component);
-                }
+                components.add(component);
             }
         }
         return components;

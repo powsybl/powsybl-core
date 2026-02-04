@@ -242,13 +242,8 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
                     public void addVertex(Set<ConfiguredBus> component, int vertexIndex, ConfiguredBus bus) {
                         component.add(bus);
                     }
-
-                    @Override
-                    public boolean isComponentValid(Set<ConfiguredBus> component) {
-                        return isBusValid(component);
-                    }
                 }
-            ).forEach(busSet -> {
+            ).stream().filter(this::isBusValid).forEach(busSet -> {
                 MergedBus mergedBus = createMergedBus(busNum.getAndIncrement(), busSet);
                 mergedBuses.put(mergedBus.getId(), mergedBus);
                 busSet.forEach(bus -> mapping.put(bus, mergedBus));

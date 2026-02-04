@@ -290,20 +290,17 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                     public void addVertex(TIntArrayList nodes, int nodeIndex, NodeTerminal terminal) {
                         nodes.add(nodeIndex);
                     }
-
-                    @Override
-                    public boolean isComponentValid(TIntArrayList nodes) {
-                        CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
-                        for (int i = 0; i < nodes.size(); i++) {
-                            NodeTerminal terminal = graph.getVertexObject(nodes.getQuick(i));
-                            if (terminal != null) {
-                                terminals.add(terminal);
-                            }
-                        }
-                        return getBusChecker().isValid(graph, nodes, terminals);
+                }
+            ).stream().filter(nodes -> {
+                CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
+                for (int i = 0; i < nodes.size(); i++) {
+                    NodeTerminal terminal = graph.getVertexObject(nodes.getQuick(i));
+                    if (terminal != null) {
+                        terminals.add(terminal);
                     }
                 }
-            ).forEach(nodes -> {
+                return getBusChecker().isValid(graph, nodes, terminals);
+            }).forEach(nodes -> {
                 String busId = Identifiables.getUniqueId(
                     NAMING_STRATEGY.getId(voltageLevel, nodes),
                     getNetwork().getIndex()::contains
