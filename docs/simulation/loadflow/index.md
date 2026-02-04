@@ -41,8 +41,8 @@ active power (zero MW if slack distribution is disabled).
 ## Implementations
 
 The following power flow implementations are supported:
-- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#index)
-- [Dynaflow](inv:powsybldynawo:*:*#index)
+- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#loadflow/loadflow)
+- [Dynaflow](inv:powsybldynawo:*:*#load_flow/index)
 
 ## Going further
 - [Run a power flow through an iTools command](../../user/itools/loadflow.md): Learn how to perform a power flow calculation from the command line
