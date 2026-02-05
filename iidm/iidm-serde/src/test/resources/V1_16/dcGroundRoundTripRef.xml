@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="dcGroundTest" caseDate="2025-01-02T03:04:05.000+01:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:dcNode id="dcNode" nominalV="500.0"/>
+    <iidm:dcGround id="dcGroundWithoutSolvedV" name="A DC Ground without solved values" fictitious="true" dcNode="dcNode" r="0.1" connected="false">
+        <iidm:alias>someAlias</iidm:alias>
+        <iidm:property name="prop name" value="prop value"/>
+    </iidm:dcGround>
+    <iidm:dcGround id="dcGroundWithSolvedValues" name="A DC Ground with solved values" dcNode="dcNode" r="2.0" connected="true" dcP="1.1" dcI="2.2"/>
+</iidm:network>

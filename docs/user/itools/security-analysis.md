@@ -39,37 +39,37 @@ Allowed EXTENSIONS values are []
 
 ### Required arguments
 
-`--case-file`  
+`--case-file`<br>
 This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
 ### Optional arguments
 
-`--contingencies-file`  
+`--contingencies-file`<br>
 This option defines the path of the contingency files. If this parameter is not set, the security violations are checked on the base state only. This file is a groovy script that respects the [contingency DSL](../../simulation/security/contingency-dsl.md) syntax.
 
-`--external`  
+`--external`<br>
 <span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.
 
 
-`--import-parameters`  
+`--import-parameters`<br>
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
-`--limit-types`  
+`--limit-types`<br>
 This option allows filtering certain types of violations. It overrides the default configuration defined in the [limit-violation-default-filter](../configuration/limit-violation-default-filter.md) configuration module. The supported types are the following: `CURRENT`, `LOW_VOLTAGE`, `HIGH_VOLTAGE`, `LOW_SHORT_CIRCUIT_CURRENT`, `HIGH_SHORT_CIRCUIT_CURRENT` and `OTHER`.
 
-`--log-file`  
+`--log-file`<br>
 <span style="color: red">TODO</span>
 
-`--output-file`  
+`--output-file`<br>
 This option defines the path of the result file. If this option is not set, the results are printed to the console.
 
-`--output-format`
-This option defines the format of the output file. This option is required if the `--output-file` is set. The only supported format is `JSON`.  
+`--output-format`<br>
+This option defines the format of the output file. This option is required if the `--output-file` is set. The only supported format is `JSON`.
 
-`--parameters-file`  
-This option defines the path of the [parameters](#parameters) file of the simulation. If this option is not used, the simulation is run with the default parameters. 
+`--parameters-file`<br>
+This option defines the path of the [parameters](#parameters) file of the simulation. If this option is not used, the simulation is run with the default parameters.
 
-`--with-extensions`  
+`--with-extensions`<br>
 This option defines the list of extensions to complete the simulation results with additional data. The available extensions are listed in the usage of the command.
 
 ## Simulators
@@ -104,7 +104,7 @@ Pre-contingency violations:
 ```
 
 ### Example 2
-The following example shows how to run a security analysis simulation to detect the post-contingency violations status of a given network and a set of contingencies.  
+The following example shows how to run a security analysis simulation to detect the post-contingency violations status of a given network and a set of contingencies.
 
 **Content of the contingencies.groovy file:**``
 ```

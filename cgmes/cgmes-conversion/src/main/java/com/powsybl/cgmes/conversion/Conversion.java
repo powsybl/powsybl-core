@@ -270,6 +270,7 @@ public class Conversion {
 
     private void updateWithAllInputs(Network network, ReportNode reportNode, Context importContext) {
         if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
+            CgmesReports.noInputsForUpdateReport(reportNode);
             // Remove all properties and aliases, this will invalidate all subsequent updates
             if (importContext.config().getRemovePropertiesAndAliasesAfterImport()) {
                 removeAllAliasesAndProperties(network);
