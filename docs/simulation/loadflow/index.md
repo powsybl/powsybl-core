@@ -29,7 +29,7 @@ The load flow simulation outputs consists of:
 - A network, which has been modified based on the simulation results. The modified variables are the active and reactive
 power at the terminals, the voltage magnitude and voltage angle at all buses, the solved tap changers positions, the
 solved shunt compensator sections.
-- A global status indicating if the simulation succeeded for all synchronous components (`Fully Converged` status), or for 
+- A global status indicating if the simulation succeeded for all synchronous components (`Fully Converged` status), or for
 only some of them (`Partially Converged` status), or for none of them (`Failed` status).
 - Detailed results per synchronous component: a convergence status, the number of iterations (could be equal to `-1` if
 not relevant for a specific implementation), the selected reference bus (voltage angle reference), the selected slack buses
@@ -41,8 +41,8 @@ active power (zero MW if slack distribution is disabled).
 ## Implementations
 
 The following power flow implementations are supported:
-- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#index)
-- [Dynaflow](inv:powsybldynawo:*:*#index)
+- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#loadflow/loadflow)
+- [Dynaflow](inv:powsybldynawo:*:*#load_flow/index)
 
 ## Going further
 - [Run a power flow through an iTools command](../../user/itools/loadflow.md): Learn how to perform a power flow calculation from the command line
