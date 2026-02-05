@@ -136,7 +136,7 @@ The mapping of an `EquivalentInjection` depends on its location relative to the 
 
 If the `EquivalentInjection` is outside the boundary area, it will be mapped to a PowSyBl `Generator`.
 
-If the `EquivalentInjection` is at the boundary area, its regulating voltage data will be mapped to the generation data inside the PowSyBl `DanglingLine` created at the boundary point and its values for `P`, `Q` will be used to define the DanglingLine `P0`, `Q0`. Please note that the said `DanglingLine` can be created from an [`ACLineSegment`](#aclinesegment), a [`Switch`](#switch-switch-breaker-disconnector-loadbreakswitch-protectedswitch-grounddisconnector),
+If the `EquivalentInjection` is at the boundary area, its regulating voltage data will be mapped to the generation data inside the PowSyBl `DanglingLine` created at the boundary point and its values for `P`, `Q` will be used to define the DanglingLine `P0`, `Q0`. Please note that the said `DanglingLine` can be created from an [`ACLineSegment`](#aclinesegment), a [`Switch`](#switch-switch-breaker-disconnector-loadbreakswitch-protectedswitch-grounddisconnector-jumper),
 an [`EquivalentBranch`](#equivalentbranch) or a [`PowerTransformer`](#powertransformer).
 
 Attributes of the PowSyBl generator or of the PowSyBl dangling line generation are created as such:
@@ -251,6 +251,8 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
   - If it is a `SolarGeneratingUnit`, `EnergySource` is `SOLAR`
   - Else, `EnergySource` is `OTHER`
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, `TargetP` is set from CGMES `GeneratingUnit.initialP` from the `GeneratingUnit` associated to the `SynchronousMachine` and `TargetQ` is set to `0`.
+- `isCondenser` is defined from the `SynchronousMachine.type`. If it contains `condenser` (`condenser`,
+`generatorOrCondenser`, `motorOrCondenser`, `generatorOrMotorOrCondenser`), then the flag is set to `true`. Otherwise, it is set to `false`.
 
 <span style="color: red">TODO reactive limits</span>
 
@@ -320,7 +322,7 @@ OperationalLimits model a specification of limits associated with equipments.
 
 A CGMES `OperationalLimitSet` is a set of `OperationalLimit` associated with equipment or terminal. It is mapped to a PowSyBl [`OperationalLimitsGroup`](../../grid_model/additional.md#limit-group-collection).
 
-Just like CGMES allows to attach multiple `OperationalLimitSet` on the same equipment or terminal, PowSyBl stores a collection of `OperationalLimitsGroup` for every 
+Just like CGMES allows to attach multiple `OperationalLimitSet` on the same equipment or terminal, PowSyBl stores a collection of `OperationalLimitsGroup` for every
 [`Line`](../../grid_model/network_subnetwork.md#line) side, [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) and [`ThreeWindingTransformer.Leg`](../../grid_model/network_subnetwork.md#three-winding-transformer-leg).
 
 The same way a CGMES `OperationalLimitSet` may contain `OperationalLimit` of different subclasses, a PowSyBl `OperationalLimitsGroup` may have multipe non-null `LoadingLimits`.
@@ -331,8 +333,8 @@ If there is only one `OperationalLimitsGroup` on an end, it automatically gets t
 
 A CGMES `OperationalLimit` is an abstract class that represent different kinds of limits: current, active power or apparent power.
 The collection of the same subclass of CGMES `OperationalLimit` in the set is mapped to a PowSyBl [`LoadingLimits`](../../grid_model/additional.md#loading-limits) as follows:
-- The collection of CGMES `CurrentLimit` in the `OperationalLimitSet` is mapped to the `currentLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
-- The collection of CGMES `ActivePowerLimit` in the `OperationalLimitSet` is mapped to the `activePowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
+- The collection of CGMES `CurrentLimit` in the `OperationalLimitSet` is mapped to the `currentLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set.
+- The collection of CGMES `ActivePowerLimit` in the `OperationalLimitSet` is mapped to the `activePowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set.
 - The collection of CGMES `ApparentPowerLimit` in the `OperationalLimitSet` is mapped to the `apparentPowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set.
 
 A particular CGMES `OperationalLimit` is mapped differently depending on its associated CGMES `OperationalLimitType`:
@@ -445,22 +447,24 @@ CGMES control areas (objects of class `ControlArea`) are mapped directly to PowS
 
 The control area CGMES `type` is copied as a string in the `areaType` attribute of the PowSyBl `Area`. The CGMES `netInterchange` is copied to the PowSyBl `interchangeTarget`. If CGMES `pTolerance` is defined, its value is copied to a new property named `pTolerance`. Finally, if an attribute `entsoe:IdentifiedObject.energyIdentCodeEic` is found for the CGMES control area, it is added as an alias with `aliasType == "energyIdentCodeEic"`.
 
-The CGMES control area tie flows (objects of class `TieFlow`) are mapped to PowSyBl `Area` boundary items. 
+The CGMES control area tie flows (objects of class `TieFlow`) are mapped to PowSyBl `Area` boundary items.
 Boundary items can be terminals (if the corresponding CGMES point can be mapped to a PowSyBl `Terminal`) or boundaries, when the corresponding CGMES point is the boundary side of a dangling line in PowSyBl.
 
-(cgmes-dc-subnetwork-import)=
-### DC subnetwork
+(cgmes-reduced-dc-model-import)=
+### Reduced DC model
 
-PowSyBl currently supports the following DC configurations for CGMES import:
+The reduced DC model allows the support of the following simple DC configurations:
 - Monopole with ground return.
 - Monopole with metallic return.
 - Bipole with dedicated metallic return (DMR).
 - Bipole without DMR.
 
-In the above point-to-point configurations, each converter in a CGMES `DCConverterUnit` can be modeled with 
+In the above point-to-point configurations, each `DCConverterUnit` can contain
 1 CGMES `ACDCConverter` (1* 12-pulse bridge) or 2 CGMES `ACDCConverter` (2* 6-pulses bridges).
-Other configurations, such as back-to-back or multi-terminal aren't supported.
-Hybrid configurations using `VsConverter` on one side and `CsConverter` on the other side aren't supported either.
+
+Other configurations such as back-to-back, multi-terminal or hybrid aren't supported with the reduced DC model.
+If one of these complex DC configurations is to be imported, it is required to set the optional parameter
+`iidm.import.cgmes.use-detailed-dc-model` to `true`.
 
 Each valid DC configuration is mapped to PowSyBl as follows:
 - 1 CGMES `ACDCConverter` is always mapped to 1 PowSyBl `HvdcConverterStation`:
@@ -539,6 +543,62 @@ The PowSyBl `LccConverterStation` `PowerFactor` is calculated from the CGMES SSH
   - $PowerFactor = \frac{p}{\sqrt{p² + q²}}$
   - In case the calculations can't be evaluated, for example in the case of an EQ only import, the default value is `0.8`.
 
+
+(cgmes-detailed-dc-model-import)=
+### Detailed DC model
+
+In order to import CGMES DC objects into the IIDM detailed DC model, it is required to set the optional parameter
+`iidm.import.cgmes.use-detailed-dc-model` to `true`.
+
+The following CGMES classes are read and imported: `DCNode`, `DCTopologicalNode`, `DCLineSegment`, `DCSwitch`, `DCBreaker`, `DCDisconnector`,
+`DCGround`, `CsConverter`, `VsConverter`.
+
+#### DCNode, DCTopologicalNode
+
+If the CGMES model is a node/breaker one, then CGMES `DCNode` are imported into PowSyBl [`DC Node`](../../grid_model/network_subnetwork.md#dc-node),
+and CGMES `DCTopologicalNode` are discarded. If the CGMES model is a bus/branch one, then CGMES `DCTopologicalNode` are imported into PowSyBl `DcNode`.
+Attribute mapping is:
+- `NominalV` is copied from EQ `ratedUdc` of a CGMES `ACDCConverter` which is located in the same `DCConverterUnit` as the `DCNode`.
+
+#### DCLineSegment
+
+CGMES `DCLineSegment` are imported into PowSyBl [`DC Line`](../../grid_model/network_subnetwork.md#dc-line), with attribute:
+- `R` is copied from EQ `resistance`.
+
+#### DCSwitch, DCBreaker, DCDisconnector
+
+All CGMES `DCSwitch` are imported into PowSyBl [`DC Switch`](../../grid_model/network_subnetwork.md#dc-switch), with attributes described as follow:
+- `Kind` is defined depending on the CGMES class: it is `BREAKER` for CGMES `DCBreaker`, and it is `DISCONNECTOR` for CGMES `DCSwitch` and `DCDisconnector`.
+- `Open` is defined depending on the associated CGMES `DCTerminal`: if both have SSH `connected` set to `true`, then it is `false`, otherwise it is `true`.
+
+#### DCGround
+
+CGMES `DCGround` are imported into PowSyBl [`DC Ground`](../../grid_model/network_subnetwork.md#dc-ground), with attribute:
+- `R` is copied from EQ `r`.
+
+#### ACDCConverter (CsConverter, VsConverter)
+
+CGMES `CsConverter` are imported into PowSyBl [`Line Commutated Converter`](../../grid_model/network_subnetwork.md#line-commutated-converter),
+and `VsConverter` into [`Voltage Source Converter`](../../grid_model/network_subnetwork.md#voltage-source-converter).
+Common [`AC/DC Converter`](../../grid_model/network_subnetwork.md#acdc-converter) attributes are mapped as follows:
+- `IdleLoss` is copied from EQ `idleLoss`.
+- `SwitchingLoss` is copied from EQ `switchingLoss`.
+- `ResistiveLoss` is copied from EQ `resistiveLoss`.
+- `PccTerminal` is copied from EQ `PccTerminal`.
+- `ControlMode` is `P_PCC` if SSH `pPccControl` is `activePower` (CSC) or `pPcc` (VSC), else it is `V_DC` if `pPccControl` is `dcVoltage` (CSC) or `udc` (VSC).
+- `TargetP` is copied from SSH `targetPpcc`.
+- `TargetVdc` is copied from SSH `targetUdc`.
+
+Specific `CsConverter` attributes are mapped as follows:
+- `ReactiveModel` is always set to `FIXED_POWER_FACTOR`.
+- `PowerFactor` is calculated from SSH `p` and `q` as $\left|{\frac{p}{\sqrt{p^2 + q^2}}}\right|$.
+If p and q are equal to 0, the power factor is calculated with $Q = 0.5P$, which gives the value 0.89443.
+
+Specific `VsConverter` attributes are mapped as follows:
+- `VoltageRegulatorOn` is set to `true` if SSH `qPccControl` is set to `voltagePcc`, else it is `false`.
+- `VoltageSetpoint` is copied from SSH `targetUpcc`.
+- `ReactivePowerSetpoint` is copied from SSH `targetQpcc`.
+
 ## Extensions
 
 The CIM-CGMES format contains more information than what the `iidm` grid model needs for calculation. The additional data that are needed to export a network in CIM-CGMES format are stored in several extensions.
@@ -552,7 +612,7 @@ This extension is used to add some CIM-CGMES characteristics to dangling lines.
 | Attribute                             | Type    | Unit | Required | Default value | Description                                                         |
 |---------------------------------------|---------|------|----------|---------------|---------------------------------------------------------------------|
 | hvdc status                           | boolean | -    | no       | false         | Indicates if the boundary line is associated with a DC Xnode or not |
-| Line Energy Identification Code (EIC) | String  | -    | no       | -             | The EIC of the boundary line if it exists                           |                                                
+| Line Energy Identification Code (EIC) | String  | -    | no       | -             | The EIC of the boundary line if it exists                           |
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
@@ -580,7 +640,7 @@ The `SolvedTapPosition` is copied from `SVtapStep` if the SV is imported, and le
 ### CGMES metadata models
 
 This extension is attached to a Network and is used to store the metadata information about the imported CGMES dataset.
-The extension consists of a collection of `CgmesMetadataModel` objects, one per CGMES instance file or _subset_, 
+The extension consists of a collection of `CgmesMetadataModel` objects, one per CGMES instance file or _subset_,
 that hold the metadata information present in the `FullModel` tag in the header of the CGMES instance file.
 
 | Attribute            | Type          | Unit | Required | Default value      | Description                                                                                    |
@@ -615,7 +675,7 @@ This extension is attached to a network and is used to store characteristics abo
 | topologyKind | CgmesTopologyKind | -    | yes      | -                  | Topology kind: NODE_BREAKER or BUS_BRANCH                                               |
 
 Please note that the topologyKind attribute reflects how the dataset has been considered:
-if the `iidm.import.cgmes.import-node-breaker-as-bus-breaker` import parameter has been set to `true`, topologyKind will be `BUS_BRANCH`, even if the network has `NODE_BREAKER` model details. 
+if the `iidm.import.cgmes.import-node-breaker-as-bus-breaker` import parameter has been set to `true`, topologyKind will be `BUS_BRANCH`, even if the network has `NODE_BREAKER` model details.
 
 Example of code to read the extension and retrieve the topology kind assuming the network has been imported from a CGMES datasource:
 
@@ -635,23 +695,23 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
 
 
-**iidm.import.cgmes.boundary-location**  
+**iidm.import.cgmes.boundary-location**<br>
 Optional property that defines the directory path where the CGMES importer can find the boundary files (`EQBD` and `TPBD` profiles) if they are not present in the imported zip file. By default, its value is `<ITOOLS_CONFIG_DIR>/CGMES/boundary`.
 This property can also be used at CGMES export if the network was not imported from a CGMES to indicate the boundary files that should be used for reference.
 
-**iidm.import.cgmes.convert-boundary**  
+**iidm.import.cgmes.convert-boundary**<br>
 Optional property that defines if the equipment located inside the boundary is imported as part of the network. Used for debugging purposes. `false` by default.
 
-**iidm.import.cgmes.convert-sv-injections**  
+**iidm.import.cgmes.convert-sv-injections**<br>
 Optional property that defines if `SvInjection` objects are converted to IIDM loads. `true` by default.
 
-**iidm.import.cgmes.create-active-power-control-extension**
+**iidm.import.cgmes.create-active-power-control-extension**<br>
 Optional property that defines if active power control extensions are created for the converted generators. `true` by default. If `true`, the extension will be created for the CGMES `SynchronousMachines` with the attribute `normalPF` defined. For these generators, the `normalPF` value will be saved as the `participationFactor` and the flag `participate` set to `true`.
 
-**iidm.import.cgmes.create-busbar-section-for-every-connectivity-node**  
+**iidm.import.cgmes.create-busbar-section-for-every-connectivity-node**<br>
 Optional property that defines if the CGMES importer creates an [IIDM Busbar Section](../../grid_model/network_subnetwork.md#busbar-section) for each CGMES connectivity node. Used for debugging purposes. `false` by default.
 
-**iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode**  
+**iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode**<br>
 Optional property that defines if fictitious switches are created when terminals are disconnected in CGMES node-breaker networks.
 Three modes are available:
 - `ALWAYS`: fictitious switches are created at every disconnected terminal.
@@ -660,74 +720,77 @@ Three modes are available:
 
 The default value is `ALWAYS`.
 
-**iidm.import.cgmes.decode-escaped-identifiers**  
+**iidm.import.cgmes.decode-escaped-identifiers**<br>
 Optional property that defines if identifiers containing escaped characters are decoded when CGMES files are read. `true` by default.
 
-**iidm.import.cgmes.ensure-id-alias-unicity**  
+**iidm.import.cgmes.ensure-id-alias-unicity**<br>
 Optional property that defines if IDs' and aliases' unicity is ensured during CGMES import. If it is set to `true`, identical CGMES IDs will be modified to be unique. If it is set to `false`, identical CGMES IDs will throw an exception. `false` by default.
 
-**iidm.import.cgmes.import-control-areas**  
+**iidm.import.cgmes.import-control-areas**<br>
 Optional property that defines if control areas must be imported or not. `true` by default.
 
-**iidm.import.cgmes.naming-strategy**  
+**iidm.import.cgmes.naming-strategy**<br>
 Optional property that defines which naming strategy is used to transform CGMES identifiers to IIDM identifiers. Currently, all naming strategies assign CGMES Ids directly to IIDM Ids during import, without any transformation. The default value is `identity`.
 You can also define a custom naming strategy by implementing the `NamingStrategy` interface on your own project and declare
 a `NamingStrategyProvider` that can be automatically discovered. Then in this parameter, you can specify the name of the provider.
 
-**iidm.import.cgmes.post-processors**  
+**iidm.import.cgmes.post-processors**<br>
 Optional property that defines all the CGMES post-processors which will be activated after import.
 By default, it is an empty list.
 One implementation of such a post-processor is available in PowSyBl in the [powsybl-diagram](https://github.com/powsybl/powsybl-diagram) repository, named [CgmesDLImportPostProcessor](./post_processor.md#cgmesdlimportpostprocessor).
 
-**iidm.import.cgmes.powsybl-triplestore**  
+**iidm.import.cgmes.powsybl-triplestore**<br>
 Optional property that defines which Triplestore implementation is used. Currently, PowSyBl only supports [RDF4J](https://rdf4j.org/). `rdf4j` by default.
 
-**iidm.import.cgmes.source-for-iidm-id**  
+**iidm.import.cgmes.source-for-iidm-id**<br>
 Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID` (master resource identifier) or the CGMES `rdfID` (Resource Description Framework identifier). The default value is `mRID`.
 
-**iidm.import.cgmes.store-cgmes-model-as-network-extension**    
+**iidm.import.cgmes.store-cgmes-model-as-network-extension**<br>
 Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](import.md#cgmes-model). The default value is `true`.
 
-**iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension**  
+**iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension**<br>
 Optional property that defines if the CGMES conversion context is stored as an extension of the IIDM output network. It is useful for external validation of the mapping made between CGMES and IIDM. Its default value is `false`.
 
-**iidm.import.cgmes.import-node-breaker-as-bus-breaker**  
+**iidm.import.cgmes.use-detailed-dc-model**<br>
+Optional property that defines which IIDM DC model should be populated at import. Set to `true` to import DC objects into the detailed DC model, `false` to import into the reduced DC model. The default value is `false`.
+
+**iidm.import.cgmes.import-node-breaker-as-bus-breaker**<br>
 Optional property that forces CGMES model to be in topology bus/breaker in IIDM. This is a key feature when some models do not have all the breakers to connect and disconnect equipments in IIDM. In bus/breaker topology, connect and disconnect equipment only rely on terminal statuses and not on breakers. Its default value is `false`.
 
-**iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected**  
+**iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected**<br>
 Optional property used at CGMES import that disconnects the IIDM dangling line if in the CGMES model the line is open at the boundary side. As IIDM does not have any equivalence for that, this is an approximation. Its default value is `false`.
 
-**iidm.import.cgmes.missing-permanent-limit-percentage**  
+**iidm.import.cgmes.missing-permanent-limit-percentage**<br>
 Optional property used when in operational limits, temporary limits are present and the permanent limit is missing as it is forbidden in IIDM. The missing permanent limit is equal to a percentage of the lowest temporary limit, with the percentage defined by the value of this property if present, `100` by default.
 
-**iidm.import.cgmes.cgm-with-subnetworks**  
+**iidm.import.cgmes.cgm-with-subnetworks**<br>
 Optional property to define if subnetworks must be added to the network when importing a Common Grid Model (CGM). Each subnetwork will model an Individual Grid Model (IGM). By default `true`: subnetworks are added, and the merging is done at IIDM level, with a main IIDM network representing the CGM and containing a set of subnetworks, one for each IGM. If the value is set to `false` all the CGMES data will be flattened in a single network and information about the ownership of each equipment will be lost.
 
-**iidm.import.cgmes.cgm-with-subnetworks-defined-by**  
+**iidm.import.cgmes.cgm-with-subnetworks-defined-by**<br>
 If `iidm.import.cgmes.cgm-with-subnetworks` is set to `true`, use this property to specify how the set of input files should be split by IGM: based on their filenames (use the value `FILENAME`) or by its modeling authority, read from the header (use the value `MODELING_AUTHORITY`).
 Its default value is `MODELING_AUTHORITY`.
 
-**iidm.import.cgmes.create-fictitious-voltage-level-for-every-node**  
+**iidm.import.cgmes.create-fictitious-voltage-level-for-every-node**<br>
 Optional property that defines the fictitious voltage levels created by line container. If it is set to `true`, a fictitious voltage level is created for each connectivity node inside the line container.
-If it is set to `false`, only one fictitious voltage level is created for each line container. 
+If it is set to `false`, only one fictitious voltage level is created for each line container.
 `true` by default.
 
-**iidm.import.cgmes.use-previous-values-during-update**  
+**iidm.import.cgmes.use-previous-values-during-update**<br>
 Optional property that defines whether the CGMES importer should use previous values to fill in missing SSH attributes during an update.
 When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
-If set to `false`, missing SSH attributes will be filled using default values. 
+If set to `false`, missing SSH attributes will be filled using default values.
 This property does not apply to SV data. SV data is handled as a complete dataset, with no support for incremental updates of the SV file.
 `false` by default.
 
-**iidm.import.cgmes.remove-properties-and-aliases-after-import**  
+**iidm.import.cgmes.remove-properties-and-aliases-after-import**<br>
 Properties and aliases are generated during the EQ import process and are used both in the initial import and in subsequent network updates.
 When this option is set to `true`, all generated properties and aliases are removed after the import/update process.
 If the option is set to `true` during the initial import, then both the EQ and SSH files must be provided to obtain a valid network at the steady-state hypothesis level.
 Cgmes importer will import the EQ file, create the properties and aliases, perform the update by importing the SSH file, and finally remove the properties and aliases.
-If only the EQ file is provided, the properties and aliases will be deleted immediately after the import, not allowing any future update. 
+If only the EQ file is provided, the properties and aliases will be deleted immediately after the import, not allowing any future update.<br>
 In this case, the imported network will only be valid at the Equipment level.
 If the option is set to `true` during an update, the update will be performed and then the properties and aliases will be removed.
-Removing properties and aliases invalidates all subsequent updates but reduces the size of the IIDM network during serialization, 
-thereby improving performance. This option is suitable when the user does not need to preserve CGMES data for persistency purposes 
+Removing properties and aliases invalidates all subsequent updates but reduces the size of the IIDM network during serialization,
+thereby improving performance. This option is suitable when the user does not need to preserve CGMES data for persistency purposes
 or does not intend to perform further network updates.
 `false` by default.

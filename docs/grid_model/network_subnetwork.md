@@ -113,9 +113,9 @@ The area type is used to distinguish between various area concepts of different 
 
 A [voltage level](#voltage-level) can belong to several areas, as long as all areas are of a different type.
 
-The area boundaries define how interchange is to be calculated for the area.  
+The area boundaries define how interchange is to be calculated for the area.
 Area interchange is calculated by summing the active power flows across the area boundaries and can be obtained for AC part only (considering only AC boundaries),
-for DC part only (considering only DC boundaries) and in total (AC+DC).  
+for DC part only (considering only DC boundaries) and in total (AC+DC).
 Note that if the Area has no boundary explicitly defined, the interchange is considered 0MW.
 
 For area types that are meant to be used for area interchange control, e.g., in Load Flow simulations, the interchange target of the area can be specified as an input for the simulation.
@@ -160,19 +160,20 @@ A generator is a piece of equipment that injects or consumes active power, and i
 
 **Characteristics**
 
-| Attribute            | Unit | Description                                                 |
-|----------------------|------|-------------------------------------------------------------|
-| $MinP$               | MW   | Minimum generator active power output                       |
-| $MaxP$               | MW   | Maximum generator active power output                       |
-| $ReactiveLimits$     | MVar | Operational limits of the generator (P/Q/V diagram)         |
-| $RatedS$             | MVA  | The rated nominal power                                     |
-| $TargetP$            | MW   | The active power target                                     |
-| $TargetQ$            | MVAr | The reactive power target at local terminal                 |
-| $TargetV$            | kV   | The voltage target at regulating terminal                   |
-| $RegulatingTerminal$ |      | Associated node or bus for which voltage is to be regulated |
-| $VoltageRegulatorOn$ |      | True if the generator regulates voltage                     |
-| $EnergySource$       |      | The energy source harnessed to turn the generator           |
-| $IsCondenser$        |      | True if the generator may behave as a condenser             |
+| Attribute                | Unit | Description                                                                         |
+|--------------------------|------|-------------------------------------------------------------------------------------|
+| $MinP$                   | MW   | Minimum generator active power output                                               |
+| $MaxP$                   | MW   | Maximum generator active power output                                               |
+| $ReactiveLimits$         | MVar | Operational limits of the generator (P/Q/V diagram)                                 |
+| $RatedS$                 | MVA  | The rated nominal power                                                             |
+| $TargetP$                | MW   | The active power target                                                             |
+| $TargetQ$                | MVAr | The reactive power target at local terminal                                         |
+| $TargetV$                | kV   | The voltage target at regulating terminal which can be remote or local              |
+| $EquivalentLocalTargetV$ | kV   | The local voltage target consistent with the remote voltage target                  |
+| $RegulatingTerminal$     |      | Associated node or bus for which voltage is to be regulated, can be remote or local |
+| $VoltageRegulatorOn$     |      | True if the generator regulates voltage                                             |
+| $EnergySource$           |      | The energy source harnessed to turn the generator                                   |
+| $IsCondenser$            |      | True if the generator may behave as a condenser                                     |
 
 **Specifications**
 
@@ -184,6 +185,7 @@ Target values for generators (`TargetP` and `TargetQ`) follow the generator sign
 
 The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
 
+The optional `EquivalentLocalTargetV` value can be used by simulators that deactivate the remote voltage algorithms, or by dynamic simulators that use this voltage as a starting value.
 
 **Available extensions**
 
@@ -196,6 +198,7 @@ The `isCondenser` value corresponds for instance to generators which can control
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
+- [Manual Frequency Restoration Reserve](extensions.md#manual-frequency-restoration-reserve)
 
 (load)=
 ## Load
@@ -224,21 +227,21 @@ In the grid model, loads comprise the following metadata:
     - `FICTITIOUS`
 - The load model, which can be:
     - `ZIP` (or polynomial), following equations:
-  
-      $$P = P0 * (c0p + c1p \times (v / v_0) + c2p \times (v / v_0)^2)$$  
 
-      $$Q = Q0 * (c0q + c1q \times (v / v_0) + c2q \times (v / v_0)^2)$$  
+      $$P = P0 * (c0p + c1p \times (v / v_0) + c2p \times (v / v_0)^2)$$
 
-      with $v_0$ the nominal voltage.  
-      Sum of $c0p$, $c1p$ and $c2p$ must be equal to 1.  
+      $$Q = Q0 * (c0q + c1q \times (v / v_0) + c2q \times (v / v_0)^2)$$
+
+      with $v_0$ the nominal voltage.
+      Sum of $c0p$, $c1p$ and $c2p$ must be equal to 1.
       Sum of $c0q$, $c1q$ and $c2q$ must be equal to 1.
-    - `EXPONENTIAL`, following equations:  
+    - `EXPONENTIAL`, following equations:
 
-      $$P = P0 \times (v / v_0)^{n_p}$$  
+      $$P = P0 \times (v / v_0)^{n_p}$$
 
-      $$Q = Q0 \times (v / v_0)^{n_q}$$  
+      $$Q = Q0 \times (v / v_0)^{n_q}$$
 
-      with $v_0$ the nominal voltage.  
+      with $v_0$ the nominal voltage.
       $n_p$ and $n_q$ are expected to be positive.
 
 **Available extensions**
@@ -341,7 +344,7 @@ In case the line is a boundary, a pairing key $pairingKey$ (in previous network 
 A dangling line has a `Boundary` object that emulates a terminal located at boundary side. A dangling line is a connectable
 with a single terminal located on the network side, but sometimes we need state variables such as active or reactive powers on
 the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
-are automatically computed using information from the terminal of the dangling line.  
+are automatically computed using information from the terminal of the dangling line.
 
 
 **Available extensions**
@@ -375,7 +378,7 @@ Shunt compensators follow a passive-sign convention:
 |-----------------------|------|--------------------------------------------------------------------------------|
 | $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on                         |
 | $SectionCount$        | -    | The current number of sections that are switched on (input of the calculation) |
-| $SolvedSectionCount$  | -    | The calculated number of sections that are switched on (after a load flow)     | 
+| $SolvedSectionCount$  | -    | The calculated number of sections that are switched on (after a load flow)     |
 | $B$                   | S    | The susceptance of the shunt compensator in its current state                  |
 | $G$                   | S    | The conductance of the shunt compensator in its current state                  |
 | $TargetV$             | kV   | The voltage target                                                             |
@@ -449,8 +452,8 @@ Static VAR compensators follow a passive-sign convention:
 
 **Specifications**
 
-- $Bmin$ and $Bmax$ are the susceptance bounds of the static VAR compensator. Reactive power output of a static VAR compensator is limited by the maximum and the minimum susceptance values. The min/max reactive power of a static VAR compensator is determined by:  
-  
+- $Bmin$ and $Bmax$ are the susceptance bounds of the static VAR compensator. Reactive power output of a static VAR compensator is limited by the maximum and the minimum susceptance values. The min/max reactive power of a static VAR compensator is determined by:
+
   $$Qmin = -Bmin \times V^2$$
 
   $$Qmax = -Bmax \times V^2$$
@@ -842,13 +845,9 @@ A VSC converter station is made with switching devices that can be turned both o
 
 - [Connectable position](extensions.md#connectable-position)
 
-### Detailed DC model (beta)
+### Detailed DC model
 
-```{warning}
-**The detailed DC model was introduced in IIDM v1.14 and is currently in beta.**
-
-Future IIDM v1.15 will add support for DC equipment serialization/deserialization.
-
+```{note}
 Currently, this model is only available in the IIDM representation.
 Support in exchange formats (CGMES, ...) as well as in downstream projects (e.g., `powsybl-diagram`, `powsybl-open-loadflow`, etc.) may vary.
 Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
@@ -856,6 +855,7 @@ Please consult the documentation of each project to verify support. In general, 
 If you’re unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html).
 ```
 
+(dc-node)=
 #### DC Node
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcNode.html)<br>
@@ -870,6 +870,7 @@ DC nodes are points where DC terminals of DC conducting equipment are connected 
 Although the nominal voltage of DC nodes must always be specified as a positive value,
 the solved voltages can be negative - for example, in the case of an LCC monopole operating in reverse polarity.
 
+(dc-line)=
 #### DC Line
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcLine.html)<br>
@@ -884,6 +885,7 @@ A DC Line has two DC Terminals.
 | $R$       | $\Omega$ | The series resistance, always positive |
 
 
+(dc-switch)=
 #### DC Switch
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcSwitch.html)<br>
@@ -896,6 +898,7 @@ A DC Switch connects two DC Nodes and can be opened or closed.
 | $Kind$     | `DcSwitchKind` | Either DISCONNECTOR or BREAKER                                    |
 | $Open$     |                | True if the switch is opened                                      |
 
+(dc-ground)=
 #### DC Ground
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcGround.html)<br>
@@ -910,6 +913,7 @@ A DC Ground has a single DC Terminal.
 | $R$       | $\Omega$ | The grounding resistance, always positive |
 
 
+(acdc-converter)=
 #### AC/DC Converter
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/AcDcConverter.html)<br>
@@ -971,7 +975,7 @@ When the `ControlMode` of the converter is set to `V_DC`, the converter controls
 No explicit attribute specifies whether the DC is a symmetrical or asymmetrical scheme.
 The scheme symmetrical or asymmetrical is derived implicitly by either the presence or absence of a DC Ground connected to the DC system:
 - If a DC Ground is connected, the configuration is asymmetrical, and the converter imposes the target voltage difference
-between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc` 
+between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
 - If no DC Ground is present, the configuration is symmetrical, in this case the converter provides internally an implicit DC Ground and imposes:
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
@@ -980,19 +984,20 @@ When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter c
 for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
 $P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
 Where:
-- $k$ is the droop coefficient of the actual droop segment. 
-- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint. 
+- $k$ is the droop coefficient of the actual droop segment.
+- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint.
 It represents the operating point before the security analysis starts.
 - $V_{REF}$ is the DC voltage which was calculated during the base loadflow. The droop control is only used for P controlled converters, so they should not have a targetVdc.
 - $P_{DC}$ is the actual power at DC side during the security analysis, which is determined by Newton Raphson.
 - $V_{DC}$ is the actual DC voltage during the security analysis, which is determined by Newton Raphson.
 
-Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual 
+Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual
 droop segment should be the one which verifies:
 $V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
 
 
 
+(line-commutated-converter)=
 ##### Line Commutated Converter
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LineCommutatedConverter.html)<br>
@@ -1008,6 +1013,7 @@ Line Commutated Converters always consume reactive power, the `PowerFactor` attr
 is consumed when the reactive model is set to `FIXED_POWER_FACTOR`. Typical characteristic for LCCs is $Q = 0.5 P$
 hence a PowerFactor of 0.89443.
 
+(voltage-source-converter)=
 ##### Voltage Source Converter
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageSourceConverter.html)<br>
@@ -1034,8 +1040,8 @@ hence a PowerFactor of 0.89443.
 
 DC equipment connectivity may be modified in two ways:
 - By changing the `connected` attribute of a `DcTerminal` of a DC Line, or a DC Ground, or an AC/DC Converter:
-  - When `connected = true`, the DC terminal is connected to its associated DC Node. 
-  - When `connected = false` the DC terminal is disconnected from its associated DC Node. 
+  - When `connected = true`, the DC terminal is connected to its associated DC Node.
+  - When `connected = false` the DC terminal is disconnected from its associated DC Node.
 - By changing the `open` attribute of a `DcSwitch`.
 
 PowSyBl's IIDM topology processor computes DC Buses as follows:
@@ -1056,8 +1062,8 @@ The IIDM API provides methods for navigating the network topology, for example:
 - getting all DC Components/Islands of a network or a subnetwork
 - getting all DC Buses part of a DC Component or a Connected Component
 - etc.
- 
-Please refer to the javadoc for an exhaustive list of the available methods. 
+
+Please refer to the javadoc for an exhaustive list of the available methods.
 
 #### DC Equipment containment in main network and subnetworks
 

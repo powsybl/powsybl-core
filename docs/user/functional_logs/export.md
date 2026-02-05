@@ -8,7 +8,7 @@ A report node can be serialized into a JSON file
 var objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
 objectMapper.writeValue(outputStream, reportNode);
 ```
-- or by calling 
+- or by calling
 ```java
 ReportNodeSerializer.write(reportNode, jsonFilePath);
 ```

@@ -585,6 +585,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags dcNodes() {
+        return namedQuery("dcNodes");
+    }
+
+    @Override
     public PropertyBags tieFlows() {
         return namedQuery("tieFlows");
     }
@@ -617,7 +622,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     public PropertyBags namedQuery(String name, String... params) {
         String queryText = queryCatalog.get(name);
         if (queryText == null) {
-            LOG.warn("Query [{}] not found in catalog", name);
+            // In CGMES update it is normal to not have a query, it is ok to just return empty PropertyBags
+            LOG.debug("Query [{}] not found in catalog", name);
             return new PropertyBags();
         }
         // Optimization hint: Now we do the parameter injection by ourselves,
