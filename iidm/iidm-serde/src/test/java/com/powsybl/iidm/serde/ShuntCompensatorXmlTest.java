@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,18 +104,15 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("shuntWithSolvedSectionCountRoundTripRef.xml", IidmVersion.V_1_14);
     }
 
-    @Test
-    void shouldRejectShuntOldTagName() {
-        //Given (XIIDM and JIIDM format)
-        InputStream xmlInputStream = getVersionedNetworkAsStream("shuntOldTagName.xml", IidmVersion.V_1_16);
-        InputStream jsonInputStream = getVersionedNetworkAsStream("shuntOldTagName.jiidm", IidmVersion.V_1_16);
+    @ParameterizedTest(name = "import using {1} format")
+    @CsvSource({"shuntOldTagName.xml,XML", "shuntOldTagName.jiidm,JSON"})
+    void shouldRejectShuntOldTagName(String fileName, String format) {
+        //Given (XML and JSON format)
+        InputStream inputStream = getVersionedNetworkAsStream(fileName, IidmVersion.V_1_16);
         //When
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> {
-            NetworkSerDe.read(xmlInputStream);
-            NetworkSerDe.read(jsonInputStream, new ImportOptions().setFormat(TreeDataFormat.JSON), null);
-        });
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(inputStream, new ImportOptions().setFormat(TreeDataFormat.valueOf(format)), null));
         //Then
-        assertThat(exception.getMessage()).isEqualTo("shunt is not supported for IIDM version 1.16. IIDM version should be <= 1.15");
+        assertThat(e.getMessage()).isEqualTo("shunt is not supported for IIDM version 1.16. IIDM version should be <= 1.15");
     }
 
     @Test
