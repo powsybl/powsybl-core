@@ -3,6 +3,8 @@
 The `convert-network` command is used to convert a grid file from a format to another. The input format is automatically
 detected, whereas the output format must be specified.
 
+`Importer` and `Exporter` are interfaces that you can implement to create your own file format. The tutorials [here](inv:powsybltutorials:*:*#iidm/index) show you how to proceed.
+
 ## Usage
 ```
 $> itools convert-network --help
@@ -31,21 +33,21 @@ Where OUTPUT_FORMAT is one of [CGMES, AMPL, UCTE, XIIDM]
 
 ### Required arguments
 
-`--input-file`  
+`--input-file`<br>
 This option defines the path of the input file. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
-`--output-file`  
+`--output-file`<br>
 This option defines the path of the output file.
 
-`--output-format`  
+`--output-format`<br>
 This option defines the format of the output file. The list of [supported formats](../../grid_exchange_formats/index.md) are listed between brackets in the command help.
 
 ### Optional arguments
 
-`--export-parameters`  
+`--export-parameters`<br>
 This option defines the path of the exporter's configuration file. It's possible to overload one or many parameters using the `-E property=value` syntax. The list of supported properties depends on the [output format](../../grid_exchange_formats/index.md).
 
-`--import-parameters`  
+`--import-parameters`<br>
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
 ## Examples
