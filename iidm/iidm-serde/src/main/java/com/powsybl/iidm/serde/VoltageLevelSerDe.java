@@ -364,6 +364,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         });
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
+                case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(vl, context);
                 case BusbarSectionSerDe.ROOT_ELEMENT_NAME -> BusbarSectionSerDe.INSTANCE.read(vl, context);
                 case AbstractSwitchSerDe.ROOT_ELEMENT_NAME -> NodeBreakerViewSwitchSerDe.INSTANCE.read(vl, context);
                 case NodeBreakerViewInternalConnectionSerDe.ROOT_ELEMENT_NAME -> NodeBreakerViewInternalConnectionSerDe.INSTANCE.read(vl, context);

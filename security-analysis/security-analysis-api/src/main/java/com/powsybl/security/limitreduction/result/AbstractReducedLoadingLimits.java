@@ -27,7 +27,7 @@ public abstract class AbstractReducedLoadingLimits extends UnsupportedProperties
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
     public static final class ReducedTemporaryLimit extends UnsupportedPropertiesHolder implements TemporaryLimit {
-        // 1. Fields (equivalent to the record components)
+        // 1. Fields
         private final String name;
         private final double value;
         private final int acceptableDuration;
