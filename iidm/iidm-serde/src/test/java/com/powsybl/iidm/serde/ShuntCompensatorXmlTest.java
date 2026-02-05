@@ -19,8 +19,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -107,72 +105,22 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
     @ParameterizedTest(name = "import using {1} format")
     @CsvSource({"shuntOldTagName.xml,XML", "shuntOldTagName.jiidm,JSON"})
     void shouldRejectShuntOldTagName(String fileName, String format) {
-        //Given (XML and JSON format)
-        InputStream inputStream = getVersionedNetworkAsStream(fileName, IidmVersion.V_1_16);
-        //When
-        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(inputStream, new ImportOptions().setFormat(TreeDataFormat.valueOf(format)), null));
-        //Then
-        assertThat(e.getMessage()).isEqualTo("shunt is not supported for IIDM version 1.16. IIDM version should be <= 1.15");
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
+            //Given (XML and JSON format)
+            InputStream inputStream = getVersionedNetworkAsStream(fileName, version);
+            //When
+            TreeDataFormat treeDataFormat = TreeDataFormat.valueOf(format);
+            ImportOptions options = new ImportOptions().setFormat(treeDataFormat);
+            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(inputStream, options, null));
+            //Then
+            assertThat(e.getMessage()).isEqualTo("shunt is not supported for IIDM version 1.16. IIDM version should be <= 1.15");
+        });
     }
 
     @Test
-    void writeXmlShouldUseShuntCompensator() throws IOException {
-        //Given
-        Network network = ShuntTestCaseFactory.create();
-        Path xml = tmpDir.resolve("shuntCompensator_v116.xiidm");
-        //When
-        ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.XML).setVersion(IidmVersion.V_1_16.toString("."));
-        NetworkSerDe.write(network, exportOptions, xml);
-        //Then
-        String content = Files.readString(xml, StandardCharsets.UTF_8);
-        assertThat(content)
-                .contains("<iidm:shuntCompensator ")
-                .doesNotContain("<iidm:shunt ");
-    }
-
-    @Test
-    void writeJsonShouldUseShuntCompensator() throws IOException {
-        //Given
-        Network network = ShuntTestCaseFactory.create();
-        Path xml = tmpDir.resolve("shuntCompensator_v116.jiidm");
-        //When
-        ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.JSON).setVersion(IidmVersion.V_1_16.toString("."));
-        NetworkSerDe.write(network, exportOptions, xml);
-        //Then
-        String content = Files.readString(xml, StandardCharsets.UTF_8);
-        assertThat(content)
-                .contains("shuntCompensators")
-                .doesNotContain("shunts");
-    }
-
-    @Test
-    void writeXmlShouldUseShunt() throws IOException {
-        //Given
-        Network network = ShuntTestCaseFactory.create();
-        Path xml = tmpDir.resolve("shunt_v115.xiidm");
-        //When
-        ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.XML).setVersion(IidmVersion.V_1_15.toString("."));
-        NetworkSerDe.write(network, exportOptions, xml);
-        String content = Files.readString(xml, StandardCharsets.UTF_8);
-        //Then
-        assertThat(content)
-                .contains("<iidm:shunt ")
-                .doesNotContain("<iidm:shuntCompensator ");
-    }
-
-    @Test
-    void writeJsonShouldUseShunt() throws IOException {
-        //Given
-        Network network = ShuntTestCaseFactory.create();
-        Path xml = tmpDir.resolve("shunt_v115.jiidm");
-        //When
-        ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.JSON).setVersion(IidmVersion.V_1_15.toString("."));
-        NetworkSerDe.write(network, exportOptions, xml);
-        String content = Files.readString(xml, StandardCharsets.UTF_8);
-        //Then
-        assertThat(content)
-                .contains("shunts")
-                .doesNotContain("shuntCompensators");
+    void roundTripTest() throws IOException {
+        // backward compatibility
+        roundTripVersionedJsonFromMinToCurrentVersionTest("shuntCompensator.jiidm", IidmVersion.V_1_16);
     }
 
     private void write(Network network, String version) {
