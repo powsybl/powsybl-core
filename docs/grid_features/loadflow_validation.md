@@ -4,6 +4,8 @@ A load flow result is considered *acceptable* if it describes a feasible steady-
 More practically, generations of practitioners have set quasi-standard ways to describe them that makes it possible to define precise rules.
 They are described below for the different elements of the network.
 
+See the documentation [here](../user/configuration/loadflow-validation.md) to configure correctly this module.
+
 (loadflow-validation-buses)=
 ## Buses
 
