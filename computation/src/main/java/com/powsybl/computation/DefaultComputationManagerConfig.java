@@ -48,8 +48,10 @@ public class DefaultComputationManagerConfig {
         Objects.requireNonNull(platformConfig);
         DefaultComputationManagerConfig config = platformConfig.getOptionalModuleConfig("default-computation-manager")
                 .map(moduleConfig -> {
-                    Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class);
-                    Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
+                    Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass = moduleConfig
+                        .getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class);
+                    Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass = moduleConfig
+                        .getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
                     return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
                 })
                 .orElseGet(() -> {

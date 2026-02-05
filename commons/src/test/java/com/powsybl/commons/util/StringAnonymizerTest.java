@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.util;
 
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -50,11 +51,7 @@ class StringAnonymizerTest {
         assertEquals("bar", anonymizer.deanonymize(anonymizedBar));
         assertNull(anonymizer.anonymize(null));
         assertNull(anonymizer.deanonymize(null));
-        try {
-            anonymizer.deanonymize("baz");
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> anonymizer.deanonymize("baz"));
         String csv = toCsv(anonymizer);
         assertEquals(String.join(System.lineSeparator(), "foo;A", "bar;B") + System.lineSeparator(),
                      csv.toString());

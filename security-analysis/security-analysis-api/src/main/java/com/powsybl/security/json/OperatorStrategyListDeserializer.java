@@ -37,36 +37,38 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
     @Override
     public OperatorStrategyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        JsonUtil.parseObject(parser, fieldName -> {
-            switch (parser.currentName()) {
-                case "version":
-                    context.version = parser.nextTextValue();
-                    // Operator strategy retro compatibility is linked to SecurityAnalysisResult version
-                    // So swap list version with matching SecurityAnalysisResult version
-                    // 1.0 -> version <= 1.4
-                    // 1.1 -> version between 1.5 and 1.7
-                    // 1.2 and above -> current
-                    String securityAnalysisResultVersion;
-                    if (context.version.compareTo("1.0") == 0) {
-                        securityAnalysisResultVersion = "1.4";
-                    } else if (context.version.compareTo("1.1") == 0) {
-                        securityAnalysisResultVersion = "1.7";
-                    } else {
-                        securityAnalysisResultVersion = SecurityAnalysisResultSerializer.VERSION;
-                    }
-                    JsonUtil.setSourceVersion(deserializationContext, securityAnalysisResultVersion, SOURCE_VERSION_ATTRIBUTE);
-                    return true;
-                case "operatorStrategies":
-                    parser.nextToken(); // skip
-                    context.operatorStrategies = JsonUtil.readList(deserializationContext, parser, OperatorStrategy.class);
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parseObject(parser, fieldName -> parseOperatorStrategyList(parser, deserializationContext, context));
         if (context.version == null) {
             throw new JsonMappingException(parser, "version is missing");
         }
         return new OperatorStrategyList(context.operatorStrategies);
+    }
+
+    private boolean parseOperatorStrategyList(JsonParser parser, DeserializationContext deserializationContext, ParsingContext context) throws IOException {
+        switch (parser.currentName()) {
+            case "version":
+                context.version = parser.nextTextValue();
+                // Operator strategy retro compatibility is linked to SecurityAnalysisResult version
+                // So swap list version with matching SecurityAnalysisResult version
+                // 1.0 -> version <= 1.4
+                // 1.1 -> version between 1.5 and 1.7
+                // 1.2 and above -> current
+                String securityAnalysisResultVersion;
+                if (context.version.compareTo("1.0") == 0) {
+                    securityAnalysisResultVersion = "1.4";
+                } else if (context.version.compareTo("1.1") == 0) {
+                    securityAnalysisResultVersion = "1.7";
+                } else {
+                    securityAnalysisResultVersion = SecurityAnalysisResultSerializer.VERSION;
+                }
+                JsonUtil.setSourceVersion(deserializationContext, securityAnalysisResultVersion, SOURCE_VERSION_ATTRIBUTE);
+                return true;
+            case "operatorStrategies":
+                parser.nextToken(); // skip
+                context.operatorStrategies = JsonUtil.readList(deserializationContext, parser, OperatorStrategy.class);
+                return true;
+            default:
+                return false;
+        }
     }
 }

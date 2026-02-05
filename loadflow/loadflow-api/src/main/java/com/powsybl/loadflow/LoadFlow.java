@@ -228,7 +228,6 @@ public final class LoadFlow {
         return find().runAsync(network);
     }
 
-
     /**
      * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
      */
@@ -237,7 +236,6 @@ public final class LoadFlow {
         return find().run(network, workingStateId, computationManager, parameters, reportNode);
     }
 
-
     /**
      * @deprecated use {@link #run(Network, String, LoadFlowRunParameters)} instead
      */
@@ -245,7 +243,6 @@ public final class LoadFlow {
     public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().run(network, workingStateId, computationManager, parameters);
     }
-
 
     /**
      * @deprecated use {@link #runAsync(Network, LoadFlowRunParameters)} instead

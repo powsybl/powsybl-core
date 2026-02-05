@@ -36,6 +36,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -79,8 +80,8 @@ class GeoJsonAdderPostProcessorTest {
 
         try { // Launch process
             processor.process(network, computationManager);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            fail();
         }
 
         Coordinate coord1 = new Coordinate(2, 1);

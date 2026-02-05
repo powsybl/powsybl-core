@@ -106,5 +106,5 @@ public interface NetworkModification {
      * @param network Network that serves as reference for the impact.
      * @return True if the network modification would have an impact on the network.
      */
-    NetworkModificationImpact hasImpactOnNetwork(final Network network);
+    NetworkModificationImpact hasImpactOnNetwork(Network network);
 }

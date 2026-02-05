@@ -40,6 +40,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
      * Executes the wrapped callable. On execution end, this future will complete with the callable result,
      * or complete exceptionally in case of exception.
      */
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     @Override
     public void run() {
         future.run();
@@ -100,7 +101,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
     static class SourceCancelingCompletableFuture<T> extends CompletableFuture<T> {
         private final CompletableFuture<?> source;
 
-        public SourceCancelingCompletableFuture(CompletableFuture<?> source) {
+        SourceCancelingCompletableFuture(CompletableFuture<?> source) {
             this.source = Objects.requireNonNull(source);
         }
 

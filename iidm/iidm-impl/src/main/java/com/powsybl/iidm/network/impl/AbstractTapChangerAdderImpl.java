@@ -131,7 +131,10 @@ abstract class AbstractTapChangerAdderImpl<
         return tapChanger;
     }
 
-    protected abstract T createTapChanger(H parent, int lowTapPosition, List<S> steps, TerminalExt regulationTerminal, Integer tapPosition, Integer solvedTapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband);
+    protected abstract T createTapChanger(H parent, int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
+                                          Integer tapPosition, Integer solvedTapPosition,
+                                          boolean regulating, boolean loadTapChangingCapabilities,
+                                          double regulationValue, double targetDeadband);
 
     protected abstract A self();
 

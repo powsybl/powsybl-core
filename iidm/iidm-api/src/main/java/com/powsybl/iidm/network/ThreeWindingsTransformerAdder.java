@@ -13,7 +13,7 @@ package com.powsybl.iidm.network;
  */
 public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWindingsTransformer, ThreeWindingsTransformerAdder> {
 
-    public interface LegAdder {
+    interface LegAdder {
 
         LegAdder setVoltageLevel(String voltageLevelId);
 

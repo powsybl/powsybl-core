@@ -54,6 +54,7 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     private static void processGenerator(Network network, PropertyBag sm, String generatingUnitId) {
         String description = sm.getId("generatingUnitDescription");
         // String contains only digits or spaces
@@ -76,7 +77,7 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
                         .withCode(code)
                         .add();
             }
-        } catch (Exception x) {
+        } catch (Exception ignored) {
             LOG.error("Bad number for ENTSO-E category from description [{}], generating Unit: {}, generator: {}", description, generatingUnitId, generatorId);
         }
     }

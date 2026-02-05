@@ -19,7 +19,8 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class TerminalEq {
 
-    public static void write(String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void write(String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber,
+                             String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(CgmesNames.TERMINAL, id, conductingEquipmentId, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("Terminal.ConductingEquipment", conductingEquipmentId, cimNamespace, writer, context);
         if (connectivityNodeId != null) {

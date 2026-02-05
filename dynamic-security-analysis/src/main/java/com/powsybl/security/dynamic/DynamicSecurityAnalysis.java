@@ -59,7 +59,8 @@ public final class DynamicSecurityAnalysis {
             return provider.run(network, workingVariantId, dynamicModelsSupplier, contingenciesProvider, runParameters);
         }
 
-        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies, DynamicSecurityAnalysisRunParameters runParameters) {
+        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies,
+                                                                  DynamicSecurityAnalysisRunParameters runParameters) {
             return runAsync(network, network.getVariantManager().getWorkingVariantId(), (n, r) -> dynamicModels, n -> contingencies, runParameters);
         }
 
@@ -125,7 +126,8 @@ public final class DynamicSecurityAnalysis {
         return find().runAsync(network, workingVariantId, dynamicModelsSupplier, contingenciesProvider, runParameters);
     }
 
-    public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies, DynamicSecurityAnalysisRunParameters runParameters) {
+    public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies,
+                                                                     DynamicSecurityAnalysisRunParameters runParameters) {
         return find().runAsync(network, dynamicModels, contingencies, runParameters);
     }
 

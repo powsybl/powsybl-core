@@ -10,9 +10,11 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -22,17 +24,7 @@ public abstract class AbstractBusTerminalTest {
     @Test
     public void testSetInvalidConnectableBus() {
         Network network = EurostagTutorialExample1Factory.create();
-        try {
-            network.getLoad("LOAD").getTerminal().getBusBreakerView().setConnectableBus("UNKNOWN");
-        } catch (PowsyblException e) {
-            // Ignored
-        }
-        try {
-            network.getLoad("LOAD").getTerminal().getBusBreakerView().setConnectableBus("UNKNOWN");
-        } catch (NullPointerException e) {
-            fail();
-        } catch (PowsyblException e) {
-            // Ignored
-        }
+        Terminal.BusBreakerView busBreakerView = network.getLoad("LOAD").getTerminal().getBusBreakerView();
+        assertThrows(PowsyblException.class, () -> busBreakerView.setConnectableBus("UNKNOWN"));
     }
 }

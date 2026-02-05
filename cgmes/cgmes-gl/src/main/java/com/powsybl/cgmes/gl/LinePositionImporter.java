@@ -55,8 +55,7 @@ public class LinePositionImporter {
         Identifiable<?> lineOrDanglingLine = getLineOrDanglingLine(lineId);
         if (lineOrDanglingLine != null) {
             lineOrDanglingLineCoordinates.computeIfAbsent(lineOrDanglingLine, k -> new TreeMap<>())
-                    .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x")));
-                    // y <=> lat, x <=> lon
+                    .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x"))); // y <=> lat, x <=> lon
         } else {
             LOG.warn("Cannot find line/dangling {}, name {} in network {}: skipping line position", lineId, linePositionData.get("name"), network.getId());
         }

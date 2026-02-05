@@ -134,7 +134,7 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
     private static class CustomExtensionProvidersLoader extends DefaultExtensionProvidersLoader {
         private final List<ExtensionSerDe<?, ?>> serdes;
 
-        public CustomExtensionProvidersLoader(List<ExtensionSerDe<?, ?>> serdes) {
+        CustomExtensionProvidersLoader(List<ExtensionSerDe<?, ?>> serdes) {
             this.serdes = serdes;
         }
 

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -27,22 +27,8 @@ class BoundaryPointTest {
         assertSame(Country.FR, bp.getBorderFrom());
         assertSame(Country.BE, bp.getBorderTo());
 
-        try {
-            new BoundaryPoint(null, Country.FR, Country.BE);
-            fail();
-        } catch (Exception ignored) {
-        }
-
-        try {
-            new BoundaryPoint("name", null, Country.BE);
-            fail();
-        } catch (Exception ignored) {
-        }
-
-        try {
-            new BoundaryPoint("name", Country.FR, null);
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(NullPointerException.class, () -> new BoundaryPoint(null, Country.FR, Country.BE));
+        assertThrows(NullPointerException.class, () -> new BoundaryPoint("name", null, Country.BE));
+        assertThrows(NullPointerException.class, () -> new BoundaryPoint("name", Country.FR, null));
     }
 }

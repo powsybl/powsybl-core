@@ -107,5 +107,3 @@ public class DanglingLineCriterionTest {
         return new DefaultNetworkElementAdapter(danglingLine);
     }
 }
-
-

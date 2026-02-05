@@ -124,7 +124,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
                 writeEndComment(" END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA", outputStream);
 
                 SubstationSwitchingDeviceData switchingDeviceData = new SubstationSwitchingDeviceData();
-                write(switchingDeviceData.buildRecords(substation.getSwitchingDevices(), context.getFieldNames(INTERNAL_SUBSTATION_SWITCHING_DEVICE), switchingDeviceData.quotedFields(), context), outputStream);
+                write(switchingDeviceData.buildRecords(substation.getSwitchingDevices(), context.getFieldNames(INTERNAL_SUBSTATION_SWITCHING_DEVICE), switchingDeviceData.quotedFields(), context),
+                    outputStream);
                 writeEndComment(" END OF SUBSTATION SWITCHING DEVICE DATA, BEGIN SUBSTATION EQUIPMENT TERMINAL DATA", outputStream);
 
                 write(writeEquipmentTerminalData(substation.getEquipmentTerminals(), context), outputStream);
@@ -273,8 +274,10 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
             List<PsseSubstation> substationList = new ArrayList<>();
             for (PsseSubstationRecord substationRecord : recordList) {
                 List<PsseSubstationNode> nodeList = nodexList.stream().filter(n -> n.getIsub() == substationRecord.getIs()).map(PsseSubstationNodex::getNode).toList();
-                List<PsseSubstationSwitchingDevice> switchingDeviceList = switchingDevicexList.stream().filter(sd -> sd.getIsub() == substationRecord.getIs()).map(PsseSubstationSwitchingDevicex::getSwitchingDevice).toList();
-                List<PsseSubstationEquipmentTerminal> equipmentTerminalList = equipmentTerminalxList.stream().filter(eq -> eq.getIsub() == substationRecord.getIs()).map(PsseSubstationEquipmentTerminalx::getEquipmentTerminal).toList();
+                List<PsseSubstationSwitchingDevice> switchingDeviceList = switchingDevicexList.stream().filter(sd -> sd.getIsub() == substationRecord.getIs())
+                    .map(PsseSubstationSwitchingDevicex::getSwitchingDevice).toList();
+                List<PsseSubstationEquipmentTerminal> equipmentTerminalList = equipmentTerminalxList.stream().filter(eq -> eq.getIsub() == substationRecord.getIs())
+                    .map(PsseSubstationEquipmentTerminalx::getEquipmentTerminal).toList();
 
                 substationList.add(new PsseSubstation(substationRecord, nodeList, switchingDeviceList, equipmentTerminalList));
             }

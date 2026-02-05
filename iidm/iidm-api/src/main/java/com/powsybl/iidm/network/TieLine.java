@@ -15,7 +15,8 @@ import java.util.function.Predicate;
  * The tie line is always oriented in the same way, <br>
  * The network model node of the danglingLine1 is always at end 1. <br>
  * The network model node of the danglingLine2 is always at end 2. <br>
- * </p>
+ *
+ * <p>
  * As there is no injection at the boundary node, by applying kron reduction, this node can be
  * removed getting an equivalent branch between both network model nodes.
  * </p>

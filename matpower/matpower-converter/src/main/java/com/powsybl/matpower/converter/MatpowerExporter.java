@@ -141,7 +141,7 @@ public class MatpowerExporter implements Exporter {
                              boolean isValidVoltageRegulation, boolean isRemoteRegulation, double ratedS) {
         }
 
-        public Context(double maxGeneratorActivePowerLimit, double maxGeneratorReactivePowerLimit) {
+        Context(double maxGeneratorActivePowerLimit, double maxGeneratorReactivePowerLimit) {
             this.maxGeneratorActivePowerLimit = maxGeneratorActivePowerLimit;
             this.maxGeneratorReactivePowerLimit = maxGeneratorReactivePowerLimit;
         }
@@ -427,7 +427,7 @@ public class MatpowerExporter implements Exporter {
 
         private final TwoSides side;
 
-        public FlowsLimitsHolderBranchAdapter(Branch<?> branch, TwoSides side) {
+        FlowsLimitsHolderBranchAdapter(Branch<?> branch, TwoSides side) {
             this.branch = branch;
             this.side = side;
         }
@@ -985,31 +985,33 @@ public class MatpowerExporter implements Exporter {
     // Matpower power flow does not support bus with multiple generators that do not have the same voltage regulation
     // status. if the bus has PV type, all of its generator must have a valid voltage set point.
     private static void createGeneratorsAndDefinePVBuses(MatpowerModel model, Context context) {
-        context.generatorsToBeExported.keySet().stream().sorted().forEach(busNumber -> {
-            List<Context.GenRc> genRcs = context.generatorsToBeExported.get(busNumber);
-            MBus mBus = model.getBusByNum(busNumber);
-            List<Context.GenRc> genRcsWithRegulationOn = genRcs.stream().filter(genRc -> genRc.isValidVoltageRegulation).toList();
-            List<Context.GenRc> genRcsWithRegulationOff = genRcs.stream().filter(genRc -> !genRc.isValidVoltageRegulation).toList();
-            if (genRcsWithRegulationOn.isEmpty()) {
-                genRcsWithRegulationOff.forEach(genRc -> {
-                    MGen mGen = createMGen(model, busNumber, genRc, context);
-                    // we can safely set voltage setpoint to zero, because a PQ bus never go back to PV even if reactive limits
-                    // are activated in Matpower power flow
-                    mGen.setVoltageMagnitudeSetpoint(0);
-                });
-            } else {
-                if (mBus.getType().equals(MBus.Type.PQ)) {
-                    mBus.setType(MBus.Type.PV);
-                }
-                genRcsWithRegulationOn.forEach(genRc -> createMGen(model, busNumber, genRc, context));
+        context.generatorsToBeExported.keySet().stream().sorted().forEach(busNumber -> createGeneratorAndDefinePVBuses(model, context, busNumber));
+    }
 
-                genRcsWithRegulationOff.forEach(genRc -> {
-                    mBus.setRealPowerDemand(mBus.getRealPowerDemand() - genRc.targetP);
-                    mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - genRc.targetQ);
-                    context.generatorIdsConvertedToLoad.add(genRc.id);
-                });
+    private static void createGeneratorAndDefinePVBuses(MatpowerModel model, Context context, int busNumber) {
+        List<Context.GenRc> genRcs = context.generatorsToBeExported.get(busNumber);
+        MBus mBus = model.getBusByNum(busNumber);
+        List<Context.GenRc> genRcsWithRegulationOn = genRcs.stream().filter(genRc -> genRc.isValidVoltageRegulation).toList();
+        List<Context.GenRc> genRcsWithRegulationOff = genRcs.stream().filter(genRc -> !genRc.isValidVoltageRegulation).toList();
+        if (genRcsWithRegulationOn.isEmpty()) {
+            genRcsWithRegulationOff.forEach(genRc -> {
+                MGen mGen = createMGen(model, busNumber, genRc, context);
+                // we can safely set voltage setpoint to zero, because a PQ bus never go back to PV even if reactive limits
+                // are activated in Matpower power flow
+                mGen.setVoltageMagnitudeSetpoint(0);
+            });
+        } else {
+            if (mBus.getType().equals(MBus.Type.PQ)) {
+                mBus.setType(MBus.Type.PV);
             }
-        });
+            genRcsWithRegulationOn.forEach(genRc -> createMGen(model, busNumber, genRc, context));
+
+            genRcsWithRegulationOff.forEach(genRc -> {
+                mBus.setRealPowerDemand(mBus.getRealPowerDemand() - genRc.targetP);
+                mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - genRc.targetQ);
+                context.generatorIdsConvertedToLoad.add(genRc.id);
+            });
+        }
     }
 
     private static MGen createMGen(MatpowerModel model, int busNumber, Context.GenRc genRc, Context context) {

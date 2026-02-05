@@ -8,10 +8,6 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.model.CgmesNames;
-
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -30,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -128,7 +126,7 @@ final class ExportXmlCompare {
         String elementName = attr.getOwnerElement().getLocalName();
         boolean ignored = false;
         if (elementName != null) {
-            if (elementName.equals("danglingLine")) {
+            if ("danglingLine".equals(elementName)) {
                 ignored = true;
             } else if (elementName.startsWith("network")) {
                 ignored = attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance") || attr.getLocalName().equals("caseDate") || attr.getLocalName().equals("sourceFormat");
@@ -335,9 +333,9 @@ final class ExportXmlCompare {
                 && control.getParentNode().getLocalName().equals("RegulatingControl.targetDeadband")) {
                 Node rccontrol = control.getParentNode().getParentNode();
                 String about = rccontrol.getAttributes().getNamedItemNS(RDF_NAMESPACE, "about").getTextContent();
-                if (about.equals("#_84bf5be8-eb59-4555-b131-fce4d2d7775d")
-                    || about.equals("#_6ba406ce-78cf-4485-9b01-a34e584f1a8d")
-                    || about.equals("#_caf65447-3cfb-48d7-aaaa-cd9af3d34261")) {
+                if ("#_84bf5be8-eb59-4555-b131-fce4d2d7775d".equals(about)
+                    || "#_6ba406ce-78cf-4485-9b01-a34e584f1a8d".equals(about)
+                    || "#_caf65447-3cfb-48d7-aaaa-cd9af3d34261".equals(about)) {
                     return ComparisonResult.EQUAL;
                 }
             }
@@ -659,9 +657,9 @@ final class ExportXmlCompare {
             String cxpath = control.getXPath();
             if (comparison.getType() == ComparisonType.ATTR_VALUE) {
                 String cname = control.getTarget().getLocalName();
-                if (cxpath.contains("CurrentLimit") && (cname.equals("ID") || cname.equals("resource"))) {
+                if (cxpath.contains("CurrentLimit") && ("ID".equals(cname) || "resource".equals(cname))) {
                     return ComparisonResult.EQUAL;
-                } else if (cxpath.contains("OperationalLimit") && cname.equals("ID")) {
+                } else if (cxpath.contains("OperationalLimit") && "ID".equals(cname)) {
                     return ComparisonResult.EQUAL;
                 }
             } else if (comparison.getType() == ComparisonType.TEXT_VALUE) {
@@ -754,10 +752,10 @@ final class ExportXmlCompare {
                         if (Math.abs(control - test) < toleranceForNumericContent(n)) {
                             return ComparisonResult.EQUAL;
                         }
-                    } catch (NumberFormatException x) {
+                    } catch (NumberFormatException e) {
                         // not numeric, keep previous comparison result
                     }
-                } catch (NumberFormatException x) {
+                } catch (NumberFormatException e) {
                     // not numeric, keep previous comparison result
                 }
             }
@@ -781,10 +779,10 @@ final class ExportXmlCompare {
             // Line b1, b2, g1, g2 attributes in IIDM Network
             // Shunt bPerSection attribute in IIDM Network
             String name = n.getLocalName();
-            return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
-                || name.equals("r") || name.equals("x") || name.equals("g") || name.equals("b") || name.equals("rho") || name.equals("alpha")
-                || name.equals("b1") || name.equals("b2") || name.equals("g1") || name.equals("g2")
-                || name.equals("bPerSection") || name.equals("activePowerSetpoint") || name.equals("maxP")
+            return "p".equals(name) || "q".equals(name) || "p0".equals(name) || "q0".equals(name)
+                || "r".equals(name) || "x".equals(name) || "g".equals(name) || "b".equals(name) || "rho".equals(name) || "alpha".equals(name)
+                || "b1".equals(name) || "b2".equals(name) || "g1".equals(name) || "g2".equals(name)
+                || "bPerSection".equals(name) || "activePowerSetpoint".equals(name) || "maxP".equals(name)
                 || isAttrValueOfNumericProperty((Attr) n);
         }
         return false;
@@ -798,7 +796,7 @@ final class ExportXmlCompare {
                 Node npname = p.getAttributes().getNamedItem("name");
                 if (npname != null) {
                     String pname = npname.getTextContent();
-                    return pname.equals("v") || pname.equals("angle");
+                    return "v".equals(pname) || "angle".equals(pname);
                 }
             }
         }
@@ -890,12 +888,12 @@ final class ExportXmlCompare {
         if (n.getNodeType() == Node.ELEMENT_NODE) {
             String name = n.getLocalName();
             // Optional attributes with default values
-            if (name.equals("EquivalentInjection.regulationStatus") && n.getTextContent().equals("false")) {
+            if ("EquivalentInjection.regulationStatus".equals(name) && n.getTextContent().equals("false")) {
                 return false;
-            } else if (name.equals("EquivalentInjection.regulationTarget") && Double.parseDouble(n.getTextContent()) == 0) {
+            } else if ("EquivalentInjection.regulationTarget".equals(name) && Double.parseDouble(n.getTextContent()) == 0) {
                 return false;
             }
-            return name.equals("RDF")
+            return "RDF".equals(name)
                     || name.startsWith("EnergyConsumer") || name.startsWith("ConformLoad") || name.startsWith("NonConformLoad")
                     || name.startsWith("Terminal")
                     || name.startsWith("EquivalentInjection")
@@ -917,11 +915,11 @@ final class ExportXmlCompare {
     }
 
     private static boolean isConsideredModelElementName(String name) {
-        return name.equals("FullModel")
+        return "FullModel".equals(name)
                 || name.startsWith("Model.")
-                && !(name.equals("Model.created")
-                        || name.equals("Model.Supersedes")
-                        || name.equals("Model.createdBy"));
+                && !("Model.created".equals(name)
+                        || "Model.Supersedes".equals(name)
+                        || "Model.createdBy".equals(name));
     }
 
     private static DiffBuilder ignoringNonPersistentSshIds(DiffBuilder diffBuilder) {
@@ -929,7 +927,7 @@ final class ExportXmlCompare {
             String elementName = attr.getOwnerElement().getLocalName();
             boolean ignored = false;
             if (elementName != null) {
-                if (elementName.equals("FullModel")) {
+                if ("FullModel".equals(elementName)) {
                     ignored = attr.getLocalName().equals("about");
                 }
             }

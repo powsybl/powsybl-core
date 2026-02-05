@@ -62,70 +62,76 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
     public DummyExt read(Network extendable, DeserializerContext context) {
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         TreeDataReader reader = networkContext.getReader();
-        reader.readChildNodes(elementName -> {
-            if (elementName.equals(CONTROL_AREA_ROOT_ELEMENT)) {
-                String id = reader.readStringAttribute("id");
-                if (extendable.getArea(id) == null) {
-                    Area area = extendable.newArea()
-                            .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
-                            .setId(id)
-                            .setName(reader.readStringAttribute("name"))
-                            .setInterchangeTarget(reader.readDoubleAttribute("netInterchange"))
-                            .add();
-
-                    OptionalDouble pTolerance = reader.readOptionalDoubleAttribute("pTolerance");
-                    pTolerance.ifPresent(t -> area.setProperty(CgmesNames.P_TOLERANCE, Double.toString(t)));
-
-                    String energyIdentificationCodeEic = reader.readStringAttribute("energyIdentificationCodeEic");
-                    if (!Strings.isNullOrEmpty(energyIdentificationCodeEic)) {
-                        area.addAlias(energyIdentificationCodeEic, CgmesNames.ENERGY_IDENT_CODE_EIC);
-                    }
-                    readBoundariesAndTerminals(networkContext, area, extendable);
-                } else {
-                    LOGGER.warn("Area with id {} already exists. Skipping this CgmesControlArea.", id);
-                    reader.skipNode();
-                }
-            } else {
-                throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesControlArea'");
-            }
-        });
+        reader.readChildNodes(elementName -> readChildNode(extendable, networkContext, reader, elementName));
         return null;
+    }
+
+    private void readChildNode(Network extendable, NetworkDeserializerContext networkContext,
+                               TreeDataReader reader, String elementName) {
+        if (elementName.equals(CONTROL_AREA_ROOT_ELEMENT)) {
+            String id = reader.readStringAttribute("id");
+            if (extendable.getArea(id) == null) {
+                Area area = extendable.newArea()
+                    .setAreaType(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE)
+                    .setId(id)
+                    .setName(reader.readStringAttribute("name"))
+                    .setInterchangeTarget(reader.readDoubleAttribute("netInterchange"))
+                    .add();
+
+                OptionalDouble pTolerance = reader.readOptionalDoubleAttribute("pTolerance");
+                pTolerance.ifPresent(t -> area.setProperty(CgmesNames.P_TOLERANCE, Double.toString(t)));
+
+                String energyIdentificationCodeEic = reader.readStringAttribute("energyIdentificationCodeEic");
+                if (!Strings.isNullOrEmpty(energyIdentificationCodeEic)) {
+                    area.addAlias(energyIdentificationCodeEic, CgmesNames.ENERGY_IDENT_CODE_EIC);
+                }
+                readBoundariesAndTerminals(networkContext, area, extendable);
+            } else {
+                LOGGER.warn("Area with id {} already exists. Skipping this CgmesControlArea.", id);
+                reader.skipNode();
+            }
+        } else {
+            throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesControlArea'");
+        }
     }
 
     private void readBoundariesAndTerminals(NetworkDeserializerContext networkContext, Area area, Network network) {
         TreeDataReader reader = networkContext.getReader();
-        reader.readChildNodes(elementName -> {
-            switch (elementName) {
-                case BOUNDARY_ROOT_ELEMENT -> {
-                    String id = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
-                    Identifiable<?> identifiable = network.getIdentifiable(id);
-                    boolean isAc = true;  // Set to "true" because this piece of data is not available
-                    if (identifiable instanceof DanglingLine dl) {
-                        area.newAreaBoundary()
-                                .setAc(isAc)
-                                .setBoundary(dl.getBoundary())
-                                .add();
-                    } else if (identifiable instanceof TieLine tl) {
-                        TwoSides side = reader.readEnumAttribute("side", TwoSides.class);
-                        area.newAreaBoundary()
-                                .setAc(isAc)
-                                .setBoundary(tl.getDanglingLine(side).getBoundary())
-                                .add();
-                    } else {
-                        throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());
-                    }
-                    reader.readEndNode();
-                }
-                case TERMINAL_ROOT_ELEMENT -> {
-                    Terminal terminal = TerminalRefSerDe.readTerminal(networkContext, network);
+        reader.readChildNodes(elementName -> readBoundariesAndTerminalsChildNode(networkContext, area, network, reader, elementName));
+    }
+
+    private void readBoundariesAndTerminalsChildNode(NetworkDeserializerContext networkContext, Area area, Network network,
+                                                     TreeDataReader reader, String elementName) {
+        switch (elementName) {
+            case BOUNDARY_ROOT_ELEMENT -> {
+                String id = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
+                Identifiable<?> identifiable = network.getIdentifiable(id);
+                boolean isAc = true;  // Set to "true" because this piece of data is not available
+                if (identifiable instanceof DanglingLine dl) {
                     area.newAreaBoundary()
-                        .setAc(terminal.getConnectable().getType() != IdentifiableType.HVDC_CONVERTER_STATION)
-                        .setTerminal(terminal)
+                        .setAc(isAc)
+                        .setBoundary(dl.getBoundary())
                         .add();
+                } else if (identifiable instanceof TieLine tl) {
+                    TwoSides side = reader.readEnumAttribute("side", TwoSides.class);
+                    area.newAreaBoundary()
+                        .setAc(isAc)
+                        .setBoundary(tl.getDanglingLine(side).getBoundary())
+                        .add();
+                } else {
+                    throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());
                 }
-                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'controlArea'");
+                reader.readEndNode();
             }
-        });
+            case TERMINAL_ROOT_ELEMENT -> {
+                Terminal terminal = TerminalRefSerDe.readTerminal(networkContext, network);
+                area.newAreaBoundary()
+                    .setAc(terminal.getConnectable().getType() != IdentifiableType.HVDC_CONVERTER_STATION)
+                    .setTerminal(terminal)
+                    .add();
+            }
+            default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'controlArea'");
+        }
     }
 
     @Override

@@ -7,18 +7,17 @@
  */
 package com.powsybl.commons.extensions;
 
-import static org.junit.jupiter.api.Assertions.*;
+import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.Test;
-
-import com.google.auto.service.AutoService;
-import com.powsybl.commons.PowsyblException;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExtensionAdderProvidersTest {
 

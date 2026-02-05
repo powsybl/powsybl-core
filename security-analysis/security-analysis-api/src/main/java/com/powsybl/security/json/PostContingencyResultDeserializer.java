@@ -46,32 +46,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
         final String finalVersion = version;
         ParsingContext parsingContext = new ParsingContext();
         AbstractContingencyResultDeserializer.ParsingContext commonParsingContext = new AbstractContingencyResultDeserializer.ParsingContext();
-        JsonUtil.parsePolymorphicObject(parser, name -> {
-            boolean found = deserializeCommonAttributes(parser, commonParsingContext, name, deserializationContext, finalVersion, CONTEXT_NAME);
-            if (found) {
-                return true;
-            }
-            switch (parser.currentName()) {
-                case "contingency":
-                    parser.nextToken();
-                    parsingContext.contingency = JsonUtil.readValue(deserializationContext, parser, Contingency.class);
-                    return true;
-                case "status":
-                    parser.nextToken();
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
-                            finalVersion, "1.3");
-                    parsingContext.status = JsonUtil.readValue(deserializationContext, parser, PostContingencyComputationStatus.class);
-                    return true;
-                case "connectivityResult":
-                    parser.nextToken();
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: connectivityResult",
-                            finalVersion, "1.4");
-                    parsingContext.connectivityResult = JsonUtil.readValue(deserializationContext, parser, ConnectivityResult.class);
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parsePolymorphicObject(parser, name -> parsePostContingencyResult(parser, deserializationContext, parsingContext, finalVersion, commonParsingContext, name));
 
         if (parsingContext.connectivityResult == null) {
             parsingContext.connectivityResult = new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet());
@@ -88,6 +63,36 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
             return new PostContingencyResult(parsingContext.contingency, parsingContext.status, commonParsingContext.limitViolationsResult,
                     commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults,
                     parsingContext.connectivityResult);
+        }
+    }
+
+    private boolean parsePostContingencyResult(JsonParser parser, DeserializationContext deserializationContext,
+                                               ParsingContext parsingContext, String finalVersion,
+                                               AbstractContingencyResultDeserializer.ParsingContext commonParsingContext,
+                                               String name) throws IOException {
+        boolean found = deserializeCommonAttributes(parser, commonParsingContext, name, deserializationContext, finalVersion, CONTEXT_NAME);
+        if (found) {
+            return true;
+        }
+        switch (parser.currentName()) {
+            case "contingency":
+                parser.nextToken();
+                parsingContext.contingency = JsonUtil.readValue(deserializationContext, parser, Contingency.class);
+                return true;
+            case "status":
+                parser.nextToken();
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
+                    finalVersion, "1.3");
+                parsingContext.status = JsonUtil.readValue(deserializationContext, parser, PostContingencyComputationStatus.class);
+                return true;
+            case "connectivityResult":
+                parser.nextToken();
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: connectivityResult",
+                    finalVersion, "1.4");
+                parsingContext.connectivityResult = JsonUtil.readValue(deserializationContext, parser, ConnectivityResult.class);
+                return true;
+            default:
+                return false;
         }
     }
 }

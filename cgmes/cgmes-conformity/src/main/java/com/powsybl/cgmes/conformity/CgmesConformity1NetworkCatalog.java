@@ -100,61 +100,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setHighVoltageLimit(247.5)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
-        Bus busAnvers220 = vlAnvers220.getBusBreakerView().newBus()
-                .setId(BUS_ID_1)
-                .setName("BE-Busbar_2")
-                .add();
-        busAnvers220.setV(224.871595);
-        busAnvers220.setAngle(-7.624900);
-        Load loadAnvers220 = vlAnvers220.newLoad()
-                .setId("b1480a00-b427-4001-a26c-51954d2bb7e9")
-                .setName("L-1230804819")
-                .setConnectableBus(busAnvers220.getId())
-                .setBus(busAnvers220.getId())
-                .setP0(1.0)
-                .setQ0(0.0)
-                .add();
-        loadAnvers220.getTerminal().setP(1.0);
-        loadAnvers220.getTerminal().setQ(0.0);
-        DanglingLine be7 = vlAnvers220.newDanglingLine()
-                .setId("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")
-                .setName("BE-Line_7")
-                .setConnectableBus(busAnvers220.getId())
-                .setBus(busAnvers220.getId())
-                .setP0(-26.805006)
-                .setQ0(1.489867)
-                .setR(4.6)
-                .setX(69.0)
-                .setG(5.75e-5)
-                .setB(2.1677e-5)
-                .setPairingKey("TN_Border_ST24")
-                .add();
-        be7.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1180)
-                .beginTemporaryLimit()
-                    .setName(CL_0)
-                    .setValue(1312.0)
-                    .setAcceptableDuration(20)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName(CL_1)
-                    .setValue(1443.0)
-                    .setAcceptableDuration(10)
-                .endTemporaryLimit()
-                .add();
-
-        vlAnvers220.newDanglingLine()
-                .setId(DANGLING_LINE_ID_1)
-                .setName("BE-Line_1")
-                .setConnectableBus(busAnvers220.getId())
-                .setBus(busAnvers220.getId())
-                .setP0(-27.365225)
-                .setQ0(0.425626)
-                .setR(2.2)
-                .setX(68.2)
-                .setG(3.08e-5)
-                .setB(8.2938E-5)
-                .setPairingKey("TN_Border_ST23")
-                .add();
+        Bus busAnvers220 = createBusAnvers220(vlAnvers220);
 
         Bus busBrussels225 = vlBrussels225.getBusBreakerView().newBus()
                 .setId(BUS_ID_2)
@@ -188,105 +134,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .add();
         loadBrussels110.getTerminal().setP(200.0);
         loadBrussels110.getTerminal().setQ(90.0);
-        Bus busBrussels380 = vlBrussels380.getBusBreakerView().newBus()
-                .setId("e44141af-f1dc-44d3-bfa4-b674e5c953d7")
-                .setName("BE_TR_BUS2")
-                .add();
-        busBrussels380.setV(412.989001);
-        busBrussels380.setAngle(-6.780710);
-        ShuntCompensator shBrussels380 = vlBrussels380.newShuntCompensator()
-                .setId(SHUNT_ID_1)
-                .setName("BE_S2")
-                .setConnectableBus(busBrussels380.getId())
-                .setBus(busBrussels380.getId())
-                .setSectionCount(1)
-                .newLinearModel()
-                    .setBPerSection(3.46e-4)
-                    .setGPerSection(7.0e-6)
-                    .setMaximumSectionCount(1)
-                    .add()
-                .setTargetV(380.0)
-                .setTargetDeadband(0.5)
-                .setVoltageRegulatorOn(false)
-                .add();
-        shBrussels380.getTerminal().setQ(-59.058144);
-        DanglingLine be3 = vlBrussels380.newDanglingLine()
-                .setId("78736387-5f60-4832-b3fe-d50daf81b0a6")
-                .setName("BE-Line_3")
-                .setConnectableBus(busBrussels380.getId())
-                .setBus(busBrussels380.getId())
-                .setP0(-46.816625)
-                .setQ0(79.193778)
-                .setR(1.05)
-                .setX(12.0)
-                .setG(6e-5)
-                .setB(1.49854e-4)
-                .setPairingKey("TN_Border_AL11")
-                .add();
-        be3.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1371)
-                .beginTemporaryLimit()
-                    .setName(CL_0)
-                    .setValue(1443.0)
-                    .setAcceptableDuration(20)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName(CL_1)
-                    .setValue(1515.0)
-                    .setAcceptableDuration(10)
-                .endTemporaryLimit()
-                .add();
-
-        DanglingLine be5 = vlBrussels380.newDanglingLine()
-                .setId("b18cd1aa-7808-49b9-a7cf-605eaf07b006")
-                .setName("BE-Line_5")
-                .setConnectableBus(busBrussels380.getId())
-                .setBus(busBrussels380.getId())
-                .setP0(-90.037005)
-                .setQ0(148.603743)
-                .setR(0.42)
-                .setX(6.3)
-                .setG(4.2e-5)
-                .setB(6.59734E-5)
-                .setPairingKey("TN_Border_GY11")
-                .add();
-        be5.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1804)
-                .beginTemporaryLimit()
-                    .setName(CL_0)
-                    .setValue(1876.0)
-                    .setAcceptableDuration(20)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName(CL_1)
-                    .setValue(1948.0)
-                    .setAcceptableDuration(10)
-                .endTemporaryLimit()
-                .add();
-
-        DanglingLine be4 = vlBrussels380.newDanglingLine()
-                .setId("ed0c5d75-4a54-43c8-b782-b20d7431630b")
-                .setName("BE-Line_4")
-                .setConnectableBus(busBrussels380.getId())
-                .setBus(busBrussels380.getId())
-                .setP0(-43.687227)
-                .setQ0(84.876604)
-                .setR(0.24)
-                .setX(2.0)
-                .setG(4e-5)
-                .setB(2.51956e-5)
-                .setPairingKey("TN_Border_MA11")
-                .add();
-        be4.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1226)
-                .beginTemporaryLimit()
-                    .setName(CL_0)
-                    .setValue(1299.0)
-                    .setAcceptableDuration(20)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName(CL_1)
-                    .setValue(1371.0)
-                    .setAcceptableDuration(10)
-                .endTemporaryLimit()
-                .add();
+        Bus busBrussels380 = createBusBrussels380(vlBrussels380);
 
         ShuntCompensator shBrussels110 = vlBrussels110.newShuntCompensator()
                 .setId("d771118f-36e9-4115-a128-cc3d9ce3e3da")
@@ -321,46 +169,224 @@ public final class CgmesConformity1NetworkCatalog {
         // expected.newLine()
         // .setId(DANGLING_LINE_ID_1)
         // .add();
+        addLines(network, busBrussels225, vlBrussels225, busAnvers220, vlAnvers220);
+        addTransformerBrussels110Brussels10(sBrussels, busBrussels110, busBrussels10, vlBrussels110, vlBrussels10);
+        addTransformerBrussels225Brussels110(sBrussels, busBrussels225, busBrussels110, vlBrussels225, vlBrussels110);
+        TwoWindingsTransformer txBE21 = addTransformerBrussels380Brussels110(sBrussels, busBrussels380, busBrussels110, vlBrussels380, vlBrussels110);
+        addGeneratorBrussels10(vlBrussels10, busBrussels10, txBE21);
+        addTWTBrussels380Brussels225Brussels21(sBrussels,
+            busBrussels380, busBrussels225, busBrussels21,
+            vlBrussels380, vlBrussels225, vlBrussels21);
+        return network;
+    }
+
+    private static Bus createBusBrussels380(VoltageLevel vlBrussels380) {
+        Bus busBrussels380 = vlBrussels380.getBusBreakerView().newBus()
+            .setId("e44141af-f1dc-44d3-bfa4-b674e5c953d7")
+            .setName("BE_TR_BUS2")
+            .add();
+        busBrussels380.setV(412.989001);
+        busBrussels380.setAngle(-6.780710);
+        ShuntCompensator shBrussels380 = vlBrussels380.newShuntCompensator()
+            .setId(SHUNT_ID_1)
+            .setName("BE_S2")
+            .setConnectableBus(busBrussels380.getId())
+            .setBus(busBrussels380.getId())
+            .setSectionCount(1)
+            .newLinearModel()
+            .setBPerSection(3.46e-4)
+            .setGPerSection(7.0e-6)
+            .setMaximumSectionCount(1)
+            .add()
+            .setTargetV(380.0)
+            .setTargetDeadband(0.5)
+            .setVoltageRegulatorOn(false)
+            .add();
+        shBrussels380.getTerminal().setQ(-59.058144);
+        DanglingLine be3 = vlBrussels380.newDanglingLine()
+            .setId("78736387-5f60-4832-b3fe-d50daf81b0a6")
+            .setName("BE-Line_3")
+            .setConnectableBus(busBrussels380.getId())
+            .setBus(busBrussels380.getId())
+            .setP0(-46.816625)
+            .setQ0(79.193778)
+            .setR(1.05)
+            .setX(12.0)
+            .setG(6e-5)
+            .setB(1.49854e-4)
+            .setPairingKey("TN_Border_AL11")
+            .add();
+        be3.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1371)
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(1443.0)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(1515.0)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
+
+        DanglingLine be5 = vlBrussels380.newDanglingLine()
+            .setId("b18cd1aa-7808-49b9-a7cf-605eaf07b006")
+            .setName("BE-Line_5")
+            .setConnectableBus(busBrussels380.getId())
+            .setBus(busBrussels380.getId())
+            .setP0(-90.037005)
+            .setQ0(148.603743)
+            .setR(0.42)
+            .setX(6.3)
+            .setG(4.2e-5)
+            .setB(6.59734E-5)
+            .setPairingKey("TN_Border_GY11")
+            .add();
+        be5.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1804)
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(1876.0)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(1948.0)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
+
+        DanglingLine be4 = vlBrussels380.newDanglingLine()
+            .setId("ed0c5d75-4a54-43c8-b782-b20d7431630b")
+            .setName("BE-Line_4")
+            .setConnectableBus(busBrussels380.getId())
+            .setBus(busBrussels380.getId())
+            .setP0(-43.687227)
+            .setQ0(84.876604)
+            .setR(0.24)
+            .setX(2.0)
+            .setG(4e-5)
+            .setB(2.51956e-5)
+            .setPairingKey("TN_Border_MA11")
+            .add();
+        be4.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1226)
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(1299.0)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(1371.0)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
+        return busBrussels380;
+    }
+
+    private static Bus createBusAnvers220(VoltageLevel vlAnvers220) {
+        Bus busAnvers220 = vlAnvers220.getBusBreakerView().newBus()
+            .setId(BUS_ID_1)
+            .setName("BE-Busbar_2")
+            .add();
+        busAnvers220.setV(224.871595);
+        busAnvers220.setAngle(-7.624900);
+        Load loadAnvers220 = vlAnvers220.newLoad()
+            .setId("b1480a00-b427-4001-a26c-51954d2bb7e9")
+            .setName("L-1230804819")
+            .setConnectableBus(busAnvers220.getId())
+            .setBus(busAnvers220.getId())
+            .setP0(1.0)
+            .setQ0(0.0)
+            .add();
+        loadAnvers220.getTerminal().setP(1.0);
+        loadAnvers220.getTerminal().setQ(0.0);
+        DanglingLine be7 = vlAnvers220.newDanglingLine()
+            .setId("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")
+            .setName("BE-Line_7")
+            .setConnectableBus(busAnvers220.getId())
+            .setBus(busAnvers220.getId())
+            .setP0(-26.805006)
+            .setQ0(1.489867)
+            .setR(4.6)
+            .setX(69.0)
+            .setG(5.75e-5)
+            .setB(2.1677e-5)
+            .setPairingKey("TN_Border_ST24")
+            .add();
+        be7.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1180)
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(1312.0)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(1443.0)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
+
+        vlAnvers220.newDanglingLine()
+            .setId(DANGLING_LINE_ID_1)
+            .setName("BE-Line_1")
+            .setConnectableBus(busAnvers220.getId())
+            .setBus(busAnvers220.getId())
+            .setP0(-27.365225)
+            .setQ0(0.425626)
+            .setR(2.2)
+            .setX(68.2)
+            .setG(3.08e-5)
+            .setB(8.2938E-5)
+            .setPairingKey("TN_Border_ST23")
+            .add();
+
+        return busAnvers220;
+    }
+
+    private static void addLines(Network network,
+                                 Bus busBrussels225, VoltageLevel vlBrussels225,
+                                 Bus busAnvers220, VoltageLevel vlAnvers220
+                                 ) {
         Line lineBE2 = network.newLine()
-                .setId("b58bf21a-096a-4dae-9a01-3f03b60c24c7")
-                .setName("BE-Line_2")
-                .setR(1.935)
-                .setX(34.2)
-                .setB1(2.120575e-5)
-                .setG1(3.375e-5)
-                .setB2(2.120575e-5)
-                .setG2(3.375e-5)
-                .setConnectableBus1(busBrussels225.getId())
-                .setBus1(busBrussels225.getId())
-                .setVoltageLevel1(vlBrussels225.getId())
-                .setConnectableBus2(busAnvers220.getId())
-                .setBus2(busAnvers220.getId())
-                .setVoltageLevel2(vlAnvers220.getId())
-                .add();
+            .setId("b58bf21a-096a-4dae-9a01-3f03b60c24c7")
+            .setName("BE-Line_2")
+            .setR(1.935)
+            .setX(34.2)
+            .setB1(2.120575e-5)
+            .setG1(3.375e-5)
+            .setB2(2.120575e-5)
+            .setG2(3.375e-5)
+            .setConnectableBus1(busBrussels225.getId())
+            .setBus1(busBrussels225.getId())
+            .setVoltageLevel1(vlBrussels225.getId())
+            .setConnectableBus2(busAnvers220.getId())
+            .setBus2(busAnvers220.getId())
+            .setVoltageLevel2(vlAnvers220.getId())
+            .add();
         lineBE2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1443.0)
-                .beginTemporaryLimit()
-                    .setName(CL_0)
-                    .setValue(1574.0)
-                    .setAcceptableDuration(20)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName(CL_1)
-                    .setValue(1705.0)
-                    .setAcceptableDuration(10)
-                .endTemporaryLimit()
-                .add();
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(1574.0)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(1705.0)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
         lineBE2.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(1443.0)
-                .beginTemporaryLimit()
-                    .setName(CL_0)
-                    .setValue(1574.0)
-                    .setAcceptableDuration(20)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName(CL_1)
-                    .setValue(1705.0)
-                    .setAcceptableDuration(10)
-                .endTemporaryLimit()
-                .add();
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(1574.0)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(1705.0)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
         // expected.newLine()
         // .setId("78736387-5f60-4832-b3fe-d50daf81b0a6")
         // .add();
@@ -371,53 +397,45 @@ public final class CgmesConformity1NetworkCatalog {
         // .setId("b18cd1aa-7808-49b9-a7cf-605eaf07b006")
         // .add();
         Line lineBE6 = network.newLine()
-                .setId("ffbabc27-1ccd-4fdc-b037-e341706c8d29")
-                .setName("BE-Line_6")
-                .setR(5.203)
-                .setX(71.0)
-                .setB1(1.000595e-5)
-                .setG1(0.6e-4)
-                .setB2(1.000595e-5)
-                .setG2(0.6e-4)
-                .setConnectableBus1(busBrussels225.getId())
-                .setBus1(busBrussels225.getId())
-                .setVoltageLevel1(vlBrussels225.getId())
-                .setConnectableBus2(busAnvers220.getId())
-                .setBus2(busAnvers220.getId())
-                .setVoltageLevel2(vlAnvers220.getId())
-                .add();
+            .setId("ffbabc27-1ccd-4fdc-b037-e341706c8d29")
+            .setName("BE-Line_6")
+            .setR(5.203)
+            .setX(71.0)
+            .setB1(1.000595e-5)
+            .setG1(0.6e-4)
+            .setB2(1.000595e-5)
+            .setG2(0.6e-4)
+            .setConnectableBus1(busBrussels225.getId())
+            .setBus1(busBrussels225.getId())
+            .setVoltageLevel1(vlBrussels225.getId())
+            .setConnectableBus2(busAnvers220.getId())
+            .setBus2(busAnvers220.getId())
+            .setVoltageLevel2(vlAnvers220.getId())
+            .add();
         lineBE6.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(1180.0)
-                .beginTemporaryLimit()
-                    .setName(CL_0)
-                    .setValue(1312.0)
-                    .setAcceptableDuration(20)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName(CL_1)
-                    .setValue(1443.0)
-                    .setAcceptableDuration(10)
-                .endTemporaryLimit()
-                .add();
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(1312.0)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(1443.0)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
         lineBE6.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(1180.0)
-                .beginTemporaryLimit()
-                    .setName(CL_0)
-                    .setValue(1312.0)
-                    .setAcceptableDuration(20)
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                    .setName(CL_1)
-                    .setValue(1443.0)
-                    .setAcceptableDuration(10)
-                .endTemporaryLimit()
-                .add();
-        addTransformerBrussels110Brussels10(sBrussels, busBrussels110, busBrussels10, vlBrussels110, vlBrussels10);
-        addTransformerBrussels225Brussels110(sBrussels, busBrussels225, busBrussels110, vlBrussels225, vlBrussels110);
-        TwoWindingsTransformer txBE21 = addTransformerBrussels380Brussels110(sBrussels, busBrussels380, busBrussels110, vlBrussels380, vlBrussels110);
-        addGeneratorBrussels10(vlBrussels10, busBrussels10, txBE21);
-        addTWTBrussels380Brussels225Brussels21(sBrussels,
-            busBrussels380, busBrussels225, busBrussels21,
-            vlBrussels380, vlBrussels225, vlBrussels21);
-        return network;
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(1312.0)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(1443.0)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
     }
 
     private static void addGenBrussels21(VoltageLevel vlBrussels21, Bus busBrussels21) {
@@ -956,23 +974,8 @@ public final class CgmesConformity1NetworkCatalog {
                 .setVoltageSetpoint(229.5)
                 .add();
 
-        double p = -118.0;
-        double targetQ = 18.720301;
-        double q = -85.603401;
-        Generator genBrussels21 = network
-                .getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa")
-                .setTargetP(-p)
-                .setTargetQ(targetQ);
-        genBrussels21.getTerminal().setP(p).setQ(q);
-
-        p = -90.0;
-        targetQ = 100.256;
-        q = 84.484905;
-        Generator genBrussels10 = network
-                .getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0")
-                .setTargetP(-p)
-                .setTargetQ(targetQ);
-        genBrussels10.getTerminal().setP(p).setQ(q);
+        setGeneratorValues(network, "550ebe0d-f2b2-48c1-991f-cebea43a21aa", -118.0, -85.603401, 18.720301);
+        setGeneratorValues(network, "3a3b27be-b18b-4385-b557-6735d733baf0", -90.0, 84.484905, 100.256);
 
         // Line _df16b3dd (scAnvers) comes from a SeriesCompensator in CGMES model
         network.newLine()
@@ -1115,6 +1118,14 @@ public final class CgmesConformity1NetworkCatalog {
                 .setVoltageRegulatorOn(false)
                 .add();
         return network;
+    }
+
+    private static void setGeneratorValues(Network network, String generatorId, double p, double q, double targetQ) {
+        Generator genBrussels10 = network
+            .getGenerator(generatorId)
+            .setTargetP(-p)
+            .setTargetQ(targetQ);
+        genBrussels10.getTerminal().setP(p).setQ(q);
     }
 
     private static void addPhaseTapChangerOnTxBE22(TwoWindingsTransformer txBE22) {

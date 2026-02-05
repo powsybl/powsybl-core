@@ -8,15 +8,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
-import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.*;
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Map;
-import java.util.Properties;
-
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -24,7 +16,14 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
+import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

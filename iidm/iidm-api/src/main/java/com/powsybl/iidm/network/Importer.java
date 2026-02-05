@@ -10,10 +10,10 @@ package com.powsybl.iidm.network;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.commons.parameters.Parameter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -89,6 +89,7 @@ public interface Importer {
             throw new PowsyblException("Post processor " + name + " not found");
         }
 
+        @SuppressWarnings("checkstyle:IllegalCatchWarning")
         @Override
         public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
             Network network = importer.importData(dataSource, networkFactory, parameters, reportNode);

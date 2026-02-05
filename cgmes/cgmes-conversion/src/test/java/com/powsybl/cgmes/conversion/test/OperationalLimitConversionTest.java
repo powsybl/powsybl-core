@@ -8,6 +8,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -15,8 +16,6 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
-
-import com.google.re2j.Pattern;
 
 import java.io.IOException;
 import java.util.*;

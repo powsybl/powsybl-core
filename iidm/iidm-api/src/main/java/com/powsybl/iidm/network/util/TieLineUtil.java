@@ -10,9 +10,8 @@ package com.powsybl.iidm.network.util;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import org.apache.commons.math3.complex.Complex;
-
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
+import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,24 +79,27 @@ public final class TieLineUtil {
         Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
         Sets.difference(dl1Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop)));
         Sets.difference(dl2Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl2.getProperty(prop)));
-        commonProperties.forEach(prop -> {
-            if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else if (dl1.getProperty(prop).isEmpty()) {
-                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
-                NetworkReports.propertyOnlyOnOneSide(reportNode, prop, dl2.getProperty(prop), 1, dl1.getId(), dl2.getId());
-                properties.setProperty(prop, dl2.getProperty(prop));
-            } else if (dl2.getProperty(prop).isEmpty()) {
-                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
-                NetworkReports.propertyOnlyOnOneSide(reportNode, prop, dl1.getProperty(prop), 2, dl1.getId(), dl2.getId());
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else {
-                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
-                NetworkReports.inconsistentPropertyValues(reportNode, prop, dl1.getProperty(prop), dl2.getProperty(prop), dl1.getId(), dl2.getId());
-            }
-        });
+        commonProperties.forEach(prop -> mergeProperty(dl1, dl2, properties, reportNode, prop));
         dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
         dl2Properties.forEach(prop -> properties.setProperty(prop + "_2", dl2.getProperty(prop)));
+    }
+
+    private static void mergeProperty(DanglingLine dl1, DanglingLine dl2, Properties properties, ReportNode reportNode, String prop) {
+        if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
+            properties.setProperty(prop, dl1.getProperty(prop));
+        } else if (dl1.getProperty(prop).isEmpty()) {
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
+            NetworkReports.propertyOnlyOnOneSide(reportNode, prop, dl2.getProperty(prop), 1, dl1.getId(), dl2.getId());
+            properties.setProperty(prop, dl2.getProperty(prop));
+        } else if (dl2.getProperty(prop).isEmpty()) {
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
+            NetworkReports.propertyOnlyOnOneSide(reportNode, prop, dl1.getProperty(prop), 2, dl1.getId(), dl2.getId());
+            properties.setProperty(prop, dl1.getProperty(prop));
+        } else {
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line",
+                prop, dl1.getProperty(prop), dl2.getProperty(prop));
+            NetworkReports.inconsistentPropertyValues(reportNode, prop, dl1.getProperty(prop), dl2.getProperty(prop), dl1.getId(), dl2.getId());
+        }
     }
 
     public static void mergeIdenticalAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases) {

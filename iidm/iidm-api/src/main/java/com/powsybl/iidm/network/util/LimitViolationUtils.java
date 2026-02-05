@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- *
  * Helper methods for checking the occurrence of overloads.
  *
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
@@ -168,7 +167,9 @@ public final class LimitViolationUtils {
             .orElse(false);
     }
 
-    public static PermanentLimitCheckResult checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
+    public static PermanentLimitCheckResult checkPermanentLimit(ThreeWindingsTransformer transformer,
+                                                                ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer,
+                                                                double i, LimitType type) {
         return getLimits(transformer, side, type, computer)
                 .map(l -> checkPermanentLimitIfAny(l, i))
                 .orElse(null);

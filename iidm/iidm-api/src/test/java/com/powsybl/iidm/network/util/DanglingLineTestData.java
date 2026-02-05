@@ -7,13 +7,12 @@
  */
 package com.powsybl.iidm.network.util;
 
-import org.mockito.Mockito;
-
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusBreakerView;
 import com.powsybl.iidm.network.Terminal.BusView;
+import org.mockito.Mockito;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -21,19 +20,19 @@ import com.powsybl.iidm.network.Terminal.BusView;
  */
 class DanglingLineTestData {
 
-    static double r = 0.05;
-    static double x = 0.2;
-    static double G = 0.0;
-    static double B = 0.000001;
+    static final double R = 0.05;
+    static final double X = 0.2;
+    static final double G = 0.0;
+    static final double B = 0.000001;
 
-    static double U = 406.62;
-    static double ANGLE = -8.60;
+    static final double U = 406.62;
+    static final double ANGLE = -8.60;
 
-    static double P0 = -367.40;
-    static double Q0 = 63.73;
+    static final double P0 = -367.40;
+    static final double Q0 = 63.73;
 
-    static double BOUNDARY_BUS_U = 406.63;
-    static double BOUNDARY_BUS_ANGLE = -8.57;
+    static final double BOUNDARY_BUS_U = 406.63;
+    static final double BOUNDARY_BUS_ANGLE = -8.57;
 
     private Bus bus;
     private BusView busView;
@@ -59,8 +58,8 @@ class DanglingLineTestData {
         Mockito.when(terminal.getBusView()).thenReturn(busView);
         Mockito.when(terminal.getBusBreakerView()).thenReturn(busBreakerView);
 
-        Mockito.when(danglingLine.getR()).thenReturn(r);
-        Mockito.when(danglingLine.getX()).thenReturn(x);
+        Mockito.when(danglingLine.getR()).thenReturn(R);
+        Mockito.when(danglingLine.getX()).thenReturn(X);
         Mockito.when(danglingLine.getG()).thenReturn(G);
         Mockito.when(danglingLine.getB()).thenReturn(B);
         Mockito.when(danglingLine.getP0()).thenReturn(P0);

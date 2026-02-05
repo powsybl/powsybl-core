@@ -28,7 +28,8 @@ public final class RegulatingControlEq {
     public static final String REGULATING_CONTROL_REACTIVE_POWER = "RegulatingControlModeKind.reactivePower";
     public static final String REGULATING_CONTROL_ACTIVE_POWER = "RegulatingControlModeKind.activePower";
 
-    public static String writeRegulatingControlEq(Connectable<?> c, String terminalId, Set<String> regulatingControlsWritten, String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static String writeRegulatingControlEq(Connectable<?> c, String terminalId, Set<String> regulatingControlsWritten,
+                                                  String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String regulatingControlId = context.getNamingStrategy().getCgmesIdFromProperty(c, Conversion.PROPERTY_REGULATING_CONTROL);
         if (regulatingControlId != null && !regulatingControlsWritten.contains(regulatingControlId)) {
             String regulatingControlName = "RC_" + c.getNameOrId();

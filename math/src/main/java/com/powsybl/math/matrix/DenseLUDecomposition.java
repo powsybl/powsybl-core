@@ -32,6 +32,7 @@ class DenseLUDecomposition implements LUDecomposition {
         transposedDecomposition = null;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchError")
     @Override
     public void solve(double[] b) {
         try {
@@ -45,6 +46,7 @@ class DenseLUDecomposition implements LUDecomposition {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchError")
     @Override
     public void solveTransposed(double[] b) {
         try {
@@ -58,6 +60,7 @@ class DenseLUDecomposition implements LUDecomposition {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchError")
     @Override
     public void solve(DenseMatrix b) {
         try {
@@ -71,6 +74,7 @@ class DenseLUDecomposition implements LUDecomposition {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchError")
     @Override
     public void solveTransposed(DenseMatrix b) {
         try {

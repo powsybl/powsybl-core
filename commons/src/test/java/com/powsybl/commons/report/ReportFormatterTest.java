@@ -42,6 +42,7 @@ class ReportFormatterTest {
             }
             return typedValue.getValue().toString();
         };
-        assertEquals("Formatter test message double default format: 4.35684975 double format based on type: 4,4665 float format based on type: 0,60 string default format: tiny string format based on type: This is a sentence", root.getMessage(customFormatter));
+        assertEquals("Formatter test message double default format: 4.35684975 double format based on type: 4,4665 float " +
+            "format based on type: 0,60 string default format: tiny string format based on type: This is a sentence", root.getMessage(customFormatter));
     }
 }
