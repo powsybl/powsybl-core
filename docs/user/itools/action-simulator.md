@@ -83,7 +83,7 @@ This option defines the format of the result file. This option is required if `-
 This option enables the verbose mode, to display more information during the simulation.
 
 ## Simulators
-Currently, the only simulator which is supported is the [load-flow-based]() simulator.
+Currently, the only simulator which is supported is the load-flow-based simulator.
 
 ## Parameters
 <span style="color: red">TODO</span>
