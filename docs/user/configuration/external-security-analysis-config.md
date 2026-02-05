@@ -3,12 +3,12 @@ The `external-security-analysis-config` module is used in the `com.powsybl.secur
 
 ## Required properties
 
-**itools-command**  
+**itools-command**<br>
 The `itools-command` property is a required property that defines the iTools command to run. It throws a `ConfigurationException` if this property is not set.
 
 ## Optional property
 
-**debug**  
+**debug**<br>
 The `debug` property is an optional property that defines whether the `security-analysis` should run in debug mode or not. The default value of this property is `false`.
 
 ## Examples

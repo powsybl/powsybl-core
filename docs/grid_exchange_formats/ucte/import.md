@@ -81,7 +81,7 @@ Notations:
 
 |         Check         |         Consequence         |
 |:---------------------:|:---------------------------:|
-| $X \in [-0.05, 0.05]$ |       $X = \pm 0.05$        | 
+| $X \in [-0.05, 0.05]$ |       $X = \pm 0.05$        |
 |  Current limit $<0$   | Current limit value ignored |
 
 ### Regulations
@@ -109,7 +109,7 @@ There is no equivalent [voltage level](../../grid_model/network_subnetwork.md#vo
 so we have to create substations and voltage levels from the node description and the topology.
 Two nodes are in the same substation if they have the same geographical spot (the 1st-6th character of the node code)
 or are connected by a two-winding transformer, a coupler or a low-impedance line.
-Two nodes are in the same voltage level if their code only differs by the eighth character (busbars identifier).  
+Two nodes are in the same voltage level if their code only differs by the eighth character (busbars identifier).
 **Note:** We do not create a substation, a voltage level or a bus for X-nodes. They are converted to [dangling lines](../../grid_model/network_subnetwork.md#dangling-line).
 
 For nodes with a valid active or reactive load, a [load](../../grid_model/network_subnetwork.md#load) is created.
@@ -126,7 +126,7 @@ The power plant type is converted to an [energy source]() value (see the mapping
 |      Nuclear (N)      |      Nuclear       |
 |      Lignite (L)      |      Thermal       |
 |     Hard coal (C)     |      Thermal       |
-|        Gas (G)        |      Thermal       | 
+|        Gas (G)        |      Thermal       |
 |        Oil (O)        |      Thermal       |
 |       Wind (W)        |        Wind        |
 |      Further (F)      |       Other        |
@@ -217,7 +217,7 @@ Each country present results in the creation of an Area in the IIDM model with:
 - Area **Boundaries**: all DanglingLines in the Country
 
 By default, all Area Boundaries are flagged as AC, because the UCTE-DEF format does not have any HVDC explicit description.
-To specify which boundaries should be considered as DC in the conversion, you may supply a list of X-nodes IDs in the 
+To specify which boundaries should be considered as DC in the conversion, you may supply a list of X-nodes IDs in the
 [`ucte.import.areas-dc-xnodes` option](#ucteimportareas-dc-xnodes).
 
 **Note:** Creating areas for German subregions / TSOs is not supported today (D2, D4, D7, D8).
