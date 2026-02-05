@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 
 import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1070,18 +1071,43 @@ public final class EquipmentExport {
             setDanglingLinesProperty(danglingLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
         } else {
             // If no information about original boundary has been preserved in the IIDM model,
-            // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
+            // we first try to find the ConnectivityNodeId in the reference data provider, and as a last option,
+            // we create a new ConnectivityNode in a fictitious Substation and VoltageLevel.
 
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Dangling line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", danglingLinesId(danglingLineList));
-            }
-            DanglingLine danglingLine = danglingLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
-            connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(danglingLine), CONNECTIVITY_NODE);
+            Optional<String> optionalConnectivityNodeId = findConnectivityNodeId(danglingLineList.getFirst().getPairingKey(), context);
+            connectivityNodeId = optionalConnectivityNodeId.isPresent() ? optionalConnectivityNodeId.get() : createNewConnectivityNode(danglingLineList, baseVoltageId, cimNamespace, writer, context);
 
-            String connectivityNodeContainerId = createFictitiousContainerFor(danglingLineList, baseVoltageId, cimNamespace, writer, context);
-            ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
             setDanglingLinesProperty(danglingLineList, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, connectivityNodeId);
         }
+        return connectivityNodeId;
+    }
+
+    private static Optional<String> findConnectivityNodeId(String pairingKey, CgmesExportContext context) {
+        ReferenceDataProvider referenceDataProvider = context.getReferenceDataProvider();
+        if (referenceDataProvider == null) {
+            return Optional.empty();
+        }
+        PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
+        if (boundaryNodes == null) {
+            return Optional.empty();
+        }
+        return boundaryNodes.stream()
+                .filter(propertyBag -> pairingKey.equals(propertyBag.getId("name")))
+                .map(propertyBag1 -> propertyBag1.getId("ConnectivityNode"))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    private static String createNewConnectivityNode(List<DanglingLine> danglingLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Dangling line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", danglingLinesId(danglingLineList));
+        }
+        DanglingLine danglingLine = danglingLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
+        String connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(danglingLine), CONNECTIVITY_NODE);
+
+        String connectivityNodeContainerId = createFictitiousContainerFor(danglingLineList, baseVoltageId, cimNamespace, writer, context);
+        ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
+
         return connectivityNodeId;
     }
 
