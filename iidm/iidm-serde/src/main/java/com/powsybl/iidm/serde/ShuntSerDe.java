@@ -123,18 +123,18 @@ class ShuntSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, Shun
             context.getWriter().writeDoubleAttribute(B_PER_SECTION, getBPerSection(sc, context.getVersion()));
             context.getWriter().writeDoubleAttribute("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection());
             context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, sc.getMaximumSectionCount());
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(sc, context));
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(sc.getModel(), context));
             context.getWriter().writeEndNode();
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
                 context.getWriter().writeStartNodes();
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(sc, context));
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(sc.getModel(), context));
                 for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SECTION_ROOT_ELEMENT_NAME);
                     context.getWriter().writeDoubleAttribute("b", s.getB());
                     context.getWriter().writeDoubleAttribute("g", s.getG());
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(s, context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(s, context));
                     context.getWriter().writeEndNode();
                 }
                 context.getWriter().writeEndNodes();

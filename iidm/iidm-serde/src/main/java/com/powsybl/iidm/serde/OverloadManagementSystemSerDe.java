@@ -55,7 +55,7 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
                 context.getWriter().writeStringAttribute("branchId",
                         context.getAnonymizer().anonymizeString(branchTripping.getBranchToOperateId()));
                 context.getWriter().writeEnumAttribute("side", branchTripping.getSideToOperate());
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(branchTripping, context));
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(branchTripping, context));
                 context.getWriter().writeEndNode();
             }
             case SWITCH_TRIPPING -> {
@@ -64,7 +64,7 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
                 writeTrippingCommonAttributes(tripping, context);
                 context.getWriter().writeStringAttribute("switchId",
                         context.getAnonymizer().anonymizeString(switchTripping.getSwitchToOperateId()));
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(switchTripping, context));
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(switchTripping, context));
                 context.getWriter().writeEndNode();
             }
             case THREE_WINDINGS_TRANSFORMER_TRIPPING -> {
@@ -75,7 +75,7 @@ class OverloadManagementSystemSerDe extends AbstractComplexIdentifiableSerDe<Ove
                 context.getWriter().writeStringAttribute("threeWindingsTransformerId",
                         context.getAnonymizer().anonymizeString(twtTripping.getThreeWindingsTransformerToOperateId()));
                 context.getWriter().writeEnumAttribute("side", twtTripping.getSideToOperate());
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(twtTripping, context));
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(twtTripping, context));
                 context.getWriter().writeEndNode();
             }
             default -> throw new PowsyblException("Unexpected tripping type: " + tripping.getType());

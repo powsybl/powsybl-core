@@ -41,7 +41,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, NetworkSerializerContext context) {
         readCommonTapChangerAttributes(tcs, context);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(tcs, context));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(tcs, context));
     }
 
     private static TreeDataWriter readCommonTapChangerAttributes(TapChangerStep<?> tcs, NetworkSerializerContext context) {
@@ -56,7 +56,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     protected static void writePhaseTapChangerStep(PhaseTapChangerStep ptcs, NetworkSerializerContext context) {
         readCommonTapChangerAttributes(ptcs, context).writeDoubleAttribute("alpha", ptcs.getAlpha());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(ptcs, context));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(ptcs, context));
     }
 
     private static void writeTargetDeadband(double targetDeadband, NetworkSerializerContext context) {
@@ -110,7 +110,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, rtc.getRegulationMode());
             context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, rtc.getRegulationValue());
         });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(rtc, context));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(rtc, context));
         TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         context.getWriter().writeStartNodes();
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
@@ -227,7 +227,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, regMode);
         }
         context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, ptc.getRegulationValue());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(ptc, context));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(ptc, context));
         TerminalRefSerDe.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         context.getWriter().writeStartNodes();
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {

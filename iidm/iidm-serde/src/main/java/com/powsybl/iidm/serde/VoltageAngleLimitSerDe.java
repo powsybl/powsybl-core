@@ -42,7 +42,7 @@ public final class VoltageAngleLimitSerDe {
             context.getWriter().writeOptionalDoubleAttribute(LOW_LIMIT, lowLimit.isPresent() ? lowLimit.getAsDouble() : null);
             context.getWriter().writeOptionalDoubleAttribute(HIGH_LIMIT, highLimit.isPresent() ? highLimit.getAsDouble() : null);
 
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> PropertiesSerDe.write(voltageAngleLimit, context));
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(voltageAngleLimit, context));
 
             TerminalRefSerDe.writeTerminalRef(voltageAngleLimit.getTerminalFrom(), context, FROM);
             TerminalRefSerDe.writeTerminalRef(voltageAngleLimit.getTerminalTo(), context, TO);
