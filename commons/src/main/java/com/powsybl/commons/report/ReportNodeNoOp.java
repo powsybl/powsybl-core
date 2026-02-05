@@ -7,7 +7,8 @@
  */
 package com.powsybl.commons.report;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -73,7 +74,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public void writeJson(JsonGenerator generator) throws IOException {
+    public void writeJson(JsonGenerator generator) throws JacksonException {
         // No-op
     }
 

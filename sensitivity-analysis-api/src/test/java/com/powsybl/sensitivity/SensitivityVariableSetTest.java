@@ -7,12 +7,12 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,9 +63,9 @@ class SensitivityVariableSetTest extends AbstractSerDeTest {
     void testJson() throws IOException {
         SensitivityVariableSet variableSet = new SensitivityVariableSet("id", List.of(new WeightedSensitivityVariable("v1", 3.4),
                                                                                       new WeightedSensitivityVariable("v2", 2.1)));
-        ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
-        roundTripTest(variableSet, (variableSet2, jsonFile) -> JsonUtil.writeJson(jsonFile, variableSet, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityVariableSet.class, objectMapper), "/variableSetRef.json");
+        JsonMapper jsonMapper = JsonSensitivityAnalysisParameters.createJsonMapper();
+        roundTripTest(variableSet, (variableSet2, jsonFile) -> JsonUtil.writeJson(jsonFile, variableSet, jsonMapper),
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityVariableSet.class, jsonMapper), "/variableSetRef.json");
 
         String jsonRef = String.join(System.lineSeparator(),
             "[ {",

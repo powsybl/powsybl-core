@@ -7,13 +7,12 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.HvdcAction;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -24,11 +23,11 @@ public class HvdcActionSerializer extends StdSerializer<HvdcAction> {
     }
 
     @Override
-    public void serialize(HvdcAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(HvdcAction action, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", action.getType());
-        jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("hvdcId", action.getHvdcId());
+        jsonGenerator.writeStringProperty("type", action.getType());
+        jsonGenerator.writeStringProperty("id", action.getId());
+        jsonGenerator.writeStringProperty("hvdcId", action.getHvdcId());
         JsonUtil.writeOptionalBoolean(jsonGenerator, "acEmulationEnabled", action.isAcEmulationEnabled());
         JsonUtil.writeOptionalDouble(jsonGenerator, "activePowerSetpoint", action.getActivePowerSetpoint());
         JsonUtil.writeOptionalEnum(jsonGenerator, "converterMode", action.getConverterMode());

@@ -7,14 +7,13 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
@@ -23,13 +22,13 @@ import java.io.IOException;
 class DummySpecificParametersSerializer implements JsonDynamicSimulationParameters.ExtensionSerializer<DummyExtension> {
 
     @Override
-    public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+    public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         return new DummyExtension();
     }
 

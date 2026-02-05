@@ -7,7 +7,8 @@
  */
 package com.powsybl.matpower.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.commons.json.JsonUtil;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +22,7 @@ public final class MatpowerModelFactory {
     private MatpowerModelFactory() {
     }
 
-    private static MatpowerModel readModelJsonFromResources(ObjectMapper mapper, String fileName) {
+    private static MatpowerModel readModelJsonFromResources(JsonMapper mapper, String fileName) {
         MatpowerModel model;
         try (InputStream iStream = MatpowerModelFactory.class.getResourceAsStream("/" + fileName)) {
             model = mapper.readValue(iStream, MatpowerModel.class);
@@ -32,7 +33,7 @@ public final class MatpowerModelFactory {
     }
 
     public static MatpowerModel readModelJsonFromResources(String fileName) {
-        return readModelJsonFromResources(new ObjectMapper(), fileName);
+        return readModelJsonFromResources(JsonUtil.createJsonMapper(), fileName);
     }
 
     public static MatpowerModel create9() {

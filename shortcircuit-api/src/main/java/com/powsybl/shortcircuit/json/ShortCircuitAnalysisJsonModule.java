@@ -7,7 +7,7 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.ViolationLocation;
 import com.powsybl.security.json.LimitViolationDeserializer;

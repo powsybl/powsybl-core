@@ -7,9 +7,9 @@
  */
 package com.powsybl.timeseries.ast;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.TimeSeriesException;
 
@@ -106,7 +106,7 @@ public interface NodeCalc {
     static NodeCalc parseJson(JsonParser parser, JsonToken token) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(token);
-        if (token == JsonToken.FIELD_NAME) {
+        if (token == JsonToken.PROPERTY_NAME) {
             String fieldName = parser.currentName();
             switch (fieldName) {
                 case IntegerNodeCalc.NAME -> {

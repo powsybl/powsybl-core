@@ -7,14 +7,14 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.condition.Condition;
 import com.powsybl.security.strategy.ConditionalActions;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -33,7 +33,7 @@ public class ConditionalActionsDeserializer extends StdDeserializer<ConditionalA
     }
 
     @Override
-    public ConditionalActions deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public ConditionalActions deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ConditionalActionsDeserializer.ParsingContext context = new ConditionalActionsDeserializer.ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {

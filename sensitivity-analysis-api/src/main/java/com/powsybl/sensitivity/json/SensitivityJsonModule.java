@@ -7,7 +7,7 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.sensitivity.*;
 
 /**

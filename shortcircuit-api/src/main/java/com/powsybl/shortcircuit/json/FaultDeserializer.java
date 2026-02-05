@@ -7,15 +7,14 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.shortcircuit.BranchFault;
 import com.powsybl.shortcircuit.BusFault;
 import com.powsybl.shortcircuit.Fault;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
@@ -27,7 +26,7 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
     }
 
     @Override
-    public Fault deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public Fault deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         Fault.Type type = null;
         String id = null;
         String elementId = null;

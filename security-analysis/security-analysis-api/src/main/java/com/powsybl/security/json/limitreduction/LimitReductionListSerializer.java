@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json.limitreduction;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.limitreduction.LimitReductionList;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import static com.powsybl.security.limitreduction.LimitReductionList.VERSION;
 
@@ -26,10 +25,10 @@ public class LimitReductionListSerializer extends StdSerializer<LimitReductionLi
     }
 
     @Override
-    public void serialize(LimitReductionList limitReductionList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LimitReductionList limitReductionList, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", VERSION);
-        serializerProvider.defaultSerializeField("limitReductions", limitReductionList.getLimitReductions(), jsonGenerator);
+        jsonGenerator.writeStringProperty("version", VERSION);
+        serializationContext.defaultSerializeProperty("limitReductions", limitReductionList.getLimitReductions(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

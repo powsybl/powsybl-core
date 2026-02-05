@@ -7,13 +7,13 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -284,8 +284,8 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
         contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c.getId(), SensitivityAnalysisResult.Status.SUCCESS)));
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
-        roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.json");
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder().addModule(new SensitivityJsonModule()).build();
+        roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, jsonMapper),
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, jsonMapper), "/SensitivityAnalysisResultRefV1.json");
     }
 }

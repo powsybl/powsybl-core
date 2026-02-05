@@ -7,15 +7,14 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.SingleCountryCriterion;
 import com.powsybl.iidm.criteria.ThreeNominalVoltageCriterion;
 import com.powsybl.iidm.criteria.ThreeWindingsTransformerCriterion;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * <p>Deserializer for {@link ThreeWindingsTransformerCriterion} objects.</p>
@@ -27,7 +26,7 @@ public class ThreeWindingsTransformerCriterionDeserializer extends AbstractNetwo
     }
 
     @Override
-    public ThreeWindingsTransformerCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public ThreeWindingsTransformerCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext parsingContext = new ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 ThreeWindingsTransformerCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.THREE_NOMINAL_VOLTAGE));

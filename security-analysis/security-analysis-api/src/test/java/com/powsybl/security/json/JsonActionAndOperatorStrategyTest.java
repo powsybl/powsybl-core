@@ -10,10 +10,10 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
@@ -142,13 +142,14 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testJsonPlugins() throws JsonProcessingException {
-        Module jsonModule = new SimpleModule()
+    void testJsonPlugins() throws JacksonException {
+        JacksonModule jsonModule = new SimpleModule()
             .registerSubtypes(DummyAction.class, DummyActionBuilder.class);
         SecurityAnalysisJsonPlugin plugin = () -> List.of(jsonModule);
-        ObjectMapper mapper = new ObjectMapper()
-            .registerModule(new SecurityAnalysisJsonModule(List.of(plugin)))
-            .registerModule(new ActionJsonModule());
+        JsonMapper mapper = JsonMapper.builder()
+            .addModule(new SecurityAnalysisJsonModule(List.of(plugin)))
+            .addModule(new ActionJsonModule())
+            .build();
 
         DummyAction action = new DummyAction("hello");
         ActionList actions = new ActionList(List.of(action));

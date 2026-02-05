@@ -7,15 +7,14 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.action.ShuntCompensatorPositionActionBuilder;
-
-import java.io.IOException;
+import com.powsybl.commons.json.JsonUtil;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -27,20 +26,20 @@ public class ShuntCompensatorPositionActionBuilderDeserializer extends StdDeseri
     }
 
     @Override
-    public ShuntCompensatorPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public ShuntCompensatorPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         ShuntCompensatorPositionActionBuilder builder = new ShuntCompensatorPositionActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
-                    if (!ShuntCompensatorPositionAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + ShuntCompensatorPositionAction.NAME);
+                    if (!ShuntCompensatorPositionAction.NAME.equals(jsonParser.nextStringValue())) {
+                        throw DatabindException.from(jsonParser, "Expected type " + ShuntCompensatorPositionAction.NAME);
                     }
                     return true;
                 case "id":
-                    builder.withId(jsonParser.nextTextValue());
+                    builder.withId(jsonParser.nextStringValue());
                     return true;
                 case "shuntCompensatorId":
-                    builder.withShuntCompensatorId(jsonParser.nextTextValue());
+                    builder.withShuntCompensatorId(jsonParser.nextStringValue());
                     return true;
                 case "sectionCount":
                     jsonParser.nextToken();

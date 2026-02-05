@@ -7,15 +7,15 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FortescueShortCircuitBusResults;
 import com.powsybl.shortcircuit.ShortCircuitBusResults;
 import com.powsybl.shortcircuit.MagnitudeShortCircuitBusResults;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -28,23 +28,23 @@ public class ShortCircuitBusResultsSerializer extends StdSerializer<ShortCircuit
     }
 
     @Override
-    public void serialize(ShortCircuitBusResults busResults, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ShortCircuitBusResults busResults, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         Objects.requireNonNull(busResults);
 
         jsonGenerator.writeStartObject();
-        JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", busResults.getVoltageLevelId());
-        JsonUtil.writeOptionalStringField(jsonGenerator, "busId", busResults.getBusId());
+        JsonUtil.writeOptionalStringProperty(jsonGenerator, "voltageLevelId", busResults.getVoltageLevelId());
+        JsonUtil.writeOptionalStringProperty(jsonGenerator, "busId", busResults.getBusId());
         if (!Double.isNaN(busResults.getInitialVoltageMagnitude())) {
-            serializerProvider.defaultSerializeField("initialVoltageMagnitude", busResults.getInitialVoltageMagnitude(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("initialVoltageMagnitude", busResults.getInitialVoltageMagnitude(), jsonGenerator);
         }
         if (busResults instanceof FortescueShortCircuitBusResults fortescueShortCircuitBusResults && fortescueShortCircuitBusResults.getVoltage() != null) {
-            serializerProvider.defaultSerializeField("voltage", fortescueShortCircuitBusResults.getVoltage(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("voltage", fortescueShortCircuitBusResults.getVoltage(), jsonGenerator);
         }
         if (busResults instanceof MagnitudeShortCircuitBusResults magnitudeShortCircuitBusResults && !Double.isNaN(magnitudeShortCircuitBusResults.getVoltage())) {
-            serializerProvider.defaultSerializeField("voltageMagnitude", magnitudeShortCircuitBusResults.getVoltage(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("voltageMagnitude", magnitudeShortCircuitBusResults.getVoltage(), jsonGenerator);
         }
         if (!Double.isNaN(busResults.getVoltageDropProportional())) {
-            serializerProvider.defaultSerializeField("voltageDropProportional", busResults.getVoltageDropProportional(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("voltageDropProportional", busResults.getVoltageDropProportional(), jsonGenerator);
         }
 
         jsonGenerator.writeEndObject();

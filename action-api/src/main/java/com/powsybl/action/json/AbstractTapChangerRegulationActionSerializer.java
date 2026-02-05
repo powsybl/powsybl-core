@@ -7,12 +7,11 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.AbstractTapChangerRegulationAction;
-
-import java.io.IOException;
+import com.powsybl.commons.json.JsonUtil;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -23,11 +22,11 @@ public abstract class AbstractTapChangerRegulationActionSerializer<T extends Abs
         super(vc);
     }
 
-    protected void serializeCommonAttributes(AbstractTapChangerRegulationAction action, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField("type", action.getType());
-        jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("transformerId", action.getTransformerId());
-        jsonGenerator.writeBooleanField("regulating", action.isRegulating());
+    protected void serializeCommonAttributes(AbstractTapChangerRegulationAction action, JsonGenerator jsonGenerator) throws JacksonException {
+        jsonGenerator.writeStringProperty("type", action.getType());
+        jsonGenerator.writeStringProperty("id", action.getId());
+        jsonGenerator.writeStringProperty("transformerId", action.getTransformerId());
+        jsonGenerator.writeBooleanProperty("regulating", action.isRegulating());
         JsonUtil.writeOptionalEnum(jsonGenerator, "side", action.getSide());
     }
 }

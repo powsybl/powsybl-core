@@ -7,11 +7,10 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.action.PhaseTapChangerTapPositionAction;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -22,7 +21,7 @@ public class PhaseTapChangerTapPositionActionSerializer extends AbstractTapChang
     }
 
     @Override
-    public void serialize(PhaseTapChangerTapPositionAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(PhaseTapChangerTapPositionAction action, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
         serializeCommonAttributes(action, jsonGenerator);
         jsonGenerator.writeEndObject();

@@ -19,12 +19,6 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProvider;
@@ -32,6 +26,13 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.DynamicSimulationProvider;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Provides methods to read and write DynamicSimulationParameters from and to JSON.
@@ -91,12 +92,8 @@ public final class JsonDynamicSimulationParameters {
      * Updates parameters by reading the content of a JSON stream.
      */
     public static DynamicSimulationParameters update(DynamicSimulationParameters parameters, InputStream jsonStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        return jsonMapper.readerForUpdating(parameters).readValue(jsonStream);
     }
 
     /**
@@ -116,38 +113,35 @@ public final class JsonDynamicSimulationParameters {
      * Writes parameters as JSON to an output stream.
      */
     public static void write(DynamicSimulationParameters parameters, OutputStream outputStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, parameters);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(outputStream, parameters);
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper()
-                .registerModule(new DynamicSimulationParametersJsonModule());
+    private static JsonMapper createJsonMapper() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addModule(new DynamicSimulationParametersJsonModule())
+            .build();
     }
 
     /**
      *  Low level deserialization method, to be used for instance for reading load flow parameters nested in another object.
      */
-    public static DynamicSimulationParameters deserialize(JsonParser parser, DeserializationContext context, DynamicSimulationParameters parameters) throws IOException {
+    public static DynamicSimulationParameters deserialize(JsonParser parser, DeserializationContext context, DynamicSimulationParameters parameters) throws JacksonException {
         return new DynamicSimulationParametersDeserializer().deserialize(parser, context, parameters);
     }
 
     /**
      *  Low level deserialization method, to be used for instance for updating load flow parameters nested in another object.
      */
-    public static DynamicSimulationParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public static DynamicSimulationParameters deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
         return new DynamicSimulationParametersDeserializer().deserialize(parser, context);
     }
 
     /**
      *  Low level serialization method, to be used for instance for writing load flow parameters nested in another object.
      */
-    public static void serialize(DynamicSimulationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        new DynamicSimulationParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
+    public static void serialize(DynamicSimulationParameters parameters, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
+        new DynamicSimulationParametersSerializer().serialize(parameters, jsonGenerator, serializationContext);
     }
 }

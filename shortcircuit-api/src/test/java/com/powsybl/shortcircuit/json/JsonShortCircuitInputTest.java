@@ -12,14 +12,15 @@ import com.powsybl.shortcircuit.BranchFault;
 import com.powsybl.shortcircuit.BusFault;
 import com.powsybl.shortcircuit.Fault;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.DatabindException;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -41,8 +42,10 @@ class JsonShortCircuitInputTest extends AbstractSerDeTest {
         Files.copy(getClass().getResourceAsStream("/FaultsFileInvalid.json"), fileSystem.getPath("/FaultsFileInvalid.json"));
 
         Path path = fileSystem.getPath("/FaultsFileInvalid.json");
-        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> Fault.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
+        DatabindException e = assertThrows(DatabindException.class, () -> Fault.read(path));
+        assertThat(e.getMessage())
+            .contains("Unexpected field: unexpected")
+            .contains("(through reference chain: java.util.ArrayList[0])");
     }
 
     @Test
@@ -50,7 +53,9 @@ class JsonShortCircuitInputTest extends AbstractSerDeTest {
         Files.copy(getClass().getResourceAsStream("/FaultsFileNoType.json"), fileSystem.getPath("/FaultsFileNoType.json"));
 
         Path path = fileSystem.getPath("/FaultsFileNoType.json");
-        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> Fault.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Required type field is missing (through reference chain: java.util.ArrayList[0])", e.getMessage());
+        DatabindException e = assertThrows(DatabindException.class, () -> Fault.read(path));
+        assertThat(e.getMessage())
+            .contains("Required type field is missing")
+            .contains("(through reference chain: java.util.ArrayList[0])");
     }
 }

@@ -7,16 +7,16 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.security.SecurityAnalysisParameters;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,12 +34,12 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
     }
 
     @Override
-    public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         return deserialize(parser, deserializationContext, new SecurityAnalysisParameters());
     }
 
     @Override
-    public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SecurityAnalysisParameters parameters) throws IOException {
+    public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SecurityAnalysisParameters parameters) throws JacksonException {
         List<Extension<SecurityAnalysisParameters>> extensions = Collections.emptyList();
         String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {

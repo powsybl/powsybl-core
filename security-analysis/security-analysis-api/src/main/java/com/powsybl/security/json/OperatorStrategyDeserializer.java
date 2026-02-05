@@ -7,9 +7,6 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -18,10 +15,13 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.security.condition.Condition;
-import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.ConditionalActions;
+import com.powsybl.security.strategy.OperatorStrategy;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -55,7 +55,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     }
 
     @Override
-    public OperatorStrategy deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public OperatorStrategy deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         context.version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (context.version == null) {  // assuming current version...
@@ -68,7 +68,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     context.id = parser.getValueAsString();
                     return true;
                 case "contingencyContextType":
-                    context.contingencyContextType = ContingencyContextType.valueOf(parser.nextTextValue());
+                    context.contingencyContextType = ContingencyContextType.valueOf(parser.nextStringValue());
                     return true;
                 case "contingencyId":
                     parser.nextToken();

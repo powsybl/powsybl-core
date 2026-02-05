@@ -7,14 +7,13 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.AbstractSidedContingency;
 import com.powsybl.contingency.ContingencyElement;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -26,12 +25,12 @@ public class ContingencyElementSerializer extends StdSerializer<ContingencyEleme
     }
 
     @Override
-    public void serialize(ContingencyElement contingencyElement, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ContingencyElement contingencyElement, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("id", contingencyElement.getId());
-        jsonGenerator.writeStringField("type", contingencyElement.getType().name());
+        jsonGenerator.writeStringProperty("id", contingencyElement.getId());
+        jsonGenerator.writeStringProperty("type", contingencyElement.getType().name());
         if (contingencyElement instanceof AbstractSidedContingency sidedContingency) {
-            JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", sidedContingency.getVoltageLevelId());
+            JsonUtil.writeOptionalStringProperty(jsonGenerator, "voltageLevelId", sidedContingency.getVoltageLevelId());
         }
         jsonGenerator.writeEndObject();
     }
