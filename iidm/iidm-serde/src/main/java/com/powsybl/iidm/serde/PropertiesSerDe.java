@@ -9,6 +9,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.PropertiesHolder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
@@ -26,18 +27,22 @@ public final class PropertiesSerDe {
     static final String NAME = "name";
     static final String VALUE = "value";
 
-    public static void write(PropertiesHolder propertiesHolder, NetworkSerializerContext context) {
+    public static void write(PropertiesHolder propertiesHolder, TreeDataWriter writer, String nsUri, ExportOptions exportOptions) {
         if (propertiesHolder.hasProperty()) {
-            context.getWriter().writeStartNodes();
-            for (String name : IidmSerDeUtil.sortedNames(propertiesHolder.getPropertyNames(), context.getOptions())) {
+            writer.writeStartNodes();
+            for (String name : IidmSerDeUtil.sortedNames(propertiesHolder.getPropertyNames(), exportOptions)) {
                 String value = propertiesHolder.getProperty(name);
-                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
-                context.getWriter().writeStringAttribute(NAME, name);
-                context.getWriter().writeStringAttribute(VALUE, value);
-                context.getWriter().writeEndNode();
+                writer.writeStartNode(nsUri, ROOT_ELEMENT_NAME);
+                writer.writeStringAttribute(NAME, name);
+                writer.writeStringAttribute(VALUE, value);
+                writer.writeEndNode();
             }
-            context.getWriter().writeEndNodes();
+            writer.writeEndNodes();
         }
+    }
+
+    public static void write(PropertiesHolder propertiesHolder, NetworkSerializerContext context) {
+        write(propertiesHolder, context.getWriter(), context.getNamespaceURI(), context.getOptions());
     }
 
     public static void read(PropertiesHolder propertiesHolder, NetworkDeserializerContext context) {
@@ -59,7 +64,7 @@ public final class PropertiesSerDe {
     }
 
     public static void readProperties(NetworkDeserializerContext context, PropertiesHolder holder) {
-        if (context.getVersion().compareTo(IidmVersion.V_1_15) <= 0) {
+        if (context.getVersion().compareTo(IidmVersion.V_1_16) <= 0) {
             context.getReader().readChildNodes(elementName -> {
                 if (elementName.equals(PropertiesSerDe.ROOT_ELEMENT_NAME)) {
                     String name = context.getReader().readStringAttribute(NAME);
@@ -70,6 +75,8 @@ public final class PropertiesSerDe {
                     throw new PowsyblException(String.format("Unknown element name '%s' in '%s'", elementName, holder.getClass().getSimpleName()));
                 }
             });
+        } else {
+            context.getReader().readEndNode();
         }
     }
 }
