@@ -14,6 +14,7 @@ import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.Objects;
 
@@ -63,10 +64,28 @@ public class GeneratorModification extends AbstractNetworkModification {
             skipOtherConnectionChange = true;
         }
         if (modifs.getVoltageRegulatorOn() != null) {
-            if (Double.isNaN(g.getTargetV()) && modifs.getVoltageRegulatorOn().booleanValue()) {
-                g.setTargetV(getPlausibleTargetV(g));
+            if (Boolean.TRUE.equals(modifs.getVoltageRegulatorOn())) {
+                if (Double.isNaN(g.getTargetV())) {
+                    g.setTargetV(getPlausibleTargetV(g));
+                }
+                double targetValue = g.getTargetV();
+                if (Double.isNaN(targetValue)) {
+                    targetValue = getPlausibleTargetV(g);
+                }
+                g.newVoltageRegulation()
+                    .withTargetValue(targetValue)
+                    .withRegulating(true)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add();
+                g.setVoltageRegulatorOn(true);
+            } else {
+                g.newVoltageRegulation()
+                    .withTargetValue(modifs.getTargetQ())
+                    .withRegulating(true)
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .add();
+                g.setVoltageRegulatorOn(false);
             }
-            g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn());
         }
         if (modifs.getTargetP() != null || modifs.getDeltaTargetP() != null) {
             applyTargetP(g, skipOtherConnectionChange);

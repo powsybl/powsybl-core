@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -199,18 +199,19 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(4).add();
 
         // Will be exported as generatorOrCondenser (isCondenser is true by default on batteries) and operating as a condenser
-        Battery battery2 = voltageLevel1.newBattery()
+        voltageLevel1.newBattery()
             .setId("BAT2")
             .setNode(5)
             .setMinP(0.0)
             .setMaxP(10.0)
             .setTargetP(0.0)
             .setTargetQ(0.0)
+            .newVoltageRegulation()
+                .withTargetValue(400.0)
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .add()
             .add();
-        battery2.newExtension(VoltageRegulationAdder.class)
-                .withTargetV(400.0)
-                .withVoltageRegulatorOn(true)
-                .add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(5).add();
 
         return network;

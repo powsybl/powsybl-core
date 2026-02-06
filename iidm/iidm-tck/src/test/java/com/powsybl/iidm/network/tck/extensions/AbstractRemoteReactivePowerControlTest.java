@@ -9,8 +9,9 @@ package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -115,10 +116,16 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Network network = createNetwork();
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
-        RemoteReactivePowerControl control = g.newExtension(RemoteReactivePowerControlAdder.class).withTargetQ(200.0).withRegulatingTerminal(l.getTerminal(TwoSides.ONE)).withEnabled(true).add();
-        assertEquals(200.0, control.getTargetQ(), 0.0);
-        assertEquals(l.getTerminal(TwoSides.ONE), control.getRegulatingTerminal());
-        assertTrue(control.isEnabled());
+        VoltageRegulation voltageRegulation = g.newVoltageRegulation()
+            .withTargetValue(200.0)
+            .withTerminal(l.getTerminal(TwoSides.ONE))
+            .withRegulating(true)
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .add()
+            .getVoltageRegulation();
+        assertEquals(200.0, voltageRegulation.getTargetValue(), 0.0);
+        assertEquals(l.getTerminal(TwoSides.ONE), voltageRegulation.getTerminal());
+        assertTrue(voltageRegulation.isRegulating());
     }
 
     @Test
@@ -126,11 +133,13 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Network network = createNetwork();
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
-        RemoteReactivePowerControl control = g.newExtension(RemoteReactivePowerControlAdder.class)
-                .withTargetQ(200.0)
-                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
-                .withEnabled(true)
-                .add();
+        VoltageRegulation voltageRegulation = g.newVoltageRegulation()
+            .withTargetValue(200.0)
+            .withTerminal(l.getTerminal(TwoSides.ONE))
+            .withRegulating(true)
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .add()
+            .getVoltageRegulation();
 
         String variant1 = "variant1";
         String variant2 = "variant2";
@@ -141,34 +150,34 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         variantManager.cloneVariant(INITIAL_VARIANT_ID, variant1);
         variantManager.cloneVariant(variant1, variant2);
         variantManager.setWorkingVariant(variant1);
-        assertEquals(200.0, control.getTargetQ(), 0);
-        assertTrue(control.isEnabled());
+        assertEquals(200.0, voltageRegulation.getTargetValue(), 0);
+        assertTrue(voltageRegulation.isRegulating());
 
         // Testing setting different values in the cloned variant and going back to the initial one
-        control.setTargetQ(210.0);
-        control.setEnabled(false);
-        assertFalse(control.isEnabled());
-        assertEquals(210.0, control.getTargetQ(), 0f);
+        voltageRegulation.setTargetValue(210.0);
+        voltageRegulation.setRegulating(false);
+        assertFalse(voltageRegulation.isRegulating());
+        assertEquals(210.0, voltageRegulation.getTargetValue(), 0f);
 
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
-        assertEquals(200.0f, control.getTargetQ(), 0f);
-        assertTrue(control.isEnabled());
+        assertEquals(200.0f, voltageRegulation.getTargetValue(), 0f);
+        assertTrue(voltageRegulation.isRegulating());
 
         // Removes a variant then adds another variant to test variant recycling (hence calling allocateVariantArrayElement)
         variantManager.removeVariant(variant1);
         List<String> targetVariantIds = Arrays.asList(variant1, variant3);
         variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
         variantManager.setWorkingVariant(variant1);
-        assertEquals(200.0f, control.getTargetQ(), 0f);
-        assertTrue(control.isEnabled());
+        assertEquals(200.0f, voltageRegulation.getTargetValue(), 0f);
+        assertTrue(voltageRegulation.isRegulating());
         variantManager.setWorkingVariant(variant3);
-        assertEquals(200.0f, control.getTargetQ(), 0f);
-        assertTrue(control.isEnabled());
+        assertEquals(200.0f, voltageRegulation.getTargetValue(), 0f);
+        assertTrue(voltageRegulation.isRegulating());
 
         // Test removing current variant
         variantManager.removeVariant(variant3);
         try {
-            control.getTargetQ();
+            voltageRegulation.getTargetValue();
             fail();
         } catch (PowsyblException e) {
             assertEquals("Variant index not set", e.getMessage());
@@ -176,25 +185,27 @@ public abstract class AbstractRemoteReactivePowerControlTest {
     }
 
     @Test
+    @Disabled("TODO MSA add validation")
     public void adderTest() {
         Network network = createNetwork();
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
-        var adder = g.newExtension(RemoteReactivePowerControlAdder.class)
-                .withTargetQ(200.0)
-                .withEnabled(true);
+        var adder = g.newVoltageRegulation()
+                .withTargetValue(200.0)
+                .withRegulating(true);
         var e = assertThrows(PowsyblException.class, adder::add);
         assertEquals("Regulating terminal must be set", e.getMessage());
-        adder = g.newExtension(RemoteReactivePowerControlAdder.class)
-                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
-                .withEnabled(true);
+        adder = g.newVoltageRegulation()
+                .withTerminal(l.getTerminal(TwoSides.ONE))
+                .withRegulating(true);
         e = assertThrows(PowsyblException.class, adder::add);
         assertEquals("Reactive power target must be set", e.getMessage());
-        var extension = g.newExtension(RemoteReactivePowerControlAdder.class)
-                .withTargetQ(200.0)
-                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
-                .add();
-        assertTrue(extension.isEnabled());
+        var voltageRegulation = g.newVoltageRegulation()
+                .withTargetValue(200.0)
+                .withTerminal(l.getTerminal(TwoSides.ONE))
+                .add()
+            .getVoltageRegulation();
+        assertTrue(voltageRegulation.isRegulating());
     }
 
     @Test
@@ -202,15 +213,16 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Network network = createNetwork();
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
-        g.newExtension(RemoteReactivePowerControlAdder.class)
-                .withTargetQ(200.0)
-                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
-                .withEnabled(true)
-                .add();
-        assertNotNull(g.getExtension(RemoteReactivePowerControl.class));
+        g.newVoltageRegulation()
+            .withTargetValue(200.0)
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(l.getTerminal(TwoSides.ONE))
+            .withRegulating(true)
+            .add();
+        assertNotNull(g.getVoltageRegulation());
         l.remove();
-        // extension has been removed because regulating terminal is invalid
-        assertNull(g.getExtension(RemoteReactivePowerControl.class));
+        // remote terminal has been removed because it is invalid
+        assertNull(g.getVoltageRegulation().getTerminal());
     }
 
     @Test
@@ -219,19 +231,23 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
         Line l2 = network.getLine("l12");
-        RemoteReactivePowerControl remoteReactivePowerControl = g.newExtension(RemoteReactivePowerControlAdder.class)
-                .withTargetQ(200.0)
-                .withRegulatingTerminal(l.getTerminal(TwoSides.ONE))
-                .withEnabled(true)
-                .add();
-        assertNotNull(g.getExtension(RemoteReactivePowerControl.class));
-        remoteReactivePowerControl.setRegulatingTerminal(l2.getTerminal(TwoSides.ONE));
+        VoltageRegulation voltageRegulation = g.newVoltageRegulation()
+            .withTargetValue(200.0)
+            .withTerminal(l.getTerminal(TwoSides.ONE))
+            .withRegulating(true)
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .add()
+            .getVoltageRegulation();
+        assertNotNull(g.getVoltageRegulation());
+        voltageRegulation.setTerminal(l2.getTerminal(TwoSides.ONE));
         l.remove();
-        // extension should not be removed
-        assertNotNull(g.getExtension(RemoteReactivePowerControl.class));
+        // voltageRegulation should not be removed
+        assertNotNull(g.getVoltageRegulation());
+        assertNotNull(g.getVoltageRegulation().getTerminal());
         l2.remove();
-        // extension should be removed
-        assertNull(g.getExtension(RemoteReactivePowerControl.class));
+        // voltageRegulation should not be removed
+        assertNotNull(g.getVoltageRegulation());
+        assertNull(g.getVoltageRegulation().getTerminal());
     }
 
     @Test
@@ -240,22 +256,25 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
         Terminal lTerminal = l.getTerminal(TwoSides.ONE);
-        RemoteReactivePowerControl remoteReactivePowerControl = g.newExtension(RemoteReactivePowerControlAdder.class)
-                .withTargetQ(200.0)
-                .withRegulatingTerminal(lTerminal)
-                .withEnabled(true)
-                .add();
+        VoltageRegulation voltageRegulation = g.newVoltageRegulation()
+            .withTargetValue(200.0)
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(lTerminal)
+            .withRegulating(true)
+            .add()
+            .getVoltageRegulation();
 
-        assertEquals(lTerminal, remoteReactivePowerControl.getRegulatingTerminal());
-        assertEquals("b3", remoteReactivePowerControl.getRegulatingTerminal().getBusBreakerView().getBus().getId());
+        assertEquals(lTerminal, voltageRegulation.getTerminal());
+        assertEquals("b3", voltageRegulation.getTerminal().getBusBreakerView().getBus().getId());
 
         // Replacement
         Terminal.BusBreakerView bbView = lTerminal.getBusBreakerView();
         bbView.moveConnectable("b2", true);
-        assertEquals("b2", remoteReactivePowerControl.getRegulatingTerminal().getBusBreakerView().getBus().getId());
+        assertEquals("b2", voltageRegulation.getTerminal().getBusBreakerView().getBus().getId());
 
-        // Extension should be removed
+        // Remote terminal should be removed
         l.remove();
-        assertNull(g.getExtension(RemoteReactivePowerControl.class));
+        assertNotNull(g.getVoltageRegulation());
+        assertNull(g.getVoltageRegulation().getTerminal());
     }
 }

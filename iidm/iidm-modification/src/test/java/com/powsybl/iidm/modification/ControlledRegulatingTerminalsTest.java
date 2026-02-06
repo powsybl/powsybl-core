@@ -10,6 +10,8 @@ package com.powsybl.iidm.modification;
 import com.powsybl.iidm.modification.util.RegulatedTerminalControllers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -149,18 +151,20 @@ class ControlledRegulatingTerminalsTest {
         Network network = BatteryNetworkFactory.create();
 
         Battery battery = network.getBattery("BAT2");
-        VoltageRegulation voltageRegulation = battery.newExtension(VoltageRegulationAdder.class)
-                .withRegulatingTerminal(battery.getTerminal())
-                .withVoltageRegulatorOn(true)
-                .withTargetV(50.0)
-                .add();
+        VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
+                .withTerminal(battery.getTerminal())
+                .withRegulating(true)
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(50.0)
+                .add()
+            .getVoltageRegulation();
 
         RegulatedTerminalControllers controlledRegulatingTerminals = new RegulatedTerminalControllers(network);
         Generator generator = network.getGenerator("GEN");
 
-        assertNotEquals(voltageRegulation.getRegulatingTerminal(), generator.getTerminal());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(voltageRegulation.getRegulatingTerminal(), generator.getTerminal());
-        assertEquals(voltageRegulation.getRegulatingTerminal(), generator.getTerminal());
+        assertNotEquals(voltageRegulation.getTerminal(), generator.getTerminal());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(voltageRegulation.getTerminal(), generator.getTerminal());
+        assertEquals(voltageRegulation.getTerminal(), generator.getTerminal());
     }
 
     @Test
@@ -168,18 +172,20 @@ class ControlledRegulatingTerminalsTest {
         Network network = BatteryNetworkFactory.create();
 
         Generator generator = network.getGenerator("GEN");
-        RemoteReactivePowerControl remoteReactivePowerControl = generator.newExtension(RemoteReactivePowerControlAdder.class)
-                .withTargetQ(100.0)
-                .withRegulatingTerminal(generator.getTerminal())
-                .withEnabled(true)
-                .add();
+        VoltageRegulation voltageRegulation = generator.newVoltageRegulation()
+            .withTargetValue(100.0)
+            .withTerminal(generator.getTerminal())
+            .withRegulating(true)
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .add()
+            .getVoltageRegulation();
 
         RegulatedTerminalControllers controlledRegulatingTerminals = new RegulatedTerminalControllers(network);
         Line line = network.getLine("NHV1_NHV2_1");
 
-        assertNotEquals(remoteReactivePowerControl.getRegulatingTerminal(), line.getTerminal1());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(remoteReactivePowerControl.getRegulatingTerminal(), line.getTerminal1());
-        assertEquals(remoteReactivePowerControl.getRegulatingTerminal(), line.getTerminal1());
+        assertNotEquals(voltageRegulation.getTerminal(), line.getTerminal1());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(voltageRegulation.getTerminal(), line.getTerminal1());
+        assertEquals(voltageRegulation.getTerminal(), line.getTerminal1());
     }
 
     @Test

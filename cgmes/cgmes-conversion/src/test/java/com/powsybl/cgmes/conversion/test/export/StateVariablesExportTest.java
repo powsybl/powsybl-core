@@ -644,6 +644,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         Path actualPath = tmpDir.resolve("actual.xml");
         NetworkSerDe.write(expected, exportOptions, expectedPath);
         NetworkSerDe.write(actual, exportOptions, actualPath);
+        String expectedFile = Files.readString(expectedPath, StandardCharsets.UTF_8);
+        String actualFile = Files.readString(actualPath, StandardCharsets.UTF_8);
         NetworkSerDe.validate(actualPath);
 
         // Compare

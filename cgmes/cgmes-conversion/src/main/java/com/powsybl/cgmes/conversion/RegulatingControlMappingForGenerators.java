@@ -15,8 +15,9 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,8 +97,15 @@ public class RegulatingControlMappingForGenerators {
         Terminal regulatingTerminal = RegulatingTerminalMapper
                 .mapForVoltageControl(control.cgmesTerminal, context)
                 .orElse(gen.getTerminal());
-
-        gen.setRegulatingTerminal(regulatingTerminal);
+        // TODO MSA check that
+        if (regulatingTerminal.getConnectable().getId().equals(gen.getId())) {
+            regulatingTerminal = null;
+        }
+        gen.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(regulatingTerminal)
+            .withRegulating(false)
+            .add();
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
@@ -122,10 +130,14 @@ public class RegulatingControlMappingForGenerators {
             return false;
         }
 
-        gen.newExtension(RemoteReactivePowerControlAdder.class)
-                .withRegulatingTerminal(mappedRegulatingTerminal.getTerminal())
-                .withEnabled(false)
-                .add();
+        VoltageRegulationAdder<?> voltageRegulationAdder = gen.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withRegulating(false);
+        // TODO MSA check that
+        if (!mappedRegulatingTerminal.getTerminal().getConnectable().getId().equals(gen.getId())) {
+            voltageRegulationAdder.withTerminal(mappedRegulatingTerminal.getTerminal());
+        }
+        voltageRegulationAdder.add();
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {

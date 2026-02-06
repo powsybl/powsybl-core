@@ -8,7 +8,8 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+
 import java.time.ZonedDateTime;
 
 /**
@@ -1097,11 +1098,11 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithRemoteReactiveGenerator() {
-        return removeVoltageControlForGenerator(addRemoteReactiveGenerator(create()));
+        return addRemoteReactiveGenerator(create());
     }
 
     public static Network createWithLocalReactiveGenerator() {
-        return removeVoltageControlForGenerator(addLocalReactiveGenerator(create()));
+        return addLocalReactiveGenerator(create());
     }
 
     public static Network createWithRemoteReactiveAndVoltageGenerators() {
@@ -1129,24 +1130,29 @@ public final class EurostagTutorialExample1Factory {
     }
 
     private static Network addReactiveGenerator(Network network, Terminal terminal) {
-        network.getGenerator("GEN").newExtension(RemoteReactivePowerControlAdder.class)
-                .withRegulatingTerminal(terminal)
-                .withTargetQ(200)
-                .withEnabled(true).add();
+        network.getGenerator("GEN")
+            .newVoltageRegulation()
+            .withTargetValue(200d)
+            .withTerminal(terminal)
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withRegulating(true)
+            .add();
         return network;
     }
 
     private static Network addRemoteVoltageGenerator(Network network) {
-        network.getGenerator("GEN")
-                .setRegulatingTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
-                .setTargetV(399);
+        network.getGenerator("GEN").newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(true)
+            .withTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
+            .withTargetValue(399d)
+            .add();
         return network;
     }
 
     private static Network removeVoltageControlForGenerator(Network network) {
         Generator gen = network.getGenerator("GEN");
-        gen.setVoltageRegulatorOn(false);
-        gen.setTargetV(Double.NaN);
+        gen.removeVoltageRegulation();
         return network;
     }
 }
