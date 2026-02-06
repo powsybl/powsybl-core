@@ -15,6 +15,7 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 import static com.powsybl.iidm.serde.ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS;
 import static com.powsybl.iidm.serde.ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE;
+import static com.powsybl.iidm.serde.ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -75,6 +76,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     protected void readSubElements(Battery b, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
+                case ELEM_REACTIVE_CAPABILITY_SHAPE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityShape(b, context);
                 case ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(b, context);
                 case ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(b, context);
                 default -> readSubElement(elementName, b, context);

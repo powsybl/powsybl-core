@@ -94,6 +94,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case "regulatingTerminal" -> TerminalRefSerDe.readTerminalRef(context, g.getNetwork(), g::setRegulatingTerminal);
+                case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityShape(g, context);
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(g, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(g, context);
                 default -> readSubElement(elementName, g, context);
