@@ -918,6 +918,12 @@ public final class ValidationUtil {
             if (!allowedModes.contains(voltageRegulation.getMode())) {
                 throw new ValidationException(owner, "TODO MSA add log/exception -> Modes allowed for XXXX : [allowedModes]");
             }
+            // CHECK TERMINAL
+            if (voltageRegulation.getTerminal() != null && owner instanceof Identifiable<?> identifiable) {
+                if (identifiable.getId().equals(voltageRegulation.getTerminal().getConnectable().getId())) {
+                    throw new ValidationException(owner, "TODO MSA add log/exception -> Terminal must be remote");
+                }
+            }
             // CHECK SLOPE attribute
             Set<RegulationMode> slopeMode = Set.of(RegulationMode.VOLTAGE_PER_REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
             if (voltageRegulation.getSlope() == null && !slopeMode.contains(voltageRegulation.getMode())
