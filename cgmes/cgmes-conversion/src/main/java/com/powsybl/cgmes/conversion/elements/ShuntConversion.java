@@ -107,15 +107,8 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static void updateRegulatingControl(ShuntCompensator shuntCompensator, Boolean controlEnabled, Context context) {
-        // When the equipment is participating in regulating control (controlEnabled is true),
-        // but no regulating control data is found, default regulation data will be created
-
         boolean defaultRegulatingOn = getDefaultRegulatingOn(shuntCompensator, context);
         boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
-        if (isDefaultRegulatingControl(shuntCompensator, updatedControlEnabled)) {
-            setDefaultRegulatingControl(shuntCompensator);
-            return;
-        }
 
         double defaultTargetV = getDefaultTargetV(shuntCompensator, context);
         double defaultTargetDeadband = getDefaultTargetDeadband(shuntCompensator, context);
