@@ -67,10 +67,15 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         writeOptionalPQ(1, twt.getLeg1().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(2, twt.getLeg2().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(3, twt.getLeg3().getTerminal(), context.getWriter(), context.getOptions()::isWithBranchSV);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+        IidmSerDeUtil.runBetweenVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
             writeSelectedGroupId(1, twt.getLeg1().getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter());
             writeSelectedGroupId(2, twt.getLeg2().getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter());
             writeSelectedGroupId(3, twt.getLeg3().getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter());
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
+            writeAllSelectedGroupIds(ThreeSides.ONE, twt, context.getWriter());
+            writeAllSelectedGroupIds(ThreeSides.TWO, twt, context.getWriter());
+            writeAllSelectedGroupIds(ThreeSides.THREE, twt, context.getWriter());
         });
     }
 
@@ -162,10 +167,15 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
         readOptionalPQ(1, twt.getLeg1().getTerminal(), context.getReader());
         readOptionalPQ(2, twt.getLeg2().getTerminal(), context.getReader());
         readOptionalPQ(3, twt.getLeg3().getTerminal(), context.getReader());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+        IidmSerDeUtil.runBetweenVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
             readSelectedGroupId(1, twt.getLeg1()::setSelectedOperationalLimitsGroup, context);
             readSelectedGroupId(2, twt.getLeg2()::setSelectedOperationalLimitsGroup, context);
             readSelectedGroupId(3, twt.getLeg3()::setSelectedOperationalLimitsGroup, context);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
+            readAllSelectedGroupIds(ThreeSides.ONE, twt, context);
+            readAllSelectedGroupIds(ThreeSides.TWO, twt, context);
+            readAllSelectedGroupIds(ThreeSides.THREE, twt, context);
         });
         return twt;
     }
