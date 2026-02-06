@@ -362,9 +362,9 @@ class VariantManagerImplTest {
 
     @Test
     void testOverwriteVariantOrNot() {
-        String variante1 = "v1";
-        String variante2 = "v2";
-        List<String> targetVariants = List.of(variante1, variante2);
+        String variant1 = "v1";
+        String variant2 = "v2";
+        List<String> targetVariants = List.of(variant1, variant2);
 
         Network network = EurostagTutorialExample1Factory.create();
         VariantManagerImpl manager = assertInstanceOf(VariantManagerImpl.class, network.getVariantManager());
@@ -373,7 +373,7 @@ class VariantManagerImplTest {
         assertEquals(607.0, generator.getTargetP(), 0.0);
 
         // Clone a first variant
-        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variante1);
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variant1);
         assertEquals(2, manager.getVariantArraySize());
 
         // Try to clone two new variants, including one already existing, without overwriting
