@@ -41,7 +41,7 @@ action('close-switch-SW1') {
         closeSwitch 'SW1'
     }
 }
-``` 
+```
 
 Note that it's possible to open or close several switches at a time:
 ```groovy
@@ -108,7 +108,7 @@ action('disconnect-generator') {
         }
     }
 }
-``` 
+```
 
 ### Changing a phase tap changer position
 Changing the tap position of a phase tap changer is really useful to change how the active power is spread over parallel branches.
