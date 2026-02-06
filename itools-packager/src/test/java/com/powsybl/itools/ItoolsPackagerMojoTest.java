@@ -7,110 +7,130 @@
  */
 package com.powsybl.itools;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionRequest;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.MojoExecution;
-import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.apache.maven.api.plugin.testing.Basedir;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoParameter;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.model.Build;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingRequest;
-import org.codehaus.plexus.configuration.DefaultPlexusConfiguration;
-import org.codehaus.plexus.configuration.PlexusConfiguration;
-import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
 
+import javax.inject.Inject;
 import java.io.File;
+import java.nio.file.Path;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class ItoolsPackagerMojoTest extends AbstractMojoTestCase {
+@MojoTest
+class ItoolsPackagerMojoTest {
 
-    private static final File BASEDIR = new File("src/test/resources/test-maven-project/");
-    private static final File POM_XML = new File(BASEDIR, "pom.xml");
-    private static final File TARGET = new File(BASEDIR, "target");
     public static final String DEFAULT_PACKAGE_NAME = "itools-packager-test-project-1.0.0-SNAPSHOT";
 
-    ItoolsPackagerMojo mojo;
-    PlexusConfiguration configuration;
+    @Inject
+    MavenProject project;
 
-    @Override
-    protected void setUp()
-            throws Exception {
-        // required
-        super.setUp();
-        MavenProject project = readMavenProject();
-        MavenSession session = newMavenSession(project);
-        MojoExecution execution = newMojoExecution("package-zip");
-        mojo = (ItoolsPackagerMojo) lookupConfiguredMojo(session, execution);
-        configuration = new DefaultPlexusConfiguration("configuration");
+    @TempDir
+    Path tempDir;
+
+    @BeforeEach
+    void setup() {
+        Build build = new Build();
+        build.setFinalName(DEFAULT_PACKAGE_NAME);
+        String target = tempDir.resolve(UUID.randomUUID().toString()).toString();
+        build.setDirectory(target);
+        Mockito.when(project.getBuild()).thenReturn(build);
     }
 
-    @Override
-    protected void tearDown()
-            throws Exception {
-        // required
-        super.tearDown();
-        FileUtils.deleteDirectory(TARGET); // cleanup
-    }
-
-    protected MavenProject readMavenProject() throws Exception {
-        MavenExecutionRequest request = new DefaultMavenExecutionRequest();
-        request.setBaseDirectory(BASEDIR);
-        ProjectBuildingRequest projectBuildingRequest = request.getProjectBuildingRequest();
-        projectBuildingRequest.setRepositorySession(new DefaultRepositorySystemSession());
-        MavenProject project = lookup(ProjectBuilder.class).build(POM_XML, projectBuildingRequest).getProject();
-        assertNotNull(project);
-        return project;
-    }
-
-    protected MavenProject readMavenProject2() throws Exception {
-        MavenExecutionRequest request = new DefaultMavenExecutionRequest();
-        File basedir2 = new File("src/test/resources/test-maven-project-2/");
-        File pomXml2 = new File(basedir2, "pom.xml");
-        request.setBaseDirectory(basedir2);
-        ProjectBuildingRequest projectBuildingRequest = request.getProjectBuildingRequest();
-        projectBuildingRequest.setRepositorySession(new DefaultRepositorySystemSession());
-        MavenProject project = lookup(ProjectBuilder.class).build(pomXml2, projectBuildingRequest).getProject();
-        assertNotNull(project);
-        return project;
-    }
-
-    public void testDefaultConfiguration() throws Exception {
-        super.configureMojo(mojo, configuration);
-        assertNotNull(mojo);
+    @Test
+    @Basedir("src/test/resources/test-maven-project/")
+    @InjectMojo(goal = "package-zip")
+    void testDefaultConfiguration(ItoolsPackagerMojo mojo) {
         mojo.execute();
-        assertTrue(new File(TARGET, DEFAULT_PACKAGE_NAME + ".zip").exists());
+        String target = project.getBuild().getDirectory();
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + ".zip").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/bin/itools").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/bin/itools.bat").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/bin/powsyblsh").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/etc/itools.conf").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/etc/logback-itools.xml").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/etc/logback-powsyblsh.xml").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/lib").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/lib").isDirectory());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/share/java").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/share/java").isDirectory());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/file.txt").exists());
+        assertFalse(new File(target, DEFAULT_PACKAGE_NAME + "/not_exists.txt").exists());
     }
 
-    public void testPackageTypeTgz() throws Exception {
-        configuration.addChild("packageType", "tgz");
-        super.configureMojo(mojo, configuration);
-        assertNotNull(mojo);
+    @Test
+    @Basedir("src/test/resources/test-maven-project/")
+    @InjectMojo(goal = "package-zip")
+    @MojoParameter(name = "packageType", value = "tgz")
+    void testTgzConfiguration(ItoolsPackagerMojo mojo) {
         mojo.execute();
-        assertTrue(new File(TARGET, DEFAULT_PACKAGE_NAME + ".tgz").exists());
+        String target = project.getBuild().getDirectory();
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + ".tgz").exists());
     }
 
-    public void testLicenseFiles() throws Exception {
-        super.configureMojo(mojo, configuration);
-        assertNotNull(mojo);
-        mojo.execute();
-        assertTrue(new File(TARGET, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists());
-        assertTrue(new File(TARGET, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
+    @Test
+    @Basedir("src/test/resources/test-maven-project/")
+    @InjectMojo(goal = "package-zip")
+    @MojoParameter(name = "packageType", value = "someUnsupportedValue")
+    void testUnknownPackageType(ItoolsPackagerMojo mojo) {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, mojo::execute);
+        assertEquals("Unknown filetype 'someUnsupportedValue': should be either zip or tgz", e.getMessage());
     }
 
-    public void testMissingLicenseFile() throws Exception {
-        MavenProject project = readMavenProject2();
-        MavenSession session = newMavenSession(project);
-        MojoExecution execution = newMojoExecution("package-zip");
-        mojo = (ItoolsPackagerMojo) lookupConfiguredMojo(session, execution);
-        super.configureMojo(mojo, configuration);
-        assertNotNull(mojo);
+    @Test
+    @Basedir("src/test/resources/test-maven-project/")
+    @InjectMojo(goal = "package-zip")
+    @MojoParameter(name = "packageName", value = "myOwnPackageName")
+    void testPackageNameConfiguration(ItoolsPackagerMojo mojo) {
         mojo.execute();
-        File target2 = new File("src/test/resources/test-maven-project-2/target/");
-        assertTrue(new File(target2, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists());
-        assertFalse(new File(target2, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
-        FileUtils.deleteDirectory(target2); // cleanup
+        String target = project.getBuild().getDirectory();
+        assertTrue(new File(target, "myOwnPackageName" + ".zip").exists());
     }
+
+    @Test
+    @Basedir("src/test/resources/test-maven-project-configured-lic-files/")
+    @InjectMojo(goal = "package-zip")
+    void testCustomLicenseConfiguration(ItoolsPackagerMojo mojo) {
+        mojo.execute();
+        String target = project.getBuild().getDirectory();
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + ".zip").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/myLic.txt").exists());
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/my3rdParties.txt").exists());
+    }
+
+    @Test
+    @Basedir("src/test/resources/test-maven-project-lic-not-found/")
+    @InjectMojo(goal = "package-zip")
+    void testLicenseFilesNotFound(ItoolsPackagerMojo mojo) {
+        mojo.execute();
+        String target = project.getBuild().getDirectory();
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + ".zip").exists());
+        assertFalse(new File(target, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists());
+        assertFalse(new File(target, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
+    }
+
+    @Test
+    @Basedir("src/test/resources/test-maven-project-lic-parent-dir/submodule/")
+    @InjectMojo(goal = "package-zip")
+    void testLicenseFilesInParent(ItoolsPackagerMojo mojo) {
+        mojo.execute();
+        String target = project.getBuild().getDirectory();
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + ".zip").exists());
+        assertFalse(new File(target, DEFAULT_PACKAGE_NAME + "/LICENSE.txt").exists()); // wrong file specified in pom.xml
+        assertTrue(new File(target, DEFAULT_PACKAGE_NAME + "/THIRD-PARTY.txt").exists());
+    }
+
 }
