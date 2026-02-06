@@ -7,14 +7,12 @@
  */
 package com.powsybl.iidm.network.limitmodification;
 
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.IdenticalLimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -31,31 +29,34 @@ public interface LimitsComputer<P, L> {
     LimitsComputer<Identifiable<?>, LoadingLimits> NO_MODIFICATIONS = new NoModificationsImpl();
 
     /**
-     * <p>Retrieve the limits of <code>processable</code> corresponding to the given limits type and side,
+     * <p>Retrieve the limits of <code>processable</code> corresponding to the given limits type and side for all the selected limits (can be more than one),
      * then apply on them the modifications configured in the current {@link LimitsComputer}.</p>
      * <p>The result of this method contains both originals and altered limits.</p>
-     *
      * @param processable The network element for which the altered limits must be computed
      * @param limitType The type of the limits to process
      * @param side The side of <code>processable</code> on which the limits should be retrieved
      * @param monitoringOnly If <code>true</code>, compute the limits to use for a monitoring only use case.
      *                       If <code>false</code>, compute the limits to use for a monitoring + action use case.
-     * @return an object containing the original limits and the altered ones
+     * @return a collection containing the original limits and the altered ones
      */
-    Optional<LimitsContainer<L>> computeLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly);
+    Collection<LimitsContainer<L>> computeLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly);
 
     /**
      * An implementation of {@link LimitsComputer} only retrieving the limits without applying modifications.
      */
     class NoModificationsImpl extends AbstractLimitsComputerWithCache<Identifiable<?>, LoadingLimits> {
         @Override
-        public Optional<LimitsContainer<LoadingLimits>> computeLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
-            Optional<LoadingLimits> limits = LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
-            return limits.map(IdenticalLimitsContainer::new);
+        public Collection<LimitsContainer<LoadingLimits>> computeLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
+            Collection<OperationalLimitsGroup> groups = LimitViolationUtils.getAllSelectedLimitsGroups(identifiable, side);
+            return groups.stream()
+                    .map(group -> group.getLoadingLimits(limitType)
+                            .map(l -> new IdenticalLimitsContainer<LoadingLimits>(l, group.getId())))
+                    .<LimitsContainer<LoadingLimits>>mapMulti(Optional::ifPresent)
+                    .toList();
         }
 
         @Override
-        protected Optional<LimitsContainer<LoadingLimits>> computeUncachedLimits(Identifiable<?> processable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
+        protected Collection<LimitsContainer<LoadingLimits>> computeUncachedLimits(Identifiable<?> processable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
             throw new IllegalStateException("Not implemented: Should not be called"); // Not used
         }
     }

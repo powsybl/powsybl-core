@@ -87,8 +87,10 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
             () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
         );
         writePQ(null, t, context.getWriter());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+        IidmSerDeUtil.runBetweenVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () ->
                 writeSelectedGroupId(null, dl.getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () ->
+                writeAllSelectedGroupIds(dl, context.getWriter()));
     }
 
     private static <T> T getOptionalValue(Generation generation, Function<Generation, T> valueGetter) {
@@ -121,8 +123,10 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         });
         DanglingLine dl = adder.add();
         readPQ(null, dl.getTerminal(), context.getReader());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+        IidmSerDeUtil.runBetweenVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () ->
                 readSelectedGroupId(null, dl::setSelectedOperationalLimitsGroup, context));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () ->
+                readAllSelectedGroupIds(dl, context));
         return dl;
     }
 

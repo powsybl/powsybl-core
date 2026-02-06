@@ -20,12 +20,14 @@ import java.util.stream.IntStream;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractLimitsReducer<L> {
+    private final String limitsGroupId;
     private final L originalLimits;
     private double permanentLimitReduction = 1.0;
     protected final Map<Integer, Double> temporaryLimitReductionByAcceptableDuration = new HashMap<>();
 
-    protected AbstractLimitsReducer(L originalLimits) {
+    protected AbstractLimitsReducer(L originalLimits, String limitsGroupId) {
         this.originalLimits = originalLimits;
+        this.limitsGroupId = limitsGroupId;
     }
 
     /**
@@ -51,9 +53,13 @@ public abstract class AbstractLimitsReducer<L> {
                 && (temporaryLimitReductionByAcceptableDuration.isEmpty()
                     || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0))) {
             // No reductions are applicable
-            return new IdenticalLimitsContainer<>(getOriginalLimits());
+            return new IdenticalLimitsContainer<>(getOriginalLimits(), limitsGroupId);
         }
         return reduce();
+    }
+
+    public String getLimitsGroupId() {
+        return limitsGroupId;
     }
 
     public L getOriginalLimits() {
