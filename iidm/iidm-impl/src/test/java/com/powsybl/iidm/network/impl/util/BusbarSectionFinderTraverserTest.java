@@ -7,14 +7,14 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
@@ -100,6 +100,39 @@ class BusbarSectionFinderTraverserTest {
                 .add();
         Line teePointLine = network.getLine("LINE_TEE_POINT");
         assertNull(BusbarSectionFinderTraverser.getBusbarSectionResult(teePointLine.getTerminal2()));
+    }
+
+    @Test
+    void testWithBusBreakerVoltageLevel() {
+        network.newVoltageLevel()
+                .setId("busBreakerVL")
+                .setName("busBreakerVL")
+                .setFictitious(true)
+                .setNominalV(200)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        network.getVoltageLevel("busBreakerVL").getBusBreakerView().newBus()
+                .setId("B1")
+                .add();
+        createSwitch(network.getVoltageLevel("VL1"), "DISC_LINE_TEE_POINT_VL1", "DISC_LINE_TEE_POINT_VL1", SwitchKind.DISCONNECTOR, false, false, false, 0, 9);
+        network.newLine()
+                .setId("busBreakerLine")
+                .setName("busBreakerLine")
+                .setVoltageLevel1("VL1")
+                .setNode1(9)
+                .setVoltageLevel2("busBreakerVL")
+                .setConnectableBus2("B1")
+                .setR(2.0)
+                .setX(25.0)
+                .setG1(0.0)
+                .setB1(300E-6 / 2)
+                .setG2(0.0)
+                .setB2(300E-6 / 2)
+                .add();
+        Line busBreakerLine = network.getLine("busBreakerLine");
+        Terminal terminal2 = busBreakerLine.getTerminal2();
+        String message = assertThrows(PowsyblException.class, () -> BusbarSectionFinderTraverser.getBusbarSectionResult(terminal2)).getMessage();
+        assertEquals("BusbarSectionFinderTraverser only works with Node Breaker view and voltage level busBreakerVL is not in this topology kind", message);
     }
 
     private void createNetwork() {
