@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
@@ -59,8 +60,11 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     @Override
     protected void writeSubElements(Generator g, VoltageLevel vl, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
-            if (g != g.getRegulatingTerminal().getConnectable()) {
-                TerminalRefSerDe.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
+            if (g.getVoltageRegulation() != null
+                && g.getVoltageRegulation().getTerminal() != null
+                && g != g.getVoltageRegulation().getTerminal().getConnectable()
+                && g.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE) {
+                TerminalRefSerDe.writeTerminalRef(g.getVoltageRegulation().getTerminal(), context, "regulatingTerminal");
             }
         });
         ReactiveLimitsSerDe.INSTANCE.write(g, context);

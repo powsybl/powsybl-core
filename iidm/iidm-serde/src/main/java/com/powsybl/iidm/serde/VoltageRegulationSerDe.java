@@ -12,6 +12,7 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.regulation.*;
+import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.function.Consumer;
 
@@ -33,10 +34,12 @@ public final class VoltageRegulationSerDe {
     private VoltageRegulationSerDe() { }
 
     public static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
-        if (voltageRegulation != null) {
-            String namespace = context.getVersion().getNamespaceURI(context.isValid());
-            writeVoltageRegulation(voltageRegulation, context, namespace);
-        }
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
+            if (voltageRegulation != null) {
+                String namespace = context.getVersion().getNamespaceURI(context.isValid());
+                writeVoltageRegulation(voltageRegulation, context, namespace);
+            }
+        });
     }
 
     private static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, String namespace) {
@@ -56,6 +59,8 @@ public final class VoltageRegulationSerDe {
     }
 
     private static void writeSubElements(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
+ // TODO MSA check if neeeded to test the remote terminal             !Objects.equals(voltageRegulation.getTerminal().getBusBreakerView().getConnectableBus(),
+//                voltageRegulation.getExtendable().getTerminal().getBusBreakerView().getConnectableBus())
         TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
     }
 

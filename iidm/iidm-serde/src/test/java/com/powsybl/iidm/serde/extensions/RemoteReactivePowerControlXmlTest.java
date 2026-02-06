@@ -9,10 +9,9 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.serde.*;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -54,7 +53,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
                 .setTargetV(400)
                 .setMinP(0)
                 .setMaxP(200)
-                .setVoltageRegulatorOn(true)
+                .setVoltageRegulatorOn(false)
                 .add();
         var line = network.newLine()
                 .setId("L12")
@@ -63,10 +62,11 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
                 .setR(0).setX(1).setB1(0).setB2(0).setG1(0).setG2(0)
                 .add();
 
-        gen.newExtension(RemoteReactivePowerControlAdder.class)
-                .withEnabled(true)
-                .withTargetQ(123)
-                .withRegulatingTerminal(line.getTerminal2())
+        gen.newVoltageRegulation()
+                .withRegulating(true)
+                .withTargetValue(123)
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTerminal(line.getTerminal2())
                 .add();
         return network;
     }
@@ -75,8 +75,8 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
     void test() throws IOException {
         Network network = createTestNetwork();
 
-        RemoteReactivePowerControl rrpc = network.getGenerator("G").getExtension(RemoteReactivePowerControl.class);
-        assertNotNull(rrpc);
+        VoltageRegulation voltageRegulation = network.getGenerator("G").getVoltageRegulation();
+        assertNotNull(voltageRegulation);
 
         Network network2 = allFormatsRoundTripTest(network, "remoteReactivePowerControlRef.xml", IidmVersion.V_1_15);
 
@@ -84,12 +84,12 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
         Line line = network.getLine("L12");
         Line line2 = network2.getLine("L12");
         assertNotNull(gen2);
-        RemoteReactivePowerControl rrpc2 = gen2.getExtension(RemoteReactivePowerControl.class);
-        assertNotNull(rrpc2);
-        assertEquals(rrpc.isEnabled(), rrpc2.isEnabled());
-        assertEquals(rrpc.getTargetQ(), rrpc2.getTargetQ(), 0f);
-        assertEquals(rrpc.getRegulatingTerminal().getConnectable().getId(), rrpc2.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(line.getSide(rrpc.getRegulatingTerminal()), line2.getSide(rrpc2.getRegulatingTerminal()));
+        VoltageRegulation voltageRegulation2 = gen2.getVoltageRegulation();
+        assertNotNull(voltageRegulation2);
+        assertEquals(voltageRegulation.isRegulating(), voltageRegulation2.isRegulating());
+        assertEquals(voltageRegulation.getTargetValue(), voltageRegulation2.getTargetValue(), 0f);
+        assertEquals(voltageRegulation.getTerminal().getConnectable().getId(), voltageRegulation2.getTerminal().getConnectable().getId());
+        assertEquals(line.getSide(voltageRegulation.getTerminal()), line2.getSide(voltageRegulation2.getTerminal()));
 
         // backward compatibility checks from version 1.5
         allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("remoteReactivePowerControlRef.xml", IidmVersion.V_1_5, IidmVersion.V_1_15);
@@ -109,28 +109,5 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
         // check it doesn't fail for all versions < 1.5 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
         testWriteXmlAllPreviousVersions(network, options, "remoteReactivePowerControlNotSupported.xml", IidmVersion.V_1_5);
-    }
-
-    @Test
-    @Disabled
-        // TODO MSA
-    // Test from 1_5 to CurrentVersion with extension from 1_5 to 1_15 and voltageRegulation from 1_16
-    void testMsa() throws IOException {
-        // GIVEN
-        Network network = createTestNetwork();
-        Generator g = network.getGenerator("G");
-        g.setVoltageRegulatorOn(false);
-        g.removeVoltageRegulation();
-        g.removeExtension(RemoteReactivePowerControl.class);
-        // WHEN
-        Network network2 = allFormatsRoundTripTest(network, "remoteReactivePowerControlRef.xml", IidmVersion.V_1_16);
-        // THEN
-        assertNotNull(network2);
-    }
-
-    private static void write(Network network, Path path, IidmVersion version) {
-        ExportOptions options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR)
-                .setVersion(version.toString("."));
-        NetworkSerDe.write(network, options, path);
     }
 }

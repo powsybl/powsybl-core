@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.impl.regulation.VoltageRegulationAdderImpl;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -30,7 +31,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double maxP = Double.NaN;
 
-    private VoltageRegulation voltageRegulation;
+    private Optional<VoltageRegulation> voltageRegulation = Optional.empty();
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
@@ -95,7 +96,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
 
         BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, targetQ, minP, maxP);
-
+        battery.setVoltageRegulation(getVoltageRegulation());
         battery.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(battery);
@@ -111,17 +112,18 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     @Override
     public void removeVoltageRegulation() {
-        this.voltageRegulation = null;
+        this.voltageRegulation.ifPresent(vr -> vr.setTerminal(null));
+        this.voltageRegulation = Optional.empty();
     }
 
     @Override
     public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
+        this.voltageRegulation = Optional.ofNullable(voltageRegulation);
     }
 
     @Override
     public VoltageRegulation getVoltageRegulation() {
-        return this.voltageRegulation;
+        return this.voltageRegulation.orElse(null);
     }
 
     @Override

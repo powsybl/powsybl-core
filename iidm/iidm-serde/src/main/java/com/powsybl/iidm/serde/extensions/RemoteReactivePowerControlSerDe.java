@@ -14,8 +14,7 @@ import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.removed.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
@@ -58,10 +57,6 @@ public class RemoteReactivePowerControlSerDe extends AbstractExtensionSerDe<Gene
                 .withTerminal(terminal)
                 .add();
         }
-        return extendable.newExtension(RemoteReactivePowerControlAdder.class)
-                .withEnabled(enabled)
-                .withTargetQ(targetQ)
-                .withRegulatingTerminal(terminal)
-                .add();
+        return null;
     }
 }

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public abstract class AbstractVoltageRegulationTest {
+public abstract class AbstractVoltageRegulationExtensionTest {
 
     private Network network;
     private VoltageLevel voltageLevel;

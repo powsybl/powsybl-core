@@ -38,7 +38,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
                                  boolean regulating) {
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.terminal = (TerminalExt) terminal;
+        this.setTerminal(terminal);
         this.mode = mode;
         this.targetValue = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
@@ -89,6 +89,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public void setTerminal(Terminal terminal) {
+        // TODO MSA add check terminal != localTerminal
         if (this.terminal != null) {
             this.terminal.getReferrerManager().unregister(this);
             this.terminal = null;
@@ -170,14 +171,14 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
     @Override
     public void onReferencedRemoval(Terminal removedReferenced) {
         if (this.terminal == removedReferenced) {
-            this.terminal = null;
+            this.setTerminal(null);
         }
     }
 
     @Override
     public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
         if (this.terminal == oldReferenced) {
-            this.terminal = (TerminalExt) newReferenced;
+            this.setTerminal(newReferenced);
         }
     }
 

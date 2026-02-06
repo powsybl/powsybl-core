@@ -7,6 +7,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.tck.AbstractVoltageRegulationTest;
+import com.powsybl.iidm.network.tck.AbstractVoltageRegulationExtensionTest;
 
-class VoltageRegulationTest extends AbstractVoltageRegulationTest { }
+class VoltageRegulationExtensionTest extends AbstractVoltageRegulationExtensionTest { }

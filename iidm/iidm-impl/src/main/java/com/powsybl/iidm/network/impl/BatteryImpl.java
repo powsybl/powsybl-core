@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.impl.regulation.VoltageRegulationImpl;
 import com.powsybl.iidm.network.regulation.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -33,7 +34,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private double maxP;
 
-    private VoltageRegulationImpl voltageRegulation;
+    private Optional<VoltageRegulationImpl> voltageRegulation;
 
     BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, double targetP, double targetQ, double minP, double maxP) {
         super(ref, id, name, fictitious);
@@ -206,6 +207,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
             targetP.add(targetP.get(sourceIndex));
             targetQ.add(targetQ.get(sourceIndex));
         }
+        this.voltageRegulation.ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
     }
 
     /**
@@ -216,6 +218,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         super.reduceVariantArraySize(number);
         targetP.remove(targetP.size() - number, number);
         targetQ.remove(targetQ.size() - number, number);
+        this.voltageRegulation.ifPresent(vr -> vr.reduceVariantArraySize(number));
     }
 
     /**
@@ -228,11 +231,12 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
             targetP.set(index, targetP.get(sourceIndex));
             targetQ.set(index, targetQ.get(sourceIndex));
         }
+        this.voltageRegulation.ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
     }
 
     @Override
     public VoltageRegulation getVoltageRegulation() {
-        return this.voltageRegulation;
+        return this.voltageRegulation.orElse(null);
     }
 
     @Override
@@ -242,12 +246,13 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     @Override
     public void removeVoltageRegulation() {
-        this.voltageRegulation = null;
+        this.voltageRegulation.ifPresent(vr -> vr.setTerminal(null));
+        this.voltageRegulation = Optional.empty();
     }
 
     @Override
     public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.voltageRegulation = (VoltageRegulationImpl) voltageRegulation;
+        this.voltageRegulation = Optional.ofNullable((VoltageRegulationImpl) voltageRegulation);
     }
 
     @Override
