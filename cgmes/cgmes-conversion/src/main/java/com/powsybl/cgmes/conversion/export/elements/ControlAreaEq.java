@@ -24,9 +24,11 @@ public final class ControlAreaEq {
 
     public static void write(String id, String controlAreaName, String energyIdentCodeEIC, String energyAreaId, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("ControlArea", id, controlAreaName, cimNamespace, writer, context);
-        writer.writeStartElement(euNamespace, "IdentifiedObject.energyIdentCodeEic");
-        writer.writeCharacters(energyIdentCodeEIC);
-        writer.writeEndElement();
+        if (energyIdentCodeEIC != null) {
+            writer.writeStartElement(euNamespace, "IdentifiedObject.energyIdentCodeEic");
+            writer.writeCharacters(energyIdentCodeEIC);
+            writer.writeEndElement();
+        }
         writer.writeEmptyElement(cimNamespace, "ControlArea.type");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + CONTROL_AREA_TYPE);
         if (!context.isCim16BusBranchExport()) {
