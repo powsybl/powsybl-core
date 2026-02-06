@@ -363,7 +363,7 @@ public final class TopologyExport {
     }
 
     private static String createNewTopologicalNode(DanglingLine dl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        System.err.printf("Create new TopologicalNode for dl %s %n", dl.getId());
+
         String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
         // If the EQ has also been exported, a fictitious container should have been created
         String containerId = context.getFictitiousContainerFor(dl);
