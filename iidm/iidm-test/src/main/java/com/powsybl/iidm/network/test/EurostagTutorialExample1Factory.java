@@ -595,7 +595,7 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        line.addSelectedOperationalLimitsGroups1(activatedOneOne, activatedOneTwo);
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, activatedOneOne, activatedOneTwo);
 
         final String activatedTwoOne = "activated_2_1";
 
@@ -610,7 +610,7 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        line.addSelectedOperationalLimitsGroups2(activatedTwoOne);
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, activatedTwoOne);
 
         line = network.getLine(NHV1_NHV2_2);
         line.getTerminal1().setP(560.0).setQ(550.0);
@@ -655,7 +655,7 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        line.addSelectedOperationalLimitsGroups2(activatedTwoOne, activatedTwoTwo);
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, activatedTwoOne, activatedTwoTwo);
 
         return network;
     }
