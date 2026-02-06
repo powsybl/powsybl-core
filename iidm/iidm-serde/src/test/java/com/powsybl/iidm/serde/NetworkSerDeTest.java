@@ -194,10 +194,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         }
     }
 
-    private static Network writeAndRead(Network network, ExportOptions options) throws IOException {
+    static Network writeAndRead(Network network, ExportOptions options) throws IOException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             NetworkSerDe.write(network, options, os);
-
             try (InputStream is = new ByteArrayInputStream(os.toByteArray())) {
                 return NetworkSerDe.read(is);
             }
