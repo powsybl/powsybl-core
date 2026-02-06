@@ -37,14 +37,9 @@ public final class BusbarSectionFinderTraverser {
     public static String findBusbarSectionId(Terminal terminal) {
         checkIsNodeBreakerView(terminal.getVoltageLevel());
         BusbarSectionResult result = getBusbarSectionResult(terminal);
-        if (result != null) {
-            return result.busbarSectionId();
-        }
-        if (terminal.getVoltageLevel().getNodeBreakerView().getBusbarSections() == null) {
-            return null;
-        }
-        BusbarSection busbarSection = terminal.getVoltageLevel().getNodeBreakerView().getBusbarSections().iterator().next();
-        return busbarSection == null ? null : busbarSection.getId();
+        return result != null ?
+                result.busbarSectionId() :
+                terminal.getVoltageLevel().getNodeBreakerView().getBusbarSectionStream().findFirst().map(BusbarSection::getId).orElse(null);
     }
 
     /**

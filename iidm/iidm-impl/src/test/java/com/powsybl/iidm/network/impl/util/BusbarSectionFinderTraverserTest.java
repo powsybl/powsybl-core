@@ -14,14 +14,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
  */
-
 class BusbarSectionFinderTraverserTest {
 
     private Network network;
@@ -35,51 +32,23 @@ class BusbarSectionFinderTraverserTest {
     void testWithOpenSwitch() {
         Line line12 = network.getLine("LINE_1_2");
         Line line22 = network.getLine("LINE_2_2");
-        BusbarSectionFinderTraverser.BusbarSectionResult result12 = BusbarSectionFinderTraverser.getBusbarSectionResult(line12.getTerminal1());
-        BusbarSectionFinderTraverser.BusbarSectionResult result22 = BusbarSectionFinderTraverser.getBusbarSectionResult(line22.getTerminal1());
-        assertNotNull(result12);
-        assertEquals("BBS1_2", result12.busbarSectionId());
-        assertNotNull(result22);
-        assertEquals("BBS1_2", result22.busbarSectionId());
-        assertEquals(4, result12.depth());
-        assertEquals(4, result22.depth());
-        assertEquals("DISC_BBS1_2", result12.lastSwitch().id());
-        assertEquals("DISC_BBS1_2", result22.lastSwitch().id());
-        assertTrue(result12.lastSwitch().isOpen());
-        assertTrue(result22.lastSwitch().isOpen());
-        assertFalse(result12.allClosedSwitch());
-        assertFalse(result22.allClosedSwitch());
 
+        assertBusbarSectionResult(line12.getTerminal1(), "BBS1_2", 4, "DISC_BBS1_2", true, false);
+        assertBusbarSectionResult(line22.getTerminal1(), "BBS1_2", 4, "DISC_BBS1_2", true, false);
     }
 
     @Test
     void testWithClosedLastSwitch() {
         network.getSwitch("DISC_BBS1_1").setOpen(false);
         network.getSwitch("DISC_BBS2_2").setOpen(false);
+
         Line line11 = network.getLine("LINE_1_1");
         Line line21 = network.getLine("LINE_2_1");
         Line line12 = network.getLine("LINE_1_2");
-        BusbarSectionFinderTraverser.BusbarSectionResult result11 = BusbarSectionFinderTraverser.getBusbarSectionResult(line11.getTerminal1());
-        BusbarSectionFinderTraverser.BusbarSectionResult result21 = BusbarSectionFinderTraverser.getBusbarSectionResult(line21.getTerminal1());
-        BusbarSectionFinderTraverser.BusbarSectionResult result12 = BusbarSectionFinderTraverser.getBusbarSectionResult(line12.getTerminal1());
-        assertNotNull(result11);
-        assertEquals("BBS1_1", result11.busbarSectionId());
-        assertEquals(3, result11.depth());
-        assertEquals("DISC_BBS1_1", result11.lastSwitch().id());
-        assertFalse(result11.lastSwitch().isOpen());
-        assertFalse(result11.allClosedSwitch());
-        assertNotNull(result21);
-        assertEquals("BBS1_1", result21.busbarSectionId());
-        assertEquals(4, result21.depth());
-        assertEquals("DISC_BBS1_1", result21.lastSwitch().id());
-        assertFalse(result21.lastSwitch().isOpen());
-        assertFalse(result21.allClosedSwitch());
-        assertNotNull(result12);
-        assertEquals("BBS2_2", result12.busbarSectionId());
-        assertEquals(4, result12.depth());
-        assertEquals("DISC_BBS2_2", result12.lastSwitch().id());
-        assertFalse(result12.lastSwitch().isOpen());
-        assertFalse(result12.allClosedSwitch());
+
+        assertBusbarSectionResult(line11.getTerminal1(), "BBS1_1", 3, "DISC_BBS1_1", false, false);
+        assertBusbarSectionResult(line21.getTerminal1(), "BBS1_1", 4, "DISC_BBS1_1", false, false);
+        assertBusbarSectionResult(line12.getTerminal1(), "BBS2_2", 4, "DISC_BBS2_2", false, false);
     }
 
     @Test
@@ -92,35 +61,45 @@ class BusbarSectionFinderTraverserTest {
         network.getSwitch("DISC_LINE_2_1").setOpen(false);
         Line line11 = network.getLine("LINE_1_1");
         Line line21 = network.getLine("LINE_2_1");
-        BusbarSectionFinderTraverser.BusbarSectionResult result11 = BusbarSectionFinderTraverser.getBusbarSectionResult(line11.getTerminal1());
-        BusbarSectionFinderTraverser.BusbarSectionResult result21 = BusbarSectionFinderTraverser.getBusbarSectionResult(line21.getTerminal1());
-        assertNotNull(result11);
-        assertEquals("BBS1_1", result11.busbarSectionId());
-        assertEquals(3, result11.depth());
-        assertTrue(result11.allClosedSwitch());
-        assertEquals("DISC_BBS1_1", result11.lastSwitch().id());
-        assertNotNull(result21);
-        assertEquals("BBS2_1", result21.busbarSectionId());
-        assertEquals(3, result21.depth());
-        assertEquals("DISC_BBS2_1", result21.lastSwitch().id());
-        assertTrue(result21.allClosedSwitch());
+        assertBusbarSectionResult(line11.getTerminal1(), "BBS1_1", 3, "DISC_BBS1_1", false, true);
+        assertBusbarSectionResult(line21.getTerminal1(), "BBS2_1", 3, "DISC_BBS2_1", false, true);
     }
 
     @Test
     void testWithInternalConnection() {
         TwoWindingsTransformer td1 = network.getTwoWindingsTransformer("TD1");
-        BusbarSectionFinderTraverser.BusbarSectionResult result1 = BusbarSectionFinderTraverser.getBusbarSectionResult(td1.getTerminal1());
-        BusbarSectionFinderTraverser.BusbarSectionResult result2 = BusbarSectionFinderTraverser.getBusbarSectionResult(td1.getTerminal2());
-        assertNotNull(result1);
-        assertEquals("BBS1_2", result1.busbarSectionId());
-        assertEquals(1, result1.depth());
-        assertTrue(result1.allClosedSwitch());
-        assertEquals("DISC_BUS1_2_TD1", result1.lastSwitch().id());
-        assertNotNull(result2);
-        assertEquals("BBS2_2", result2.busbarSectionId());
-        assertEquals(1, result2.depth());
-        assertEquals("DISC_BUS2_2_TD1", result2.lastSwitch().id());
-        assertTrue(result2.allClosedSwitch());
+        assertBusbarSectionResult(td1.getTerminal1(), "BBS1_2", 1, "DISC_BUS1_2_TD1", false, true);
+        assertBusbarSectionResult(td1.getTerminal2(), "BBS2_2", 1, "DISC_BUS2_2_TD1", false, true);
+    }
+
+    @Test
+    void testWithNoBusBarSection() {
+        // add a voltage level with no bus bar section
+        network.newVoltageLevel()
+                .setId("teePoint")
+                .setName("teePoint")
+                .setFictitious(true)
+                .setNominalV(200)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        createSwitch(network.getVoltageLevel("VL1"), "DISC_LINE_TEE_POINT_VL1", "DISC_LINE_TEE_POINT_VL1", SwitchKind.DISCONNECTOR, false, false, false, 0, 9);
+        network.newLine()
+                .setId("LINE_TEE_POINT")
+                .setName("LINE_TEE_POINT")
+                .setVoltageLevel1("VL1")
+                .setNode1(9)
+                .setVoltageLevel2("teePoint")
+                .setNode2(0)
+                .setR(2.0)
+                .setX(25.0)
+                .setG1(0.0)
+                .setB1(300E-6 / 2)
+                .setG2(0.0)
+                .setB2(300E-6 / 2)
+                .add();
+        Line teePointLine = network.getLine("LINE_TEE_POINT");
+        assertNull(BusbarSectionFinderTraverser.getBusbarSectionResult(teePointLine.getTerminal2()));
     }
 
     private void createNetwork() {
@@ -190,6 +169,16 @@ class BusbarSectionFinderTraverserTest {
                 .withSectionIndex(2)
                 .add();
 
+        // VL1 switches
+        createSwitch(vl1, "DISC_LINE_1_1_VL1", "DISC_LINE_1_1_VL1", SwitchKind.DISCONNECTOR, false, false, false, 0, 1);
+        createSwitch(vl1, "DISC_LINE_1_2_VL1", "DISC_LINE_1_2_VL1", SwitchKind.DISCONNECTOR, false, false, false, 0, 2);
+        createSwitch(vl1, "DISC_LINE_2_1_VL1", "DISC_LINE_2_1_VL1", SwitchKind.DISCONNECTOR, false, false, false, 0, 3);
+        createSwitch(vl1, "DISC_LINE_2_2_VL1", "DISC_LINE_2_2_VL1", SwitchKind.DISCONNECTOR, false, false, false, 0, 4);
+        createSwitch(vl1, "BRK_LINE_1_1_VL1", "BRK_LINE_1_1_VL1", SwitchKind.BREAKER, false, false, false, 1, 5);
+        createSwitch(vl1, "BRK_LINE_1_2_VL1", "BRK_LINE_1_2_VL1", SwitchKind.BREAKER, false, false, false, 2, 6);
+        createSwitch(vl1, "BRK_LINE_2_1_VL1", "BRK_LINE_2_1_VL1", SwitchKind.BREAKER, false, false, false, 3, 7);
+        createSwitch(vl1, "BRK_LINE_2_2_VL1", "BRK_LINE_2_2_VL1", SwitchKind.BREAKER, false, false, false, 4, 8);
+
         //Fork topology
         createSwitch(vl2, "DISC_BBS1.1_BBS1.2", "DISC_BBS1.1_BBS1.2", SwitchKind.DISCONNECTOR, false, false, false, 0, 1);
         createSwitch(vl2, "DISC_BBS2.1_BBS2.2", "DISC_BBS2.1_BBS2.2", SwitchKind.DISCONNECTOR, false, true, false, 3, 4);
@@ -220,7 +209,7 @@ class BusbarSectionFinderTraverserTest {
                 .setVoltageLevel1("VL2")
                 .setNode1(10)
                 .setVoltageLevel2("VL1")
-                .setNode2(10)
+                .setNode2(6)
                 .setR(2.0)
                 .setX(25.0)
                 .setG1(0.0)
@@ -235,7 +224,7 @@ class BusbarSectionFinderTraverserTest {
                 .setVoltageLevel1("VL2")
                 .setNode1(11)
                 .setVoltageLevel2("VL1")
-                .setNode2(19)
+                .setNode2(8)
                 .setR(2.0)
                 .setX(25.0)
                 .setG1(0.0)
@@ -249,7 +238,7 @@ class BusbarSectionFinderTraverserTest {
                 .setVoltageLevel1("VL2")
                 .setNode1(17)
                 .setVoltageLevel2("VL1")
-                .setNode2(12)
+                .setNode2(5)
                 .setR(2.0)
                 .setX(25.0)
                 .setG1(0.0)
@@ -264,7 +253,7 @@ class BusbarSectionFinderTraverserTest {
                 .setVoltageLevel1("VL2")
                 .setNode1(26)
                 .setVoltageLevel2("VL1")
-                .setNode2(13)
+                .setNode2(7)
                 .setR(2.0)
                 .setX(25.0)
                 .setG1(0.0)
@@ -299,6 +288,14 @@ class BusbarSectionFinderTraverserTest {
                 .setNode1(node1)
                 .setNode2(node2)
                 .add();
+    }
+
+    private static void assertBusbarSectionResult(Terminal terminal, String expectedId, int expectedDepth, String expectedLastSwitchId, boolean expectedLastSwitchState, boolean expectedAllClosedSwitch) {
+        BusbarSectionFinderTraverser.BusbarSectionResult expectedResult = new BusbarSectionFinderTraverser.BusbarSectionResult(expectedId,
+                expectedDepth,
+                new BusbarSectionFinderTraverser.SwitchInfo(expectedLastSwitchId, expectedLastSwitchState),
+                expectedAllClosedSwitch);
+        assertEquals(expectedResult, BusbarSectionFinderTraverser.getBusbarSectionResult(terminal));
     }
 }
 
