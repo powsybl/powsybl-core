@@ -71,7 +71,7 @@ generator.newReactiveCapabilityCurve()
 Some equipment has operational limits regarding the current, active power or apparent power value, corresponding to the equipment's physical limitations (related to heating).
 
 Loading limits can be declined into active power limits (in MW), apparent power limits (in kVA) and current limits (in A).
-They may be set for [lines](./network_subnetwork.md#line),
+They may be set for [lines](./network_subnetwork.md#line), [tie lines](./network_subnetwork.md#tie-line),
 [dangling lines](./network_subnetwork.md#dangling-line), [two-winding transformers](./network_subnetwork.md#two-winding-transformer) and [three-winding transformers](./network_subnetwork.md#three-winding-transformer). The active power limits are in absolute value.
 
 Loading limits are defined by one permanent limit and any number of temporary limits (zero or more).
@@ -88,22 +88,24 @@ Please look at this scheme to fully understand the modeling (the following examp
 ![Loading limits model](img/current-limits.svg){width="50%" align=center class="only-light"}
 ![Loading limits model](img/dark_mode/current-limits.svg){width="50%" align=center class="only-dark"}
 
-Note that, following this modeling, in general, the last temporary limit (the higher one in value) should be infinite with an acceptable duration different from zero, except for tripping current modeling where the last temporary limit is infinite with an acceptable duration equal to zero. If temporary limits are modeled, the permanent limit becomes mandatory.
+Note that, following this modeling, in general, the last temporary limit (the higher one in value) should be infinite with an acceptable duration different from zero, except for tripping current modeling where the last temporary limit is infinite with an acceptable duration equal to zero.
+If temporary limits are modeled, the permanent limit becomes mandatory.
+If no temporary limit is present, then the acceptable duration above the permanent limit will be infinite.
 
 (limit-group-collection)=
 ### Limit group collection
 In network development studies or in an operational context (CGMES), we can have a set of operational limits according to the season (winter vs summer, for example), the time of the day (day vs night) etc.
 In PowSyBl, users can store a collection of limits:
 - Active power limits, apparent power limits and current limits are gathered into an `OperationalLimitsGroup` object.
-- Lines and transformers are associated with a collection of `OperationalLimitsGroup` (one collection per side/leg).
-  Users can then choose the active set according to their needs.
+- Lines, transformers (and other mentioned above in [Loading limits](#loading-limits)) are associated with a collection of `OperationalLimitsGroup` (one collection per side/leg).
+  Users can then choose the active one or more `OperationalLimitsGroup` according to their needs.
 
 `OperationalLimitsGroup` objects have an `id`, and may have properties — which allow associating additional arbitrary data items under the general schema of pairs <Key, Value>.
 Note that unlike the properties on the network components, no notification is emitted when a property is added, changed or removed.
 
 #### Examples
 
-Three examples are provided below, with their corresponding limits scheme, to show clearly how to create new `CurrentLimits` instances.
+Four examples are provided below, with their corresponding limits scheme, to show clearly how to create new `CurrentLimits` instances.
 
 ##### First example
 This first example creates a `CurrentLimits` instance containing one permanent limit and two temporary limits.
@@ -178,6 +180,68 @@ line.newOperationalLimitsGroup1("WINTER")
 line.setSelectedOperationalLimitsGroup1("WINTER");
 ```
 In this example, there is two sets of limits on the same line side (1). The selected set is the winter one: the limits violations will be tested against this set.
+Note that all `setSelected` methods will only keep a single set of limit activated at a time. Selecting "WINTER" then "SUMMER" this way will result in the only active group
+being the last selected (aka "SUMMER").
+To have multiple `OperationalLimitsGroup` selected at the same time, see below the fourth example.
+
+#### Fourth example
+This fourth example creates three OperationalLimitsGroup on the same end, and sets all of them as selected (active).
+
+```java
+final String activatedOneOne = "activated_1_1";
+final String activatedOneTwo = "activated_1_2";
+
+Line line = network.getLine("Line");
+
+// create the default operational limits group and select it
+line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(500).add();
+// create two other operational limits group
+line.newOperationalLimitsGroup1(activatedOneOne).newCurrentLimits()
+        .setPermanentLimit(1100)
+        .beginTemporaryLimit()
+        .setName("10'")
+        .setAcceptableDuration(10 * 60)
+        .setValue(1200)
+        .endTemporaryLimit()
+        .beginTemporaryLimit()
+        .setName("1'")
+        .setAcceptableDuration(60)
+        .setValue(1500)
+        .endTemporaryLimit()
+        .beginTemporaryLimit()
+        .add();
+
+line.newOperationalLimitsGroup1(activatedOneTwo).newCurrentLimits()
+        .setPermanentLimit(300)
+        .beginTemporaryLimit()
+        .setName("40'")
+        .setAcceptableDuration(40 * 60)
+        .setValue(700)
+        .endTemporaryLimit()
+        .beginTemporaryLimit()
+        .setName("0.5'")
+        .setAcceptableDuration(30)
+        .setValue(1600)
+        .endTemporaryLimit()
+        .beginTemporaryLimit()
+        .setName("N/A") //there is no need to explicitly create this limit for the acceptable duration above the last temporary limit to be 0, this is just an example
+        .setAcceptableDuration(0)
+        .setValue(Double.MAX_VALUE)
+        .endTemporaryLimit()
+        .add();
+
+// select the two other limits group on the side 1, no need to select the first created group, the function we used already selected it
+line.addSelectedOperationalLimitsGroups(TwoSides.ONE, activatedOneOne, activatedOneTwo);
+```
+
+We thus have 3 `OperationalLimitsGroup` selected on the side 1 of the line. Note that not all created groups need to be activated,
+here all are activated, but we could have activated only 2 out of 3 (or 1 out of 3).
+Each activated group can return information about the acceptable duration (which can be different depending on the group).
+
+The spacing on the y axis (branch current) is not to scale.
+
+![Current limits scheme_example4](img/current-limits-example4.svg){align=center class="only-light"}
+![Current limits scheme_example4](img/dark_mode/current-limits-example4.svg){align=center class="only-dark"}
 
 (phase-tap-changer)=
 ## Phase tap changer
