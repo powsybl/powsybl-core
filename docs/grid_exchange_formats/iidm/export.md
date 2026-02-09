@@ -11,7 +11,7 @@ The `iidm.export.xml.indent` property is an optional property that defines wheth
 
 By default, the value is `true`.
 
-**iidm.export.xml.with-branch-state-variables**<br>  
+**iidm.export.xml.with-branch-state-variables**<br>
 The `iidm.export.xml.with-branch-state-variables` property is an optional property that defines whether the network will be exported by the XIIDM exporter with branch state variables.
 
 By default, the value is `true`.
@@ -81,7 +81,7 @@ The `iidm.export.xml.version` property is an optional property that defines the 
 
 By default, the export is done in the more recent version that is supported.
 
-**iidm.export.xml.with-automation-systems**  
+**iidm.export.xml.with-automation-systems**<br>
 The `iidm.export.xml.with-automation-systems` property is an optional property that defines if the automation systems are exported.
 
 By default, the value is `true`, automation systems are exported.
@@ -94,7 +94,7 @@ There are two possible behaviors:
 
 By default, this behavior is set as `THROW_EXCEPTION`
 
-**iidm.export.xml.bus-branch.voltage-level.incompatibility-behavior**<br>  
+**iidm.export.xml.bus-branch.voltage-level.incompatibility-behavior**<br>
 The `iidm.export.xml.bus-branch.voltage-level.incompatibility-behavior` property is an optional property that defines the behavior of the XIIDM exporter when exporting a network in BUS_BRANCH topology with a voltage level that will be invalid due to a reference to a non-exported bus.
 There are two possible behaviors:
 - `KEEP_ORIGINAL_TOPOLOGY`: the problematic voltage level is exported keeping the original topology and a warning is logged
