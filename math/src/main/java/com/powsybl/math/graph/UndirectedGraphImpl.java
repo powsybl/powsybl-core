@@ -592,7 +592,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
         boolean[] encounteredVertices = new boolean[vertices.size()];
         boolean[] encounteredEdges = new boolean[edges.size()];
-        List<C> components = new ArrayList<>(vertices.size());
+        List<C> components = new ArrayList<>();
 
         for (int v = 0; v < vertices.size(); v++) {
             Vertex<V> vertex = vertices.get(v);

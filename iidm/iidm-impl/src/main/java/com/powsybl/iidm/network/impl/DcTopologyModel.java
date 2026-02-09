@@ -107,9 +107,9 @@ public class DcTopologyModel implements MultiVariantObject {
 
     protected static int loadDcNodeIndexLimit(PlatformConfig platformConfig) {
         return platformConfig
-                .getOptionalModuleConfig("iidm")
-                .map(moduleConfig -> moduleConfig.getIntProperty("dc-node-index-limit", DEFAULT_DC_NODE_INDEX_LIMIT))
-                .orElse(DEFAULT_DC_NODE_INDEX_LIMIT);
+            .getOptionalModuleConfig("iidm")
+            .map(moduleConfig -> moduleConfig.getIntProperty("dc-node-index-limit", DEFAULT_DC_NODE_INDEX_LIMIT))
+            .orElse(DEFAULT_DC_NODE_INDEX_LIMIT);
     }
 
     private Integer getVertex(String dcNodeId) {
@@ -210,19 +210,19 @@ public class DcTopologyModel implements MultiVariantObject {
      */
     class CalculatedDcBusTopology {
 
-        private static boolean isDcBusValid(Set<DcNodeImpl> dcNodeSet) {
+        private static boolean isDcBusValid(List<DcNodeImpl> dcNodes) {
             // DcBus is valid if at least one DcConnectable connected, i.e. there is at least one connected DcTerminal
-            return dcNodeSet.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent();
+            return dcNodes.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent();
         }
 
-        private DcBusImpl createDcBus(Set<DcNodeImpl> dcNodeSet) {
-            if (dcNodeSet == null || dcNodeSet.isEmpty()) {
+        private DcBusImpl createDcBus(List<DcNodeImpl> dcNodes) {
+            if (dcNodes == null || dcNodes.isEmpty()) {
                 throw new PowsyblException("DC Node set is null or empty");
             }
-            var node = dcNodeSet.stream().min(Comparator.comparing(DcNodeImpl::getId)).orElseThrow();
+            var node = dcNodes.stream().min(Comparator.comparing(DcNodeImpl::getId)).orElseThrow();
             String dcBusId = Identifiables.getUniqueId(node.getId() + "_dcBus", getNetwork().getIndex()::contains);
             String dcBusName = node.getOptionalName().orElse(null);
-            return new DcBusImpl(networkRef, subnetworkRef, dcBusId, dcBusName, dcNodeSet);
+            return new DcBusImpl(networkRef, subnetworkRef, dcBusId, dcBusName, dcNodes);
         }
 
         private DcBusCache getCache() {
@@ -236,7 +236,7 @@ public class DcTopologyModel implements MultiVariantObject {
             // mapping between DC nodes ID and DC buses
             Map<String, DcBusImpl> dcNodeIdToDcBus = new HashMap<>();
 
-            graph.getConnectedComponents(
+            List<List<DcNodeImpl>> components = graph.getConnectedComponents(
                 (v1, e, v2) -> {
                     DcSwitchImpl sw = graph.getEdgeObject(e);
                     if (sw != null && sw.isOpen()) {
@@ -244,25 +244,27 @@ public class DcTopologyModel implements MultiVariantObject {
                     }
                     return TraverseResult.CONTINUE;
                 },
-                new UndirectedGraph.ConnectedComponentCollector<Set<DcNodeImpl>>() {
+                new UndirectedGraph.ConnectedComponentCollector<>() {
                     @Override
-                    public Set<DcNodeImpl> createComponent() {
-                        return new LinkedHashSet<>(1);
+                    public List<DcNodeImpl> createComponent() {
+                        return new ArrayList<>();
                     }
 
                     @Override
-                    public void addVertex(Set<DcNodeImpl> component, int vertexIndex) {
+                    public void addVertex(List<DcNodeImpl> component, int vertexIndex) {
                         DcNodeImpl dcNode = graph.getVertexObject(vertexIndex);
-                        if (dcNode != null) {
-                            component.add(dcNode);
-                        }
+                        component.add(dcNode);
                     }
                 }
-            ).stream().filter(CalculatedDcBusTopology::isDcBusValid).forEach(dcNodeSet -> {
-                DcBusImpl dcBus = createDcBus(dcNodeSet);
-                dcBuses.put(dcBus.getId(), dcBus);
-                dcNodeSet.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
-            });
+            );
+
+            for (List<DcNodeImpl> component : components) {
+                if (isDcBusValid(component)) {
+                    DcBusImpl dcBus = createDcBus(component);
+                    dcBuses.put(dcBus.getId(), dcBus);
+                    component.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
+                }
+            }
 
             variants.get().cache = new DcBusCache(dcBuses, dcNodeIdToDcBus);
             return variants.get().cache;
