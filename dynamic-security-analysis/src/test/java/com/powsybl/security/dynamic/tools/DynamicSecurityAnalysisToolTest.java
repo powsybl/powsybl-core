@@ -239,7 +239,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
                     DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION, DYNAMIC_MODEL_FILENAME,
                     DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION, EVENT_MODEL_FILENAME,
                     SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME),
-                    Set.of("skip-postproc"));
+                    Collections.emptySet());
 
             ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
 
@@ -300,7 +300,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
 
             CommandLine cl = mockCommandLine(Map.of("case-file", "network.xml",
                     DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION, "groovy",
-                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), Set.of("skip-postproc"));
+                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), Collections.emptySet());
 
             ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
 
