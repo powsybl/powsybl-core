@@ -273,9 +273,18 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     Generator setRatedS(double ratedS);
 
     /**
-     * Get whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
+     * Get whether the generator may behave as a condenser, for instance, if it may control voltage even if its targetP is equal to zero.
+     */
+    boolean hasCondenserCapability();
+
+    Generator setCondenserCapability(boolean condenserCapability);
+
+    /**
+     * Indicates whether the generator behaves as a condenser.
      */
     boolean isCondenser();
+
+    Generator setCondenser(boolean condenser);
 
     @Override
     default IdentifiableType getType() {

@@ -77,7 +77,7 @@ public class ExtendedAmplExporterV2 extends ExtendedAmplExporter {
     @Override
     public void addAdditionalCellsGenerator(TableFormatterHelper formatterHelper, Generator gen) {
         super.addAdditionalCellsGenerator(formatterHelper, gen);
-        formatterHelper.addCell(gen.isCondenser(), GENERATOR_IS_CONDENSER_COLUMN_INDEX);
+        formatterHelper.addCell(gen.hasCondenserCapability(), GENERATOR_IS_CONDENSER_COLUMN_INDEX);
     }
 
     @Override

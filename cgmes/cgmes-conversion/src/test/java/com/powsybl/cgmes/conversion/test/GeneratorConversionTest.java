@@ -64,13 +64,13 @@ class GeneratorConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void synchronousMachineImportIsCondenser() {
+    void synchronousMachineImportHasCondenserCapability() {
         Network network = readCgmesResources("/", "SynchronousMachineTypes.xml");
 
-        assertFalse(network.getGenerator("sm_generator").isCondenser());
-        assertFalse(network.getGenerator("sm_motor").isCondenser());
-        assertTrue(network.getGenerator("sm_generator_condenser").isCondenser());
-        assertTrue(network.getGenerator("sm_condenser").isCondenser());
+        assertFalse(network.getGenerator("sm_generator").hasCondenserCapability());
+        assertFalse(network.getGenerator("sm_motor").hasCondenserCapability());
+        assertTrue(network.getGenerator("sm_generator_condenser").hasCondenserCapability());
+        assertTrue(network.getGenerator("sm_condenser").hasCondenserCapability());
     }
 
     @Test
@@ -186,7 +186,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         rcca.add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(3).add();
 
-        // Will be exported as generatorOrCondenserOrMotor (isCondenser is true by default on batteries) and operating as a generator
+        // Will be exported as generatorOrCondenserOrMotor (canBehaveAsACondenser is true by default on batteries) and operating as a generator
         Battery battery = voltageLevel1.newBattery()
             .setId("BAT")
             .setNode(4)
@@ -198,7 +198,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         battery.getTerminal().disconnect();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(4).add();
 
-        // Will be exported as generatorOrCondenser (isCondenser is true by default on batteries) and operating as a condenser
+        // Will be exported as generatorOrCondenser (canBehaveAsACondenser is true by default on batteries) and operating as a condenser
         Battery battery2 = voltageLevel1.newBattery()
             .setId("BAT2")
             .setNode(5)
