@@ -369,8 +369,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public Iterable<V> getVerticesObj() {
         return FluentIterable.from(vertices)
-                .filter(Predicates.notNull())
-                .transform(Vertex::getObject);
+            .filter(Predicates.notNull())
+            .transform(Vertex::getObject);
     }
 
     @Override
@@ -436,8 +436,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public Iterable<E> getEdgesObject() {
         return FluentIterable.from(edges)
-                .filter(Predicates.notNull())
-                .transform(Edge::getObject);
+            .filter(Predicates.notNull())
+            .transform(Edge::getObject);
     }
 
     @Override
@@ -462,7 +462,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
             if (edge.getV1() == v1 && edge.getV2() == v2
-                    || edge.getV1() == v2 && edge.getV2() == v1) {
+                || edge.getV1() == v2 && edge.getV2() == v1) {
                 edgeObjects.add(edge.getObject());
             }
         }
@@ -471,6 +471,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     /**
      * Create the adjacency list of this graph.
+     *
      * @return the adjacency list as a {@link TIntArrayList} of {@link TIntArrayList}.
      */
     private TIntArrayList[] getAdjacencyList() {
@@ -622,10 +623,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public boolean traverse(int[] startingVertices, TraversalType traversalType, Traverser traverser) {
-        boolean[] encountered = new boolean[vertices.size()];
-        Arrays.fill(encountered, false);
+        boolean[] encounteredVertices = new boolean[vertices.size()];
+        boolean[] encounteredEdges = new boolean[vertices.size()];
+        Arrays.fill(encounteredVertices, false);
+        Arrays.fill(encounteredEdges, false);
         for (int startingVertex : startingVertices) {
-            if (!encountered[startingVertex] && !traverse(startingVertex, traversalType, traverser, encountered)) {
+            if (!encounteredVertices[startingVertex] && !traverse(startingVertex, traversalType, traverser, encounteredVertices, encounteredEdges)) {
                 return false;
             }
         }
@@ -670,13 +673,13 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
      * The path is added to the paths list if it's complete, otherwise this method calls the {@link #findAllPaths(int, Predicate, Predicate, TIntArrayList, BitSet, List)}
      * to continue the recursion.
      *
-     * @param e the index of the current edge.
-     * @param v1or2 the index of the current vertex.
-     * @param pathComplete a function that returns true when the target vertex is found.
+     * @param e             the index of the current edge.
+     * @param v1or2         the index of the current vertex.
+     * @param pathComplete  a function that returns true when the target vertex is found.
      * @param pathCancelled pathCanceled a function that returns true when the edge must not be traversed.
-     * @param path a list that contains the traversed edges.
-     * @param encountered a BitSet that contains the traversed vertex.
-     * @param paths a list that contains the complete paths.
+     * @param path          a list that contains the traversed edges.
+     * @param encountered   a BitSet that contains the traversed vertex.
+     * @param paths         a list that contains the complete paths.
      * @return true if the path is complete, false otherwise.
      */
     private boolean findAllPaths(int e, int v1or2, Predicate<V> pathComplete, Predicate<? super E> pathCancelled,
@@ -699,12 +702,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
      * This method is called by {@link #findAllPaths(int, Predicate, Predicate)} or {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
      * For each adjacent edges for which the pathCanceled returns {@literal false}, traverse the other vertex calling {@link #findAllPaths(int, int, Predicate, Predicate, TIntArrayList, BitSet, List)}.
      *
-     * @param v the current vertex
-     * @param pathComplete a function that returns true when the target vertex is found.
+     * @param v             the current vertex
+     * @param pathComplete  a function that returns true when the target vertex is found.
      * @param pathCancelled a function that returns true when the edge must not be traversed.
-     * @param path a list that contains the traversed edges.
-     * @param encountered a BitSet that contains the traversed vertex.
-     * @param paths a list that contains the complete paths.
+     * @param path          a list that contains the traversed edges.
+     * @param encountered   a BitSet that contains the traversed vertex.
+     * @param paths         a list that contains the complete paths.
      */
     private void findAllPaths(int v, Predicate<V> pathComplete, Predicate<? super E> pathCancelled,
                               TIntArrayList path, BitSet encountered, List<TIntArrayList> paths) {
@@ -812,8 +815,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             if (vertex != null) {
                 String str = vertexToString == null ? Objects.toString(vertex.getObject()) : vertexToString.apply(vertex.getObject());
                 out.append(Integer.toString(v)).append(": ")
-                        .append(str)
-                        .append(System.lineSeparator());
+                    .append(str)
+                    .append(System.lineSeparator());
             }
         }
         out.append("Edges:").append(System.lineSeparator());
@@ -822,9 +825,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             if (edge != null) {
                 String str = edgeToString == null ? Objects.toString(edge.getObject()) : edgeToString.apply(edge.getObject());
                 out.append(Integer.toString(e)).append(": ")
-                        .append(Integer.toString(edge.getV1())).append("<->")
-                        .append(Integer.toString(edge.getV2())).append(" ")
-                        .append(str).append(System.lineSeparator());
+                    .append(Integer.toString(edge.getV1())).append("<->")
+                    .append(Integer.toString(edge.getV2())).append(" ")
+                    .append(str).append(System.lineSeparator());
             }
         }
     }
