@@ -31,6 +31,7 @@ public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdder
 
     @Override
     public VoltageRegulation build() {
+        // TODO MSA checkValidation
         return new VoltageRegulationImpl(network, targetValue, targetDeadband, slope, terminal, mode, regulating);
     }
 }

@@ -28,6 +28,7 @@ public class VoltageRegulationAdderImpl<P extends VoltageRegulationHolder<P>> ex
 
     @Override
     public P add() {
+        // TODO MSA checkValidation
         VoltageRegulation voltageRegulation = new VoltageRegulationImpl(network, targetValue, targetDeadband, slope, terminal, mode, regulating);
         parent.setVoltageRegulation(voltageRegulation);
         return parent;

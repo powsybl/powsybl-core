@@ -26,7 +26,7 @@ public class VoltageRegulationExtension implements Extension<Battery> {
 
     private Battery extendable;
 
-    public static String NAME = "voltageRegulation";
+    public static final String NAME = "voltageRegulation";
 
     public VoltageRegulationExtension(Battery battery, Terminal regulatingTerminal, Boolean voltageRegulatorOn, double targetV) {
         this.extendable = battery;

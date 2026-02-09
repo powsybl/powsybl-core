@@ -22,7 +22,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     private TerminalExt terminal;
     private RegulationMode mode;
-    private final Ref<NetworkImpl> network;
+    private final Ref<? extends VariantManagerHolder> network;
     // attributes depending on the variant
     private final TDoubleArrayList targetValue;
     private final TDoubleArrayList targetDeadband;
@@ -30,9 +30,9 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
     private final TBooleanArrayList regulating;
 
     public VoltageRegulationImpl(Ref<NetworkImpl> network,
-                                 Double targetValue,
-                                 Double targetDeadband,
-                                 Double slope,
+                                 double targetValue,
+                                 double targetDeadband,
+                                 double slope,
                                  Terminal terminal,
                                  RegulationMode mode,
                                  boolean regulating) {
@@ -184,43 +184,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public MessageHeader getMessageHeader() {
-        return new DefaultMessageHeader("TYPE", "MSAID");
-    }
-
-    private double getTargetValue(RegulationMode expectedMode) {
-        if (expectedMode.equals(mode)) {
-            return this.getTargetValue();
-        }
-        return Double.NaN;
-//        throw new IllegalArgumentException("Can't get targetValue value for RegulationMode : " + expectedMode + ", the RegulationMode must be " + this.mode);
-    }
-
-    public double getTargetV() {
-        return this.getTargetValue(RegulationMode.VOLTAGE);
-    }
-
-    public void setTargetV(double targetV) {
-        if (RegulationMode.VOLTAGE.equals(mode)) {
-            this.targetValue.set(getCurrentIndex(), targetV);
-        }
-    }
-
-    public double getTargetQ() {
-        return this.getTargetValue(RegulationMode.REACTIVE_POWER);
-    }
-
-    public void setTargetQ(double targetQ) {
-        if (RegulationMode.REACTIVE_POWER.equals(mode)) {
-            this.targetValue.set(getCurrentIndex(), targetQ);
-        }
-    }
-
-    public double getTargetQP() {
-        return this.getTargetValue(RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
-    }
-
-    public double getTargetVQ() {
-        return this.getTargetValue(RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
+        return new DefaultMessageHeader("TYPE", "MSAID"); // TODO MSA put the right ID
     }
 
     private int getCurrentIndex() {

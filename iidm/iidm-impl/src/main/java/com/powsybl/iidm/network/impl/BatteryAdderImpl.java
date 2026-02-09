@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.impl.regulation.VoltageRegulationAdderImpl;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -31,7 +30,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double maxP = Double.NaN;
 
-    private Optional<VoltageRegulation> voltageRegulation = Optional.empty();
+    private VoltageRegulation voltageRegulation = null;
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
@@ -112,18 +111,20 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     @Override
     public void removeVoltageRegulation() {
-        this.voltageRegulation.ifPresent(vr -> vr.setTerminal(null));
-        this.voltageRegulation = Optional.empty();
+        if (this.voltageRegulation != null) {
+            this.voltageRegulation.setTerminal(null);
+        }
+        this.voltageRegulation = null;
     }
 
     @Override
     public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.voltageRegulation = Optional.ofNullable(voltageRegulation);
+        this.voltageRegulation = voltageRegulation;
     }
 
     @Override
     public VoltageRegulation getVoltageRegulation() {
-        return this.voltageRegulation.orElse(null);
+        return this.voltageRegulation;
     }
 
     @Override

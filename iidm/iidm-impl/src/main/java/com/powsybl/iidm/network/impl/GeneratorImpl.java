@@ -125,6 +125,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
+    @Deprecated(forRemoval = true, since = "7.2.0")
     public boolean isVoltageRegulatorOn() {
         return this.voltageRegulation != null
             && RegulationMode.VOLTAGE == this.voltageRegulation.getMode()
@@ -148,6 +149,8 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             String variantId = network.get().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
             notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        } else {
+            throw new IllegalStateException(); // TODO MSA
         }
         return this;
     }

@@ -18,10 +18,12 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
 
     void removeVoltageRegulation();
 
-    void setVoltageRegulation(VoltageRegulation voltageRegulation);
+    void setVoltageRegulation(VoltageRegulation voltageRegulation); // TODO MSA to remove
 
     VoltageRegulation getVoltageRegulation();
 
     Set<RegulationMode> getAllowedRegulationModes();
+
+    // TODO MSA add default indirection methods??
 
 }

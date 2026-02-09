@@ -16,9 +16,9 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder;
  */
 public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>> implements VoltageRegulationAdderOrBuilder<T> {
 
-    protected Double targetValue = Double.NaN;
-    protected Double targetDeadband = Double.NaN;
-    protected Double slope = Double.NaN;
+    protected double targetValue = Double.NaN;
+    protected double targetDeadband = Double.NaN;
+    protected double slope = Double.NaN;
     protected Terminal terminal = null;
     protected RegulationMode mode = null;
     protected boolean regulating = false;

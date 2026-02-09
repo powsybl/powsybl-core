@@ -18,7 +18,6 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.io.TreeDataHeader;
@@ -280,14 +279,9 @@ public final class NetworkSerDe {
             String indent = options.isIndent() ? INDENT : null;
             XmlWriter xmlWriter = new XmlWriter(os, indent, options.getCharset(), iidmNamespace, IIDM_PREFIX);
 
-//            Map<Identifiable<?>, Set<? extends Extension<? extends Identifiable<?>>>> phantomSerializers = getPhantomExtension(n, options, extensionsSupplier);
-
             Set<ExtensionSerDe<?, ?>> serializers = getExtensionSerializers(n, options, extensionsSupplier);
             Set<String> extensionUris = new HashSet<>();
             Set<String> extensionPrefixes = new HashSet<>();
-//            Set<ExtensionSerDe<?, ?>> serializersConcat = Stream.concat(
-//                phantomSerializers.values().stream().flatMap(Set::stream),
-//                serializers.stream()).collect(Collectors.toSet());
             for (ExtensionSerDe<?, ?> extensionSerDe : serializers) {
                 String extensionVersion = getExtensionVersion(extensionSerDe, options);
                 String namespaceUri = extensionSerDe.getNamespaceUri(extensionVersion);
@@ -325,33 +319,15 @@ public final class NetworkSerDe {
     private static Map<String, Set<Extension<? extends Identifiable<?>>>> getRemovedExtension(Network n, ExportOptions options, ExtensionsSupplier extensionsSupplier) {
         Map<String, Set<Extension<? extends Identifiable<?>>>> mapMsa = new HashMap<>();
         var extensionsWithProvider = extensionsSupplier.get().getProviders();
-        var extensionsWithProviderClass = extensionsSupplier.get().getProviders().stream().map(ExtensionProvider::getClass).collect(Collectors.toSet());
         var version = options.getVersion();
         if (version.compareTo(IidmVersion.V_1_16) < 0) {
-            if (extensionsWithProviderClass.contains(VoltageRegulationSerDe.class)) {
-                var getExtension = extensionsWithProvider.stream()
-                    .filter(VoltageRegulationSerDe.class::isInstance)
-                    .map(extensionSerDe -> (ExtensionSerDe<?, ?>) extensionSerDe)
-                    .findFirst();
-                getExtension.ifPresent(extensionSerDe -> n.getBatteryStream()
-                    .filter(b -> b.getVoltageRegulation() != null)
-                    .forEach(b -> {
-                        mapMsa.putIfAbsent(b.getId(), new HashSet<>());
-                        //
-                        VoltageRegulationExtension removedExtension = new VoltageRegulationExtension(b,
-                            b.getVoltageRegulation().getTerminal(),
-                            b.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE,
-                            b.getVoltageRegulation().getTargetValue());
-                        //
-                        mapMsa.get(b.getId()).add(removedExtension);
-                    }));
+            if (extensionsWithProvider.stream()
+                .anyMatch(VoltageRegulationSerDe.class::isInstance)) {
+                buildRemovedVoltageRegulationExtension(n, mapMsa);
             }
-            if (extensionsWithProviderClass.contains(RemoteReactivePowerControlSerDe.class)) {
-                var getExtension = extensionsWithProvider.stream()
-                    .filter(RemoteReactivePowerControlSerDe.class::isInstance)
-                    .map(extensionSerDe -> (ExtensionSerDe<?, ?>) extensionSerDe)
-                    .findFirst();
-                getExtension.ifPresent(extensionSerDe -> n.getGeneratorStream()
+            if (extensionsWithProvider.stream()
+                .anyMatch(RemoteReactivePowerControlSerDe.class::isInstance)) {
+                n.getGeneratorStream()
                     .filter(g -> g.getVoltageRegulation() != null
                         && g.getVoltageRegulation().getTerminal() != null
                         && g.getVoltageRegulation().getMode() == RegulationMode.REACTIVE_POWER)
@@ -364,10 +340,25 @@ public final class NetworkSerDe {
                             g.getVoltageRegulation().isRegulating());
                         //
                         mapMsa.get(g.getId()).add(removedExtension);
-                    }));
+                    });
             }
         }
         return mapMsa;
+    }
+
+    private static void buildRemovedVoltageRegulationExtension(Network n, Map<String, Set<Extension<? extends Identifiable<?>>>> mapMsa) {
+        n.getBatteryStream()
+            .filter(b -> b.getVoltageRegulation() != null)
+            .forEach(b -> {
+                mapMsa.putIfAbsent(b.getId(), new HashSet<>());
+                //
+                VoltageRegulationExtension removedExtension = new VoltageRegulationExtension(b,
+                    b.getVoltageRegulation().getTerminal(),
+                    b.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE,
+                    b.getVoltageRegulation().getTargetValue());
+                //
+                mapMsa.get(b.getId()).add(removedExtension);
+            });
     }
 
     private static JsonWriter createJsonWriter(OutputStream os, ExportOptions options, ExtensionsSupplier extensionsSupplier) {

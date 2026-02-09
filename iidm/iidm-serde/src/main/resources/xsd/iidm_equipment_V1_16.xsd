@@ -658,11 +658,11 @@
         <xs:sequence>
             <xs:element name="terminal" minOccurs="0" type="iidm:TerminalRef"/>
         </xs:sequence>
-        <xs:attribute name="targetValue" use="optional" type="xs:double"/><!-- TODO required -->
+        <xs:attribute name="targetValue" use="optional" type="xs:double"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="slope" use="optional" type="xs:double"/>
-        <xs:attribute name="mode" use="optional" type="iidm:RegulationMode"/><!-- TODO required -->
-        <xs:attribute name="regulating" use="optional" type="xs:boolean"/><!-- TODO required -->
+        <xs:attribute name="mode" use="required" type="iidm:RegulationMode"/>
+        <xs:attribute name="regulating" use="required" type="xs:boolean"/>
     </xs:complexType>
     <xs:simpleType name="RegulationMode">
         <xs:restriction base="xs:string">

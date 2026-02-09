@@ -141,6 +141,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
+        // TODO MSA Backward compatibility
         if (this.voltageRegulation == null) {
             this.voltageRegulation = createVoltageRegulation();
         }
