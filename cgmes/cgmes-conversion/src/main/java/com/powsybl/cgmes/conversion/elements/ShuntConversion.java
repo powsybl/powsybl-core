@@ -149,17 +149,4 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         return getDefaultValue(null, shuntCompensator.isVoltageRegulatorOn(), false, false, context);
     }
 
-    private static boolean isDefaultRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled) {
-        String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-        return regulatingControlId == null && controlEnabled;
-    }
-
-    private static void setDefaultRegulatingControl(ShuntCompensator shuntCompensator) {
-        shuntCompensator.setTargetV(Optional.ofNullable(shuntCompensator.getRegulatingTerminal().getBusView().getBus())
-                        .map(Bus::getV)
-                        .filter(v -> !Double.isNaN(v))
-                        .orElse(shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV()))
-                .setTargetDeadband(0.0)
-                .setVoltageRegulatorOn(true); // SSH controlEnabled attribute is true when this method is called
-    }
 }
