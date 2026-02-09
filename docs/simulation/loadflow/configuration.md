@@ -1,19 +1,54 @@
 # Configuration
 
+```{toctree}
+---
+hidden: true
+maxdepth: 1
+---
+load-flow-based-phase-shifter-optimizer.md
+```
+
+
 ## Implementation
+The `load-flow` module is used to configure the load flow default implementation name. Each load flow implementation provides a subclass of `com.powsybl.loadflow.LoadFlowProvider` correctly configured to be found by `java.util.ServiceLoader`.
+A load flow provider exposes a name that can be used in the LoadFlow Java API to find a specific load flow implementation.
+It can also be used to specify a default implementation in this platform config module. If only one `com.powsybl.loadflow.LoadFlowProvider` is present in the classpath, there is no need to specify a default LoadFlow implementation name. In the case where more
+than one `com.powsybl.loadflow.LoadFlowProvider` is present in the classpath, specifying the default implementation name allows LoadFlow API user to use LoadFlow.run(...) and  LoadFlow.runAsync(...) methods to run a load flow. Using these methods when no default load flow name is configured and multiple implementations are in the classpath will throw an exception.
+An exception is also thrown if no implementation at all is present in the classpath, or if specifying a load flow name that is not present on the classpath.
+
 If you have several implementations in your classpath, you need to choose which implementation to use in your configuration file:
 ```yaml
 load-flow:
   default-impl-name: "<IMPLEMENTATION_NAME>"
 ```
 
+**XML configuration:**
+```xml
+<load-flow>
+    <default-impl-name>Mock</default-impl-name>
+</load-flow>
+```
+
 Each implementation is identified by its name, that should be unique in the classpath:
 - use "OpenLoadFlow" to use PowSyBl OpenLoadFlow
 - use "DynaFlow" to use DynaFlow implementation
 
+### default-parameters-loader
+
+To define a set of load flow parameters (generic or specific) that should be set for your application before any configuration file is read,
+you can use an implementation of `LoadFlowDefaultParametersLoader`.
+It uses a JSON parameters file in your java classpath to override default values with whenever a new `LoadFlowParameters` object is created.
+
+If multiple `LoadFlowDefaultParametersLoader` classes are present in your classpath, you should specify which one you want to use using the `default-parameters-loader` parameter of module `load-flow`:
+
+```yaml
+load-flow:
+  default-parameters-loader: "MyDefaultParameters"
+```
+
 ## Parameters
 
-### Generic parameters
+### Optional properties
 
 You may configure some generic parameters for all load flow implementations:
 ```yaml
@@ -148,16 +183,3 @@ The default value is `true`.
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
 - [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#loadflow/parameters)
 - [DynaFlow](inv:powsybldynawo:*:*#load_flow/configuration)
-
-### LoadFlowDefaultParametersLoader
-
-To define a set of load flow parameters (generic or specific) that should be set for your application before any configuration file is read,
-you can use an implementation of `LoadFlowDefaultParametersLoader`.
-It uses a JSON parameters file in your java classpath to override default values with whenever a new `LoadFlowParameters` object is created.
-
-If multiple `LoadFlowDefaultParametersLoader` classes are present in your classpath, you should specify which one you want to use using the `default-parameters-loader` parameter of module `load-flow`:
-
-```yaml
-load-flow:
-  default-parameters-loader: "MyDefaultParameters"
-```
