@@ -25,7 +25,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
         // backward compatibility
         allFormatsRoundTripAllPreviousVersionedXmlTest("threeWindingsTransformerRoundTripRef.xml");
 
-        allFormatsRoundTripTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(), "threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(), "threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test
@@ -52,7 +52,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
         createPtc(twt.getLeg2().newPhaseTapChanger(), true);
         createPtc(twt.getLeg3().newPhaseTapChanger(), false);
 
-        allFormatsRoundTripTest(network, "completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("completeThreeWindingsTransformerRoundTripRef.xml", IidmVersion.V_1_1);

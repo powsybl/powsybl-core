@@ -25,10 +25,10 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
         Network network = createBaseNetwork();
 
         // Test for the current version
-        allFormatsRoundTripTest(network, "/lineCommutatedConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "/lineCommutatedConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility - checks from version 1.15
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/lineCommutatedConverterRoundTripRef.xml", IidmVersion.V_1_15);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("/lineCommutatedConverterRoundTripRef.xml", IidmVersion.V_1_15);
     }
 
     @Test
@@ -40,7 +40,7 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
 
         // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteVersionedXml(network, options, "lineCommutatedConverterNotSupported.xml", IidmVersion.V_1_14);
+        testWriteVersionedTxt(network, options, "lineCommutatedConverterNotSupported.xml", IidmVersion.V_1_14);
     }
 
     private static Network createBaseNetwork() {

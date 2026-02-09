@@ -67,7 +67,7 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void testMultipleExtensions() throws IOException {
-        allFormatsRoundTripTest(MultipleExtensionsTestNetworkFactory.create(), "multiple-extensions.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(MultipleExtensionsTestNetworkFactory.create(), "multiple-extensions.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
         allFormatsRoundTripAllPreviousVersionedXmlTest("multiple-extensions.xml");

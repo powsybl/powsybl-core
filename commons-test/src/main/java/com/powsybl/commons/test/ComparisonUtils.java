@@ -8,9 +8,10 @@
 package com.powsybl.commons.test;
 
 import com.google.common.io.ByteStreams;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.Diff;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -32,24 +33,12 @@ public final class ComparisonUtils {
     }
 
     public static void assertXmlEquals(InputStream expected, InputStream actual) {
-        /*
         Diff myDiff = DiffBuilder.compare(expected).withTest(actual).ignoreWhitespace().ignoreComments().build();
         boolean hasDiff = myDiff.hasDifferences();
         if (hasDiff) {
             LOGGER.error("{}", myDiff);
         }
         assertFalse(hasDiff);
-        */
-        try {
-            File expectedFile = new File("expectedFile.xml");
-            FileUtils.copyInputStreamToFile(expected, expectedFile);
-            File actualFile = new File("actualFile.xml");
-            FileUtils.copyInputStreamToFile(actual, actualFile);
-            //Returns true if the files contains the same bytes.
-            com.google.common.io.Files.equal(actualFile, expectedFile);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     public static void assertTxtEquals(Path expected, Path actual) {
@@ -109,6 +98,14 @@ public final class ComparisonUtils {
     public static void assertTxtEquals(String expected, String actual) {
         String expectedStr = TestUtil.normalizeLineSeparator(expected);
         String actualStr = TestUtil.normalizeLineSeparator(actual);
+        // Ensure element ends with exactly one newline before assertion
+        String lineSeparator = System.lineSeparator();
+        if (!expectedStr.endsWith(lineSeparator)) {
+            expectedStr += lineSeparator;
+        }
+        if (!actualStr.endsWith(lineSeparator)) {
+            actualStr += lineSeparator;
+        }
         assertEquals(expectedStr, actualStr);
     }
 

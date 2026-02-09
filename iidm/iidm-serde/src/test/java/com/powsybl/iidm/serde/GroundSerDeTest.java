@@ -26,9 +26,9 @@ class GroundSerDeTest extends AbstractIidmSerDeTest {
         Network network = TwoVoltageLevelNetworkFactory.createWithGrounds();
 
         // Test for the current version
-        allFormatsRoundTripTest(network, "ground.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "ground.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("ground.xml", IidmVersion.V_1_11);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("ground.xml", IidmVersion.V_1_11);
     }
 }
