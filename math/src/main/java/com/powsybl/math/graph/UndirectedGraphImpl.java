@@ -616,17 +616,15 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public boolean traverse(int v, TraversalType traversalType, Traverser traverser) {
-        boolean[] encountered = new boolean[vertices.size()];
-        Arrays.fill(encountered, false);
-        return traverse(v, traversalType, traverser, encountered);
+        boolean[] encounteredVertices = new boolean[vertices.size()];
+        boolean[] encounteredEdges = new boolean[edges.size()];
+        return traverse(v, traversalType, traverser, encounteredVertices, encounteredEdges);
     }
 
     @Override
     public boolean traverse(int[] startingVertices, TraversalType traversalType, Traverser traverser) {
         boolean[] encounteredVertices = new boolean[vertices.size()];
-        boolean[] encounteredEdges = new boolean[vertices.size()];
-        Arrays.fill(encounteredVertices, false);
-        Arrays.fill(encounteredEdges, false);
+        boolean[] encounteredEdges = new boolean[edges.size()];
         for (int startingVertex : startingVertices) {
             if (!encounteredVertices[startingVertex] && !traverse(startingVertex, traversalType, traverser, encounteredVertices, encounteredEdges)) {
                 return false;
