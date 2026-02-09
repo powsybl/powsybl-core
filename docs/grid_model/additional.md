@@ -240,8 +240,8 @@ Each activated group can return information about the acceptable duration (which
 
 The spacing on the y axis (branch current) is not to scale.
 
-![Current limits scheme_example4](img/current-limits-example4.svg){align=center class="only-light"}
-![Current limits scheme_example4](img/dark_mode/current-limits-example4.svg){align=center class="only-dark"}
+![Current limits scheme_example4](img/dark_mode/current-limits-example4.svg){align=center class="only-light"}
+![Current limits scheme_example4](img/current-limits-example4.svg){align=center class="only-dark"}
 
 (phase-tap-changer)=
 ## Phase tap changer
