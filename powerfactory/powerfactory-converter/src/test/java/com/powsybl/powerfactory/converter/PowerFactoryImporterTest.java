@@ -43,7 +43,6 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     void testBase() {
         PowerFactoryImporter importer = new PowerFactoryImporter();
         assertEquals("POWER-FACTORY", importer.getFormat());
-        assertTrue(importer.getParameters().isEmpty());
         assertEquals("PowerFactory to IIDM converter", importer.getComment());
         assertEquals(List.of("json", "dgs", "properties"), importer.getSupportedExtensions());
     }

@@ -10,9 +10,13 @@ package com.powsybl.powerfactory.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Importer;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.util.ContainersMapping;
@@ -44,6 +48,26 @@ public class PowerFactoryImporter implements Importer {
     private static final Logger LOGGER = LoggerFactory.getLogger(PowerFactoryImporter.class);
 
     private static final String FORMAT = "POWER-FACTORY";
+
+    // Import parameters
+    public static final String HVDC_IMPORT_DETAILED = "iidm.import.dgs.HVDC-import-detailed";
+
+    public static final Parameter HVDC_IMPORT_DETAILED_PARAMETER = new Parameter(
+        HVDC_IMPORT_DETAILED,
+        ParameterType.BOOLEAN,
+        "Convert HVDC model as detailed model",
+        Boolean.FALSE
+    );
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public PowerFactoryImporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
+
+    public PowerFactoryImporter() {
+        this(PlatformConfig.defaultConfig());
+    }
 
     @Override
     public String getFormat() {
@@ -98,6 +122,12 @@ public class PowerFactoryImporter implements Importer {
         });
     }
 
+    @Override
+    public List<Parameter> getParameters() {
+        List<Parameter> allParams = Collections.singletonList(HVDC_IMPORT_DETAILED_PARAMETER);
+        return allParams;
+    }
+
     static class ImportContext {
 
         final ContainersMapping containerMapping;
@@ -117,7 +147,7 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
-    private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory) {
+    private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory, Properties parameters) {
         Network network = networkFactory.createNetwork(studyCase.getName(), FORMAT);
 
         List<DataObject> elmNets = studyCase.getElmNets();
@@ -146,12 +176,26 @@ public class PowerFactoryImporter implements Importer {
             .flatMap(elmNet -> elmNet.search(".*.ElmVsc").stream())
             .collect(Collectors.toList());
 
-        HvdcConverter hvdcConverter = new HvdcConverter(importContext, network);
-        hvdcConverter.computeConfigurations(elmTerms, elmVscs);
+        // We need to create the HVDC converter now so that we can discard the DC lines and
+        // DC nodes from some AC grid processing, before the network is ready
+        // to be enriched with the DC subgrids.
+        AbstractHvdcConverter hvdcConverter;
+        // simplified HVDC = lines only
+        // detailed = possibly full multi-terminals DC subgrids
+        if (Parameter.readBoolean(getFormat(), parameters, HVDC_IMPORT_DETAILED_PARAMETER, defaultValueConfig)) {
+            HvdcDetailedConverter detailedConverter = new HvdcDetailedConverter(importContext, network);
+            detailedConverter.getGridData(elmTerms, elmVscs);
+            hvdcConverter = detailedConverter;
+        } else {
+            HvdcSimplifiedConverter simplifiedConverter = new HvdcSimplifiedConverter(importContext, network);
+            simplifiedConverter.computeConfigurations(elmTerms, elmVscs);
+            hvdcConverter = simplifiedConverter;
+        }
 
         // process terminals
         for (DataObject elmTerm : elmTerms) {
             if (!hvdcConverter.isDcNode(elmTerm)) {
+                // @todo This should rather be in a static function
                 new NodeConverter(importContext, network).createAndMapConnectedObjs(elmTerm);
             }
         }
@@ -170,10 +214,11 @@ public class PowerFactoryImporter implements Importer {
         // Create main equipment
         convertEquipment(studyCase, importContext, hvdcConverter, network, slackObjects);
 
-        // Create Hvdc Links
+        // Create Hvdc subgrids in the network
         hvdcConverter.create();
 
         // Attach a slack bus
+        // @todo This should rather be in a static function
         new SlackConverter(importContext, network).create(slackObjects);
 
         LOGGER.info("{} substations, {} voltage levels, {} lines, {} 2w-transformers, {} 3w-transformers, {} generators, {} loads, {} shunts have been created",
@@ -185,7 +230,7 @@ public class PowerFactoryImporter implements Importer {
         return network;
     }
 
-    private static void convertEquipment(StudyCase studyCase, ImportContext importContext, HvdcConverter hvdcConverter,
+    private static void convertEquipment(StudyCase studyCase, ImportContext importContext, AbstractHvdcConverter hvdcConverter,
         Network network, List<DataObject> slackObjects) {
         var objs = studyCase.getElmNets().stream()
             .flatMap(elmNet -> elmNet.search(".*").stream())
@@ -355,7 +400,7 @@ public class PowerFactoryImporter implements Importer {
             Stopwatch stopwatch = Stopwatch.createStarted();
             try (InputStream is = dataSource.newInputStream(null, studyCaseLoader.getExtension())) {
                 StudyCase studyCase = studyCaseLoader.doLoad(dataSource.getBaseName(), is);
-                return createNetwork(studyCase, networkFactory);
+                return createNetwork(studyCase, networkFactory, parameters);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             } finally {
