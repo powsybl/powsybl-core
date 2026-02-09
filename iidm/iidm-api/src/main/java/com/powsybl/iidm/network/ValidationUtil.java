@@ -932,7 +932,7 @@ public final class ValidationUtil {
             }
             // CHECK Target Deadband attribute
             if ((owner instanceof RatioTapChanger || owner instanceof ShuntCompensator)
-                && voltageRegulation.getTargetValue() == null) {
+                && voltageRegulation.getTargetDeadband() == null) {
                 throw new ValidationException(owner, "TODO MSA add log/exception -> targetDeadband must not be null for RatioTapChanger/ShuntCompensator");
             }
             // CHECK Target Value attribute
