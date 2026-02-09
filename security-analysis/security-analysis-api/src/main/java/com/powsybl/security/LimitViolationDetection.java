@@ -145,20 +145,18 @@ public final class LimitViolationDetection {
                     .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
                     .filter(PermanentLimitCheckResult::isOverload)
-                    .forEach(permanentLimitCheckResult -> {
-                        consumer.accept(new LimitViolation(branch.getId(),
-                                branch.getOptionalName().orElse(null),
-                                permanentLimitCheckResult.operationalLimitsGroupId(),
-                                toLimitViolationType(type),
-                                LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                                Integer.MAX_VALUE,
-                                permanentLimitCheckResult.permanentLimitValue(),
-                                permanentLimitCheckResult.limitReductionValue(),
-                                value,
-                                side.toThreeSides(),
-                                null
-                        ));
-                    });
+                    .forEach(permanentLimitCheckResult -> consumer.accept(new LimitViolation(branch.getId(),
+                            branch.getOptionalName().orElse(null),
+                            permanentLimitCheckResult.operationalLimitsGroupId(),
+                            toLimitViolationType(type),
+                            LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                            Integer.MAX_VALUE,
+                            permanentLimitCheckResult.permanentLimitValue(),
+                            permanentLimitCheckResult.limitReductionValue(),
+                            value,
+                            side.toThreeSides(),
+                            null
+                    )));
         }
     }
 

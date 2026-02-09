@@ -95,17 +95,19 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     @Override
     public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
-        switch (side) {
-            case ONE -> getOperationalLimitsHolder1().addSelectedOperationalLimitsGroups(ids);
-            case TWO -> getOperationalLimitsHolder2().addSelectedOperationalLimitsGroups(ids);
+        if (side == TwoSides.ONE) {
+            getOperationalLimitsHolder1().addSelectedOperationalLimitsGroups(ids);
+        } else {
+            getOperationalLimitsHolder2().addSelectedOperationalLimitsGroups(ids);
         }
     }
 
     @Override
     public void deselectOperationalLimitsGroups(TwoSides side, String... ids) {
-        switch (side) {
-            case ONE -> getOperationalLimitsHolder1().deselectOperationalLimitsGroups(ids);
-            case TWO -> getOperationalLimitsHolder2().deselectOperationalLimitsGroups(ids);
+        if (side == TwoSides.ONE) {
+            getOperationalLimitsHolder1().deselectOperationalLimitsGroups(ids);
+        } else {
+            getOperationalLimitsHolder2().deselectOperationalLimitsGroups(ids);
         }
     }
 

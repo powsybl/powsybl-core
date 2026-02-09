@@ -45,7 +45,7 @@ public final class LimitViolationUtils {
     }
 
     /**
-     * @deprecated use checkAllTemporaryLimits(branch, side, limitsComputer, i, type).getFirst() for migration
+     * @deprecated use checkAllTemporaryLimits(branch, side, limitsComputer, i, type).iterator().next() for migration
      */
     @Deprecated(since = "7.2.0", forRemoval = true)
     public static Overload checkTemporaryLimits(Branch<?> branch, TwoSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
@@ -58,7 +58,7 @@ public final class LimitViolationUtils {
     }
 
     /**
-     * @deprecated use checkAllTemporaryLimits(transformer, side, limitsComputer, i, type).getFirst() for migration
+     * @deprecated use checkAllTemporaryLimits(transformer, side, limitsComputer, i, type).iterator().next() for migration
      */
     @Deprecated(since = "7.2.0", forRemoval = true)
     public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
@@ -250,7 +250,7 @@ public final class LimitViolationUtils {
     }
 
     public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
-        return checkTemporaryLimits(transformer, side, computer, getValueForLimit(transformer.getTerminal(side), type), type);
+        return checkAllTemporaryLimits(transformer, side, computer, getValueForLimit(transformer.getTerminal(side), type), type).iterator().next();
     }
 
     /**

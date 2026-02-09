@@ -296,6 +296,14 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
+     * The id of the {@link OperationalLimitsGroup} that is responsible for this limit violation
+     * @return a string that is the id of the operational limits group in which a limit violation occurred
+     */
+    public String getOperationalLimitsGroupId() {
+        return operationalLimitsGroupId;
+    }
+
+    /**
      * The value of the limit which has been violated.
      *
      * @return the value of the limit which has been violated.
