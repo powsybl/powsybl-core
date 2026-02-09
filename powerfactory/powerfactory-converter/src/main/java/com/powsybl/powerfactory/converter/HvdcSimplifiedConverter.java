@@ -21,24 +21,30 @@ import java.util.stream.Stream;
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ *
+ * Importer for DGS file format for the simplified HVDC lines (i.e.
+ * without details of the DC grid).
  */
 
-class HvdcConverter extends AbstractConverter {
+class HvdcSimplifiedConverter extends AbstractHvdcConverter {
+
+    private final List<Configuration> configurations = new ArrayList<>();
 
     private final Map<DataObject, List<DataObject>> elmTermsConnectedToVscs = new HashMap<>();
-    private final List<Configuration> configurations = new ArrayList<>();
     private final Set<DataObject> dcElmLnes = new HashSet<>();
     private final Set<DataObject> dcElmTerms = new HashSet<>();
     private final Set<DataObject> usedVscs = new HashSet<>();
 
-    HvdcConverter(ImportContext importContext, Network network) {
+    HvdcSimplifiedConverter(ImportContext importContext, Network network) {
         super(importContext, network);
     }
 
+    @Override
     boolean isDcLink(DataObject elmLne) {
         return dcElmLnes.contains(elmLne);
     }
 
+    @Override
     boolean isDcNode(DataObject elmTerm) {
         return dcElmTerms.contains(elmTerm);
     }
@@ -57,9 +63,9 @@ class HvdcConverter extends AbstractConverter {
 
     private void computeElmTermsConnectedToVscs(List<DataObject> elmTerms, List<DataObject> elmVscs) {
         for (DataObject elmTerm : elmTerms) {
-            getDataObjectsConnectedToElmTerm(elmTerm)
-                    .filter(elmVscs::contains).findFirst()
-                    .ifPresent(elmVsc -> elmTermsConnectedToVscs.computeIfAbsent(elmVsc, k -> new ArrayList<>()).add(elmTerm));
+            getDataObjectsConnectedToElmTerm(elmTerm)      // Find all elements connected to the current terminal elmTerm
+                    .filter(elmVscs::contains).findFirst() // leave only VSCs
+                    .ifPresent(elmVsc -> elmTermsConnectedToVscs.computeIfAbsent(elmVsc, k -> new ArrayList<>()).add(elmTerm)); // add elements connected to VSCs to elmTermsConnectedToVscs (or empty list when empty)
         }
     }
 
@@ -201,11 +207,12 @@ class HvdcConverter extends AbstractConverter {
         }
     }
 
-    void create() {
-        configurations.forEach(this::create);
+    @Override
+    protected void create() {
+        configurations.forEach(this::createConfiguration);
     }
 
-    private void create(Configuration configuration) {
+    private void createConfiguration(Configuration configuration) {
 
         VscModel vscModelR = VscModel.create(configuration.vsc0);
         DcLineModel dcLineModel = DcLineModel.create(configuration.links, configuration.vsc0);
