@@ -569,11 +569,6 @@ public final class EurostagTutorialExample1Factory {
                 .setAcceptableDuration(60)
                 .setValue(1500)
                 .endTemporaryLimit()
-                .beginTemporaryLimit()
-                .setName("N/A")
-                .setAcceptableDuration(0)
-                .setValue(Double.MAX_VALUE)
-                .endTemporaryLimit()
                 .add();
 
         line.newOperationalLimitsGroup1(activatedOneTwo).newCurrentLimits()
