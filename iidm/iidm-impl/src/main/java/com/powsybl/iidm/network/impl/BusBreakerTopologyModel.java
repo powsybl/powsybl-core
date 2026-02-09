@@ -31,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -195,9 +194,9 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
      */
     class CalculatedBusTopology {
 
-        protected boolean isBusValid(Set<ConfiguredBus> busSet) {
+        protected boolean isBusValid(List<ConfiguredBus> buses) {
             int feederCount = 0;
-            for (TerminalExt terminal : FluentIterable.from(busSet).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
+            for (TerminalExt terminal : FluentIterable.from(buses).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
                 AbstractConnectable connectable = terminal.getConnectable();
                 switch (connectable.getType()) {
                     case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION,
@@ -212,11 +211,11 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
             return Networks.isBusValid(feederCount);
         }
 
-        private MergedBus createMergedBus(int busNum, Set<ConfiguredBus> busSet) {
+        private MergedBus createMergedBus(int busNum, List<ConfiguredBus> buses) {
             String suffix = "_" + busNum;
             String mergedBusId = Identifiables.getUniqueId(voltageLevel.getId() + suffix, getNetwork().getIndex()::contains);
             String mergedBusName = voltageLevel.getOptionalName().map(name -> name + suffix).orElse(null);
-            return new MergedBus(mergedBusId, mergedBusName, voltageLevel.isFictitious(), busSet);
+            return new MergedBus(mergedBusId, mergedBusName, voltageLevel.isFictitious(), buses);
         }
 
         private void updateCache() {
@@ -228,9 +227,9 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
             // mapping between configured buses and merged buses
             Map<ConfiguredBus, MergedBus> mapping = new IdentityHashMap<>();
-            AtomicInteger busNum = new AtomicInteger(0);
+            int busNum = 0;
 
-            graph.getConnectedComponents(
+            List<List<ConfiguredBus>> connectedComponents = graph.getConnectedComponents(
                 (v1, e, v2) -> {
                     SwitchImpl sw = graph.getEdgeObject(e);
                     if (sw != null && sw.isOpen()) {
@@ -238,25 +237,29 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
                     }
                     return TraverseResult.CONTINUE;
                 },
-                new UndirectedGraph.ConnectedComponentCollector<Set<ConfiguredBus>>() {
+                new UndirectedGraph.ConnectedComponentCollector<>() {
                     @Override
-                    public Set<ConfiguredBus> createComponent() {
-                        return new LinkedHashSet<>(1);
+                    public List<ConfiguredBus> createComponent() {
+                        return new ArrayList<>();
                     }
 
                     @Override
-                    public void addVertex(Set<ConfiguredBus> component, int vertexIndex) {
+                    public void addVertex(List<ConfiguredBus> component, int vertexIndex) {
                         ConfiguredBus bus = graph.getVertexObject(vertexIndex);
-                        if (bus != null) {
-                            component.add(bus);
-                        }
+                        component.add(bus);
                     }
                 }
-            ).stream().filter(this::isBusValid).forEach(busSet -> {
-                MergedBus mergedBus = createMergedBus(busNum.getAndIncrement(), busSet);
-                mergedBuses.put(mergedBus.getId(), mergedBus);
-                busSet.forEach(bus -> mapping.put(bus, mergedBus));
-            });
+            );
+
+            for (List<ConfiguredBus> component : connectedComponents) {
+                if (isBusValid(component)) {
+                    MergedBus mergedBus = createMergedBus(busNum++, component);
+                    mergedBuses.put(mergedBus.getId(), mergedBus);
+                    for (ConfiguredBus bus : component) {
+                        mapping.put(bus, mergedBus);
+                    }
+                }
+            }
 
             variants.get().cache = new BusCache(mergedBuses, mapping);
         }
@@ -296,7 +299,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     final CalculatedBusTopology calculatedBusTopology
-        = new CalculatedBusTopology();
+            = new CalculatedBusTopology();
 
     private static final class VariantImpl implements Variant {
 

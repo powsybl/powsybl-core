@@ -260,9 +260,16 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
 
         private void addBus(TIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
-                            String busId, CopyOnWriteArrayList<NodeTerminal> terminals) {
+                            String busId) {
             String busName = NAMING_STRATEGY.getName(voltageLevel, nodes);
             Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
+            CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
+            for (int i = 0; i < nodes.size(); i++) {
+                NodeTerminal terminal = graph.getVertexObject(nodes.getQuick(i));
+                if (terminal != null) {
+                    terminals.add(terminal);
+                }
+            }
             CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals, getBusFromTerminal);
             id2bus.put(busId, bus);
             for (int i = 0; i < nodes.size(); i++) {
@@ -278,28 +285,23 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             Map<String, CalculatedBus> id2bus = new LinkedHashMap<>();
             CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
 
-            graph.getConnectedComponents((v1, e, v2) -> {
+            List<TIntArrayList> components = graph.getConnectedComponents((v1, e, v2) -> {
                 SwitchImpl sw = graph.getEdgeObject(e);
                 if (sw != null && terminate.test(sw)) {
                     return TraverseResult.TERMINATE_PATH;
                 }
                 return TraverseResult.CONTINUE;
-            }).forEach(nodes -> {
-                CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
-                for (int i = 0; i < nodes.size(); i++) {
-                    NodeTerminal terminal = graph.getVertexObject(nodes.getQuick(i));
-                    if (terminal != null) {
-                        terminals.add(terminal);
-                    }
-                }
-                if (getBusChecker().isValid(graph, nodes, terminals)) {
+            });
+
+            for (TIntArrayList nodes : components) {
+                if (getBusChecker().isValid(graph, nodes)) {
                     String busId = Identifiables.getUniqueId(
                         NAMING_STRATEGY.getId(voltageLevel, nodes),
                         getNetwork().getIndex()::contains
                     );
-                    addBus(nodes, id2bus, node2bus, busId, terminals);
+                    addBus(nodes, id2bus, node2bus, busId);
                 }
-            });
+            }
 
             busCache = new BusCache(node2bus, id2bus);
             LOGGER.trace("Found buses {}", id2bus.values());
@@ -442,13 +444,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private interface BusChecker {
 
-        boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals);
+        boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes);
     }
 
     private static final class CalculatedBusChecker implements BusChecker {
 
         @Override
-        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes) {
             int feederCount = 0;
             int branchCount = 0;
             int busbarSectionCount = 0;
@@ -479,7 +481,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private static final class CalculatedBusBreakerChecker implements BusChecker {
         @Override
-        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes) {
             return !nodes.isEmpty();
         }
     }
