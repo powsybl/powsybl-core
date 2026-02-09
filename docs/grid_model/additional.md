@@ -184,7 +184,7 @@ Note that all `setSelected` methods will only keep a single set of limit activat
 being the last selected (aka "SUMMER").
 To have multiple `OperationalLimitsGroup` selected at the same time, see below the fourth example.
 
-#### Fourth example
+##### Fourth example
 This fourth example creates three OperationalLimitsGroup on the same end, and sets all of them as selected (active).
 
 ```java
