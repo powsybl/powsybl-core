@@ -28,10 +28,10 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
         Network network = createBaseNetwork();
 
         // Test for the current version
-        allFormatsRoundTripTest(network, "/dcSwitchRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "/dcSwitchRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility - checks from version 1.15
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcSwitchRoundTripRef.xml", IidmVersion.V_1_15);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("/dcSwitchRoundTripRef.xml", IidmVersion.V_1_15);
     }
 
     @Test
@@ -43,7 +43,7 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
 
         // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteVersionedXml(network, options, "dcSwitchNotSupported.xml", IidmVersion.V_1_14);
+        testWriteVersionedTxt(network, options, "dcSwitchNotSupported.xml", IidmVersion.V_1_14);
     }
 
     private static Network createBaseNetwork() {
