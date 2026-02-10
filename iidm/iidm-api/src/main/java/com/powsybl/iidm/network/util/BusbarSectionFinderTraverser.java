@@ -39,7 +39,14 @@ public final class BusbarSectionFinderTraverser {
     }
 
     /**
-     * find the busbar section Id that a terminal (connectable) belongs to.
+     * Returns the id of the busbar section the provided terminal corresponds the most<br>
+     * The algorithm prioritizes in order:
+     * <ul>
+     *     <li>the paths with all switches closed</li>
+     *     <li>the paths with the last switch closed</li>
+     *     <li>all other paths</li>
+     * </ul>
+     * If multiple paths leading to busbar sections are found, the one with the lowest depth is returned.
      */
     public static String findBusbarSectionId(Terminal terminal) {
         checkIsNodeBreakerView(terminal.getVoltageLevel());
