@@ -16,9 +16,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- *
  * This traverser provides methods to identify to which busbar section a terminal corresponds the most.<br>
- * <p>
  * The algorithm prioritizes in order:
  * <ul>
  *     <li>the paths with all switches closed</li>
@@ -66,7 +64,6 @@ public final class BusbarSectionFinderTraverser {
 
     /**
      * Provides information related to the busbar section on which the provided terminal could be connected.<br/>
-     * <p>
      * The algorithm prioritizes in order:
      * <ul>
      *     <li>the paths with all switches closed</li>
