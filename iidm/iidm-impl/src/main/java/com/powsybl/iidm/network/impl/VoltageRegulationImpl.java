@@ -1,16 +1,15 @@
 /**
- * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.impl.regulation;
+package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -125,10 +124,6 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         if (terminal != null) {
             terminal.getReferrerManager().unregister(this);
         }
-    }
-
-    public static VoltageRegulationBuilderImpl newVoltageRegulation() {
-        return new VoltageRegulationBuilderImpl();
     }
 
     @Override

@@ -152,18 +152,16 @@ class ControlledRegulatingTerminalsTest {
 
         Battery battery = network.getBattery("BAT2");
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
-                .withTerminal(battery.getTerminal())
                 .withRegulating(true)
                 .withMode(RegulationMode.VOLTAGE)
                 .withTargetValue(50.0)
-                .add()
-            .getVoltageRegulation();
+                .build();
 
         RegulatedTerminalControllers controlledRegulatingTerminals = new RegulatedTerminalControllers(network);
         Generator generator = network.getGenerator("GEN");
 
         assertNotEquals(voltageRegulation.getTerminal(), generator.getTerminal());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(voltageRegulation.getTerminal(), generator.getTerminal());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(battery.getTerminal(), generator.getTerminal());
         assertEquals(voltageRegulation.getTerminal(), generator.getTerminal());
     }
 
@@ -174,17 +172,15 @@ class ControlledRegulatingTerminalsTest {
         Generator generator = network.getGenerator("GEN");
         VoltageRegulation voltageRegulation = generator.newVoltageRegulation()
             .withTargetValue(100.0)
-            .withTerminal(generator.getTerminal())
             .withRegulating(true)
             .withMode(RegulationMode.REACTIVE_POWER)
-            .add()
-            .getVoltageRegulation();
+            .build();
 
         RegulatedTerminalControllers controlledRegulatingTerminals = new RegulatedTerminalControllers(network);
         Line line = network.getLine("NHV1_NHV2_1");
 
         assertNotEquals(voltageRegulation.getTerminal(), line.getTerminal1());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(voltageRegulation.getTerminal(), line.getTerminal1());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(generator.getTerminal(), line.getTerminal1());
         assertEquals(voltageRegulation.getTerminal(), line.getTerminal1());
     }
 

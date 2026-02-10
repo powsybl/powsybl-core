@@ -101,8 +101,7 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
             .withRegulating(true)
             .withMode(mode)
             .withTargetValue(targetV)
-            .add()
-            .getVoltageRegulation();
+            .build();
 
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals("terminalRef")) {

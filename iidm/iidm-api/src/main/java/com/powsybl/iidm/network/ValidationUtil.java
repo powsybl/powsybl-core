@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.REACTIVE_POWER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.VOLTAGE;
@@ -908,43 +909,91 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    public static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode) {
+    public static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, ValidationLevel validationLevel, ReportNode reportNode) {
+        return checkVoltageRegulation(owner, voltageRegulation, checkValidationActionOnError(validationLevel), reportNode);
+    }
+
+    private static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode) {
+        ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (voltageRegulation != null) {
             // CHECK Regulation MODE
-            if (voltageRegulation.getMode() == null) {
-                throw new ValidationException(owner, "TODO MSA add log/exception -> Modes must not be null");
-            }
+            validationLevel = checkVoltageRegulationMode(owner, voltageRegulation, actionOnError, reportNode, validationLevel);
+            // CHECK TERMINAL
+            validationLevel = checkVoltageRegulationTerminal(owner, voltageRegulation, actionOnError, reportNode, validationLevel);
+            // CHECK SLOPE attribute
+            validationLevel = checkVoltageRegulationSlope(owner, voltageRegulation, actionOnError, reportNode, validationLevel);
+            // CHECK Target Deadband attribute
+            validationLevel = checkVoltageRegulationDeadband(owner, voltageRegulation, actionOnError, reportNode, validationLevel);
+            // CHECK Target Value attribute
+            validationLevel = checkVoltageRegulationTargetValue(owner, voltageRegulation, actionOnError, reportNode, validationLevel);
+        }
+        return validationLevel;
+    }
+
+    private static ValidationLevel checkVoltageRegulationTargetValue(@NonNull Validable owner, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
+        if (voltageRegulation.getTargetValue() == null) {
+            throwExceptionOrLogError(owner, "TTODO MSA add log/exception -> targetValue must not be null", actionOnError,
+                id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));
+            return ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        return validationLevel;
+    }
+
+    private static ValidationLevel checkVoltageRegulationDeadband(@NonNull Validable owner, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
+        if ((owner instanceof RatioTapChanger || owner instanceof ShuntCompensator)
+            && voltageRegulation.getTargetDeadband() == null) {
+            throwExceptionOrLogError(owner, "TODO MSA add log/exception -> targetDeadband must not be null for RatioTapChanger/ShuntCompensator", actionOnError,
+                id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));
+            return ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        return validationLevel;
+    }
+
+    private static ValidationLevel checkVoltageRegulationSlope(@NonNull Validable owner, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
+        Set<RegulationMode> slopeMode = Set.of(RegulationMode.VOLTAGE_PER_REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+        if (voltageRegulation.getMode() != null
+            && (voltageRegulation.getSlope() == null && !slopeMode.contains(voltageRegulation.getMode())
+            || voltageRegulation.getSlope() != null && slopeMode.contains(voltageRegulation.getMode()))) {
+            throwExceptionOrLogError(owner, "TODO MSA add log/exception -> slope must not be null", actionOnError,
+                id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));
+            return ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        return validationLevel;
+    }
+
+    private static ValidationLevel checkVoltageRegulationTerminal(@NonNull Validable owner, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
+        if (voltageRegulation.getTerminal() != null
+            && owner instanceof Identifiable<?> identifiable
+            && identifiable.getId().equals(voltageRegulation.getTerminal().getConnectable().getId())) {
+            throwExceptionOrLogError(owner, "TODO MSA add log/exception -> Terminal must be remote", actionOnError,
+                id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));
+            return ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
+        return validationLevel;
+    }
+
+    private static ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
+        if (voltageRegulation.getMode() == null) {
+            throwExceptionOrLogError(owner, "the current regulationMode of VoltageRegulation is undefined", actionOnError,
+                id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));
+            return ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        } else {
+            // CHECK ALLOWED MODE
             Set<RegulationMode> allowedModes = getAllowedRegulatingModes(owner);
             if (!allowedModes.contains(voltageRegulation.getMode())) {
-                throw new ValidationException(owner, "TODO MSA add log/exception -> Modes allowed for XXXX : [allowedModes]");
-            }
-            // CHECK TERMINAL
-            if (voltageRegulation.getTerminal() != null && owner instanceof Identifiable<?> identifiable) {
-                if (identifiable.getId().equals(voltageRegulation.getTerminal().getConnectable().getId())) {
-                    throw new ValidationException(owner, "TODO MSA add log/exception -> Terminal must be remote");
-                }
-            }
-            // CHECK SLOPE attribute
-            Set<RegulationMode> slopeMode = Set.of(RegulationMode.VOLTAGE_PER_REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
-            if (voltageRegulation.getSlope() == null && !slopeMode.contains(voltageRegulation.getMode())
-                || voltageRegulation.getSlope() != null && slopeMode.contains(voltageRegulation.getMode())) {
-                throw new ValidationException(owner, "TODO MSA add log/exception -> slope must not be null");
-            }
-            // CHECK Target Deadband attribute
-            if ((owner instanceof RatioTapChanger || owner instanceof ShuntCompensator)
-                && voltageRegulation.getTargetDeadband() == null) {
-                throw new ValidationException(owner, "TODO MSA add log/exception -> targetDeadband must not be null for RatioTapChanger/ShuntCompensator");
-            }
-            // CHECK Target Value attribute
-            if (voltageRegulation.getTargetValue() == null) {
-                throw new ValidationException(owner, "TODO MSA add log/exception -> targetValue must not be null");
+                String allowedModesString = allowedModes.stream().map(RegulationMode::name).collect(Collectors.joining(", "));
+                String message = String.format("the current regulationMode is %s but allowed modes are %s",
+                    voltageRegulation.getMode(), allowedModesString);
+                throwExceptionOrLogError(owner, message, actionOnError,
+                    id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));
+                return ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
         }
-        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        return validationLevel;
     }
 
     private static @NonNull Set<RegulationMode> getAllowedRegulatingModes(@NonNull Validable owner) {
-        if (owner instanceof VoltageRegulationHolder<?> voltageRegulationHolder) {
+        if (owner instanceof VoltageRegulationHolder voltageRegulationHolder) {
             return voltageRegulationHolder.getAllowedRegulationModes();
         }
         throw new ValidationException(owner, "TODO MSA add log/exception -> class XXX is not a valid class for the voltageRegulation");

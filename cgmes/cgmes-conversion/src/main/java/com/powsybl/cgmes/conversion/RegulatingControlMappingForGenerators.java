@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +105,7 @@ public class RegulatingControlMappingForGenerators {
             .withMode(RegulationMode.VOLTAGE)
             .withTerminal(regulatingTerminal)
             .withRegulating(false)
-            .add();
+            .build();
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
@@ -130,14 +130,14 @@ public class RegulatingControlMappingForGenerators {
             return false;
         }
 
-        VoltageRegulationAdder<?> voltageRegulationAdder = gen.newVoltageRegulation()
+        VoltageRegulationBuilder voltageRegulationBuilder = gen.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
             .withRegulating(false);
         // TODO MSA check that
         if (!mappedRegulatingTerminal.getTerminal().getConnectable().getId().equals(gen.getId())) {
-            voltageRegulationAdder.withTerminal(mappedRegulatingTerminal.getTerminal());
+            voltageRegulationBuilder.withTerminal(mappedRegulatingTerminal.getTerminal());
         }
-        voltageRegulationAdder.add();
+        voltageRegulationBuilder.build();
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {

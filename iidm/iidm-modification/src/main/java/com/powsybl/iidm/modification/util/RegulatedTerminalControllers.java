@@ -49,8 +49,10 @@ public class RegulatedTerminalControllers {
             case BATTERY -> {
                 Battery battery = (Battery) identifiable;
                 // TODO MSA use optional ?
-                if (battery.getVoltageRegulation() != null) {
+                if (battery.getVoltageRegulation() != null && battery.getVoltageRegulation().getTerminal() != null) {
                     add(regulatedTerminals, battery.getVoltageRegulation().getTerminal());
+                } else {
+                    add(regulatedTerminals, battery.getTerminal());
                 }
             }
             case TWO_WINDINGS_TRANSFORMER -> {
@@ -223,8 +225,11 @@ public class RegulatedTerminalControllers {
 
     private static void replaceRegulatedTerminalBattery(Battery battery, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
         VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
-        if (voltageRegulation != null && voltageRegulation.getTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(voltageRegulation.getTerminal()))) {
-            voltageRegulation.setTerminal(newRegulatedTerminal);
+        if (voltageRegulation != null) {
+            Terminal currentTerminal = voltageRegulation.getTerminal() != null ? voltageRegulation.getTerminal() : battery.getTerminal();
+            if (currentRegulatedTerminal.equals(newTerminalRef(currentTerminal))) {
+                voltageRegulation.setTerminal(newRegulatedTerminal);
+            }
         }
     }
 

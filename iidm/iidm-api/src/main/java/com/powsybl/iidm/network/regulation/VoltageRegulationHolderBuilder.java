@@ -10,8 +10,8 @@ package com.powsybl.iidm.network.regulation;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public interface VoltageRegulationAdder<T extends VoltageRegulationHolder> extends VoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> {
+public interface VoltageRegulationHolderBuilder extends VoltageRegulationHolder {
 
-    T add();
+    VoltageRegulationBuilder newVoltageRegulation();
 
 }

@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 
 /**
  * To create a battery, from a <code>VoltageLevel</code> instance call
@@ -27,7 +27,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
  * @see Battery
  * @see VoltageLevel
  */
-public interface BatteryAdder extends InjectionAdder<Battery, BatteryAdder>, VoltageRegulationHolder<BatteryAdder> {
+public interface BatteryAdder extends InjectionAdder<Battery, BatteryAdder>, VoltageRegulationHolderAdder<BatteryAdder> {
 
     /**
      * Set the target active power in MW.

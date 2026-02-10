@@ -67,7 +67,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
                 .withTargetValue(123)
                 .withMode(RegulationMode.REACTIVE_POWER)
                 .withTerminal(line.getTerminal2())
-                .add();
+                .build();
         return network;
     }
 

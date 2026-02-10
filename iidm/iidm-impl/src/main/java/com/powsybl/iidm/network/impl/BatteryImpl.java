@@ -9,8 +9,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.impl.regulation.VoltageRegulationAdderImpl;
-import com.powsybl.iidm.network.impl.regulation.VoltageRegulationImpl;
 import com.powsybl.iidm.network.regulation.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -36,10 +34,14 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private VoltageRegulationImpl voltageRegulation;
 
-    BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, double targetP, double targetQ, double minP, double maxP) {
+    BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+                double targetP, double targetQ,
+                VoltageRegulationImpl voltageRegulation,
+                double minP, double maxP) {
         super(ref, id, name, fictitious);
         this.minP = minP;
         this.maxP = maxP;
+        this.voltageRegulation = voltageRegulation;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
@@ -244,8 +246,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     @Override
-    public VoltageRegulationAdder<Battery> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(this, getNetwork().getRef());
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return new VoltageRegulationBuilderImpl(this, getNetwork().getRef(), this::setVoltageRegulation);
     }
 
     @Override
@@ -255,12 +257,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     @Override
-    public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.voltageRegulation = (VoltageRegulationImpl) voltageRegulation;
-    }
-
-    @Override
     public Set<RegulationMode> getAllowedRegulationModes() {
         return Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
+    }
+
+    public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+        this.voltageRegulation = voltageRegulation;
     }
 }

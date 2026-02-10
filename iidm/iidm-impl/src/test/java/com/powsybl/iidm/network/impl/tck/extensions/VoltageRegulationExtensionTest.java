@@ -11,9 +11,7 @@ package com.powsybl.iidm.network.impl.tck.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.TerminalExt;
-import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
-import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -38,12 +36,11 @@ class VoltageRegulationExtensionTest {
         assertNotNull(bat);
 
         VoltageRegulation voltageRegulation = bat.newVoltageRegulation()
-            .withTerminal(bat.getTerminal())
+//            .withTerminal(bat.getTerminal())
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(true)
             .withTargetValue(50.0)
-            .add()
-            .getVoltageRegulation();
+            .build();
         assertNotNull(voltageRegulation);
 
         assertEquals(50.0, voltageRegulation.getTargetValue(), 0);
@@ -81,21 +78,21 @@ class VoltageRegulationExtensionTest {
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
 
-        VoltageRegulationAdder<Battery> adder = bat.newVoltageRegulation()
+        VoltageRegulationBuilder builder = bat.newVoltageRegulation()
             .withTerminal(bat.getTerminal())
             .withTargetValue(50.0);
 
-        PowsyblException e = assertThrows(PowsyblException.class, adder::add);
+        PowsyblException e = assertThrows(PowsyblException.class, builder::build);
         assertEquals("Voltage regulator status is not defined", e.getMessage());
 
         Network network1 = BatteryNetworkFactory.create();
 
-        VoltageRegulationAdder<Battery> adder1 = bat.newVoltageRegulation()
+        VoltageRegulationBuilder builder1 = bat.newVoltageRegulation()
             .withTerminal(network1.getBattery("BAT").getTerminal())
             .withMode(RegulationMode.VOLTAGE)
             .withTargetValue(50.0);
 
-        PowsyblException e1 = assertThrows(PowsyblException.class, adder1::add);
+        PowsyblException e1 = assertThrows(PowsyblException.class, builder1::build);
         assertEquals("regulating terminal is not part of the same network", e1.getMessage());
     }
 
@@ -109,8 +106,7 @@ class VoltageRegulationExtensionTest {
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(true)
             .withTargetValue(50.0)
-            .add()
-            .getVoltageRegulation();
+            .build();
         assertRegulatingTerminal(battery2.getTerminal(), voltageRegulation);
         battery2.remove();
         // Fallback on local terminal
@@ -157,10 +153,10 @@ class VoltageRegulationExtensionTest {
         var battery2 = network.getBattery("BAT2");
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
             .withTerminal(battery2.getTerminal())
+            .withMode(RegulationMode.VOLTAGE)
             .withRegulating(true)
             .withTargetValue(50.0)
-            .add()
-            .getVoltageRegulation();
+            .build();
         assertRegulatingTerminal(battery2.getTerminal(), voltageRegulation);
         voltageRegulation.setTerminal(battery3.getTerminal());
         assertRegulatingTerminal(battery3.getTerminal(), voltageRegulation, battery2.getTerminal());
@@ -183,10 +179,10 @@ class VoltageRegulationExtensionTest {
         Terminal battery2Terminal0 = battery2.getTerminal();
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
             .withTerminal(battery2.getTerminal())
+            .withMode(RegulationMode.VOLTAGE)
             .withRegulating(true)
             .withTargetValue(50.0)
-            .add()
-            .getVoltageRegulation();
+            .build();
         assertRegulatingTerminal(battery2Terminal0, voltageRegulation);
 
         // Replacement

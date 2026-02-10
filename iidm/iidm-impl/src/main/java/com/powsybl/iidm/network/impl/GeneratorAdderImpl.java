@@ -8,8 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.regulation.VoltageRegulationAdderImpl;
-import com.powsybl.iidm.network.impl.regulation.VoltageRegulationImpl;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.Set;
@@ -136,16 +134,16 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel(),
                 network.getReportNodeContext().getReportNode()));
-//        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ,
-//                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
-        // TODO MSA Backward compatibility
+        // TODO MSA Backward compatibility :
+        //
         if (this.voltageRegulation == null) {
-            this.voltageRegulation = createVoltageRegulation();
+            this.voltageRegulation = createVoltageRegulation(this);
         }
-        ValidationUtil.checkVoltageRegulation(this, this.getVoltageRegulation(), null, network.getReportNodeContext().getReportNode());
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulation(this,
+            this.getVoltageRegulation(), network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
@@ -170,35 +168,29 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         return voltageRegulation;
     }
 
-    private VoltageRegulation createVoltageRegulation() {
+    private VoltageRegulation createVoltageRegulation(GeneratorAdder generatorAdder) {
         // Common attributes
-        VoltageRegulationBuilder builder = VoltageRegulationImpl.newVoltageRegulation()
-            .withNetwork(getNetworkRef())
+        VoltageRegulationAdder<GeneratorAdder> vrAdder = generatorAdder.newVoltageRegulation()
             .withTerminal(this.regulatingTerminal);
         // VOLTAGE case
         if (Boolean.TRUE.equals(this.voltageRegulatorOn)) {
-            builder.withRegulating(true)
+            vrAdder.withRegulating(true)
                 .withMode(RegulationMode.VOLTAGE)
                 .withTargetValue(this.targetV);
-            return builder.build();
+            return vrAdder.add().getVoltageRegulation();
             // REACTIVE Power case
         } else if (!Double.isNaN(this.targetQ)) {
-            builder.withRegulating(true)
+            vrAdder.withRegulating(true)
                 .withMode(RegulationMode.REACTIVE_POWER)
                 .withTargetValue(this.targetQ);
-            return builder.build();
+            return vrAdder.add().getVoltageRegulation();
         }
         return null;
     }
 
     @Override
-    public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
-    }
-
-    @Override
     public VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(this, getNetworkRef());
+        return new VoltageRegulationAdderImpl<>(this, getNetworkRef(), this::setVoltageRegulation);
     }
 
     @Override
@@ -209,5 +201,9 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     public Set<RegulationMode> getAllowedRegulationModes() {
         return Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+    }
+
+    public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+        this.voltageRegulation = voltageRegulation;
     }
 }

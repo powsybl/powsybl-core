@@ -1122,7 +1122,7 @@ public final class EurostagTutorialExample1Factory {
     }
 
     private static Network addLocalReactiveGenerator(Network network) {
-        return addReactiveGenerator(network, network.getGenerator("GEN").getRegulatingTerminal());
+        return addReactiveGenerator(network, null);
     }
 
     private static Network addRemoteReactiveGenerator(Network network) {
@@ -1136,7 +1136,7 @@ public final class EurostagTutorialExample1Factory {
             .withTerminal(terminal)
             .withMode(RegulationMode.REACTIVE_POWER)
             .withRegulating(true)
-            .add();
+            .build();
         return network;
     }
 
@@ -1146,7 +1146,7 @@ public final class EurostagTutorialExample1Factory {
             .withRegulating(true)
             .withTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1())
             .withTargetValue(399d)
-            .add();
+            .build();
         return network;
     }
 

@@ -9,9 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.regulation.VoltageRegulationAdderImpl;
 import com.powsybl.iidm.network.regulation.*;
-import com.powsybl.iidm.network.impl.regulation.VoltageRegulationImpl;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Set;
@@ -220,19 +218,17 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    @Deprecated(forRemoval = true)
     public double getTargetV() {
         return this.targetV.get(network.get().getVariantIndex());
     }
 
     @Override
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = true, since = "7.2.0")
     public GeneratorImpl setTargetV(double targetV) {
         return this.setTargetV(targetV, Double.NaN);
     }
 
     @Override
-    @Deprecated(forRemoval = true)
     public GeneratorImpl setTargetV(double targetV, double equivalentLocalTargetV) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
@@ -360,8 +356,8 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public VoltageRegulationAdder<Generator> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(this, getNetwork().getRef());
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return new VoltageRegulationBuilderImpl(this, getNetwork().getRef(), this::setVoltageRegulation);
     }
 
     @Override
@@ -370,13 +366,11 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public void setVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.voltageRegulation = (VoltageRegulationImpl) voltageRegulation;
-    }
-
-    @Override
     public Set<RegulationMode> getAllowedRegulationModes() {
         return Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
     }
 
+    public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+        this.voltageRegulation = voltageRegulation;
+    }
 }

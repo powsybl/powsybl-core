@@ -55,7 +55,7 @@ public class RemoteReactivePowerControlSerDe extends AbstractExtensionSerDe<Gene
                 .withRegulating(enabled)
                 .withTargetValue(targetQ)
                 .withTerminal(terminal)
-                .add();
+                .build();
         }
         return null;
     }

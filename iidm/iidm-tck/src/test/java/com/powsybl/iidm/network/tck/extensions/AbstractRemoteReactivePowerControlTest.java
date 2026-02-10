@@ -121,8 +121,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             .withTerminal(l.getTerminal(TwoSides.ONE))
             .withRegulating(true)
             .withMode(RegulationMode.REACTIVE_POWER)
-            .add()
-            .getVoltageRegulation();
+            .build();
         assertEquals(200.0, voltageRegulation.getTargetValue(), 0.0);
         assertEquals(l.getTerminal(TwoSides.ONE), voltageRegulation.getTerminal());
         assertTrue(voltageRegulation.isRegulating());
@@ -138,8 +137,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             .withTerminal(l.getTerminal(TwoSides.ONE))
             .withRegulating(true)
             .withMode(RegulationMode.REACTIVE_POWER)
-            .add()
-            .getVoltageRegulation();
+            .build();
 
         String variant1 = "variant1";
         String variant2 = "variant2";
@@ -193,18 +191,17 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         var adder = g.newVoltageRegulation()
                 .withTargetValue(200.0)
                 .withRegulating(true);
-        var e = assertThrows(PowsyblException.class, adder::add);
+        var e = assertThrows(PowsyblException.class, adder::build);
         assertEquals("Regulating terminal must be set", e.getMessage());
         adder = g.newVoltageRegulation()
                 .withTerminal(l.getTerminal(TwoSides.ONE))
                 .withRegulating(true);
-        e = assertThrows(PowsyblException.class, adder::add);
+        e = assertThrows(PowsyblException.class, adder::build);
         assertEquals("Reactive power target must be set", e.getMessage());
         var voltageRegulation = g.newVoltageRegulation()
                 .withTargetValue(200.0)
                 .withTerminal(l.getTerminal(TwoSides.ONE))
-                .add()
-            .getVoltageRegulation();
+                .build();
         assertTrue(voltageRegulation.isRegulating());
     }
 
@@ -218,7 +215,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(l.getTerminal(TwoSides.ONE))
             .withRegulating(true)
-            .add();
+            .build();
         assertNotNull(g.getVoltageRegulation());
         l.remove();
         // remote terminal has been removed because it is invalid
@@ -236,8 +233,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             .withTerminal(l.getTerminal(TwoSides.ONE))
             .withRegulating(true)
             .withMode(RegulationMode.REACTIVE_POWER)
-            .add()
-            .getVoltageRegulation();
+            .build();
         assertNotNull(g.getVoltageRegulation());
         voltageRegulation.setTerminal(l2.getTerminal(TwoSides.ONE));
         l.remove();
@@ -261,8 +257,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(lTerminal)
             .withRegulating(true)
-            .add()
-            .getVoltageRegulation();
+            .build();
 
         assertEquals(lTerminal, voltageRegulation.getTerminal());
         assertEquals("b3", voltageRegulation.getTerminal().getBusBreakerView().getBus().getId());

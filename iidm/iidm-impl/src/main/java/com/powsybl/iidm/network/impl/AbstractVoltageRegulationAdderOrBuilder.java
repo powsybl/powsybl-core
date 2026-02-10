@@ -5,17 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.impl.regulation;
+package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder;
+import org.jspecify.annotations.NonNull;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>> implements VoltageRegulationAdderOrBuilder<T> {
 
+    protected Ref<NetworkImpl> network;
     protected double targetValue = Double.NaN;
     protected double targetDeadband = Double.NaN;
     protected double slope = Double.NaN;
@@ -57,6 +62,17 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     public T withRegulating(boolean regulating) {
         this.regulating = regulating;
         return self();
+    }
+
+    protected @NonNull VoltageRegulationImpl createVoltageRegulation(Object parent) {
+        VoltageRegulationImpl voltageRegulation = new VoltageRegulationImpl(network, targetValue, targetDeadband, slope, terminal, mode, regulating);
+        if (parent instanceof Validable validable) {
+            network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulation(validable,
+                voltageRegulation,
+                network.get().getMinValidationLevel(),
+                network.get().getReportNodeContext().getReportNode()));
+        }
+        return voltageRegulation;
     }
 
     protected abstract T self();

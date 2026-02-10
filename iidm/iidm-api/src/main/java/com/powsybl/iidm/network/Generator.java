@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderBuilder;
 
 /**
  * A power generator.
@@ -135,7 +135,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve
  */
-public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, VoltageRegulationHolder<Generator> {
+public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, VoltageRegulationHolderBuilder {
 
     /**
      * Get the energy source.
@@ -170,6 +170,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * Depends on the working variant.
      * @see VariantManager
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     boolean isVoltageRegulatorOn();
 
     /**
@@ -178,6 +179,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * Depends on the working variant.
      * @see VariantManager
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**

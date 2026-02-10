@@ -12,13 +12,9 @@ import java.util.Set;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
-
-    VoltageRegulationAdder<T> newVoltageRegulation();
+public interface VoltageRegulationHolder {
 
     void removeVoltageRegulation();
-
-    void setVoltageRegulation(VoltageRegulation voltageRegulation); // TODO MSA to remove
 
     VoltageRegulation getVoltageRegulation();
 

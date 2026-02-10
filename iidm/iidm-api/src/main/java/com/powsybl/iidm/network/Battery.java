@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderBuilder;
 
 /**
  * A battery system.
@@ -95,7 +95,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve
  */
-public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, VoltageRegulationHolder<Battery> {
+public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, VoltageRegulationHolderBuilder {
 
     /**
      * Get the target active power in MW.

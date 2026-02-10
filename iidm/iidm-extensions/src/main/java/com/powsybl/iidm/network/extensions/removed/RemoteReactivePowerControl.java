@@ -42,7 +42,7 @@ public class RemoteReactivePowerControl implements Extension<Generator> {
                 .withMode(RegulationMode.REACTIVE_POWER)
                 .withRegulating(enabled)
                 .withTerminal(regulatingTerminal)
-                .add();
+                .build();
         }
     }
 
