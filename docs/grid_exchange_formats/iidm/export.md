@@ -1,6 +1,47 @@
 # Export
 
-<span style="color: red">TODO</span>
+There exists three import formats:
+- xml: "XIIDM"
+- json: "JIIDM"
+- binary: "BIIDM"
+
+### Exporting with default values
+
+To use default values:
+```java
+Network n = ...;
+String FORMAT = "XIIDM"; // or "BIIDM" or "JIIDM"
+n.write(FORMAT, new Properties(), Path.of("/path/to/output.format"));
+```
+
+### Exporting with custom properties
+#### From ExportOptions
+
+```java
+Network n = Network.read(filePath);
+ExportOptions options = new ExportOptions();
+options.setVersion("1.13");
+options.setFormat(TreeDataFormat.BIN); // or XML or JSON
+NetworkSerDe.write(n, options, Path.of("/tmp/test.biidm"));
+```
+
+#### From config file
+
+```java
+Network n = ...;
+Properties prop = new Properties();
+prop.load(new FileInputStream("/path/to/powsybl_config.yaml"));
+String FORMAT = "XIIDM"; // or "BIIDM" or "JIIDM"
+n.write(FORMAT, prop, Path.of("/path/to/output.format"));
+```
+With the content of my config file being:
+```yaml
+import-export-parameters-default-value:
+  iidm.export.xml.version: 1.12
+```
+Which allows us to export to IIDM-1.12. Note that the parameter includes "xml" in the name, but it can be used for any IIDM format (including JIIDM and BIIDM).
+For more information about the config file, see [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module,
+or the [options below](#options).
 
 (iidm-export-options)=
 ## Options
