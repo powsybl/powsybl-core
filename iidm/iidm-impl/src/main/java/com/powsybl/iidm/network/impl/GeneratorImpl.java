@@ -357,7 +357,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
-        return new VoltageRegulationBuilderImpl(this, getNetwork().getRef(), this::setVoltageRegulation);
+        return new VoltageRegulationBuilderImpl<>(this, getNetwork().getRef(), this::setVoltageRegulation);
     }
 
     @Override

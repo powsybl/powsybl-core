@@ -13,20 +13,31 @@ import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import org.jspecify.annotations.NonNull;
+
+import java.util.function.Consumer;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>> implements VoltageRegulationAdderOrBuilder<T> {
+public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>, P extends VoltageRegulationHolder> implements VoltageRegulationAdderOrBuilder<T> {
 
-    protected Ref<NetworkImpl> network;
+    protected final P parent;
+    protected final Consumer<VoltageRegulationImpl> setVoltageRegulation;
+    protected final Ref<NetworkImpl> network;
     protected double targetValue = Double.NaN;
     protected double targetDeadband = Double.NaN;
     protected double slope = Double.NaN;
     protected Terminal terminal = null;
     protected RegulationMode mode = null;
     protected boolean regulating = false;
+
+    protected AbstractVoltageRegulationAdderOrBuilder(P parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> setVoltageRegulation) {
+        this.parent = parent;
+        this.setVoltageRegulation = setVoltageRegulation;
+        this.network = network;
+    }
 
     @Override
     public T withTargetValue(double targetValue) {
@@ -64,7 +75,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
         return self();
     }
 
-    protected @NonNull VoltageRegulationImpl createVoltageRegulation(Object parent) {
+    protected @NonNull VoltageRegulationImpl createVoltageRegulation() {
         VoltageRegulationImpl voltageRegulation = new VoltageRegulationImpl(network, targetValue, targetDeadband, slope, terminal, mode, regulating);
         if (parent instanceof Validable validable) {
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulation(validable,

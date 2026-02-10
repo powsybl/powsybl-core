@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.function.Consumer;
@@ -16,21 +15,10 @@ import java.util.function.Consumer;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationAdderImpl<T extends VoltageRegulationHolder> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T> {
-
-    private final T parent;
-    private final Consumer<VoltageRegulationImpl> setVoltageRegulation;
-    protected double targetValue = Double.NaN;
-    protected double targetDeadband = Double.NaN;
-    protected double slope = Double.NaN;
-    protected Terminal terminal = null;
-    protected RegulationMode mode = null;
-    protected boolean regulating = false;
+public class VoltageRegulationAdderImpl<T extends VoltageRegulationHolder> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>, T> implements VoltageRegulationAdder<T> {
 
     public VoltageRegulationAdderImpl(T parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> setVoltageRegulation) {
-        this.parent = parent;
-        this.network = network;
-        this.setVoltageRegulation = setVoltageRegulation;
+        super(parent, network, setVoltageRegulation);
     }
 
     @Override
@@ -40,7 +28,7 @@ public class VoltageRegulationAdderImpl<T extends VoltageRegulationHolder> exten
 
     @Override
     public T add() {
-        this.setVoltageRegulation.accept(createVoltageRegulation(this.parent));
+        this.setVoltageRegulation.accept(createVoltageRegulation());
         return parent;
     }
 

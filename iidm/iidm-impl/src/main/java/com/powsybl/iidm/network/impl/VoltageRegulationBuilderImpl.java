@@ -15,15 +15,10 @@ import java.util.function.Consumer;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder> implements VoltageRegulationBuilder {
+public class VoltageRegulationBuilderImpl<P extends VoltageRegulationHolder> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder, P> implements VoltageRegulationBuilder {
 
-    private final Object parent;
-    private final Consumer<VoltageRegulationImpl> setVoltageRegulation;
-
-    public VoltageRegulationBuilderImpl(Object parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> setVoltageRegulation) {
-        this.parent = parent;
-        this.network = network;
-        this.setVoltageRegulation = setVoltageRegulation;
+    public VoltageRegulationBuilderImpl(P parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> setVoltageRegulation) {
+        super(parent, network, setVoltageRegulation);
     }
 
     @Override
@@ -33,7 +28,7 @@ public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdder
 
     @Override
     public VoltageRegulation build() {
-        VoltageRegulationImpl voltageRegulation = createVoltageRegulation(parent); // TODO MSA
+        VoltageRegulationImpl voltageRegulation = createVoltageRegulation();
         this.setVoltageRegulation.accept(voltageRegulation);
         return voltageRegulation;
     }

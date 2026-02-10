@@ -247,7 +247,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
-        return new VoltageRegulationBuilderImpl(this, getNetwork().getRef(), this::setVoltageRegulation);
+        return new VoltageRegulationBuilderImpl<>(this, getNetwork().getRef(), this::setVoltageRegulation);
     }
 
     @Override
