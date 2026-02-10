@@ -7,15 +7,15 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class LimitViolationResultDeserializer extends StdDeserializer<LimitViola
     }
 
     @Override
-    public LimitViolationsResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitViolationsResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         boolean computationOk = false;
         List<LimitViolation> limitViolations = Collections.emptyList();
         List<String> actionsTaken = Collections.emptyList();

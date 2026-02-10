@@ -7,9 +7,9 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
@@ -555,15 +555,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static void writeJson(JsonGenerator generator, List<? extends TimeSeries> timeSeriesList) {
         Objects.requireNonNull(timeSeriesList);
-        try {
-            generator.writeStartArray();
-            for (TimeSeries timeSeries : timeSeriesList) {
-                timeSeries.writeJson(generator);
-            }
-            generator.writeEndArray();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        generator.writeStartArray();
+        for (TimeSeries timeSeries : timeSeriesList) {
+            timeSeries.writeJson(generator);
         }
+        generator.writeEndArray();
     }
 
     static void writeJson(Writer writer, List<? extends TimeSeries> timeSeriesList) {
@@ -605,38 +601,34 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     static List<TimeSeries> parseJson(JsonParser parser, boolean single) {
         Objects.requireNonNull(parser);
         List<TimeSeries> timeSeriesList = new ArrayList<>();
-        try {
-            TimeSeriesMetadata metadata = null;
-            String name = null;
-            JsonToken token;
-            while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.currentName();
-                    switch (fieldName) {
-                        case "metadata" -> metadata = TimeSeriesMetadata.parseJson(parser);
-                        case "chunks" -> {
-                            if (metadata == null) {
-                                throw new TimeSeriesException("metadata is null");
-                            }
-                            parseChunks(parser, metadata, timeSeriesList);
-                            metadata = null;
+        TimeSeriesMetadata metadata = null;
+        String name = null;
+        JsonToken token;
+        while ((token = parser.nextToken()) != null) {
+            if (token == JsonToken.PROPERTY_NAME) {
+                String fieldName = parser.currentName();
+                switch (fieldName) {
+                    case "metadata" -> metadata = TimeSeriesMetadata.parseJson(parser);
+                    case "chunks" -> {
+                        if (metadata == null) {
+                            throw new TimeSeriesException("metadata is null");
                         }
-                        case "name" -> name = parser.nextTextValue();
-                        case "expr" -> {
-                            Objects.requireNonNull(name);
-                            NodeCalc nodeCalc = NodeCalc.parseJson(parser);
-                            timeSeriesList.add(new CalculatedTimeSeries(name, nodeCalc));
-                        }
-                        default -> {
-                            // Do nothing
-                        }
+                        parseChunks(parser, metadata, timeSeriesList);
+                        metadata = null;
                     }
-                } else if (token == JsonToken.END_OBJECT && single) {
-                    break;
+                    case "name" -> name = parser.nextStringValue();
+                    case "expr" -> {
+                        Objects.requireNonNull(name);
+                        NodeCalc nodeCalc = NodeCalc.parseJson(parser);
+                        timeSeriesList.add(new CalculatedTimeSeries(name, nodeCalc));
+                    }
+                    default -> {
+                        // Do nothing
+                    }
                 }
+            } else if (token == JsonToken.END_OBJECT && single) {
+                break;
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
         return timeSeriesList;
     }

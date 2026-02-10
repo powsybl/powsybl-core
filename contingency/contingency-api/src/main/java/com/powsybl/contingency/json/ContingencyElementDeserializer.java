@@ -7,14 +7,13 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -26,15 +25,15 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
     }
 
     @Override
-    public ContingencyElement deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    public ContingencyElement deserialize(JsonParser parser, DeserializationContext ctx) throws JacksonException {
         String id = null;
         String voltageLevelId = null;
         ContingencyElementType type = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "id" -> id = parser.nextTextValue();
-                case "voltageLevelId" -> voltageLevelId = parser.nextTextValue();
+                case "id" -> id = parser.nextStringValue();
+                case "voltageLevelId" -> voltageLevelId = parser.nextStringValue();
                 case "type" -> {
                     parser.nextToken();
                     type = JsonUtil.readValue(ctx, parser, ContingencyElementType.class);

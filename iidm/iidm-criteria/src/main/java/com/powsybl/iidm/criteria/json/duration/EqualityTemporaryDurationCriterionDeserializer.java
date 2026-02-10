@@ -7,15 +7,14 @@
  */
 package com.powsybl.iidm.criteria.json.duration;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.duration.AbstractTemporaryDurationCriterion.TemporaryDurationCriterionType;
 import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion.LimitDurationType;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 import static com.powsybl.iidm.criteria.json.duration.LimitDurationCriterionSerDeUtil.readAndCheckType;
 
@@ -34,7 +33,7 @@ public class EqualityTemporaryDurationCriterionDeserializer extends StdDeseriali
     }
 
     @Override
-    public EqualityTemporaryDurationCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public EqualityTemporaryDurationCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> {
             switch (name) {
@@ -43,7 +42,7 @@ public class EqualityTemporaryDurationCriterionDeserializer extends StdDeseriali
                     return true;
                 }
                 case "version" -> {
-                    parser.nextTextValue();
+                    parser.nextStringValue();
                     return true;
                 }
                 case "value" -> {

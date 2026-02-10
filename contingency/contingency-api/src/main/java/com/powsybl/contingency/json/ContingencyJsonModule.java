@@ -7,7 +7,7 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.list.*;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;

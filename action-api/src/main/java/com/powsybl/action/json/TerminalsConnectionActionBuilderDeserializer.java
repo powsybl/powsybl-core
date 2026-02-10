@@ -7,16 +7,15 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.action.TerminalsConnectionActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.action.TerminalsConnectionAction;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -28,20 +27,20 @@ public class TerminalsConnectionActionBuilderDeserializer extends StdDeserialize
     }
 
     @Override
-    public TerminalsConnectionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public TerminalsConnectionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         TerminalsConnectionActionBuilder builder = new TerminalsConnectionActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
-                    if (!TerminalsConnectionAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + TerminalsConnectionAction.NAME);
+                    if (!TerminalsConnectionAction.NAME.equals(jsonParser.nextStringValue())) {
+                        throw DatabindException.from(jsonParser, "Expected type " + TerminalsConnectionAction.NAME);
                     }
                     return true;
                 case "id":
-                    builder.withId(jsonParser.nextTextValue());
+                    builder.withId(jsonParser.nextStringValue());
                     return true;
                 case "elementId":
-                    builder.withNetworkElementId(jsonParser.nextTextValue());
+                    builder.withNetworkElementId(jsonParser.nextStringValue());
                     return true;
                 case "side":
                     jsonParser.nextToken();

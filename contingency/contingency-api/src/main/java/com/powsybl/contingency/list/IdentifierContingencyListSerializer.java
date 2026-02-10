@@ -7,11 +7,10 @@
  */
 package com.powsybl.contingency.list;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -23,12 +22,12 @@ public class IdentifierContingencyListSerializer extends StdSerializer<Identifie
     }
 
     @Override
-    public void serialize(IdentifierContingencyList identifierContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(IdentifierContingencyList identifierContingencyList, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", identifierContingencyList.getType());
-        jsonGenerator.writeStringField("version", IdentifierContingencyList.getVersion());
-        jsonGenerator.writeStringField("name", identifierContingencyList.getName());
-        serializerProvider.defaultSerializeField("identifiers",
+        jsonGenerator.writeStringProperty("type", identifierContingencyList.getType());
+        jsonGenerator.writeStringProperty("version", IdentifierContingencyList.getVersion());
+        jsonGenerator.writeStringProperty("name", identifierContingencyList.getName());
+        serializationContext.defaultSerializeProperty("identifiers",
                 identifierContingencyList.getIdentifiants(),
                 jsonGenerator);
         jsonGenerator.writeEndObject();

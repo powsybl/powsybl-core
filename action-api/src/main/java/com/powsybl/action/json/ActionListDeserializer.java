@@ -7,19 +7,20 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.action.ActionBuilder;
 import com.powsybl.action.IdentifierActionList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.Action;
 import com.powsybl.action.ActionList;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,12 +44,12 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
     }
 
     @Override
-    public ActionList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public ActionList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
                 case VERSION:
-                    context.version = parser.nextTextValue();
+                    context.version = parser.nextStringValue();
                     deserializationContext.setAttribute(VERSION, context.version);
                     return true;
                 case "actions":
@@ -71,15 +72,15 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
             }
         });
         if (context.version == null) {
-            throw new JsonMappingException(parser, "version is missing");
+            throw DatabindException.from(parser, "version is missing");
         }
         JsonUtil.assertSupportedVersion("actions", context.version, ActionList.VERSION);
         if (!context.actionBuilderMap.isEmpty()) {
             if (context.elementIdentifierMap.size() != context.actionBuilderMap.size()) {
-                throw new IOException("map elementIdentifiers and actionBuilders must have the same size");
+                throw new PowsyblException("map elementIdentifiers and actionBuilders must have the same size");
             }
             if (!context.actionBuilderMap.keySet().containsAll(context.elementIdentifierMap.keySet())) {
-                throw new IOException("keys in elementIdentifiers are different from actionBuilders");
+                throw new PowsyblException("keys in elementIdentifiers are different from actionBuilders");
             }
             Map<ActionBuilder, NetworkElementIdentifier> actionBuilderNetworkElementIdentifierMap = new HashMap<>();
             context.elementIdentifierMap.forEach((actionId, identifier) ->

@@ -7,13 +7,13 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.powsybl.action.*;
+import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.DanglingLineActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -25,7 +25,7 @@ public class DanglingLineActionBuilderBuilderDeserializer extends AbstractLoadAc
     }
 
     @Override
-    public DanglingLineActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public DanglingLineActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         DanglingLineActionBuilder builder = new DanglingLineActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             boolean found = deserializeCommonAttributes(jsonParser, builder, name);
@@ -33,9 +33,9 @@ public class DanglingLineActionBuilderBuilderDeserializer extends AbstractLoadAc
                 return true;
             }
             if (name.equals("type")) {
-                String type = jsonParser.nextTextValue();
+                String type = jsonParser.nextStringValue();
                 if (!DanglingLineAction.NAME.equals(type)) {
-                    throw JsonMappingException.from(jsonParser, "Expected type :" + DanglingLineAction.NAME + " got : " + type);
+                    throw DatabindException.from(jsonParser, "Expected type :" + DanglingLineAction.NAME + " got : " + type);
                 }
                 return true;
             }

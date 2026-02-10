@@ -7,14 +7,13 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.powsybl.action.RatioTapChangerRegulationAction;
 import com.powsybl.action.RatioTapChangerRegulationActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.action.*;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -27,7 +26,7 @@ public class RatioTapChangerRegulationActionBuilderBuilderDeserializer extends A
     }
 
     @Override
-    public RatioTapChangerRegulationActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public RatioTapChangerRegulationActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         RatioTapChangerRegulationActionBuilder builder = new RatioTapChangerRegulationActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             boolean found = deserializeCommonAttributes(jsonParser, builder, name);
@@ -36,9 +35,9 @@ public class RatioTapChangerRegulationActionBuilderBuilderDeserializer extends A
             }
             switch (name) {
                 case "type":
-                    String type = jsonParser.nextTextValue();
+                    String type = jsonParser.nextStringValue();
                     if (!RatioTapChangerRegulationAction.NAME.equals(type)) {
-                        throw JsonMappingException.from(jsonParser, "Expected type :" + RatioTapChangerRegulationAction.NAME + " got : " + type);
+                        throw DatabindException.from(jsonParser, "Expected type :" + RatioTapChangerRegulationAction.NAME + " got : " + type);
                     }
                     return true;
                 case "targetV":

@@ -7,15 +7,14 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -35,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class StoredDoubleTimeSeriesTest {
 
     @Test
-    void test() throws IOException {
+    void test() {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"),
                                                                      Duration.ofMinutes(15));
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
@@ -87,10 +86,11 @@ class StoredDoubleTimeSeriesTest {
         assertEquals(json, json2);
 
         // test json with object mapper
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new TimeSeriesJsonModule());
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+                .addModule(new TimeSeriesJsonModule())
+            .build();
 
-        assertEquals(timeSeries, objectMapper.readValue(objectMapper.writeValueAsString(timeSeries), DoubleTimeSeries.class));
+        assertEquals(timeSeries, jsonMapper.readValue(jsonMapper.writeValueAsString(timeSeries), DoubleTimeSeries.class));
     }
 
     @Test

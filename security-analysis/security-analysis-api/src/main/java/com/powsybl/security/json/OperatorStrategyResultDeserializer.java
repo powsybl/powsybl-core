@@ -7,18 +7,19 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
+import com.powsybl.security.results.NetworkResult;
+import com.powsybl.security.results.OperatorStrategyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
-import com.powsybl.security.results.*;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,7 +37,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
     }
 
     @Override
-    public OperatorStrategyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public OperatorStrategyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         OperatorStrategy operatorStrategy = null;
         LimitViolationsResult limitViolationsResult = null;
         NetworkResult networkResult = null;
@@ -83,7 +84,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                             version, "1.6");
                     break;
                 default:
-                    throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());
+                    throw DatabindException.from(parser, "Unexpected field: " + parser.currentName());
             }
         }
         if (version.compareTo("1.3") < 0) {

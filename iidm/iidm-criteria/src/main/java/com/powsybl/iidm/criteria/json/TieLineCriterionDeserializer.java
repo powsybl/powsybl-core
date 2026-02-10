@@ -7,15 +7,14 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.TieLineCriterion;
 import com.powsybl.iidm.criteria.TwoCountriesCriterion;
 import com.powsybl.iidm.criteria.TwoNominalVoltageCriterion;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * <p>Deserializer for {@link TieLineCriterion} objects.</p>
@@ -27,7 +26,7 @@ public class TieLineCriterionDeserializer extends AbstractNetworkElementCriterio
     }
 
     @Override
-    public TieLineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public TieLineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext parsingContext = new ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 TieLineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE));

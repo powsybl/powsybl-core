@@ -7,15 +7,18 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JsonGenerator;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -194,16 +197,12 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     public void writeJson(JsonGenerator generator) {
         Objects.requireNonNull(generator);
-        try {
-            generator.writeStartObject();
-            generator.writeFieldName("metadata");
-            metadata.writeJson(generator);
-            generator.writeFieldName("chunks");
-            DataChunk.writeJson(generator, chunks);
-            generator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        generator.writeStartObject();
+        generator.writeName("metadata");
+        metadata.writeJson(generator);
+        generator.writeName("chunks");
+        DataChunk.writeJson(generator, chunks);
+        generator.writeEndObject();
     }
 
     public String toJson() {

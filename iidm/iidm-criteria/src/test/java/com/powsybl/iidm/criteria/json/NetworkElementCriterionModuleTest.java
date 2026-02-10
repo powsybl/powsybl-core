@@ -7,15 +7,15 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
 
-    private static final ObjectMapper MAPPER = JsonUtil.createObjectMapper().registerModule(new NetworkElementCriterionModule());
+    private static final JsonMapper MAPPER = JsonUtil.createJsonMapperBuilder().addModule(new NetworkElementCriterionModule()).build();
     private static final ObjectWriter WRITER = MAPPER.writerWithDefaultPrettyPrinter();
 
     @Test

@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.strategy.ConditionalActions;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -24,11 +23,11 @@ public class ConditionalActionsSerializer extends StdSerializer<ConditionalActio
     }
 
     @Override
-    public void serialize(ConditionalActions operatorStrategyStage, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ConditionalActions operatorStrategyStage, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("id", operatorStrategyStage.getId());
-        serializerProvider.defaultSerializeField("condition", operatorStrategyStage.getCondition(), jsonGenerator);
-        serializerProvider.defaultSerializeField("actionIds", operatorStrategyStage.getActionIds(), jsonGenerator);
+        jsonGenerator.writeStringProperty("id", operatorStrategyStage.getId());
+        serializationContext.defaultSerializeProperty("condition", operatorStrategyStage.getCondition(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("actionIds", operatorStrategyStage.getActionIds(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

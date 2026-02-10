@@ -7,19 +7,17 @@
  */
 package com.powsybl.commons.extensions;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
+import tools.jackson.core.JsonEncoding;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,6 +25,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -85,7 +85,7 @@ class ExtensionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testReadJson() throws IOException {
+    void testReadJson() {
         Foo foo = FooDeserializer.read(getClass().getResourceAsStream("/extensions.json"));
         assertEquals(1, foo.getExtensions().size());
         assertNotNull(foo.getExtension(FooExt.class));
@@ -99,7 +99,7 @@ class ExtensionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testBadReadJson() throws IOException {
+    void testBadReadJson() {
         assertBadExtensionJsonThrows(() -> {
             Foo foo = FooDeserializer.read(getClass().getResourceAsStream("/BadExtensions.json"));
         });
@@ -115,9 +115,11 @@ class ExtensionTest extends AbstractSerDeTest {
         foo.addExtension(FooExt.class, fooExt);
         foo.addExtension(BarExt.class, barExt);
 
-        try (JsonGenerator jsonGen = new JsonFactory().createGenerator(Files.newOutputStream(tmpDir.resolve("extensions.json")), JsonEncoding.UTF8)) {
+        JsonMapper jsonMapper = JsonUtil.createJsonMapper();
+
+        try (JsonGenerator jsonGen = jsonMapper.createGenerator(Files.newOutputStream(tmpDir.resolve("extensions.json")), JsonEncoding.UTF8)) {
             jsonGen.writeStartObject();
-            Set<String> notFound = JsonUtil.writeExtensions(foo, jsonGen, new DefaultSerializerProvider.Impl(), supplier);
+            Set<String> notFound = JsonUtil.writeExtensions(foo, jsonGen, jsonMapper._serializationContext(), supplier);
             jsonGen.writeEndObject();
             assertNotNull(notFound);
             assertFalse(notFound.isEmpty());
@@ -127,7 +129,7 @@ class ExtensionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testUpdateAndDeserialize() throws IOException {
+    void testUpdateAndDeserialize() {
         Foo foo = new Foo();
         FooExt fooExt = new FooExt(false, "Hello");
         foo.addExtension(FooExt.class, fooExt);
@@ -137,7 +139,7 @@ class ExtensionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testBadUpdateAndDeserialize() throws IOException {
+    void testBadUpdateAndDeserialize() {
         assertBadExtensionJsonThrows(() -> {
             Foo foo = new Foo();
             FooDeserializer.update(getClass().getResourceAsStream("/BadExtensions.json"), foo);
@@ -145,7 +147,7 @@ class ExtensionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testUpdateWith2Extensions() throws IOException {
+    void testUpdateWith2Extensions() {
         Foo foo = new Foo();
         FooExt fooExt = new FooExt(false, "Hello");
         BarExt barExt = new BarExt(true);

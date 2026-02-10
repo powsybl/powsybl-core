@@ -7,7 +7,7 @@
  */
 package com.powsybl.commons.report;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}

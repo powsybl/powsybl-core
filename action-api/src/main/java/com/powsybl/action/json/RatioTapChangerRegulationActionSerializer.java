@@ -7,12 +7,11 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.RatioTapChangerRegulationAction;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -25,7 +24,7 @@ public class RatioTapChangerRegulationActionSerializer extends AbstractTapChange
     }
 
     @Override
-    public void serialize(RatioTapChangerRegulationAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(RatioTapChangerRegulationAction action, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
         serializeCommonAttributes(action, jsonGenerator);
         JsonUtil.writeOptionalDouble(jsonGenerator, "targetV", action.getTargetV());

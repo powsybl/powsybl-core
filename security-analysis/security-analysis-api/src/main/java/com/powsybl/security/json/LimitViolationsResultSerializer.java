@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.LimitViolationsResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -24,10 +23,10 @@ public class LimitViolationsResultSerializer extends StdSerializer<LimitViolatio
     }
 
     @Override
-    public void serialize(LimitViolationsResult limitViolationsResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LimitViolationsResult limitViolationsResult, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        serializerProvider.defaultSerializeField("limitViolations", limitViolationsResult.getLimitViolations(), jsonGenerator);
-        serializerProvider.defaultSerializeField("actionsTaken", limitViolationsResult.getActionsTaken(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("limitViolations", limitViolationsResult.getLimitViolations(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("actionsTaken", limitViolationsResult.getActionsTaken(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

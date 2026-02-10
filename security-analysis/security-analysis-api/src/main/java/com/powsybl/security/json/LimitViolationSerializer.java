@@ -7,14 +7,14 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.ViolationLocation;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -27,25 +27,25 @@ public class LimitViolationSerializer extends StdSerializer<LimitViolation> {
     }
 
     @Override
-    public void serialize(LimitViolation limitViolation, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LimitViolation limitViolation, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("subjectId", limitViolation.getSubjectId());
+        jsonGenerator.writeStringProperty("subjectId", limitViolation.getSubjectId());
         Optional<ViolationLocation> violationLocation = limitViolation.getViolationLocation();
         if (violationLocation.isPresent()) {
-            serializerProvider.defaultSerializeField("violationLocation", violationLocation.get(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("violationLocation", violationLocation.get(), jsonGenerator);
         }
         if (limitViolation.getSubjectName() != null) {
-            jsonGenerator.writeStringField("subjectName", limitViolation.getSubjectName());
+            jsonGenerator.writeStringProperty("subjectName", limitViolation.getSubjectName());
         }
-        jsonGenerator.writeStringField("limitType", limitViolation.getLimitType().name());
-        JsonUtil.writeOptionalStringField(jsonGenerator, "limitName", limitViolation.getLimitName());
-        JsonUtil.writeOptionalIntegerField(jsonGenerator, "acceptableDuration", limitViolation.getAcceptableDuration());
-        jsonGenerator.writeNumberField("limit", limitViolation.getLimit());
-        jsonGenerator.writeNumberField("limitReduction", limitViolation.getLimitReduction());
-        jsonGenerator.writeNumberField("value", limitViolation.getValue());
-        JsonUtil.writeOptionalEnumField(jsonGenerator, "side", limitViolation.getSide());
+        jsonGenerator.writeStringProperty("limitType", limitViolation.getLimitType().name());
+        JsonUtil.writeOptionalStringProperty(jsonGenerator, "limitName", limitViolation.getLimitName());
+        JsonUtil.writeOptionalIntegerProperty(jsonGenerator, "acceptableDuration", limitViolation.getAcceptableDuration());
+        jsonGenerator.writeNumberProperty("limit", limitViolation.getLimit());
+        jsonGenerator.writeNumberProperty("limitReduction", limitViolation.getLimitReduction());
+        jsonGenerator.writeNumberProperty("value", limitViolation.getValue());
+        JsonUtil.writeOptionalEnumProperty(jsonGenerator, "side", limitViolation.getSide());
 
-        JsonUtil.writeExtensions(limitViolation, jsonGenerator, serializerProvider);
+        JsonUtil.writeExtensions(limitViolation, jsonGenerator, serializationContext);
 
         jsonGenerator.writeEndObject();
     }

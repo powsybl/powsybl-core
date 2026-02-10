@@ -7,12 +7,10 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -60,28 +58,24 @@ public class TimeSeriesMetadata {
     }
 
     public void writeJson(JsonGenerator generator) {
-        try {
+        generator.writeStartObject();
+
+        generator.writeStringProperty("name", name);
+        generator.writeStringProperty("dataType", dataType.name());
+
+        generator.writeName("tags");
+        generator.writeStartArray();
+        for (Map.Entry<String, String> e : tags.entrySet()) {
             generator.writeStartObject();
-
-            generator.writeStringField("name", name);
-            generator.writeStringField("dataType", dataType.name());
-
-            generator.writeFieldName("tags");
-            generator.writeStartArray();
-            for (Map.Entry<String, String> e : tags.entrySet()) {
-                generator.writeStartObject();
-                generator.writeStringField(e.getKey(), e.getValue());
-                generator.writeEndObject();
-            }
-            generator.writeEndArray();
-
-            generator.writeFieldName(index.getType());
-            index.writeJson(generator);
-
+            generator.writeStringProperty(e.getKey(), e.getValue());
             generator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
+        generator.writeEndArray();
+
+        generator.writeName(index.getType());
+        index.writeJson(generator);
+
+        generator.writeEndObject();
     }
 
     private static final class JsonParsingContext {
@@ -96,17 +90,17 @@ public class TimeSeriesMetadata {
         }
     }
 
-    static void parseFieldName(JsonParser parser, JsonParsingContext context, TimeSeries.TimeFormat timeFormat) throws IOException {
+    static void parsePropertyName(JsonParser parser, JsonParsingContext context, TimeSeries.TimeFormat timeFormat) {
         String fieldName = parser.currentName();
         if (context.insideTags) {
-            context.tags.put(fieldName, parser.nextTextValue());
+            context.tags.put(fieldName, parser.nextStringValue());
         } else {
             switch (fieldName) {
                 case "metadata" -> {
                     // Do nothing
                 }
-                case "name" -> context.name = parser.nextTextValue();
-                case "dataType" -> context.dataType = TimeSeriesDataType.valueOf(parser.nextTextValue());
+                case "name" -> context.name = parser.nextStringValue();
+                case "dataType" -> context.dataType = TimeSeriesDataType.valueOf(parser.nextStringValue());
                 case "tags" -> context.insideTags = true;
                 case RegularTimeSeriesIndex.TYPE -> context.index = RegularTimeSeriesIndex.parseJson(parser);
                 case IrregularTimeSeriesIndex.TYPE -> context.index = IrregularTimeSeriesIndex.parseJson(parser,
@@ -122,35 +116,31 @@ public class TimeSeriesMetadata {
     }
 
     public static TimeSeriesMetadata parseJson(JsonParser parser, TimeSeries.TimeFormat timeFormat) {
-        try {
-            JsonToken token;
-            JsonParsingContext context = new JsonParsingContext();
-            while ((token = parser.nextToken()) != null) {
-                switch (token) {
-                    case FIELD_NAME -> parseFieldName(parser, context, timeFormat);
-                    case END_ARRAY -> {
-                        if (context.insideTags) {
-                            context.insideTags = false;
-                        }
-                    }
-                    case END_OBJECT -> {
-                        if (!context.insideTags) {
-                            if (context.isComplete()) {
-                                return new TimeSeriesMetadata(context.name, context.dataType, context.tags, context.index);
-                            } else {
-                                throw new IllegalStateException("Incomplete time series metadata json");
-                            }
-                        }
-                    }
-                    default -> {
-                        // Do nothing
+        JsonToken token;
+        JsonParsingContext context = new JsonParsingContext();
+        while ((token = parser.nextToken()) != null) {
+            switch (token) {
+                case PROPERTY_NAME -> parsePropertyName(parser, context, timeFormat);
+                case END_ARRAY -> {
+                    if (context.insideTags) {
+                        context.insideTags = false;
                     }
                 }
+                case END_OBJECT -> {
+                    if (!context.insideTags) {
+                        if (context.isComplete()) {
+                            return new TimeSeriesMetadata(context.name, context.dataType, context.tags, context.index);
+                        } else {
+                            throw new IllegalStateException("Incomplete time series metadata json");
+                        }
+                    }
+                }
+                default -> {
+                    // Do nothing
+                }
             }
-            throw new IllegalStateException("should not happen");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
+        throw new IllegalStateException("should not happen");
     }
 
     @Override

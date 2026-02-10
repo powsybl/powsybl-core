@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.condition.*;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -24,22 +23,22 @@ public class ConditionSerializer extends StdSerializer<Condition> {
     }
 
     @Override
-    public void serialize(Condition condition, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(Condition condition, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", condition.getType());
+        jsonGenerator.writeStringProperty("type", condition.getType());
         switch (condition.getType()) {
             case AllViolationCondition.NAME:
-                serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializerProvider);
-                serializerProvider.defaultSerializeField("violationIds", ((AllViolationCondition) condition).getViolationIds(), jsonGenerator);
+                serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializationContext);
+                serializationContext.defaultSerializeProperty("violationIds", ((AllViolationCondition) condition).getViolationIds(), jsonGenerator);
                 break;
             case AtLeastOneViolationCondition.NAME:
-                serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializerProvider);
-                serializerProvider.defaultSerializeField("violationIds", ((AtLeastOneViolationCondition) condition).getViolationIds(), jsonGenerator);
+                serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializationContext);
+                serializationContext.defaultSerializeProperty("violationIds", ((AtLeastOneViolationCondition) condition).getViolationIds(), jsonGenerator);
                 break;
             case TrueCondition.NAME:
                 break;
             case AnyViolationCondition.NAME:
-                serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializerProvider);
+                serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializationContext);
                 break;
             case InjectionThresholdCondition.NAME:
                 serializeThresholdCondition((AbstractThresholdCondition) condition, jsonGenerator);
@@ -47,18 +46,18 @@ public class ConditionSerializer extends StdSerializer<Condition> {
             case BranchThresholdCondition.NAME:
                 BranchThresholdCondition branchCondition = (BranchThresholdCondition) condition;
                 serializeThresholdCondition(branchCondition, jsonGenerator);
-                jsonGenerator.writeStringField("side", branchCondition.getSide().name());
+                jsonGenerator.writeStringProperty("side", branchCondition.getSide().name());
                 break;
             case ThreeWindingsTransformerThresholdCondition.NAME:
                 ThreeWindingsTransformerThresholdCondition threeWtCondition = (ThreeWindingsTransformerThresholdCondition) condition;
                 serializeThresholdCondition(threeWtCondition, jsonGenerator);
-                jsonGenerator.writeStringField("side", threeWtCondition.getSide().name());
+                jsonGenerator.writeStringProperty("side", threeWtCondition.getSide().name());
                 break;
             case AcDcConverterThresholdCondition.NAME:
                 AcDcConverterThresholdCondition acDcConverterCondition = (AcDcConverterThresholdCondition) condition;
                 serializeThresholdCondition(acDcConverterCondition, jsonGenerator);
-                jsonGenerator.writeBooleanField("acSide", acDcConverterCondition.isAcSide());
-                jsonGenerator.writeNumberField("terminalNumber", acDcConverterCondition.getTerminalNumber().getNum());
+                jsonGenerator.writeBooleanProperty("acSide", acDcConverterCondition.isAcSide());
+                jsonGenerator.writeNumberProperty("terminalNumber", acDcConverterCondition.getTerminalNumber().getNum());
                 break;
             default:
                 throw new IllegalArgumentException("condition type \'" + condition.getType() + "\' does not exist");
@@ -66,16 +65,16 @@ public class ConditionSerializer extends StdSerializer<Condition> {
         jsonGenerator.writeEndObject();
     }
 
-    public void serializeThresholdCondition(AbstractThresholdCondition condition, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField("equipmentId", condition.getEquipmentId());
-        jsonGenerator.writeStringField("variable", condition.getVariable().name());
-        jsonGenerator.writeStringField("comparisonType", condition.getComparisonType().name());
-        jsonGenerator.writeNumberField("threshold", condition.getThreshold());
+    public void serializeThresholdCondition(AbstractThresholdCondition condition, JsonGenerator jsonGenerator) throws JacksonException {
+        jsonGenerator.writeStringProperty("equipmentId", condition.getEquipmentId());
+        jsonGenerator.writeStringProperty("variable", condition.getVariable().name());
+        jsonGenerator.writeStringProperty("comparisonType", condition.getComparisonType().name());
+        jsonGenerator.writeNumberProperty("threshold", condition.getThreshold());
     }
 
-    public void serializeFilters(AbstractFilteredCondition filteredCondition, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serializeFilters(AbstractFilteredCondition filteredCondition, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         if (!filteredCondition.getFilters().isEmpty()) {
-            serializerProvider.defaultSerializeField("filters", filteredCondition.getFilters(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("filters", filteredCondition.getFilters(), jsonGenerator);
         }
     }
 }

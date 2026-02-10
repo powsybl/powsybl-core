@@ -7,11 +7,9 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.contingency.Contingency;
+import tools.jackson.core.JsonGenerator;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,12 +30,8 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
         this.contingencies = Objects.requireNonNull(contingencies);
         this.contingencyStatusBuffer = new ArrayList<>(Collections.nCopies(contingencies.size(), null));
-        try {
-            jsonGenerator.writeStartArray();
-            jsonGenerator.writeStartArray();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        jsonGenerator.writeStartArray();
+        jsonGenerator.writeStartArray();
     }
 
     @Override
@@ -52,17 +46,13 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
 
     @Override
     public void close() {
-        try {
-            jsonGenerator.writeEndArray();
-            //Write buffered contingency status at the end
-            jsonGenerator.writeStartArray();
-            for (SensitivityAnalysisResult.SensitivityContingencyStatus status : contingencyStatusBuffer) {
-                SensitivityAnalysisResult.SensitivityContingencyStatus.writeJson(jsonGenerator, status);
-            }
-            jsonGenerator.writeEndArray();
-            jsonGenerator.writeEndArray();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        jsonGenerator.writeEndArray();
+        //Write buffered contingency status at the end
+        jsonGenerator.writeStartArray();
+        for (SensitivityAnalysisResult.SensitivityContingencyStatus status : contingencyStatusBuffer) {
+            SensitivityAnalysisResult.SensitivityContingencyStatus.writeJson(jsonGenerator, status);
         }
+        jsonGenerator.writeEndArray();
+        jsonGenerator.writeEndArray();
     }
 }

@@ -7,15 +7,14 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.powsybl.action.PhaseTapChangerRegulationAction;
 import com.powsybl.action.PhaseTapChangerRegulationActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.action.PhaseTapChangerRegulationAction;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -28,7 +27,7 @@ public class PhaseTapChangerRegulationActionBuilderBuilderDeserializer extends A
     }
 
     @Override
-    public PhaseTapChangerRegulationActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public PhaseTapChangerRegulationActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         PhaseTapChangerRegulationActionBuilder builder = new PhaseTapChangerRegulationActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             boolean found = deserializeCommonAttributes(jsonParser, builder, name);
@@ -37,13 +36,13 @@ public class PhaseTapChangerRegulationActionBuilderBuilderDeserializer extends A
             }
             switch (name) {
                 case "type":
-                    String type = jsonParser.nextTextValue();
+                    String type = jsonParser.nextStringValue();
                     if (!PhaseTapChangerRegulationAction.NAME.equals(type)) {
-                        throw JsonMappingException.from(jsonParser, "Expected type :" + PhaseTapChangerRegulationAction.NAME + " got : " + type);
+                        throw DatabindException.from(jsonParser, "Expected type :" + PhaseTapChangerRegulationAction.NAME + " got : " + type);
                     }
                     return true;
                 case "regulationMode":
-                    builder.withRegulationMode(PhaseTapChanger.RegulationMode.valueOf(jsonParser.nextTextValue()));
+                    builder.withRegulationMode(PhaseTapChanger.RegulationMode.valueOf(jsonParser.nextStringValue()));
                     return true;
                 case "regulationValue":
                     jsonParser.nextToken();

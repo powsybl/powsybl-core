@@ -7,7 +7,7 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
@@ -258,8 +258,8 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     public void writeJson(JsonGenerator generator) {
         try {
             generator.writeStartObject();
-            generator.writeStringField("name", name);
-            generator.writeFieldName("expr");
+            generator.writeStringProperty("name", name);
+            generator.writeName("expr");
             generator.writeStartObject();
             nodeCalc.writeJson(generator);
             generator.writeEndObject();

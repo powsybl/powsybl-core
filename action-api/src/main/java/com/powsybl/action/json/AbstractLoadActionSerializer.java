@@ -7,13 +7,11 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.action.AbstractLoadAction;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
@@ -29,26 +27,16 @@ public abstract class AbstractLoadActionSerializer<T extends AbstractLoadAction>
     protected abstract String getElementId(T action);
 
     @Override
-    public void serialize(T action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(T action, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", action.getType());
-        jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField(getElementIdAttributeName(), getElementId(action));
-        jsonGenerator.writeBooleanField("relativeValue", action.isRelativeValue());
-        action.getActivePowerValue().ifPresent(activePowerValue -> {
-            try {
-                jsonGenerator.writeNumberField("activePowerValue", activePowerValue);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-        action.getReactivePowerValue().ifPresent(reactivePowerValue -> {
-            try {
-                jsonGenerator.writeNumberField("reactivePowerValue", reactivePowerValue);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        jsonGenerator.writeStringProperty("type", action.getType());
+        jsonGenerator.writeStringProperty("id", action.getId());
+        jsonGenerator.writeStringProperty(getElementIdAttributeName(), getElementId(action));
+        jsonGenerator.writeBooleanProperty("relativeValue", action.isRelativeValue());
+        action.getActivePowerValue().ifPresent(activePowerValue ->
+            jsonGenerator.writeNumberProperty("activePowerValue", activePowerValue));
+        action.getReactivePowerValue().ifPresent(reactivePowerValue ->
+            jsonGenerator.writeNumberProperty("reactivePowerValue", reactivePowerValue));
         jsonGenerator.writeEndObject();
     }
 }
