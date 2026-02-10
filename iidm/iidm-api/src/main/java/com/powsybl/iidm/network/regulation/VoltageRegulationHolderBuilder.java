@@ -14,4 +14,6 @@ public interface VoltageRegulationHolderBuilder extends VoltageRegulationHolder 
 
     VoltageRegulationBuilder newVoltageRegulation();
 
+    void removeVoltageRegulation();
+
 }

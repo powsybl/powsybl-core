@@ -7,6 +7,10 @@
  */
 package com.powsybl.iidm.network.regulation;
 
+import com.powsybl.iidm.network.*;
+
+import java.util.Set;
+
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
@@ -14,5 +18,18 @@ public enum RegulationMode {
     VOLTAGE,
     REACTIVE_POWER,
     VOLTAGE_PER_REACTIVE_POWER,
-    REACTIVE_POWER_PER_ACTIVE_POWER,
+    REACTIVE_POWER_PER_ACTIVE_POWER;
+
+    public static Set<RegulationMode> getAllowedRegulationModes(Class<? extends VoltageRegulationHolderBuilder> voltageRegulationHolder) {
+        return switch (voltageRegulationHolder) {
+            case Class<?> c when c == Battery.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER, REACTIVE_POWER_PER_ACTIVE_POWER);
+            case Class<?> c when c == RatioTapChanger.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            case Class<?> c when c == ShuntCompensator.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
+            case Class<?> c when c == VscConverterStation.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            case Class<?> c when c == VoltageSourceConverter.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            default -> throw new IllegalArgumentException(voltageRegulationHolder.getSimpleName() + " class is not valid for use with VoltageRegulation");
+        };
+    }
 }

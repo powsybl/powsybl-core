@@ -194,13 +194,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public void removeVoltageRegulation() {
-        this.voltageRegulation = null;
-    }
-
-    @Override
     public Set<RegulationMode> getAllowedRegulationModes() {
-        return Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+        return RegulationMode.getAllowedRegulationModes(Generator.class);
     }
 
     public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {

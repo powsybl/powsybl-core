@@ -241,7 +241,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this.voltageRegulation;
     }
 
-    public Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
@@ -258,7 +258,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     @Override
     public Set<RegulationMode> getAllowedRegulationModes() {
-        return Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
+        return RegulationMode.getAllowedRegulationModes(Battery.class);
     }
 
     public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {

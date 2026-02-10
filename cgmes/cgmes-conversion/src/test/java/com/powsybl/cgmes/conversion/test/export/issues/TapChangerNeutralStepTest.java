@@ -122,7 +122,7 @@ class TapChangerNeutralStepTest extends AbstractSerDeTest {
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationMode(RatioTapChanger.RatioTapChangerRegulationMode.VOLTAGE)
                 .setRegulationValue(158.0)
                 .setTargetDeadband(0)
                 .setRegulationTerminal(twt.getTerminal2())

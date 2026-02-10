@@ -93,7 +93,7 @@ class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
                 .setSolvedTapPosition(solvedTapPosition)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
+                .setRegulationMode(RatioTapChanger.RatioTapChangerRegulationMode.REACTIVE_POWER)
                 .setRegulationValue(-10)
                 .setRegulationTerminal(t2wt.getTerminal2())
                 .setTargetDeadband(0)

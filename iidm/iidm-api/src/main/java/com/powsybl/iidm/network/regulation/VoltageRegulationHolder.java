@@ -14,8 +14,6 @@ import java.util.Set;
  */
 public interface VoltageRegulationHolder {
 
-    void removeVoltageRegulation();
-
     VoltageRegulation getVoltageRegulation();
 
     Set<RegulationMode> getAllowedRegulationModes();

@@ -926,7 +926,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChanger(Leg leg, Terminal terminal, boolean regulating) {
         return leg.newRatioTapChanger()
-            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+            .setRegulationMode(RatioTapChanger.RatioTapChangerRegulationMode.VOLTAGE)
             .setRegulationValue(200.0)
             .setLoadTapChangingCapabilities(regulating)
             .setLowTapPosition(0)
@@ -960,7 +960,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChangerOneStep(Leg leg, Terminal terminal, double rho, double r, double x, double g, double b) {
         return leg.newRatioTapChanger()
-            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+            .setRegulationMode(RatioTapChanger.RatioTapChangerRegulationMode.VOLTAGE)
             .setRegulationValue(200.0)
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)

@@ -11,16 +11,23 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.regulation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChangerAdderImpl, RatioTapChangerParent, RatioTapChanger, RatioTapChangerStepImpl> implements RatioTapChangerAdder {
+class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChangerAdderImpl,
+    RatioTapChangerParent,
+    RatioTapChanger,
+    RatioTapChangerStepImpl>
+    implements RatioTapChangerAdder {
 
-    private RatioTapChanger.RegulationMode regulationMode = null;
+    private RatioTapChanger.RatioTapChangerRegulationMode regulationMode = null;
+    private VoltageRegulationImpl voltageRegulation = null;
 
     class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
 
@@ -81,13 +88,13 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     @Override
     public RatioTapChangerAdder setTargetV(double targetV) {
         if (!Double.isNaN(targetV)) {
-            this.regulationMode = RatioTapChanger.RegulationMode.VOLTAGE;
+            this.regulationMode = RatioTapChanger.RatioTapChangerRegulationMode.VOLTAGE;
         }
         return setRegulationValue(targetV);
     }
 
     @Override
-    public RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode) {
+    public RatioTapChangerAdder setRegulationMode(RatioTapChanger.RatioTapChangerRegulationMode regulationMode) {
         this.regulationMode = regulationMode;
         return this;
     }
@@ -99,8 +106,18 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
 
     @Override
     protected RatioTapChanger createTapChanger(RatioTapChangerParent parent, int lowTapPosition, List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, Integer solvedTapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband) {
-        RatioTapChangerImpl tapChanger = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-                tapPosition, solvedTapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+        RatioTapChangerImpl tapChanger = new RatioTapChangerImpl(parent,
+            lowTapPosition,
+            steps,
+            voltageRegulation,
+            regulationTerminal,
+            loadTapChangingCapabilities,
+            tapPosition,
+            solvedTapPosition,
+            regulating,
+            regulationMode,
+            regulationValue,
+            targetDeadband);
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;
     }
@@ -119,5 +136,24 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     @Override
     protected String getValidableType() {
         return "ratio tap changer";
+    }
+
+    @Override
+    public VoltageRegulationAdder<RatioTapChangerAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(this, getNetwork().getRef(), this::setVoltageRegulation);
+    }
+
+    @Override
+    public VoltageRegulation getVoltageRegulation() {
+        return this.voltageRegulation;
+    }
+
+    @Override
+    public Set<RegulationMode> getAllowedRegulationModes() {
+        return RegulationMode.getAllowedRegulationModes(RatioTapChanger.class);
+    }
+
+    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+        this.voltageRegulation = voltageRegulation;
     }
 }

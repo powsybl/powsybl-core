@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.*;
@@ -109,21 +110,13 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     }
 
     @Override
-    public void removeVoltageRegulation() {
-        if (this.voltageRegulation != null) {
-            this.voltageRegulation.setTerminal(null);
-        }
-        this.voltageRegulation = null;
-    }
-
-    @Override
     public VoltageRegulation getVoltageRegulation() {
         return this.voltageRegulation;
     }
 
     @Override
     public Set<RegulationMode> getAllowedRegulationModes() {
-        return Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
+        return RegulationMode.getAllowedRegulationModes(Battery.class);
     }
 
     public void setVoltageRegulations(VoltageRegulation voltageRegulation) {

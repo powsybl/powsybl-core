@@ -118,12 +118,12 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> {
             double targetV = context.getReader().readDoubleAttribute("targetV");
             if (!Double.isNaN(targetV)) {
-                adder.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+                adder.setRegulationMode(RatioTapChanger.RatioTapChangerRegulationMode.VOLTAGE);
             }
             adder.setRegulationValue(targetV);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            RatioTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RatioTapChanger.RegulationMode.class);
+            RatioTapChanger.RatioTapChangerRegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RatioTapChanger.RatioTapChangerRegulationMode.class);
             double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
             adder.setRegulationMode(regulationMode)
                     .setRegulationValue(regulationValue);
