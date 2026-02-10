@@ -17,8 +17,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  *
- * Class that provides a traverser to find which busbar section a terminal (connectable) belongs to.
- * it only works in Node Breaker view
+ * This traverser provides methods to identify to which busbar section a terminal corresponds the most.<br>
+ * 
+ * The algorithm prioritizes in order:
+ * <ul>
+ *     <li>the paths with all switches closed</li>
+ * 
+ *     <li>the paths with the last switch closed</li>
+ *     <li>all other paths</li>
+ * </ul>
+ * If multiple paths leading to busbar sections are found, the one with the lowest depth is returned.<br>
+ * Since it's looking for a busbar section, it only works in Node Breaker view.
  *
  * @author Ghazwa Rehili {@literal <ghazwa.rehili at rte-france.com>}
  */
