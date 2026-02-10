@@ -9,7 +9,7 @@ usage: itools [OPTIONS] security-analysis --case-file <FILE>
        [--contingencies-file <FILE>] [--external] [--help] [-I <property=value>]
        [--import-parameters <IMPORT_PARAMETERS>] [--limit-types <LIMIT-TYPES>]
        [--log-file <FILE>] [--output-file <FILE>] [--output-format <FORMAT>]
-       [--parameters-file <FILE>] [--skip-postproc] [--with-extensions
+       [--parameters-file <FILE>] [--with-extensions
        <EXTENSIONS>]
 
 Available options are:
@@ -28,8 +28,6 @@ Available arguments are:
     --output-file <FILE>                      the output path
     --output-format <FORMAT>                  the output format [JSON]
     --parameters-file <FILE>                  loadflow parameters as JSON file
-    --skip-postproc                           skip network importer post
-                                              processors (when configured)
     --with-extensions <EXTENSIONS>            the extension list to enable
 
 Allowed LIMIT-TYPES values are [CURRENT, LOW_VOLTAGE, HIGH_VOLTAGE,
