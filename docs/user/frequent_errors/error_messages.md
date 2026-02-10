@@ -8,7 +8,7 @@ and related examples.
 This most likely happened because you tried to read a file, but you didn't have any implementation of the interface used for reading those files.
 Use the implementation provided by PowSyBl / a third party, or write your own.
 
-#### Fix {#missing-impl}
+#### Fix missing impl
 
 If you wish use to use PowSyBl's implementation, add the following to your `pom.xml` in the `<dependencies>` section:
 
@@ -30,7 +30,7 @@ You should also make sure that you have an implementation of `SerDe` if you are 
 
 You are most likely missing an implementation of `SerDe`. Use the implementation provided by PowSyBl / a third party, or write your own.
 
-#### Fix {#missing-serde}
+#### Fix missing SerDe
 
 If you wish use to use PowSyBl's implementation, add the following to your `pom.xml` in the `<dependencies>` section:
 
