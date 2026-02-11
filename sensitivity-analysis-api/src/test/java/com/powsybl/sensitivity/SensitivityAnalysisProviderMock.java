@@ -71,11 +71,8 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
         }
         Executor executor = computationManager.getExecutor();
         if (executor != null) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    // Simulate some processing
-                }
+            executor.execute(() -> {
+                // Simulate some processing
             });
         }
         if (reportNode != null) {
