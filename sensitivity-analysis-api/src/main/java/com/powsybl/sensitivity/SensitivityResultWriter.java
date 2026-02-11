@@ -31,7 +31,7 @@ public interface SensitivityResultWriter {
      * For contingencies that are never run, called once in the end with no IMPACT and numCC and numCs set to -1
      * @param contingencyIndex the contingency index
      * @param status the sensitivity analysis status
-     * @param loadFlowStatus the loadflow status for this component
+     * @param loadFlowStatus the load flow status for this component
      * @param numCC index of connected component
      * @param numCs index of synchronous component
      */

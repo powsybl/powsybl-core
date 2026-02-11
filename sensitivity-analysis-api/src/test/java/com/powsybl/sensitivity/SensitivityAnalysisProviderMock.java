@@ -58,6 +58,8 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
                             .orElseThrow();
                     resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
                     break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + contingencyContext.getContextType());
             }
             if (reportNode != null) {
                 reportNode.newReportNode()
