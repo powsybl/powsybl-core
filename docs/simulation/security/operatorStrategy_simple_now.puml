@@ -1,0 +1,29 @@
+@startuml
+
+class OperatorStrategy
+OperatorStrategy --> ContingencyContext : getContingencyContext()
+OperatorStrategy --> "*" ConditionalActions : getConditionalActions()
+
+class ConditionalActions
+ConditionalActions --> Condition : getCondition()
+ConditionalActions ..> " *  " Action : getActionIds()
+
+class ContingencyContext
+ContingencyContext --> ContingencyContextType: getContextType()
+
+enum ContingencyContextType {
+  ALL
+  NONE
+  SPECIFIC
+  ONLY_CONTINGENCIES
+}
+
+interface Condition
+
+interface Action
+Action --> NetworkModification : toModification()
+
+interface NetworkModification
+
+
+@enduml
