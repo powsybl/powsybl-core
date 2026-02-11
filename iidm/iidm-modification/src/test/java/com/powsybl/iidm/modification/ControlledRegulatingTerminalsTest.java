@@ -152,7 +152,6 @@ class ControlledRegulatingTerminalsTest {
 
         Battery battery = network.getBattery("BAT2");
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
-                .withRegulating(true)
                 .withMode(RegulationMode.VOLTAGE)
                 .withTargetValue(50.0)
                 .build();
@@ -172,7 +171,6 @@ class ControlledRegulatingTerminalsTest {
         Generator generator = network.getGenerator("GEN");
         VoltageRegulation voltageRegulation = generator.newVoltageRegulation()
             .withTargetValue(100.0)
-            .withRegulating(true)
             .withMode(RegulationMode.REACTIVE_POWER)
             .build();
 

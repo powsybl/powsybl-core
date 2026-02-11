@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
@@ -40,7 +41,10 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(0.0)
+                    .add()
                 .setTargetQ(0.0)
                 .add();
         vl.newGenerator()
@@ -50,7 +54,10 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(0.0)
+                    .add()
                 .setTargetQ(0.0)
                 .add();
         vl.newGenerator()
@@ -60,7 +67,10 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(1.0)
+                    .add()
                 .setTargetV(1.0)
                 .add();
         vl.newLoad()
@@ -121,7 +131,10 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(50.0)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(0.0)
+                    .add()
                 .setTargetQ(0.0)
                 .add();
         vl.newGenerator()
@@ -131,7 +144,10 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(50.0)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(0.0)
+                    .add()
                 .setTargetQ(0.0)
                 .add();
         vl.newGenerator()
@@ -141,7 +157,10 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(50.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(1.0)
+                    .add()
                 .setTargetV(1.0)
                 .add();
         vl.newLoad()
@@ -218,7 +237,10 @@ final class ScalableTestNetwork {
             .setMinP(0.0)
             .setMaxP(150.0)
             .setTargetP(80.0)
-            .setVoltageRegulatorOn(false)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(0.0)
+                .add()
             .setTargetQ(0.0)
             .add();
         vl.newGenerator()
@@ -228,7 +250,10 @@ final class ScalableTestNetwork {
             .setMinP(10.0)
             .setMaxP(100.0)
             .setTargetP(50.0)
-            .setVoltageRegulatorOn(false)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(0.0)
+                .add()
             .setTargetQ(0.0)
             .add();
         vl.newGenerator()
@@ -238,7 +263,10 @@ final class ScalableTestNetwork {
             .setMinP(20.0)
             .setMaxP(80.0)
             .setTargetP(30.0)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(1.0)
+                .add()
             .setTargetV(1.0)
             .add();
         vl.newLoad()

@@ -50,9 +50,18 @@ public abstract class AbstractVoltageRegulationExtensionTest {
     }
 
     private GeneratorAdder createGeneratorAdder(double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
+        RegulationMode mode;
+        double targetValue;
+        if (regulatorOn) {
+            mode = RegulationMode.VOLTAGE;
+            targetValue = voltageSetpoint;
+        } else {
+            mode = RegulationMode.REACTIVE_POWER;
+            targetValue = reactivePowerSetpoint;
+        }
         return voltageLevel.newGenerator()
             .setId("ID")
-            .setVoltageRegulatorOn(regulatorOn)
+            .newVoltageRegulation().withMode(mode).withTargetValue(targetValue).add()
             .setEnergySource(EnergySource.HYDRO)
             .setMaxP(20.0)
             .setMinP(0.0)

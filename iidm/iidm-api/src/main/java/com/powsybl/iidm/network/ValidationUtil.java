@@ -986,11 +986,11 @@ public final class ValidationUtil {
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
-    public static ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, RegulationMode mode, Class<? extends VoltageRegulationHolder> classHolder, ValidationLevel validationLevel, ReportNode reportNode) {
+    public static <T extends VoltageRegulationHolder> ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, RegulationMode mode, Class<T> classHolder, ValidationLevel validationLevel, ReportNode reportNode) {
         return checkVoltageRegulationMode(owner, mode, classHolder, checkValidationActionOnError(validationLevel), reportNode);
     }
 
-    private static ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, RegulationMode mode, Class<? extends VoltageRegulationHolder> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
+    private static <T extends VoltageRegulationHolder> ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, RegulationMode mode, Class<T> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
         if (mode == null) {
             throwExceptionOrLogError(owner, "the current regulationMode of VoltageRegulation is undefined", actionOnError,
                 id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));

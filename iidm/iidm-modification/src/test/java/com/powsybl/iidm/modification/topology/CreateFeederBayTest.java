@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.network.impl.extensions.ConnectablePositionImpl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
@@ -197,7 +198,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         GeneratorAdder generatorAdder = network.getVoltageLevel("vl1").newGenerator()
                 .setId("newGenerator")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(25.5).add()
                 .setMaxP(9999)
                 .setMinP(-9999)
                 .setTargetV(25.5)

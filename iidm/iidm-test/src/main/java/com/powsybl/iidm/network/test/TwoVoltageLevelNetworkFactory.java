@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.time.ZonedDateTime;
 
@@ -83,7 +84,7 @@ public final class TwoVoltageLevelNetworkFactory {
             .setEnergySource(EnergySource.HYDRO)
             .setMinP(0.0)
             .setMaxP(70.0)
-            .setVoltageRegulatorOn(false)
+            .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
             .setTargetP(0.0)
             .setTargetV(0.0)
             .setTargetQ(0.0)

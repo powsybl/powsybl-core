@@ -142,7 +142,10 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMaxP(100.0)
             .setTargetP(25.0)
             .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(10.0)
+                .add()
             .setCondenser(true)
             .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
@@ -156,7 +159,10 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMaxP(100.0)
             .setTargetP(0.0)
             .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(10.0)
+                .add()
             .setCondenser(true)
             .add();
         generator2.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
@@ -170,7 +176,10 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMaxP(0.0)
             .setTargetP(-10.0)
             .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(10.0)
+                .add()
             .add();
         ReactiveCapabilityCurveAdder rcca = generator3.newReactiveCapabilityCurve();
         rcca.beginPoint()
@@ -209,7 +218,6 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .newVoltageRegulation()
                 .withTargetValue(400.0)
                 .withMode(RegulationMode.VOLTAGE)
-                .withRegulating(true)
                 .add()
             .add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(5).add();

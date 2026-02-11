@@ -53,7 +53,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
                 .setTargetV(400)
                 .setMinP(0)
                 .setMaxP(200)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(100).add()
                 .add();
         var line = network.newLine()
                 .setId("L12")
@@ -63,7 +63,6 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
                 .add();
 
         gen.newVoltageRegulation()
-                .withRegulating(true)
                 .withTargetValue(123)
                 .withMode(RegulationMode.REACTIVE_POWER)
                 .withTerminal(line.getTerminal2())

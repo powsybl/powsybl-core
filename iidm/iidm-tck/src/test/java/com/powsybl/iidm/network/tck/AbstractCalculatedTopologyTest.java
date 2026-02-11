@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -98,7 +99,7 @@ public abstract class AbstractCalculatedTopologyTest {
                 .setMaxP(1)
                 .setTargetP(1)
                 .setTargetQ(0)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
                 .add();
         vl1.getBusBreakerView().newSwitch()
                 .setId("SW")
@@ -186,7 +187,7 @@ public abstract class AbstractCalculatedTopologyTest {
                 .setMaxP(1)
                 .setTargetP(1)
                 .setTargetQ(0)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
                 .add();
         vl1.getNodeBreakerView().newBreaker()
                 .setId("G1-B1b")

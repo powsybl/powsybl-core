@@ -41,7 +41,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     public static void initialize(GeneratorAdder adder) {
-        adder.setVoltageRegulatorOn(false);
+//        adder.setVoltageRegulatorOn(false); // TODO MSA remove it -> voltageRegulation can be null
     }
 
     public void add(String generatorId, PropertyBag sm) {

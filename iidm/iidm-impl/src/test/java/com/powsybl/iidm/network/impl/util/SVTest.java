@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -213,7 +214,7 @@ class SVTest {
             .setEnergySource(EnergySource.HYDRO)
             .setMinP(-500.0)
             .setMaxP(500.0)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(targetV).add()
             .setTargetP(p)
             .setTargetV(targetV)
             .setTargetQ(q)

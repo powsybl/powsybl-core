@@ -12,6 +12,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
@@ -422,7 +423,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setTargetV(targetV)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(targetQ).add()
                 .add();
         gen.setRegulatingTerminal(gen.getTerminal())
                 .setVoltageRegulatorOn(isRegulating);

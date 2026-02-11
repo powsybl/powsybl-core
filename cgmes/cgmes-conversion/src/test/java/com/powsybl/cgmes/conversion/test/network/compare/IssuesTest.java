@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test.network.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.Country;
@@ -77,7 +78,10 @@ class IssuesTest {
             .setMaxP(1)
             .setTargetP(1)
             .setTargetQ(0)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(400)
+                .add()
             .setTargetV(400)
             .add();
         assertEquals(g1.getRegulatingTerminal(), g1.getTerminal());

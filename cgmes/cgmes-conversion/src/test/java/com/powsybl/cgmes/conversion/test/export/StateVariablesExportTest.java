@@ -29,6 +29,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -100,7 +101,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         vl2.newGenerator().setId("GEN").setNode(0)
                 .setTargetP(10.01).setTargetQ(1.10)
                 .setMinP(0).setMaxP(20)
-                .setVoltageRegulatorOn(false).add();
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(1.10).add()
+                .add();
         vl2.getNodeBreakerView().newBreaker().setId("BK21").setNode1(0).setNode2(1).add();
         vl2.getNodeBreakerView().newBusbarSection().setId("BBS2").setNode(1).add();
         vl2.getNodeBreakerView().newBreaker().setId("BK22").setNode1(1).setNode2(2).add();
@@ -402,7 +404,9 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         VoltageLevel vl = s.newVoltageLevel().setId("VL").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         vl.getBusBreakerView().newBus().setId("B").add().setV(400).setAngle(0);
         vl.newLoad().setId("L").setConnectableBus("B").setBus("B").setP0(100.0).setQ0(0.0).add();
-        Generator g = vl.newGenerator().setId("G").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setTargetV(400.0).setVoltageRegulatorOn(true).add();
+        Generator g = vl.newGenerator().setId("G").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setTargetV(400.0)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400.0).add()
+            .add();
 
         // Set reference terminal
         ReferenceTerminals.addTerminal(g.getTerminal());
@@ -644,8 +648,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         Path actualPath = tmpDir.resolve("actual.xml");
         NetworkSerDe.write(expected, exportOptions, expectedPath);
         NetworkSerDe.write(actual, exportOptions, actualPath);
-        String expectedFile = Files.readString(expectedPath, StandardCharsets.UTF_8);
-        String actualFile = Files.readString(actualPath, StandardCharsets.UTF_8);
         NetworkSerDe.validate(actualPath);
 
         // Compare

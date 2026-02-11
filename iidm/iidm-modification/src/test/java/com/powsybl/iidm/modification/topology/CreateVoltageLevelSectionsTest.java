@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -69,7 +70,7 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .setMinP(0)
             .setTargetP(100)
             .setTargetV(400)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
             .add();
     }
 

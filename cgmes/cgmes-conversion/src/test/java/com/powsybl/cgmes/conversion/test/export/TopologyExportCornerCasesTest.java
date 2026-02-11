@@ -6,6 +6,7 @@ import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -460,7 +461,10 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMinP(200.0)
                 .setMaxP(900.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(380)
+                    .add()
                 .setTargetP(900.0)
                 .setTargetV(380.0);
     }

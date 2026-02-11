@@ -10,6 +10,7 @@ package com.powsybl.psse.converter;
 import java.util.*;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,7 @@ class GeneratorConverter extends AbstractConverter {
                 .setMaxP(psseGenerator.getPt())
                 .setMinP(psseGenerator.getPb())
                 .setTargetQ(psseGenerator.getQg())
-                .setVoltageRegulatorOn(false);
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(psseGenerator.getQg()).add();
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_GENERATOR, psseGenerator.getI(), psseGenerator.getId());
         OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseGenerator.getI(), 0, 0, psseGenerator.getI(), "I"));

@@ -38,7 +38,6 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
         bat.newVoltageRegulation()
-            .withRegulating(true)
             .withTargetValue(100.0)
             .withMode(RegulationMode.VOLTAGE)
             .build();
@@ -46,7 +45,6 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
         Battery bat2 = network.getBattery("BAT2");
         assertNotNull(bat2);
         bat2.newVoltageRegulation()
-            .withRegulating(true)
             .withTargetValue(100.0)
             .withMode(RegulationMode.VOLTAGE)
             .withTerminal(gen.getTerminal())

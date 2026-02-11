@@ -162,8 +162,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     private void createVoltageRegulation(GeneratorAdder generatorAdder) {
         // Common attributes
         VoltageRegulationAdder<GeneratorAdder> vrAdder = generatorAdder.newVoltageRegulation()
-            .withTerminal(this.regulatingTerminal)
-            .withRegulating(true);
+            .withTerminal(this.regulatingTerminal);
         // VOLTAGE case
         if (Boolean.TRUE.equals(this.voltageRegulatorOn)) {
             vrAdder.withMode(RegulationMode.VOLTAGE)

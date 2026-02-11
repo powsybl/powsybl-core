@@ -189,7 +189,10 @@ public abstract class AbstractGeneratorTest {
     public void testAdder() {
         voltageLevel.newGenerator()
                 .setId(GEN_ID)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(31.0)
+                    .add()
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMaxP(100.0)
                 .setMinP(10.0)
@@ -373,7 +376,10 @@ public abstract class AbstractGeneratorTest {
             .setTargetP(15)
             .setMinP(10)
             .setMaxP(25)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(targetV)
+                .add()
             .setTargetV(targetV, equivalentLocalTargetV);
         // WHEN
         ValidationException e = assertThrows(ValidationException.class, generatorAdder::add);
@@ -392,7 +398,10 @@ public abstract class AbstractGeneratorTest {
             .setTargetP(15)
             .setMinP(10)
             .setMaxP(25)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(targetV)
+                .add()
             .setTargetV(targetV)
             .add();
         // WHEN
@@ -403,9 +412,21 @@ public abstract class AbstractGeneratorTest {
 
     private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
                                       double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
+        RegulationMode mode;
+        double targetValue;
+        if (regulatorOn) {
+            mode = RegulationMode.VOLTAGE;
+            targetValue = voltageSetpoint;
+        } else {
+            mode = RegulationMode.REACTIVE_POWER;
+            targetValue = reactivePowerSetpoint;
+        }
         return voltageLevel.newGenerator()
             .setId(id)
-            .setVoltageRegulatorOn(regulatorOn)
+            .newVoltageRegulation()
+                .withMode(mode)
+                .withTargetValue(targetValue)
+                .add()
             .setEnergySource(source)
             .setMaxP(maxP)
             .setMinP(minP)
@@ -419,9 +440,21 @@ public abstract class AbstractGeneratorTest {
 
     private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
                                       double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint, double equivalentLocalTargetV) {
+        RegulationMode mode;
+        double targetValue;
+        if (regulatorOn) {
+            mode = RegulationMode.VOLTAGE;
+            targetValue = voltageSetpoint;
+        } else {
+            mode = RegulationMode.REACTIVE_POWER;
+            targetValue = reactivePowerSetpoint;
+        }
         return voltageLevel.newGenerator()
             .setId(id)
-            .setVoltageRegulatorOn(regulatorOn)
+            .newVoltageRegulation()
+                .withMode(mode)
+                .withTargetValue(targetValue)
+                .add()
             .setEnergySource(source)
             .setMaxP(maxP)
             .setMinP(minP)

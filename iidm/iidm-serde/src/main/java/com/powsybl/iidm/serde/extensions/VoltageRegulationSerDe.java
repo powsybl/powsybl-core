@@ -98,7 +98,6 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
 
         RegulationMode mode = voltageRegulatorOn ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER;
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
-            .withRegulating(true)
             .withMode(mode)
             .withTargetValue(targetV)
             .build();

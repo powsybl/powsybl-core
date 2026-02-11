@@ -13,6 +13,7 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -140,9 +141,12 @@ class SetGeneratorToLocalRegulationTest {
                 .setMinP(100)
                 .setMaxP(200)
                 .setTargetP(200)
-                .setVoltageRegulatorOn(true)
                 .setTargetV(420)
-                .setRegulatingTerminal(n.getBusbarSection("BBS").getTerminal())
+                .newVoltageRegulation()
+                    .withTargetValue(420)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(n.getBusbarSection("BBS").getTerminal())
+                    .add()
                 .add();
 
         vl20.newGenerator()
@@ -152,7 +156,10 @@ class SetGeneratorToLocalRegulationTest {
                 .setMinP(100)
                 .setMaxP(200)
                 .setTargetP(200)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withTargetValue(25)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setTargetV(25)
                 // No regulatingTerminal set == use its own terminal for regulation
                 .add();
@@ -164,7 +171,10 @@ class SetGeneratorToLocalRegulationTest {
                 .setMinP(100)
                 .setMaxP(200)
                 .setTargetP(200)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withTargetValue(22)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setTargetV(22)
                 // No regulatingTerminal set == use its own terminal for regulation
                 .add();
@@ -176,9 +186,12 @@ class SetGeneratorToLocalRegulationTest {
                 .setMinP(100)
                 .setMaxP(200)
                 .setTargetP(200)
-                .setVoltageRegulatorOn(true)
                 .setTargetV(21)
-                .setRegulatingTerminal(n.getBusbarSection("BBS20").getTerminal())
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(21)
+                    .withTerminal(n.getBusbarSection("BBS20").getTerminal())
+                    .add()
                 .add();
 
         st.newTwoWindingsTransformer()

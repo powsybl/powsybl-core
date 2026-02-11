@@ -32,7 +32,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     protected double slope = Double.NaN;
     protected Terminal terminal = null;
     protected RegulationMode mode = null;
-    protected boolean regulating = false;
+    protected boolean regulating = true;
 
     protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder> classHolder, P parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> setVoltageRegulation) {
         this.classHolder = classHolder;
@@ -101,6 +101,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
                 network.get().getMinValidationLevel(),
                 network.get().getReportNodeContext().getReportNode()));
             // TERMINAL
+            ValidationUtil.checkRegulatingTerminal(validable, terminal, network.get());
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationTerminal(validable,
                 terminal,
                 network.get().getMinValidationLevel(),

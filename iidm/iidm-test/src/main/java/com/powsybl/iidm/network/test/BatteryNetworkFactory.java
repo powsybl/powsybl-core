@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.time.ZonedDateTime;
 
@@ -109,7 +110,10 @@ public final class BatteryNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withTargetValue(24.5)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)

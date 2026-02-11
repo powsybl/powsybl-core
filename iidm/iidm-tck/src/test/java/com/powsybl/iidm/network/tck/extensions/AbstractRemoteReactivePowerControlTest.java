@@ -74,7 +74,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
                        .setMaxP(p)
                        .setTargetP(p)
                        .setTargetV(v)
-                       .setVoltageRegulatorOn(true)
+                       .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(v).add()
                        .add();
         g.getTerminal().setP(-p).setQ(0);
         return g;
@@ -119,7 +119,6 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         VoltageRegulation voltageRegulation = g.newVoltageRegulation()
             .withTargetValue(200.0)
             .withTerminal(l.getTerminal(TwoSides.ONE))
-            .withRegulating(true)
             .withMode(RegulationMode.REACTIVE_POWER)
             .build();
         assertEquals(200.0, voltageRegulation.getTargetValue(), 0.0);
@@ -135,7 +134,6 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         VoltageRegulation voltageRegulation = g.newVoltageRegulation()
             .withTargetValue(200.0)
             .withTerminal(l.getTerminal(TwoSides.ONE))
-            .withRegulating(true)
             .withMode(RegulationMode.REACTIVE_POWER)
             .build();
 
@@ -189,13 +187,11 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
         var adder = g.newVoltageRegulation()
-                .withTargetValue(200.0)
-                .withRegulating(true);
+                .withTargetValue(200.0);
         var e = assertThrows(PowsyblException.class, adder::build);
         assertEquals("Regulating terminal must be set", e.getMessage());
         adder = g.newVoltageRegulation()
-                .withTerminal(l.getTerminal(TwoSides.ONE))
-                .withRegulating(true);
+                .withTerminal(l.getTerminal(TwoSides.ONE));
         e = assertThrows(PowsyblException.class, adder::build);
         assertEquals("Reactive power target must be set", e.getMessage());
         var voltageRegulation = g.newVoltageRegulation()
@@ -214,7 +210,6 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             .withTargetValue(200.0)
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(l.getTerminal(TwoSides.ONE))
-            .withRegulating(true)
             .build();
         assertNotNull(g.getVoltageRegulation());
         l.remove();
@@ -231,7 +226,6 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         VoltageRegulation voltageRegulation = g.newVoltageRegulation()
             .withTargetValue(200.0)
             .withTerminal(l.getTerminal(TwoSides.ONE))
-            .withRegulating(true)
             .withMode(RegulationMode.REACTIVE_POWER)
             .build();
         assertNotNull(g.getVoltageRegulation());
@@ -256,7 +250,6 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             .withTargetValue(200.0)
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(lTerminal)
-            .withRegulating(true)
             .build();
 
         assertEquals(lTerminal, voltageRegulation.getTerminal());

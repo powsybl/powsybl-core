@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+
 import java.time.ZonedDateTime;
 
 import java.util.Objects;
@@ -55,7 +57,7 @@ public final class PhaseShifterTestCaseFactory {
                 .setId("G1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetP(100.0)
                 .setTargetV(400.0)
                 .setMinP(50.0)

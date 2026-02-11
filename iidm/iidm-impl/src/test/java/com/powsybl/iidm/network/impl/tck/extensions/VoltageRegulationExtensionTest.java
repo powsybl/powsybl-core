@@ -38,7 +38,6 @@ class VoltageRegulationExtensionTest {
         VoltageRegulation voltageRegulation = bat.newVoltageRegulation()
 //            .withTerminal(bat.getTerminal())
             .withMode(RegulationMode.VOLTAGE)
-            .withRegulating(true)
             .withTargetValue(50.0)
             .build();
         assertNotNull(voltageRegulation);
@@ -104,7 +103,6 @@ class VoltageRegulationExtensionTest {
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
             .withTerminal(battery2.getTerminal())
             .withMode(RegulationMode.VOLTAGE)
-            .withRegulating(true)
             .withTargetValue(50.0)
             .build();
         assertRegulatingTerminal(battery2.getTerminal(), voltageRegulation);
@@ -154,7 +152,6 @@ class VoltageRegulationExtensionTest {
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
             .withTerminal(battery2.getTerminal())
             .withMode(RegulationMode.VOLTAGE)
-            .withRegulating(true)
             .withTargetValue(50.0)
             .build();
         assertRegulatingTerminal(battery2.getTerminal(), voltageRegulation);
@@ -180,7 +177,6 @@ class VoltageRegulationExtensionTest {
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
             .withTerminal(battery2.getTerminal())
             .withMode(RegulationMode.VOLTAGE)
-            .withRegulating(true)
             .withTargetValue(50.0)
             .build();
         assertRegulatingTerminal(battery2Terminal0, voltageRegulation);
