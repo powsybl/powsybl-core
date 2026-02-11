@@ -59,7 +59,6 @@ public class SensitivityAnalysisTool implements Tool {
     private static final String VARIABLE_SETS_FILE_OPTION = "variable-sets-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_CONTINGENCY_STATUS_FILE_OPTION = "output-contingency-file";
-    private static final String OUTPUT_CONTINGENCY_COMPONENTS_STATUS_FILE_OPTION = "output-contingency-components-file";
 
     private static final String SINGLE_OUTPUT = "single-output";
 
@@ -162,22 +161,15 @@ public class SensitivityAnalysisTool implements Tool {
         Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
         boolean csv = isCsv(outputFile);
         Path outputFileStatus = null;
-        Path outputFileComponentsStatus = null;
-
         if (csv) {
             if (line.hasOption(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION)) {
                 outputFileStatus = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION));
             } else {
                 outputFileStatus = context.getFileSystem().getPath(buildContingencyStatusPath(line.getOptionValue(OUTPUT_FILE_OPTION)));
             }
-            if (line.hasOption(OUTPUT_CONTINGENCY_COMPONENTS_STATUS_FILE_OPTION)) {
-                outputFileComponentsStatus = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CONTINGENCY_COMPONENTS_STATUS_FILE_OPTION));
-            } else {
-                outputFileComponentsStatus = context.getFileSystem().getPath(buildContingencyComponentsStatusPath(line.getOptionValue(OUTPUT_FILE_OPTION)));
-            }
             boolean contingencyCsv = isCsv(outputFileStatus);
             if (!contingencyCsv) {
-                throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_COMPONENTS_STATUS_FILE_OPTION + " files must have the same format (csv).");
+                throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION + " files must have the same format (csv).");
             }
 
             if (line.hasOption(SINGLE_OUTPUT)) {
@@ -222,7 +214,7 @@ public class SensitivityAnalysisTool implements Tool {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (ComputationManager computationManager = DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager()) {
             SensitivityAnalysisParametersRecord parametersRecord = new SensitivityAnalysisParametersRecord(factorsReader, params, network, contingencies,
-                variableSets, computationManager, outputFile, outputFileStatus, outputFileComponentsStatus, csv);
+                variableSets, computationManager, outputFile, outputFileStatus, csv);
             run(line, parametersRecord);
         }
         context.getOutputStream().println("Analysis done in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
@@ -236,7 +228,6 @@ public class SensitivityAnalysisTool implements Tool {
                                                        ComputationManager computationManager,
                                                        Path outputFile,
                                                        Path outputFileStatus,
-                                                       Path outputFileComponentsStatus,
                                                        boolean csv) {
     }
 
@@ -256,14 +247,12 @@ public class SensitivityAnalysisTool implements Tool {
         } else {
             if (parametersRecord.csv) {
                 try (Writer writer = Files.newBufferedWriter(parametersRecord.outputFile, StandardCharsets.UTF_8);
-                     Writer writerStatuses = Files.newBufferedWriter(parametersRecord.outputFileStatus, StandardCharsets.UTF_8);
-                     Writer writerComponentsStatuses = Files.newBufferedWriter(parametersRecord.outputFileComponentsStatus, StandardCharsets.UTF_8);
+                     Writer writerComponentsStatuses = Files.newBufferedWriter(parametersRecord.outputFileStatus, StandardCharsets.UTF_8);
 
                      TableFormatter formatter = SensitivityResultCsvWriter.createTableFormatter(writer);
-                     TableFormatter formatterStatus = SensitivityResultCsvWriter.createContingencyStatusTableFormatter(writerStatuses);
                      TableFormatter formatterComponentsStatus = SensitivityResultCsvWriter.createContingencyStatusComponentsTableFormatter(writerComponentsStatuses)) {
 
-                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, formatterComponentsStatus, parametersRecord.contingencies);
+                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterComponentsStatus, parametersRecord.contingencies);
                     SensitivityAnalysis.run(parametersRecord.network, parametersRecord.network.getVariantManager().getWorkingVariantId(),
                         parametersRecord.factorsReader, valuesWriter, parametersRecord.contingencies, parametersRecord.variableSets, parametersRecord.params,
                         parametersRecord.computationManager, ReportNode.NO_OP);

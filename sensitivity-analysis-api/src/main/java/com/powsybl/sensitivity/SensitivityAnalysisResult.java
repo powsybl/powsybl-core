@@ -64,7 +64,6 @@ public class SensitivityAnalysisResult {
      * @param statusText
      */
     public record LoadFlowStatus(LoadFlowResult.ComponentResult.Status status, String statusText) {
-
     }
 
     public enum Status {
@@ -75,11 +74,17 @@ public class SensitivityAnalysisResult {
 
     public static class SensitivityContingencyStatus {
 
+        static final String COMPONENTS_LOADFLOW_STATUSES = "componentsLoadFlowStatuses";
+        public static final String LOAD_FLOW_STATUS = "loadFlowStatus";
+        public static final String LOAD_FLOW_STATUS_DESCRIPTION = "loadFlowStatusDescription";
+        public static final String NUM_CC = "numCC";
+        public static final String NUM_CS = "numCS";
+
         private final String contingencyId;
 
         private final Status status;
         /**
-         * Loadflow status for all the componentns
+         * Load flow status for all the components
          */
         private final List<Triple<LoadFlowStatus, Integer, Integer>> componentsLoadFlowStatusList;
 
@@ -110,15 +115,18 @@ public class SensitivityAnalysisResult {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField("contingencyId", contingencyStatus.getContingencyId());
                 jsonGenerator.writeStringField("contingencyStatus", contingencyStatus.status.name());
-                jsonGenerator.writeArrayFieldStart("componentsLoadFlowStatus");
-                for (Triple<LoadFlowStatus, Integer, Integer> componentLoadflowStatus : contingencyStatus.getComponentsLoadFlowStatusList()) {
-                    jsonGenerator.writeStartObject();
-                    jsonGenerator.writeStringField("loadFlowStatus", componentLoadflowStatus.getFirst().toString());
-                    jsonGenerator.writeNumberField("numCC", componentLoadflowStatus.getSecond());
-                    jsonGenerator.writeNumberField("numCS", componentLoadflowStatus.getThird());
-                    jsonGenerator.writeEndObject();
+                if (!contingencyStatus.getComponentsLoadFlowStatusList().isEmpty()) {
+                    jsonGenerator.writeArrayFieldStart(COMPONENTS_LOADFLOW_STATUSES);
+                    for (Triple<LoadFlowStatus, Integer, Integer> componentLoadflowStatus : contingencyStatus.getComponentsLoadFlowStatusList()) {
+                        jsonGenerator.writeStartObject();
+                        jsonGenerator.writeStringField(LOAD_FLOW_STATUS, componentLoadflowStatus.getFirst().status.toString());
+                        jsonGenerator.writeStringField(LOAD_FLOW_STATUS_DESCRIPTION, componentLoadflowStatus.getFirst().statusText);
+                        jsonGenerator.writeNumberField(NUM_CC, componentLoadflowStatus.getSecond());
+                        jsonGenerator.writeNumberField(NUM_CS, componentLoadflowStatus.getThird());
+                        jsonGenerator.writeEndObject();
+                    }
+                    jsonGenerator.writeEndArray();
                 }
-                jsonGenerator.writeEndArray();
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -128,6 +136,7 @@ public class SensitivityAnalysisResult {
         static final class ParsingContext {
             private Contingency contingency;
             private Status status;
+            private List<Triple<LoadFlowStatus, Integer, Integer>> componentLoadflowStatuses;
         }
 
         public static SensitivityContingencyStatus parseJson(JsonParser parser) {
@@ -140,13 +149,23 @@ public class SensitivityAnalysisResult {
                     if (token == JsonToken.FIELD_NAME) {
                         parseJson(parser, context);
                     } else if (token == JsonToken.END_OBJECT) {
-                        return new SensitivityContingencyStatus(context.contingency != null ? context.contingency.getId() : "", context.status);
+                        return getSensitivityContingencyStatus(context);
                     }
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
             throw new PowsyblException("Parsing error");
+        }
+
+        private static SensitivityContingencyStatus getSensitivityContingencyStatus(ParsingContext context) {
+            SensitivityContingencyStatus sensitivityContingencyStatus = new SensitivityContingencyStatus(context.contingency != null ? context.contingency.getId() : "", context.status);
+            if (context.componentLoadflowStatuses != null) {
+                for (var triple : context.componentLoadflowStatuses) {
+                    sensitivityContingencyStatus.addComponentLoadFlowStatus(triple.getFirst(), triple.getSecond(), triple.getThird());
+                }
+            }
+            return sensitivityContingencyStatus;
         }
 
         private static void parseJson(JsonParser parser, SensitivityContingencyStatus.ParsingContext context) throws IOException {
@@ -160,6 +179,38 @@ public class SensitivityAnalysisResult {
                     parser.nextToken();
                     context.status = Status.valueOf(parser.getValueAsString());
                     break;
+                case COMPONENTS_LOADFLOW_STATUSES:
+                    if (parser.nextToken() == JsonToken.START_ARRAY) {
+                        context.componentLoadflowStatuses = new ArrayList<>();
+                        while (parser.nextToken() != JsonToken.END_ARRAY) {
+                            if (parser.getCurrentToken() == JsonToken.START_OBJECT) {
+                                Triple<LoadFlowStatus, Integer, Integer> componentStatus = new Triple<>(null, 0, 0);
+
+                                context.componentLoadflowStatuses.add(componentStatus);
+                                String loadFLowStatusString = null;
+                                String loadFlowStatusDescriptionString = null;
+                                while (parser.nextToken() != JsonToken.END_OBJECT) {
+                                    String objectFieldName = parser.currentName();
+                                    parser.nextToken(); // Move to the value
+                                    switch (objectFieldName) {
+                                        case LOAD_FLOW_STATUS ->
+                                            loadFLowStatusString = parser.getText();
+                                        case LOAD_FLOW_STATUS_DESCRIPTION ->
+                                            loadFlowStatusDescriptionString = parser.getText();
+                                        case NUM_CC -> componentStatus.setSecond(parser.getIntValue());
+                                        case NUM_CS -> componentStatus.setThird(parser.getIntValue());
+                                        // Skip unknown nested structures
+                                        case null, default -> parser.skipChildren();
+                                    }
+                                    componentStatus.setFirst(new LoadFlowStatus(com.powsybl.loadflow.LoadFlowResult.ComponentResult.Status.valueOf(loadFLowStatusString), loadFlowStatusDescriptionString));
+                                }
+                            }
+                        }
+                    } else {
+                        throw new PowsyblException("Unexpected field type (should be an array of objects: " + fieldName);
+                    }
+                    break;
+
                 default:
                     throw new PowsyblException("Unexpected field: " + fieldName);
             }

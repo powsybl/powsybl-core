@@ -23,17 +23,13 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
     private final TableFormatter formatter;
 
-    private final TableFormatter formatterContingencyStatus;
-
     private final TableFormatter formatterContingencyComponentsStatuses;
 
     private final List<Contingency> contingencies;
 
-    public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterContingencyStatus,
-                                      TableFormatter formatterContingencyComponentsStatuses,
+    public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterContingencyComponentsStatuses,
                                       List<Contingency> contingencies) {
         this.formatter = Objects.requireNonNull(formatter);
-        this.formatterContingencyStatus = Objects.requireNonNull(formatterContingencyStatus);
         this.formatterContingencyComponentsStatuses = Objects.requireNonNull(formatterContingencyComponentsStatuses);
         this.contingencies = Objects.requireNonNull(contingencies);
     }
@@ -49,24 +45,17 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
                 new Column("Sensitivity value"));
     }
 
-    public static TableFormatter createContingencyStatusTableFormatter(Writer writer) {
-        Objects.requireNonNull(writer);
-        TableFormatterFactory factory = new CsvTableFormatterFactory();
-        var tfc = TableFormatterConfig.load();
-        return factory.create(writer, "Sensitivity analysis contingency status result", tfc,
-                new Column("Contingency ID"),
-                new Column("Contingency Status"));
-    }
-
     public static TableFormatter createContingencyStatusComponentsTableFormatter(Writer writer) {
         Objects.requireNonNull(writer);
         TableFormatterFactory factory = new CsvTableFormatterFactory();
         var tfc = TableFormatterConfig.load();
         return factory.create(writer, "Sensitivity analysis contingency status result", tfc,
                 new Column("Contingency ID"),
+                new Column("Contingency Status"),
                 new Column("Loadflow Status"),
-                new Column("Index of Connected component"),
-                new Column("Index of Synchronous component"));
+                new Column("Loadflow Status Description"),
+                new Column("Connected component"),
+                new Column("Synchronous component"));
     }
 
     @Override
@@ -82,23 +71,15 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
         }
     }
 
-//    @Override
-//    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
-//        try {
-//            formatterContingencyStatus.writeCell(contingencies.get(contingencyIndex).getId());
-//            formatterContingencyStatus.writeCell(status.name());
-//        } catch (IOException e) {
-//            throw new UncheckedIOException(e);
-//        }
-//    }
-
     // 3 new parameters
-    // Called for every contigency and every numCC/numCS where the contingency has an impact
+    // Called for every contingency and every numCC/numCS where the contingency has an impact
     // For contingencies that are never run, called once in the end with no IMPACT and numCC and numCs set to -1
     @Override
     public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCs) {
         try {
             formatterContingencyComponentsStatuses.writeCell(contingencies.get(contingencyIndex).getId());
+            formatterContingencyComponentsStatuses.writeCell(status.toString());
+            formatterContingencyComponentsStatuses.writeCell(loadFlowStatus.status().toString());
             formatterContingencyComponentsStatuses.writeCell(loadFlowStatus.statusText());
             formatterContingencyComponentsStatuses.writeCell(numCC);
             formatterContingencyComponentsStatuses.writeCell(numCs);

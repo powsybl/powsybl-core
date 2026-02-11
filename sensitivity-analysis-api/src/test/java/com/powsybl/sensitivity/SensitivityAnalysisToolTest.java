@@ -164,9 +164,9 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertTrue(Files.exists(outputContingencyStatusCsvFile));
         String outputContingencyStatusCsvRef = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
                 "Sensitivity analysis contingency status result",
-                "Contingency ID;Contingency Status",
-                "NHV1_NHV2_2;SUCCESS")
-                + System.lineSeparator());
+                "Contingency ID;Contingency Status;Loadflow Status;Loadflow Status Description;Connected component;Synchronous component",
+                "NHV1_NHV2_2;SUCCESS;CONVERGED;;0;0") +
+                System.lineSeparator());
         assertEquals(outputContingencyStatusCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputContingencyStatusCsvFile)));
 
     }

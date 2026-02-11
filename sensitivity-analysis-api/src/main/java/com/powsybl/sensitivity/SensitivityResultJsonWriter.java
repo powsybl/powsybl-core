@@ -44,11 +44,6 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
         SensitivityValue.writeJson(jsonGenerator, factorIndex, contingencyIndex, value, functionReference);
     }
 
-//    @Override
-//    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
-//        SensitivityAnalysisResult.SensitivityContingencyStatus sensitivityContingencyStatus = new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status);
-//        contingencyStatusBuffer.set(contingencyIndex, sensitivityContingencyStatus);
-//    }
 
     // 3 new parameters
     // Called for every contigency and every numCC/numCS where the contingency has an impact
