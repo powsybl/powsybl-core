@@ -205,7 +205,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
 
     private static void updateRegulatingControlReactivePower(Generator generator, Boolean controlEnabled, Context context) {
         VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-        if (voltageRegulation == null || voltageRegulation.getTerminal() == null || voltageRegulation.getMode() != RegulationMode.REACTIVE_POWER) {
+        if (voltageRegulation == null || voltageRegulation.getMode() != RegulationMode.REACTIVE_POWER) {
             return;
         }
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);

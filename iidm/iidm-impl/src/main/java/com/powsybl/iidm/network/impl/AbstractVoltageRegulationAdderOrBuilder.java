@@ -78,14 +78,36 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     }
 
     protected @NonNull VoltageRegulationImpl createVoltageRegulation() {
-        VoltageRegulationImpl voltageRegulation = new VoltageRegulationImpl(network, targetValue, targetDeadband, slope, terminal, mode, regulating);
+        // VALIDATION
         if (parent instanceof Validable validable) {
-            network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulation(validable,
-                voltageRegulation, classHolder,
+            // MODE
+            network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationMode(validable,
+                mode, classHolder,
+                network.get().getMinValidationLevel(),
+                network.get().getReportNodeContext().getReportNode()));
+            // TARGET VALUE
+            network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationTargetValue(validable,
+                targetValue,
+                network.get().getMinValidationLevel(),
+                network.get().getReportNodeContext().getReportNode()));
+            // SLOPE
+            network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationSlope(validable,
+                mode, slope,
+                network.get().getMinValidationLevel(),
+                network.get().getReportNodeContext().getReportNode()));
+            // DEADBAND
+            network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationDeadband(validable,
+                targetDeadband, classHolder,
+                network.get().getMinValidationLevel(),
+                network.get().getReportNodeContext().getReportNode()));
+            // TERMINAL
+            network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationTerminal(validable,
+                terminal,
                 network.get().getMinValidationLevel(),
                 network.get().getReportNodeContext().getReportNode()));
         }
-        return voltageRegulation;
+        //
+        return new VoltageRegulationImpl(network, targetValue, targetDeadband, slope, terminal, mode, regulating);
     }
 
     protected abstract T self();

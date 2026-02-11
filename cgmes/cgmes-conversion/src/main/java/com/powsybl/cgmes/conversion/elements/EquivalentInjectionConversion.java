@@ -15,7 +15,6 @@ import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -130,19 +129,24 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         boolean defaultRegulatingOn = getDefaultRegulatingOn(generator, context);
         boolean regulatingOn = findRegulatingOn(cgmesData, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED);
 
+        double targetQ = getTargetQ(updatedPowerFlow, generator, context);
         generator.setTargetP(getTargetP(updatedPowerFlow, generator, context))
-                .setTargetQ(getTargetQ(updatedPowerFlow, generator, context));
-//                .setTargetV(targetV)
-            // TODO MSA how to regulate with reactive mode
-//                .getVoltageRegulation().setRegulating(regulatingOn && regulationCapability && isValidTargetV(targetV))
-//                .setVoltageRegulatorOn(regulatingOn && regulationCapability && isValidTargetV(targetV));
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-        if (voltageRegulation == null) {
-            voltageRegulation = generator.newVoltageRegulation().build();
+                .setTargetQ(targetQ)
+                .setTargetV(targetV);
+        double targetValue;
+        RegulationMode regulationMode;
+        if (regulatingOn && regulationCapability && isValidTargetV(targetV)) {
+            targetValue = targetV;
+            regulationMode = RegulationMode.VOLTAGE;
+        } else {
+            targetValue = targetQ;
+            regulationMode = RegulationMode.REACTIVE_POWER;
         }
-        voltageRegulation.setMode(RegulationMode.VOLTAGE);
-        voltageRegulation.setTargetValue(targetV);
-        voltageRegulation.setRegulating(regulatingOn && regulationCapability && isValidTargetV(targetV));
+        generator.newVoltageRegulation()
+            .withMode(regulationMode)
+            .withTargetValue(targetValue)
+            .withRegulating(true)
+            .build();
     }
 
     private static double getTargetP(PowerFlow updatedPowerFlow, Generator generator, Context context) {

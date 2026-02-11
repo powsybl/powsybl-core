@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.tck;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.jupiter.api.Test;
@@ -926,7 +925,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChanger(Leg leg, Terminal terminal, boolean regulating) {
         return leg.newRatioTapChanger()
-            .setRegulationMode(RatioTapChanger.RatioTapChangerRegulationMode.VOLTAGE)
+            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
             .setRegulationValue(200.0)
             .setLoadTapChangingCapabilities(regulating)
             .setLowTapPosition(0)
@@ -960,7 +959,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChangerOneStep(Leg leg, Terminal terminal, double rho, double r, double x, double g, double b) {
         return leg.newRatioTapChanger()
-            .setRegulationMode(RatioTapChanger.RatioTapChangerRegulationMode.VOLTAGE)
+            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
             .setRegulationValue(200.0)
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)
@@ -990,7 +989,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setLoadTapChangingCapabilities(regulating)
             .setRegulating(regulating)
             .setRegulationTerminal(terminal)
-            .setRegulationMode(RegulationMode.ACTIVE_POWER_CONTROL)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
             .setTargetDeadband(0.5)
             .beginStep()
                 .setR(39.78473)
@@ -1026,7 +1025,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setTapPosition(0)
             .setRegulating(false)
             .setRegulationTerminal(terminal)
-            .setRegulationMode(RegulationMode.ACTIVE_POWER_CONTROL)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
             .setTargetDeadband(0.5)
             .beginStep()
                 .setR(r)

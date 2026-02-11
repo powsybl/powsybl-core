@@ -135,7 +135,7 @@ public class RegulatingControlMappingForTransformers {
         }
 
         rtc.setRegulationTerminal(regulatingTerminal.get())
-                .setRegulationMode(RatioTapChanger.RatioTapChangerRegulationMode.VOLTAGE);
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
         return true;
     }
 

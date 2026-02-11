@@ -7,8 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
-
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -26,12 +24,10 @@ public interface RatioTapChangerAdder extends TapChangerAdder<
     interface StepAdder extends RatioTapChangerStepAdder<StepAdder, RatioTapChangerAdder> {
     }
 
-    RatioTapChangerAdder setRegulationMode(RatioTapChanger.RatioTapChangerRegulationMode regulationMode);
+    RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
 
     RatioTapChangerAdder setRegulationValue(double regulationValue);
 
     RatioTapChangerAdder setTargetV(double targetV);
-
-    VoltageRegulationAdder<RatioTapChangerAdder> newVoltageRegulation();
 
 }

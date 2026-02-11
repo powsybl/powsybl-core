@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
-import static com.powsybl.iidm.network.RatioTapChanger.RatioTapChangerRegulationMode.VOLTAGE;
+import static com.powsybl.iidm.network.RatioTapChanger.RegulationMode.VOLTAGE;
 import static com.powsybl.iidm.network.TopologyKind.BUS_BREAKER;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.junit.jupiter.api.Assertions.assertEquals;

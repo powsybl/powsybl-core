@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -156,7 +157,13 @@ class GeneratorUpdateTest {
         assertEquals(targetP, generator.getTargetP(), tol);
         assertEquals(targetQ, generator.getTargetQ(), tol);
         double targetValue = generator.getVoltageRegulation() != null ? generator.getVoltageRegulation().getTargetValue() : generator.getTargetV();
-        assertEquals(targetV, targetValue, tol);
+        if (generator.getVoltageRegulation() != null) {
+            if (generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE) {
+                assertEquals(targetV, targetValue, tol);
+            } else if (generator.getVoltageRegulation().getMode() == RegulationMode.REACTIVE_POWER) {
+                assertEquals(targetQ, targetValue, tol);
+            }
+        }
         assertEquals(isRegulatingOn, generator.isVoltageRegulatorOn());
 
         ActivePowerControl<Generator> activePowerControl = generator.getExtension(ActivePowerControl.class);

@@ -52,32 +52,32 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
     }
 
     @Override
-    public Double getTargetValue() {
+    public double getTargetValue() {
         return targetValue.get(getCurrentIndex());
     }
 
     @Override
-    public Double setTargetValue(Double targetValue) {
+    public double setTargetValue(double targetValue) {
         return this.targetValue.set(getCurrentIndex(), targetValue);
     }
 
     @Override
-    public Double getTargetDeadband() {
+    public double getTargetDeadband() {
         return targetDeadband.get(getCurrentIndex());
     }
 
     @Override
-    public Double setTargetDeadband(Double targetDeadband) {
+    public double setTargetDeadband(double targetDeadband) {
         return this.targetDeadband.set(getCurrentIndex(), targetDeadband);
     }
 
     @Override
-    public Double getSlope() {
+    public double getSlope() {
         return slope.get(getCurrentIndex());
     }
 
     @Override
-    public Double setSlope(Double slope) {
+    public double setSlope(double slope) {
         return this.slope.set(getCurrentIndex(), slope);
     }
 
