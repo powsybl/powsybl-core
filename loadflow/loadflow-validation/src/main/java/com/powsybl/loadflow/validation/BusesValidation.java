@@ -17,6 +17,8 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.validation.data.BusData;
+import com.powsybl.loadflow.validation.data.Validated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,12 +32,10 @@ public final class BusesValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusesValidation.class);
 
-    public static final BusesValidation INSTANCE = new BusesValidation();
-
     private BusesValidation() {
     }
 
-    public boolean checkBuses(Network network, ValidationConfig config, Path file) throws IOException {
+    public static boolean checkBuses(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(file);
@@ -44,7 +44,7 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(Network network, ValidationConfig config, Writer writer) {
+    public static boolean checkBuses(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -55,7 +55,7 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(Network network, ValidationConfig config, ValidationWriter busesWriter) {
+    public static boolean checkBuses(Network network, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(busesWriter);
@@ -68,7 +68,7 @@ public final class BusesValidation {
                       .orElse(true);
     }
 
-    public boolean checkBuses(Bus bus, ValidationConfig config, Writer writer) {
+    public static boolean checkBuses(Bus bus, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -80,7 +80,7 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(Bus bus, ValidationConfig config, ValidationWriter busesWriter) {
+    public static boolean checkBuses(Bus bus, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(config);
         Objects.requireNonNull(busesWriter);
@@ -105,16 +105,17 @@ public final class BusesValidation {
         double t2wtQ = bus.getTwoWindingsTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getQ).sum();
         double t3wtP = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
         double t3wtQ = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
+
         boolean mainComponent = bus.isInMainConnectedComponent();
-        return checkBuses(bus.getId(), loadP, loadQ, getValue(genP), getValue(genQ), batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, config, busesWriter);
+        BusData d = new BusData(bus.getId(), loadP, loadQ, getValue(genP), getValue(genQ), batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent);
+        return checkBuses(d, config, busesWriter);
     }
 
     private static double getValue(double value) {
         return Double.isNaN(value) ? 0.0 : value;
     }
 
-    private static Terminal getBranchTerminal(Branch branch, Bus bus) {
+    private static Terminal getBranchTerminal(Branch<?> branch, Bus bus) {
         if (branch.getTerminal1().isConnected() && bus.getId().equals(branch.getTerminal1().getBusView().getBus().getId())) {
             return branch.getTerminal1();
         } else {
@@ -132,44 +133,34 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
-                                     double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ,
-                                     double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-                                     double t2wtP, double t2wtQ, double t3wtP, double t3wtQ, boolean mainComponent, ValidationConfig config, Writer writer) {
-        Objects.requireNonNull(id);
+    public static boolean checkBuses(BusData d, ValidationConfig config, Writer writer) {
+        Objects.requireNonNull(d);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.BUSES)) {
-            return checkBuses(id, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
-                              danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, config, busesWriter);
+        try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(d.busId(), config, writer, ValidationType.BUSES)) {
+            return checkBuses(d, config, busesWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP,
-                                     double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                                     double danglingLineP, double danglingLineQ, double t2wtP, double t2wtQ, double t3wtP, double t3wtQ,
-                                     boolean mainComponent, ValidationConfig config, ValidationWriter busesWriter) {
-        Objects.requireNonNull(id);
+    public static boolean checkBuses(BusData d, ValidationConfig config, ValidationWriter busesWriter) {
+        Objects.requireNonNull(d);
         boolean validated = true;
 
-        double incomingP = genP + batP + shuntP + svcP + vscCSP + lineP + danglingLineP + t2wtP + t3wtP;
-        double incomingQ = genQ + batQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + t2wtQ + t3wtQ;
-        if (ValidationUtils.isMainComponent(config, mainComponent)) {
-            if (ValidationUtils.areNaN(config, incomingP, loadP) || Math.abs(incomingP + loadP) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingP, loadP);
+        if (ValidationUtils.isMainComponent(config, d.mainComponent())) {
+            if (ValidationUtils.areNaN(config, d.incomingP(), d.loadP()) || Math.abs(d.incomingP() + d.loadP()) > config.getThreshold()) {
+                LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, d.busId(), d.incomingP(), d.loadP());
                 validated = false;
             }
-            if (ValidationUtils.areNaN(config, incomingQ, loadQ) || Math.abs(incomingQ + loadQ) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} Q {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingQ, loadQ);
+            if (ValidationUtils.areNaN(config, d.incomingQ(), d.loadQ()) || Math.abs(d.incomingQ() + d.loadQ()) > config.getThreshold()) {
+                LOGGER.warn("{} {}: {} Q {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, d.busId(), d.incomingQ(), d.loadQ());
                 validated = false;
             }
         }
         try {
-            busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                              lineP, lineQ, danglingLineP, danglingLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, validated);
+            busesWriter.writeBus(new Validated<>(d, validated));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

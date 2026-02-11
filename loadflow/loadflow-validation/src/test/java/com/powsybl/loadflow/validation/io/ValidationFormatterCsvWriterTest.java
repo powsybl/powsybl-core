@@ -794,7 +794,7 @@ class ValidationFormatterCsvWriterTest extends AbstractValidationFormatterWriter
                            "test " + ValidationType.SHUNTS + " check",
                            String.join(";", "id", "q", "expectedQ"),
                            String.join(";", shuntId,
-                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ)));
+                                       String.format(Locale.getDefault(), "%g", qShunt), String.format(Locale.getDefault(), "%g", expectedQ)));
     }
 
     @Override
@@ -805,10 +805,10 @@ class ValidationFormatterCsvWriterTest extends AbstractValidationFormatterWriter
                                        AbstractValidationFormatterWriter.CONNECTED, "qMax", AbstractValidationFormatterWriter.NOMINAL_V,
                                        AbstractValidationFormatterWriter.MAIN_COMPONENT, AbstractValidationFormatterWriter.VALIDATION),
                            String.join(";", shuntId,
-                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ),
-                                       String.format(Locale.getDefault(), "%g", p), Integer.toString(currentSectionCount),
+                                       String.format(Locale.getDefault(), "%g", qShunt), String.format(Locale.getDefault(), "%g", expectedQ),
+                                       String.format(Locale.getDefault(), "%g", pShunt), Integer.toString(currentSectionCount),
                                        Integer.toString(maximumSectionCount), String.format(Locale.getDefault(), "%g", bPerSection),
-                                       String.format(Locale.getDefault(), "%g", v), Boolean.toString(connected),
+                                       String.format(Locale.getDefault(), "%g", vShunt), Boolean.toString(connected),
                                        String.format(Locale.getDefault(), "%g", qMax), String.format(Locale.getDefault(), "%g", nominalV),
                                        Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS));
     }
@@ -821,8 +821,8 @@ class ValidationFormatterCsvWriterTest extends AbstractValidationFormatterWriter
                                        "q" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "expectedQ" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", shuntId,
-                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ),
-                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ)));
+                                       String.format(Locale.getDefault(), "%g", qShunt), String.format(Locale.getDefault(), "%g", expectedQ),
+                                       String.format(Locale.getDefault(), "%g", qShunt), String.format(Locale.getDefault(), "%g", expectedQ)));
     }
 
     @Override
@@ -833,9 +833,9 @@ class ValidationFormatterCsvWriterTest extends AbstractValidationFormatterWriter
                                        "q" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "expectedQ" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherShuntId,
-                                       "", "", String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ)),
+                                       "", "", String.format(Locale.getDefault(), "%g", qShunt), String.format(Locale.getDefault(), "%g", expectedQ)),
                            String.join(";", shuntId,
-                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ), "", ""));
+                                       String.format(Locale.getDefault(), "%g", qShunt), String.format(Locale.getDefault(), "%g", expectedQ), "", ""));
     }
 
     @Override
@@ -858,16 +858,16 @@ class ValidationFormatterCsvWriterTest extends AbstractValidationFormatterWriter
                                        AbstractValidationFormatterWriter.MAIN_COMPONENT + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        AbstractValidationFormatterWriter.VALIDATION + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", shuntId,
-                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ),
-                                       String.format(Locale.getDefault(), "%g", p), Integer.toString(currentSectionCount),
+                                       String.format(Locale.getDefault(), "%g", qShunt), String.format(Locale.getDefault(), "%g", expectedQ),
+                                       String.format(Locale.getDefault(), "%g", pShunt), Integer.toString(currentSectionCount),
                                        Integer.toString(maximumSectionCount), String.format(Locale.getDefault(), "%g", bPerSection),
-                                       String.format(Locale.getDefault(), "%g", v), Boolean.toString(connected),
+                                       String.format(Locale.getDefault(), "%g", vShunt), Boolean.toString(connected),
                                        String.format(Locale.getDefault(), "%g", qMax), String.format(Locale.getDefault(), "%g", nominalV),
                                        Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS,
-                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ),
-                                       String.format(Locale.getDefault(), "%g", p), Integer.toString(currentSectionCount),
+                                       String.format(Locale.getDefault(), "%g", qShunt), String.format(Locale.getDefault(), "%g", expectedQ),
+                                       String.format(Locale.getDefault(), "%g", pShunt), Integer.toString(currentSectionCount),
                                        Integer.toString(maximumSectionCount), String.format(Locale.getDefault(), "%g", bPerSection),
-                                       String.format(Locale.getDefault(), "%g", v), Boolean.toString(connected),
+                                       String.format(Locale.getDefault(), "%g", vShunt), Boolean.toString(connected),
                                        String.format(Locale.getDefault(), "%g", qMax), String.format(Locale.getDefault(), "%g", nominalV),
                                        Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS));
     }
@@ -893,17 +893,17 @@ class ValidationFormatterCsvWriterTest extends AbstractValidationFormatterWriter
                                        AbstractValidationFormatterWriter.VALIDATION + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherShuntId,
                                        "", "", "", "", "", "", "", "", "", "", "", "",
-                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ),
-                                       String.format(Locale.getDefault(), "%g", p), Integer.toString(currentSectionCount),
+                                       String.format(Locale.getDefault(), "%g", qShunt), String.format(Locale.getDefault(), "%g", expectedQ),
+                                       String.format(Locale.getDefault(), "%g", pShunt), Integer.toString(currentSectionCount),
                                        Integer.toString(maximumSectionCount), String.format(Locale.getDefault(), "%g", bPerSection),
-                                       String.format(Locale.getDefault(), "%g", v), Boolean.toString(connected),
+                                       String.format(Locale.getDefault(), "%g", vShunt), Boolean.toString(connected),
                                        String.format(Locale.getDefault(), "%g", qMax), String.format(Locale.getDefault(), "%g", nominalV),
                                        Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS),
                            String.join(";", shuntId,
-                                       String.format(Locale.getDefault(), "%g", q), String.format(Locale.getDefault(), "%g", expectedQ),
-                                       String.format(Locale.getDefault(), "%g", p), Integer.toString(currentSectionCount),
+                                       String.format(Locale.getDefault(), "%g", qShunt), String.format(Locale.getDefault(), "%g", expectedQ),
+                                       String.format(Locale.getDefault(), "%g", pShunt), Integer.toString(currentSectionCount),
                                        Integer.toString(maximumSectionCount), String.format(Locale.getDefault(), "%g", bPerSection),
-                                       String.format(Locale.getDefault(), "%g", v), Boolean.toString(connected),
+                                       String.format(Locale.getDefault(), "%g", vShunt), Boolean.toString(connected),
                                        String.format(Locale.getDefault(), "%g", qMax), String.format(Locale.getDefault(), "%g", nominalV),
                                        Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS,
                                        "", "", "", "", "", "", "", "", "", "", "", ""));

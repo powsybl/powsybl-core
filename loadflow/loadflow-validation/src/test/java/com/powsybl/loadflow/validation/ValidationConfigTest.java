@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -65,7 +64,7 @@ class ValidationConfigTest {
     }
 
     @Test
-    void checkIncompleteConfig() throws Exception {
+    void checkIncompleteConfig() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
         moduleConfig.setStringProperty("threshold", Double.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
@@ -79,7 +78,7 @@ class ValidationConfigTest {
     }
 
     @Test
-    void checkCompleteConfig() throws Exception {
+    void checkCompleteConfig() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
         moduleConfig.setStringProperty("threshold", Double.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
@@ -99,7 +98,7 @@ class ValidationConfigTest {
     }
 
     @Test
-    void checkSetters() throws Exception {
+    void checkSetters() {
         ValidationConfig config = ValidationConfig.load(platformConfig);
         config.setThreshold(threshold);
         config.setVerbose(verbose);
@@ -144,7 +143,8 @@ class ValidationConfigTest {
                                  ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
                                  ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
             fail();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            assertEquals("Negative values for threshold not permitted", e.getMessage());
         }
         new ValidationConfig(1, false, null, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
                              ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
@@ -158,7 +158,8 @@ class ValidationConfigTest {
                                 ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
             fail();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            assertInstanceOf(NullPointerException.class, e);
         }
         try {
             new ValidationConfig(1, false, loadFlowName, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, -1,
@@ -167,7 +168,8 @@ class ValidationConfigTest {
                                  ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
                                  ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
             fail();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            assertEquals("Negative values for epsilonX not permitted", e.getMessage());
         }
         try {
             new ValidationConfig(1, false, loadFlowName, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, 1,
@@ -176,7 +178,8 @@ class ValidationConfigTest {
                                  ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
                                  ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
             fail();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            assertInstanceOf(NullPointerException.class, e);
         }
     }
 

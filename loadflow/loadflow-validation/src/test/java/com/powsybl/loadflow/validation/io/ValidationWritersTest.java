@@ -54,12 +54,8 @@ class ValidationWritersTest {
 
     @Test
     void getWriter() {
-        usedValidationTypes.forEach(type -> {
-            assertNotNull(validationWriters.getWriter(type));
-        });
-        unusedValidationTypes.forEach(type -> {
-            assertNull(validationWriters.getWriter(type));
-        });
+        usedValidationTypes.forEach(type -> assertNotNull(validationWriters.getWriter(type)));
+        unusedValidationTypes.forEach(type -> assertNull(validationWriters.getWriter(type)));
     }
 
     @AfterEach
