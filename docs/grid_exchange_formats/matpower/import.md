@@ -23,3 +23,14 @@ mpc = loadcase('case6515rte.m');
 savecase("case6515rte.mat", mpc);
 ```
 Note that the `loadcase` and `savecase` are functions provided by the Matpower toolbox.
+
+### Dependencies
+
+Do not forget to add the `matpower-converter` dependency to be able to read `.mat` files:
+```xml
+<dependency>
+    <groupId>com.powsybl</groupId>
+    <artifactId>powsybl-matpower-converter</artifactId>
+</dependency>
+```
+This is not necessary if you are using `powsybl-starter`
