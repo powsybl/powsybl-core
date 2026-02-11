@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.network.ComponentConstants.MAX_RATE;
+import static com.powsybl.iidm.network.ComponentConstants.MIN_RATE;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.REACTIVE_POWER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.VOLTAGE;
 
@@ -181,6 +183,13 @@ public final class ValidationUtil {
             throw new ValidationException(validable, "Unexpected value for target deadband of " + validableType + ": " + targetDeadband + " < 0");
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    public static void checkRate(Validable validable, String validableType, double rate, String fieldName) {
+        if (!Double.isNaN(rate) && (rate < MIN_RATE || rate > MAX_RATE)) {
+            throw new ValidationException(validable, "Unexpected value for " + fieldName + " of " + validableType + " : "
+                    + rate + " is not included in [" + MIN_RATE + ", " + MAX_RATE + "]");
+        }
     }
 
     public static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, ValidationLevel validationLevel, ReportNode reportNode) {
