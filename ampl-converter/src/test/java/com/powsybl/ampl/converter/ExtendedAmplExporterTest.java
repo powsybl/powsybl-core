@@ -117,7 +117,7 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
                 "inputs/extended_exporter/boundary-line-buses.txt");
 
         // Check that middle bus in different sc if boundary line bus is disconnected
-        network.getBoundaryLine("DL").getTerminal().disconnect();
+        network.getBoundaryLine("BL").getTerminal().disconnect();
         exporter.export(network, properties, dataSource);
         assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/boundary-line-disconnected-buses.txt");
     }

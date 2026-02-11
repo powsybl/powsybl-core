@@ -514,7 +514,7 @@ class CriterionContingencyListTest {
                 Collections.emptyList(), null);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
-        assertEquals(new Contingency("DL", new BoundaryLineContingency("DL")), contingencies.get(0));
+        assertEquals(new Contingency("BL", new BoundaryLineContingency("BL")), contingencies.get(0));
     }
 
     @Test

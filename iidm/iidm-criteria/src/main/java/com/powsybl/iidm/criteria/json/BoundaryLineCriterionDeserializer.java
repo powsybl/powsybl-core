@@ -47,7 +47,7 @@ public class BoundaryLineCriterionDeserializer extends AbstractNetworkElementCri
         } else {
             expectedType = "danglingLineCriterion";
         }
-        if (!type.equals(expectedType)) {
+        if (!expectedType.equals(type)) {
             throw new IllegalStateException(String.format("'type' is expected to be '%s' but encountered value was '%s'",
                     expectedType, type));
         }

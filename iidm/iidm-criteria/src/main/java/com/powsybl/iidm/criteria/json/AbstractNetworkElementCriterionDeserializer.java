@@ -107,7 +107,7 @@ public abstract class AbstractNetworkElementCriterionDeserializer<T extends Netw
     protected void checkType(ParsingContext parsingCtx, NetworkElementCriterionType expectedCriterionType) {
         String expectedType = expectedCriterionType.getName();
         String type = parsingCtx.type;
-        if (!type.equals(expectedType)) {
+        if (!expectedType.equals(type)) {
             throw new IllegalStateException(String.format("'type' is expected to be '%s' but encountered value was '%s'",
                     expectedType, type));
         }

@@ -260,7 +260,7 @@ class SVTest {
     void testWithGeneration() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.createWithGeneration();
-        BoundaryLine boundaryLine = network.getBoundaryLine("DL");
+        BoundaryLine boundaryLine = network.getBoundaryLine("BL");
         assertTrue(Double.isNaN(boundaryLine.getBoundary().getP())); // there is no good solution here.
         // we run an DC load flow and fill state variable
         boundaryLine.getTerminal().setP(-298.937);
@@ -284,7 +284,7 @@ class SVTest {
     void testWithZeroImpedanceBoundaryLineWithGeneration() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.createWithGeneration();
-        BoundaryLine boundaryLine = network.getBoundaryLine("DL");
+        BoundaryLine boundaryLine = network.getBoundaryLine("BL");
         boundaryLine.setR(0.0).setX(0.0);
         boundaryLine.getTerminal().setP(-298.937);
         boundaryLine.getTerminal().setQ(-7.413);
@@ -301,7 +301,7 @@ class SVTest {
     void testWithZeroImpedanceBoundaryLineWithoutGeneration() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine boundaryLine = network.getBoundaryLine("DL");
+        BoundaryLine boundaryLine = network.getBoundaryLine("BL");
         boundaryLine.setR(0.0).setX(0.0);
         boundaryLine.getTerminal().setP(50.0);
         boundaryLine.getTerminal().setQ(30.0);
@@ -318,7 +318,7 @@ class SVTest {
     void testWithZeroImpedanceBoundaryLineWithoutGenerationWithNaNV() {
         double tol = 0.001;
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine boundaryLine = network.getBoundaryLine("DL");
+        BoundaryLine boundaryLine = network.getBoundaryLine("BL");
         boundaryLine.setR(0.0).setX(0.0);
         boundaryLine.getTerminal().setP(50.0);
         boundaryLine.getTerminal().setQ(30.0);

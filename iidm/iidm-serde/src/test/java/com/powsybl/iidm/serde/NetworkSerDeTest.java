@@ -317,7 +317,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         if (num == 1) {
             Generator generator = vl1.newGenerator()
                     .setId("GEN")
-                    .setId("GEN")
                     .setBus(busId)
                     .setConnectableBus(busId)
                     .setMinP(-9999.99)

@@ -122,14 +122,14 @@ class ContingencyTest {
     }
 
     @Test
-    void validationTestForDL() {
+    void validationTestForBL() {
         Network network = BoundaryLineNetworkFactory.create();
-        Contingency boundaryLineContingency = Contingency.builder("DL contingency").addBoundaryLine("DL").build();
-        Contingency boundaryLineInvalidContingency = Contingency.builder("DL invalid contingency").addBoundaryLine("DL_THAT_DO_NOT_EXIST").build();
+        Contingency boundaryLineContingency = Contingency.builder("BL contingency").addBoundaryLine("BL").build();
+        Contingency boundaryLineInvalidContingency = Contingency.builder("BL invalid contingency").addBoundaryLine("BL_THAT_DO_NOT_EXIST").build();
         List<Contingency> validContingencies = ContingencyList.of(boundaryLineContingency, boundaryLineInvalidContingency)
                 .getContingencies(network);
 
-        List<String> expectedValidIds = Collections.singletonList("DL contingency");
+        List<String> expectedValidIds = Collections.singletonList("BL contingency");
 
         assertEquals(expectedValidIds,
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));

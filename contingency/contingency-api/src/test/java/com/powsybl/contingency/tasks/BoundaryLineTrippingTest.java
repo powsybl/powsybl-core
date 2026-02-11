@@ -31,13 +31,13 @@ class BoundaryLineTrippingTest {
 
     @Test
     void dlTrippingTest() {
-        assertTrue(network.getBoundaryLine("DL").getTerminal().isConnected());
+        assertTrue(network.getBoundaryLine("BL").getTerminal().isConnected());
 
-        Contingency contingency = Contingency.boundaryLine("DL");
+        Contingency contingency = Contingency.boundaryLine("BL");
 
         NetworkModification task = contingency.toModification();
         task.apply(network);
 
-        assertFalse(network.getBoundaryLine("DL").getTerminal().isConnected());
+        assertFalse(network.getBoundaryLine("BL").getTerminal().isConnected());
     }
 }

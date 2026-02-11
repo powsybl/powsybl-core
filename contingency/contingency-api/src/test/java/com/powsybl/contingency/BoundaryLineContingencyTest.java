@@ -44,11 +44,11 @@ class BoundaryLineContingencyTest {
     @Test
     void test2() {
         Network network = BoundaryLineNetworkFactory.create();
-        ContingencyList contingencyList = ContingencyList.of(Contingency.boundaryLine("DL"), Contingency.boundaryLine("unknown"));
+        ContingencyList contingencyList = ContingencyList.of(Contingency.boundaryLine("BL"), Contingency.boundaryLine("unknown"));
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
 
         BoundaryLineContingency dlCtg = (BoundaryLineContingency) contingencies.get(0).getElements().get(0);
-        assertEquals("DL", dlCtg.getId());
+        assertEquals("BL", dlCtg.getId());
     }
 }

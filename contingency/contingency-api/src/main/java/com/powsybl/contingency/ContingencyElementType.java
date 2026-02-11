@@ -19,7 +19,7 @@ public enum ContingencyElementType {
     BRANCH,
     HVDC_LINE,
     BUSBAR_SECTION,
-    DANGLING_LINE,
+    DANGLING_LINE, // Old value used for deserialization backward-compatibility
     BOUNDARY_LINE,
     LINE,
     TWO_WINDINGS_TRANSFORMER,

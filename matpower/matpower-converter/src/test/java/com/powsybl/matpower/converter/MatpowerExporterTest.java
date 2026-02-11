@@ -242,7 +242,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     @Test
     void testBoundaryLineWithGeneration() throws IOException {
         var network = BoundaryLineNetworkFactory.createWithGeneration();
-        exportToMatAndCompareTo(network, "/dangling-line-generation.json");
+        exportToMatAndCompareTo(network, "/boundary-line-generation.json");
     }
 
     @Test

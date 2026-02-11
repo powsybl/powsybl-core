@@ -104,7 +104,7 @@ public abstract class AbstractNetworksTest {
     @Test
     public void applySolvedValuesBoundaryLine() {
         Network network = BoundaryLineNetworkFactory.createWithGeneration();
-        BoundaryLine dl = network.getBoundaryLine("DL");
+        BoundaryLine dl = network.getBoundaryLine("BL");
         dl.getTerminal().setP(441).setQ(30);
         dl.getTerminal().getBusView().getBus().setV(100);
         assertNotEquals(-dl.getTerminal().getP(), dl.getGeneration().getTargetP());

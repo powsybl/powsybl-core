@@ -24,19 +24,21 @@ public class CgmesBoundaryLineBoundaryNodeSerDe extends AbstractVersionableNetwo
 
     public enum Version implements SerDeVersion<CgmesBoundaryLineBoundaryNodeSerDe.Version> {
         V_1_0("/xsd/cgmesDanglingLineBoundaryNode.xsd", "http://www.powsybl.org/schema/iidm/ext/cgmes_dangling_line_boundary_node/1_0",
-                new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_16, "cgmesDanglingLineBoundaryNode"),
+                "cdlbn", new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_16, "cgmesDanglingLineBoundaryNode"),
         V_1_1("/xsd/cgmesBoundaryLineBoundaryNode.xsd", "http://www.powsybl.org/schema/iidm/ext/cgmes_boundary_line_boundary_node/1_0",
-                new VersionNumbers(1, 1), IidmVersion.V_1_16, null);
+                "cblbn", new VersionNumbers(1, 1), IidmVersion.V_1_16, null);
 
         private final VersionInfo versionInfo;
 
-        Version(String xsdResourcePath, String namespaceUri, VersionNumbers versionNumbers, IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded) {
-            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, "cdlbn", versionNumbers,
+        Version(String xsdResourcePath, String namespaceUri, String namespacePrefix, VersionNumbers versionNumbers,
+                IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded) {
+            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, namespacePrefix, versionNumbers,
                     minIidmVersionIncluded, maxIidmVersionExcluded, CgmesBoundaryLineBoundaryNode.NAME);
         }
 
-        Version(String xsdResourcePath, String namespaceUri, VersionNumbers versionNumbers, IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded, String serializationName) {
-            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, "cdlbn", versionNumbers,
+        Version(String xsdResourcePath, String namespaceUri, String namespacePrefix, VersionNumbers versionNumbers,
+                IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded, String serializationName) {
+            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, namespacePrefix, versionNumbers,
                     minIidmVersionIncluded, maxIidmVersionExcluded, serializationName);
         }
 

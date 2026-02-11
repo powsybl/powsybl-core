@@ -241,7 +241,7 @@ class CgmesExportTest {
         // we will have to rely on some external boundaries definition
 
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine expected = network.getBoundaryLine("DL");
+        BoundaryLine expected = network.getBoundaryLine("BL");
         Network merged = Network.merge(network, BatteryNetworkFactory.create()); // add battery
         Battery battery = merged.getBattery("BAT");
 
@@ -270,7 +270,7 @@ class CgmesExportTest {
             }
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
-            BoundaryLine actual = networkFromCgmes.getBoundaryLine("DL");
+            BoundaryLine actual = networkFromCgmes.getBoundaryLine("BL");
             assertNotNull(actual);
             checkBoundaryLineParams(expected, actual);
             Generator generator = networkFromCgmes.getGenerator("BAT");
@@ -290,14 +290,14 @@ class CgmesExportTest {
         // we will re-import it as a regular line
 
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine expected = network.getBoundaryLine("DL");
+        BoundaryLine expected = network.getBoundaryLine("BL");
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             network.write("CGMES", null, tmpDir.resolve("tmp"));
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
-            Line actual = networkFromCgmes.getLine("DL");
+            Line actual = networkFromCgmes.getLine("BL");
             assertNotNull(actual);
             checkBoundaryLineParams(expected, actual);
             // The boundary line was exported as an ACLS plus an equivalent injection.
@@ -314,7 +314,7 @@ class CgmesExportTest {
         // we will have to rely on some external boundaries definition
 
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine expected = network.getBoundaryLine("DL");
+        BoundaryLine expected = network.getBoundaryLine("BL");
 
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this boundary line
@@ -340,7 +340,7 @@ class CgmesExportTest {
             }
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
-            BoundaryLine actual = networkFromCgmes.getBoundaryLine("DL");
+            BoundaryLine actual = networkFromCgmes.getBoundaryLine("BL");
             assertNotNull(actual);
             checkBoundaryLineParams(expected, actual);
         }
@@ -356,7 +356,7 @@ class CgmesExportTest {
         // but as a regular transmission line
 
         Network network = BoundaryLineNetworkFactory.create();
-        BoundaryLine expected = network.getBoundaryLine("DL");
+        BoundaryLine expected = network.getBoundaryLine("BL");
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
@@ -365,9 +365,9 @@ class CgmesExportTest {
             network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), importParams);
-            BoundaryLine actualBoundaryLine = networkFromCgmes.getBoundaryLine("DL");
+            BoundaryLine actualBoundaryLine = networkFromCgmes.getBoundaryLine("BL");
             assertNull(actualBoundaryLine);
-            Line actual = networkFromCgmes.getLine("DL");
+            Line actual = networkFromCgmes.getLine("BL");
             checkBoundaryLineParams(expected, actual);
             // non-network end is always exported with terminal sequence 2
             // at that node there should be only the equipment corresponding to the equivalent injection
@@ -657,7 +657,7 @@ class CgmesExportTest {
             assertEquals(CgmesNames.CONTROL_AREA_TYPE_KIND_INTERCHANGE, defaultControlArea.getAreaType());
             assertEquals(1, defaultControlArea.getAreaBoundaryStream().count());
             assertEquals(-50, defaultControlArea.getInterchangeTarget().orElse(Double.NaN));
-            assertEquals("DL", defaultControlArea.getAreaBoundaryStream().findFirst()
+            assertEquals("BL", defaultControlArea.getAreaBoundaryStream().findFirst()
                     .flatMap(AreaBoundary::getBoundary)
                     .map(Boundary::getBoundaryLine)
                     .map(BoundaryLine::getId)
@@ -669,7 +669,7 @@ class CgmesExportTest {
             Files.createDirectories(tmpDirWithCA);
             eqFile = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDirWithCA);
             String sshFile = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDirWithCA);
-            assertTrue(eqFile.contains("<cim:ControlArea rdf:ID=\"_dangling-line_N_CA\">"));
+            assertTrue(eqFile.contains("<cim:ControlArea rdf:ID=\"_boundary-line_N_CA\">"));
             assertTrue(sshFile.contains("<cim:ControlArea.netInterchange>-50</cim:ControlArea.netInterchange>"));
             // No default value for tolerance
             assertFalse(sshFile.contains("cim:ControlArea.pTolerance"));

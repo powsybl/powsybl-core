@@ -26,7 +26,7 @@ public final class BoundaryLineNetworkFactory {
     public static Network create(NetworkFactory networkFactory) {
         Network network = createBase(networkFactory);
         BoundaryLine boundaryLine = network.getVoltageLevel("VL").newBoundaryLine()
-                .setId("DL")
+                .setId("BL")
                 .setBus("BUS")
                 .setR(10.0)
                 .setX(1.0)
@@ -46,7 +46,7 @@ public final class BoundaryLineNetworkFactory {
     public static Network createWithGeneration(NetworkFactory networkFactory) {
         Network network = createBase(networkFactory);
         BoundaryLine boundaryLine = network.getVoltageLevel("VL").newBoundaryLine()
-                .setId("DL")
+                .setId("BL")
                 .setBus("BUS")
                 .setR(10.0)
                 .setX(1.0)
@@ -81,7 +81,7 @@ public final class BoundaryLineNetworkFactory {
     private static Network createBase(NetworkFactory networkFactory) {
         Objects.requireNonNull(networkFactory);
 
-        Network network = networkFactory.createNetwork("dangling-line", "test");
+        Network network = networkFactory.createNetwork("boundary-line", "test");
 
         Substation substation = network.newSubstation()
                 .setId("S")

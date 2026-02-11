@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.criteria.json;
 
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.iidm.criteria.*;
 
@@ -29,6 +30,7 @@ public class NetworkElementCriterionModule extends SimpleModule {
         addDeserializer(Criterion.class, new CriterionDeserializer());
         addDeserializer(LineCriterion.class, new LineCriterionDeserializer());
         addDeserializer(BoundaryLineCriterion.class, new BoundaryLineCriterionDeserializer());
+        registerSubtypes(new NamedType(BoundaryLineCriterion.class, "danglingLineCriterion")); // For backward-compatibility with criterion version 1.0
         addDeserializer(TieLineCriterion.class, new TieLineCriterionDeserializer());
         addDeserializer(TwoWindingsTransformerCriterion.class, new TwoWindingsTransformerCriterionDeserializer());
         addDeserializer(ThreeWindingsTransformerCriterion.class, new ThreeWindingsTransformerCriterionDeserializer());

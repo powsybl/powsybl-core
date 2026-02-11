@@ -45,17 +45,17 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
 
     @Override
     protected void writeRootElementAttributes(BoundaryLine dl, VoltageLevel vl, NetworkSerializerContext context) {
-        writeRootElementAttributesInternal(INSTANCE, dl, dl::getTerminal, context);
+        writeRootElementAttributesInternal(INSTANCE.getRootElementName(), dl, dl::getTerminal, context);
     }
 
-    static void writeRootElementAttributesInternal(BoundaryLineSerDe serde, BoundaryLine dl, Supplier<Terminal> terminalGetter, NetworkSerializerContext context) {
+    static void writeRootElementAttributesInternal(String rootElementName, BoundaryLine dl, Supplier<Terminal> terminalGetter, NetworkSerializerContext context) {
         Generation generation = dl.getGeneration();
         double[] p0 = new double[1];
         double[] q0 = new double[1];
         p0[0] = dl.getP0();
         q0[0] = dl.getQ0();
         if (generation != null) {
-            IidmSerDeUtil.assertMinimumVersion(serde.getRootElementName(), GENERATION, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_3, context);
+            IidmSerDeUtil.assertMinimumVersion(rootElementName, GENERATION, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_3, context);
             IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_2, context, () -> {
                 if (!Double.isNaN(generation.getTargetP())) {
                     p0[0] -= generation.getTargetP();
@@ -111,23 +111,11 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
 
     @Override
     protected BoundaryLine readRootElementAttributes(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
-        readRootElementAttributesInternal(adder, voltageLevel, context);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context, () -> {
-            String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
-            adder.setPairingKey(pairingKey);
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> {
-            String pairingKey = context.getReader().readStringAttribute("pairingKey");
-            adder.setPairingKey(pairingKey);
-        });
-        BoundaryLine dl = adder.add();
-        readPQ(null, dl.getTerminal(), context.getReader());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
-                readSelectedGroupId(null, dl::setSelectedOperationalLimitsGroup, context));
-        return dl;
+        IidmSerDeUtil.assertMinimumVersion(getRootElementName(), IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_16, context);
+        return readRootElementAttributesInternal(adder, voltageLevel, context);
     }
 
-    public static void readRootElementAttributesInternal(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+    public static BoundaryLine readRootElementAttributesInternal(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
         double r = context.getReader().readDoubleAttribute("r");
@@ -159,6 +147,19 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
                 .setX(x)
                 .setG(g)
                 .setB(b);
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context, () -> {
+            String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
+            adder.setPairingKey(pairingKey);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> {
+            String pairingKey = context.getReader().readStringAttribute("pairingKey");
+            adder.setPairingKey(pairingKey);
+        });
+        BoundaryLine dl = adder.add();
+        readPQ(null, dl.getTerminal(), context.getReader());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                readSelectedGroupId(null, dl::setSelectedOperationalLimitsGroup, context));
+        return dl;
     }
 
     @Override

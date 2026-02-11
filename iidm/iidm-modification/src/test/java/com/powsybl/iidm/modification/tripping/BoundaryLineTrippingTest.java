@@ -31,12 +31,12 @@ class BoundaryLineTrippingTest extends AbstractTrippingTest {
 
     @Test
     void dlTrippingTest() {
-        assertTrue(network.getBoundaryLine("DL").getTerminal().isConnected());
+        assertTrue(network.getBoundaryLine("BL").getTerminal().isConnected());
 
-        BoundaryLineTripping tripping = new BoundaryLineTripping("DL");
+        BoundaryLineTripping tripping = new BoundaryLineTripping("BL");
         tripping.apply(network);
 
-        assertFalse(network.getBoundaryLine("DL").getTerminal().isConnected());
+        assertFalse(network.getBoundaryLine("BL").getTerminal().isConnected());
     }
 
     @Test
