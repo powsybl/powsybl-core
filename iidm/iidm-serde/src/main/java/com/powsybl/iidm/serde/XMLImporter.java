@@ -80,7 +80,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
                 String name = xmlsr.getLocalName();
                 String ns = xmlsr.getNamespaceURI();
 
-                if (!NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name) || ns.isEmpty()) {
+                if (ns == null || ns.isEmpty() || !NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name)) {
                     return false;
                 }
 
@@ -114,7 +114,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
                 .map(v -> extractPrefix(v.getNamespaceURI(true)))
                 .anyMatch(prefix::equals)
                 || Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0)
+                .filter(IidmVersion::supportEquipmentValidationLevel)
                 .map(v -> extractPrefix(v.getNamespaceURI(false)))
                 .anyMatch(prefix::equals);
     }
