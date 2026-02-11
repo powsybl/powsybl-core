@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -181,23 +180,24 @@ public abstract class AbstractRemoteReactivePowerControlTest {
     }
 
     @Test
-    @Disabled("TODO MSA add validation")
     public void adderTest() {
         Network network = createNetwork();
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
         var adder = g.newVoltageRegulation()
-                .withTargetValue(200.0);
+            .withTargetValue(200.0);
         var e = assertThrows(PowsyblException.class, adder::build);
-        assertEquals("Regulating terminal must be set", e.getMessage());
+        assertEquals("Generator 'g4': [VoltageRegulation] Undefined value for regulationMode", e.getMessage());
         adder = g.newVoltageRegulation()
-                .withTerminal(l.getTerminal(TwoSides.ONE));
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(l.getTerminal(TwoSides.ONE));
         e = assertThrows(PowsyblException.class, adder::build);
-        assertEquals("Reactive power target must be set", e.getMessage());
+        assertEquals("Generator 'g4': [VoltageRegulation] Undefined value for target value", e.getMessage());
         var voltageRegulation = g.newVoltageRegulation()
-                .withTargetValue(200.0)
-                .withTerminal(l.getTerminal(TwoSides.ONE))
-                .build();
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTargetValue(200.0)
+            .withTerminal(l.getTerminal(TwoSides.ONE))
+            .build();
         assertTrue(voltageRegulation.isRegulating());
     }
 

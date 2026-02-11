@@ -10,9 +10,9 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -79,16 +79,17 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    @Disabled("TODO MSA")
-    public void undefinedVoltageRegulatorOn() {
-        GeneratorAdder generatorAdder = voltageLevel.newGenerator()
+    public void undefinedVoltageRegulationMode() {
+        VoltageRegulationAdder<GeneratorAdder> adder = voltageLevel.newGenerator()
                 .setId("GEN")
                 .setMaxP(Double.MAX_VALUE)
                 .setMinP(-Double.MAX_VALUE)
                 .setTargetP(30.0)
-                .setNode(1);
-        ValidationException e = assertThrows(ValidationException.class, generatorAdder::add);
-        assertEquals("Generator 'GEN': voltage regulator status is not set", e.getMessage());
+                .setNode(1)
+                .newVoltageRegulation()
+                    .withTargetValue(20);
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertEquals("Generator 'GEN': [VoltageRegulation] Undefined value for regulationMode", e.getMessage());
     }
 
     @Test
@@ -154,19 +155,17 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    @Disabled("TODO MSA")
     public void invalidReactiveQ() {
         ValidationException e = assertThrows(ValidationException.class, () -> createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
                 30.0, Double.NaN, false, 10.0));
-        assertTrue(e.getMessage().contains("for reactive power setpoint"));
+        assertEquals("Generator 'invalid': [VoltageRegulation] Undefined value for target value", e.getMessage());
     }
 
     @Test
-    @Disabled("TODO MSA")
     public void invalidVoltageSetpoint() {
         ValidationException e = assertThrows(ValidationException.class, () -> createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
-                30.0, 40.0, true, 0.0));
-        assertTrue(e.getMessage().contains("for voltage setpoint"));
+                30.0, 40.0, true, Double.NaN));
+        assertEquals("Generator 'invalid': [VoltageRegulation] Undefined value for target value", e.getMessage());
     }
 
     @Test

@@ -934,18 +934,18 @@ public final class ValidationUtil {
             // CHECK Target Deadband attribute
             validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationDeadband(owner, voltageRegulation.getTargetDeadband(), classHolder, actionOnError, reportNode, validationLevel));
             // CHECK Target Value attribute
-            validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationTargetValue(owner, voltageRegulation.getTargetValue(), actionOnError, reportNode, validationLevel));
+            validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationTargetValue(owner, voltageRegulation.getTargetValue(), actionOnError, reportNode));
         }
         return validationLevel;
     }
 
     public static ValidationLevel checkVoltageRegulationTargetValue(@NonNull Validable owner, double targetValue, ValidationLevel validationLevel, ReportNode reportNode) {
-        return checkVoltageRegulationTargetValue(owner, targetValue, checkValidationActionOnError(validationLevel), reportNode, validationLevel);
+        return checkVoltageRegulationTargetValue(owner, targetValue, checkValidationActionOnError(validationLevel), reportNode);
     }
 
-    private static ValidationLevel checkVoltageRegulationTargetValue(@NonNull Validable owner, double targetValue, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
+    private static ValidationLevel checkVoltageRegulationTargetValue(@NonNull Validable owner, double targetValue, ActionOnError actionOnError, ReportNode reportNode) {
         if (Double.isNaN(targetValue)) {
-            throwExceptionOrLogError(owner, "TODO MSA add log/exception -> targetValue must not be NAN", actionOnError,
+            throwExceptionOrLogError(owner, "[VoltageRegulation] Undefined value for target value", actionOnError,
                 id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));
             return ValidationLevel.EQUIPMENT;
         }
@@ -1001,7 +1001,7 @@ public final class ValidationUtil {
 
     private static <T extends VoltageRegulationHolder> ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, RegulationMode mode, Class<T> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
         if (mode == null) {
-            throwExceptionOrLogError(owner, "the current regulationMode of VoltageRegulation is undefined", actionOnError,
+            throwExceptionOrLogError(owner, "[VoltageRegulation] Undefined value for regulationMode", actionOnError,
                 id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));
             return ValidationLevel.EQUIPMENT;
         } else {
