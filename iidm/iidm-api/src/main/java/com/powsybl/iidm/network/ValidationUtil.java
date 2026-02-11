@@ -860,7 +860,7 @@ public final class ValidationUtil {
             } else if (identifiable instanceof Generator generator) {
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), actionOnError, reportNode));
 //                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), actionOnError, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulation(validable, generator.getVoltageRegulation(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulation(validable, generator.getVoltageRegulation(), Generator.class, actionOnError, reportNode));
             } else if (identifiable instanceof HvdcLine hvdcLine) {
                 validationLevel = ValidationLevel.min(validationLevel, checkConvertersMode(validable, hvdcLine.getConvertersMode(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkHvdcActivePowerSetpoint(validable, hvdcLine.getActivePowerSetpoint(), actionOnError, reportNode));
@@ -909,15 +909,15 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    public static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, ValidationLevel validationLevel, ReportNode reportNode) {
-        return checkVoltageRegulation(owner, voltageRegulation, checkValidationActionOnError(validationLevel), reportNode);
+    public static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, Class<? extends VoltageRegulationHolder> classHolder, ValidationLevel validationLevel, ReportNode reportNode) {
+        return checkVoltageRegulation(owner, voltageRegulation, classHolder, checkValidationActionOnError(validationLevel), reportNode);
     }
 
-    private static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode) {
+    private static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, Class<? extends VoltageRegulationHolder> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (voltageRegulation != null) {
             // CHECK Regulation MODE
-            validationLevel = checkVoltageRegulationMode(owner, voltageRegulation, actionOnError, reportNode, validationLevel);
+            validationLevel = checkVoltageRegulationMode(owner, voltageRegulation, classHolder, actionOnError, reportNode, validationLevel);
             // CHECK TERMINAL
             validationLevel = checkVoltageRegulationTerminal(owner, voltageRegulation, actionOnError, reportNode, validationLevel);
             // CHECK SLOPE attribute
@@ -972,14 +972,14 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    private static ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, VoltageRegulation voltageRegulation, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
+    public static ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, VoltageRegulation voltageRegulation, Class<? extends VoltageRegulationHolder> classHolder, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
         if (voltageRegulation.getMode() == null) {
             throwExceptionOrLogError(owner, "the current regulationMode of VoltageRegulation is undefined", actionOnError,
                 id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));
             return ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         } else {
             // CHECK ALLOWED MODE
-            Set<RegulationMode> allowedModes = getAllowedRegulatingModes(owner);
+            Set<RegulationMode> allowedModes = RegulationMode.getAllowedRegulationModes(classHolder);
             if (!allowedModes.contains(voltageRegulation.getMode())) {
                 String allowedModesString = allowedModes.stream().map(RegulationMode::name).collect(Collectors.joining(", "));
                 String message = String.format("the current regulationMode is %s but allowed modes are %s",
@@ -990,31 +990,6 @@ public final class ValidationUtil {
             }
         }
         return validationLevel;
-    }
-
-    private static @NonNull Set<RegulationMode> getAllowedRegulatingModes(@NonNull Validable owner) {
-        if (owner instanceof VoltageRegulationHolder voltageRegulationHolder) {
-            return voltageRegulationHolder.getAllowedRegulationModes();
-        }
-        throw new ValidationException(owner, "TODO MSA add log/exception -> class XXX is not a valid class for the voltageRegulation");
-//
-//        return switch (owner) {
-//            case Generator ignored ->
-//                Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
-//            case GeneratorAdder ignored ->
-//                Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER, RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
-//            case Battery battery -> Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
-//            case RatioTapChanger ratioTapChanger -> Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
-//            case VscConverterStation vscConverterStation ->
-//                Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
-//            case VoltageSourceConverter voltageSourceConverter ->
-//                Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER);
-//            case ShuntCompensator shuntCompensator -> Set.of(RegulationMode.VOLTAGE);
-//            case StaticVarCompensator staticVarCompensator ->
-//                Set.of(RegulationMode.VOLTAGE, RegulationMode.REACTIVE_POWER, RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
-//            case null, default ->
-//                throw new ValidationException(owner, "TODO MSA add log/exception -> class XXX is not a valid class for the voltageRegulation");
-//        };
     }
 
     private static ValidationLevel checkOperationalLimitsGroup(Validable validable, OperationalLimitsGroup operationalLimitsGroup, ValidationLevel previous, ActionOnError actionOnError, ReportNode reportNode) {

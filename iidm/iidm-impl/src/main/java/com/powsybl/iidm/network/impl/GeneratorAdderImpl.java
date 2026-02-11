@@ -10,8 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
 
-import java.util.Set;
-
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -140,10 +138,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         // TODO MSA Backward compatibility :
         //
         if (this.voltageRegulation == null) {
-            this.voltageRegulation = createVoltageRegulation(this);
+            createVoltageRegulation(this);
         }
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulation(this,
-            this.getVoltageRegulation(), network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
@@ -163,12 +159,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         return getNetworkRef().get();
     }
 
-    @Override
-    public VoltageRegulation getVoltageRegulation() {
-        return voltageRegulation;
-    }
-
-    private VoltageRegulation createVoltageRegulation(GeneratorAdder generatorAdder) {
+    private void createVoltageRegulation(GeneratorAdder generatorAdder) {
         // Common attributes
         VoltageRegulationAdder<GeneratorAdder> vrAdder = generatorAdder.newVoltageRegulation()
             .withTerminal(this.regulatingTerminal);
@@ -176,29 +167,23 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         if (Boolean.TRUE.equals(this.voltageRegulatorOn)) {
             vrAdder.withRegulating(true)
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(this.targetV);
-            return vrAdder.add().getVoltageRegulation();
+                .withTargetValue(this.targetV)
+                .add();
             // REACTIVE Power case
         } else if (!Double.isNaN(this.targetQ)) {
             vrAdder.withRegulating(true)
                 .withMode(RegulationMode.REACTIVE_POWER)
-                .withTargetValue(this.targetQ);
-            return vrAdder.add().getVoltageRegulation();
+                .withTargetValue(this.targetQ)
+                .add();
         }
-        return null;
     }
 
     @Override
     public VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(this, getNetworkRef(), this::setVoltageRegulation);
+        return new VoltageRegulationAdderImpl<>(Generator.class, this, getNetworkRef(), this::setVoltageRegulation);
     }
 
-    @Override
-    public Set<RegulationMode> getAllowedRegulationModes() {
-        return RegulationMode.getAllowedRegulationModes(Generator.class);
-    }
-
-    public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
         this.voltageRegulation = voltageRegulation;
     }
 }

@@ -7,9 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolderBuilder;
+import com.powsybl.iidm.network.regulation.*;
 
 /**
  * A ratio tap changer that is associated to a transformer to control the voltage or reactive power.
@@ -21,7 +19,7 @@ public interface RatioTapChanger extends TapChanger<
     RatioTapChangerStep,
     RatioTapChangerStepsReplacer,
     RatioTapChangerStepsReplacer.StepAdder>,
-    VoltageRegulationHolderBuilder {
+    VoltageRegulationHolder {
 
     @Deprecated(forRemoval = true, since = "7.2.0")
     enum RatioTapChangerRegulationMode {

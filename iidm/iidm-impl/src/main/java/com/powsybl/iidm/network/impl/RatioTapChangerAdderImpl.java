@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -140,17 +139,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
 
     @Override
     public VoltageRegulationAdder<RatioTapChangerAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(this, getNetwork().getRef(), this::setVoltageRegulation);
-    }
-
-    @Override
-    public VoltageRegulation getVoltageRegulation() {
-        return this.voltageRegulation;
-    }
-
-    @Override
-    public Set<RegulationMode> getAllowedRegulationModes() {
-        return RegulationMode.getAllowedRegulationModes(RatioTapChanger.class);
+        return new VoltageRegulationAdderImpl<>(RatioTapChanger.class, this, getNetwork().getRef(), this::setVoltageRegulation);
     }
 
     private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {

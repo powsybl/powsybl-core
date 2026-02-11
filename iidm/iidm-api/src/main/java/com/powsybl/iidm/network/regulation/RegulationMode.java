@@ -20,7 +20,7 @@ public enum RegulationMode {
     VOLTAGE_PER_REACTIVE_POWER,
     REACTIVE_POWER_PER_ACTIVE_POWER;
 
-    public static Set<RegulationMode> getAllowedRegulationModes(Class<? extends VoltageRegulationHolderBuilder> voltageRegulationHolder) {
+    public static Set<RegulationMode> getAllowedRegulationModes(Class<? extends VoltageRegulationHolder> voltageRegulationHolder) {
         return switch (voltageRegulationHolder) {
             case Class<?> c when c == Battery.class -> Set.of(VOLTAGE, REACTIVE_POWER);
             case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER, REACTIVE_POWER_PER_ACTIVE_POWER);

@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.regulation.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * {@inheritDoc}
@@ -247,18 +246,13 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
-        return new VoltageRegulationBuilderImpl<>(this, getNetwork().getRef(), this::setVoltageRegulation);
+        return new VoltageRegulationBuilderImpl<>(Battery.class, this, getNetwork().getRef(), this::setVoltageRegulation);
     }
 
     @Override
     public void removeVoltageRegulation() {
         this.getOptionalVoltageRegulation().ifPresent(vr -> vr.setTerminal(null));
         this.voltageRegulation = null;
-    }
-
-    @Override
-    public Set<RegulationMode> getAllowedRegulationModes() {
-        return RegulationMode.getAllowedRegulationModes(Battery.class);
     }
 
     public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {

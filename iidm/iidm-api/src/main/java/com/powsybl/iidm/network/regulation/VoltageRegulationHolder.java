@@ -7,16 +7,16 @@
  */
 package com.powsybl.iidm.network.regulation;
 
-import java.util.Set;
-
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public interface VoltageRegulationHolder {
 
+    VoltageRegulationBuilder newVoltageRegulation();
+
     VoltageRegulation getVoltageRegulation();
 
-    Set<RegulationMode> getAllowedRegulationModes();
+    void removeVoltageRegulation();
 
     // TODO MSA add default indirection methods??
 

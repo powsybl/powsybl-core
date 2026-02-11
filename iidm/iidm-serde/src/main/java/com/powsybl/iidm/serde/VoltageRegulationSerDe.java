@@ -64,7 +64,7 @@ public final class VoltageRegulationSerDe {
         TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
     }
 
-    public static void readVoltageRegulation(VoltageRegulationHolderBuilder holder, NetworkDeserializerContext context, Network network) {
+    public static void readVoltageRegulation(VoltageRegulationHolder holder, NetworkDeserializerContext context, Network network) {
         // Read attributes
         double targetValue = context.getReader().readDoubleAttribute(TARGET_VALUE);
         double targetDeadband = context.getReader().readDoubleAttribute(TARGET_DEADBAND);

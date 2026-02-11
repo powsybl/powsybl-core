@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.regulation.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -362,17 +361,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
-        return new VoltageRegulationBuilderImpl<>(this, getNetwork().getRef(), this::setVoltageRegulation);
+        return new VoltageRegulationBuilderImpl<>(Generator.class, this, getNetwork().getRef(), this::setVoltageRegulation);
     }
 
     @Override
     public void removeVoltageRegulation() {
         this.voltageRegulation = null;
-    }
-
-    @Override
-    public Set<RegulationMode> getAllowedRegulationModes() {
-        return RegulationMode.getAllowedRegulationModes(Generator.class);
     }
 
     public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {

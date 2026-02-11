@@ -21,8 +21,9 @@ import java.util.function.Consumer;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>, P extends VoltageRegulationHolder> implements VoltageRegulationAdderOrBuilder<T> {
+public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>, P> implements VoltageRegulationAdderOrBuilder<T> {
 
+    protected final Class<? extends VoltageRegulationHolder> classHolder;
     protected final P parent;
     protected final Consumer<VoltageRegulationImpl> setVoltageRegulation;
     protected final Ref<NetworkImpl> network;
@@ -33,7 +34,8 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     protected RegulationMode mode = null;
     protected boolean regulating = false;
 
-    protected AbstractVoltageRegulationAdderOrBuilder(P parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> setVoltageRegulation) {
+    protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder> classHolder, P parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> setVoltageRegulation) {
+        this.classHolder = classHolder;
         this.parent = parent;
         this.setVoltageRegulation = setVoltageRegulation;
         this.network = network;
@@ -79,7 +81,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
         VoltageRegulationImpl voltageRegulation = new VoltageRegulationImpl(network, targetValue, targetDeadband, slope, terminal, mode, regulating);
         if (parent instanceof Validable validable) {
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulation(validable,
-                voltageRegulation,
+                voltageRegulation, classHolder,
                 network.get().getMinValidationLevel(),
                 network.get().getReportNodeContext().getReportNode()));
         }
