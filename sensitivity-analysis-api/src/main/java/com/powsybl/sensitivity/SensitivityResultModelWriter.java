@@ -25,6 +25,8 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatuses;
 
+    private boolean computationComplete;
+
     public SensitivityResultModelWriter(List<Contingency> contingencies) {
         this.contingencies = Objects.requireNonNull(contingencies);
         contingencyStatuses = new ArrayList<>(Collections.nCopies(contingencies.size(), null));
@@ -38,13 +40,32 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
         return contingencyStatuses;
     }
 
+    public boolean isComputationComplete() {
+        return computationComplete;
+    }
+
     @Override
     public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
         values.add(new SensitivityValue(factorIndex, contingencyIndex, value, functionReference));
     }
 
+//    @Override
+//    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+//        contingencyStatuses.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status));
+//    }
+
     @Override
-    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
-        contingencyStatuses.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status));
+    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCs) {
+        if (contingencyStatuses.get(contingencyIndex) == null) {
+            SensitivityAnalysisResult.SensitivityContingencyStatus element = new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status);
+            contingencyStatuses.set(contingencyIndex, element);
+        }
+        contingencyStatuses.get(contingencyIndex).addComponentLoadFlowStatus(loadFlowStatus, numCC, numCs);
+    }
+
+    @Override
+    public void computationComplete() {
+        computationComplete = true;
+
     }
 }

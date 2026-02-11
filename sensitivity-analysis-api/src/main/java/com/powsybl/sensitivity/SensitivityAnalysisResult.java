@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.loadflow.LoadFlowResult;
 import org.jgrapht.alg.util.Triple;
 
 import java.io.IOException;
@@ -57,6 +58,15 @@ public class SensitivityAnalysisResult {
 
     private final Map<String, SensitivityContingencyStatus> statusByContingencyId = new HashMap<>();
 
+    /**
+     * The load flow status for the component
+     * @param status
+     * @param statusText
+     */
+    public record LoadFlowStatus(LoadFlowResult.ComponentResult.Status status, String statusText) {
+
+    }
+
     public enum Status {
         SUCCESS,
         FAILURE,
@@ -68,6 +78,10 @@ public class SensitivityAnalysisResult {
         private final String contingencyId;
 
         private final Status status;
+        /**
+         * Loadflow status for all the componentns
+         */
+        private final List<Triple<LoadFlowStatus, Integer, Integer>> componentsLoadFlowStatusList;
 
         public String getContingencyId() {
             return contingencyId;
@@ -77,9 +91,18 @@ public class SensitivityAnalysisResult {
             return status;
         }
 
+        public Collection<Triple<LoadFlowStatus, Integer, Integer>> getComponentsLoadFlowStatusList() {
+            return componentsLoadFlowStatusList;
+        }
+
         public SensitivityContingencyStatus(String contingencyId, Status status) {
             this.contingencyId = Objects.requireNonNull(contingencyId);
             this.status = Objects.requireNonNull(status);
+            this.componentsLoadFlowStatusList = new ArrayList<>();
+        }
+
+        public void addComponentLoadFlowStatus(LoadFlowStatus loadFlowStatus, int numCC, int numCs) {
+            componentsLoadFlowStatusList.add(Triple.of(loadFlowStatus, numCC, numCs));
         }
 
         public static void writeJson(JsonGenerator jsonGenerator, SensitivityContingencyStatus contingencyStatus) {
@@ -87,6 +110,15 @@ public class SensitivityAnalysisResult {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField("contingencyId", contingencyStatus.getContingencyId());
                 jsonGenerator.writeStringField("contingencyStatus", contingencyStatus.status.name());
+                jsonGenerator.writeArrayFieldStart("componentsLoadFlowStatus");
+                for (Triple<LoadFlowStatus, Integer, Integer> componentLoadflowStatus : contingencyStatus.getComponentsLoadFlowStatusList()) {
+                    jsonGenerator.writeStartObject();
+                    jsonGenerator.writeStringField("loadFlowStatus", componentLoadflowStatus.getFirst().toString());
+                    jsonGenerator.writeNumberField("numCC", componentLoadflowStatus.getSecond());
+                    jsonGenerator.writeNumberField("numCS", componentLoadflowStatus.getThird());
+                    jsonGenerator.writeEndObject();
+                }
+                jsonGenerator.writeEndArray();
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

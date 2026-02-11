@@ -25,12 +25,16 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
     private final TableFormatter formatterContingencyStatus;
 
+    private final TableFormatter formatterContingencyComponentsStatuses;
+
     private final List<Contingency> contingencies;
 
     public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterContingencyStatus,
+                                      TableFormatter formatterContingencyComponentsStatuses,
                                       List<Contingency> contingencies) {
         this.formatter = Objects.requireNonNull(formatter);
         this.formatterContingencyStatus = Objects.requireNonNull(formatterContingencyStatus);
+        this.formatterContingencyComponentsStatuses = Objects.requireNonNull(formatterContingencyComponentsStatuses);
         this.contingencies = Objects.requireNonNull(contingencies);
     }
 
@@ -54,6 +58,17 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
                 new Column("Contingency Status"));
     }
 
+    public static TableFormatter createContingencyStatusComponentsTableFormatter(Writer writer) {
+        Objects.requireNonNull(writer);
+        TableFormatterFactory factory = new CsvTableFormatterFactory();
+        var tfc = TableFormatterConfig.load();
+        return factory.create(writer, "Sensitivity analysis contingency status result", tfc,
+                new Column("Contingency ID"),
+                new Column("Loadflow Status"),
+                new Column("Index of Connected component"),
+                new Column("Index of Synchronous component"));
+    }
+
     @Override
     public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
         Contingency contingency = contingencyIndex != -1 ? contingencies.get(contingencyIndex) : null;
@@ -67,13 +82,33 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
         }
     }
 
+//    @Override
+//    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+//        try {
+//            formatterContingencyStatus.writeCell(contingencies.get(contingencyIndex).getId());
+//            formatterContingencyStatus.writeCell(status.name());
+//        } catch (IOException e) {
+//            throw new UncheckedIOException(e);
+//        }
+//    }
+
+    // 3 new parameters
+    // Called for every contigency and every numCC/numCS where the contingency has an impact
+    // For contingencies that are never run, called once in the end with no IMPACT and numCC and numCs set to -1
     @Override
-    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCs) {
         try {
-            formatterContingencyStatus.writeCell(contingencies.get(contingencyIndex).getId());
-            formatterContingencyStatus.writeCell(status.name());
+            formatterContingencyComponentsStatuses.writeCell(contingencies.get(contingencyIndex).getId());
+            formatterContingencyComponentsStatuses.writeCell(loadFlowStatus.statusText());
+            formatterContingencyComponentsStatuses.writeCell(numCC);
+            formatterContingencyComponentsStatuses.writeCell(numCs);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public void computationComplete() {
+
     }
 }

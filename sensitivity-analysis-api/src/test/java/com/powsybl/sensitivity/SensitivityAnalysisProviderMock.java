@@ -15,6 +15,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.Collections;
 import java.util.List;
@@ -66,7 +67,7 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
             }
         });
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
-            resultWriter.writeContingencyStatus(contingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
+            resultWriter.writeContingencyStatus(contingencyIndex, SensitivityAnalysisResult.Status.SUCCESS, new SensitivityAnalysisResult.LoadFlowStatus(LoadFlowResult.ComponentResult.Status.CONVERGED, ""), 0, 0);
         }
         Executor executor = computationManager.getExecutor();
         if (executor != null) {
