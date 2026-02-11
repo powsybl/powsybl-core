@@ -1,0 +1,65 @@
+@startuml
+
+class OperatorStrategy {
+    - id : String
+    - contingencyContext : ContingencyContext
+    - conditionalActions : List<ConditionalActions>
+
+    + OperatorStrategy(id : String, contingencyContext : ContingencyContext, condition : Condition, actionIds : List<String>)
+    + OperatorStrategy(id : String, contingencyContext : ContingencyContext, stages : List<ConditionalActions>)
+
+    + getId() : String
+    + getContingencyContext() : ContingencyContext
+    + getConditionalActions() : List<ConditionalActions>
+}
+OperatorStrategy --> ConditionalActions : getConditionalActions()
+OperatorStrategy --> ContingencyContext : getContingencyContext()
+OperatorStrategy ..> Condition
+
+class ConditionalActions {
+    - id : String
+    - condition : Condition
+    - actionIds : List<String>
+
+    + ConditionalActions(id : String, condition : Condition, actionIds : List<String>)
+    + getId() : String
+    + getCondition() : Condition
+    + getActionIds() : List<String>
+}
+ConditionalActions --> Condition : getCondition()
+
+class ContingencyContext {
+  - contingencyId : String
+  - contextType : ContingencyContextType
+
+  + ContingencyContext(contingencyId : String, contingencyContextType : ContingencyContextType)
+  + getContingencyId() : String
+  + getContextType() : ContingencyContextType
+
+  {static} + create(contingencyId : String, contingencyContextType : ContingencyContextType) : ContingencyContext
+  {static} + all() : ContingencyContext
+  {static} + none() : ContingencyContext
+  {static} + onlyContingencies() : ContingencyContext
+  {static} + specificContingency(contingencyId : String) : ContingencyContext
+}
+ContingencyContext --> ContingencyContextType
+
+enum ContingencyContextType {
+  ALL
+  NONE
+  SPECIFIC
+  ONLY_CONTINGENCIES
+}
+
+interface Condition {
+  + getType() : String
+}
+
+interface Action {
+  + getType() : String
+  + getId() : String
+  + toModification() : NetworkModification
+}
+
+
+@enduml

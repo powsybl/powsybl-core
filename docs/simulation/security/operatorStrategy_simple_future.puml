@@ -1,0 +1,52 @@
+@startuml
+
+class OperatorStrategy
+OperatorStrategy --> ContingencyContext : getContingencyContext()
+OperatorStrategy --> "*" ConditionalActions : getConditionalActions()
+
+interface Condition
+
+class ConditionalActions
+ConditionalActions --> Condition : getCondition()
+ConditionalActions ..> "*" Action : getActionIds()
+
+class ContingencyContext
+ContingencyContext --> ContingencyContextType: getContextType()
+
+enum ContingencyContextType {
+  ALL
+  NONE
+  SPECIFIC
+  ONLY_CONTINGENCIES
+  **SPECIFIC_AFTER_DURATION**
+}
+
+interface Action
+Action --> NetworkModification : toModification()
+
+interface NetworkModification
+
+class OptimizableOperatorStrategy
+OptimizableOperatorStrategy --> OperatorStrategy : toOperatorStrategy(setPoint)
+OptimizableOperatorStrategy --> Condition : getCondition()
+OptimizableOperatorStrategy --> ContingencyContext : getContingencyContext()
+OptimizableOperatorStrategy <|-- BinaryOperatorStrategy
+OptimizableOperatorStrategy <|-- RangeOperatorStrategy
+
+class BinaryOperatorStrategy
+BinaryOperatorStrategy ..> "*" Action : getActionIds()
+
+class RangeOperatorStrategy
+RangeOperatorStrategy --> RangeAction : getRangeAction()
+
+interface RangeAction
+RangeAction <|-- CompositeRangeAction
+RangeAction --> "*" Action : toActions(setPoint)
+
+interface CompositeRangeAction {
+  - rangeActions : List<RangeAction>
+}
+CompositeRangeAction --> "*" Action : convertSetPoint(setPoint, id)
+
+
+@enduml
