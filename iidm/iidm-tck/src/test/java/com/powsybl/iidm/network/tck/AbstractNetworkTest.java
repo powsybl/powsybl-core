@@ -89,6 +89,13 @@ public abstract class AbstractNetworkTest {
         assertEquals(2.0, topology1.getFictitiousQ0(0), 0.0);
         assertEquals(1.0, voltageLevel1.getNodeBreakerView().getTerminal(0).getBusView().getBus().getFictitiousP0(), 0.0);
         assertEquals(2.0, voltageLevel1.getNodeBreakerView().getTerminal(0).getBusView().getBus().getFictitiousQ0(), 0.0);
+        voltageLevel1.getNodeBreakerView().getTerminal(0).getBusView().getBus().setFictitiousP0(3.0);
+        voltageLevel1.getNodeBreakerView().getTerminal(0).getBusView().getBus().setFictitiousP0(4.0);
+        // here we only test that the bus has the correct fictitious.
+        // Do we want to enforce the current behavior of the in memory implementation
+        // on how to distribute it on the different nodes of the bus ?
+        assertEquals(1.0, voltageLevel1.getNodeBreakerView().getTerminal(0).getBusView().getBus().getFictitiousP0(), 3.0);
+        assertEquals(2.0, voltageLevel1.getNodeBreakerView().getTerminal(0).getBusView().getBus().getFictitiousQ0(), 4.0);
 
         assertEquals(6, topology1.getMaximumNodeIndex());
         assertEquals(2, Iterables.size(topology1.getBusbarSections()));
