@@ -7,8 +7,11 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -27,53 +30,60 @@ public class PsseLineGrouping {
         this.met = met;
     }
 
-    @Parsed(field = {"i", "ibus"})
     private int i;
-
-    @Parsed(field = {"j", "jbus"})
     private int j;
-
-    @Parsed(field = {"id", "mslid"}, defaultNullRead = "&1")
     private String id;
-
-    @Parsed
     private int met = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum2;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum3;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum4;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum5;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum6;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum7;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum8;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private Integer dum9;
+
+    public static PsseLineGrouping fromRecord(CsvRecord rec, String[] headers) {
+        PsseLineGrouping psseLineGrouping = new PsseLineGrouping();
+        psseLineGrouping.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseLineGrouping.setJ(parseIntFromRecord(rec, headers, "j", "jbus"));
+        psseLineGrouping.setId(parseStringFromRecord(rec, "&1", headers, "id", "mslid"));
+        psseLineGrouping.setMet(parseIntFromRecord(rec, headers, "met"));
+        psseLineGrouping.setDum1(parseIntFromRecord(rec, null, headers, "dum1"));
+        psseLineGrouping.setDum2(parseIntFromRecord(rec, null, headers, "dum2"));
+        psseLineGrouping.setDum3(parseIntFromRecord(rec, null, headers, "dum3"));
+        psseLineGrouping.setDum4(parseIntFromRecord(rec, null, headers, "dum4"));
+        psseLineGrouping.setDum5(parseIntFromRecord(rec, null, headers, "dum5"));
+        psseLineGrouping.setDum6(parseIntFromRecord(rec, null, headers, "dum6"));
+        psseLineGrouping.setDum7(parseIntFromRecord(rec, null, headers, "dum7"));
+        psseLineGrouping.setDum8(parseIntFromRecord(rec, null, headers, "dum8"));
+        psseLineGrouping.setDum9(parseIntFromRecord(rec, null, headers, "dum9"));
+        return psseLineGrouping;
+    }
+
+    public static String[] toRecord(PsseLineGrouping psseLineGrouping, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "ibus" -> String.valueOf(psseLineGrouping.getI());
+                case "j", "jbus" -> String.valueOf(psseLineGrouping.getJ());
+                case "id", "mslid" -> psseLineGrouping.getId();
+                case "met" -> String.valueOf(psseLineGrouping.getMet());
+                case "dum1" -> String.valueOf(psseLineGrouping.getDum1());
+                case "dum2" -> String.valueOf(psseLineGrouping.getDum2());
+                case "dum3" -> String.valueOf(psseLineGrouping.getDum3());
+                case "dum4" -> String.valueOf(psseLineGrouping.getDum4());
+                case "dum5" -> String.valueOf(psseLineGrouping.getDum5());
+                case "dum6" -> String.valueOf(psseLineGrouping.getDum6());
+                case "dum7" -> String.valueOf(psseLineGrouping.getDum7());
+                case "dum8" -> String.valueOf(psseLineGrouping.getDum8());
+                case "dum9" -> String.valueOf(psseLineGrouping.getDum9());
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;

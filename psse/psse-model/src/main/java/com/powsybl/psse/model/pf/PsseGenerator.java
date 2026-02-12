@@ -7,11 +7,17 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -19,78 +25,107 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseGenerator extends PsseVersioned {
 
-    @Parsed(field = {"i", "ibus"})
+    private static final String STRING_I = "i";
+    private static final String STRING_ID = "id";
+    private static final String STRING_NREG = "nreg";
+    private static final String STRING_BASLOD = "baslod";
+
     private int i;
-
-    @Parsed(field = {"id", "machid"}, defaultNullRead = "1")
     private String id;
-
-    @Parsed
     private double pg = 0;
-
-    @Parsed
     private double qg = 0;
-
-    @Parsed
     private double qt = 9999;
-
-    @Parsed
     private double qb = -9999;
-
-    @Parsed
     private double vs = 1;
-
-    @Parsed
     private int ireg = 0;
-
-    @Parsed
     private double mbase = Double.NaN;
-
-    @Parsed
     private double zr = 0;
-
-    @Parsed
     private double zx = 1;
-
-    @Parsed
     private double rt = 0;
-
-    @Parsed
     private double xt = 0;
-
-    @Parsed
     private double gtap = 1;
-
-    @Parsed
     private int stat = 1;
-
-    @Parsed
     private double rmpct = 100;
-
-    @Parsed
     private double pt = 9999;
-
-    @Parsed
     private double pb = -9999;
-
-    @Nested
     private PsseOwnership ownership;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int wmod = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double wpf = 1;
 
-    @Parsed
     @Revision(since = 35)
     private int nreg = 0;
 
-    @Parsed
     @Revision(since = 35)
     private int baslod = 0;
+
+    public static PsseGenerator fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        PsseGenerator psseGenerator = new PsseGenerator();
+        psseGenerator.setI(parseIntFromRecord(rec, headers, STRING_I, "ibus"));
+        psseGenerator.setId(parseStringFromRecord(rec, "1", headers, STRING_ID, "machid"));
+        psseGenerator.setPg(parseDoubleFromRecord(rec, 0d, headers, "pg"));
+        psseGenerator.setQg(parseDoubleFromRecord(rec, 0d, headers, "qg"));
+        psseGenerator.setQt(parseDoubleFromRecord(rec, 9999d, headers, "qt"));
+        psseGenerator.setQb(parseDoubleFromRecord(rec, -9999d, headers, "qb"));
+        psseGenerator.setVs(parseDoubleFromRecord(rec, 1d, headers, "vs"));
+        psseGenerator.setIreg(parseIntFromRecord(rec, 0, headers, "ireg"));
+        psseGenerator.setMbase(parseDoubleFromRecord(rec, Double.NaN, headers, "mbase"));
+        psseGenerator.setZr(parseDoubleFromRecord(rec, 0d, headers, "zr"));
+        psseGenerator.setZx(parseDoubleFromRecord(rec, 1d, headers, "zx"));
+        psseGenerator.setRt(parseDoubleFromRecord(rec, 0d, headers, "rt"));
+        psseGenerator.setXt(parseDoubleFromRecord(rec, 0d, headers, "xt"));
+        psseGenerator.setGtap(parseDoubleFromRecord(rec, 1d, headers, "gtap"));
+        psseGenerator.setStat(parseIntFromRecord(rec, 1, headers, "stat"));
+        psseGenerator.setRmpct(parseDoubleFromRecord(rec, 100d, headers, "rmpct"));
+        psseGenerator.setPt(parseDoubleFromRecord(rec, 9999d, headers, "pt"));
+        psseGenerator.setPb(parseDoubleFromRecord(rec, -9999d, headers, "pb"));
+        psseGenerator.setOwnership(PsseOwnership.fromRecord(rec, headers));
+        psseGenerator.setWmod(parseIntFromRecord(rec, 0, headers, "wmod"));
+        psseGenerator.setWpf(parseDoubleFromRecord(rec, 1d, headers, "wpf"));
+        if (version.getMajorNumber() >= 35) {
+            psseGenerator.setNreg(parseIntFromRecord(rec, 0, headers, STRING_NREG));
+            psseGenerator.setBaslod(parseIntFromRecord(rec, 0, headers, STRING_BASLOD));
+        }
+
+        return psseGenerator;
+    }
+
+    public static String[] toRecord(PsseGenerator psseGenerator, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case STRING_I, "ibus" -> String.valueOf(psseGenerator.getI());
+                case STRING_ID, "machid" -> psseGenerator.getId();
+                case "pg" -> String.valueOf(psseGenerator.getPg());
+                case "qg" -> String.valueOf(psseGenerator.getQg());
+                case "qt" -> String.valueOf(psseGenerator.getQt());
+                case "qb" -> String.valueOf(psseGenerator.getQb());
+                case "vs" -> String.valueOf(psseGenerator.getVs());
+                case "ireg" -> String.valueOf(psseGenerator.getIreg());
+                case "mbase" -> String.valueOf(psseGenerator.getMbase());
+                case "zr" -> String.valueOf(psseGenerator.getZr());
+                case "zx" -> String.valueOf(psseGenerator.getZx());
+                case "rt" -> String.valueOf(psseGenerator.getRt());
+                case "xt" -> String.valueOf(psseGenerator.getXt());
+                case "gtap" -> String.valueOf(psseGenerator.getGtap());
+                case "stat" -> String.valueOf(psseGenerator.getStat());
+                case "rmpct" -> String.valueOf(psseGenerator.getRmpct());
+                case "pt" -> String.valueOf(psseGenerator.getPt());
+                case "pb" -> String.valueOf(psseGenerator.getPb());
+                case "wmod" -> String.valueOf(psseGenerator.getWmod());
+                case "wpf" -> String.valueOf(psseGenerator.getWpf());
+                case STRING_NREG -> String.valueOf(psseGenerator.getNreg());
+                case STRING_BASLOD -> String.valueOf(psseGenerator.getBaslod());
+                default -> {
+                    Optional<String> optionalValue = psseGenerator.getOwnership().headerToString(headers[i]);
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    throw new PsseException("Unsupported header: " + headers[i]);
+                }
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;
@@ -263,12 +298,12 @@ public class PsseGenerator extends PsseVersioned {
     }
 
     public int getBaslod() {
-        checkVersion("baslod");
+        checkVersion(STRING_BASLOD);
         return baslod;
     }
 
     public void setBaslod(int baslod) {
-        checkVersion("baslod");
+        checkVersion(STRING_BASLOD);
         this.baslod = baslod;
     }
 
