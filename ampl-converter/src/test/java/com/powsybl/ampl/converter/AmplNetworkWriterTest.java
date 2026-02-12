@@ -180,6 +180,7 @@ class AmplNetworkWriterTest extends AbstractAmplExporterTest {
                 .setX(x2)
                 .setB(hl2b1 + hl2b2)
                 .setG(hl2g1 + hl2g2)
+                .setPairingKey(pairingKey)
                 .add();
 
         TieLineAdder adder = network.newTieLine().setId("testTie")

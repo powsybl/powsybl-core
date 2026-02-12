@@ -18,7 +18,7 @@
                 <iidm:bus id="NHV1"/>
                 <iidm:bus id="NDL-9"/>
             </iidm:busBreakerTopology>
-            <iidm:danglingLine id="DL9" p0="0.0" q0="0.0" r="1.0" x="1.0" g="0.0" b="0.0" bus="NDL-9" connectableBus="NDL-9"/>
+            <iidm:danglingLine id="DL9" pairingKey="XNODE" p0="0.0" q0="0.0" r="1.0" x="1.0" g="0.0" b="0.0" bus="NDL-9" connectableBus="NDL-9"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="NGEN" connectableBus1="NGEN" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"/>
     </iidm:substation>
@@ -28,7 +28,7 @@
                 <iidm:bus id="NHV2"/>
                 <iidm:bus id="NDL-8"/>
             </iidm:busBreakerTopology>
-            <iidm:danglingLine id="DL8" p0="0.0" q0="0.0" r="1.0" x="1.0" g="0.0" b="0.0" bus="NDL-8" connectableBus="NDL-8"/>
+            <iidm:danglingLine id="DL8" pairingKey="XNODE" p0="0.0" q0="0.0" r="1.0" x="1.0" g="0.0" b="0.0" bus="NDL-8" connectableBus="NDL-8"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>

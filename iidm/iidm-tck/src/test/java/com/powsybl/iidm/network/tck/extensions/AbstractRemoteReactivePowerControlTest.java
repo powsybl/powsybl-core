@@ -43,7 +43,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
     }
 
     //nominal v = 1
-    protected static Bus createBus(Network network, String substationId, String id, double nominalV) {
+    public static Bus createBus(Network network, String substationId, String id, double nominalV) {
         Substation s = network.getSubstation(substationId);
         if (s == null) {
             s = network.newSubstation()
