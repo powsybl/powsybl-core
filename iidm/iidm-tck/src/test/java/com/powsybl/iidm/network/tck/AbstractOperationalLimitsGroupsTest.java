@@ -573,16 +573,16 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         TwoWindingsTransformer twoWindingsTransformer = n.getTwoWindingsTransformer(EurostagTutorialExample1Factory.NGEN_NHV1);
         Collection<ApparentPowerLimits> apparentPowerLimits = twoWindingsTransformer.getAllSelectedApparentPowerLimits(TwoSides.TWO);
         Assertions.assertThat(apparentPowerLimits)
-                .hasSize(2)
-                .extracting(
-                        ApparentPowerLimits::getPermanentLimit,
-                        l -> l.getTemporaryLimits()
-                                .stream()
-                                .map(LoadingLimits.TemporaryLimit::getValue)
-                                .collect(Collectors.toSet())
-                ).containsExactlyInAnyOrder(
-                        new Tuple(230.0, Set.of(240.0)),
-                        new Tuple(240.0, Set.of(250.0))
-                );
+            .hasSize(2)
+            .extracting(
+                    ApparentPowerLimits::getPermanentLimit,
+                    l -> l.getTemporaryLimits()
+                            .stream()
+                            .map(LoadingLimits.TemporaryLimit::getValue)
+                            .collect(Collectors.toSet())
+            ).containsExactlyInAnyOrder(
+                    new Tuple(230.0, Set.of(240.0)),
+                    new Tuple(240.0, Set.of(250.0))
+            );
     }
 }
