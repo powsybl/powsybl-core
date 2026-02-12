@@ -16,12 +16,14 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
@@ -307,26 +309,75 @@ public final class TopologyExport {
     }
 
     private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
-            String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-            if (topologicalNodeId == null) {
-                // If no information about original boundary has been preserved in the IIDM model,
-                // we will create a new TopologicalNode
-                String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
-                // If the EQ has also been exported, a fictitious container should have been created
-                String containerId = context.getFictitiousContainerFor(dl);
-                if (containerId == null) {
-                    // As a last resort, we create the TN in the same container of the dangling line
-                    LOG.error("Dangling line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
-                                    " Dangling line {} is considered entirely inside voltage level {}",
-                            dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
-                    containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
-                }
-                String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(refTyped(dl), TOPOLOGICAL_NODE);
-                dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, fictTopologicalNodeId);
-                writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
-            }
+        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+            writeDanglingLineTopologicalNodes(Collections.singletonList(danglingLine), cimNamespace, writer, context);
         }
+
+        Set<String> pairingKeys = network.getDanglingLineStream(DanglingLineFilter.PAIRED).map(DanglingLine::getPairingKey).collect(Collectors.toSet());
+        for (String pairingKey : pairingKeys) {
+            List<DanglingLine> danglingLineList = network.getDanglingLineStream(DanglingLineFilter.PAIRED).filter(danglingLine -> pairingKey.equals(danglingLine.getPairingKey())).toList();
+            writeDanglingLineTopologicalNodes(danglingLineList, cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeDanglingLineTopologicalNodes(List<DanglingLine> danglingLineList, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (danglingLineList.isEmpty()) {
+            return;
+        }
+        // If no information about original boundary has been preserved in the IIDM model,
+        // we first try to find the TopologicalNodeId in the reference data provider, and as a last option,
+        // we will create a new TopologicalNode.
+        String topologicalNodeId;
+        Optional<String> optionalTopologicalNodeId = getDefinedTopologicalNode(danglingLineList);
+        if (optionalTopologicalNodeId.isPresent()) {
+            topologicalNodeId = optionalTopologicalNodeId.get();
+        } else {
+            optionalTopologicalNodeId = findTopologicalNodeId(danglingLineList.getFirst().getPairingKey(), context);
+            topologicalNodeId = optionalTopologicalNodeId.isPresent() ? optionalTopologicalNodeId.get() : createNewTopologicalNode(danglingLineList.getFirst(), cimNamespace, writer, context);
+        }
+
+        danglingLineList.forEach(dl -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, topologicalNodeId));
+    }
+
+    private static Optional<String> getDefinedTopologicalNode(List<DanglingLine> danglingLineList) {
+        return danglingLineList.stream()
+                .map(dl -> dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    private static Optional<String> findTopologicalNodeId(String pairingKey, CgmesExportContext context) {
+        ReferenceDataProvider referenceDataProvider = context.getReferenceDataProvider();
+        if (referenceDataProvider == null) {
+            return Optional.empty();
+        }
+        PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
+        if (boundaryNodes == null) {
+            return Optional.empty();
+        }
+        return boundaryNodes.stream()
+                .filter(propertyBag -> pairingKey.equals(propertyBag.getId("name")))
+                .map(propertyBag1 -> propertyBag1.getId("TopologicalNode"))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    private static String createNewTopologicalNode(DanglingLine dl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+
+        String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
+        // If the EQ has also been exported, a fictitious container should have been created
+        String containerId = context.getFictitiousContainerFor(dl);
+        if (containerId == null) {
+            // As a last resort, we create the TN in the same container of the dangling line
+            LOG.error("Dangling line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
+                            " Dangling line {} is considered entirely inside voltage level {}",
+                    dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
+            containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
+        }
+        String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(refTyped(dl), TOPOLOGICAL_NODE);
+        writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
+
+        return fictTopologicalNodeId;
     }
 
     private static void writeBusTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
