@@ -5,9 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.conversion.test;
 
-import com.google.common.collect.ImmutableList;
+import com.powsybl.cgmes.conversion.gl.CgmesGLExporter;
+import com.powsybl.cgmes.conversion.gl.CgmesGLUtils;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
@@ -100,7 +101,7 @@ class CgmesGLExporterTest {
         SubstationPosition substationPosition2 = new SubstationPositionImpl(substation2, SUBSTATION_2);
         substation2.addExtension(SubstationPosition.class, substationPosition2);
         Line line = network.getLine("Line");
-        line.addExtension(LinePosition.class, new LinePositionImpl<>(line, ImmutableList.of(SUBSTATION_1, LINE_1, LINE_2, SUBSTATION_2)));
+        line.addExtension(LinePosition.class, new LinePositionImpl<>(line, List.of(SUBSTATION_1, LINE_1, LINE_2, SUBSTATION_2)));
 
         TripleStore tripleStore = Mockito.mock(TripleStore.class);
         Mockito.when(tripleStore.add(ArgumentMatchers.anyString(), ArgumentMatchers.eq(CgmesNamespace.CIM_16_NAMESPACE),
@@ -117,7 +118,7 @@ class CgmesGLExporterTest {
         ArgumentCaptor<String> typeCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<PropertyBag> propertiesCaptor = ArgumentCaptor.forClass(PropertyBag.class);
 
-        new CgmesGLExporter(network, tripleStore).exportData(dataSource);
+        new CgmesGLExporter(network, CgmesNamespace.CIM_16, tripleStore).exportData(dataSource);
 
         // check add namespace
         Mockito.verify(tripleStore, Mockito.times(3)).addNamespace(prefixCaptor.capture(), namespaceCaptor.capture());
