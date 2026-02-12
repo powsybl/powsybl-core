@@ -539,26 +539,7 @@ public final class EurostagTutorialExample1Factory {
 
         network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
 
-        network.getSubstation("P2").setCountry(Country.BE);
-
-        network.getVoltageLevel(VLGEN).newGenerator()
-                .setId("GEN2")
-                .setBus(NGEN)
-                .setConnectableBus(NGEN)
-                .setMinP(-9999.99)
-                .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
-                .setTargetP(607.0)
-                .setTargetQ(301.0)
-                .add();
-
-        ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
-        ((Bus) network.getIdentifiable(NHV2)).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
-
         Line line = network.getLine(NHV1_NHV2_1);
-        line.getTerminal1().setP(560.0).setQ(550.0);
-        line.getTerminal2().setP(-560.0).setQ(-550.0);
         line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(500).add();
         line.newOperationalLimitsGroup1(ACTIVATED_ONE_ONE).newCurrentLimits()
                 .setPermanentLimit(1100)
@@ -671,8 +652,6 @@ public final class EurostagTutorialExample1Factory {
         Network network = createWith3wTransformer();
 
         network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
-
-        network.getSubstation("P2").setCountry(Country.BE);
 
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(NGEN_V2_NHV1);
 
