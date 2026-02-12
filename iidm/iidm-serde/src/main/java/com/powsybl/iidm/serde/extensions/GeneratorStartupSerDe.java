@@ -16,6 +16,9 @@ import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import com.powsybl.iidm.serde.IidmVersion;
 
+import static com.powsybl.iidm.network.ComponentConstants.MAX_RATE;
+import static com.powsybl.iidm.network.ComponentConstants.MIN_RATE;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -63,8 +66,8 @@ public class GeneratorStartupSerDe extends AbstractVersionableNetworkExtensionSe
         double plannedActivePowerSetpoint = context.getReader().readDoubleAttribute(getPlannedActivePowerSetpointName(extensionVersionImported));
         double startUpCost = context.getReader().readDoubleAttribute(getStartupCostName(extensionVersionImported));
         double marginalCost = context.getReader().readDoubleAttribute("marginalCost");
-        double plannedOutageRate = context.getReader().readDoubleAttribute("plannedOutageRate");
-        double forcedOutageRate = context.getReader().readDoubleAttribute("forcedOutageRate");
+        double plannedOutageRate = readOutageRate(context, "plannedOutageRate");
+        double forcedOutageRate = readOutageRate(context, "forcedOutageRate");
         context.getReader().readEndNode();
         return generator.newExtension(GeneratorStartupAdder.class)
                 .withPlannedActivePowerSetpoint(plannedActivePowerSetpoint)
@@ -73,6 +76,17 @@ public class GeneratorStartupSerDe extends AbstractVersionableNetworkExtensionSe
                 .withPlannedOutageRate(plannedOutageRate)
                 .withForcedOutageRate(forcedOutageRate)
                 .add();
+    }
+
+    private double readOutageRate(DeserializerContext context, String attributeName) {
+        double outageRate = context.getReader().readDoubleAttribute(attributeName);
+        // compatibility
+        if (outageRate > MAX_RATE) {
+            outageRate = MAX_RATE;
+        } else if (outageRate < MIN_RATE) {
+            outageRate = MIN_RATE;
+        }
+        return outageRate;
     }
 
     private static String getStartupCostName(Version extensionVersionToExport) {
