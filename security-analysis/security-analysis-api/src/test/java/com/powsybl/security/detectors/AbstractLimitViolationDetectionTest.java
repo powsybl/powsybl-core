@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.util.LimitViolationUtils.PERMANENT_LIMIT_NAME;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -538,6 +539,60 @@ public abstract class AbstractLimitViolationDetectionTest {
                 Arguments.of(network, case3, 90., null), // below the permanent limit
                 Arguments.of(network, case3, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL
                 Arguments.of(network, case3, 130., new ExpectedResults("TL", 120., 0)) // over the highest temp limit (TL)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideDetectCurrentLimitMultipleActivatedGroupsArguments")
+    void detectTemporaryCurrentLimitOverloadMultipleSelectedOnLine(Network network, String lineId, double currentValue, List<MultipleActiveExpectedResults> expectedResults) {
+        Line line = network.getLine(lineId);
+        checkCurrent(line, TwoSides.ONE, currentValue, violationsCollector::add);
+        Assertions.assertThat(violationsCollector)
+                .extracting(
+                        LimitViolation::getValue,
+                        LimitViolation::getLimit,
+                        LimitViolation::getAcceptableDuration
+                )
+                .containsExactlyInAnyOrderElementsOf(expectedResults.stream()
+                        .map(r -> tuple(r.value, r.limit, r.acceptableDuration))
+                        .toList());
+    }
+
+    private record MultipleActiveExpectedResults(double value, double limit, Integer acceptableDuration) { }
+
+    private static Stream<Arguments> provideDetectCurrentLimitMultipleActivatedGroupsArguments() {
+        String line1 = EurostagTutorialExample1Factory.NHV1_NHV2_1;
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        return Stream.of(
+                Arguments.of(network, line1, 250, List.of()),
+                Arguments.of(network, line1, 350, List.of(new MultipleActiveExpectedResults(350, 300, 2400))),
+                Arguments.of(network, line1, 600, List.of(
+                        new MultipleActiveExpectedResults(600, 300, 2400),
+                        new MultipleActiveExpectedResults(600, 500, Integer.MAX_VALUE))),
+                Arguments.of(network, line1, 812, List.of(
+                        new MultipleActiveExpectedResults(812, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(812, 700, 30)
+                )),
+                Arguments.of(network, line1, 1150, List.of(
+                        new MultipleActiveExpectedResults(1150, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1150, 1100, 600),
+                        new MultipleActiveExpectedResults(1150, 700, 30)
+                )),
+                Arguments.of(network, line1, 1400, List.of(
+                        new MultipleActiveExpectedResults(1400, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1400, 1200, 60),
+                        new MultipleActiveExpectedResults(1400, 700, 30)
+                )),
+                Arguments.of(network, line1, 1550, List.of(
+                        new MultipleActiveExpectedResults(1550, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1550, 1500, 0),
+                        new MultipleActiveExpectedResults(1550, 700, 30)
+                )),
+                Arguments.of(network, line1, 1601, List.of(
+                        new MultipleActiveExpectedResults(1601, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1601, 1500, 0),
+                        new MultipleActiveExpectedResults(1601, 1600, 0)
+                ))
         );
     }
 
