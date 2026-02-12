@@ -12,7 +12,7 @@ package com.powsybl.iidm.network;
  */
 public interface OverloadManagementSystemAdder extends IdentifiableAdder<OverloadManagementSystem, OverloadManagementSystemAdder> {
 
-    interface TrippingAdder<I extends TrippingAdder<I>> {
+    interface TrippingAdder<I extends TrippingAdder<I>> extends PropertiesHolder {
         /**
          * Set the unique key of the tripping.
          * <p>This key is unique for a single overload management system, but it can be reused

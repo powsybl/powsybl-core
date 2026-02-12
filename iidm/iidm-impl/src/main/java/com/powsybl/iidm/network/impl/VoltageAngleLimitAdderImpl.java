@@ -16,7 +16,7 @@ import com.powsybl.commons.ref.Ref;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
+class VoltageAngleLimitAdderImpl extends AbstractPropertiesHolder implements VoltageAngleLimitAdder, Validable {
 
     private final NetworkImpl network;
     private final String subnetwork;
@@ -85,6 +85,7 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
 
         VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(id, from, to, lowLimit, highLimit, networkRef);
         networkRef.get().getVoltageAngleLimitsIndex().put(id, voltageAngleLimit);
+        this.copyPropertiesTo(voltageAngleLimit);
         return voltageAngleLimit;
     }
 

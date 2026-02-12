@@ -17,7 +17,7 @@ package com.powsybl.iidm.network;
  * @param <T> the parent, so either a {@link TapChangerAdder} or a {@link TapChangerStepsReplacer}
  * @author Florent MILLOT {@literal <florent.millot at rte-france.com>}
  */
-public interface TapChangerStepAdder<S extends TapChangerStepAdder<S, T>, T> {
+public interface TapChangerStepAdder<S extends TapChangerStepAdder<S, T>, T> extends PropertiesHolder {
     S setRho(double rho);
 
     S setR(double r);
@@ -29,4 +29,5 @@ public interface TapChangerStepAdder<S extends TapChangerStepAdder<S, T>, T> {
     S setB(double b);
 
     T endStep();
+
 }

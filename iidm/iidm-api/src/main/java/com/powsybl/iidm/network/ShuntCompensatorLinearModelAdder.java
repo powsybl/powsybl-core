@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public interface ShuntCompensatorLinearModelAdder {
+public interface ShuntCompensatorLinearModelAdder extends PropertiesHolder {
 
     ShuntCompensatorLinearModelAdder setBPerSection(double bPerSection);
 

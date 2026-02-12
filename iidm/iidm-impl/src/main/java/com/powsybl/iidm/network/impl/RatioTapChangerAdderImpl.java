@@ -7,10 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 
@@ -22,7 +19,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
 
     private RatioTapChanger.RegulationMode regulationMode = null;
 
-    class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
+    class StepAdderImpl extends AbstractPropertiesHolder implements RatioTapChangerAdder.StepAdder {
 
         private double rho = Double.NaN;
 
@@ -67,6 +64,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
         @Override
         public RatioTapChangerAdder endStep() {
             RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
+            this.copyPropertiesTo(step);
             step.validate(parent);
             steps.add(step);
             return RatioTapChangerAdderImpl.this;
