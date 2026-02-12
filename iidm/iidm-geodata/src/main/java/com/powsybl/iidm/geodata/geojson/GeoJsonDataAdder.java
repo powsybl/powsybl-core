@@ -34,23 +34,23 @@ public class GeoJsonDataAdder {
 
     public static void fillNetworkSubstationsGeoDataFromFile(Network network, Path path, boolean forceGeoDataComputation) throws IOException {
         AtomicInteger substationsWithNewData = new AtomicInteger();
-        AtomicInteger substationsWithOldData = new AtomicInteger();
+        AtomicInteger substationsWithUpdatedData = new AtomicInteger();
         AtomicInteger unknownSubstations = new AtomicInteger();
         try (Reader reader = InputUtils.toReader(path)) {
             parseSubstations(reader, (id, coordinates) ->
-                fillSubstationGeoData(network, id, coordinates, forceGeoDataComputation, substationsWithNewData, substationsWithOldData, unknownSubstations));
+                fillSubstationGeoData(network, id, coordinates, forceGeoDataComputation, substationsWithNewData, substationsWithUpdatedData, unknownSubstations));
         }
-        LOGGER.info("{} substations with data added - {} substations with data updated - {} unknown substations", substationsWithNewData.get(), substationsWithOldData.get(), unknownSubstations.get());
+        LOGGER.info("{} substations with data added - {} substations with data updated - {} unknown substations", substationsWithNewData.get(), substationsWithUpdatedData.get(), unknownSubstations.get());
     }
 
     public static void fillNetworkLinesGeoDataFromFile(Network network, Path path, boolean forceGeoDataComputation) throws IOException {
         AtomicInteger linesWithNewData = new AtomicInteger();
-        AtomicInteger linesWithOldData = new AtomicInteger();
+        AtomicInteger linesWithUpdatedData = new AtomicInteger();
         AtomicInteger unknownLines = new AtomicInteger();
         try (Reader reader = InputUtils.toReader(path)) {
             parseLines(reader, (id, coordinates) ->
-                fillLineGeoData(network, id, coordinates, forceGeoDataComputation, linesWithNewData, linesWithOldData, unknownLines));
+                fillLineGeoData(network, id, coordinates, forceGeoDataComputation, linesWithNewData, linesWithUpdatedData, unknownLines));
         }
-        LOGGER.info("{} lines with data added - {} lines with data updated - {} unknown lines", linesWithNewData.get(), linesWithOldData.get(), unknownLines.get());
+        LOGGER.info("{} lines with data added - {} lines with data updated - {} unknown lines", linesWithNewData.get(), linesWithUpdatedData.get(), unknownLines.get());
     }
 }

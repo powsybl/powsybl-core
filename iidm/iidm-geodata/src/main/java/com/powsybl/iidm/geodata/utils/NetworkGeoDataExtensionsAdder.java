@@ -29,7 +29,7 @@ public final class NetworkGeoDataExtensionsAdder {
 
     public static void fillLineGeoData(Network network, String id, List<Coordinate> coordinates,
                                        boolean forceGeoDataComputation, AtomicInteger linesWithNewData,
-                                       AtomicInteger linesWithOldData, AtomicInteger unknownLines) {
+                                       AtomicInteger linesWithUpdatedData, AtomicInteger unknownLines) {
         Line line = network.getLine(id);
         if (line != null) {
             LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
@@ -37,7 +37,7 @@ public final class NetworkGeoDataExtensionsAdder {
                 if (forceGeoDataComputation) {
                     line.removeExtension(LinePosition.class);
                     addLinePositionExtension(line, coordinates);
-                    linesWithOldData.getAndIncrement();
+                    linesWithUpdatedData.getAndIncrement();
                 }
             } else {
                 addLinePositionExtension(line, coordinates);
@@ -50,7 +50,7 @@ public final class NetworkGeoDataExtensionsAdder {
 
     public static void fillSubstationGeoData(Network network, String id, Coordinate coordinate,
                                              boolean forceGeoDataComputation, AtomicInteger substationsWithNewData,
-                                             AtomicInteger substationsWithOldData, AtomicInteger unknownSubstations) {
+                                             AtomicInteger substationsWithUpdatedData, AtomicInteger unknownSubstations) {
         Substation substation = network.getSubstation(id);
         if (substation != null) {
             SubstationPosition substationPosition = substation.getExtension(SubstationPosition.class);
@@ -58,7 +58,7 @@ public final class NetworkGeoDataExtensionsAdder {
                 if (forceGeoDataComputation) {
                     substation.removeExtension(SubstationPosition.class);
                     addSubstationPositionExtension(substation, coordinate);
-                    substationsWithOldData.getAndIncrement();
+                    substationsWithUpdatedData.getAndIncrement();
                 }
             } else {
                 addSubstationPositionExtension(substation, coordinate);
