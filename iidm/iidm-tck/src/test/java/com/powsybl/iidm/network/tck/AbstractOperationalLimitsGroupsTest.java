@@ -8,9 +8,13 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -522,5 +526,63 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                 () -> assertFalse(group.hasProperty(property1)),
                 () -> assertEquals(Set.of(), group.getPropertyNames()),
                 () -> assertNull(group.getProperty(property1)));
+    }
+
+    @Test
+    void getAllSelectedCurrentLimits() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
+        Collection<CurrentLimits> currentLimits = line.getAllSelectedCurrentLimits(TwoSides.TWO);
+        Assertions.assertThat(currentLimits)
+            .hasSize(3)
+            .extracting(
+                   CurrentLimits::getPermanentLimit,
+                   l -> l.getTemporaryLimits()
+                           .stream()
+                           .map(LoadingLimits.TemporaryLimit::getValue)
+                           .collect(Collectors.toSet())
+            ).containsExactlyInAnyOrder(
+                    new Tuple(500.0, Set.of()),
+                    new Tuple(200.0, Set.of(600.0, Double.MAX_VALUE)),
+                    new Tuple(300.0, Set.of(Double.MAX_VALUE))
+            );
+    }
+
+    @Test
+    void getAllSelectedActivePowerLimits() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
+        ThreeWindingsTransformer.Leg legThree = n.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1).getLeg(ThreeSides.THREE);
+        Collection<ActivePowerLimits> activePowerLimits = legThree.getAllSelectedActivePowerLimits();
+        Assertions.assertThat(activePowerLimits)
+            .hasSize(2)
+            .extracting(
+                ActivePowerLimits::getPermanentLimit,
+                l -> l.getTemporaryLimits()
+                        .stream()
+                        .map(LoadingLimits.TemporaryLimit::getValue)
+                        .collect(Collectors.toSet())
+            ).containsExactlyInAnyOrder(
+                    new Tuple(250.0, Set.of()),
+                    new Tuple(350.0, Set.of(400.0))
+            );
+    }
+
+    @Test
+    void getAllSelectedApparentPowerLimits() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedApparentPowerLimits();
+        TwoWindingsTransformer twoWindingsTransformer = n.getTwoWindingsTransformer(EurostagTutorialExample1Factory.NGEN_NHV1);
+        Collection<ApparentPowerLimits> apparentPowerLimits = twoWindingsTransformer.getAllSelectedApparentPowerLimits(TwoSides.TWO);
+        Assertions.assertThat(apparentPowerLimits)
+                .hasSize(2)
+                .extracting(
+                        ApparentPowerLimits::getPermanentLimit,
+                        l -> l.getTemporaryLimits()
+                                .stream()
+                                .map(LoadingLimits.TemporaryLimit::getValue)
+                                .collect(Collectors.toSet())
+                ).containsExactlyInAnyOrder(
+                        new Tuple(230.0, Set.of(240.0)),
+                        new Tuple(240.0, Set.of(250.0))
+                );
     }
 }

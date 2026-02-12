@@ -454,6 +454,12 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    private static final String ACTIVATED_ONE_ONE = "activated_1_1";
+    private static final String ACTIVATED_ONE_TWO = "activated_1_2";
+    private static final String ACTIVATED_TWO_ONE = "activated_2_1";
+    private static final String ACTIVATED_TWO_TWO = "activated_2_2";
+    private static final String NOT_ACTIVATED = "not_activated";
+
     /**
      * Selected limits:
      * On {@link #NHV1_NHV2_1}, side 1
@@ -550,14 +556,11 @@ public final class EurostagTutorialExample1Factory {
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
         ((Bus) network.getIdentifiable(NHV2)).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
 
-        final String activatedOneOne = "activated_1_1";
-        final String activatedOneTwo = "activated_1_2";
-
         Line line = network.getLine(NHV1_NHV2_1);
         line.getTerminal1().setP(560.0).setQ(550.0);
         line.getTerminal2().setP(-560.0).setQ(-550.0);
         line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(500).add();
-        line.newOperationalLimitsGroup1(activatedOneOne).newCurrentLimits()
+        line.newOperationalLimitsGroup1(ACTIVATED_ONE_ONE).newCurrentLimits()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -571,7 +574,7 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        line.newOperationalLimitsGroup1(activatedOneTwo).newCurrentLimits()
+        line.newOperationalLimitsGroup1(ACTIVATED_ONE_TWO).newCurrentLimits()
                 .setPermanentLimit(300)
                 .beginTemporaryLimit()
                 .setName("40'")
@@ -590,13 +593,20 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, activatedOneOne, activatedOneTwo);
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, ACTIVATED_ONE_ONE, ACTIVATED_ONE_TWO);
 
-        final String activatedTwoOne = "activated_2_1";
+        line.newOperationalLimitsGroup1("not activated").newCurrentLimits()
+            .setPermanentLimit(400)
+            .beginTemporaryLimit()
+            .setValue(600)
+            .setName("30'")
+            .setAcceptableDuration(30 * 60)
+            .endTemporaryLimit()
+            .add();
 
         line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(600);
 
-        line.newOperationalLimitsGroup2(activatedTwoOne).newCurrentLimits()
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE).newCurrentLimits()
                 .setPermanentLimit(600)
                 .beginTemporaryLimit()
                 .setName("10'")
@@ -605,7 +615,7 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, activatedTwoOne);
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE);
 
         line = network.getLine(NHV1_NHV2_2);
         line.getTerminal1().setP(560.0).setQ(550.0);
@@ -625,9 +635,7 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(500).add();
 
-        final String activatedTwoTwo = "activated_2_2";
-
-        line.newOperationalLimitsGroup2(activatedTwoOne).newCurrentLimits()
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE).newCurrentLimits()
                 .setPermanentLimit(200)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -641,7 +649,7 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        line.newOperationalLimitsGroup2(activatedTwoTwo).newCurrentLimits()
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_TWO).newCurrentLimits()
                 .setPermanentLimit(300)
                 .beginTemporaryLimit()
                 .setName("N/A")
@@ -650,7 +658,78 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, activatedTwoOne, activatedTwoTwo);
+        line.newOperationalLimitsGroup2("not activated").newCurrentLimits()
+                .setPermanentLimit(400)
+                .add();
+
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE, ACTIVATED_TWO_TWO);
+
+        return network;
+    }
+
+    public static Network createWithMultipleSelectedFixedActivePowerLimits() {
+        Network network = createWith3wTransformer();
+
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
+
+        network.getSubstation("P2").setCountry(Country.BE);
+
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(NGEN_V2_NHV1);
+
+        ThreeWindingsTransformer.Leg legThree = threeWindingsTransformer.getLeg(ThreeSides.THREE);
+
+        legThree.getOrCreateSelectedOperationalLimitsGroup()
+                .newActivePowerLimits()
+                .setPermanentLimit(250)
+                .add();
+
+        legThree.newOperationalLimitsGroup(ACTIVATED_TWO_ONE)
+                .newActivePowerLimits()
+                .setPermanentLimit(350)
+                .beginTemporaryLimit()
+                .setValue(400)
+                .setName("45'")
+                .setAcceptableDuration(45 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        legThree.addSelectedOperationalLimitsGroups(ACTIVATED_TWO_ONE);
+
+        return network;
+    }
+
+    public static Network createWithMultipleSelectedFixedApparentPowerLimits() {
+        return createWithMultipleSelectedFixedApparentPowerLimits(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithMultipleSelectedFixedApparentPowerLimits(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
+
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(NGEN_NHV1);
+
+        twoWindingsTransformer.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE)
+                .newApparentPowerLimits()
+                .setPermanentLimit(230)
+                .beginTemporaryLimit()
+                .setValue(240)
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        twoWindingsTransformer.newOperationalLimitsGroup2(ACTIVATED_TWO_TWO)
+                .newApparentPowerLimits()
+                .setPermanentLimit(240)
+                .beginTemporaryLimit()
+                .setValue(250)
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        twoWindingsTransformer.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE, ACTIVATED_TWO_TWO);
 
         return network;
     }
