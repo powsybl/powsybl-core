@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -59,6 +60,10 @@ public class ReactiveLimitsSerDe {
 
     public void readReactiveCapabilityCurve(ReactiveLimitsHolder holder, NetworkDeserializerContext context) {
         ReactiveCapabilityCurveAdder curveAdder = holder.newReactiveCapabilityCurve();
+
+        // Add the check on min/max Q values for IIDM v1.14 and later
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> curveAdder.setShouldCheckMinMaxValues(false));
+
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals(POINT_ROOT_ELEMENT_NAME)) {
                 double p = context.getReader().readDoubleAttribute("p");

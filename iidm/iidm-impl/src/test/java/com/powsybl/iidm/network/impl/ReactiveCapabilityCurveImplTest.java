@@ -15,7 +15,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.TreeMap;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -90,5 +93,11 @@ class ReactiveCapabilityCurveImplTest {
         // "-0.0 == 0.0" (JLS), but "Double.compareTo(-0.0, 0.0) = -1"
         // This test asserts that -0.0 is considered as equal to 0.0 by the reactive capability curve.
         assertEquals(200.0, curve.getMinQ(-0.0), 0.0);
+    }
+
+    @Test
+    void testMinQStrictlySuperiorToMaxQ() {
+        assertThrows(IllegalStateException.class, () -> new PointImpl(100, 200, 100));
+        assertDoesNotThrow(() -> new PointImpl(100, 200, 100, false));
     }
 }
