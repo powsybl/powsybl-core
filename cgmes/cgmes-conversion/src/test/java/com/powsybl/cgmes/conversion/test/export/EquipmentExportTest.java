@@ -1423,6 +1423,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setTargetP(25.0)
                 .setTargetQ(10.0)
                 .setVoltageRegulatorOn(false)
+                .setCondenserCapability(true)
                 .setCondenser(true)
                 .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();

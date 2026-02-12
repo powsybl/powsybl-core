@@ -173,7 +173,8 @@ A generator is a piece of equipment that injects or consumes active power, and i
 | $RegulatingTerminal$     |      | Associated node or bus for which voltage is to be regulated, can be remote or local |
 | $VoltageRegulatorOn$     |      | True if the generator regulates voltage                                             |
 | $EnergySource$           |      | The energy source harnessed to turn the generator                                   |
-| $IsCondenser$            |      | True if the generator may behave as a condenser                                     |
+| $HasCondenserCapability$ |      | True if the generator can behave as a condenser                                     |
+| $IsCondenser$            |      | True if the generator behaves as a condenser                                        |
 
 **Specifications**
 
@@ -186,6 +187,8 @@ Target values for generators (`TargetP` and `TargetQ`) follow the generator sign
 The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
 
 The optional `EquivalentLocalTargetV` value can be used by simulators that deactivate the remote voltage algorithms, or by dynamic simulators that use this voltage as a starting value.
+
+The boolean `IsCondenser` can be true only if `HasCondenserCapability` is true.
 
 **Available extensions**
 
