@@ -19,7 +19,7 @@ import java.util.Optional;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class VoltageLevelAdderImpl extends AbstractIdentifiableWithPropertiesAdder<VoltageLevelAdderImpl> implements VoltageLevelAdder {
+class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderImpl> implements VoltageLevelAdder {
 
     private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
@@ -95,7 +95,6 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableWithPropertiesAdder<Volt
         ValidationUtil.checkTopologyKind(this, topologyKind);
 
         VoltageLevelExt voltageLevel = new VoltageLevelImpl(id, getName(), isFictitious(), substation, networkRef, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind);
-        this.copyPropertiesTo(voltageLevel);
         getNetwork().getIndex().checkAndAdd(voltageLevel);
         Optional.ofNullable(substation).ifPresent(s -> s.addVoltageLevel(voltageLevel));
         getNetwork().getListeners().notifyCreation(voltageLevel);

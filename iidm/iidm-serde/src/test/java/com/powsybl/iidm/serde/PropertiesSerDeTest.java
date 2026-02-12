@@ -199,6 +199,7 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
         assertEquals("valueExpLoadModel", load2.getModel().orElseThrow().getProperty(TEST_PROPERTY));
 
         assertEquals("valueVoltageLevel", nodeBreakerNetwork.getVoltageLevel("voltageLevel1").getProperty(TEST_PROPERTY));
+
         for (ShuntCompensator shuntCompensator1 : voltageLevel.getShuntCompensators()) {
             ShuntCompensatorModel model1 = shuntCompensator1.getModel();
             if (model1 instanceof ShuntCompensatorNonLinearModel) {
