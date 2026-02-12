@@ -179,13 +179,12 @@ public class PowerFactoryImporter implements Importer {
         // We need to create the HVDC converter now so that we can discard the DC lines and
         // DC nodes from some AC grid processing, before the network is ready
         // to be enriched with the DC subgrids.
-        AbstractHvdcConverter hvdcConverter;
+        AbstractHvdcConverter hvdcConverter = null;
         // simplified HVDC = lines only
         // detailed = possibly full multi-terminals DC subgrids
         if (Parameter.readBoolean(getFormat(), parameters, HVDC_IMPORT_DETAILED_PARAMETER, defaultValueConfig)) {
-            HvdcDetailedConverter detailedConverter = new HvdcDetailedConverter(importContext, network);
-            detailedConverter.getGridData(elmTerms, elmVscs);
-            hvdcConverter = detailedConverter;
+            hvdcConverter =
+                new HvdcDetailedConverter(importContext, network, elmTerms, elmVscs);
         } else {
             HvdcSimplifiedConverter simplifiedConverter = new HvdcSimplifiedConverter(importContext, network);
             simplifiedConverter.computeConfigurations(elmTerms, elmVscs);
