@@ -8,12 +8,12 @@
             <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="false" targetP="232.392" targetV="146.28" targetQ="-16.549" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
             </iidm:generator>
-            <iidm:shunt id="B1-SwSH1" sectionCount="2" voltageRegulatorOn="false" bus="B1" connectableBus="B1">
+            <iidm:shuntCompensator id="B1-SwSH1" sectionCount="2" voltageRegulatorOn="false" bus="B1" connectableBus="B1">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.005250997689561016" g="0.0"/>
                 </iidm:shuntNonLinearModel>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S2">
@@ -47,9 +47,9 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B4-L1 " loadType="UNDEFINED" p0="47.8" q0="-3.9" bus="B4" connectableBus="B4"/>
             <iidm:load id="B9-L1 " loadType="UNDEFINED" p0="29.5" q0="16.6" bus="B9" connectableBus="B9"/>
-            <iidm:shunt id="B9-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
+            <iidm:shuntCompensator id="B9-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
             <iidm:staticVarCompensator id="FactsDevice-FACTS_DVCE_1" name="FACTS_DVCE_1" bMin="-0.001312749422390254" bMax="0.001312749422390254" voltageSetpoint="140.07" reactivePowerSetpoint="40.0" regulationMode="VOLTAGE" regulating="true" bus="B7" connectableBus="B7">
                 <iidm:regulatingTerminal id="L-7-8-1 " side="ONE"/>
             </iidm:staticVarCompensator>
