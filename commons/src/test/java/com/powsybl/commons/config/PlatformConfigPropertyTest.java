@@ -21,7 +21,9 @@ import java.time.*;
 import java.util.List;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
@@ -95,19 +97,19 @@ class PlatformConfigPropertyTest {
         Class<? extends TestClass> classValue = platformConfig.getClassProperty(MODULE_NAME, "classProperty", DefaultTestSubClass.class, TestClass.class);
         ZonedDateTime zonedDateTimeValue = platformConfig.getZonedDateTimeProperty(MODULE_NAME, "zonedDateTimeProperty", defaultZonedDateTime);
         // Then
-        assertThat(stringValue).isEqualTo("value");
-        assertThat(booleanValue).isTrue();
-        assertThat(intValue).isEqualTo(22);
-        assertThat(enumValue).isEqualTo(TestEnum.FIRST);
-        assertThat(floatValue).isEqualTo(1);
-        assertThat(doubleValue).isEqualTo(1.00);
-        assertThat(longValue).isEqualTo(1);
-        assertThat(stringValues).containsExactly("value1");
-        assertThat(enumValues).containsExactly(TestEnum.FIRST);
-        assertThat(pathValue).isEqualTo(fileSystem.getPath(WORK_FOLDER + "/path1"));
-        assertThat(pathsValue).containsExactly(fileSystem.getPath(WORK_FOLDER + "path1"), fileSystem.getPath(WORK_FOLDER + "path2"));
-        assertThat(classValue).isEqualTo(TestSubClass.class);
-        assertThat(zonedDateTimeValue).isEqualTo(ZonedDateTime.parse("2026-01-02T00:00Z"));
+        assertEquals("value", stringValue);
+        assertTrue(booleanValue);
+        assertEquals(22, intValue);
+        assertEquals(TestEnum.FIRST, enumValue);
+        assertEquals(1, floatValue, 0.001);
+        assertEquals(1.00, doubleValue, 0.001);
+        assertEquals(1, longValue);
+        assertEquals(List.of("value1"), stringValues);
+        assertEquals(Set.of(TestEnum.FIRST), enumValues);
+        assertEquals(fileSystem.getPath(WORK_FOLDER + "/path1"), pathValue);
+        assertEquals(List.of(fileSystem.getPath(WORK_FOLDER + "path1"), fileSystem.getPath(WORK_FOLDER + "path2")), pathsValue);
+        assertEquals(TestSubClass.class, classValue);
+        assertEquals(ZonedDateTime.parse("2026-01-02T00:00Z"), zonedDateTimeValue);
     }
 
     @ParameterizedTest(name = "with module creation : {0}")
@@ -132,18 +134,18 @@ class PlatformConfigPropertyTest {
         Class<? extends TestClass> classValue = platformConfig.getClassProperty(MODULE_NAME, "classProperty", DefaultTestSubClass.class, TestClass.class);
         ZonedDateTime zonedDateTimeValue = platformConfig.getZonedDateTimeProperty(MODULE_NAME, "zonedDateTimeProperty", defaultZonedDateTime);
         // Then
-        assertThat(stringValue).isEqualTo("default-string");
-        assertThat(booleanValue).isFalse();
-        assertThat(intValue).isEqualTo(23);
-        assertThat(enumValue).isEqualTo(TestEnum.SECOND);
-        assertThat(floatValue).isEqualTo(2);
-        assertThat(doubleValue).isEqualTo(2.00);
-        assertThat(longValue).isEqualTo(2);
-        assertThat(enumValues).containsExactly(TestEnum.SECOND);
-        assertThat(stringValues).containsExactly("value1", "value2");
-        assertThat(pathValue).isEqualTo(defaultPath);
-        assertThat(pathsValue).containsExactly(defaultPath);
-        assertThat(classValue).isEqualTo(DefaultTestSubClass.class);
-        assertThat(zonedDateTimeValue).isEqualTo(defaultZonedDateTime);
+        assertEquals("default-string", stringValue);
+        assertFalse(booleanValue);
+        assertEquals(23, intValue);
+        assertEquals(TestEnum.SECOND, enumValue);
+        assertEquals(2, floatValue, 0.001);
+        assertEquals(2.00, doubleValue, 0.001);
+        assertEquals(2, longValue);
+        assertEquals(Set.of(TestEnum.SECOND), enumValues);
+        assertEquals(List.of("value1", "value2"), stringValues);
+        assertEquals(defaultPath, pathValue);
+        assertEquals(List.of(defaultPath), pathsValue);
+        assertEquals(DefaultTestSubClass.class, classValue);
+        assertEquals(defaultZonedDateTime, zonedDateTimeValue);
     }
 }

@@ -97,13 +97,13 @@ public class PlatformConfig {
 
     public int getIntProperty(String moduleName, String propertyName, int defaultValue) {
         return getOptionalModuleConfig(moduleName)
-                .map(moduleConfig -> moduleConfig.getOptionalIntProperty(propertyName).orElse(defaultValue))
+                .map(moduleConfig -> moduleConfig.getIntProperty(propertyName, defaultValue))
                 .orElse(defaultValue);
     }
 
     public float getFloatProperty(String moduleName, String propertyName, float defaultValue) {
         return getOptionalModuleConfig(moduleName)
-                .map(moduleConfig -> moduleConfig.getFloatProperty(propertyName, defaultValue))
+                .flatMap(moduleConfig -> moduleConfig.getOptionalFloatProperty(propertyName))
                 .orElse(defaultValue);
     }
 
@@ -115,8 +115,7 @@ public class PlatformConfig {
 
     public Long getLongProperty(String moduleName, String propertyName, long defaultValue) {
         return getOptionalModuleConfig(moduleName)
-                .map(moduleConfig -> moduleConfig.getOptionalLongProperty(propertyName)
-                        .orElse(defaultValue))
+                .map(moduleConfig -> moduleConfig.getLongProperty(propertyName, defaultValue))
                 .orElse(defaultValue);
     }
 
