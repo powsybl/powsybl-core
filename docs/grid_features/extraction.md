@@ -205,9 +205,7 @@ reducer.reduce(network)
 saveNetwork("XIIDM", network, null, args[1])
 ```
 
-See the [groovy scripts]() documentation page for more information about this topic.
-
-Then, we run the [groovy-script]() command to apply the previous script to the `network.xiidm` file, and then export the modified network to the `network2.xiidm` file.
+Then, we run the [groovy-script](../user/itools/run-script.md) command to apply the previous script to the `network.xiidm` file, and then export the modified network to the `network2.xiidm` file.
 ```shell
 $> ./itools run-script --file extraction.groovy network.xiidm network2.xiidm
 ```

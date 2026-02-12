@@ -46,11 +46,11 @@ It takes as input:
 - The ID of the bus or busbar section (in `BUS_BREAKER` or `NODE_BREAKER` voltage levels respectively) to which the
   injection should be connected.
 - The position order of the injection: when adding an injection to a `NODE_BREAKER` voltage level, this integer will be
-  used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) that is
+  used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) that is
   used for visualization. It is optional for `BUS_BREAKER` voltage levels and will be ignored if specified.
-- Optionally, a name for the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension).
+- Optionally, a name for the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position).
   By default, the ID of the injection will be used.
-- Optionally, the direction of the injection. It is also used to fill the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension).
+- Optionally, the direction of the injection. It is also used to fill the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position).
   It indicates if the injection should be displayed at the top or at the bottom of the busbar section. By default, it is
   `BOTTOM`.
 - Optionally, a boolean `logOrThrowIfIncorrectPositionOrder`, that indicates what should happen if the position order is
@@ -71,8 +71,8 @@ If the voltage level topology kind is `BUS_BREAKER`, then the injection is added
 bus without any extension or switches.
 If the voltage level topology kind is `NODE_BREAKER`, then the injection is added to the voltage level and connected to
 the busbar section with a closed disconnector and a breaker. Additionally, open disconnectors will be created on every
-parallel busbar section. To know which busbar sections are parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position-extension)
-is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) will also be
+parallel busbar section. To know which busbar sections are parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position)
+is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the injection with the given data, unless there are no extensions yet in the voltage level.
 
 #### Create Branch Feeder bays
@@ -84,15 +84,15 @@ It takes as input:
 - The ID of the bus or busbar section (in `BUS_BREAKER` or `NODE_BREAKER` voltage levels respectively) to which the side
   2 of the branch should be connected.
 - The position order of the branch on side 1. If the voltage level on side 1 of the branch is `NODE_BREAKER`, then
-  this integer is used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension)
+  this integer is used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position)
   for the branch that is used for visualization and for positioning connectables relative to each other.
   It is optional for `BUS_BREAKER` voltage levels and will be ignored if specified.
 - The position order of the branch on side 2. It is the same but on the other side.
-- Optionally, a name for the feeder that will be added in the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension)
+- Optionally, a name for the feeder that will be added in the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position)
   for side 1. This name is used for visualization. By default, it is the ID of the connectable.
 - Optionally, a name for the feeder for side 2.
 - Optionally, the direction of the feeder on side 1. This information will be used to fill the field in the
-  [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) and indicates the relative
+  [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) and indicates the relative
   position of the branch with its busbar section on side 1. The default value is `TOP`.
 - Optionally, the direction on side 2.
 - Optionally, a boolean `logOrThrowIfIncorrectPositionOrder1`, that indicates what should happen if the position order is
@@ -114,8 +114,8 @@ For each side, if the voltage level topology kind is `BUS_BREAKER`, then the bra
 connected to the bus without any extension or switches. If the voltage level topology kind is `NODE_BREAKER`, then the
 branch is added to the voltage level and connected to the busbar section with a closed disconnector and a breaker.
 Additionally, open disconnectors will be created on every parallel busbar section. To know which busbar sections are
-parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position-extension)
-is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) will also be
+parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position)
+is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the branch with the given data, unless no extensions are already available in the voltage level.
 
 #### Create Coupling Device
@@ -133,7 +133,7 @@ busbar sections as such:
 A closed disconnector will be created on both busbar sections.
 A closed breaker will be created between the two closed disconnectors.
 An open disconnector will be created on every parallel busbar section. To find the parallel busbar sections, the
-[`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position-extension) is used.
+[`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position) is used.
 The coupling device can be created between busbar sections that are parallel or not. If the two busbar sections are
 parallel and there are exactly two parallel busbar sections, then no open disconnectors are created.
 
@@ -199,7 +199,7 @@ It takes as input:
 
 ### Connect feeders to busbar sections
 This class allows the connection of feeders to busbar sections in `NODE_BREAKER` topology.
-The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) must be available for each busbar section in the voltage level.
+The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) must be available for each busbar section in the voltage level.
 
 It takes as input:
 - A list of connectables that should be connected. None of them should be a `BusbarSection`.

@@ -136,7 +136,7 @@ The mapping of an `EquivalentInjection` depends on its location relative to the 
 
 If the `EquivalentInjection` is outside the boundary area, it will be mapped to a PowSyBl `Generator`.
 
-If the `EquivalentInjection` is at the boundary area, its regulating voltage data will be mapped to the generation data inside the PowSyBl `BoundaryLine` created at the boundary point and its values for `P`, `Q` will be used to define the BoundaryLine `P0`, `Q0`. Please note that the said `BoundaryLine` can be created from an [`ACLineSegment`](#aclinesegment), a [`Switch`](#switch-switch-breaker-disconnector-loadbreakswitch-protectedswitch-grounddisconnector),
+If the `EquivalentInjection` is at the boundary area, its regulating voltage data will be mapped to the generation data inside the PowSyBl `BoundaryLine` created at the boundary point and its values for `P`, `Q` will be used to define the BoundaryLine `P0`, `Q0`. Please note that the said `BoundaryLine` can be created from an [`ACLineSegment`](#aclinesegment), a [`Switch`](#switch-switch-breaker-disconnector-loadbreakswitch-protectedswitch-grounddisconnector-jumper),
 an [`EquivalentBranch`](#equivalentbranch) or a [`PowerTransformer`](#powertransformer).
 
 Attributes of the PowSyBl generator or of the PowSyBl boundary line generation are created as such:

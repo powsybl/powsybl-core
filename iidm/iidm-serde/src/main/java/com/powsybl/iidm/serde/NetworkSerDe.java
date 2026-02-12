@@ -369,7 +369,9 @@ public final class NetworkSerDe {
         AliasesSerDe.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesSerDe.write(n, context);
 
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> writeSubnetworks(n, context, extensionsSupplier));
+        if (supportSubnetworksExport(context)) {
+            writeSubnetworks(n, context, extensionsSupplier);
+        }
 
         writeDcDetailed(n, context);
         writeVoltageLevels(n, context);
@@ -569,7 +571,7 @@ public final class NetworkSerDe {
     }
 
     private static boolean supportSubnetworksExport(NetworkSerializerContext context) {
-        return context.getVersion().compareTo(IidmVersion.V_1_11) >= 0;
+        return context.getVersion().compareTo(IidmVersion.V_1_11) >= 0 && !context.getOptions().isFlatten();
     }
 
     private static NetworkSerializerContext createContext(Network n, ExportOptions options, TreeDataWriter writer) {

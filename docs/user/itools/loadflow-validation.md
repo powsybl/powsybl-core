@@ -141,7 +141,7 @@ you have to use the `run-computation` (or `load-flow`) parameter.
 To learn how to configure the `loadflow-validation` command, read the documentation of the
 [loadflow validation](../configuration/loadflow-validation.md) module.
 
-You may also configure the load flow itself to tune the load flow validation using the `--run-computation` option (check the [loadflow configuration page](../configuration/load-flow.md)).
+You may also configure the load flow itself to tune the load flow validation using the `--run-computation` option (check the [loadflow configuration page](../../simulation/loadflow/configuration.md#implementation)).
 
 ## Load flow results validation
 

@@ -50,7 +50,7 @@ public abstract class AbstractSubnetworksExplorationTest {
         subnetwork2 = merged.getSubnetwork(id("network", ID_2));
     }
 
-    private static Network createNetwork(String networkId, Country otherSubstationCountry) {
+    static Network createNetwork(String networkId, Country otherSubstationCountry) {
         Network n = NetworkTest1Factory.create(networkId);
         Area area1 = n.newArea()
                 .setId(id("area1", networkId))

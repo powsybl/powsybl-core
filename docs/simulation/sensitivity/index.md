@@ -126,7 +126,7 @@ This can be interpreted in the following way:
 ## Implementations
 
 The following sensitivity analysis implementations are supported:
-- [PowSyBl OpenLoadFlow]()
+- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#sensitivity/sensitivity)
 
 ## Going further
 
