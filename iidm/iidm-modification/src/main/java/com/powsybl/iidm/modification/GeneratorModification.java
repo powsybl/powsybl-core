@@ -63,25 +63,23 @@ public class GeneratorModification extends AbstractNetworkModification {
             changeConnectionState(g, modifs.getConnected());
             skipOtherConnectionChange = true;
         }
-        if (modifs.getVoltageRegulatorOn() != null) {
-            if (Boolean.TRUE.equals(modifs.getVoltageRegulatorOn())) {
-                if (Double.isNaN(g.getTargetV())) {
-                    g.setTargetV(getPlausibleTargetV(g));
+        if (modifs.getVoltageRegulationMode() != null) {
+            double targetValue;
+            switch (modifs.getVoltageRegulationMode()) {
+                case VOLTAGE -> {
+                    targetValue = g.getTargetV();
+                    if (Double.isNaN(targetValue)) {
+                        targetValue = getPlausibleTargetV(g);
+                        g.setTargetV(targetValue);
+                    }
                 }
-                double targetValue = g.getTargetV();
-                if (Double.isNaN(targetValue)) {
-                    targetValue = getPlausibleTargetV(g);
-                }
-                g.newVoltageRegulation()
-                    .withTargetValue(targetValue)
-                    .withMode(RegulationMode.VOLTAGE)
-                    .build();
-            } else {
-                g.newVoltageRegulation()
-                    .withTargetValue(modifs.getTargetQ())
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .build();
+                case REACTIVE_POWER -> targetValue = modifs.getTargetQ();
+                default -> throw new IllegalStateException("TODO MSA Unexpected value: " + modifs.getVoltageRegulationMode());
             }
+            g.newVoltageRegulation()
+                .withTargetValue(targetValue)
+                .withMode(modifs.getVoltageRegulationMode())
+                .build();
         }
         if (modifs.getTargetP() != null || modifs.getDeltaTargetP() != null) {
             applyTargetP(g, skipOtherConnectionChange);
@@ -143,6 +141,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         private Double deltaTargetP;
         private Double targetV;
         private Double targetQ;
+        private RegulationMode voltageRegulationMode;
         private Boolean voltageRegulatorOn;
         private Boolean connected;
         private boolean ignoreCorrectiveOperations;
@@ -195,10 +194,20 @@ public class GeneratorModification extends AbstractNetworkModification {
             this.targetQ = targetQ;
         }
 
+        public RegulationMode getVoltageRegulationMode() {
+            return voltageRegulationMode;
+        }
+
+        public void setVoltageRegulationMode(RegulationMode voltageRegulationMode) {
+            this.voltageRegulationMode = voltageRegulationMode;
+        }
+
+        @Deprecated(forRemoval = true, since = "7.2.0")
         public Boolean getVoltageRegulatorOn() {
             return voltageRegulatorOn;
         }
 
+        @Deprecated(forRemoval = true, since = "7.2.0")
         public void setVoltageRegulatorOn(Boolean voltageRegulatorOn) {
             this.voltageRegulatorOn = voltageRegulatorOn;
         }
@@ -245,9 +254,9 @@ public class GeneratorModification extends AbstractNetworkModification {
             && areValuesEqual(modifs.getTargetV(), g.getTargetV(), false)
             && areValuesEqual(modifs.getTargetQ(), g.getTargetQ(), false)
             && (modifs.getConnected() == null || modifs.getConnected() == g.getTerminal().isConnected())
-            && (modifs.getVoltageRegulatorOn() == null
-            || (!Double.isNaN(g.getTargetV()) || !modifs.getVoltageRegulatorOn() || areValuesEqual(getPlausibleTargetV(g), g.getTargetV(), false))
-            && modifs.getVoltageRegulatorOn() == g.isVoltageRegulatorOn())
+            && (modifs.getVoltageRegulationMode() == null
+            || (!Double.isNaN(g.getTargetV()) || modifs.getVoltageRegulationMode() != RegulationMode.VOLTAGE || areValuesEqual(getPlausibleTargetV(g), g.getTargetV(), false))
+            && modifs.getVoltageRegulationMode() == g.getVoltageRegulation().getMode())
             && areValuesEqual(modifs.getTargetP(), g.getTargetP(), false)
             && areValuesEqual(modifs.getDeltaTargetP(), 0, false)) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;

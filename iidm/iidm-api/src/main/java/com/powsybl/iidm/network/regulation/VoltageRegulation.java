@@ -34,9 +34,9 @@ public interface VoltageRegulation {
 
     void setMode(RegulationMode mode);
 
-    Boolean isRegulating();
+    boolean isRegulating();
 
-    Boolean setRegulating(Boolean regulating);
+    boolean setRegulating(boolean regulating);
 
     void remove();
 }

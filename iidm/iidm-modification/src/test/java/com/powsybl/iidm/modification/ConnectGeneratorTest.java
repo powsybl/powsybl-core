@@ -105,7 +105,7 @@ class ConnectGeneratorTest {
         g2.setTargetV(Double.NaN);
         g2.getVoltageRegulation().setTargetValue(Double.NaN);
         GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
-        modifs.setVoltageRegulatorOn(true); // no targetV provided!
+        modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE); // no targetV provided!
         modifs.setConnected(true);
         new GeneratorModification(g2.getId(), modifs).apply(network);
         assertTrue(g2.getTerminal().isConnected());

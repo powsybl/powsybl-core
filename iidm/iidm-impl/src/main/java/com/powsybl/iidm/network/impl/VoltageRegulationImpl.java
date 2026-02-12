@@ -110,12 +110,12 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
     }
 
     @Override
-    public Boolean isRegulating() {
+    public boolean isRegulating() {
         return regulating.get(getCurrentIndex());
     }
 
     @Override
-    public Boolean setRegulating(Boolean regulating) {
+    public boolean setRegulating(boolean regulating) {
         return this.regulating.set(getCurrentIndex(), regulating);
     }
 

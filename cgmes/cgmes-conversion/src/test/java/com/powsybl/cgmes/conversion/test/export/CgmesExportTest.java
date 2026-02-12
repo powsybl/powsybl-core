@@ -23,6 +23,7 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -585,8 +586,8 @@ class CgmesExportTest {
             generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
 
             // RegulatingControl is exported when targetV is not NaN, even if voltage regulation is disabled
-            generatorRcc.setVoltageRegulatorOn(false);
-            generatorNoRcc.setVoltageRegulatorOn(false);
+            generatorRcc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+            generatorNoRcc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
