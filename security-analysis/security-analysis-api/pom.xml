@@ -115,6 +115,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -122,12 +128,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-tools-test</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

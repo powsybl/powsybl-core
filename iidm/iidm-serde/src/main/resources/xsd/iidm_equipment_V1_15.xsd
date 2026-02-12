@@ -208,23 +208,16 @@
         <xs:attribute name="node2" use="required" type="xs:int"/>
     </xs:complexType>
     <xs:complexType name="Point">
-        <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
         <xs:attribute name="p" use="required" type="xs:double"/>
         <xs:attribute name="minQ" use="required" type="xs:double"/>
         <xs:attribute name="maxQ" use="required" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="ReactiveCapabilityCurve">
         <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="point" minOccurs="2" maxOccurs="unbounded" type="iidm:Point"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="MinMaxReactiveLimits">
-        <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
         <xs:attribute name="minQ" use="required" type="xs:double"/>
         <xs:attribute name="maxQ" use="required" type="xs:double"/>
     </xs:complexType>
@@ -311,9 +304,6 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="ZipLoadModel">
-        <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
         <xs:attribute name="c0p" use="required" type="xs:double"/>
         <xs:attribute name="c1p" use="required" type="xs:double"/>
         <xs:attribute name="c2p" use="required" type="xs:double"/>
@@ -322,9 +312,6 @@
         <xs:attribute name="c2q" use="required" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="ExponentialLoadModel">
-        <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
         <xs:attribute name="np" use="required" type="xs:double"/>
         <xs:attribute name="nq" use="required" type="xs:double"/>
     </xs:complexType>
@@ -347,34 +334,23 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="ShuntLinearModel">
-        <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
         <xs:attribute name="bPerSection" use="required" type="xs:double"/>
         <xs:attribute name="gPerSection" use="optional" type="xs:double"/>
         <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
     </xs:complexType>
     <xs:complexType name="ShuntNonLinearModel">
         <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="section" maxOccurs="unbounded" type="iidm:ShuntSection" />
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="ShuntSection">
-        <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
         <xs:attribute name="b" use="required" type="xs:double"/>
         <xs:attribute name="g" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="LoadingLimit">
         <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="temporaryLimit" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-                    </xs:sequence>
                     <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
                     <xs:attribute name="acceptableDuration" use="optional" type="xs:int"/>
                     <xs:attribute name="value" use="optional" type="xs:double"/>
@@ -632,9 +608,6 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="Tripping">
-        <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
         <xs:attribute name="key" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="name" use="optional" type="iidm:nonEmptyString"/>
         <xs:attribute name="currentLimit" use="required" type="xs:double"/>
@@ -682,9 +655,6 @@
         <xs:attribute name="number" use="optional" type="iidm:TerminalNumber"/>
     </xs:complexType>
     <xs:complexType name="RatioTapChangerStep">
-        <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
         <xs:attribute name="rho" use="required" type="xs:double"/>
         <xs:attribute name="r" use="required" type="xs:double"/>
         <xs:attribute name="x" use="required" type="xs:double"/>
@@ -692,9 +662,6 @@
         <xs:attribute name="b" use="required" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="PhaseTapChangerStep">
-        <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
         <xs:attribute name="rho" use="required" type="xs:double"/>
         <xs:attribute name="alpha" use="required" type="xs:double"/>
         <xs:attribute name="r" use="required" type="xs:double"/>
@@ -710,7 +677,6 @@
     </xs:simpleType>
     <xs:complexType name="RatioTapChanger">
         <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
         </xs:sequence>
@@ -731,7 +697,6 @@
     </xs:simpleType>
     <xs:complexType name="PhaseTapChanger">
         <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
         </xs:sequence>
@@ -822,7 +787,6 @@
     </xs:complexType>
     <xs:complexType name="VoltageAngleLimit">
         <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="from" type="iidm:TerminalRef"/>
             <xs:element name="to" type="iidm:TerminalRef"/>
         </xs:sequence>
@@ -840,9 +804,6 @@
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
     </xs:complexType>
     <xs:complexType name="AreaBoundary">
-        <xs:sequence>
-            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
         <xs:attribute name="type" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="side" type="iidm:Side"/>

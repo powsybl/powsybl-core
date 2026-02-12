@@ -19,7 +19,7 @@ import java.util.Optional;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderImpl> implements VoltageLevelAdder {
+class VoltageLevelAdderImpl extends AbstractIdentifiableWithPropertiesAdder<VoltageLevelAdderImpl> implements VoltageLevelAdder {
 
     private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;

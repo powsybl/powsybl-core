@@ -336,7 +336,7 @@ public final class ConnectableSerDeUtil {
                 writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
                 writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
                 writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
                 writer.writeEndNode();
             }
             writer.writeEndNodes();

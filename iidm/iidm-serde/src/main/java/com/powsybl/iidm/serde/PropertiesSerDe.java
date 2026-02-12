@@ -64,7 +64,7 @@ public final class PropertiesSerDe {
     }
 
     public static void readProperties(NetworkDeserializerContext context, PropertiesHolder holder) {
-        if (context.getVersion().compareTo(IidmVersion.V_1_16) <= 0) {
+        if (context.getVersion().compareTo(IidmVersion.V_1_16) >= 0) {
             context.getReader().readChildNodes(elementName -> {
                 if (elementName.equals(PropertiesSerDe.ROOT_ELEMENT_NAME)) {
                     String name = context.getReader().readStringAttribute(NAME);
