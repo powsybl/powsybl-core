@@ -185,7 +185,10 @@ public class RegulatedTerminalControllers {
 
     private static void replaceRegulatedTerminalGenerator(Generator generator, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
         if (generator.getRegulatingTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(generator.getRegulatingTerminal()))) {
-            generator.setRegulatingTerminal(newRegulatedTerminal);
+            VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+            if (voltageRegulation != null) {
+                voltageRegulation.setTerminal(newRegulatedTerminal);
+            }
         } else {
             VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
             if (voltageRegulation != null

@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,16 +32,19 @@ class ConnectGeneratorTest {
         g2 = network.getGenerator("GH2");
         g3 = network.getGenerator("GH3");
         g1.setTargetV(11.);
+        g1.getVoltageRegulation().setTargetValue(11.);
         g2.setTargetV(22.);
+        g2.getVoltageRegulation().setTargetValue(22.);
         g3.setTargetV(33.);
+        g3.getVoltageRegulation().setTargetValue(33.);
         g1.getTerminal().disconnect();
         g2.getTerminal().disconnect();
         network.getVoltageLevel("S1VL2").getBusView().getBus("S1VL2_0").setV(99.);
     }
 
     @Test
-    void testConnectVoltageRegulatorOff() {
-        g2.setVoltageRegulatorOn(false);
+    void testConnectVoltageRegulatorReactif() {
+        g2.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(22., g2.getTargetV(), 0.01);
@@ -48,7 +52,7 @@ class ConnectGeneratorTest {
 
     @Test
     void testWithAlreadyConnectedGenerators() {
-        g2.setVoltageRegulatorOn(true);
+        g2.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(33., g2.getTargetV(), 0.01);
@@ -57,7 +61,7 @@ class ConnectGeneratorTest {
     @Test
     void testWithoutAlreadyConnectedGenerators() {
         g3.getTerminal().disconnect();
-        g2.setVoltageRegulatorOn(true);
+        g2.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(22.0, g2.getTargetV(), 0.01);
@@ -65,11 +69,16 @@ class ConnectGeneratorTest {
 
     @Test
     void testConnectGeneratorWithWrongTargetV() {
-        g2.setVoltageRegulatorOn(true);
-        g2.setRegulatingTerminal(g3.getTerminal());
+        g2.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(g2.getTargetV())
+            .withTerminal(g3.getTerminal())
+                .build();
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(33, g2.getTargetV(), 0.01);
+        assertEquals(g3.getTerminal(), g2.getVoltageRegulation().getTerminal());
+        assertEquals(g2.getTargetV(), g2.getVoltageRegulation().getTargetValue());
     }
 
     @Test
@@ -81,8 +90,8 @@ class ConnectGeneratorTest {
             sc.setTargetDeadband(1);
             sc.setVoltageRegulatorOn(true);
         });
-        g2.setVoltageRegulatorOn(true);
-        g2.setRegulatingTerminal(g3.getTerminal());
+        g2.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+        g2.getVoltageRegulation().setTerminal(g3.getTerminal());
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(33.0, g2.getTargetV(), 0.01);
@@ -90,10 +99,11 @@ class ConnectGeneratorTest {
 
     @Test
     void testConnectGeneratorWithNoNetworkInformation() {
-        g3.setVoltageRegulatorOn(false);
-        g2.setVoltageRegulatorOn(false);
-        g2.setRegulatingTerminal(g3.getTerminal());
+        g2.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+        g3.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+        g2.getVoltageRegulation().setTerminal(g3.getTerminal());
         g2.setTargetV(Double.NaN);
+        g2.getVoltageRegulation().setTargetValue(Double.NaN);
         GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
         modifs.setVoltageRegulatorOn(true); // no targetV provided!
         modifs.setConnected(true);

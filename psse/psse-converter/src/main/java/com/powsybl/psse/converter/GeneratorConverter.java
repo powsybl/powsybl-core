@@ -91,15 +91,22 @@ class GeneratorConverter extends AbstractConverter {
             voltageRegulatorOn = psseVoltageRegulatorOn;
         }
 
-        generator.setTargetV(targetV)
-            .setVoltageRegulatorOn(voltageRegulatorOn);
-        if (generator != regulatingTerminal.getConnectable()) {
-            generator.setRegulatingTerminal(regulatingTerminal);
-        }
+        generator.setTargetV(targetV);
+        RegulationMode mode;
+        double targetValue;
         if (voltageRegulatorOn) {
-            generator.getVoltageRegulation().setTargetValue(targetV);
+            mode = RegulationMode.VOLTAGE;
+            targetValue = targetV;
         } else {
-//            generator.getVoltageRegulation().setTargetValue(targetQ);
+            mode = RegulationMode.REACTIVE_POWER;
+            targetValue = generator.getTargetQ();
+        }
+        generator.newVoltageRegulation()
+            .withMode(mode)
+            .withTargetValue(targetValue)
+            .build();
+        if (generator != regulatingTerminal.getConnectable()) {
+            generator.getVoltageRegulation().setTerminal(regulatingTerminal);
         }
     }
 
