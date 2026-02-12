@@ -595,7 +595,7 @@ public final class EurostagTutorialExample1Factory {
 
         line.addSelectedOperationalLimitsGroups(TwoSides.ONE, ACTIVATED_ONE_ONE, ACTIVATED_ONE_TWO);
 
-        line.newOperationalLimitsGroup1("not activated").newCurrentLimits()
+        line.newOperationalLimitsGroup1(NOT_ACTIVATED).newCurrentLimits()
             .setPermanentLimit(400)
             .beginTemporaryLimit()
             .setValue(600)
@@ -658,7 +658,7 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        line.newOperationalLimitsGroup2("not activated").newCurrentLimits()
+        line.newOperationalLimitsGroup2(NOT_ACTIVATED).newCurrentLimits()
                 .setPermanentLimit(400)
                 .add();
 
