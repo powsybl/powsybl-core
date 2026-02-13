@@ -99,7 +99,7 @@ public final class ComparisonUtils {
         String expectedStr = TestUtil.normalizeLineSeparator(expected);
         String actualStr = TestUtil.normalizeLineSeparator(actual);
         // Ensure element ends with exactly one newline before assertion
-        String lineSeparator = System.getProperty("line.separator");
+        String lineSeparator = "\n";
         if (!expectedStr.endsWith(lineSeparator)) {
             expectedStr += lineSeparator;
         }

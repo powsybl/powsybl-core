@@ -33,7 +33,7 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
         Network network = networkData.network();
         BatteryShortCircuit batteryShortCircuit = networkData.batteryShortCircuit();
 
-        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0.xml");
+        Network network2 = allFormatsRoundTripTxtTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0.xml");
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);
@@ -55,7 +55,7 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
         ExportOptions exportOptions = new ExportOptions()
                 .addExtensionVersion(BatteryShortCircuit.NAME, "1.0-legacy")
                 .setVersion(IidmVersion.V_1_13.toString("."));
-        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0-legacy.xml", exportOptions);
+        Network network2 = allFormatsRoundTripTxtTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0-legacy.xml", exportOptions);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);
@@ -77,7 +77,7 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
         ExportOptions exportOptions = new ExportOptions()
                 .addExtensionVersion(BatteryShortCircuit.NAME, "1.0-legacy-2")
                 .setVersion(IidmVersion.V_1_13.toString("."));
-        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0-legacy-2.xml", exportOptions);
+        Network network2 = allFormatsRoundTripTxtTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0-legacy-2.xml", exportOptions);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);
