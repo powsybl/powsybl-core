@@ -2,12 +2,13 @@ $$General;ID(a:40);Descr(a:40);Val(a:40)
 1;Version;5.0
 
 $$ElmLne;ID(a:40);loc_name(a:40);fold_id(p);typ_id(p);dline(r)
-3;lne_1_3_1;9;44;52
+3;lne_1_3_1;9;45;52
 4;DC-Line_pos;9;44;50
 5;DC-Line_neg;9;44;50
 
 $$TypLne;ID(a:40);loc_name(a:40);fold_id(p);uline(r);sline(r);rline(r);xline(r);systp(i)
-44;DC Cable Type 320kV;9;320;17.49546;0.101465;0.309789;0
+44;DC Cable Type 320kV;9;320;17.49546;0.101465;0.309789;1
+45;AC Cable Type 320kV;9;320;17.49546;0.101465;0.309789;0
 
 $$ElmVsc;ID(a:40);loc_name(a:40);fold_id(p);Unom(r);usetp(r);psetp(r);qsetp(r);Pnold(r);P_max(r)
 6;HVDC Converter 1;9;300;1.0;600;0;10000;900

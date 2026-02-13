@@ -184,7 +184,7 @@ public class PowerFactoryImporter implements Importer {
         // detailed = possibly full multi-terminals DC subgrids
         if (Parameter.readBoolean(getFormat(), parameters, HVDC_IMPORT_DETAILED_PARAMETER, defaultValueConfig)) {
             hvdcConverter =
-                new HvdcDetailedConverter(importContext, network, elmTerms, elmVscs);
+                new HvdcDetailedConverter(importContext, network, elmNets, elmTerms, elmVscs);
         } else {
             HvdcSimplifiedConverter simplifiedConverter = new HvdcSimplifiedConverter(importContext, network);
             simplifiedConverter.computeConfigurations(elmTerms, elmVscs);
