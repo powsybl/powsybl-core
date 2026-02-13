@@ -11,13 +11,12 @@ package com.powsybl.powerfactory.converter;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.Optional;
 
 import com.powsybl.iidm.network.AcDcConverter;
@@ -39,6 +38,8 @@ import com.powsybl.powerfactory.model.DataObjectIndex;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 
+import javax.swing.text.html.Option;
+
 /**
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  *
@@ -47,52 +48,63 @@ import com.powsybl.powerfactory.model.PowerFactoryException;
  */
 public final class HvdcDetailedConverter extends AbstractHvdcConverter {
 
-    DcGridData gridData;
+    private DcGridData gridData;
 
     // Small record that directly transcribes the DC data from the PowerFactory data
     // model for a connected subgrid
-    private final record DcGridData(Map<DataObject, List<DataObject>> elmTermsConnectedToVscs,
+    private final record DcGridData(
             Set<DataObject> dcElmLnes,
-            Set<DataObject> dcElmTerms, Set<DataObject> acDcConverters) {
+            Set<DataObject> dcElmTerms,
+            Set<DataObject> acDcConverters) {
+
         // Create the data model by reading from the PowerFactory data models
-        static DcGridData createGridData(List<DataObject> elmTerms, List<DataObject> elmVscs) {
-            Map<DataObject, List<DataObject>> elmTermsConnectedToVscs = new HashMap<>();
+        static DcGridData createGridData(List<DataObject> elmNets, List<DataObject> elmVscs, List<DataObject> elmTerms) {
             Set<DataObject> dcElmLnes = new HashSet<>();
             Set<DataObject> dcElmTerms = new HashSet<>();
-            Set<DataObject> usedVscs = new HashSet<>();
+            Set<DataObject> usedVscs = new HashSet<>(elmVscs);
 
-            // TODO implement
-            if (!elmVscs.isEmpty()) {
+            if (!elmVscs.isEmpty()) { // This test is crucial. From there on we can expect the systyp attributes.
 
-                elmTermsConnectedToVscs = computeElmTermsConnectedToVscs(elmTerms, elmVscs);
+                // Add DC lines
+                List<DataObject> elmLines = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmLne").stream()).collect(Collectors.toList());
+                for (DataObject elmLne : elmLines) {
+                    DataObjectRef typLneRef = elmLne.getObjectAttributeValue("typ_id");
+                    DataObject typLne = typLneRef.resolve()
+                        .orElseThrow(() -> new PowerFactoryException("Missing line type in TypLne for ElmLne " + elmLne.getId() + "."));
+                    int lineSysType = typLne.findIntAttributeValue("systype")
+                        .orElseThrow(() -> new PowerFactoryException("Missing systype for TypLne " + typLne.getId() + "."));
+                    if (lineSysType == 1) {
+                        dcElmLnes.add(elmLne);
+                    }
+                }
 
+                // Add DC terminals
+                for (DataObject elmTerm : elmTerms) {
+                    int termSystyp = elmTerm.findIntAttributeValue("systype")
+                        .orElseThrow(() -> new PowerFactoryException("Missing systype for ElmTerm " + elmTerm.getId() + "."));
+                    if (termSystyp == 1) {
+                        dcElmTerms.add(elmTerm);
+                    }
+                }
             }
-            return new DcGridData(elmTermsConnectedToVscs, dcElmLnes, dcElmTerms, usedVscs);
+            return new DcGridData(dcElmLnes, dcElmTerms, usedVscs);
         }
 
-        // Get all terminals connected to a converter
-        private static Map<DataObject, List<DataObject>> computeElmTermsConnectedToVscs(List<DataObject> elmTerms,
-                List<DataObject> elmVscs) {
-            // TODO implement
-            return null;
-        }
     }
 
-    public HvdcDetailedConverter(ImportContext importContext, Network network, List<DataObject> elmTerms, List<DataObject> elmVscs) {
+    public HvdcDetailedConverter(ImportContext importContext, Network network, List<DataObject> elmNets, List<DataObject> elmTerms, List<DataObject> elmVscs) {
         super(importContext, network);
-        // TODO do stuff here
+        gridData = DcGridData.createGridData(elmNets, elmTerms, elmVscs);
     }
 
     @Override
     boolean isDcNode(DataObject elmTerm) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isDcNode'");
+        return gridData.dcElmTerms.contains(elmTerm);
     }
 
     @Override
     boolean isDcLink(DataObject elmLne) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isDcLink'");
+        return gridData.dcElmLnes.contains(elmLne);
     }
 
     @Override
@@ -133,7 +145,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         network.newDcNode()
                 .setId(idInNetworkString(terminal))
                 .setName(terminal.getLocName())
-                .setNominalV(terminal.getDoubleAttributeValue("uknom"))
+                .setNominalV(terminal.getFloatAttributeValue("uknom"))
                 .add();
 
         // sanity checks
@@ -143,8 +155,8 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
                     "ElmTerm " + terminal.getId() + " is part of a DC subgrid but its systype is not equal to 1.");
         }
 
-        double uknom = terminal.getDoubleAttributeValue("uknom");
-        double unknom = terminal.getDoubleAttributeValue("unknom");
+        double uknom = terminal.getFloatAttributeValue("uknom");
+        double unknom = terminal.getFloatAttributeValue("unknom");
         if (uknom != unknom) {
             throw new PowerFactoryException(
                     "ElmTerm " + terminal.getId() + " is part of a DC subgrid but its uknom and unknom are different.");
@@ -321,7 +333,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
     }
 
     private static double getLineResistance(DataObject line) {
-        double lineLength = line.getDoubleAttributeValue("dline"); // km
+        double lineLength = line.getFloatAttributeValue("dline"); // km
         int numberOfParallelLines = line.findIntAttributeValue("nlnum").orElse(1);
 
         DataObject lineType = line.getObjectAttributeValue("typ_id")
@@ -335,7 +347,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
                     + " which not of system type systyp DC.");
         }
 
-        double rline = lineType.getDoubleAttributeValue("dline"); // Ohm / km
+        double rline = lineType.getFloatAttributeValue("dline"); // Ohm / km
 
         return rline * lineLength / numberOfParallelLines; // Ohm
     }
@@ -350,9 +362,9 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         return result;
     }
 
-    private static void addConverter(DataObject converterPowerFactory, Network network, ImportContext importContext) {
+    private static void addConverter(DataObject elmVsc, Network network, ImportContext importContext) {
 
-        assert "ElmVsc".equals(converterPowerFactory.getDataClassName());
+        assert "ElmVsc".equals(elmVsc.getDataClassName());
 
         // figure out where it is connected on the AC side to get the voltage level.
         // get AC terminal and DC terminal 1 and DC terminal 2
@@ -366,15 +378,15 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         DataObject acTerminalDataObject = null;
         DataObject dcTerminal1DataObject = null;
         DataObject dcTerminal2DataObject = null;
-        for (DataObject cubicle : converterPowerFactory.getIndex().getDataObjectsByClass("StaCubic")) {
+        for (DataObject cubicle : elmVsc.getIndex().getDataObjectsByClass("StaCubic")) {
             Optional<DataObjectRef> objId = cubicle.findObjectAttributeValue(DataAttributeNames.OBJ_ID);
-            if (objId.isPresent() && objId.get().getId() == converterPowerFactory.getId()) {
+            if (objId.isPresent() && objId.get().getId() == elmVsc.getId()) {
                 DataObject tempTerminal = null;
                 try {
-                    tempTerminal = objId.get().resolve().get();
+                    tempTerminal = cubicle.getParent();
                 } catch (NoSuchElementException e) {
                     final String error = "When fetching the AC terminal of VSC (id "
-                            + converterPowerFactory.getId() + "):"
+                            + elmVsc.getId() + "):"
                             + "cubicle " + cubicle.getId() + " has no corresponding terminal.";
                     throw new PowerFactoryException(error);
                 }
@@ -386,21 +398,21 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
                     case 0:
                         if (acTerminalDataObject != null) {
                             throw new PowerFactoryException(
-                                    "Multiple AC cubicles for VSC " + converterPowerFactory.getId() + ".");
+                                    "Multiple AC cubicles for VSC " + elmVsc.getId() + ".");
                         }
                         acTerminalDataObject = tempTerminal;
                         break;
                     case 1:
                         if (dcTerminal1DataObject != null) {
                             throw new PowerFactoryException(
-                                    "Multiple DC cubicles 1 for VSC " + converterPowerFactory.getId() + ".");
+                                    "Multiple DC cubicles 1 for VSC " + elmVsc.getId() + ".");
                         }
                         dcTerminal1DataObject = tempTerminal;
                         break;
                     case 2:
                         if (dcTerminal2DataObject != null) {
                             throw new PowerFactoryException(
-                                    "Multiple DC cubicles 2 for VSC " + converterPowerFactory.getId() + ".");
+                                    "Multiple DC cubicles 2 for VSC " + elmVsc.getId() + ".");
                         }
                         dcTerminal2DataObject = tempTerminal;
                         break;
@@ -413,12 +425,12 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
 
         if (acTerminalDataObject == null) {
             throw new PowerFactoryException("When fetching the AC terminal of VSC (id "
-                    + converterPowerFactory.getId() + "): no correponding cubicle found.");
+                    + elmVsc.getId() + "): no correponding cubicle found.");
         }
 
         if (dcTerminal1DataObject == null || dcTerminal2DataObject == null) {
             throw new PowerFactoryException(
-                    "Missing DC terminal for AC-DC converter " + converterPowerFactory.getId() + ".");
+                    "Missing DC terminal for AC-DC converter " + elmVsc.getId() + ".");
         }
 
         // create
@@ -436,28 +448,28 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
 
         if (iMinus1 == iMinus2) {
             throw new PowerFactoryException(
-                    "Converter " + converterPowerFactory.getId() + " has 2 DC terminals with the same polarities.");
+                    "Converter " + elmVsc.getId() + " has 2 DC terminals with the same polarities.");
         }
 
         DcNode dcNode1 = getSafeNodeForLine(dcTerminal1DataObject, network,
-                "converter " + converterPowerFactory.getId());
+                "converter " + elmVsc.getId());
         DcNode dcNode2 = getSafeNodeForLine(dcTerminal2DataObject, network,
-                "converter " + converterPowerFactory.getId());
+                "converter " + elmVsc.getId());
         boolean dcNode1IsPlus = iMinus1 == 2 && iMinus2 == 1 || iMinus1 == 0;
         assert dcNode1 != null && dcNode2 != null : "DC nodes should be initialized first";
 
         NodeRef acNodeRef = importContext.elmTermIdToNode.get(acTerminalDataObject.getId());
         if (acNodeRef == null) {
             throw new PowerFactoryException("AC terminal " + acTerminalDataObject.getId()
-                    + " not found in network when building converter " + converterPowerFactory.getId() + ".");
+                    + " not found in network when building converter " + elmVsc.getId() + ".");
         }
 
         VoltageLevel voltageLevel = network.getVoltageLevel(acNodeRef.voltageLevelId);
         VoltageSourceConverterAdder converterAdder = voltageLevel.newVoltageSourceConverter()
-                .setId(idInNetworkString(converterPowerFactory));
+                .setId(idInNetworkString(elmVsc));
 
         converterAdder.setNode1(acNodeRef.node); // TODO check if/how to add bus (in bus/breaker mode ?)
-        converterAdder.setIdleLoss(converterPowerFactory.getDoubleAttributeValue("Pnold"));
+        converterAdder.setIdleLoss(elmVsc.getFloatAttributeValue("Pnold"));
         converterAdder.setSwitchingLoss(0.0);
         converterAdder.setResistiveLoss(0.0);
         converterAdder.setControlMode(ControlMode.P_PCC); // TODO be smarter there.
@@ -467,12 +479,12 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         converterAdder.setDcNode1(dcNode1.getId());
         converterAdder.setDcNode2(dcNode2.getId());
         converterAdder.setVoltageRegulatorOn(false); // TODO figure out which VSC controls the voltage
-        converterAdder.setReactivePowerSetpoint(converterPowerFactory.getDoubleAttributeValue("qsetp")); // TODO check
+        converterAdder.setReactivePowerSetpoint(elmVsc.getFloatAttributeValue("qsetp")); // TODO check
                                                                                                          // sign
                                                                                                          // convention
-        converterAdder.setTargetP(converterPowerFactory.getDoubleAttributeValue("psetp")); // TODO check sign convention
-        final double voltageSetPoint = converterPowerFactory.getDoubleAttributeValue("usetp")
-                * converterPowerFactory.getDoubleAttributeValue("Unom");
+        converterAdder.setTargetP(elmVsc.getFloatAttributeValue("psetp")); // TODO check sign convention
+        final double voltageSetPoint = elmVsc.getFloatAttributeValue("usetp")
+                * elmVsc.getFloatAttributeValue("Unom");
         converterAdder.setVoltageSetpoint(voltageSetPoint);
         converterAdder.add();
 
