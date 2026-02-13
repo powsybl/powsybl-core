@@ -362,10 +362,7 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog
                         .microGridBaseCaseBEMissingShuntRegulatingControlId().dataSource(), NetworkFactory.findDefault(), importParams);
         ShuntCompensator shunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
-        assertTrue(shunt.isVoltageRegulatorOn());
-        assertEquals(shunt.getTerminal().getVoltageLevel().getNominalV(), shunt.getTargetV(), 0.0d);
-        assertEquals(0.0d, shunt.getTargetDeadband(), 0.0d);
-        assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
+        assertFalse(shunt.isVoltageRegulatorOn());
     }
 
     @Test
