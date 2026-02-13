@@ -75,7 +75,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
                                              .addBus("BUS1")
                                              .build();
 
-        contingency.addExtension(DummyExtension.class, new DummyExtension());
+        contingency.addExtension(DummyContingencyExtension.class, new DummyContingencyExtension());
         return contingency;
     }
 
@@ -249,7 +249,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithOptionalName.json");
     }
 
-    static class DummyExtension extends AbstractExtension<Contingency> {
+    static class DummyContingencyExtension extends AbstractExtension<Contingency> {
 
         private Contingency contingency;
 
@@ -265,27 +265,27 @@ class ContingencyJsonTest extends AbstractSerDeTest {
 
         @Override
         public String getName() {
-            return "dummy-extension";
+            return "dummy-contingency-extension";
         }
     }
 
     @AutoService(ExtensionJsonSerializer.class)
-    public static class DummySerializer implements ExtensionJsonSerializer<Contingency, DummyExtension> {
+    public static class DummyContingencySerializer implements ExtensionJsonSerializer<Contingency, DummyContingencyExtension> {
 
         @Override
-        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(DummyContingencyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeEndObject();
         }
 
         @Override
-        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return new DummyExtension();
+        public DummyContingencyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            return new DummyContingencyExtension();
         }
 
         @Override
         public String getExtensionName() {
-            return "dummy-extension";
+            return "dummy-contingency-extension";
         }
 
         @Override
@@ -294,8 +294,8 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         }
 
         @Override
-        public Class<? super DummyExtension> getExtensionClass() {
-            return DummyExtension.class;
+        public Class<? super DummyContingencyExtension> getExtensionClass() {
+            return DummyContingencyExtension.class;
         }
     }
 
