@@ -1,0 +1,32 @@
+@startuml
+interface RangeAction
+RangeAction --> "*" Action : toActions(setPoint)
+RangeAction <|-- SimpleBalancingEntityRangeAction
+
+interface Action {
+  getType() : String
+}
+Action --> NetworkModification : toModification()
+Action <|-- BalancingEntityAction
+
+interface NetworkModification
+
+
+class SimpleBalancingEntityRangeAction {
+  - program : List<Double>
+  - p_min : List<Double>
+  - p_max : List<Double>
+  - dmo : List<Integer>
+  - dp : List<Integer>
+  - do_min : Integer
+  - do_max : Integer
+
+  + SimpleBalancingEntityRangeAction(...)
+}
+SimpleBalancingEntityRangeAction --> "*" BalancingEntityAction : toActions(powerPerTimeStep : List<Double>)
+
+class BalancingEntityAction
+
+
+
+@enduml
