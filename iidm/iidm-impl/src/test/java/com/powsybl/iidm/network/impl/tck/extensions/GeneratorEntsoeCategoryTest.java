@@ -11,6 +11,7 @@ package com.powsybl.iidm.network.impl.tck.extensions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,7 +44,7 @@ class GeneratorEntsoeCategoryTest {
             .setMinP(50)
             .setTargetP(100)
             .setTargetV(400)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
             .add();
 
         GeneratorEntsoeCategory generatorEntsoeCategory = generator.newExtension(GeneratorEntsoeCategoryAdder.class)

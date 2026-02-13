@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conformity;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -435,7 +436,10 @@ public final class CgmesConformity1NetworkCatalog {
             .setTargetP(-p)
             .setTargetQ(targetQ)
             .setTargetV(21.987)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(21.987)
+                .add()
             .setRatedS(300)
             .add();
         genBrussels21.newMinMaxReactiveLimits()
@@ -460,10 +464,13 @@ public final class CgmesConformity1NetworkCatalog {
             .setTargetP(-p)
             .setTargetQ(targetQ)
             .setTargetV(115.5)
-            .setVoltageRegulatorOn(true)
-            // This generator regulates one end point of a power transformer
-            // (110 kV side of BE-TR2_1)
-            .setRegulatingTerminal(txBE21.getTerminal(TwoSides.TWO))
+            .newVoltageRegulation()
+                .withTargetValue(115.5)
+                .withMode(RegulationMode.VOLTAGE)
+                // This generator regulates one end point of a power transformer
+                // (110 kV side of BE-TR2_1)
+                .withTerminal(txBE21.getTerminal(TwoSides.TWO))
+                .add()
             .setRatedS(300)
             .add();
         ReactiveCapabilityCurveAdder rcca = genBrussels10.newReactiveCapabilityCurve();

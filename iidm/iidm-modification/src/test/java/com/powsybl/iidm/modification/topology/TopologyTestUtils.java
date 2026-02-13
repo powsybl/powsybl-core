@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 
@@ -89,7 +90,7 @@ final class TopologyTestUtils {
                 .setId("G")
                 .setNode(2)
                 .setTargetP(0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetV(400)
                 .setMinP(0)
                 .setMaxP(10)

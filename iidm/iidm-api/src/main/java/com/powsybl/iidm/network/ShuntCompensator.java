@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
 import java.util.OptionalInt;
 
 /**
@@ -108,7 +110,7 @@ import java.util.OptionalInt;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see ShuntCompensatorAdder
  */
-public interface ShuntCompensator extends Injection<ShuntCompensator> {
+public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRegulationHolder {
 
     /**
      * Get the count of sections in service.

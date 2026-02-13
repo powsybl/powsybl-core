@@ -455,10 +455,11 @@ public class Comparison {
         compareGeneratorReactiveLimits(expected.getReactiveLimits(), actual.getReactiveLimits());
         compare("targetP", expected.getTargetP(), actual.getTargetP());
         compare("targetQ", expected.getTargetQ(), actual.getTargetQ());
-        compare("targetV", expected.getTargetV(), actual.getTargetV());
-        compare("isVoltageRegulatorOn",
-                expected.isVoltageRegulatorOn(),
-                actual.isVoltageRegulatorOn());
+        if (expected.getVoltageRegulation() != null) {
+            compare("VoltageRegulation.mode", expected.getVoltageRegulation().getMode(), actual.getVoltageRegulation().getMode());
+            compare("VoltageRegulation.regulating", expected.getVoltageRegulation().isRegulating(), actual.getVoltageRegulation().isRegulating());
+            compare("VoltageRegulation.targetValue", expected.getVoltageRegulation().getTargetValue(), actual.getVoltageRegulation().getTargetValue());
+        }
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null
                 || actual.getRegulatingTerminal() != null)) {

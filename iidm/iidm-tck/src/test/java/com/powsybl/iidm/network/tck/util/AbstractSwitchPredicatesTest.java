@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck.util;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -91,7 +92,10 @@ public abstract class AbstractSwitchPredicatesTest {
             .setMinP(50)
             .setTargetP(100)
             .setTargetV(400)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(400)
+                .add()
             .add();
         vl.newGenerator()
             .setId("G2")
@@ -100,7 +104,10 @@ public abstract class AbstractSwitchPredicatesTest {
             .setMinP(50)
             .setTargetP(100)
             .setTargetV(400)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(400)
+                .add()
             .add();
 
         // Breakers

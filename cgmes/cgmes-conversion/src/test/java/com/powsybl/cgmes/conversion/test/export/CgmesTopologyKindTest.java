@@ -15,6 +15,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -236,7 +237,10 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setTargetQ(1.0)
                 .setMinP(0.0)
                 .setMaxP(2.0)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(1.0)
+                    .add()
                 .add();
         voltageLevel1.newLoad()
                 .setId("AUX")
@@ -374,7 +378,9 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setOpen(true).setRetained(true).setKind(SwitchKind.BREAKER).add();
         voltageLevel1.newGenerator().setId("GEN")
                 .setNode(10)
-                .setTargetP(1.0).setTargetQ(1.0).setMinP(0.0).setMaxP(2.0).setVoltageRegulatorOn(false).add();
+                .setTargetP(1.0).setTargetQ(1.0).setMinP(0.0).setMaxP(2.0)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(1.0).add()
+                .add();
         voltageLevel1.getNodeBreakerView().newInternalConnection()
                 .setNode1(0)
                 .setNode2(10).add();

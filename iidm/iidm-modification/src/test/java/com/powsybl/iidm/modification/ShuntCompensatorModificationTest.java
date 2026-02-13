@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -93,7 +94,8 @@ class ShuntCompensatorModificationTest {
         network.getGenerator("GH2").getTerminal().disconnect();
         Generator g3 = network.getGenerator("GH3");
         g3.setTargetV(33.);
-        g3.setVoltageRegulatorOn(true);
+        g3.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+        g3.getVoltageRegulation().setTargetValue(33.);
         shunt.getTerminal().disconnect();
         shunt.setRegulatingTerminal(g3.getRegulatingTerminal());
         shunt.setTargetV(2);
@@ -109,7 +111,7 @@ class ShuntCompensatorModificationTest {
         network.getGenerator("GH1").getTerminal().disconnect();
         network.getGenerator("GH2").getTerminal().disconnect();
         Generator g3 = network.getGenerator("GH3");
-        g3.setVoltageRegulatorOn(false);
+        g3.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
         shunt.setTargetV(2);
         shunt.setTargetDeadband(1);
         shunt.setVoltageRegulatorOn(true);

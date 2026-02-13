@@ -18,6 +18,7 @@ import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.matpower.model.*;
 import org.apache.commons.math3.complex.Complex;
@@ -192,6 +193,16 @@ public class MatpowerImporter implements Importer {
         for (MGen mGen : model.getGeneratorsByBusNum(mBus.getNumber())) {
             String busId = getId(BUS_PREFIX, mGen.getNumber());
             String genId = getId(GENERATOR_PREFIX, mGen.getNumber());
+            boolean voltageRegulatorOn = mGen.getVoltageMagnitudeSetpoint() != 0;
+            RegulationMode mode;
+            double targetValue;
+            if (voltageRegulatorOn) {
+                mode = RegulationMode.VOLTAGE;
+                targetValue = mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV();
+            } else {
+                mode = RegulationMode.REACTIVE_POWER;
+                targetValue = mGen.getReactivePowerOutput();
+            }
             Generator generator = voltageLevel.newGenerator()
                     .setId(genId)
                     .setEnsureIdUnicity(true)
@@ -200,7 +211,10 @@ public class MatpowerImporter implements Importer {
                     .setTargetV(mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV())
                     .setTargetP(mGen.getRealPowerOutput())
                     .setTargetQ(mGen.getReactivePowerOutput())
-                    .setVoltageRegulatorOn(mGen.getVoltageMagnitudeSetpoint() != 0)
+                    .newVoltageRegulation()
+                        .withMode(mode)
+                        .withTargetValue(targetValue)
+                        .add()
                     .setMaxP(mGen.getMaximumRealPowerOutput())
                     .setMinP(mGen.getMinimumRealPowerOutput())
                     .setRatedS(mGen.getTotalMbase() != 0 ? mGen.getTotalMbase() : Double.NaN)

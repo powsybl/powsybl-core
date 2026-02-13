@@ -12,6 +12,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
@@ -412,6 +413,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
 
     private static Generator createGenerator(VoltageLevel voltageLevel, String generatorId, int node, double targetP, double targetQ, double targetV, boolean isRegulating) {
         assertSame(TopologyKind.NODE_BREAKER, voltageLevel.getTopologyKind());
+        RegulationMode mode = isRegulating ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER;
         Generator gen = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setName(generatorId)
@@ -422,10 +424,8 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setTargetV(targetV)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation().withMode(mode).withTargetValue(targetQ).add()
                 .add();
-        gen.setRegulatingTerminal(gen.getTerminal())
-                .setVoltageRegulatorOn(isRegulating);
         gen.newMinMaxReactiveLimits().setMinQ(-225.0).setMaxQ(230.0).add();
 
         return gen;

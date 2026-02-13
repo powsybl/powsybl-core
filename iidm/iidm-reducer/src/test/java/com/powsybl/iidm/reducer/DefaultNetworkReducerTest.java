@@ -9,6 +9,7 @@ package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -295,7 +296,8 @@ class DefaultNetworkReducerTest {
         assertEquals(300, gen.getMaxP());
         assertEquals(-300, gen.getMinP());
         assertEquals(-p, gen.getTargetP());
-        assertTrue(gen.isVoltageRegulatorOn());
+        assertTrue(gen.getVoltageRegulation().isRegulating());
+        assertEquals(RegulationMode.VOLTAGE, gen.getVoltageRegulation().getMode());
         assertEquals(targetV, gen.getTargetV());
         assertEquals(200, gen.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ());
         assertFalse(gen.getExtension(ActivePowerControl.class).isParticipate());

@@ -17,6 +17,7 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -270,7 +271,9 @@ class RemoveFeederBayTest {
 
         VoltageLevel vl1 = network.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl1.getNodeBreakerView().newBusbarSection().setId("VL1_BBS").setNode(0).add();
-        vl1.newGenerator().setId("G1").setNode(1).setTargetP(0).setVoltageRegulatorOn(true).setTargetV(400).setMinP(0).setMaxP(10).add();
+        vl1.newGenerator().setId("G1").setNode(1).setTargetP(0).setTargetV(400).setMinP(0).setMaxP(10)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+            .add();
         vl1.getNodeBreakerView().newBreaker().setId("VL1_B1").setNode1(1).setNode2(2).add();
         vl1.getNodeBreakerView().newDisconnector().setId("VL1_D1").setNode1(0).setNode2(2).add();
         vl1.getNodeBreakerView().newBreaker().setId("VL1_B2").setNode1(3).setNode2(4).add();

@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+
 import java.time.ZonedDateTime;
 
 import java.util.Objects;
@@ -266,7 +268,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(100.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetP(85.3570)
                 .setTargetV(400.0)
                 .setTargetQ(512.081)
@@ -291,7 +293,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(200.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetP(90)
                 .setTargetV(400.0)
                 .setTargetQ(512.081)
@@ -316,7 +318,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(200.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetP(155.714)
                 .setTargetV(400)
                 .setTargetQ(512.081)
@@ -413,7 +415,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.THERMAL)
                 .setMinP(0.0)
                 .setMaxP(100.0)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(70).add()
                 .setTargetP(100.0)
                 .setTargetV(400)
                 .setTargetQ(70)
@@ -505,7 +507,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.THERMAL)
                 .setMinP(0.0)
                 .setMaxP(400.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetP(250.9944)
                 .setTargetV(400)
                 .setTargetQ(71.8487)

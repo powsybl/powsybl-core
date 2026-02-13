@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,27 +59,29 @@ class GeneratorModificationTest {
         NetworkModification modification6 = new GeneratorModification("GEN", modifs);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification6.hasImpactOnNetwork(network));
 
-        generator.setVoltageRegulatorOn(false);
+        generator.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
         modifs = new GeneratorModification.Modifs();
-        modifs.setVoltageRegulatorOn(true);
+        modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE);
         NetworkModification modification7 = new GeneratorModification("GEN", modifs);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification7.hasImpactOnNetwork(network));
 
-        generator.setVoltageRegulatorOn(true);
+        generator.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         modifs = new GeneratorModification.Modifs();
-        modifs.setVoltageRegulatorOn(false);
+        modifs.setVoltageRegulationMode(RegulationMode.REACTIVE_POWER);
         NetworkModification modification8 = new GeneratorModification("GEN", modifs);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification8.hasImpactOnNetwork(network));
 
-        generator.setVoltageRegulatorOn(false);
+        generator.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+        generator.getVoltageRegulation().setTargetValue(Double.NaN);
         generator.setTargetV(Double.NaN);
         modifs = new GeneratorModification.Modifs();
-        modifs.setVoltageRegulatorOn(true);
+        modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE);
         NetworkModification modification9 = new GeneratorModification("GEN", modifs);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification9.hasImpactOnNetwork(network));
 
+        generator.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+        generator.getVoltageRegulation().setTargetValue(24.5);
         generator.setTargetV(24.5);
-        generator.setVoltageRegulatorOn(true);
         modifs = new GeneratorModification.Modifs();
         modifs.setConnected(false);
         NetworkModification modification10 = new GeneratorModification("GEN", modifs);

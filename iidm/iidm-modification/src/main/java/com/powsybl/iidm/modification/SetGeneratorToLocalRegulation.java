@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +65,12 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
      */
     private void setLocalRegulation(Generator generator, ReportNode reportNode) {
         // Change the regulation (local instead of remote)
-        generator.setTargetV(calculateTargetVoltage(generator));
-        generator.setRegulatingTerminal(generator.getTerminal());
+        double targetV = calculateTargetVoltage(generator);
+        if (generator.getVoltageRegulation() != null && generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE) {
+            generator.getVoltageRegulation().setTargetValue(targetV);
+            generator.getVoltageRegulation().setTerminal(null);
+        }
+        generator.setTargetV(targetV);
 
         // Notify the change
         LOG.info("Changed regulation for generator: {} to local instead of remote", generator.getId());

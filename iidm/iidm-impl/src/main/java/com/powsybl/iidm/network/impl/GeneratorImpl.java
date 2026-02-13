@@ -9,7 +9,10 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.*;
 import gnu.trove.list.array.TDoubleArrayList;
+
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -28,7 +31,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private final RegulatingPoint regulatingPoint;
+    private VoltageRegulationImpl voltageRegulation;
 
     // attributes depending on the variant
 
@@ -45,19 +48,18 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
-                  boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
-                  double targetP, double targetQ, double targetV, double equivalentLocalTargetV,
-                  double ratedS, boolean isCondenser) {
+                  VoltageRegulation voltageRegulation,
+                  double targetP, double targetQ, double targetV,
+                  double ratedS, boolean isCondenser, double equivalentLocalTargetV) {
         super(network, id, name, fictitious);
         this.network = network;
         this.energySource = energySource;
         this.minP = minP;
         this.maxP = maxP;
+        this.voltageRegulation = (VoltageRegulationImpl) voltageRegulation;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.ratedS = ratedS;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, true);
-        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         this.targetP = new TDoubleArrayList(variantArraySize);
         this.targetQ = new TDoubleArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
@@ -121,8 +123,11 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
+    @Deprecated(forRemoval = true, since = "7.2.0")
     public boolean isVoltageRegulatorOn() {
-        return regulatingPoint.isRegulating(network.get().getVariantIndex());
+        return this.voltageRegulation != null
+            && RegulationMode.VOLTAGE == this.voltageRegulation.getMode()
+            && this.voltageRegulation.isRegulating();
     }
 
     @Override
@@ -130,26 +135,41 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this,
-                voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex),
-                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        boolean oldValue = regulatingPoint.setRegulating(variantIndex, voltageRegulatorOn);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+            voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex),
+            n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        if (this.voltageRegulation != null) {
+            boolean oldValue = this.voltageRegulation.setRegulating(true);
+            if (voltageRegulatorOn) {
+                this.voltageRegulation.setMode(RegulationMode.VOLTAGE);
+            } else {
+                this.voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
+            }
+            String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        } else {
+            throw new IllegalStateException(); // TODO MSA
+        }
         return this;
     }
 
     @Override
+    @Deprecated(forRemoval = true)
     public TerminalExt getRegulatingTerminal() {
-        return regulatingPoint.getRegulatingTerminal();
+        TerminalExt regulatingTerminal = voltageRegulation != null ? (TerminalExt) voltageRegulation.getTerminal() : null;
+        TerminalExt terminalExt = regulatingTerminal != null ? regulatingTerminal : getTerminal();
+        return terminalExt;
     }
 
     @Override
+    @Deprecated(forRemoval = true)
     public GeneratorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        Terminal oldValue = regulatingPoint.getRegulatingTerminal();
-        regulatingPoint.setRegulatingTerminal((TerminalExt) regulatingTerminal);
-        notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
+        if (voltageRegulation != null) {
+            Terminal oldValue = voltageRegulation.getTerminal();
+            voltageRegulation.setTerminal(regulatingTerminal);
+            notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
+        }
         return this;
     }
 
@@ -179,8 +199,9 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     public GeneratorImpl setTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex),
-                targetV.get(variantIndex), targetQ, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+//        TODO MSA Check if we need this validation
+//        ValidationUtil.checkVoltageControl(this, this.isVoltageRegulatorOn(),
+//                this.getTargetV(), targetQ, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         double oldValue = this.targetQ.set(variantIndex, targetQ);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -189,11 +210,20 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
+    public double getRemoteTargetV() {
+        if (this.voltageRegulation != null && Boolean.TRUE.equals(this.voltageRegulation.isRegulating()) && RegulationMode.VOLTAGE == this.voltageRegulation.getMode()) {
+            return this.voltageRegulation.getTargetValue();
+        }
+        return Double.NaN;
+    }
+
+    @Override
     public double getTargetV() {
         return this.targetV.get(network.get().getVariantIndex());
     }
 
     @Override
+    @Deprecated(forRemoval = true, since = "7.2.0")
     public GeneratorImpl setTargetV(double targetV) {
         return this.setTargetV(targetV, Double.NaN);
     }
@@ -202,16 +232,17 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     public GeneratorImpl setTargetV(double targetV, double equivalentLocalTargetV) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex),
+        ValidationUtil.checkVoltageControl(this, this.isVoltageRegulatorOn(),
             targetV, targetQ.get(variantIndex), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
         double oldValueTargetV = this.targetV.set(variantIndex, targetV);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("targetV", variantId, oldValueTargetV, targetV);
-
-        ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
-        double oldEquivalentLocalTargetV = this.equivalentLocalTargetV.set(variantIndex, equivalentLocalTargetV);
-        notifyUpdate("equivalentLocalTargetV", variantId, oldEquivalentLocalTargetV, equivalentLocalTargetV);
+        this.equivalentLocalTargetV.set(variantIndex, equivalentLocalTargetV);
+        if (this.voltageRegulation != null) {
+//            this.voltageRegulation.setTargetValue(targetV);
+        }
         return this;
     }
 
@@ -266,7 +297,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public void remove() {
-        regulatingPoint.remove();
+        this.voltageRegulation.remove();
         super.remove();
     }
 
@@ -283,7 +314,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             targetV.add(targetV.get(sourceIndex));
             equivalentLocalTargetV.add(equivalentLocalTargetV.get(sourceIndex));
         }
-        regulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
     }
 
     @Override
@@ -293,13 +324,13 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         targetQ.remove(targetQ.size() - number, number);
         targetV.remove(targetV.size() - number, number);
         equivalentLocalTargetV.remove(equivalentLocalTargetV.size() - number, number);
-        regulatingPoint.reduceVariantArraySize(number);
+        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
-        regulatingPoint.deleteVariantArrayElement(index);
+        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(index));
     }
 
     @Override
@@ -311,7 +342,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             targetV.set(index, targetV.get(sourceIndex));
             equivalentLocalTargetV.set(index, equivalentLocalTargetV.get(sourceIndex));
         }
-        regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
+        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
     }
 
     @Override
@@ -319,4 +350,26 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         return "Generator";
     }
 
+    @Override
+    public VoltageRegulationImpl getVoltageRegulation() {
+        return voltageRegulation;
+    }
+
+    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+        return Optional.ofNullable(this.voltageRegulation);
+    }
+
+    @Override
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return new VoltageRegulationBuilderImpl<>(Generator.class, this, getNetwork().getRef(), this::setVoltageRegulation);
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+        this.voltageRegulation = null;
+    }
+
+    public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+        this.voltageRegulation = voltageRegulation;
+    }
 }

@@ -9,6 +9,7 @@ package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -265,7 +266,10 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setId(hvdcLine.getId())
                 .setName(hvdcLine.getOptionalName().orElse(null))
                 .setEnergySource(EnergySource.OTHER)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(station.getVoltageSetpoint())
+                    .add()
                 .setMaxP(maxP)
                 .setMinP(-maxP)
                 .setTargetP(-checkP(terminal))

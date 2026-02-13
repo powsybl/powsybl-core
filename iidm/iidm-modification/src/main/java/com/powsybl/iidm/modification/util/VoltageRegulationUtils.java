@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.util;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +25,11 @@ public final class VoltageRegulationUtils {
      */
     public static Stream<Generator> getRegulatingGenerators(Network network, Bus controlledBus) {
         if (controlledBus != null) {
-            return network.getGeneratorStream().filter(Generator::isVoltageRegulatorOn)
-                    .filter(g -> g.getRegulatingTerminal().getBusView().getBus() != null)
-                    .filter(g -> controlledBus.equals(g.getRegulatingTerminal().getBusView().getBus()));
+            return network.getGeneratorStream()
+                .filter(g -> g.getVoltageRegulation() != null)
+                .filter(g -> g.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE)
+                .filter(g -> g.getRegulatingTerminal().getBusView().getBus() != null)
+                .filter(g -> controlledBus.equals(g.getRegulatingTerminal().getBusView().getBus()));
         } else {
             return Stream.empty();
         }

@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -270,5 +271,41 @@ public abstract class AbstractBatteryTest {
                 .setMaxP(maxP)
                 .setBus("NBAT")
                 .add();
+    }
+
+    @Test
+    void test() {
+        // GIVEN
+        // WHEN
+        RegulationMode regulationMode = RegulationMode.VOLTAGE;
+        double targetValue = 230.0;
+        boolean regulating = true;
+        Terminal terminal = voltageLevel.getBusBreakerView().getBus("NBAT").getConnectedTerminalStream().findFirst().orElse(null);
+        double slope = 4.0;
+        voltageLevel.newBattery()
+            .setId("BAT12987")
+            .setBus("NBAT")
+            .setConnectableBus("NBAT")
+            .setMinP(-999.0)
+            .setMaxP(999.0)
+            .setTargetP(100.0)
+            .setTargetQ(50.0)
+            .newVoltageRegulation()
+                .withMode(regulationMode)
+                .withTargetValue(targetValue)
+                .withRegulating(regulating)
+                .withTerminal(terminal)
+                .withSlope(slope)
+                .add()
+            .add();
+        // THEN
+        Battery battery = network.getBattery("BAT12987");
+        assertNotNull(battery);
+//        assertNotNull(battery.getVoltageRegulation());
+//        assertEquals(regulationMode, battery.getVoltageRegulation().getMode());
+//        assertEquals(targetValue, battery.getVoltageRegulation().getTargetValue());
+//        assertEquals(regulating, battery.getVoltageRegulation().isRegulating());
+//        assertEquals(terminal, battery.getVoltageRegulation().getTerminal());
+//        assertEquals(slope, battery.getVoltageRegulation().getSlope());
     }
 }

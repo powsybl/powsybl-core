@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.ArrayList;
@@ -320,5 +322,20 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             throw new ValidationException(this, "unexpected solved section number (" + solvedSectionCount + "): no existing associated section");
         }
         return solvedSectionCount;
+    }
+
+    @Override
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return null;
+    }
+
+    @Override
+    public VoltageRegulation getVoltageRegulation() {
+        return null;
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+
     }
 }

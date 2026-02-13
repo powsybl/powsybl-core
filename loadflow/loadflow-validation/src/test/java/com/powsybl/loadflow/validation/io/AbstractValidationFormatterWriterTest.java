@@ -71,7 +71,8 @@ abstract class AbstractValidationFormatterWriterTest {
     protected final double targetQ = -3.72344;
     protected final double targetV = 380;
     protected final boolean connected = true;
-    protected final boolean voltageRegulatorOn = true;
+    protected final String generatorRegulationMode = com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE.name();
+    protected final boolean generatorRegulating = true;
     protected final double minP = 25;
     protected final double maxP = 45;
     protected final double minQ = -10;
@@ -247,10 +248,10 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, expectedP, connected, generatorRegulationMode, generatorRegulating, minP, maxP, minQ, maxQ, mainComponent, validated);
             generatorsWriter.setValidationCompleted();
             if (compareResults) {
-                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, expectedP, connected, generatorRegulationMode, generatorRegulating, minP, maxP, minQ, maxQ, mainComponent, validated);
                 generatorsWriter.setValidationCompleted();
             }
             assertEquals(generatorsContent, writer.toString().trim());

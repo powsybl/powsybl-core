@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.Objects;
 
@@ -101,7 +102,7 @@ public final class DanglingLineNetworkFactory {
                 .setId("G")
                 .setMinP(0.0)
                 .setMaxP(100.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(100).add()
                 .setTargetV(100.0)
                 .setTargetP(50.0)
                 .setTargetQ(30.0)

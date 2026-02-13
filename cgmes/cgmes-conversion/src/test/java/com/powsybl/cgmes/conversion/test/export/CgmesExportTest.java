@@ -23,6 +23,7 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -585,8 +586,8 @@ class CgmesExportTest {
             generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
 
             // RegulatingControl is exported when targetV is not NaN, even if voltage regulation is disabled
-            generatorRcc.setVoltageRegulatorOn(false);
-            generatorNoRcc.setVoltageRegulatorOn(false);
+            generatorRcc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+            generatorNoRcc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
@@ -596,17 +597,17 @@ class CgmesExportTest {
 
             // RegulatingControl isn't exported when targetV is NaN
             double rccTargetV = generatorRcc.getTargetV();
-            generatorRcc.setTargetV(Double.NaN);
+            generatorRcc.getVoltageRegulation().setRegulating(false);
             double noRccTargetV = generatorNoRcc.getTargetV();
-            generatorNoRcc.setTargetV(Double.NaN);
+            generatorNoRcc.getVoltageRegulation().setRegulating(false);
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
-            generatorRcc.setTargetV(rccTargetV);
-            generatorRcc.setVoltageRegulatorOn(true);
-            generatorNoRcc.setTargetV(noRccTargetV);
-            generatorNoRcc.setVoltageRegulatorOn(true);
+            generatorRcc.getVoltageRegulation().setTargetValue(rccTargetV);
+            generatorRcc.getVoltageRegulation().setRegulating(true);
+            generatorNoRcc.getVoltageRegulation().setTargetValue(noRccTargetV);
+            generatorNoRcc.getVoltageRegulation().setRegulating(true);
 
             // RegulatingControl isn't exported when Qmin and Qmax are the same
             ReactiveCapabilityCurveAdder rccAdder = generatorRcc.newReactiveCapabilityCurve();

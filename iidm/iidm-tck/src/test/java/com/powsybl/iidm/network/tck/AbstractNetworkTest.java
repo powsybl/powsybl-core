@@ -14,6 +14,7 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.TieLineUtil;
@@ -163,7 +164,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(200.0, generator1.getMinP(), 0.0);
         assertEquals(900.0, generator1.getMaxP(), 0.0);
         assertSame(EnergySource.NUCLEAR, generator1.getEnergySource());
-        assertTrue(generator1.isVoltageRegulatorOn());
+        assertSame(RegulationMode.VOLTAGE, generator1.getVoltageRegulation().getMode());
         assertEquals(900.0, generator1.getTargetP(), 0.0);
         assertEquals(380.0, generator1.getTargetV(), 0.0);
         ReactiveCapabilityCurve rcc1 = generator1.getReactiveLimits(ReactiveCapabilityCurve.class);
@@ -313,7 +314,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(-9999.99, generator1.getMinP(), 0.0);
         assertEquals(9999.99, generator1.getMaxP(), 0.0);
         assertSame(EnergySource.OTHER, generator1.getEnergySource());
-        assertTrue(generator1.isVoltageRegulatorOn());
+        assertSame(RegulationMode.VOLTAGE, generator1.getVoltageRegulation().getMode());
         assertEquals(607.0, generator1.getTargetP(), 0.0);
         assertEquals(24.5, generator1.getTargetV(), 0.0);
         assertEquals(301.0, generator1.getTargetQ(), 0.0);

@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
 /**
  * A ratio tap changer that is associated to a transformer to control the voltage or reactive power.
  *
@@ -16,7 +18,8 @@ public interface RatioTapChanger extends TapChanger<
     RatioTapChanger,
     RatioTapChangerStep,
     RatioTapChangerStepsReplacer,
-    RatioTapChangerStepsReplacer.StepAdder> {
+    RatioTapChangerStepsReplacer.StepAdder>,
+    VoltageRegulationHolder {
 
     enum RegulationMode {
         VOLTAGE,
@@ -25,27 +28,19 @@ public interface RatioTapChanger extends TapChanger<
 
     /**
      * Get the regulation mode.
-     * Supported modes are {@link RegulationMode#VOLTAGE} and {@link RegulationMode#REACTIVE_POWER}.
+     * Supported modes are {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE} and {@link com.powsybl.iidm.network.regulation.RegulationMode#REACTIVE_POWER}.
      * @return the regulation mode.
      */
     RegulationMode getRegulationMode();
 
     /**
      * Set the regulation mode.
-     * Supported modes are {@link RegulationMode#VOLTAGE} and {@link RegulationMode#REACTIVE_POWER}.
+     * Supported modes are {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE} and {@link com.powsybl.iidm.network.regulation.RegulationMode#REACTIVE_POWER}.
      * @param regulationMode the regulation mode.
      * @return itself for method chaining
      */
-    RatioTapChanger setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
+    RatioTapChanger setRegulationMode(RegulationMode regulationMode);
 
-    /**
-     * Get the regulation value.
-     *   - a setpoint in kV in case of {@link RegulationMode#VOLTAGE} regulation
-     *   - a setpoint in MVar in case of {@link RegulationMode#REACTIVE_POWER} regulation
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
-     */
     double getRegulationValue();
 
     /**
@@ -61,7 +56,7 @@ public interface RatioTapChanger extends TapChanger<
     /**
      * Get the target voltage in kV.
      * <p>
-     * Returns NaN if the regulation mode is not {@link RegulationMode#VOLTAGE}.
+     * Returns NaN if the regulation mode is not {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE}.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
@@ -69,7 +64,7 @@ public interface RatioTapChanger extends TapChanger<
     double getTargetV();
 
     /**
-     * Set the target voltage in kV and sets regulating mode to {@link RegulationMode#VOLTAGE}.
+     * Set the target voltage in kV and sets regulating mode to {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE}.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
