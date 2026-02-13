@@ -1,0 +1,122 @@
+@startuml
+
+
+
+interface Action {
+  getType() : String
+}
+Action --> NetworkModification : toModification()
+Action <|.. AbstractAction
+
+interface NetworkModification
+
+class AbstractAction {
+  getId : String
+}
+
+AbstractAction <|-- AbstractLoadAction
+AbstractAction <|-- AbstractTapChangerAction
+AbstractAction <|-- AreaInterchangeTargetAction
+AbstractAction <|-- GeneratorAction
+AbstractAction <|-- HvdcAction
+AbstractAction <|-- MultipleActionsAction
+AbstractAction <|-- PercentChangeLoadAction
+AbstractAction <|-- ShuntCompensatorPositionAction
+AbstractAction <|-- StaticVarCompensatorAction
+AbstractAction <|-- SwitchAction
+AbstractAction <|-- TerminalsConnectionAction
+
+class AbstractLoadAction {
+  isRelativeValue() : boolean
+  getActivePowerValue() : OptionalDouble
+  getReactivePowerValue() : OptionalDouble
+}
+AbstractLoadAction <|-- DanglingLineAction
+AbstractLoadAction <|-- LoadAction
+
+class DanglingLineAction {
+  getDanglingLineId() : String
+}
+
+class LoadAction {
+  getLoadId(): String
+}
+
+class AbstractTapChangerAction {
+  getTransformerId() : String
+  getSide() : Optional<ThreeSides>
+}
+AbstractTapChangerAction <|-- AbstractTapChangerRegulationAction
+AbstractTapChangerAction <|-- AbstractTapChangerTapPositionAction
+
+
+class AbstractTapChangerRegulationAction {
+  isRegulating() : boolean
+}
+AbstractTapChangerRegulationAction <|-- PhaseTapChangerRegulationAction
+AbstractTapChangerRegulationAction <|-- RatioTapChangerRegulationAction
+
+class AbstractTapChangerTapPositionAction {
+  getTapPosition() : int
+  isRelativeValue() : boolean
+}
+AbstractTapChangerTapPositionAction <|-- PhaseTapChangerTapPositionAction
+AbstractTapChangerTapPositionAction <|-- RatioTapChangerTapPositionAction
+
+class AreaInterchangeTargetAction {
+  getInterchangeTarget() : double
+  getAreaId() : double
+}
+
+class GeneratorAction {
+  getGeneratorId() : String
+  isActivePowerRelativeValue() : Optional<Boolean>
+  getActivePowerValue() : OptionalDouble
+  isVoltageRegulatorOn() : Optional<Boolean>
+  getTargetV() : OptionalDouble
+  getTargetQ() : OptionalDouble
+}
+
+class HvdcAction {
+  getHvdcId() : String
+  getConverterMode() : Optional<HvdcLine.ConvertersMode>
+  getDroop() : OptionalDouble
+  getActivePowerSetpoint() : OptionalDouble
+  getP0() : OptionalDouble
+  isAcEmulationEnabled() : Optional<Boolean>
+  isRelativeValue() : Optional<Boolean>
+}
+
+class MultipleActionsAction
+MultipleActionsAction --> "*" Action : getActions()
+
+class PercentChangeLoadAction {
+  getP0PercentChange() : Double
+  getLoadId() : String
+  getQModificationStrategy() : QModificationStrategy
+}
+
+class ShuntCompensatorPositionAction {
+  getShuntCompensatorId() : String
+  getSectionCount() : int
+}
+
+class StaticVarCompensatorAction {
+  getStaticVarCompensatorId() : String
+  getRegulationMode() : Optional<StaticVarCompensator.RegulationMode>
+  getVoltageSetpoint() : OptionalDouble
+  getReactivePowerSetpoint() : OptionalDouble
+}
+
+class SwitchAction {
+  getSwitchId() : String
+  isOpen() : boolean
+}
+
+class TerminalsConnectionAction {
+  getElementId() : String
+  getSide() : Optional<ThreeSides>
+  isOpen() : boolean
+}
+
+@enduml
