@@ -43,7 +43,8 @@ class IssuesTest {
         // NOTE:
         // Disconnecting the terminal of the generator or the regulated terminal
         // do not deactivate voltage regulation
-        assertTrue(n.getGenerator("G1").isVoltageRegulatorOn());
+        assertEquals(RegulationMode.VOLTAGE, n.getGenerator("G1").getVoltageRegulation().getMode());
+        assertTrue(n.getGenerator("G1").getVoltageRegulation().isRegulating());
         c.compare();
     }
 

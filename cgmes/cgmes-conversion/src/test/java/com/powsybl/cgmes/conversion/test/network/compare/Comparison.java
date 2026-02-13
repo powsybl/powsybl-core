@@ -456,12 +456,10 @@ public class Comparison {
         compare("targetP", expected.getTargetP(), actual.getTargetP());
         compare("targetQ", expected.getTargetQ(), actual.getTargetQ());
         if (expected.getVoltageRegulation() != null) {
-            compare("mode", expected.getVoltageRegulation().getMode(), actual.getVoltageRegulation().getMode());
-            compare("targetValue", expected.getVoltageRegulation().getTargetValue(), actual.getVoltageRegulation().getTargetValue());
+            compare("VoltageRegulation.mode", expected.getVoltageRegulation().getMode(), actual.getVoltageRegulation().getMode());
+            compare("VoltageRegulation.regulating", expected.getVoltageRegulation().isRegulating(), actual.getVoltageRegulation().isRegulating());
+            compare("VoltageRegulation.targetValue", expected.getVoltageRegulation().getTargetValue(), actual.getVoltageRegulation().getTargetValue());
         }
-        compare("isVoltageRegulatorOn",
-                expected.isVoltageRegulatorOn(),
-                actual.isVoltageRegulatorOn());
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null
                 || actual.getRegulatingTerminal() != null)) {

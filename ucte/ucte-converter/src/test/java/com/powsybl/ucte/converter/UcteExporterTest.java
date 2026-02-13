@@ -15,6 +15,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
@@ -185,7 +186,9 @@ class UcteExporterTest extends AbstractSerDeTest {
             bus.setV(bus.getVoltageLevel().getNominalV() * 1.4);
         }
         for (Generator gen : network.getGenerators()) {
-            if (gen.isVoltageRegulatorOn()) {
+            if (gen.getVoltageRegulation() != null
+                && gen.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE
+                && gen.getVoltageRegulation().isRegulating()) {
                 gen.setTargetV(gen.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4);
             }
         }
