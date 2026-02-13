@@ -22,8 +22,55 @@ interface Condition
 
 interface Action
 Action --> NetworkModification : toModification()
+Action <|.. AbstractAction
 
 interface NetworkModification
+
+class AbstractAction {
+  getId : String
+}
+
+AbstractAction <|-- AbstractLoadAction
+AbstractAction <|-- AbstractTapChangerAction
+AbstractAction <|-- AreaInterchangeTargetAction
+
+
+class AbstractLoadAction {
+  isRelativeValue() : boolean
+  getActivePowerValue() : OptionalDouble
+  getReactivePowerValue() : OptionalDouble
+}
+AbstractLoadAction <|-- DanglingLineAction
+AbstractLoadAction <|-- LoadAction
+
+class DanglingLineAction {
+  getDanglingLineId : String
+}
+
+class LoadAction {
+  getLoadId : String
+}
+
+class AbstractTapChangerAction {
+  getTransformerId : String
+  getSide : Optional<ThreeSides>
+}
+AbstractTapChangerAction <|-- AbstractTapChangerRegulationAction
+AbstractTapChangerAction <|-- AbstractTapChangerTapPositionAction
+
+
+class AbstractTapChangerRegulationAction {
+  isRegulating() : boolean
+}
+AbstractTapChangerRegulationAction <|-- PhaseTapChangerRegulationAction
+AbstractTapChangerRegulationAction <|-- RatioTapChangerRegulationAction
+
+class AbstractTapChangerTapPositionAction {
+  getTapPosition() : int
+  isRelativeValue() : boolean
+}
+AbstractTapChangerTapPositionAction <|-- PhaseTapChangerTapPositionAction
+AbstractTapChangerTapPositionAction <|-- RatioTapChangerTapPositionAction
 
 
 @enduml
