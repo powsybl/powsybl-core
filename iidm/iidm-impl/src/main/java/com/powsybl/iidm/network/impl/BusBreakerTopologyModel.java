@@ -16,10 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
-import com.powsybl.math.graph.TraversalType;
-import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.math.graph.UndirectedGraphImpl;
-import com.powsybl.math.graph.UndirectedGraphListener;
+import com.powsybl.math.graph.*;
 import org.anarres.graphviz.builder.GraphVizAttribute;
 import org.anarres.graphviz.builder.GraphVizEdge;
 import org.anarres.graphviz.builder.GraphVizGraph;
@@ -197,9 +194,9 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
      */
     class CalculatedBusTopology {
 
-        protected boolean isBusValid(Set<ConfiguredBus> busSet) {
+        protected boolean isBusValid(List<ConfiguredBus> buses) {
             int feederCount = 0;
-            for (TerminalExt terminal : FluentIterable.from(busSet).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
+            for (TerminalExt terminal : FluentIterable.from(buses).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
                 AbstractConnectable connectable = terminal.getConnectable();
                 switch (connectable.getType()) {
                     case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION,
@@ -214,11 +211,11 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
             return Networks.isBusValid(feederCount);
         }
 
-        private MergedBus createMergedBus(int busNum, Set<ConfiguredBus> busSet) {
+        private MergedBus createMergedBus(int busNum, List<ConfiguredBus> buses) {
             String suffix = "_" + busNum;
             String mergedBusId = Identifiables.getUniqueId(voltageLevel.getId() + suffix, getNetwork().getIndex()::contains);
             String mergedBusName = voltageLevel.getOptionalName().map(name -> name + suffix).orElse(null);
-            return new MergedBus(mergedBusId, mergedBusName, voltageLevel.isFictitious(), busSet);
+            return new MergedBus(mergedBusId, mergedBusName, voltageLevel.isFictitious(), buses);
         }
 
         private void updateCache() {
@@ -230,27 +227,36 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
             // mapping between configured buses and merged buses
             Map<ConfiguredBus, MergedBus> mapping = new IdentityHashMap<>();
-
-            boolean[] encountered = new boolean[graph.getVertexCapacity()];
-            Arrays.fill(encountered, false);
             int busNum = 0;
-            for (int v : graph.getVertices()) {
-                if (!encountered[v]) {
-                    final Set<ConfiguredBus> busSet = new LinkedHashSet<>(1);
-                    busSet.add(graph.getVertexObject(v));
-                    graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
-                        SwitchImpl aSwitch = graph.getEdgeObject(e);
-                        if (aSwitch.isOpen()) {
-                            return TraverseResult.TERMINATE_PATH;
-                        } else {
-                            busSet.add(graph.getVertexObject(v2));
-                            return TraverseResult.CONTINUE;
-                        }
-                    }, encountered);
-                    if (isBusValid(busSet)) {
-                        MergedBus mergedBus = createMergedBus(busNum++, busSet);
-                        mergedBuses.put(mergedBus.getId(), mergedBus);
-                        busSet.forEach(bus -> mapping.put(bus, mergedBus));
+
+            List<List<ConfiguredBus>> connectedComponents = graph.getConnectedComponents(
+                (v1, e, v2) -> {
+                    SwitchImpl sw = graph.getEdgeObject(e);
+                    if (sw != null && sw.isOpen()) {
+                        return TraverseResult.TERMINATE_PATH;
+                    }
+                    return TraverseResult.CONTINUE;
+                },
+                new UndirectedGraph.ConnectedComponentCollector<>() {
+                    @Override
+                    public List<ConfiguredBus> createComponent() {
+                        return new ArrayList<>();
+                    }
+
+                    @Override
+                    public void addVertex(List<ConfiguredBus> component, int vertexIndex) {
+                        ConfiguredBus bus = graph.getVertexObject(vertexIndex);
+                        component.add(bus);
+                    }
+                }
+            );
+
+            for (List<ConfiguredBus> component : connectedComponents) {
+                if (isBusValid(component)) {
+                    MergedBus mergedBus = createMergedBus(busNum++, component);
+                    mergedBuses.put(mergedBus.getId(), mergedBus);
+                    for (ConfiguredBus bus : component) {
+                        mapping.put(bus, mergedBus);
                     }
                 }
             }

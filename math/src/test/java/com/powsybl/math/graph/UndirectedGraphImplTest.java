@@ -19,7 +19,9 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -661,6 +663,123 @@ class UndirectedGraphImplTest {
         // Now vertex 0 must be removed.
         graph.removeIsolatedVertices();
         assertEquals(2, graph.getVertexCount());
+    }
+
+    /**
+     * <pre>
+     *     0 ---e0--- 1 ---e1--- 2     3 ---e2--- 4
+     *
+     *  Two components when all edges are traversed:
+     *  {0, 1, 2} and {3, 4}
+     * </pre>
+     */
+    @Test
+    void testGetConnectedComponentsMultipleComponents() {
+        graph.addVertex(); // 0
+        graph.addVertex(); // 1
+        graph.addVertex(); // 2
+        graph.addVertex(); // 3
+        graph.addVertex(); // 4
+        graph.addEdge(0, 1, null); // 0
+        graph.addEdge(1, 2, null); // 1
+        graph.addEdge(3, 4, null); // 2
+
+        List<TIntArrayList> components = graph.getConnectedComponents(
+                (v1, e, v2) -> TraverseResult.CONTINUE);
+
+        assertEquals(2, components.size());
+        assertArrayEquals(new int[]{0, 1, 2}, components.get(0).toArray());
+        assertArrayEquals(new int[]{3, 4}, components.get(1).toArray());
+    }
+
+    /**
+     * <pre>
+     *     0 ---e0--- 1 ---e1--- 2 ---e2--- 3
+     *
+     *  With TERMINATE_PATH on edge 1 (between 1 and 2):
+     *  {0, 1} and {2, 3}
+     * </pre>
+     */
+    @Test
+    void testGetConnectedComponentsWithTerminatePath() {
+        graph.addVertex(); // 0
+        graph.addVertex(); // 1
+        graph.addVertex(); // 2
+        graph.addVertex(); // 3
+        graph.addEdge(0, 1, "open");   // 0
+        graph.addEdge(1, 2, "closed"); // 1
+        graph.addEdge(2, 3, "open");   // 2
+
+        List<TIntArrayList> components = graph.getConnectedComponents(
+                (v1, e, v2) -> "closed".equals(graph.getEdgeObject(e))
+                        ? TraverseResult.TERMINATE_PATH
+                        : TraverseResult.CONTINUE);
+
+        assertEquals(2, components.size());
+        assertArrayEquals(new int[]{0, 1}, components.get(0).toArray());
+        assertArrayEquals(new int[]{2, 3}, components.get(1).toArray());
+    }
+
+    /**
+     * <pre>
+     *     0 ===e0,e1=== 1
+     *
+     *  Parallel edges: vertex 1 must appear only once in the component.
+     * </pre>
+     */
+    @Test
+    void testGetConnectedComponentsNoDuplicatesWithParallelEdges() {
+        graph.addVertex(); // 0
+        graph.addVertex(); // 1
+        graph.addEdge(0, 1, null); // 0
+        graph.addEdge(0, 1, null); // 1
+
+        List<TIntArrayList> components = graph.getConnectedComponents(
+                (v1, e, v2) -> TraverseResult.CONTINUE);
+
+        assertEquals(1, components.size());
+        TIntArrayList component = components.getFirst();
+        assertEquals(2, component.size());
+        assertArrayEquals(new int[]{0, 1}, component.toArray());
+    }
+
+    /**
+     * Test the generic overload with a custom ConnectedComponentCollector
+     * that collects vertex objects into Sets.
+     */
+    @Test
+    void testGetConnectedComponentsWithCustomCollector() {
+        graph.addVertex(); // 0
+        graph.addVertex(); // 1
+        graph.addVertex(); // 2
+        Vertex v0 = new Vertex("A");
+        Vertex v1 = new Vertex("B");
+        Vertex v2 = new Vertex("C");
+        graph.setVertexObject(0, v0);
+        graph.setVertexObject(1, v1);
+        graph.setVertexObject(2, v2);
+        graph.addEdge(0, 1, null); // 0
+
+        List<Set<Vertex>> components = graph.getConnectedComponents(
+                (vv1, e, vv2) -> TraverseResult.CONTINUE,
+                new UndirectedGraph.ConnectedComponentCollector<>() {
+                    @Override
+                    public Set<Vertex> createComponent() {
+                        return new HashSet<>();
+                    }
+
+                    @Override
+                    public void addVertex(Set<Vertex> component, int vertexIndex) {
+                        Vertex obj = graph.getVertexObject(vertexIndex);
+                        if (obj != null) {
+                            component.add(obj);
+                        }
+                    }
+                });
+
+        assertEquals(2, components.size());
+        assertEquals(Set.of(v0, v1), components.get(0));
+        assertEquals(Set.of(v2), components.get(1));
     }
 
     private record GraphPath(int v1, int e, int v2) {

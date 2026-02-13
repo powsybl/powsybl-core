@@ -259,45 +259,17 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             return CALCULATED_BUS_CHECKER;
         }
 
-        private void traverse(int n, boolean[] encountered, Predicate<SwitchImpl> terminate, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus) {
-            if (!encountered[n]) {
-                final TIntArrayList nodes = new TIntArrayList(1);
-                nodes.add(n);
-                Traverser traverser = (n1, e, n2) -> {
-                    SwitchImpl aSwitch = graph.getEdgeObject(e);
-                    if (aSwitch != null && terminate.test(aSwitch)) {
-                        return TraverseResult.TERMINATE_PATH;
-                    }
-
-                    if (!encountered[n2]) {
-                        // We need to check this as the traverser might be called twice with the same n2 but with different edges.
-                        // Note that the "encountered" array is used and maintained inside graph::traverse method, hence we should not update it.
-                        nodes.add(n2);
-                    }
-                    return TraverseResult.CONTINUE;
-                };
-                graph.traverse(n, TraversalType.DEPTH_FIRST, traverser, encountered);
-
-                // check that the component is a bus
-                String busId = Identifiables.getUniqueId(NAMING_STRATEGY.getId(voltageLevel, nodes), getNetwork().getIndex()::contains);
-                CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
-                for (int i = 0; i < nodes.size(); i++) {
-                    int n2 = nodes.getQuick(i);
-                    NodeTerminal terminal2 = graph.getVertexObject(n2);
-                    if (terminal2 != null) {
-                        terminals.add(terminal2);
-                    }
-                }
-                if (getBusChecker().isValid(graph, nodes, terminals)) {
-                    addBus(nodes, id2bus, node2bus, busId, terminals);
-                }
-            }
-        }
-
         private void addBus(TIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
-                            String busId, CopyOnWriteArrayList<NodeTerminal> terminals) {
+                            String busId) {
             String busName = NAMING_STRATEGY.getName(voltageLevel, nodes);
             Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
+            CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
+            for (int i = 0; i < nodes.size(); i++) {
+                NodeTerminal terminal = graph.getVertexObject(nodes.getQuick(i));
+                if (terminal != null) {
+                    terminals.add(terminal);
+                }
+            }
             CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals, getBusFromTerminal);
             id2bus.put(busId, bus);
             for (int i = 0; i < nodes.size(); i++) {
@@ -312,10 +284,25 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             LOGGER.trace("Update bus topology of voltage level {}", voltageLevel.getId());
             Map<String, CalculatedBus> id2bus = new LinkedHashMap<>();
             CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
-            boolean[] encountered = new boolean[graph.getVertexCapacity()];
-            for (int v : graph.getVertices()) {
-                traverse(v, encountered, terminate, id2bus, node2bus);
+
+            List<TIntArrayList> components = graph.getConnectedComponents((v1, e, v2) -> {
+                SwitchImpl sw = graph.getEdgeObject(e);
+                if (sw != null && terminate.test(sw)) {
+                    return TraverseResult.TERMINATE_PATH;
+                }
+                return TraverseResult.CONTINUE;
+            });
+
+            for (TIntArrayList nodes : components) {
+                if (getBusChecker().isValid(graph, nodes)) {
+                    String busId = Identifiables.getUniqueId(
+                        NAMING_STRATEGY.getId(voltageLevel, nodes),
+                        getNetwork().getIndex()::contains
+                    );
+                    addBus(nodes, id2bus, node2bus, busId);
+                }
             }
+
             busCache = new BusCache(node2bus, id2bus);
             LOGGER.trace("Found buses {}", id2bus.values());
         }
@@ -457,13 +444,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private interface BusChecker {
 
-        boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals);
+        boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes);
     }
 
     private static final class CalculatedBusChecker implements BusChecker {
 
         @Override
-        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes) {
             int feederCount = 0;
             int branchCount = 0;
             int busbarSectionCount = 0;
@@ -494,7 +481,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private static final class CalculatedBusBreakerChecker implements BusChecker {
         @Override
-        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes) {
             return !nodes.isEmpty();
         }
     }
