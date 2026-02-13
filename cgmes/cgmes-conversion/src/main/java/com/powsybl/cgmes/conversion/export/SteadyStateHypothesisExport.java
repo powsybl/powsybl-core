@@ -119,7 +119,7 @@ public final class SteadyStateHypothesisExport {
             // Terminal for equivalent injection at boundary is always connected
             writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), true, cimNamespace, writer, context);
             // Terminal for boundary side of original line/switch is always connected
-            writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(dl, ALIAS_TERMINAL_BOUNDARY), true, cimNamespace, writer, context);
+            writeTerminal(CgmesExportUtil.getDanglingLineBoundaryTerminalId(dl, context), true, cimNamespace, writer, context);
         }
     }
 

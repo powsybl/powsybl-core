@@ -449,7 +449,12 @@ public final class StateVariablesExport {
     }
 
     private static void writeIdentifiableTerminalPowerFlow(Identifiable<?> c, String aliasTypeForTerminalId, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        String cgmesTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(c, aliasTypeForTerminalId);
+        String cgmesTerminalId;
+        if (c instanceof DanglingLine dl && ALIAS_TERMINAL_BOUNDARY.equals(aliasTypeForTerminalId)) {
+            cgmesTerminalId = CgmesExportUtil.getDanglingLineBoundaryTerminalId(dl, context);
+        } else {
+            cgmesTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(c, aliasTypeForTerminalId);
+        }
         writePowerFlow(cgmesTerminalId, p, q, cimNamespace, writer, context);
     }
 

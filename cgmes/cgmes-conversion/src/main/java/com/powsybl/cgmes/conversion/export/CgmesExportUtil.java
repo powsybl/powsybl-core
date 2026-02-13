@@ -433,6 +433,14 @@ public final class CgmesExportUtil {
         return context.getNamingStrategy().getCgmesIdFromAlias(dcTerminal.getDcConnectable(), aliasType);
     }
 
+    public static String getDanglingLineBoundaryTerminalId(DanglingLine danglingLine, CgmesExportContext context) {
+        if (danglingLine.getAliasFromType(ALIAS_TERMINAL_BOUNDARY).isEmpty()
+            && danglingLine.getTieLine().flatMap(tl -> tl.getAliasFromType(ALIAS_TERMINAL_BOUNDARY)).isPresent()) {
+            return context.getNamingStrategy().getCgmesIdFromAlias(danglingLine.getTieLine().orElseThrow(), ALIAS_TERMINAL_BOUNDARY);
+        }
+        return context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, ALIAS_TERMINAL_BOUNDARY);
+    }
+
     public static List<DanglingLine> getBoundaryDanglingLines(Network network) {
         return network.getBoundaryElements().stream()
                 .filter(DanglingLine.class::isInstance)

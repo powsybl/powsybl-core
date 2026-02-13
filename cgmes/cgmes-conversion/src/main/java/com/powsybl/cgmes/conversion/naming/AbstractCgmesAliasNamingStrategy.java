@@ -13,7 +13,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.univocity.parsers.csv.*;
 import org.slf4j.Logger;
@@ -65,32 +64,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     }
 
     @Override
-    public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
-        // This is a hack to save in the naming strategy an identifier for something comes as an alias of an identifiable
-        // Equivalent injections of dangling lines
-        // Transformer ends of power transformers
-        // Tap changers of power transformers
-        Optional<String> alias;
-        if (identifiable instanceof DanglingLine dl) {
-            alias = identifiable.getAliasFromType(aliasType)
-                .or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType)));
-        } else {
-            alias = identifiable.getAliasFromType(aliasType);
-        }
-        return alias.isPresent() ? getCgmesId(alias.get()) : getCgmesId(getCgmesObjectReferences(identifiable, aliasType));
-    }
-
-    @Override
-    public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
-        if (identifiable.hasProperty(propertyName)) {
-            return getCgmesId(identifiable.getProperty(propertyName));
-        }
-        return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
-    }
-
-    @Override
     public String getCgmesId(String identifier) {
-        // This is a hack to save in the naming strategy an identifier for something that has no related IIDM object
         if (idByUuid.containsValue(identifier)) {
             return idByUuid.inverse().get(identifier);
         }

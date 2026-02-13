@@ -1035,7 +1035,7 @@ public final class EquipmentExport {
         }
 
         for (DanglingLine danglingLine : danglingLineList) {
-            String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, ALIAS_TERMINAL_BOUNDARY);
+            String terminalId = CgmesExportUtil.getDanglingLineBoundaryTerminalId(danglingLine, context);
             TerminalEq.write(terminalId, context.getNamingStrategy().getCgmesId(danglingLine), connectivityNodeId, 2, cimNamespace, writer, context);
         }
         return connectivityNodeId;
@@ -1561,8 +1561,7 @@ public final class EquipmentExport {
     }
 
     private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
-        DanglingLine dl = boundary.getDanglingLine();
-        return context.getNamingStrategy().getCgmesIdFromAlias(dl, ALIAS_TERMINAL_BOUNDARY);
+        return CgmesExportUtil.getDanglingLineBoundaryTerminalId(boundary.getDanglingLine(), context);
     }
 
     private static void writeTerminals(Network network, Map<String, String> mapNodeKey2NodeId,

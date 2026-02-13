@@ -31,12 +31,15 @@ public interface NamingStrategy {
     String getCgmesId(Identifiable<?> identifiable);
 
     default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
-        return identifiable.getAliasFromType(aliasType).orElseGet(() -> getCgmesId(getCgmesObjectReferences(identifiable, aliasType)));
+        if (identifiable.getAliasFromType(aliasType).isPresent()) {
+            return getCgmesId(identifiable.getAliasFromType(aliasType).orElseThrow());
+        }
+        return getCgmesId(getCgmesObjectReferences(identifiable, aliasType));
     }
 
     default String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
         if (identifiable.hasProperty(propertyName)) {
-            return identifiable.getProperty(propertyName);
+            return getCgmesId(identifiable.getProperty(propertyName));
         }
         return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
     }
