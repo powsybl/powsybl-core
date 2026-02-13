@@ -19,6 +19,9 @@ import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
  */
 class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
 
+    // TODO
+    // avec allFormats
+    // RoundTripTxtTestencoding="ISO-8859-1" standalone="no"?> changed to UTF-8  !! ...
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility

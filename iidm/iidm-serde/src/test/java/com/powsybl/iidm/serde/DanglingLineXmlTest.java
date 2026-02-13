@@ -27,7 +27,7 @@ class DanglingLineXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
-        allFormatsRoundTripAllVersionedXmlTest("danglingLine.xml");
+        allFormatsRoundTripAllVersionedTxtTest("danglingLine.xml");
     }
 
     @Test
@@ -35,10 +35,10 @@ class DanglingLineXmlTest extends AbstractIidmSerDeTest {
         Network network = DanglingLineNetworkFactory.createWithGeneration();
         network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
         network.getDanglingLine("DL").setProperty("test", "test");
-        allFormatsRoundTripTest(network, "danglingLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "danglingLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         // backward compatibility checks from version 1.3
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("danglingLineWithGeneration.xml", IidmVersion.V_1_3);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("danglingLineWithGeneration.xml", IidmVersion.V_1_3);
 
         // check it fails for all versions < 1.3
         testForAllPreviousVersions(IidmVersion.V_1_3, version -> {
@@ -54,6 +54,6 @@ class DanglingLineXmlTest extends AbstractIidmSerDeTest {
 
         // check it doesn't fail for all versions < 1.3 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteXmlAllPreviousVersions(network, options, "danglingLineWithGeneration.xml", IidmVersion.V_1_3);
+        testWriteTxtAllPreviousVersions(network, options, "danglingLineWithGeneration.xml", IidmVersion.V_1_3);
     }
 }

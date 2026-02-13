@@ -31,10 +31,10 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         Network network = ShuntTestCaseFactory.createWithActivePower();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
-        allFormatsRoundTripTest(network, "shuntRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "shuntRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("shuntRoundTripRef.xml", IidmVersion.V_1_2);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("shuntRoundTripRef.xml", IidmVersion.V_1_2);
     }
 
     @Test
@@ -42,10 +42,10 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         Network network = ShuntTestCaseFactory.createNonLinear();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
-        allFormatsRoundTripTest(network, "nonLinearShuntRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "nonLinearShuntRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.2
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("nonLinearShuntRoundTripRef.xml", IidmVersion.V_1_3);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("nonLinearShuntRoundTripRef.xml", IidmVersion.V_1_3);
 
         // check that it fails for versions previous to 1.2
         testForAllPreviousVersions(IidmVersion.V_1_3, version -> {
@@ -92,10 +92,10 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         Network network = ShuntTestCaseFactory.create();
         network.getShuntCompensator("SHUNT").setSolvedSectionCount(1);
 
-        allFormatsRoundTripTest(network, "shuntWithSolvedSectionCountRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "shuntWithSolvedSectionCountRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("shuntWithSolvedSectionCountRoundTripRef.xml", IidmVersion.V_1_14);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("shuntWithSolvedSectionCountRoundTripRef.xml", IidmVersion.V_1_14);
     }
 
     private void write(Network network, String version) {

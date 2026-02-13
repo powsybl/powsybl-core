@@ -60,6 +60,10 @@ public abstract class AbstractSerDeTest {
         return roundTripTest(data, transformer, write, read, ComparisonUtils::assertXmlEquals, ref);
     }
 
+    protected <T> T roundTripTxtTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> write, Function<Path, T> read, String ref) throws IOException {
+        return roundTripTest(data, transformer, write, read, ComparisonUtils::assertTxtEquals, ref);
+    }
+
     /**
      * Roundtrip test on the given data. The following steps occur:
      * <ul>
@@ -81,6 +85,10 @@ public abstract class AbstractSerDeTest {
      */
     protected <T> Path writeXmlTest(T data, BiConsumer<T, Path> write, String ref) throws IOException {
         return writeTest(data, write, ComparisonUtils::assertXmlEquals, ref);
+    }
+
+    protected <T> Path writeTxtTest(T data, BiConsumer<T, Path> write, String ref) throws IOException {
+        return writeTest(data, write, ComparisonUtils::assertTxtEquals, ref);
     }
 
     /**
