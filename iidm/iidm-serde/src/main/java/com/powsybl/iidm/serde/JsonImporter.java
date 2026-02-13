@@ -45,20 +45,32 @@ public class JsonImporter extends AbstractTreeDataImporter {
         return "IIDM JSON v " + CURRENT_IIDM_VERSION.toString(".") + " importer";
     }
 
-    @Override
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        if (ext != null) {
-            try (InputStream is = dataSource.newInputStream(null, ext)) {
-                // check the first element is START_OBJECT and second element 'version' key
-                try (JsonParser parser = JsonUtil.createJsonFactory().createParser(is)) {
-                    if (parser.nextToken() != JsonToken.START_OBJECT) {
-                        return false;
-                    }
-                    return JsonReader.VERSION_NAME.equals(parser.nextFieldName());
-                }
-            }
+        if (ext == null) {
+            return false;
         }
-        return false;
+
+        try (InputStream is = dataSource.newInputStream(null, ext)) {
+            // check the first element is START_OBJECT and second element 'version' key
+            try (JsonParser parser = JsonUtil.createJsonFactory().createParser(is)) {
+                if (parser.nextToken() != JsonToken.START_OBJECT) {
+                    return false;
+                }
+                String fieldName = parser.nextFieldName();
+                if (!JsonReader.VERSION_NAME.equals(fieldName)) {
+                    return false;
+                }
+                parser.nextToken();
+                String version = parser.getValueAsString();
+                if (version == null || version.isEmpty()) {
+                    return false;
+                }
+                IidmVersion.of(version, "_");
+                return true;
+            }
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     @Override
