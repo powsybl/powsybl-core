@@ -49,11 +49,11 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
 
     @Override
     public void write(ActivePowerControl<T> activePowerControl, SerializerContext context) {
-        context.getWriter().writeBooleanAttribute("participate", activePowerControl.isParticipate());
-        context.getWriter().writeDoubleAttribute("droop", activePowerControl.getDroop());
+        context.getWriter().writeBooleanAttribute("participate", activePowerControl.isParticipate(), false);
+        context.getWriter().writeDoubleAttribute("droop", activePowerControl.getDroop(), 0.0);
         Version extVersion = getExtensionVersionToExport(context);
         if (extVersion.isGreaterThan(Version.V_1_0)) {
-            context.getWriter().writeDoubleAttribute("participationFactor", activePowerControl.getParticipationFactor());
+            context.getWriter().writeDoubleAttribute("participationFactor", activePowerControl.getParticipationFactor(), 0.0);
         }
         if (extVersion.isGreaterThan(Version.V_1_1)) {
             // not using writeOptionalDouble and trusting implementation convention: : writeDoubleAttribute does not write NaN values in human-readable formats JSON/XML
@@ -64,14 +64,14 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
 
     @Override
     public ActivePowerControl<T> read(T identifiable, DeserializerContext context) {
-        boolean participate = context.getReader().readBooleanAttribute("participate");
-        double droop = context.getReader().readDoubleAttribute("droop");
+        boolean participate = context.getReader().readBooleanAttribute("participate", false);
+        double droop = context.getReader().readDoubleAttribute("droop", 0.0);
         double participationFactor = Double.NaN;
         double minTargetP = Double.NaN;
         double maxTargetP = Double.NaN;
         Version extVersion = getExtensionVersionImported(context);
         if (extVersion.isGreaterThan(Version.V_1_0)) {
-            participationFactor = context.getReader().readDoubleAttribute("participationFactor");
+            participationFactor = context.getReader().readDoubleAttribute("participationFactor", 0.0);
         }
         if (extVersion.isGreaterThan(Version.V_1_1)) {
             // not using readOptionalDouble and trusting implementation convention: readDoubleAttribute returns Nan if attribute is absent in human-readable formats (JSON / XML)

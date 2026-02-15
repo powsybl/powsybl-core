@@ -64,12 +64,12 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
                 }
             });
         }
-        context.getWriter().writeDoubleAttribute("p0", p0[0]);
-        context.getWriter().writeDoubleAttribute("q0", q0[0]);
-        context.getWriter().writeDoubleAttribute("r", dl.getR());
-        context.getWriter().writeDoubleAttribute("x", dl.getX());
-        context.getWriter().writeDoubleAttribute("g", dl.getG());
-        context.getWriter().writeDoubleAttribute("b", dl.getB());
+        context.getWriter().writeDoubleAttribute("p0", p0[0], 0.0);
+        context.getWriter().writeDoubleAttribute("q0", q0[0], 0.0);
+        context.getWriter().writeDoubleAttribute("r", dl.getR(), 0.0);
+        context.getWriter().writeDoubleAttribute("x", dl.getX(), 0.0);
+        context.getWriter().writeDoubleAttribute("g", dl.getG(), 0.0);
+        context.getWriter().writeDoubleAttribute("b", dl.getB(), 0.0);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
             context.getWriter().writeOptionalBooleanAttribute("generationVoltageRegulationOn", getOptionalValue(generation, Generation::isVoltageRegulationOn));
             context.getWriter().writeOptionalDoubleAttribute(GENERATION_MIN_P, getOptionalValue(generation, Generation::getMinP));
@@ -127,12 +127,12 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     }
 
     public static void readRootElementAttributesInternal(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
-        double p0 = context.getReader().readDoubleAttribute("p0");
-        double q0 = context.getReader().readDoubleAttribute("q0");
-        double r = context.getReader().readDoubleAttribute("r");
-        double x = context.getReader().readDoubleAttribute("x");
-        double g = context.getReader().readDoubleAttribute("g");
-        double b = context.getReader().readDoubleAttribute("b");
+        double p0 = context.getReader().readDoubleAttribute("p0", 0.0);
+        double q0 = context.getReader().readDoubleAttribute("q0", 0.0);
+        double r = context.getReader().readDoubleAttribute("r", 0.0);
+        double x = context.getReader().readDoubleAttribute("x", 0.0);
+        double g = context.getReader().readDoubleAttribute("g", 0.0);
+        double b = context.getReader().readDoubleAttribute("b", 0.0);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
             Optional<Boolean> voltageRegulationOn = context.getReader().readOptionalBooleanAttribute("generationVoltageRegulationOn");
             OptionalDouble minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);

@@ -35,16 +35,16 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
 
     @Override
     protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeDoubleAttribute("bMin", svc.getBmin());
-        context.getWriter().writeDoubleAttribute("bMax", svc.getBmax());
+        context.getWriter().writeDoubleAttribute("bMin", svc.getBmin(), 0.0);
+        context.getWriter().writeDoubleAttribute("bMax", svc.getBmax(), 0.0);
         String[] voltageSetpointName = {"voltageSetpoint"};
         String[] reactivePowerSetpointName = {"reactivePowerSetpoint"};
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_2, context, () -> {
             voltageSetpointName[0] = "voltageSetPoint";
             reactivePowerSetpointName[0] = "reactivePowerSetPoint";
         });
-        context.getWriter().writeDoubleAttribute(voltageSetpointName[0], svc.getVoltageSetpoint());
-        context.getWriter().writeDoubleAttribute(reactivePowerSetpointName[0], svc.getReactivePowerSetpoint());
+        context.getWriter().writeDoubleAttribute(voltageSetpointName[0], svc.getVoltageSetpoint(), 0.0);
+        context.getWriter().writeDoubleAttribute(reactivePowerSetpointName[0], svc.getReactivePowerSetpoint(), 0.0);
 
         // If SVC is not regulating in versions < 1.14, then its regulation mode should be exported as OFF (as it means that it has been imported with a "OFF" or null regulation mode)
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
@@ -98,8 +98,8 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
 
     @Override
     protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
-        double bMin = context.getReader().readDoubleAttribute("bMin");
-        double bMax = context.getReader().readDoubleAttribute("bMax");
+        double bMin = context.getReader().readDoubleAttribute("bMin", 0.0);
+        double bMax = context.getReader().readDoubleAttribute("bMax", 0.0);
 
         String[] voltageSetpointName = {"voltageSetpoint"};
         String[] reactivePowerSetpointName = {"reactivePowerSetpoint"};
@@ -107,8 +107,8 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
             voltageSetpointName[0] = "voltageSetPoint";
             reactivePowerSetpointName[0] = "reactivePowerSetPoint";
         });
-        double voltageSetpoint = context.getReader().readDoubleAttribute(voltageSetpointName[0]);
-        double reactivePowerSetpoint = context.getReader().readDoubleAttribute(reactivePowerSetpointName[0]);
+        double voltageSetpoint = context.getReader().readDoubleAttribute(voltageSetpointName[0], 0.0);
+        double reactivePowerSetpoint = context.getReader().readDoubleAttribute(reactivePowerSetpointName[0], 0.0);
 
         adder.setBmin(bMin)
                 .setBmax(bMax)

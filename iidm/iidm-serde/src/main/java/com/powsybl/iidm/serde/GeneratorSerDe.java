@@ -30,13 +30,13 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeEnumAttribute("energySource", g.getEnergySource());
-        context.getWriter().writeDoubleAttribute("minP", g.getMinP());
-        context.getWriter().writeDoubleAttribute("maxP", g.getMaxP());
+        context.getWriter().writeDoubleAttribute("minP", g.getMinP(), 0.0);
+        context.getWriter().writeDoubleAttribute("maxP", g.getMaxP(), 0.0);
         context.getWriter().writeDoubleAttribute("ratedS", g.getRatedS());
-        context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isVoltageRegulatorOn());
-        context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
-        context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
-        context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
+        context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isVoltageRegulatorOn(), false);
+        context.getWriter().writeDoubleAttribute("targetP", g.getTargetP(), 0.0);
+        context.getWriter().writeDoubleAttribute("targetV", g.getTargetV(), 0.0);
+        context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ(), 0.0);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
                 context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () ->
@@ -61,13 +61,13 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     @Override
     protected Generator readRootElementAttributes(GeneratorAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         EnergySource energySource = context.getReader().readEnumAttribute("energySource", EnergySource.class);
-        double minP = context.getReader().readDoubleAttribute("minP");
-        double maxP = context.getReader().readDoubleAttribute("maxP");
+        double minP = context.getReader().readDoubleAttribute("minP", 0.0);
+        double maxP = context.getReader().readDoubleAttribute("maxP", 0.0);
         double ratedS = context.getReader().readDoubleAttribute("ratedS");
-        boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
-        double targetP = context.getReader().readDoubleAttribute("targetP");
-        double targetV = context.getReader().readDoubleAttribute("targetV");
-        double targetQ = context.getReader().readDoubleAttribute("targetQ");
+        boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn", false);
+        double targetP = context.getReader().readDoubleAttribute("targetP", 0.0);
+        double targetV = context.getReader().readDoubleAttribute("targetV", 0.0);
+        double targetQ = context.getReader().readDoubleAttribute("targetQ", 0.0);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
                 adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
         adder.setEnergySource(energySource)

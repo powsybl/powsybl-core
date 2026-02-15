@@ -31,7 +31,7 @@ class BusbarSectionSerDe extends AbstractSimpleIdentifiableSerDe<BusbarSection, 
 
     @Override
     protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, NetworkSerializerContext context) {
-        context.getWriter().writeIntAttribute("node", bs.getTerminal().getNodeBreakerView().getNode());
+        context.getWriter().writeIntAttribute("node", bs.getTerminal().getNodeBreakerView().getNode(), 0);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_0, context, () -> {
             context.getWriter().writeDoubleAttribute("v", bs.getV());
             context.getWriter().writeDoubleAttribute("angle", bs.getAngle());
@@ -45,7 +45,7 @@ class BusbarSectionSerDe extends AbstractSimpleIdentifiableSerDe<BusbarSection, 
 
     @Override
     protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
-        int node = context.getReader().readIntAttribute("node");
+        int node = context.getReader().readIntAttribute("node", 0);
         BusbarSection bbs = adder.setNode(node)
                 .add();
 

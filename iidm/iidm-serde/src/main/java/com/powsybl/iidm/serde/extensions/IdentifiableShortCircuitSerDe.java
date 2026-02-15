@@ -31,14 +31,14 @@ public class IdentifiableShortCircuitSerDe<I extends Identifiable<I>> extends Ab
 
     @Override
     public void write(IdentifiableShortCircuit identifiableShortCircuit, SerializerContext context) {
-        context.getWriter().writeDoubleAttribute("ipMax", identifiableShortCircuit.getIpMax());
-        context.getWriter().writeDoubleAttribute("ipMin", identifiableShortCircuit.getIpMin());
+        context.getWriter().writeDoubleAttribute("ipMax", identifiableShortCircuit.getIpMax(), 0.0);
+        context.getWriter().writeDoubleAttribute("ipMin", identifiableShortCircuit.getIpMin(), 0.0);
     }
 
     @Override
     public IdentifiableShortCircuit read(I identifiable, DeserializerContext context) {
-        double ipMax = context.getReader().readDoubleAttribute("ipMax");
-        double ipMin = context.getReader().readDoubleAttribute("ipMin");
+        double ipMax = context.getReader().readDoubleAttribute("ipMax", 0.0);
+        double ipMin = context.getReader().readDoubleAttribute("ipMin", 0.0);
         context.getReader().readEndNode();
         IdentifiableShortCircuitAdder<I> adder = identifiable.newExtension(IdentifiableShortCircuitAdder.class);
         return adder.withIpMax(ipMax)

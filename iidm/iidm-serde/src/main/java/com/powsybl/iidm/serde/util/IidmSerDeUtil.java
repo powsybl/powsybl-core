@@ -286,7 +286,7 @@ public final class IidmSerDeUtil {
     public static void writeBooleanAttributeFromMinimumVersion(String rootElementName, String attributeName, boolean value, boolean defaultValue,
                                                                ErrorMessage type, IidmVersion minVersion, NetworkSerializerContext context) {
         writeAttributeFromMinimumVersion(rootElementName, attributeName, value != defaultValue, type,
-                minVersion, context, () -> context.getWriter().writeBooleanAttribute(attributeName, value));
+                minVersion, context, () -> context.getWriter().writeBooleanAttribute(attributeName, value, defaultValue));
     }
 
     /**
@@ -307,7 +307,7 @@ public final class IidmSerDeUtil {
     public static void writeDoubleAttributeFromMinimumVersion(String rootElementName, String attributeName, double value, double defaultValue,
                                                               ErrorMessage type, IidmVersion minVersion, NetworkSerializerContext context) {
         writeAttributeFromMinimumVersion(rootElementName, attributeName, !Objects.equals(value, defaultValue), type,
-                minVersion, context, () -> context.getWriter().writeDoubleAttribute(attributeName, value));
+                minVersion, context, () -> context.getWriter().writeDoubleAttribute(attributeName, value, defaultValue));
     }
 
     private static void writeAttributeFromMinimumVersion(String rootElementName, String attributeName, boolean isNotDefaultValue,

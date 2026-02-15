@@ -78,7 +78,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
             solvedSectionCount.ifPresent(adder::setSolvedSectionCount);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> {
-            boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
+            boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn", false);
             double targetV = context.getReader().readDoubleAttribute("targetV");
             double targetDeadband = context.getReader().readDoubleAttribute("targetDeadband");
             adder.setTargetV(targetV)

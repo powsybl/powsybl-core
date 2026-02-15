@@ -186,8 +186,8 @@ public final class ConnectableSerDeUtil {
     }
 
     public static void writePQ(Integer index, Terminal t, TreeDataWriter writer) {
-        writer.writeDoubleAttribute("p" + indexToString(index), t.getP());
-        writer.writeDoubleAttribute("q" + indexToString(index), t.getQ());
+        writer.writeDoubleAttribute("p" + indexToString(index), t.getP(), 0.0);
+        writer.writeDoubleAttribute("q" + indexToString(index), t.getQ(), 0.0);
     }
 
     public static void writeOptionalPQ(Integer index, Terminal t, TreeDataWriter writer, BooleanSupplier write) {
@@ -198,8 +198,8 @@ public final class ConnectableSerDeUtil {
     }
 
     public static void readPQ(Integer index, Terminal t, TreeDataReader reader) {
-        double p = reader.readDoubleAttribute("p" + indexToString(index));
-        double q = reader.readDoubleAttribute("q" + indexToString(index));
+        double p = reader.readDoubleAttribute("p" + indexToString(index), 0.0);
+        double q = reader.readDoubleAttribute("q" + indexToString(index), 0.0);
         t.setP(p)
                 .setQ(q);
     }

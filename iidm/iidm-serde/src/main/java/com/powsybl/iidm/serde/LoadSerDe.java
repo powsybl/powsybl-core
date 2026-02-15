@@ -38,8 +38,8 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
     @Override
     protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeEnumAttribute("loadType", l.getLoadType());
-        context.getWriter().writeDoubleAttribute("p0", l.getP0());
-        context.getWriter().writeDoubleAttribute("q0", l.getQ0());
+        context.getWriter().writeDoubleAttribute("p0", l.getP0(), 0.0);
+        context.getWriter().writeDoubleAttribute("q0", l.getQ0(), 0.0);
         writeNodeOrBus(null, l.getTerminal(), context);
         writePQ(null, l.getTerminal(), context.getWriter());
     }
@@ -84,14 +84,14 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
     @Override
     protected void readRootElementAttributes(LoadAdder adder, VoltageLevel parent, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
         LoadType loadType = context.getReader().readEnumAttribute("loadType", LoadType.class, LoadType.UNDEFINED);
-        double p0 = context.getReader().readDoubleAttribute("p0");
-        double q0 = context.getReader().readDoubleAttribute("q0");
+        double p0 = context.getReader().readDoubleAttribute("p0", 0.0);
+        double q0 = context.getReader().readDoubleAttribute("q0", 0.0);
         readNodeOrBus(adder, context, parent.getTopologyKind());
         adder.setLoadType(loadType)
                 .setP0(p0)
                 .setQ0(q0);
-        double p = context.getReader().readDoubleAttribute("p");
-        double q = context.getReader().readDoubleAttribute("q");
+        double p = context.getReader().readDoubleAttribute("p", 0.0);
+        double q = context.getReader().readDoubleAttribute("q", 0.0);
         toApply.add(l -> l.getTerminal().setP(p).setQ(q));
     }
 

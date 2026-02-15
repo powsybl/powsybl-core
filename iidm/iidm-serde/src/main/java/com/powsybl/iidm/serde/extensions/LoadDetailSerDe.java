@@ -31,29 +31,29 @@ public class LoadDetailSerDe extends AbstractExtensionSerDe<Load, LoadDetail> {
 
     @Override
     public void write(LoadDetail detail, SerializerContext context) {
-        context.getWriter().writeDoubleAttribute("fixedActivePower", detail.getFixedActivePower());
-        context.getWriter().writeDoubleAttribute("fixedReactivePower", detail.getFixedReactivePower());
-        context.getWriter().writeDoubleAttribute("variableActivePower", detail.getVariableActivePower());
-        context.getWriter().writeDoubleAttribute("variableReactivePower", detail.getVariableReactivePower());
+        context.getWriter().writeDoubleAttribute("fixedActivePower", detail.getFixedActivePower(), 0.0);
+        context.getWriter().writeDoubleAttribute("fixedReactivePower", detail.getFixedReactivePower(), 0.0);
+        context.getWriter().writeDoubleAttribute("variableActivePower", detail.getVariableActivePower(), 0.0);
+        context.getWriter().writeDoubleAttribute("variableReactivePower", detail.getVariableReactivePower(), 0.0);
     }
 
     @Override
     public LoadDetail read(Load load, DeserializerContext context) {
         double fixedActivePower = context.getReader().readDoubleAttribute("fixedActivePower");
         if (Double.isNaN(fixedActivePower)) {
-            fixedActivePower = context.getReader().readDoubleAttribute("subLoad1ActivePower");
+            fixedActivePower = context.getReader().readDoubleAttribute("subLoad1ActivePower", 0.0);
         }
         double fixedReactivePower = context.getReader().readDoubleAttribute("fixedReactivePower");
         if (Double.isNaN(fixedReactivePower)) {
-            fixedReactivePower = context.getReader().readDoubleAttribute("subLoad1ReactivePower");
+            fixedReactivePower = context.getReader().readDoubleAttribute("subLoad1ReactivePower", 0.0);
         }
         double variableActivePower = context.getReader().readDoubleAttribute("variableActivePower");
         if (Double.isNaN(variableActivePower)) {
-            variableActivePower = context.getReader().readDoubleAttribute("subLoad2ActivePower");
+            variableActivePower = context.getReader().readDoubleAttribute("subLoad2ActivePower", 0.0);
         }
         double variableReactivePower = context.getReader().readDoubleAttribute("variableReactivePower");
         if (Double.isNaN(variableReactivePower)) {
-            variableReactivePower = context.getReader().readDoubleAttribute("subLoad2ReactivePower");
+            variableReactivePower = context.getReader().readDoubleAttribute("subLoad2ReactivePower", 0.0);
         }
         context.getReader().readEndNode();
         return load.newExtension(LoadDetailAdder.class)

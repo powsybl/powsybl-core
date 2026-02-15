@@ -31,16 +31,16 @@ public class GeneratorShortCircuitSerDe extends AbstractExtensionSerDe<Generator
 
     @Override
     public void write(GeneratorShortCircuit generatorShortCircuit, SerializerContext context) {
-        context.getWriter().writeDoubleAttribute("directSubtransX", generatorShortCircuit.getDirectSubtransX());
-        context.getWriter().writeDoubleAttribute("directTransX", generatorShortCircuit.getDirectTransX());
-        context.getWriter().writeDoubleAttribute("stepUpTransformerX", generatorShortCircuit.getStepUpTransformerX());
+        context.getWriter().writeDoubleAttribute("directSubtransX", generatorShortCircuit.getDirectSubtransX(), 0.0);
+        context.getWriter().writeDoubleAttribute("directTransX", generatorShortCircuit.getDirectTransX(), 0.0);
+        context.getWriter().writeDoubleAttribute("stepUpTransformerX", generatorShortCircuit.getStepUpTransformerX(), 0.0);
     }
 
     @Override
     public GeneratorShortCircuit read(Generator generator, DeserializerContext context) {
-        double directSubtransX = context.getReader().readDoubleAttribute("directSubtransX");
-        double directTransX = context.getReader().readDoubleAttribute("directTransX");
-        double stepUpTransformerX = context.getReader().readDoubleAttribute("stepUpTransformerX");
+        double directSubtransX = context.getReader().readDoubleAttribute("directSubtransX", 0.0);
+        double directTransX = context.getReader().readDoubleAttribute("directTransX", 0.0);
+        double stepUpTransformerX = context.getReader().readDoubleAttribute("stepUpTransformerX", 0.0);
         context.getReader().readEndNode();
         return generator.newExtension(GeneratorShortCircuitAdder.class)
                 .withDirectSubtransX(directSubtransX)

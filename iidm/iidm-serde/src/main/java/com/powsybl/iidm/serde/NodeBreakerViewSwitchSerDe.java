@@ -35,8 +35,8 @@ public class NodeBreakerViewSwitchSerDe extends AbstractSwitchSerDe<VoltageLevel
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkSerializerContext context) {
         super.writeRootElementAttributes(s, vl, context);
         VoltageLevel.NodeBreakerView v = vl.getNodeBreakerView();
-        context.getWriter().writeIntAttribute("node1", v.getNode1(s.getId()));
-        context.getWriter().writeIntAttribute("node2", v.getNode2(s.getId()));
+        context.getWriter().writeIntAttribute("node1", v.getNode1(s.getId()), 0);
+        context.getWriter().writeIntAttribute("node2", v.getNode2(s.getId()), 0);
     }
 
     @Override
@@ -47,14 +47,14 @@ public class NodeBreakerViewSwitchSerDe extends AbstractSwitchSerDe<VoltageLevel
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         SwitchKind kind = context.getReader().readEnumAttribute("kind", SwitchKind.class);
-        boolean retained = context.getReader().readBooleanAttribute("retained");
-        boolean open = context.getReader().readBooleanAttribute("open");
+        boolean retained = context.getReader().readBooleanAttribute("retained", false);
+        boolean open = context.getReader().readBooleanAttribute("open", false);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> {
             boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);
             adder.setFictitious(fictitious);
         });
-        int node1 = context.getReader().readIntAttribute("node1");
-        int node2 = context.getReader().readIntAttribute("node2");
+        int node1 = context.getReader().readIntAttribute("node1", 0);
+        int node2 = context.getReader().readIntAttribute("node2", 0);
         if (node1 == node2 && context.getVersion().compareTo(IidmVersion.V_1_8) < 0) {
             // Discard switches with same node at both ends instead of throwing exception in adder to support old xiidm files
             LOGGER.warn("Discard switch with same node {} at both ends", node1);

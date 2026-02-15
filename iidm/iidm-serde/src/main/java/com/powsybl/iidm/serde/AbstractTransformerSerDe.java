@@ -37,18 +37,18 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, TreeDataWriter writer) {
-        writer.writeDoubleAttribute("r", tcs.getR());
-        writer.writeDoubleAttribute("x", tcs.getX());
-        writer.writeDoubleAttribute("g", tcs.getG());
-        writer.writeDoubleAttribute("b", tcs.getB());
-        writer.writeDoubleAttribute("rho", tcs.getRho());
+        writer.writeDoubleAttribute("r", tcs.getR(), 0.0);
+        writer.writeDoubleAttribute("x", tcs.getX(), 0.0);
+        writer.writeDoubleAttribute("g", tcs.getG(), 0.0);
+        writer.writeDoubleAttribute("b", tcs.getB(), 0.0);
+        writer.writeDoubleAttribute("rho", tcs.getRho(), 0.0);
     }
 
     private static void writeTargetDeadband(double targetDeadband, NetworkSerializerContext context) {
         // in IIDM version 1.0, 0 as targetDeadband is ignored for backwards compatibility
         // (i.e. ensuring round trips in IIDM version 1.0)
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> context.getWriter().writeDoubleAttribute(TARGET_DEADBAND, targetDeadband, 0));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> context.getWriter().writeDoubleAttribute(TARGET_DEADBAND, targetDeadband));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> context.getWriter().writeDoubleAttribute(TARGET_DEADBAND, targetDeadband, 0.0));
     }
 
     private static double readTargetDeadband(NetworkDeserializerContext context, boolean regulating) {
@@ -63,12 +63,12 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             }
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2,
-                context, () -> targetDeadband[0] = context.getReader().readDoubleAttribute(TARGET_DEADBAND));
+                context, () -> targetDeadband[0] = context.getReader().readDoubleAttribute(TARGET_DEADBAND, 0.0));
         return targetDeadband[0];
     }
 
     private static void writeTapChanger(TapChanger<?, ?, ?, ?> tc, NetworkSerializerContext context) {
-        context.getWriter().writeIntAttribute(ATTR_LOW_TAP_POSITION, tc.getLowTapPosition());
+        context.getWriter().writeIntAttribute(ATTR_LOW_TAP_POSITION, tc.getLowTapPosition(), 0);
         var tp = tc.findTapPosition();
         var stp = tc.findSolvedTapPosition();
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
@@ -89,11 +89,11 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue);
 
         writeTapChanger(rtc, context);
-        context.getWriter().writeBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES, rtc.hasLoadTapChangingCapabilities());
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", rtc.getRegulationValue()));
+        context.getWriter().writeBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES, rtc.hasLoadTapChangingCapabilities(), false);
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", rtc.getRegulationValue(), Double.NaN));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
             context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, rtc.getRegulationMode());
-            context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, rtc.getRegulationValue());
+            context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, rtc.getRegulationValue(), Double.NaN);
         });
         TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
 
@@ -112,11 +112,11 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, NetworkDeserializerContext context) {
         boolean regulating = readTapChangerAttributes(adder, context);
 
-        boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES);
+        boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES, false);
         adder.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
 
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> {
-            double targetV = context.getReader().readDoubleAttribute("targetV");
+            double targetV = context.getReader().readDoubleAttribute("targetV", Double.NaN);
             if (!Double.isNaN(targetV)) {
                 adder.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
             }
@@ -124,7 +124,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
             RatioTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RatioTapChanger.RegulationMode.class);
-            double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
+            double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE, Double.NaN);
             adder.setRegulationMode(regulationMode)
                     .setRegulationValue(regulationValue);
         });
@@ -284,7 +284,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     private static boolean readTapChangerAttributes(TapChangerAdder<?, ?, ?, ?, ?, ?> adder, NetworkDeserializerContext context) {
         boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false);
-        int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
+        int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION, 0);
         OptionalInt tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
             OptionalInt solvedTapPosition = context.getReader().readOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION);
@@ -307,11 +307,11 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     private static void readSteps(NetworkDeserializerContext context, TapChangerStepAdder<?, ?> adder) {
-        double r = context.getReader().readDoubleAttribute("r");
-        double x = context.getReader().readDoubleAttribute("x");
-        double g = context.getReader().readDoubleAttribute("g");
-        double b = context.getReader().readDoubleAttribute("b");
-        double rho = context.getReader().readDoubleAttribute("rho");
+        double r = context.getReader().readDoubleAttribute("r", 0.0);
+        double x = context.getReader().readDoubleAttribute("x", 0.0);
+        double g = context.getReader().readDoubleAttribute("g", 0.0);
+        double b = context.getReader().readDoubleAttribute("b", 0.0);
+        double rho = context.getReader().readDoubleAttribute("rho", 0.0);
         adder.setR(r).setX(x).setG(g).setB(b).setRho(rho);
     }
 

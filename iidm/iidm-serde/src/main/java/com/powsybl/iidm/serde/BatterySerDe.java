@@ -34,11 +34,11 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     @Override
     protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8),
-                b.getTargetP());
+                b.getTargetP(), 0.0);
         context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmVersion.V_1_8),
-                b.getTargetQ());
-        context.getWriter().writeDoubleAttribute("minP", b.getMinP());
-        context.getWriter().writeDoubleAttribute("maxP", b.getMaxP());
+                b.getTargetQ(), 0.0);
+        context.getWriter().writeDoubleAttribute("minP", b.getMinP(), 0.0);
+        context.getWriter().writeDoubleAttribute("maxP", b.getMaxP(), 0.0);
         writeNodeOrBus(null, b.getTerminal(), context);
         writePQ(null, b.getTerminal(), context.getWriter());
     }
@@ -56,11 +56,11 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     @Override
     protected Battery readRootElementAttributes(BatteryAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         double targetP = context.getReader().readDoubleAttribute(
-                IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8));
+                IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8), 0.0);
         double targetQ = context.getReader().readDoubleAttribute(
-                IidmSerDeUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmVersion.V_1_8));
-        double minP = context.getReader().readDoubleAttribute("minP");
-        double maxP = context.getReader().readDoubleAttribute("maxP");
+                IidmSerDeUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmVersion.V_1_8), 0.0);
+        double minP = context.getReader().readDoubleAttribute("minP", 0.0);
+        double maxP = context.getReader().readDoubleAttribute("maxP", 0.0);
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         Battery b = adder.setTargetP(targetP)
                 .setTargetQ(targetQ)

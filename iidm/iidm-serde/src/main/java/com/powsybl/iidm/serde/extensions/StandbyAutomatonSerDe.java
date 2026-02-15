@@ -30,22 +30,22 @@ public class StandbyAutomatonSerDe extends AbstractExtensionSerDe<StaticVarCompe
 
     @Override
     public void write(StandbyAutomaton standbyAutomaton, SerializerContext context) {
-        context.getWriter().writeDoubleAttribute("b0", standbyAutomaton.getB0());
-        context.getWriter().writeBooleanAttribute("standby", standbyAutomaton.isStandby());
-        context.getWriter().writeDoubleAttribute("lowVoltageSetPoint", standbyAutomaton.getLowVoltageSetpoint());
-        context.getWriter().writeDoubleAttribute("highVoltageSetPoint", standbyAutomaton.getHighVoltageSetpoint());
-        context.getWriter().writeDoubleAttribute("lowVoltageThreshold", standbyAutomaton.getLowVoltageThreshold());
-        context.getWriter().writeDoubleAttribute("highVoltageThreshold", standbyAutomaton.getHighVoltageThreshold());
+        context.getWriter().writeDoubleAttribute("b0", standbyAutomaton.getB0(), 0.0);
+        context.getWriter().writeBooleanAttribute("standby", standbyAutomaton.isStandby(), false);
+        context.getWriter().writeDoubleAttribute("lowVoltageSetPoint", standbyAutomaton.getLowVoltageSetpoint(), 0.0);
+        context.getWriter().writeDoubleAttribute("highVoltageSetPoint", standbyAutomaton.getHighVoltageSetpoint(), 0.0);
+        context.getWriter().writeDoubleAttribute("lowVoltageThreshold", standbyAutomaton.getLowVoltageThreshold(), 0.0);
+        context.getWriter().writeDoubleAttribute("highVoltageThreshold", standbyAutomaton.getHighVoltageThreshold(), 0.0);
     }
 
     @Override
     public StandbyAutomaton read(StaticVarCompensator svc, DeserializerContext context) {
-        double b0 = context.getReader().readDoubleAttribute("b0");
-        boolean standby = context.getReader().readBooleanAttribute("standby");
-        double lowVoltageSetpoint = context.getReader().readDoubleAttribute("lowVoltageSetPoint");
-        double highVoltageSetpoint = context.getReader().readDoubleAttribute("highVoltageSetPoint");
-        double lowVoltageThreshold = context.getReader().readDoubleAttribute("lowVoltageThreshold");
-        double highVoltageThreshold = context.getReader().readDoubleAttribute("highVoltageThreshold");
+        double b0 = context.getReader().readDoubleAttribute("b0", 0.0);
+        boolean standby = context.getReader().readBooleanAttribute("standby", false);
+        double lowVoltageSetpoint = context.getReader().readDoubleAttribute("lowVoltageSetPoint", 0.0);
+        double highVoltageSetpoint = context.getReader().readDoubleAttribute("highVoltageSetPoint", 0.0);
+        double lowVoltageThreshold = context.getReader().readDoubleAttribute("lowVoltageThreshold", 0.0);
+        double highVoltageThreshold = context.getReader().readDoubleAttribute("highVoltageThreshold", 0.0);
         context.getReader().readEndNode();
         svc.newExtension(StandbyAutomatonAdder.class)
                 .withB0(b0)

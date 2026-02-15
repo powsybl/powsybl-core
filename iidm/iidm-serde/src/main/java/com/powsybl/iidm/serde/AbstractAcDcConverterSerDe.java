@@ -31,12 +31,12 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         context.getWriter().writeBooleanAttribute("dcConnected1", dcTerminal1.isConnected());
         context.getWriter().writeStringAttribute("dcNode2", dcTerminal2.getDcNode().getId());
         context.getWriter().writeBooleanAttribute("dcConnected2", dcTerminal2.isConnected());
-        context.getWriter().writeDoubleAttribute("idleLoss", converter.getIdleLoss());
-        context.getWriter().writeDoubleAttribute("switchingLoss", converter.getSwitchingLoss());
-        context.getWriter().writeDoubleAttribute("resistiveLoss", converter.getResistiveLoss());
+        context.getWriter().writeDoubleAttribute("idleLoss", converter.getIdleLoss(), 0.0);
+        context.getWriter().writeDoubleAttribute("switchingLoss", converter.getSwitchingLoss(), 0.0);
+        context.getWriter().writeDoubleAttribute("resistiveLoss", converter.getResistiveLoss(), 0.0);
         context.getWriter().writeEnumAttribute("controlMode", converter.getControlMode());
-        context.getWriter().writeDoubleAttribute("targetP", converter.getTargetP());
-        context.getWriter().writeDoubleAttribute("targetVdc", converter.getTargetVdc());
+        context.getWriter().writeDoubleAttribute("targetP", converter.getTargetP(), 0.0);
+        context.getWriter().writeDoubleAttribute("targetVdc", converter.getTargetVdc(), 0.0);
 
         writeNodeOrBus(converter, context);
     }
@@ -60,12 +60,12 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         boolean dcConnected1 = context.getReader().readBooleanAttribute("dcConnected1");
         String dcNode2Id = context.getReader().readStringAttribute("dcNode2");
         boolean dcConnected2 = context.getReader().readBooleanAttribute("dcConnected2");
-        double idleLoss = context.getReader().readDoubleAttribute("idleLoss");
-        double switchingLoss = context.getReader().readDoubleAttribute("switchingLoss");
-        double resistiveLoss = context.getReader().readDoubleAttribute("resistiveLoss");
+        double idleLoss = context.getReader().readDoubleAttribute("idleLoss", 0.0);
+        double switchingLoss = context.getReader().readDoubleAttribute("switchingLoss", 0.0);
+        double resistiveLoss = context.getReader().readDoubleAttribute("resistiveLoss", 0.0);
         AcDcConverter.ControlMode controlMode = context.getReader().readEnumAttribute("controlMode", AcDcConverter.ControlMode.class);
-        double targetP = context.getReader().readDoubleAttribute("targetP");
-        double targetVdc = context.getReader().readDoubleAttribute("targetVdc");
+        double targetP = context.getReader().readDoubleAttribute("targetP", 0.0);
+        double targetVdc = context.getReader().readDoubleAttribute("targetVdc", 0.0);
         adder
             .setDcNode1(dcNode1Id)
             .setDcConnected1(dcConnected1)

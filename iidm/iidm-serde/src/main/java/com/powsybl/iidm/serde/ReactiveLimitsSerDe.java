@@ -35,9 +35,9 @@ public class ReactiveLimitsSerDe {
                 context.getWriter().writeStartNodes();
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), POINT_ROOT_ELEMENT_NAME);
-                    context.getWriter().writeDoubleAttribute("p", point.getP());
-                    context.getWriter().writeDoubleAttribute(ATTR_MIN_Q, point.getMinQ());
-                    context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, point.getMaxQ());
+                    context.getWriter().writeDoubleAttribute("p", point.getP(), 0.0);
+                    context.getWriter().writeDoubleAttribute(ATTR_MIN_Q, point.getMinQ(), 0.0);
+                    context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, point.getMaxQ(), 0.0);
                     context.getWriter().writeEndNode();
                 }
                 context.getWriter().writeEndNodes();
@@ -47,8 +47,8 @@ public class ReactiveLimitsSerDe {
             case MIN_MAX:
                 MinMaxReactiveLimits limits = holder.getReactiveLimits(MinMaxReactiveLimits.class);
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_MIN_MAX_REACTIVE_LIMITS);
-                context.getWriter().writeDoubleAttribute(ATTR_MIN_Q, limits.getMinQ());
-                context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, limits.getMaxQ());
+                context.getWriter().writeDoubleAttribute(ATTR_MIN_Q, limits.getMinQ(), 0.0);
+                context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, limits.getMaxQ(), 0.0);
                 context.getWriter().writeEndNode();
                 break;
 
@@ -61,9 +61,9 @@ public class ReactiveLimitsSerDe {
         ReactiveCapabilityCurveAdder curveAdder = holder.newReactiveCapabilityCurve();
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals(POINT_ROOT_ELEMENT_NAME)) {
-                double p = context.getReader().readDoubleAttribute("p");
-                double minQ = context.getReader().readDoubleAttribute(ATTR_MIN_Q);
-                double maxQ = context.getReader().readDoubleAttribute(ATTR_MAX_Q);
+                double p = context.getReader().readDoubleAttribute("p", 0.0);
+                double minQ = context.getReader().readDoubleAttribute(ATTR_MIN_Q, 0.0);
+                double maxQ = context.getReader().readDoubleAttribute(ATTR_MAX_Q, 0.0);
                 context.getReader().readEndNode();
                 curveAdder.beginPoint()
                         .setP(p)
@@ -78,8 +78,8 @@ public class ReactiveLimitsSerDe {
     }
 
     public void readMinMaxReactiveLimits(ReactiveLimitsHolder holder, NetworkDeserializerContext context) {
-        double min = context.getReader().readDoubleAttribute(ATTR_MIN_Q);
-        double max = context.getReader().readDoubleAttribute(ATTR_MAX_Q);
+        double min = context.getReader().readDoubleAttribute(ATTR_MIN_Q, 0.0);
+        double max = context.getReader().readDoubleAttribute(ATTR_MAX_Q, 0.0);
         context.getReader().readEndNode();
         holder.newMinMaxReactiveLimits()
                 .setMinQ(min)
