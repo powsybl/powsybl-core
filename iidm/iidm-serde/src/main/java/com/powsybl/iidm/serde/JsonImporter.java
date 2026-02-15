@@ -65,7 +65,7 @@ public class JsonImporter extends AbstractTreeDataImporter {
                 if (version == null || version.isEmpty()) {
                     return false;
                 }
-                IidmVersion.of(version, "_");
+                IidmVersion.of(version, ".");
                 return true;
             }
         } catch (IOException e) {

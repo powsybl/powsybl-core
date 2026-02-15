@@ -30,38 +30,31 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
         super.setUp();  // initialise fileSystem
     }
 
-    private static String unsupportedIidmVersion() {
-        String[] currentIidmVersionSplit = CURRENT_IIDM_VERSION.toString().split("_");
-        int unsupportedIidmVersionMajor = Integer.parseInt(currentIidmVersionSplit[1]);
-        int unsupportedIidmVersionMinor = Integer.parseInt(currentIidmVersionSplit[2]) + 1;
-        return String.format("%d.%d", unsupportedIidmVersionMajor, unsupportedIidmVersionMinor);
-    }
-
-    private Path createTempJson(String content) throws IOException {
-        Path temp = Files.createTempFile("test-json-network", ".json");
+    private void createTempJson(String content, String basename) throws IOException {
+        Path temp = tmpDir.resolve(basename + ".json");
         Files.writeString(temp, content);
-        return temp;
     }
 
     @Test
     void testValidJsonVersionSupported() throws Exception {
         String json = "{ \"version\": \"1.15\" }";
-        Path file = createTempJson(json);
+        String basename = "supportedVersion";
+        createTempJson(json, basename);
         importer = new JsonImporter();
-        DataSource dataSource = new DirectoryDataSource(tmpDir, file.getFileName().toString());
+        DataSource dataSource = new DirectoryDataSource(tmpDir, basename, "json", null);
         assertDoesNotThrow(() -> importer.exists(dataSource));
     }
 
     @Test
     void testInvalidVersion() throws Exception {
         String json = "{ \"version\": \"99.0\" }";
-        Path file = createTempJson(json);
+        String basename = "unsupportedVersion";
+        createTempJson(json, basename);
 
         importer = new JsonImporter();
-        DataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test-json-network.json");
+        DataSource dataSource = new DirectoryDataSource(tmpDir, basename, "json", null);
 
-        String expectedError = "IIDM Version " + unsupportedIidmVersion()
-                + " is not supported. Max supported version: "
+        String expectedError = "IIDM Version 99.0 is not supported. Max supported version: "
                 + CURRENT_IIDM_VERSION.toString(".");
 
         PowsyblException exception = assertThrows(PowsyblException.class, () -> importer.exists(dataSource));
