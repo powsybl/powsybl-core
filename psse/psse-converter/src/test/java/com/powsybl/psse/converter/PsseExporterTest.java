@@ -28,6 +28,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 
+import com.powsybl.iidm.serde.XMLImporter;
 import com.powsybl.psse.converter.extensions.PsseModelExtension;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
@@ -302,6 +303,13 @@ class PsseExporterTest extends AbstractSerDeTest {
         assertEquals(2, psseExporter.getParameters().size());
         assertEquals("psse.export.update", psseExporter.getParameters().get(0).getName());
         assertEquals("psse.export.raw-format", psseExporter.getParameters().get(1).getName());
+    }
+
+    @Test
+    void rawExportFailingTest() throws IOException {
+        ReadOnlyDataSource ds = new ResourceDataSource("raw-export-failing", new ResourceSet("/", "raw-export-failing.xiidm"));
+        Network network = new XMLImporter().importData(ds, new NetworkFactoryImpl(), null);
+        exportTest(network, "raw-export-failing", "raw-export-failing.raw");
     }
 
     @Test
