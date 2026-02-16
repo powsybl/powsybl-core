@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.TerminalExt;
 import com.powsybl.iidm.network.regulation.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,7 +69,6 @@ class VoltageRegulationExtensionTest {
     }
 
     @Test
-    @Disabled("TODO MSA modify this test to be compliant with VoltageRegulation validation")
     void testVoltageRegulationExtensionCreationException() {
 
         Network network = BatteryNetworkFactory.create();
@@ -82,7 +80,7 @@ class VoltageRegulationExtensionTest {
             .withTargetValue(50.0);
 
         PowsyblException e = assertThrows(PowsyblException.class, builder::build);
-        assertEquals("Voltage regulator status is not defined", e.getMessage());
+        assertEquals("Battery 'BAT': [VoltageRegulation] Undefined value for regulationMode", e.getMessage());
 
         Network network1 = BatteryNetworkFactory.create();
 
@@ -92,7 +90,7 @@ class VoltageRegulationExtensionTest {
             .withTargetValue(50.0);
 
         PowsyblException e1 = assertThrows(PowsyblException.class, builder1::build);
-        assertEquals("regulating terminal is not part of the same network", e1.getMessage());
+        assertEquals("Battery 'BAT': regulating terminal is not part of the network", e1.getMessage());
     }
 
     @Test

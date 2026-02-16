@@ -152,7 +152,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        // Nothing to do ?? TODO MSA check that
+        // Nothing to do
     }
 
     @Override

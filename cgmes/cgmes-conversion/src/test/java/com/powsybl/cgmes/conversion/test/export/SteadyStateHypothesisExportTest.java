@@ -710,36 +710,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "200", "M");
 
-            // Generator with local reactive and voltage
-//            TODO MSA no more useful ?
-//            network = EurostagTutorialExample1Factory.createWithLocalReactiveAndVoltageGenerator();
-//            ssh = getSSH(network, baseName, tmpDir, exportParams);
-//            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
-//            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
-//            ssh = getSSH(network, baseName, tmpDir, exportParams);
-//            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
-//            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
-//            ssh = getSSH(network, baseName, tmpDir, exportParams);
-//            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
-//            network.getGenerator("GEN").getVoltageRegulation().setRegulating(true);
-//            ssh = getSSH(network, baseName, tmpDir, exportParams);
-//            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
-
-            // Generator with remote reactive and voltage
-//            TODO MSA no more useful ?
-//            network = EurostagTutorialExample1Factory.createWithRemoteReactiveAndVoltageGenerators();
-//            ssh = getSSH(network, baseName, tmpDir, exportParams);
-//            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "399", "k");
-//            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
-//            ssh = getSSH(network, baseName, tmpDir, exportParams);
-//            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
-//            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
-//            ssh = getSSH(network, baseName, tmpDir, exportParams);
-//            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "399", "k");
-//            network.getGenerator("GEN").getVoltageRegulation().setRegulating(true);
-//            ssh = getSSH(network, baseName, tmpDir, exportParams);
-//            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "399", "k");
-
             // Generator without control
             network = EurostagTutorialExample1Factory.createWithoutControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
