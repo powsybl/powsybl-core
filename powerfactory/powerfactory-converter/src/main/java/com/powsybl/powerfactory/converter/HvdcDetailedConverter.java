@@ -143,15 +143,6 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
             throw new PowerFactoryException(
                     "ElmTerm " + terminal.getId() + " is part of a DC subgrid but its uknom and unknom are different.");
         }
-
-        // Add ground if relevant:
-        int iminus = terminal.getIntAttributeValue("iminus");
-        if (iminus == 2) {
-            network.newDcGround()
-                    .setId(idInNetworkStringGround(terminal))
-                    .setDcNode(idInNetworkString(terminal))
-                    .add();
-        }
     }
 
     /**
@@ -327,6 +318,9 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
     }
 
     private static DcNode getSafeNodeForLine(DataObject dcTermDataObject, Network network, String parentComponentName) {
+        if  (dcTermDataObject == null) {
+            throw new PowerFactoryException(parentComponentName + " is missing a node in the DGS files.");
+        }
         String idInNetwork = idInNetworkString(dcTermDataObject);
         DcNode result = network.getDcNode(idInNetwork);
         if (result == null) {
