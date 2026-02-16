@@ -61,7 +61,7 @@ public abstract class AbstractManipulationsOnVariantsTest {
     public void errorCloneToExistingVariant() {
         variantManager.cloneVariant(INITIAL_VARIANT_ID, "hello");
         PowsyblException e = assertThrows(PowsyblException.class, () -> variantManager.cloneVariant(INITIAL_VARIANT_ID, "hello"));
-        assertTrue(e.getMessage().contains("already exists"));
+        assertTrue(e.getMessage().contains("already exist"));
     }
 
     @Test

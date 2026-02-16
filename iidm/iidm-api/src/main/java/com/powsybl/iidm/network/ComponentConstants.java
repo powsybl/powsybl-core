@@ -10,6 +10,8 @@ package com.powsybl.iidm.network;
 public final class ComponentConstants {
 
     public static final int MAIN_NUM = 0;
+    public static final int MIN_RATE = 0;
+    public static final int MAX_RATE = 1;
 
     private ComponentConstants() {
     }
