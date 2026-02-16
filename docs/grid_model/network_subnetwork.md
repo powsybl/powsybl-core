@@ -107,7 +107,7 @@ When defining the model, the user has to specify how the different pieces of equ
 An Area is a geographical zone of a given type.
 
 An Area is composed of a collection of [voltage levels](#voltage-level), and a collection of area boundaries.
-Area boundaries can be terminals of equipments or `Boundary` objects from [dangling lines](#dangling-line).
+Area boundaries can be terminals of equipments or `Boundary` objects from [boundary lines](#boundary-line).
 
 The area type is used to distinguish between various area concepts of different granularity. For instance: control areas, bidding zones, countries...
 
@@ -134,18 +134,18 @@ All area interchange values use the load sign convention: positive values indica
 **Characteristics of an AreaBoundary**
 
 An area boundary is modeled by an `AreaBoundary` instance.
-It is composed of either DanglingLine Boundary or a Terminal, and boolean telling if the area boundary
+It is composed of either BoundaryLine Boundary or a Terminal, and boolean telling if the area boundary
 is to be considered as AC or DC.
 
 The `Ac` flag is informative and is present to support the use case where boundaries are defined on AC components even though
-the boundary is related to an HVDC link. An example for this is a DanglingLine (which is an AC equipment) that may actually represent
+the boundary is related to an HVDC link. An example for this is a BoundaryLine (which is an AC equipment) that may actually represent
 an HVDC interconnection that is not explicitly described in the network model. This information is used when computing area interchanges,
 which are then separated for AC and DC parts.
 
 | Attribute  | Unit | Description                                                                 |
 |------------|------|-----------------------------------------------------------------------------|
 | $Area$     |      | The area of this boundary                                                   |
-| $Boundary$ |      | Boundary of a DanglingLine (mutually exclusive with the Terminal attribute) |
+| $Boundary$ |      | Boundary of a BoundaryLine (mutually exclusive with the Terminal attribute) |
 | $Terminal$ |      | Terminal of an equipment (mutually exclusive with the Boundary attribute)   |
 | $Ac$       |      | True if AreaBoundary is to be considered AC, false otherwise                |
 
@@ -295,20 +295,20 @@ a [reactive capability curve](./additional.md#reactive-capability-curve).
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
-(dangling-line)=
-## Dangling line
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DanglingLine.html)
+(boundary-line)=
+## Boundary line
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BoundaryLine.html)
 
-A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a dangling line, which represents the part of that boundary line which is located in it. A dangling line is thus a passive or active component that aggregates a line chunk and a constant power injection in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, were the other network fully described.
+A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a boundary line, which represents the part of that boundary line which is located in it. A boundary line is thus a passive or active component that aggregates a line chunk and a constant power injection in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, were the other network fully described.
 
-![Dangling line model](img/dangling-line.svg){width="50%" align=center class="only-light"}
-![Dangling line model](img/dark_mode/dangling-line.svg){width="50%" align=center class="only-dark"}
+![Boundary line model](img/boundary-line.svg){width="50%" align=center class="only-light"}
+![Boundary line model](img/dark_mode/boundary-line.svg){width="50%" align=center class="only-dark"}
 
-A generation part, at boundary side can also be modeled with a constant active power injection and a constant reactive power injection if the generation part of the dangling line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal cannot be set, it is necessary for the boundary side of the dangling line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the dangling line follows the classical generator sign convention.
+A generation part, at boundary side can also be modeled with a constant active power injection and a constant reactive power injection if the generation part of the boundary line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal cannot be set, it is necessary for the boundary side of the boundary line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the boundary line follows the classical generator sign convention.
 
-Resulting flows at the dangling line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
+Resulting flows at the boundary line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
 
-Dangling lines are key objects for merging networks. Merging will be described soon [here](TODO).
+Boundary lines are key objects for merging networks. Merging will be described soon [here](TODO).
 
 **Characteristics**
 
@@ -337,11 +337,11 @@ Optional:
 
 - $P0$ and $Q0$ are the active and reactive power setpoints
 - $R$, $X$, $G$ and $B$ correspond to a fraction of the original line and have to be consistent with the declared length of the
-  dangling line (see example below).
+  boundary line (see example below).
 
 **_Example:_**
-Considering a line $D$ of length $L$, composed of two dangling lines $D_1$ and $D_2$ of lengths $L_1 = k_1L$
-and $L_2 = k_2L$ such as $L = L_1 + L_2$. Then the characteristics of the dangling lines are:
+Considering a line $D$ of length $L$, composed of two boundary lines $D_1$ and $D_2$ of lengths $L_1 = k_1L$
+and $L_2 = k_2L$ such as $L = L_1 + L_2$. Then the characteristics of the boundary lines are:
 - $R_1 = k_1R$ and $R_2 = k_2R$,
 - $X_1 = k_1X$ and $X_2 = k_2X$,
 - $G_1 = k_1G$ and $G_2 = k_2G$,
@@ -350,18 +350,18 @@ and $L_2 = k_2L$ such as $L = L_1 + L_2$. Then the characteristics of the dangli
 _Note that if we had only $D_1$ without $D_2$, the previous relation between $D$ and $D_1$ would still hold._
 
 In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined
-beside the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line,
+beside the characteristics of the table. It is a key to match two boundary lines and reconstruct the full boundary line,
 as a [TieLine](#tie-line), for both UCTE or CIM-CGMES formats.
 
-A dangling line has a `Boundary` object that emulates a terminal located at boundary side. A dangling line is a connectable
+A boundary line has a `Boundary` object that emulates a terminal located at boundary side. A boundary line is a connectable
 with a single terminal located on the network side, but sometimes we need state variables such as active or reactive powers on
 the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
-are automatically computed using information from the terminal of the dangling line.
+are automatically computed using information from the terminal of the boundary line.  
 
 
 **Available extensions**
 
-- [CGMES Dangling Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-dangling-line-boundary-node)
+- [CGMES Boundary Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-boundary-line-boundary-node)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
@@ -562,10 +562,10 @@ $$
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TieLine.html)
 
 A tie line is an AC line sharing power between two neighbouring regional grids.
-It is created by pairing two [dangling lines](#dangling-line) with the same pairing key.
-It has line characteristics, with $R$ (resp. $X$) being the sum of the series resistances (resp. reactances) of the two dangling lines.
-$G1$ (resp. $B1$) is equal to the first dangling line's $G1$ (resp. $B1$).
-$G2$ (resp. $B2$) is equal to the second dangling line's $G2$ (resp. $B2$).
+It is created by pairing two [boundary lines](#boundary-line) with the same pairing key.
+It has line characteristics, with $R$ (resp. $X$) being the sum of the series resistances (resp. reactances) of the two boundary lines.
+$G1$ (resp. $B1$) is equal to the first boundary line's $G1$ (resp. $B1$).
+$G2$ (resp. $B2$) is equal to the second boundary line's $G2$ (resp. $B2$).
 
 **Characteristics**
 
@@ -578,7 +578,7 @@ $G2$ (resp. $B2$) is equal to the second dangling line's $G2$ (resp. $B2$).
 | $G2$      | S        | The second side shunt conductance |
 | $B2$      | S        | The second side shunt susceptance |
 
-A tie line is not a connectable. It is just a container of two underlying dangling lines with the same pairing key. When connected together, each dangling line `P0` and `Q0` (and generation part if present) is ignored: only global tie line characteristics are used to compute flow. Removing a tie line leads to two free dangling lines, with an optional update of `P0` and `Q0` to match the flows in the global network context.
+A tie line is not a connectable. It is just a container of two underlying boundary lines with the same pairing key. When connected together, each boundary line `P0` and `Q0` (and generation part if present) is ignored: only global tie line characteristics are used to compute flow. Removing a tie line leads to two free boundary lines, with an optional update of `P0` and `Q0` to match the flows in the global network context.
 
 ## Transformers
 

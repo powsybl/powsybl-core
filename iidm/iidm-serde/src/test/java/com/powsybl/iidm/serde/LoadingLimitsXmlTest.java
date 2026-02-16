@@ -9,7 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
@@ -27,18 +27,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
     @Test
-    void testDanglingLine() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+    void testBoundaryLine() throws IOException {
+        Network network = BoundaryLineNetworkFactory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getBoundaryLine("BL");
         OperationalLimitsGroup operationalLimitsGroup = dl.getOrCreateSelectedOperationalLimitsGroup();
         createLoadingLimits(operationalLimitsGroup::newActivePowerLimits);
         createLoadingLimits(operationalLimitsGroup::newApparentPowerLimits);
         createLoadingLimits(operationalLimitsGroup::newCurrentLimits);
-        allFormatsRoundTripTest(network, "dl-loading-limits.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "bl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("dl-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("bl-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -54,7 +54,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteXmlAllPreviousVersions(network, options, "dl-loading-limits.xml", IidmVersion.V_1_5);
+        testWriteXmlAllPreviousVersions(network, options, "bl-loading-limits.xml", IidmVersion.V_1_5);
     }
 
     @Test
@@ -169,9 +169,9 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void testWithProperties() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+        Network network = BoundaryLineNetworkFactory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getBoundaryLine("BL");
         OperationalLimitsGroup g1 = dl.getOperationalLimitsGroup("DEFAULT").orElseThrow();
         g1.setProperty("type", "A");
         g1.setProperty("source", "s1");

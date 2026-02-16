@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.criteria.json;
 
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.iidm.criteria.*;
 
@@ -18,7 +19,7 @@ public class NetworkElementCriterionModule extends SimpleModule {
     public NetworkElementCriterionModule() {
         addSerializer(Criterion.class, new CriterionSerializer());
         addSerializer(LineCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(LineCriterion.class));
-        addSerializer(DanglingLineCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(DanglingLineCriterion.class));
+        addSerializer(BoundaryLineCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(BoundaryLineCriterion.class));
         addSerializer(TieLineCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(TieLineCriterion.class));
         addSerializer(TwoWindingsTransformerCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(TwoWindingsTransformerCriterion.class));
         addSerializer(ThreeWindingsTransformerCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(ThreeWindingsTransformerCriterion.class));
@@ -28,7 +29,8 @@ public class NetworkElementCriterionModule extends SimpleModule {
 
         addDeserializer(Criterion.class, new CriterionDeserializer());
         addDeserializer(LineCriterion.class, new LineCriterionDeserializer());
-        addDeserializer(DanglingLineCriterion.class, new DanglingLineCriterionDeserializer());
+        addDeserializer(BoundaryLineCriterion.class, new BoundaryLineCriterionDeserializer());
+        registerSubtypes(new NamedType(BoundaryLineCriterion.class, "danglingLineCriterion")); // For backward-compatibility with criterion version 1.0
         addDeserializer(TieLineCriterion.class, new TieLineCriterionDeserializer());
         addDeserializer(TwoWindingsTransformerCriterion.class, new TwoWindingsTransformerCriterionDeserializer());
         addDeserializer(ThreeWindingsTransformerCriterion.class, new ThreeWindingsTransformerCriterionDeserializer());

@@ -104,7 +104,7 @@ public final class TopologyExport {
 
     private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             writeBoundaryTerminal(dl, exported, cimNamespace, writer, context);
         }
     }
@@ -277,7 +277,7 @@ public final class TopologyExport {
         writer.writeEndElement();
     }
 
-    private static void writeBoundaryTerminal(DanglingLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeBoundaryTerminal(BoundaryLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
@@ -287,7 +287,7 @@ public final class TopologyExport {
         if (boundaryId != null) {
             writeTerminal(boundaryId, topologicalNode, cimNamespace, writer, context);
         }
-        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) { // check if the equivalent injection terminal has already been written (if several dangling lines linked to same X-node)
+        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) { // check if the equivalent injection terminal has already been written (if several boundary lines linked to same X-node)
             writeTerminal(equivalentInjectionTerminalId, topologicalNode, cimNamespace, writer, context);
             exported.add(equivalentInjectionTerminalId);
         }
@@ -302,12 +302,12 @@ public final class TopologyExport {
     private static void writeTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeBusTopologicalNodes(network, cimNamespace, writer, context);
         writeDcTopologicalNodes(network, cimNamespace, writer, context);
-        // We create topological nodes for boundary side of dangling lines that are not mapped to an external boundary node
-        writeDanglingLineTopologicalNodes(network, cimNamespace, writer, context);
+        // We create topological nodes for boundary side of boundary lines that are not mapped to an external boundary node
+        writeBoundaryLineTopologicalNodes(network, cimNamespace, writer, context);
     }
 
-    private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
+    private static void writeBoundaryLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNodeId == null) {
                 // If no information about original boundary has been preserved in the IIDM model,
@@ -316,9 +316,9 @@ public final class TopologyExport {
                 // If the EQ has also been exported, a fictitious container should have been created
                 String containerId = context.getFictitiousContainerFor(dl);
                 if (containerId == null) {
-                    // As a last resort, we create the TN in the same container of the dangling line
-                    LOG.error("Dangling line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
-                                    " Dangling line {} is considered entirely inside voltage level {}",
+                    // As a last resort, we create the TN in the same container of the boundary line
+                    LOG.error("Boundary line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
+                                    " Boundary line {} is considered entirely inside voltage level {}",
                             dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
                     containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
                 }

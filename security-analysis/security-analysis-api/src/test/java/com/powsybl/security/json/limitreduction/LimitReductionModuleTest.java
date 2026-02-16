@@ -8,6 +8,7 @@
 package com.powsybl.security.json.limitreduction;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.criteria.duration.AllTemporaryDurationCriterion;
@@ -20,9 +21,13 @@ import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.limitreduction.LimitReductionList;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -42,7 +47,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                         new TieLineCriterion(null, new TwoNominalVoltageCriterion(
                                 VoltageInterval.between(350., 410., true, false),
                                 null)),
-                        new DanglingLineCriterion(null, new SingleNominalVoltageCriterion(
+                        new BoundaryLineCriterion(null, new SingleNominalVoltageCriterion(
                                 VoltageInterval.between(80., 100., true, false))));
         List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
         LimitReduction limitReduction1 = LimitReduction.builder(LimitType.CURRENT, 0.9)
@@ -74,5 +79,17 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         roundTripTest(limitReductionList, LimitReductionListSerDeUtil::write,
                 LimitReductionListSerDeUtil::read,
                 "/LimitReductions.json");
+    }
+
+    @Test
+    void compatibilityWithOldCriterion() throws IOException {
+        LimitReductionList reductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductions_criteriaV1.0.json"));
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            LimitReductionListSerDeUtil.write(reductionList, bos);
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions.json"), new ByteArrayInputStream(bos.toByteArray()));
+        } catch (Exception e) {
+            // Should not happen
+            fail();
+        }
     }
 }

@@ -9,6 +9,7 @@ package com.powsybl.cgmes.extensions;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.serde.IidmVersion;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,18 +33,34 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
     }
 
     @Test
-    void testDanglingLine() throws IOException {
+    void testBoundaryLine() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         var tl = network.getTieLine("NHV1_NHV2_1");
-        tl.getDanglingLine1().newExtension(CgmesDanglingLineBoundaryNodeAdder.class)
+        tl.getBoundaryLine1().newExtension(CgmesBoundaryLineBoundaryNodeAdder.class)
                 .setHvdc(false)
                 .setLineEnergyIdentificationCodeEic("EIC_CODE")
                 .add();
-        tl.getDanglingLine2().newExtension(CgmesDanglingLineBoundaryNodeAdder.class)
+        tl.getBoundaryLine2().newExtension(CgmesBoundaryLineBoundaryNodeAdder.class)
                 .setHvdc(false)
                 .add();
         tl.remove();
 
-        allFormatsRoundTripTest(network, "/eurostag_cgmes_dangling_line_boundary_node.xml");
+        allFormatsRoundTripTest(network, "/eurostag_cgmes_boundary_line_boundary_node.xml");
+    }
+
+    @Test
+    void testLegacyDanglingLine() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        var tl = network.getTieLine("NHV1_NHV2_1");
+        tl.getBoundaryLine1().newExtension(CgmesBoundaryLineBoundaryNodeAdder.class)
+                .setHvdc(false)
+                .setLineEnergyIdentificationCodeEic("EIC_CODE")
+                .add();
+        tl.getBoundaryLine2().newExtension(CgmesBoundaryLineBoundaryNodeAdder.class)
+                .setHvdc(false)
+                .add();
+        tl.remove();
+
+        allFormatsRoundTripTestVersioned(network, "/eurostag_cgmes_dangling_line_boundary_node.xml", IidmVersion.V_1_15);
     }
 }

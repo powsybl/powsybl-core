@@ -50,7 +50,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             if (terminal != null) {
                 checkAndCreateLimitsAdder(context.terminalMapping().number(terminalId), terminal.getConnectable());
             } else if (equipmentId != null) {
-                // The equipment may be a Branch, a Dangling line, a Switch ...
+                // The equipment may be a Branch, a Boundary line, a Switch ...
                 Identifiable<?> identifiable = context.network().getIdentifiable(equipmentId);
                 checkAndCreateLimitsAdder(-1, identifiable);
             }
@@ -126,13 +126,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     /**
-     * Create the LoadingLimitsAdder for the given dangling line and the given limit set + subclass.
+     * Create the LoadingLimitsAdder for the given boundary line and the given limit set + subclass.
      * @param limitSubclass The subclass of the OperationalLimit.
      * @param limitSetId The set containing the OperationalLimit.
      * @param limitSetName The name of the set containing the OperationalLimit.
-     * @param dl The dangling line to which the OperationalLimit applies.
+     * @param dl The boundary line to which the OperationalLimit applies.
      */
-    private void createLimitsAdder(String limitSubclass, String limitSetId, String limitSetName, DanglingLine dl) {
+    private void createLimitsAdder(String limitSubclass, String limitSetId, String limitSetName, BoundaryLine dl) {
         OperationalLimitsGroup limitsGroup = dl.getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
             OperationalLimitsGroup newLimitsGroup = dl.newOperationalLimitsGroup(limitSetId);
             addProperties(newLimitsGroup, limitSetId, limitSetName);
@@ -189,7 +189,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
         if (identifiable instanceof Branch) {
             checkAndCreateLimitsAdderBranch((Branch<?>) identifiable, terminalNumber, limitSetId, limitSetName);
-        } else if (identifiable instanceof DanglingLine dl) {
+        } else if (identifiable instanceof BoundaryLine dl) {
             createLimitsAdder(limitSubclass, limitSetId, limitSetName, dl);
         } else if (identifiable instanceof ThreeWindingsTransformer t3w) {
             checkAndCreateLimitsAdderThreeWindingsTransformers(t3w, terminalNumber, limitSetId, limitSetName);

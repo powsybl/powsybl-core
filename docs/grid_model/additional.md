@@ -72,7 +72,7 @@ Some equipment has operational limits regarding the current, active power or app
 
 Loading limits can be declined into active power limits (in MW), apparent power limits (in kVA) and current limits (in A).
 They may be set for [lines](./network_subnetwork.md#line),
-[dangling lines](./network_subnetwork.md#dangling-line), [two-winding transformers](./network_subnetwork.md#two-winding-transformer) and [three-winding transformers](./network_subnetwork.md#three-winding-transformer). The active power limits are in absolute value.
+[boundary lines](./network_subnetwork.md#boundary-line), [two-winding transformers](./network_subnetwork.md#two-winding-transformer) and [three-winding transformers](./network_subnetwork.md#three-winding-transformer). The active power limits are in absolute value.
 
 Loading limits are defined by one permanent limit and any number of temporary limits (zero or more).
 The permanent limit sets the current, active power or apparent power absolute value under which the equipment can safely
@@ -108,7 +108,7 @@ Three examples are provided below, with their corresponding limits scheme, to sh
 ##### First example
 This first example creates a `CurrentLimits` instance containing one permanent limit and two temporary limits.
 ```java
-CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
+CurrentLimits currentLimits = network.getBoundaryLine("DL").newCurrentLimits()
     .setPermanentLimit(100.0)
     .beginTemporaryLimit()
         .setName("TL1")
@@ -128,7 +128,7 @@ CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
 ##### Second example
 This second example creates a `CurrentLimits` instance containing one permanent limit and three temporary limits, one of them having an infinite limit value.
 ```java
-CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
+CurrentLimits currentLimits = network.getBoundaryLine("DL").newCurrentLimits()
     .setPermanentLimit(700.0)
     .beginTemporaryLimit()
         .setName("IT20")

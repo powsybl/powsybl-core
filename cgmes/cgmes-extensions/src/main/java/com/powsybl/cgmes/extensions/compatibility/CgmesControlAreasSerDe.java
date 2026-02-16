@@ -100,7 +100,7 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
                     String id = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
                     Identifiable<?> identifiable = network.getIdentifiable(id);
                     boolean isAc = true;  // Set to "true" because this piece of data is not available
-                    if (identifiable instanceof DanglingLine dl) {
+                    if (identifiable instanceof BoundaryLine dl) {
                         area.newAreaBoundary()
                                 .setAc(isAc)
                                 .setBoundary(dl.getBoundary())
@@ -109,7 +109,7 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
                         TwoSides side = reader.readEnumAttribute("side", TwoSides.class);
                         area.newAreaBoundary()
                                 .setAc(isAc)
-                                .setBoundary(tl.getDanglingLine(side).getBoundary())
+                                .setBoundary(tl.getBoundaryLine(side).getBoundary())
                                 .add();
                     } else {
                         throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());

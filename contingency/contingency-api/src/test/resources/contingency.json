@@ -28,7 +28,7 @@
     "type" : "BUSBAR_SECTION"
   }, {
     "id" : "DL1",
-    "type" : "DANGLING_LINE"
+    "type" : "BOUNDARY_LINE"
   }, {
     "id" : "LINE1",
     "type" : "LINE"

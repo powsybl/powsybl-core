@@ -94,8 +94,8 @@ public class CgmesExport implements Exporter {
      * <p>Assuming the given network is an IGM (Individual Grid Model),
      * create a control area of type interchange from its current boundaries.</p>
      *
-     * <p>An area boundary is created for each dangling line in the model.
-     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     * <p>An area boundary is created for each boundary line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of boundary lines.</p>
      *
      * <p>The location of reference data (boundaries files) is determined based on the configuration for the CGMES export module.
      * The reference data may provide the area EIC code and additional characteristics for the boundaries: if it is AC or DC.
@@ -113,8 +113,8 @@ public class CgmesExport implements Exporter {
      * <p>Assuming the given network is an IGM (Individual Grid Model),
      * create a control area of type interchange from its current boundaries.</p>
      *
-     * <p>An area boundary is created for each dangling line in the model.
-     * The interchange target of the area is set to the sum of flows at boundary side of dangling lines.</p>
+     * <p>An area boundary is created for each boundary line in the model.
+     * The interchange target of the area is set to the sum of flows at boundary side of boundary lines.</p>
      *
      * <p>The location of reference data (boundaries files) is determined based on the based on the parameters passed
      * and the configuration for the CGMES export module.
@@ -141,13 +141,13 @@ public class CgmesExport implements Exporter {
         }
         double currentInterchange = 0;
         Set<String> boundaryDcNodes = getBoundaryDcNodes(referenceDataProvider);
-        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+        for (BoundaryLine boundaryLine : CgmesExportUtil.getBoundaryBoundaryLines(network)) {
             // Our exchange should be referred the boundary
             area.newAreaBoundary()
-                    .setAc(isAcBoundary(danglingLine, boundaryDcNodes))
-                    .setBoundary(danglingLine.getBoundary())
+                    .setAc(isAcBoundary(boundaryLine, boundaryDcNodes))
+                    .setBoundary(boundaryLine.getBoundary())
                     .add();
-            currentInterchange += danglingLine.getBoundary().getP();
+            currentInterchange += boundaryLine.getBoundary().getP();
         }
         area.setInterchangeTarget(currentInterchange);
     }
@@ -189,8 +189,8 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private boolean isAcBoundary(DanglingLine danglingLine, Set<String> boundaryDcNodes) {
-        String dlBoundaryNode = Conversion.getDanglingLineBoundaryNode(danglingLine);
+    private boolean isAcBoundary(BoundaryLine boundaryLine, Set<String> boundaryDcNodes) {
+        String dlBoundaryNode = Conversion.getBoundaryLineBoundaryNode(boundaryLine);
         if (dlBoundaryNode != null) {
             return !boundaryDcNodes.contains(dlBoundaryNode);
         }

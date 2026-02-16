@@ -35,7 +35,7 @@ public final class ConnectDisconnectUtil {
      * @param identifiable network element to connect. It can be a connectable, a tie line or an HVDC line
      * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
      *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
-     *                  underlying dangling lines (respectively converter stations)
+     *                  underlying boundary lines (respectively converter stations)
      * @param isTypeSwitchToOperate type of switches that can be operated
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been connected, else {@code false}.
@@ -97,7 +97,7 @@ public final class ConnectDisconnectUtil {
      * @param identifiable network element to disconnect. It can be a connectable, a tie line or an HVDC line
      * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
      *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
-     *                  underlying dangling lines (respectively converter stations)
+     *                  underlying boundary lines (respectively converter stations)
      * @param isSwitchOpenable type of switches that can be operated
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been disconnected, else {@code false}.
