@@ -8,29 +8,7 @@
 
 package com.powsybl.powerfactory.converter;
 
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.Optional;
-
-import com.powsybl.iidm.network.AcDcConverter;
-import com.powsybl.iidm.network.DcGround;
-import com.powsybl.iidm.network.DcLine;
-import com.powsybl.iidm.network.DcNode;
-import com.powsybl.iidm.network.DcTopologyVisitable;
-import com.powsybl.iidm.network.DcTopologyVisitor;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TerminalNumber;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VoltageSourceConverter;
-import com.powsybl.iidm.network.VoltageSourceConverterAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.AcDcConverter.ControlMode;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
@@ -38,13 +16,13 @@ import com.powsybl.powerfactory.model.DataObjectIndex;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 
-import javax.swing.text.html.Option;
+import java.util.*;
 
 /**
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
- *
- *         Importer from the DGS data model, for multi-terminal DC grids (a.k.a.
- *         detailed HVDC).
+ * <p>
+ * Importer from the DGS data model, for multi-terminal DC grids (a.k.a.
+ * detailed HVDC).
  */
 public final class HvdcDetailedConverter extends AbstractHvdcConverter {
 
@@ -58,7 +36,10 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
             Set<DataObject> acDcConverters) {
 
         // Create the data model by reading from the PowerFactory data models
-        static DcGridData createGridData(List<DataObject> elmNets, List<DataObject> elmVscs, List<DataObject> elmTerms) {
+        static DcGridData createGridData(List<DataObject> elmNets, List<DataObject> elmTerms, List<DataObject> elmVscs) {
+            assert elmNets.isEmpty() || "ElmNet".equals(elmNets.getFirst().getDataClassName());
+            assert elmTerms.isEmpty() || "ElmTerm".equals(elmTerms.getFirst().getDataClassName());
+            assert elmVscs.isEmpty() || "ElmVsc".equals(elmVscs.getFirst().getDataClassName());
             Set<DataObject> dcElmLnes = new HashSet<>();
             Set<DataObject> dcElmTerms = new HashSet<>();
             Set<DataObject> usedVscs = new HashSet<>(elmVscs);
@@ -66,13 +47,13 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
             if (!elmVscs.isEmpty()) { // This test is crucial. From there on we can expect the systyp attributes.
 
                 // Add DC lines
-                List<DataObject> elmLines = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmLne").stream()).collect(Collectors.toList());
+                List<DataObject> elmLines = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmLne").stream()).toList();
                 for (DataObject elmLne : elmLines) {
                     DataObjectRef typLneRef = elmLne.getObjectAttributeValue("typ_id");
                     DataObject typLne = typLneRef.resolve()
-                        .orElseThrow(() -> new PowerFactoryException("Missing line type in TypLne for ElmLne " + elmLne.getId() + "."));
+                            .orElseThrow(() -> new PowerFactoryException("Missing line type in TypLne for ElmLne " + elmLne.getId() + "."));
                     int lineSysType = typLne.findIntAttributeValue("systype")
-                        .orElseThrow(() -> new PowerFactoryException("Missing systype for TypLne " + typLne.getId() + "."));
+                            .orElseThrow(() -> new PowerFactoryException("Missing systype for TypLne " + typLne.getId() + "."));
                     if (lineSysType == 1) {
                         dcElmLnes.add(elmLne);
                     }
@@ -81,7 +62,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
                 // Add DC terminals
                 for (DataObject elmTerm : elmTerms) {
                     int termSystyp = elmTerm.findIntAttributeValue("systype")
-                        .orElseThrow(() -> new PowerFactoryException("Missing systype for ElmTerm " + elmTerm.getId() + "."));
+                            .orElseThrow(() -> new PowerFactoryException("Missing systype for ElmTerm " + elmTerm.getId() + "."));
                     if (termSystyp == 1) {
                         dcElmTerms.add(elmTerm);
                     }
@@ -233,7 +214,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         Set<VoltageSourceConverter> remainingConverters;
 
         public ProcessNodeForAddGroundVisitor(Deque<DcTopologyVisitable> toProcess,
-                Set<VoltageSourceConverter> remainingConverters) {
+                                              Set<VoltageSourceConverter> remainingConverters) {
             this.connectedToGround = false;
             this.toProcess = toProcess;
             this.remainingConverters = remainingConverters;
@@ -246,7 +227,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
                 TerminalNumber otherSide = terminalNumber == TerminalNumber.ONE ? TerminalNumber.TWO
                         : TerminalNumber.ONE;
                 toProcess.add(converter.getDcTerminal(otherSide).getDcNode()); // TODO check if getDcNode is the right
-                                                                               // method
+                // method
             }
         }
 
@@ -266,13 +247,12 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
     }
 
     /**
-     * Create DC line in the network, retriving endpoints and resistance
+     * Create DC line in the network, retrieving endpoints and resistance
      * from the PowerFactory data model.
      *
      * @param line    DC line to be converted from the DGS to the PowSyBl data
      *                model.
      * @param network Network where to create the DC line.
-     *
      *                We suppose DC nodes have been created previously in the
      *                network.
      */
@@ -283,20 +263,12 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         DataObject dcTerm2DataObject = null;
         DataObjectIndex indexDataObjects = line.getIndex();
         for (DataObject cubicle : indexDataObjects.getDataObjectsByClass("StaCubic")) {
-            Optional<DataObjectRef> objId = cubicle.findObjectAttributeValue(DataAttributeNames.OBJ_ID);
-            if (objId.isPresent() && objId.get().getId() == line.getId()) {
-                DataObject tempTerminal = null;
-                // This may fail but it's ok that way
-                long terminalId = cubicle.getLongAttributeValue("fold_id");
-                int objBus = cubicle.getIntAttributeValue("obj_bus");
+            Optional<DataObjectRef> elmLneRef = cubicle.findObjectAttributeValue(DataAttributeNames.OBJ_ID);
+            if (elmLneRef.isPresent() && elmLneRef.get().getId() == line.getId()) {
 
-                try {
-                    tempTerminal = indexDataObjects.getDataObjectById(terminalId).get();
-                } catch (NoSuchElementException e) {
-                    throw new PowerFactoryException(
-                            "Error getting terminal " + terminalId + " for line " + line.getId() + ".");
-                }
-                assert tempTerminal != null;
+                DataObject tempTerminal = cubicle.getObjectAttributeValue("fold_id").resolve()
+                        .orElseThrow(() -> new PowerFactoryException("Error getting terminal for line " + line.getId() + " cubicle " + cubicle.getId()));
+                int objBus = cubicle.getIntAttributeValue("obj_bus");
 
                 if (objBus != 0 && objBus != 1) {
                     throw new PowerFactoryException("Invalid value " + objBus
@@ -315,7 +287,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
             }
         }
 
-        String parentComponentName = "line " + line.getId();
+        String parentComponentName = "line " + line.getId(); // only for error message purpose
         DcNode dcNode1 = getSafeNodeForLine(dcTerm1DataObject, network, parentComponentName);
         DcNode dcNode2 = getSafeNodeForLine(dcTerm2DataObject, network, parentComponentName);
         assert dcNode1 != null && dcNode2 != null;
@@ -323,11 +295,11 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         // Get the data from the "types"
         double lineResistance = getLineResistance(line);
 
-        // Create the line in the DC sub-network
+        // Create the line in the DC subnetwork
         network.newDcLine()
                 .setId(idInNetworkString(line))
-                .setDcNode1(null)
-                .setDcNode2(null)
+                .setDcNode1(dcNode1.getId())
+                .setDcNode2(dcNode2.getId())
                 .setR(lineResistance)
                 .add();
     }
@@ -341,13 +313,13 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
                 .orElseThrow(() -> new PowerFactoryException(
                         "Missing line type referenced by DC line " + line.getId() + "."));
 
-        int lineSysType = lineType.findIntAttributeValue("systyp").orElse(1);
+        int lineSysType = lineType.findIntAttributeValue("systype").orElse(1);
         if (lineSysType != 1) {
             throw new PowerFactoryException("DC line " + line.getId() + " has type " + lineType.getId()
-                    + " which not of system type systyp DC.");
+                    + " which not of system type systype DC.");
         }
 
-        double rline = lineType.getFloatAttributeValue("dline"); // Ohm / km
+        double rline = lineType.getFloatAttributeValue("rline"); // Ohm / km
 
         return rline * lineLength / numberOfParallelLines; // Ohm
     }
@@ -458,17 +430,15 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         boolean dcNode1IsPlus = iMinus1 == 2 && iMinus2 == 1 || iMinus1 == 0;
         assert dcNode1 != null && dcNode2 != null : "DC nodes should be initialized first";
 
-        NodeRef acNodeRef = importContext.elmTermIdToNode.get(acTerminalDataObject.getId());
-        if (acNodeRef == null) {
-            throw new PowerFactoryException("AC terminal " + acTerminalDataObject.getId()
-                    + " not found in network when building converter " + elmVsc.getId() + ".");
-        }
+        List<NodeRef> acNodeRefList = importContext.objIdToNode.get(elmVsc.getId());
+        NodeRef acNodeRef = acNodeRefList.stream().filter(noderef -> noderef.busIndexIn == 0).findFirst()
+                .orElseThrow(() -> new PowerFactoryException("Missing AC terminal for Vsc " + elmVsc.getId() + "."));
 
         VoltageLevel voltageLevel = network.getVoltageLevel(acNodeRef.voltageLevelId);
         VoltageSourceConverterAdder converterAdder = voltageLevel.newVoltageSourceConverter()
                 .setId(idInNetworkString(elmVsc));
 
-        converterAdder.setNode1(acNodeRef.node); // TODO check if/how to add bus (in bus/breaker mode ?)
+        converterAdder.setNode1(acNodeRef.node);
         converterAdder.setIdleLoss(elmVsc.getFloatAttributeValue("Pnold"));
         converterAdder.setSwitchingLoss(0.0);
         converterAdder.setResistiveLoss(0.0);
@@ -480,8 +450,8 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         converterAdder.setDcNode2(dcNode2.getId());
         converterAdder.setVoltageRegulatorOn(false); // TODO figure out which VSC controls the voltage
         converterAdder.setReactivePowerSetpoint(elmVsc.getFloatAttributeValue("qsetp")); // TODO check
-                                                                                                         // sign
-                                                                                                         // convention
+        // sign
+        // convention
         converterAdder.setTargetP(elmVsc.getFloatAttributeValue("psetp")); // TODO check sign convention
         final double voltageSetPoint = elmVsc.getFloatAttributeValue("usetp")
                 * elmVsc.getFloatAttributeValue("Unom");
