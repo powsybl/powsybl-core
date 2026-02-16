@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
@@ -26,6 +27,7 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
     private final boolean valid;
     private final Set<Identifiable> exportedEquipments;
     private final Map<String, TopologyLevel> voltageLevelExportTopologyLevel;
+    private final Map<String, List<Extension<?>>> extinctExtensionsToSerializeByIdentifiable;
 
     NetworkSerializerContext(Anonymizer anonymizer, TreeDataWriter writer, ExportOptions options, BusFilter filter, IidmVersion version, boolean valid) {
         super(anonymizer, version);
@@ -35,6 +37,7 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
         this.valid = valid;
         this.exportedEquipments = new HashSet<>();
         this.voltageLevelExportTopologyLevel = new HashMap<>();
+        this.extinctExtensionsToSerializeByIdentifiable = new HashMap<>();
     }
 
     @Override
@@ -83,5 +86,13 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
 
     public TopologyLevel getVoltageLevelExportTopologyLevel(String voltageLevelId) {
         return voltageLevelExportTopologyLevel.get(voltageLevelId);
+    }
+
+    public void addExtinctExtensionsToSerialize(String identifiableId, Extension<?> extension) {
+        extinctExtensionsToSerializeByIdentifiable.computeIfAbsent(identifiableId, k -> new ArrayList<>()).add(extension);
+    }
+
+    public Optional<List<Extension<?>>> getExtinctExtensionsToSerialize(String identifiableId) {
+        return Optional.ofNullable(extinctExtensionsToSerializeByIdentifiable.get(identifiableId));
     }
 }

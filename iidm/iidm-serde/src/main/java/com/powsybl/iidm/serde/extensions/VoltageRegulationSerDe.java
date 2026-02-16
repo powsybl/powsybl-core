@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.removed.VoltageRegulationExtension;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -24,8 +25,9 @@ import java.util.Objects;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-@AutoService(ExtensionSerDe.class)
-public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, VoltageRegulationExtension, VoltageRegulationSerDe.Version> {
+@AutoService({ExtensionSerDe.class, ExtinctExtensionSerDe.class})
+public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, VoltageRegulationExtension, VoltageRegulationSerDe.Version>
+    implements ExtinctExtensionSerDe<Battery, VoltageRegulationExtension> {
 
     public enum Version implements SerDeVersion<Version> {
         V_1_0_LEGACY("/xsd/voltageRegulation_V1_0_legacy.xsd", "http://www.itesla_project.eu/schema/iidm/ext/voltageregulation/1_0",
@@ -116,5 +118,13 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
     protected Version getDefaultVersion() {
         // Default version is v1.1, the subsequent ones have been added without any change
         return Version.V_1_1;
+    }
+
+    @Override
+    public boolean isExtensionNeeded(Network n, IidmVersion iidmVersion) {
+        if (IidmVersion.V_1_16.compareTo(iidmVersion) > 0) {
+            return n.getBatteryStream().anyMatch(b -> b.getVoltageRegulation() != null);
+        }
+        return false;
     }
 }
