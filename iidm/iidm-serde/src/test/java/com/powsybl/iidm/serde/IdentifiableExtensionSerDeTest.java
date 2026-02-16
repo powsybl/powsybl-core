@@ -70,7 +70,7 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTxtTest(MultipleExtensionsTestNetworkFactory.create(), "multiple-extensions.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("multiple-extensions.xml");
+        allFormatsRoundTripAllPreviousVersionedTxtTest("multiple-extensions.xml");
     }
 
     // Define a network extension without XML serializer
@@ -141,7 +141,7 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
 
         // backward compatibility
-        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml");
+        allFormatsRoundTripAllPreviousVersionedTxtTest("eurostag-tutorial-example1-with-terminalMock-ext.xml");
     }
 
     @Test
