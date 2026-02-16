@@ -15,6 +15,7 @@ import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectIndex;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 
@@ -30,7 +31,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
 
     // Small record that directly transcribes the DC data from the PowerFactory data
     // model for a connected subgrid
-    private final record DcGridData(
+    private record DcGridData(
             Set<DataObject> dcElmLnes,
             Set<DataObject> dcElmTerms,
             Set<DataObject> acDcConverters) {
@@ -223,10 +224,11 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         @Override
         public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
             // Remove connected converters from the list of related converters
-            if (remainingConverters.remove(converter)) { // only need to process other DC node if not already visited
+            VoltageSourceConverter vsc = (VoltageSourceConverter) converter;
+            if (remainingConverters.remove(vsc)) { // only need to process other DC node if not already visited
                 TerminalNumber otherSide = terminalNumber == TerminalNumber.ONE ? TerminalNumber.TWO
                         : TerminalNumber.ONE;
-                toProcess.add(converter.getDcTerminal(otherSide).getDcNode()); // TODO check if getDcNode is the right
+                toProcess.add(vsc.getDcTerminal(otherSide).getDcNode()); // TODO check if getDcNode is the right
                 // method
             }
         }
@@ -353,16 +355,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         for (DataObject cubicle : elmVsc.getIndex().getDataObjectsByClass("StaCubic")) {
             Optional<DataObjectRef> objId = cubicle.findObjectAttributeValue(DataAttributeNames.OBJ_ID);
             if (objId.isPresent() && objId.get().getId() == elmVsc.getId()) {
-                DataObject tempTerminal = null;
-                try {
-                    tempTerminal = cubicle.getParent();
-                } catch (NoSuchElementException e) {
-                    final String error = "When fetching the AC terminal of VSC (id "
-                            + elmVsc.getId() + "):"
-                            + "cubicle " + cubicle.getId() + " has no corresponding terminal.";
-                    throw new PowerFactoryException(error);
-                }
-                assert tempTerminal != null;
+                DataObject tempTerminal = getParentTerminal(elmVsc, cubicle);
                 int objBus = cubicle.findIntAttributeValue("obj_bus")
                         .orElseThrow(() -> new PowerFactoryException(
                                 "DGS Cubicle " + cubicle.getId() + " without obj_bus field."));
@@ -458,6 +451,20 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         converterAdder.setVoltageSetpoint(voltageSetPoint);
         converterAdder.add();
 
+    }
+
+    private static @NonNull DataObject getParentTerminal(DataObject elmVsc, DataObject cubicle) {
+        DataObject tempTerminal;
+        try {
+            tempTerminal = cubicle.getParent();
+        } catch (NoSuchElementException e) {
+            final String error = "When fetching the AC terminal of VSC (id "
+                    + elmVsc.getId() + "):"
+                    + "cubicle " + cubicle.getId() + " has no corresponding terminal.";
+            throw new PowerFactoryException(error);
+        }
+        assert tempTerminal != null;
+        return tempTerminal;
     }
 
     private static void checkSameNominalVoltage(DcNode dcNode1, DcNode dcNode2) {
