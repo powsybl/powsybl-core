@@ -38,5 +38,5 @@ public interface VoltageRegulation {
 
     boolean setRegulating(boolean regulating);
 
-    void remove();
+    void removeTerminal();
 }

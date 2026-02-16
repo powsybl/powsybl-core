@@ -119,6 +119,8 @@ action('connect with targetV change') {
         generatorModification('GEN') {
             connected true
             targetV 1234.56
+            voltageRegulationMode RegulationMode.VOLTAGE
+            voltageRegulationTargetValue 65.4321
         }
     }
 }

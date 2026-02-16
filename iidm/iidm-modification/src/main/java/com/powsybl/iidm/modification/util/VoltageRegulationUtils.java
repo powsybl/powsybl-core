@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.util;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +27,7 @@ public final class VoltageRegulationUtils {
     public static Stream<Generator> getRegulatingGenerators(Network network, Bus controlledBus) {
         if (controlledBus != null) {
             return network.getGeneratorStream()
-                .filter(g -> g.getVoltageRegulation() != null)
-                .filter(g -> g.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE)
+                .filter(g -> g.isRegulatingWithMode(RegulationMode.VOLTAGE))
                 .filter(g -> g.getRegulatingTerminal().getBusView().getBus() != null)
                 .filter(g -> controlledBus.equals(g.getRegulatingTerminal().getBusView().getBus()));
         } else {
@@ -57,14 +57,15 @@ public final class VoltageRegulationUtils {
      * @return the targetV, or {@link OptionalDouble#empty()} if no acceptable targetV has been found
      */
     public static OptionalDouble getTargetVForRegulatingElement(Network network, Bus controlledBus, String regulatingElementId,
-                                                                 IdentifiableType identifiableType) {
+                                                                IdentifiableType identifiableType) {
         List<Double> targets = switch (identifiableType) {
             case GENERATOR -> getRegulatingGenerators(network, controlledBus)
-                    .filter(g -> !g.getId().equals(regulatingElementId))
-                    .map(Generator::getTargetV).distinct().toList();
+                .filter(g -> !g.getId().equals(regulatingElementId))
+                .map(Generator::getVoltageRegulation)
+                .map(VoltageRegulation::getTargetValue).distinct().toList();
             case SHUNT_COMPENSATOR -> getRegulatingShuntCompensators(network, controlledBus)
-                    .filter(g -> !g.getId().equals(regulatingElementId))
-                    .map(ShuntCompensator::getTargetV).distinct().toList();
+                .filter(g -> !g.getId().equals(regulatingElementId))
+                .map(ShuntCompensator::getTargetV).distinct().toList();
             default -> new ArrayList<>();
         };
         if (targets.isEmpty() || targets.size() > 1) {

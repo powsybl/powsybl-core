@@ -59,7 +59,6 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
                     .withTerminal(network.getLoad("LOAD").getTerminal())
                     .withTargetValue(152.5)
                     .add()
-                .setTargetV(152.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .setCondenser(true)

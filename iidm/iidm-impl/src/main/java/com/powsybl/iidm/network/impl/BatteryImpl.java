@@ -236,6 +236,12 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     @Override
+    public void remove() {
+        this.removeVoltageRegulation();
+        super.remove();
+    }
+
+    @Override
     public VoltageRegulation getVoltageRegulation() {
         return this.voltageRegulation;
     }
@@ -250,12 +256,29 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     @Override
+    public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
+        this.setVoltageRegulation((VoltageRegulationImpl) voltageRegulation);
+        return this.voltageRegulation;
+    }
+
+    @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.setTerminal(null));
+        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
         this.voltageRegulation = null;
     }
 
+    @Override
+    public Terminal getFirstTerminal() {
+        return this.terminals.getFirst();
+    }
+
+    @Override
+    public double getTargetV() {
+        return 0; // TODO MSA
+    }
+
     public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+        this.removeVoltageRegulation();
         this.voltageRegulation = voltageRegulation;
     }
 }

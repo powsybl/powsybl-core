@@ -13,6 +13,7 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterHelper;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ConnectedComponents;
 import com.powsybl.iidm.network.util.SV;
 import org.slf4j.Logger;
@@ -1331,8 +1332,8 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell(gen.getReactiveLimits().getMaxQ(maxP))
             .addCell(gen.getReactiveLimits().getMaxQ(0))
             .addCell(gen.getReactiveLimits().getMaxQ(minP))
-            .addCell(gen.isVoltageRegulatorOn())
-            .addCell(gen.getTargetV() / vb)
+            .addCell(gen.isRegulatingWithMode(RegulationMode.VOLTAGE))
+            .addCell(gen.getRegulatingTargetV() / vb)
             .addCell(gen.getTargetP())
             .addCell(gen.getTargetQ())
             .addCell(faultNum)

@@ -314,9 +314,10 @@ public abstract class AbstractNetworkTest {
         assertEquals(-9999.99, generator1.getMinP(), 0.0);
         assertEquals(9999.99, generator1.getMaxP(), 0.0);
         assertSame(EnergySource.OTHER, generator1.getEnergySource());
-        assertSame(RegulationMode.VOLTAGE, generator1.getVoltageRegulation().getMode());
+        assertEquals(RegulationMode.VOLTAGE, generator1.getVoltageRegulation().getMode());
         assertEquals(607.0, generator1.getTargetP(), 0.0);
-        assertEquals(24.5, generator1.getTargetV(), 0.0);
+        assertEquals(24.5, generator1.getVoltageRegulation().getTargetValue(), 0.0);
+        assertEquals(Double.NaN, generator1.getTargetV());
         assertEquals(301.0, generator1.getTargetQ(), 0.0);
         assertEquals(bus1.getId(), generator1.getTerminal().getBusBreakerView().getBus().getId());
 

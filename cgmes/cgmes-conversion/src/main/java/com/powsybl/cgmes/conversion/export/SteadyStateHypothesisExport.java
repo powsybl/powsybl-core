@@ -295,19 +295,20 @@ public final class SteadyStateHypothesisExport {
         for (Generator g : network.getGenerators()) {
             String cgmesOriginalClass = g.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
 
+            boolean controlEnabled = g.getVoltageRegulation() != null && g.getVoltageRegulation().isRegulating();
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getTargetQ(),
-                            g.isVoltageRegulatorOn(), g.getTargetV(), cimNamespace, writer, context);
+                            controlEnabled, g.getTargetV(), cimNamespace, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
-                    writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
+                    writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), controlEnabled,
                             -g.getTargetP(), -g.getTargetQ(), ReferencePriority.get(g),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
-                    writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
+                    writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), controlEnabled,
                             -g.getTargetP(), -g.getTargetQ(), ReferencePriority.get(g), obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
@@ -357,7 +358,8 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeBatteries(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Battery b : network.getBatteries()) {
-            writeSynchronousMachine(context.getNamingStrategy().getCgmesId(b), false,
+            boolean controlEnabled = b.getVoltageRegulation() != null && b.getVoltageRegulation().isRegulating();
+            writeSynchronousMachine(context.getNamingStrategy().getCgmesId(b), controlEnabled,
                     -b.getTargetP(), -b.getTargetQ(), ReferencePriority.get(b), obtainOperatingMode(b, b.getMinP(), b.getMaxP(), b.getTargetP()),
                     cimNamespace, writer, context);
         }
@@ -391,16 +393,13 @@ public final class SteadyStateHypothesisExport {
     private static boolean isOperatingAsACondenser(Injection<?> injection) {
         switch (injection) {
             case Generator generator -> {
-                return generator.isVoltageRegulatorOn() && !Double.isNaN(generator.getTargetV())
-                        || !Double.isNaN(generator.getTargetQ()) && generator.getTargetQ() != 0;
+                return generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(generator.getTargetV())
+                    || !Double.isNaN(generator.getTargetQ()) && generator.getTargetQ() != 0;
             }
             case Battery battery -> {
                 VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
-                return voltageRegulation != null
-                    && voltageRegulation.isRegulating()
-                    && voltageRegulation.getMode() == RegulationMode.VOLTAGE
-                    && !Double.isNaN(voltageRegulation.getTargetValue())
-                        || !Double.isNaN(battery.getTargetQ()) && battery.getTargetQ() != 0;
+                return battery.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(voltageRegulation.getTargetValue())
+                    || !Double.isNaN(battery.getTargetQ()) && battery.getTargetQ() != 0;
             }
             default -> throw new IllegalStateException("Unexpected value: " + injection);
         }
@@ -432,7 +431,7 @@ public final class SteadyStateHypothesisExport {
                     }
                 }
                 targetValueUnitMultiplier = "k";
-                enabled = g.isVoltageRegulatorOn();
+                enabled = g.isRegulatingWithMode(RegulationMode.VOLTAGE);
             }
 
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,

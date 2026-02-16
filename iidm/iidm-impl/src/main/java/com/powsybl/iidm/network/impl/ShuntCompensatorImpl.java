@@ -330,6 +330,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
+        return null;
+    }
+
+    @Override
     public VoltageRegulation getVoltageRegulation() {
         return null;
     }
@@ -337,5 +342,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public void removeVoltageRegulation() {
 
+    }
+
+    @Override
+    public Terminal getFirstTerminal() {
+        return this.terminals.getFirst();
     }
 }

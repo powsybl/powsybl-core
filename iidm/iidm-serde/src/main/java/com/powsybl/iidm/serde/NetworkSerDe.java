@@ -213,7 +213,6 @@ public final class NetworkSerDe {
 
     private static void writeExtensions(Network n, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
         context.getWriter().writeStartNodes();
-        // TODO MSA add writeExtension from removedExtensions
         Map<String, Set<Extension<? extends Identifiable<?>>>> removedExtensions = getRemovedExtension(n, context.getOptions(), extensionsSupplier);
         for (Identifiable<?> identifiable : IidmSerDeUtil.sorted(n.getIdentifiables(), context.getOptions())) {
             if (ignoreEquipmentAtExport(identifiable, context) || !isElementWrittenInsideNetwork(identifiable, n, context)) {

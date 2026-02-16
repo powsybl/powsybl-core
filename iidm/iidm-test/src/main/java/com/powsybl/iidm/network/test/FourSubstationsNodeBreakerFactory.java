@@ -270,7 +270,6 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxP(100.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetP(85.3570)
-                .setTargetV(400.0)
                 .setTargetQ(512.081)
                 .setNode(7)
                 .add();
@@ -295,7 +294,6 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxP(200.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetP(90)
-                .setTargetV(400.0)
                 .setTargetQ(512.081)
                 .setNode(9)
                 .add();
@@ -320,7 +318,6 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxP(200.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetP(155.714)
-                .setTargetV(400)
                 .setTargetQ(512.081)
                 .setNode(11)
                 .add();
@@ -509,7 +506,6 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxP(400.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetP(250.9944)
-                .setTargetV(400)
                 .setTargetQ(71.8487)
                 .setNode(6)
                 .add();

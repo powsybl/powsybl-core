@@ -198,7 +198,6 @@ public final class EurostagTutorialExample1Factory {
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(24.5).add()
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
             .add();
@@ -360,7 +359,6 @@ public final class EurostagTutorialExample1Factory {
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(24.5).add()
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();
@@ -403,7 +401,6 @@ public final class EurostagTutorialExample1Factory {
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(24.5).add()
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();
@@ -473,7 +470,6 @@ public final class EurostagTutorialExample1Factory {
                .setMinP(-9999.99)
                .setMaxP(9999.99)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(24.5).add()
-               .setTargetV(24.5)
                .setTargetP(607.0)
                .setTargetQ(301.0)
                .add();
@@ -578,7 +574,6 @@ public final class EurostagTutorialExample1Factory {
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(24.5).add()
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();
@@ -650,7 +645,6 @@ public final class EurostagTutorialExample1Factory {
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(24.5).add()
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();
@@ -779,7 +773,6 @@ public final class EurostagTutorialExample1Factory {
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(24.5).add()
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();
@@ -788,7 +781,6 @@ public final class EurostagTutorialExample1Factory {
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(24.5).add()
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();

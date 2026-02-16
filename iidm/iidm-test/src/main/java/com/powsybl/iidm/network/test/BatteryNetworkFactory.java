@@ -114,7 +114,6 @@ public final class BatteryNetworkFactory {
                     .withTargetValue(24.5)
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();

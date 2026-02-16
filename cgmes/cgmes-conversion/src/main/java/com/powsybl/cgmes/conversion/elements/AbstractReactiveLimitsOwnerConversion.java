@@ -243,7 +243,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     }
 
     private static boolean getDefaultRegulatingOn(Generator generator, Context context) {
-        return getDefaultValue(false, generator.isVoltageRegulatorOn(), false, false, context);
+        return getDefaultValue(false, generator.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
     }
 
     private static double getDefaultTargetQ(double previousValue, Context context) {

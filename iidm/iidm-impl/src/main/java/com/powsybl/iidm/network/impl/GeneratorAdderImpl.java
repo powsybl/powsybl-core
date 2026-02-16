@@ -34,7 +34,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double targetV = Double.NaN;
 
-    private double equivalentLocalTargetV = Double.NaN;
+    private double oldTargetV = Double.NaN;
 
     private double ratedS = Double.NaN;
 
@@ -94,15 +94,18 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     public GeneratorAdderImpl setTargetV(double targetV) {
         this.targetV = targetV;
-        this.equivalentLocalTargetV = Double.NaN;
+        return this;
+    }
+
+    @Override
+    public GeneratorAdderImpl setOldTargetV(double oldTargetV) {
+        this.oldTargetV = oldTargetV;
         return this;
     }
 
     @Override
     public GeneratorAdderImpl setTargetV(double targetV, double equivalentLocalTargetV) {
-        this.targetV = targetV;
-        this.equivalentLocalTargetV = equivalentLocalTargetV;
-        return this;
+        return this.setTargetV(targetV);
     }
 
     @Override
@@ -134,7 +137,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                 network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
-        ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
+        ValidationUtil.checkEquivalentLocalTargetV(this, targetV);
         // TODO MSA Backward compatibility :
         //
         if (this.voltageRegulation == null) {
@@ -146,7 +149,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                                     minP, maxP,
                                     voltageRegulation,
                                     targetP, targetQ, targetV,
-                                    ratedS, isCondenser, equivalentLocalTargetV);
+                                    ratedS, isCondenser);
         generator.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(generator);
@@ -166,13 +169,16 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         // VOLTAGE case
         if (Boolean.TRUE.equals(this.voltageRegulatorOn)) {
             vrAdder.withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(this.targetV)
+                .withTargetValue(this.oldTargetV)
                 .add();
             // REACTIVE Power case
         } else if (!Double.isNaN(this.targetQ)) {
             vrAdder.withMode(RegulationMode.REACTIVE_POWER)
                 .withTargetValue(this.targetQ)
                 .add();
+        }
+        if (Boolean.FALSE.equals(this.voltageRegulatorOn)) {
+            this.targetV = this.oldTargetV;
         }
     }
 

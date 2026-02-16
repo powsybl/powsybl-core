@@ -5,11 +5,11 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="NGEN"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
+            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" targetP="607.0" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
                 <iidm:voltageRegulation targetValue="24.5" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:generator id="GEN2" energySource="OTHER" minP="-9999.99" maxP="9999.99" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
+            <iidm:generator id="GEN2" energySource="OTHER" minP="-9999.99" maxP="9999.99" targetP="607.0" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="6.0" maxQ="7.0"/>
                     <iidm:point p="1.0" minQ="4.0" maxQ="5.0"/>

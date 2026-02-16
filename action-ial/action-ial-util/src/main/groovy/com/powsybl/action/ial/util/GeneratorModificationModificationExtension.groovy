@@ -45,6 +45,8 @@ class GeneratorModificationModificationExtension implements DslModificationExten
         Double targetV
         Double targetQ
         RegulationMode voltageRegulationMode
+        Double voltageRegulationTargetValue;
+        Boolean regulating;
         Boolean voltageRegulatorOn
         Boolean connected
 
@@ -57,6 +59,8 @@ class GeneratorModificationModificationExtension implements DslModificationExten
             modifs.setTargetV(targetV)
             modifs.setTargetQ(targetQ)
             modifs.setVoltageRegulationMode(voltageRegulationMode)
+            modifs.setVoltageRegulationTargetValue(voltageRegulationTargetValue)
+            modifs.setRegulating(regulating)
             modifs.setVoltageRegulatorOn(voltageRegulatorOn)
             modifs.setConnected(connected)
             return modifs
@@ -110,6 +114,14 @@ class GeneratorModificationModificationExtension implements DslModificationExten
 
         void voltageRegulationMode(RegulationMode voltageRegulationMode) {
             this.voltageRegulationMode = voltageRegulationMode
+        }
+
+        void voltageRegulationTargetValue(Double voltageRegulationTargetValue) {
+            this.voltageRegulationTargetValue = voltageRegulationTargetValue
+        }
+
+        void regulating(Boolean regulating) {
+            this.regulating = regulating
         }
 
         /**

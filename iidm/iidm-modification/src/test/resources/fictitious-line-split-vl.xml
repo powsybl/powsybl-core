@@ -86,7 +86,7 @@
                 <iidm:voltageRegulation targetValue="0.0" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
             <iidm:generator id="CD" energySource="HYDRO" minP="0.0" maxP="35.0"
-                            targetP="21.789589" targetV="236.44736" targetQ="-20.701546" node="16" p="-21.789589"
+                            targetP="21.789589" targetQ="-20.701546" node="16" p="-21.789589"
                             q="20.693394">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-20.6" maxQ="18.1"/>

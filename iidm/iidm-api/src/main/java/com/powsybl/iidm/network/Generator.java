@@ -169,6 +169,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * please use {@link Generator#getVoltageRegulation()}
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     boolean isVoltageRegulatorOn();
@@ -183,12 +184,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     @Deprecated(forRemoval = true, since = "7.2.0")
-    Terminal getRegulatingTerminal();
-
-    @Deprecated(forRemoval = true, since = "7.2.0")
     Generator setRegulatingTerminal(Terminal regulatingTerminal);
-
-    double getRemoteTargetV();
 
     /**
      * Get the voltage target in kV.
@@ -209,7 +205,6 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * <p>Depends on the working variant.</p>
      * @see VariantManager
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
     Generator setTargetV(double targetV);
 
     /**
@@ -224,6 +219,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * Depends on the working variant.
      * @see VariantManager
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     double getEquivalentLocalTargetV();
 
     /**

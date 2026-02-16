@@ -253,7 +253,7 @@ class AmplNetworkReaderTest {
         Generator generator = network.getGenerator("GEN");
         VoltageLevel voltageLevel = generator.getTerminal().getVoltageLevel();
 
-        assertEquals(24.5, generator.getTargetV(), 0.0);
+        assertEquals(24.5, generator.getRegulatingTargetV(), 0.0);
         assertEquals(607.0, generator.getTargetP(), 0.0);
         assertTrue(Double.isNaN(generator.getTerminal().getP()));
         assertEquals(301.0, generator.getTargetQ(), 0.0);

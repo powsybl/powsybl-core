@@ -157,7 +157,6 @@ public final class FictitiousSwitchFactory {
                 .setMaxP(35.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(236.44736).add()
                 .setTargetP(21.789589)
-                .setTargetV(236.44736)
                 .setTargetQ(-20.701546)
                 .setNode(16)
                 .add();

@@ -48,12 +48,7 @@ public class RegulatedTerminalControllers {
         switch (identifiable.getType()) {
             case BATTERY -> {
                 Battery battery = (Battery) identifiable;
-                // TODO MSA use optional ?
-                if (battery.getVoltageRegulation() != null && battery.getVoltageRegulation().getTerminal() != null) {
-                    add(regulatedTerminals, battery.getVoltageRegulation().getTerminal());
-                } else {
-                    add(regulatedTerminals, battery.getTerminal());
-                }
+                add(regulatedTerminals, battery.getRegulatingTerminal());
             }
             case TWO_WINDINGS_TRANSFORMER -> {
                 TwoWindingsTransformer t2w = (TwoWindingsTransformer) identifiable;

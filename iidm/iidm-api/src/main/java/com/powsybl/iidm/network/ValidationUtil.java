@@ -988,7 +988,7 @@ public final class ValidationUtil {
         if (terminal != null
             && owner instanceof Identifiable<?> identifiable
             && identifiable.getId().equals(terminal.getConnectable().getId())) {
-            throwExceptionOrLogError(owner, "TODO MSA add log/exception -> Terminal must be remote", actionOnError,
+            throwExceptionOrLogError(owner, "TODO MSA remove the validation and add validation on the case of reactive power regulation add log/exception -> Terminal must be remote", actionOnError,
                 id -> NetworkReports.undefinedShuntCompensatorSection(reportNode, id));
             return ValidationLevel.EQUIPMENT;
         }

@@ -46,13 +46,13 @@ class SetGeneratorToLocalRegulationTest {
         // Before applying the network modification,
         // gen1 regulates remotely at 1.05 pu (420 kV) and gen2 regulates locally at 1.05 pu (21 kV).
         assertNotEquals(gen1.getId(), gen1.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(420.0, gen1.getTargetV());
+        assertEquals(420.0, gen1.getVoltageRegulation().getTargetValue());
         assertEquals(gen2.getId(), gen2.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(25.0, gen2.getTargetV());
+        assertEquals(25.0, gen2.getVoltageRegulation().getTargetValue());
         assertEquals(gen3.getId(), gen3.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(22.0, gen3.getTargetV());
+        assertEquals(22.0, gen3.getVoltageRegulation().getTargetValue());
         assertNotEquals(gen4.getId(), gen4.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(21.0, gen4.getTargetV());
+        assertEquals(21.0, gen4.getVoltageRegulation().getTargetValue());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
                 .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
@@ -67,11 +67,12 @@ class SetGeneratorToLocalRegulationTest {
 
         // After applying the network modification, GEN1 generator regulates locally at same targetV of GEN3 (closest to nominal V).
         assertEquals(gen1.getId(), gen1.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(22.0, gen1.getTargetV());
+        assertEquals(25.0, gen1.getVoltageRegulation().getTargetValue());
+        assertTrue(gen1.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(gen2.getId(), gen2.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(25.0, gen2.getTargetV());
+        assertEquals(25.0, gen2.getVoltageRegulation().getTargetValue());
         assertEquals(gen3.getId(), gen3.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(22.0, gen3.getTargetV());
+        assertEquals(22.0, gen3.getVoltageRegulation().getTargetValue());
 
         // Report node has been updated with the change for gen1.
         StringWriter sw = new StringWriter();
@@ -84,7 +85,8 @@ class SetGeneratorToLocalRegulationTest {
         new SetGeneratorToLocalRegulation("GEN4").apply(network, reportNode);
         // After applying the network modification, GEN4 generator regulates locally at voltage level nominal V
         assertEquals(gen4.getId(), gen4.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(420.0, gen4.getTargetV());
+        assertTrue(gen4.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(420.0, gen4.getVoltageRegulation().getTargetValue());
     }
 
     @Test
@@ -141,7 +143,6 @@ class SetGeneratorToLocalRegulationTest {
                 .setMinP(100)
                 .setMaxP(200)
                 .setTargetP(200)
-                .setTargetV(420)
                 .newVoltageRegulation()
                     .withTargetValue(420)
                     .withMode(RegulationMode.VOLTAGE)
@@ -175,7 +176,6 @@ class SetGeneratorToLocalRegulationTest {
                     .withTargetValue(22)
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(22)
                 // No regulatingTerminal set == use its own terminal for regulation
                 .add();
 
@@ -186,7 +186,6 @@ class SetGeneratorToLocalRegulationTest {
                 .setMinP(100)
                 .setMaxP(200)
                 .setTargetP(200)
-                .setTargetV(21)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .withTargetValue(21)

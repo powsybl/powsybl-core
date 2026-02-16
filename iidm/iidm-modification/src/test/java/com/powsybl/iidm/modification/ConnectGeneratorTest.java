@@ -31,11 +31,11 @@ class ConnectGeneratorTest {
         Generator g1 = network.getGenerator("GH1");
         g2 = network.getGenerator("GH2");
         g3 = network.getGenerator("GH3");
-        g1.setTargetV(11.);
+        g1.setTargetV(11.1);
         g1.getVoltageRegulation().setTargetValue(11.);
-        g2.setTargetV(22.);
+        g2.setTargetV(22.2);
         g2.getVoltageRegulation().setTargetValue(22.);
-        g3.setTargetV(33.);
+        g3.setTargetV(33.3);
         g3.getVoltageRegulation().setTargetValue(33.);
         g1.getTerminal().disconnect();
         g2.getTerminal().disconnect();
@@ -47,7 +47,7 @@ class ConnectGeneratorTest {
         g2.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(22., g2.getTargetV(), 0.01);
+        assertEquals(22.2, g2.getTargetV(), 0.01);
     }
 
     @Test
@@ -55,7 +55,8 @@ class ConnectGeneratorTest {
         g2.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(33., g2.getTargetV(), 0.01);
+        assertEquals(33, g2.getVoltageRegulation().getTargetValue(), 0.01);
+        assertEquals(22.2, g2.getTargetV(), 0.01);
     }
 
     @Test
@@ -64,7 +65,7 @@ class ConnectGeneratorTest {
         g2.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(22.0, g2.getTargetV(), 0.01);
+        assertEquals(22.2, g2.getTargetV(), 0.01);
     }
 
     @Test
@@ -76,9 +77,12 @@ class ConnectGeneratorTest {
                 .build();
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(33, g2.getTargetV(), 0.01);
+        assertEquals(RegulationMode.VOLTAGE, g2.getVoltageRegulation().getMode());
+        assertEquals(33, g2.getVoltageRegulation().getTargetValue(), 0.01);
+        assertEquals(22.2, g2.getTargetV(), 0.01);
         assertEquals(g3.getTerminal(), g2.getVoltageRegulation().getTerminal());
-        assertEquals(g2.getTargetV(), g2.getVoltageRegulation().getTargetValue());
+        assertEquals(g3.getVoltageRegulation().getTargetValue(), g2.getVoltageRegulation().getTargetValue());
+        assertEquals(g3.getVoltageRegulation().getMode(), g2.getVoltageRegulation().getMode());
     }
 
     @Test
@@ -94,7 +98,9 @@ class ConnectGeneratorTest {
         g2.getVoltageRegulation().setTerminal(g3.getTerminal());
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(33.0, g2.getTargetV(), 0.01);
+        assertEquals(RegulationMode.VOLTAGE, g2.getVoltageRegulation().getMode());
+        assertEquals(33, g2.getVoltageRegulation().getTargetValue(), 0.01);
+        assertEquals(22.2, g2.getTargetV());
     }
 
     @Test

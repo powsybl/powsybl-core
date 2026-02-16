@@ -232,6 +232,11 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
+    public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
+        return null;
+    }
+
+    @Override
     public VoltageRegulation getVoltageRegulation() {
         return null;
     }
@@ -239,5 +244,10 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public void removeVoltageRegulation() {
 
+    }
+
+    @Override
+    public Terminal getFirstTerminal() {
+        return null;
     }
 }

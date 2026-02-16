@@ -17,7 +17,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObject, Referrer<Terminal>, Validable {
+public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObject, Referrer<Terminal> {
 
     private TerminalExt terminal;
     private RegulationMode mode;
@@ -58,6 +58,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public double setTargetValue(double targetValue) {
+        // TODO MSA validation : use old validation methods
         return this.targetValue.set(getCurrentIndex(), targetValue);
     }
 
@@ -68,6 +69,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public double setTargetDeadband(double targetDeadband) {
+        // TODO MSA validation : use old validation methods
         return this.targetDeadband.set(getCurrentIndex(), targetDeadband);
     }
 
@@ -78,6 +80,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public double setSlope(double slope) {
+        // TODO MSA validation : use old validation methods
         return this.slope.set(getCurrentIndex(), slope);
     }
 
@@ -88,6 +91,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public void setTerminal(Terminal terminal) {
+        // TODO MSA validation : use old validation methods
         // TODO MSA add check terminal != localTerminal
         if (this.terminal != null) {
             this.terminal.getReferrerManager().unregister(this);
@@ -120,10 +124,8 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
     }
 
     @Override
-    public void remove() {
-        if (terminal != null) {
-            terminal.getReferrerManager().unregister(this);
-        }
+    public void removeTerminal() {
+        this.setTerminal(null);
     }
 
     @Override
@@ -175,11 +177,6 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         if (this.terminal == oldReferenced) {
             this.setTerminal(newReferenced);
         }
-    }
-
-    @Override
-    public MessageHeader getMessageHeader() {
-        return new DefaultMessageHeader("TYPE", "MSAID"); // TODO MSA put the right ID
     }
 
     private int getCurrentIndex() {

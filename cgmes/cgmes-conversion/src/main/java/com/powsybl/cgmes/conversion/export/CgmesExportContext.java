@@ -477,9 +477,7 @@ public class CgmesExportContext {
     }
 
     private static boolean hasRegulatingControlCapability(Generator generator) {
-        return generator.getVoltageRegulation() != null
-            && generator.getVoltageRegulation().isRegulating()
-            && hasReactiveCapability(generator);
+        return generator.getVoltageRegulation() != null && hasReactiveCapability(generator);
     }
 
     private static boolean hasReactiveCapability(Generator generator) {

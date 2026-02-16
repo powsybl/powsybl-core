@@ -11,7 +11,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.regulation.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.function.Consumer;
@@ -59,9 +61,11 @@ public final class VoltageRegulationSerDe {
     }
 
     private static void writeSubElements(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
- // TODO MSA check if neeeded to test the remote terminal             !Objects.equals(voltageRegulation.getTerminal().getBusBreakerView().getConnectableBus(),
-//                voltageRegulation.getExtendable().getTerminal().getBusBreakerView().getConnectableBus())
+        // TODO MSA write remote terminal only
+//        if (voltageRegulation.getTerminal() != null && !Objects.equals(voltageRegulation.getTerminal().getBusBreakerView().getConnectableBus(),
+//            voltageRegulation.getExtendable().getTerminal().getBusBreakerView().getConnectableBus())) {
         TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
+//        }
     }
 
     public static void readVoltageRegulation(VoltageRegulationHolder holder, NetworkDeserializerContext context, Network network) {
@@ -81,7 +85,6 @@ public final class VoltageRegulationSerDe {
             .build();
         // Read Sub Elements
         readSubElements(context, network, voltageRegulation::setTerminal);
-        // THE END
     }
 
     private static void readSubElements(NetworkDeserializerContext context, Network network, Consumer<Terminal> setTerminal) {

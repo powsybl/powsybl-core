@@ -145,10 +145,13 @@ class GeneratorModificationActionTest {
         Action action = actionDb.getAction("disconnect");
         action.run(network);
         assertFalse(g.getTerminal().isConnected());
-        assertEquals(24.5, g.getTargetV(), 0.01);
+        assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().getMode());
+        assertEquals(24.5, g.getVoltageRegulation().getTargetValue(), 0.01);
+        assertEquals(Double.NaN, g.getTargetV());
         action = actionDb.getAction("connect with targetV change");
         action.run(network);
         assertTrue(g.getTerminal().isConnected());
+        assertEquals(65.4321, g.getVoltageRegulation().getTargetValue(), 0.01);
         assertEquals(1234.56, g.getTargetV(), 0.01);
     }
 }
