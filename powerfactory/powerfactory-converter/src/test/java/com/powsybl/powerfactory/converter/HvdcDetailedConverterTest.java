@@ -46,7 +46,7 @@ public class HvdcDetailedConverterTest {
     }
 
     @Test
-    void testCreate2() throws Exception {
+    void testCreate2() {
         Network network = importDgs("hvdc-2-VSC-ACDC-links");
 
         final double nominalDcV = 320.0;
@@ -82,6 +82,29 @@ public class HvdcDetailedConverterTest {
         VoltageSourceConverter vsc2 = network.getVoltageSourceConverter("HVDC Converter 2");
         assertSame(dcLine1.getDcTerminal1().getDcNode(), vsc1.getDcTerminal1().getDcNode());
         assertSame(dcLine1.getDcTerminal2().getDcNode(), vsc2.getDcTerminal1().getDcNode());
+
+    }
+
+    @Test
+    void testCreate3() {
+        Network network = importDgs("hvdc-3-VSC-ACDC-links");
+
+        assertEquals(6, network.getDcNodeCount());
+        assertEquals(3, network.getVoltageSourceConverterCount());
+        assertEquals(3, network.getDcLineCount());
+        assertEquals(1, network.getDcGroundCount());
+
+        DcLine dcLine21 = network.getDcLine("DC line 0 31-32");
+        DcLine dcLine22 = network.getDcLine("DC line - 32-33");
+        DcLine dcLine23 = network.getDcLine("DC line + 31-33");
+
+        assertNotNull(dcLine21);
+        assertNotNull(dcLine22);
+        assertNotNull(dcLine23);
+
+        assertNotSame(dcLine21, dcLine22);
+        assertNotSame(dcLine22, dcLine23);
+        assertNotSame(dcLine23, dcLine21);
 
     }
 
