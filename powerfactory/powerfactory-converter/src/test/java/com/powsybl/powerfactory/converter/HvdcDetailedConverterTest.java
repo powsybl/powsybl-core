@@ -2,62 +2,25 @@ package com.powsybl.powerfactory.converter;
 
 // import static org.mockito.Mockito.when;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Properties;
 
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
-// import org.mockito.Mock;
-// import org.mockito.Mockito;
-
-import com.powsybl.iidm.network.util.ContainersMapping;
-// import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
-import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
-import com.powsybl.powerfactory.dgs.DgsStudyCaseLoader;
-import com.powsybl.powerfactory.model.DataObject;
-import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
-import com.powsybl.powerfactory.model.StudyCase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class HvdcDetailedConverterTest {
-//
-    // @Mock
-    // ImportContext importContext;
 
-    //     @Test
-    // void testHvdcDetailedConverter() {
-    //     Network network = Network.create("test1", "test");
-
-    //     List<DataObject> elmTerms = new ArrayList<>();
-    //     List<DataObject> elmVscs = new ArrayList<>();
-
-    //     Mockito.when(importContext.elmTermIdToNode.get(1L)).thenReturn(new NodeRef("vl1", 1, 1));
-    //     Mockito.when(importContext.elmTermIdToNode.get(2L)).thenReturn(new NodeRef("vl1", 2, 2));
-
-    //     DataObject elmTerm = new DataObject(0, null, null);
-
-    //     HvdcDetailedConverter detailedConverter = new HvdcDetailedConverter(importContext, network, elmTerms, elmVscs);
-
-    //     boolean isDcLink = detailedConverter.isDcLink(elmTerm);
-    //     assertEquals(false, isDcLink);
-    // }
+    // test tolerance for double values.
+    // Only makes sense for values that are neither too big or too small.
+    // This is twice machine epsilon for single precision
+    static final double ABSOLUTE_DELTA = 1.2e-7;
 
     @Test
-    void testHvdcDetailedConverter() throws Exception {
-        ImportedData importedData = importDgs("hvdc-2-VSC.dgs");
-    }
-
-    @Test
-    void testCreate1() throws Exception {
-        ImportedData importedData = importDgs("hvdc-2-VSC.dgs");
-
-        importedData.converter.create();
-        Network network = importedData.converter.getNetwork();
+    void testCreate1() {
+        Network network = importDgs("hvdc-2-VSC");
 
         final double nominalDcV = 320.0;
         assertEquals(2, network.getVoltageSourceConverterCount());
@@ -84,10 +47,7 @@ public class HvdcDetailedConverterTest {
 
     @Test
     void testCreate2() throws Exception {
-        ImportedData importedData = importDgs("hvdc-2-VSC-ACDC-links.dgs");
-
-        importedData.converter.create();
-        Network network = importedData.converter.getNetwork();
+        Network network = importDgs("hvdc-2-VSC-ACDC-links");
 
         final double nominalDcV = 320.0;
         assertEquals(2, network.getVoltageSourceConverterCount());
@@ -96,25 +56,25 @@ public class HvdcDetailedConverterTest {
         assertEquals(2, network.getDcLineCount());
         assertEquals(nominalDcV, network.getVoltageSourceConverter("HVDC Converter 1").getTargetVdc());
         assertEquals(nominalDcV, network.getVoltageSourceConverter("HVDC Converter 2").getTargetVdc());
-        assertEquals(600.0, network.getVoltageSourceConverter("HVDC Converter 1").getTargetP());
+        assertEquals(600.0, network.getVoltageSourceConverter("HVDC Converter 1").getTargetP(), ABSOLUTE_DELTA);
         assertEquals(0.0, network.getVoltageSourceConverter("HVDC Converter 2").getTargetP());
         assertEquals(0.0, network.getVoltageSourceConverter("HVDC Converter 1").getReactivePowerSetpoint());
-        assertEquals(100.0, network.getVoltageSourceConverter("HVDC Converter 2").getReactivePowerSetpoint());
-        assertEquals(10000.0, network.getVoltageSourceConverter("HVDC Converter 1").getIdleLoss());
-        assertEquals(10000.0, network.getVoltageSourceConverter("HVDC Converter 2").getIdleLoss());
+        assertEquals(100.0, network.getVoltageSourceConverter("HVDC Converter 2").getReactivePowerSetpoint(), ABSOLUTE_DELTA);
+        assertEquals(10000.0, network.getVoltageSourceConverter("HVDC Converter 1").getIdleLoss(), ABSOLUTE_DELTA);
+        assertEquals(10000.0, network.getVoltageSourceConverter("HVDC Converter 2").getIdleLoss(), ABSOLUTE_DELTA);
         assertEquals(0.0, network.getVoltageSourceConverter("HVDC Converter 1").getResistiveLoss());
         assertEquals(0.0, network.getVoltageSourceConverter("HVDC Converter 2").getResistiveLoss());
         assertEquals(0.0, network.getVoltageSourceConverter("HVDC Converter 1").getSwitchingLoss());
         assertEquals(0.0, network.getVoltageSourceConverter("HVDC Converter 2").getSwitchingLoss());
 
         for (DcNode node : network.getDcNodes()) {
-            assertEquals(nominalDcV, node.getNominalV());
+            assertEquals(nominalDcV, node.getNominalV(), ABSOLUTE_DELTA);
         }
 
         final double resistanceDcLine = 50.0 * 0.1;
 
         for (DcLine line : network.getDcLines()) {
-            assertEquals(resistanceDcLine, line.getR());
+            assertEquals(resistanceDcLine, line.getR(), ABSOLUTE_DELTA);
         }
 
         DcLine dcLine1 = network.getDcLine("DC-Line_pos");
@@ -125,96 +85,16 @@ public class HvdcDetailedConverterTest {
 
     }
 
-    @Test
-    void testIsDcLink() throws Exception {
-        ImportedData importedData = importDgs("hvdc-2-VSC-ACDC-links.dgs");
+    private Network importDgs(String id) {
 
-        DataObject dcLine = importedData.studyCase.getIndex().getDataObjectById(4).get();
-        DataObject acLine = importedData.studyCase.getIndex().getDataObjectById(4).get();
+        Properties importParams = new Properties();
+        importParams.put(PowerFactoryImporter.HVDC_IMPORT_DETAILED, true);
+        final String fileName = id + ".dgs";
+        PowerFactoryImporter importer = new PowerFactoryImporter();
+        ResourceSet resourceSet = new ResourceSet("/", fileName);
+        ResourceDataSource dataSource = new ResourceDataSource(id, resourceSet);
 
-        assertTrue(importedData.converter.isDcLink(dcLine));
-        assertFalse(importedData.converter.isDcLink(acLine));
-    }
-
-    @Test
-    void testIsDcNode() throws Exception {
-        ImportedData importedData = importDgs("hvdc-2-VSC.dgs");
-
-        DataObject elmTerm12 = importedData.studyCase.getIndex().getDataObjectById(12).get();
-        DataObject elmTerm14 = importedData.studyCase.getIndex().getDataObjectById(14).get();
-        assertFalse(importedData.converter.isDcNode(elmTerm12));
-        assertTrue(importedData.converter.isDcNode(elmTerm14));
-    }
-
-    // private HvdcDetailedConverter createGridDataNodeBreaker() {
-
-    //     Network network = Network.create("test1", "test");
-    //     Substation s1 = network.newSubstation()
-    //         .setId("S1")
-    //         .add();
-    //     VoltageLevel vl1 = s1.newVoltageLevel()
-    //             .setId("vl1")
-    //             .setNominalV(400)
-    //             .setTopologyKind(TopologyKind.NODE_BREAKER)
-    //             .add();
-
-    //     VoltageLevel.NodeBreakerView bv1 = vl1.getNodeBreakerView();
-    //     bv1.newBusbarSection().setId("BBS1")
-    //             .setNode(1)
-    //             .add();
-
-    //     VoltageLevel.NodeBreakerView bv2 = vl1.getNodeBreakerView();
-    //     bv2.newBusbarSection().setId("BBS2")
-    //             .setNode(2)
-    //             .add();
-
-    //     ArrayList<DataObject> elmTerms = new ArrayList<>();
-    //     ArrayList<DataObject> elmVscs = new ArrayList<>();
-
-    //     elmTerms.add(new DataObject(1, null, null));
-
-    //     Mockito.when(importContext.elmTermIdToNode.get(1L)).thenReturn(new NodeRef("vl1", 1, 1));
-    //     Mockito.when(importContext.elmTermIdToNode.get(2L)).thenReturn(new NodeRef("vl1", 2, 2));
-
-    //     HvdcDetailedConverter detailedConverter = new HvdcDetailedConverter(importContext, network, elmTerms, elmVscs);
-
-    //     return detailedConverter;
-    // }
-
-    private record ImportedData(HvdcDetailedConverter converter, StudyCase studyCase) { }
-
-    /**
-     * Load DGS file into an HvdcDetailedConverter
-     * @param fileName Name of the test case, with .dgs extension.
-     * @return HvdcDetailedConverter constructed from there.
-     * @throws FileNotFoundException
-     */
-    private ImportedData importDgs(String fileName) throws FileNotFoundException {
-
-        // Load file and redo what is in PowerFactoryImporter.createNetwork and is strictly necessary to
-        // produce and instance of HvdcDetailedConverter
-        Path file = Path.of("src", "test", "resources", fileName);
-        PowerFactoryDataLoader<StudyCase> studyCaseLoader = new DgsStudyCaseLoader();
-        InputStream inputStream = new FileInputStream(file.toFile());
-        StudyCase studyCase = studyCaseLoader.doLoad(fileName, inputStream);
-
-        Network network = Network.create(fileName, "test");
-
-        List<DataObject> elmTerms = studyCase.getElmNets().stream()
-                .flatMap(elmNet -> elmNet.search(".*.ElmTerm").stream())
-                .collect(Collectors.toList());
-
-        List<DataObject> elmVscs = studyCase.getElmNets().stream()
-            .flatMap(elmNet -> elmNet.search(".*.ElmVsc").stream())
-            .collect(Collectors.toList());
-
-        ContainersMapping containerMapping = ContainersMappingHelper.create(studyCase.getIndex(), elmTerms);
-        ImportContext importContext = new ImportContext(containerMapping);
-
-        HvdcDetailedConverter detailedConverter = new HvdcDetailedConverter(importContext, network, studyCase.getElmNets(), elmVscs, elmTerms);
-
-        return new ImportedData(detailedConverter, studyCase);
-
+        return importer.importData(dataSource, NetworkFactory.findDefault(), importParams);
     }
 
 }

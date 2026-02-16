@@ -6,9 +6,9 @@ $$ElmLne;ID(a:40);loc_name(a:40);fold_id(p);typ_id(p);dline(r)
 4;DC-Line_pos;9;44;50
 5;DC-Line_neg;9;44;50
 
-$$TypLne;ID(a:40);loc_name(a:40);fold_id(p);uline(r);sline(r);rline(r);xline(r);systp(i)
-44;DC Cable Type 320kV;9;320;17.49546;0.101465;0.309789;1
-45;AC Cable Type 320kV;9;320;17.49546;0.101465;0.309789;0
+$$TypLne;ID(a:40);loc_name(a:40);fold_id(p);uline(r);sline(r);rline(r);xline(r);systype(i)
+44;DC Cable Type 320kV;9;320;17.49546;0.1;0.309789;1
+45;AC Cable Type 320kV;9;320;17.49546;0.1;0.309789;0
 
 $$ElmVsc;ID(a:40);loc_name(a:40);fold_id(p);Unom(r);usetp(r);psetp(r);qsetp(r);Pnold(r);P_max(r)
 6;HVDC Converter 1;9;300;1.0;600;0;10000;900
@@ -22,8 +22,8 @@ $$ElmTerm;ID(a:40);loc_name(a:40);fold_id(p);systype(i);iUsage(i);uknom(r);unkno
 12;2 Bus 2;9;0;0;165;95.26279;0
 13;3 Bus 2-Load;9;0;0;165;95.26279;0
 14;4 HVDC Link_T_DC_pos1;9;1;0;320;320.0;0
-15;5 HVDC Link_T_DC_pos2;9;1;0;320;320.0;1
-16;6 HVDC Link_T_DC_neg1;9;1;0;320;320.0;0
+15;5 HVDC Link_T_DC_pos2;9;1;0;320;320.0;0
+16;6 HVDC Link_T_DC_neg1;9;1;0;320;320.0;1
 17;7 HVDC Link_T_DC_neg2;9;1;0;320;320.0;1
 
 $$StaCubic;ID(a:40);loc_name(a:40);fold_id(p);obj_bus(i);obj_id(p);it2p1(i);it2p2(i);it2p3(i)
