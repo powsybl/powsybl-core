@@ -802,4 +802,24 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             }
         }
     }
+
+    @Test
+    void exportIidmWithoutPropertiesToCgmesTest() throws IOException {
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
+        assertEquals(2, network.getAreaStream().count());
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridCgmesExportPreservingOriginalClassesOfLoads";
+        Properties exportParams = new Properties();
+        new CgmesExport().export(network, exportParams, new DirectoryDataSource(outputPath, baseName));
+
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        assertEquals(2, actual.getAreaStream().count());
+    }
 }

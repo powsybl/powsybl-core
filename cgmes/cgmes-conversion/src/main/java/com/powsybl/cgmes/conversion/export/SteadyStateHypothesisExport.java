@@ -916,8 +916,8 @@ public final class SteadyStateHypothesisExport {
             double pTolerance = Double.parseDouble(controlArea.getProperty("pTolerance"));
             writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
             writer.writeCharacters(CgmesExportUtil.format(pTolerance));
+            writer.writeEndElement();
         }
-        writer.writeEndElement();
         writer.writeEndElement();
     }
 
