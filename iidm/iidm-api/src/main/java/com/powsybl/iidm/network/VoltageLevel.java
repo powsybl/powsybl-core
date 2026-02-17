@@ -169,7 +169,7 @@ import java.util.stream.Stream;
  * </div>
  * The node/breaker topology model is stored inside the voltage level as a graph
  * where connection nodes are the vertices and switches are the edges.
- * <p>The next diagram shows how to map the subtation topology to a graph.
+ * <p>The next diagram shows how to map the substation topology to a graph.
  * <div>
  *    <object data="doc-files/nodeBreakerTopologyGraph.svg" type="image/svg+xml"></object>
  * </div>
@@ -179,9 +179,9 @@ import java.util.stream.Stream;
  * connection nodes. Voltage level VL2 has 3 nodes, line LN is connected to
  * node 1, busbar section BBS3 to node 2. Transformer TR is connected
  * to node 8 of voltage level 400Kv and node 3 of voltage level 225Kv. Plain
- * edges represent closed switches. Dashed edges reprensent opened switches.
+ * edges represent closed switches. Dashed edges represent opened switches.
  * Green edges will disappear during the bus/breaker topology computation
- * whereas pink edges (like in this case 3<->4) will be retained whatever their
+ * whereas pink edges (like in this case 3 {@literal <->} 4) will be retained whatever their
  * position are (see {@link Switch#isRetained()}).
  * <p>The following code shows how to create the substation with a node/breaker
  *   topology model.
@@ -192,7 +192,6 @@ import java.util.stream.Stream;
  *        .setId("VL1")
  *        .setTopologyKind(TopologyKind.NODE_BREAKER)
  *        .add();
- *    vl1.getNodeBreakerView().setNodeCount(8);
  *    // create busbar sections BBS1 and BBS2
  *    vl1.getNodeBreakerView().newBusbarSection()
  *        .setId("BBS1")
@@ -217,19 +216,19 @@ import java.util.stream.Stream;
  *        .setId("BR1")
  *        .setOpen(false)
  *        .setNode1(1)
- *        .setNode1(2)
+ *        .setNode2(2)
  *        .add();
  *    vl1.getNodeBreakerView().newDisconnector()
  *        .setId("DI1")
  *        .setOpen(false)
  *        .setNode1(2)
- *        .setNode1(3)
+ *        .setNode2(3)
  *        .add();
  *    vl1.getNodeBreakerView().newDisconnector()
  *        .setId("DI2")
  *        .setOpen(true)
  *        .setNode1(2)
- *        .setNode1(4)
+ *        .setNode2(4)
  *        .add();
  *    // connect load LD
  *    ...
@@ -246,7 +245,6 @@ import java.util.stream.Stream;
  *        .setId("VL2")
  *        .setTopologyKind(TopologyKind.NODE_BREAKER)
  *        .add();
- *    vl2.getNodeBreakerView().setNodeCount(3);
  *    // create busbar section BBS3
  *    vl2.getNodeBreakerView().newBusbarSection()
  *        .setId("BBS3")
@@ -273,7 +271,7 @@ import java.util.stream.Stream;
  * </pre>
  *
  * <p>The following diagram shows computed bus/breaker topology. Compared to
- * node/breaker topology, only remains equipements (GN, LD, TR, LN), and switches
+ * node/breaker topology, only remains equipments (GN, LD, TR, LN), and switches
  * flagged as retained (BR3). Equipments are now connected through buses
  * (B1 and B2).
  * <div>
@@ -306,7 +304,7 @@ import java.util.stream.Stream;
  * </pre>
  *
  * <p>The following diagram shows computed bus topology. Compared to bus/breaker
- * topology, there is no switches anymore. Only remains equipements (GN, LD, TR, LN)
+ * topology, there is no switches anymore. Only remains equipments (GN, LD, TR, LN)
  * connected through buses.
  * <div>
  *    <object data="doc-files/busTopology.svg" type="image/svg+xml"></object>
@@ -318,7 +316,7 @@ import java.util.stream.Stream;
  *    // VL1 contains 1 buses in the bus view
  *    Iterator&lt;Bus&gt; itB = vl1.getBusView().getBuses();
  *
- *    // the bus connects all the equipements of voltage level VL1
+ *    // the bus connects all the equipments of voltage level VL1
  *    Bus b1 = itB.next();
  * </pre>
  * <h3>Creating a substation with a bus/breaker topology model:</h3>
@@ -1431,7 +1429,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     void convertToTopology(TopologyKind newTopologyKind);
 
     /**
-     * Print an ASCII representation of the topology on the standard ouput.
+     * Print an ASCII representation of the topology on the standard output.
      */
     void printTopology();
 

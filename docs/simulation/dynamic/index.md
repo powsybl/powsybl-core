@@ -24,7 +24,7 @@ The inputs of a dynamic simulation are the following:
 (dynamic-models-configuration)=
 ### Dynamic models configuration
 The dynamic models may be provided through a groovy script thanks to the `GroovyDynamicModelsSupplier` provided in powsybl-dynamic-simulation-dsl artifact. Note that the syntax of this groovy script is specific to each simulator.
-See [Dynawo dynamic model configuration](inv:powsybldynawo:*:*#dynamic_simulation/dynamic-models-configuration) for Dynawo specific DSL and others configuration methods. 
+See [Dynawo dynamic model configuration](inv:powsybldynawo:*:*#dynamic_simulation/dynamic-models-configuration) for Dynawo specific DSL and others configuration methods.
 
 (event-models-configuration)=
 ### Event models configuration
@@ -48,7 +48,7 @@ The outputs of a dynamic simulation are:
 
 ## Implementations
 
-For the moment, the only available implementation is provided by powsybl-dynawo, which links PowSyBl with [Dynaωo](http://dynawo.org) open source suite.
+For the moment, the only available implementation is provided by [`powsybl-dynawo`](inv:powsybldynawo:*:*#dynamic_simulation/index), which links PowSyBl with [Dynaωo](http://dynawo.org) open source suite.
 
 ## Going further
 - [Run a dynamic simulation through an iTools command](../../user/itools/dynamic-simulation.md): learn how to perform a dynamic simulation from the command line
