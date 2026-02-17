@@ -37,7 +37,7 @@ class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTxtTest(createTestNetwork(0), "ratioTapChangerReactivePowerControlRefWithSolvedTapPosition.xml", CURRENT_IIDM_VERSION);
 
         // Backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("ratioTapChangerReactivePowerControlRefWithSolvedTapPosition.xml", IidmVersion.V_1_14);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("ratioTapChangerReactivePowerControlRefWithSolvedTapPosition.xml", IidmVersion.V_1_14);
     }
 
     Network createTestNetwork() {

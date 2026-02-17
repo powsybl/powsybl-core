@@ -116,7 +116,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTxtTest(network, "tl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("tl-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -148,8 +148,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(network, "t3w-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
-        //TODO
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("t3w-loading-limits.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("t3w-loading-limits.xml", IidmVersion.V_1_5);
 
         // check that it fails for versions previous to 1.5
         testForAllPreviousVersions(IidmVersion.V_1_5, version -> {
@@ -184,10 +183,10 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTxtTest(network, "operational-limits-groups-with-properties.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.14
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("operational-limits-groups-with-properties.xml", IidmVersion.V_1_14);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("operational-limits-groups-with-properties.xml", IidmVersion.V_1_14);
 
         // properties are not exported for previous versions (no properties in ref files)
-        testWriteVersionedXml(network, new ExportOptions(), "operational-limits-groups-with-properties.xml", IidmVersion.V_1_12, IidmVersion.V_1_13);
+        testWriteVersionedTxt(network, new ExportOptions(), "operational-limits-groups-with-properties.xml", IidmVersion.V_1_12, IidmVersion.V_1_13);
     }
 
     @Test

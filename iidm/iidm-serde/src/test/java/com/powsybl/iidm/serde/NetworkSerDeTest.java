@@ -233,7 +233,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(network, "scadaNetwork.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
     }
 
     @Test
@@ -275,7 +275,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
         allFormatsRoundTripTxtTest(merged, "subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
     }
 
     private Network createNetwork(int num) {

@@ -55,7 +55,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTxtTest(network, "completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("completeThreeWindingsTransformerRoundTripRef.xml", IidmVersion.V_1_1);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("completeThreeWindingsTransformerRoundTripRef.xml", IidmVersion.V_1_1);
     }
 
     private void createPtc(PhaseTapChangerAdder adder, boolean loadTapChangingCapabilities) {
