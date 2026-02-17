@@ -124,8 +124,7 @@ public class PowerFactoryImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> allParams = Collections.singletonList(HVDC_IMPORT_DETAILED_PARAMETER);
-        return allParams;
+        return Collections.singletonList(HVDC_IMPORT_DETAILED_PARAMETER);
     }
 
     static class ImportContext {
