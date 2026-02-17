@@ -29,6 +29,8 @@ import java.util.Objects;
 public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, VoltageRegulationExtension, VoltageRegulationSerDe.Version>
     implements ExtinctExtensionSerDe<Battery, VoltageRegulationExtension> {
 
+    public static final IidmVersion LAST_SUPPORTED_VERSION = IidmVersion.V_1_15;
+
     public enum Version implements SerDeVersion<Version> {
         V_1_0_LEGACY("/xsd/voltageRegulation_V1_0_legacy.xsd", "http://www.itesla_project.eu/schema/iidm/ext/voltageregulation/1_0",
             new VersionNumbers(1, 0, "legacy"), IidmVersion.V_1_0, IidmVersion.V_1_1),
@@ -121,10 +123,16 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
     }
 
     @Override
-    public boolean isExtensionNeeded(Network n, IidmVersion iidmVersion) {
-        if (IidmVersion.V_1_16.compareTo(iidmVersion) > 0) {
-            return n.getBatteryStream().anyMatch(b -> b.getVoltageRegulation() != null);
-        }
-        return false;
+    public IidmVersion getLastSupportedVersion() {
+        return LAST_SUPPORTED_VERSION;
+    }
+
+    @Override
+    public boolean isExtensionNeeded(Network n) {
+        return n.getBatteryStream().anyMatch(VoltageRegulationSerDe::isExtensionNeeded);
+    }
+
+    public static boolean isExtensionNeeded(Battery b) {
+        return b.getVoltageRegulation() != null;
     }
 }

@@ -10,6 +10,9 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.removed.VoltageRegulationExtension;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.serde.extensions.ExtinctExtensionSerDe;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
@@ -41,6 +44,19 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
         context.getWriter().writeDoubleAttribute("maxP", b.getMaxP());
         writeNodeOrBus(null, b.getTerminal(), context);
         writePQ(null, b.getTerminal(), context.getWriter());
+    }
+
+    @Override
+    protected void addExtinctExtensions(Battery b, NetworkSerializerContext context) {
+        if (ExtinctExtensionSerDe.isExtensionExportable(context.getOptions(), VoltageRegulationExtension.NAME,
+                com.powsybl.iidm.serde.extensions.VoltageRegulationSerDe.LAST_SUPPORTED_VERSION)
+                && com.powsybl.iidm.serde.extensions.VoltageRegulationSerDe.isExtensionNeeded(b)) {
+            VoltageRegulationExtension extension = new VoltageRegulationExtension(b,
+                    b.getVoltageRegulation().getTerminal(),
+                    b.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE,
+                    b.getVoltageRegulation().getTargetValue());
+            context.addExtinctExtensionsToSerialize(b.getId(), extension);
+        }
     }
 
     @Override

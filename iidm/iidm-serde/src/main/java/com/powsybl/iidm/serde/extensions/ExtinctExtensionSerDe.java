@@ -23,8 +23,18 @@ import com.powsybl.iidm.serde.IidmVersion;
 public interface ExtinctExtensionSerDe<T extends Extendable, E extends Extension<T>> extends ExtensionSerDe<T, E> {
 
     default boolean isExtensionNeeded(Network network, ExportOptions options) {
-        return options.withExtension(getName()) && isExtensionNeeded(network, options.getVersion());
+        return isExtensionExportable(options) && isExtensionNeeded(network);
     }
 
-    boolean isExtensionNeeded(Network network, IidmVersion iidmVersion);
+    private boolean isExtensionExportable(ExportOptions options) {
+        return isExtensionExportable(options, getName(), getLastSupportedVersion());
+    }
+
+    static boolean isExtensionExportable(ExportOptions options, String extensionName, IidmVersion lastSupportedVersion) {
+        return options.withExtension(extensionName) && options.getVersion().compareTo(lastSupportedVersion) <= 0;
+    }
+
+    IidmVersion getLastSupportedVersion();
+
+    boolean isExtensionNeeded(Network network);
 }

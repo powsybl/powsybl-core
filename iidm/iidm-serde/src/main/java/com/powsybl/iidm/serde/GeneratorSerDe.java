@@ -8,7 +8,10 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.removed.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.serde.extensions.ExtinctExtensionSerDe;
+import com.powsybl.iidm.serde.extensions.RemoteReactivePowerControlSerDe;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
@@ -71,6 +74,19 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
             context.getWriter().writeDoubleAttribute("targetV", targetV);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("targetV", g.getTargetV()));
+    }
+
+    @Override
+    protected void addExtinctExtensions(Generator g, NetworkSerializerContext context) {
+        if (ExtinctExtensionSerDe.isExtensionExportable(context.getOptions(), RemoteReactivePowerControl.NAME,
+                RemoteReactivePowerControlSerDe.LAST_SUPPORTED_VERSION)
+                && RemoteReactivePowerControlSerDe.isExtensionNeeded(g)) {
+            RemoteReactivePowerControl extension = new RemoteReactivePowerControl(g,
+                    g.getVoltageRegulation().getTargetValue(),
+                    g.getVoltageRegulation().getTerminal(),
+                    g.getVoltageRegulation().isRegulating());
+            context.addExtinctExtensionsToSerialize(g.getId(), extension);
+        }
     }
 
     @Override
