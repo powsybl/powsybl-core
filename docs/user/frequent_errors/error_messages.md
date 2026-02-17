@@ -1,6 +1,4 @@
-# Frequent error messages
-
-### No NetworkFactoryService providers found
+## No NetworkFactoryService providers found
 
 This most likely happened because you tried to read a file, but you didn't have any implementation of the interface used for reading those files.
 Use the implementation provided by PowSyBl / a third party, or write your own.
@@ -23,7 +21,7 @@ use the `powsybl-core` version that matches for you.
 
 You should also make sure that you have an implementation of `SerDe` if you are trying to read a file. See [adding SerDe](#fix-missing-serde).
 
-### Unsupported file format or invalid file
+## Unsupported file format or invalid file
 
 You are most likely missing in your classpath the implementation of `com.powsybl.iidm.network.Importer` corresponding to the file you are trying to import (`XmlImporter`, `CgmesImporter`, etc.). Use the implementation provided by PowSyBl / a third party, or write your own.
 
