@@ -60,6 +60,11 @@ public abstract class AbstractSerDeTest {
         return roundTripTest(data, transformer, write, read, ComparisonUtils::assertXmlEquals, ref);
     }
 
+    /**
+     * Performs a text-based round-trip test on the given data.
+     * <p>
+     * The data is written to a file, read back, and compared with the expected reference using a plain text comparison ({@link ComparisonUtils#assertTxtEquals}).
+     */
     protected <T> T roundTripTxtTest(T data, BiFunction<T, Path, T> transformer, BiConsumer<T, Path> write, Function<Path, T> read, String ref) throws IOException {
         return roundTripTest(data, transformer, write, read, ComparisonUtils::assertTxtEquals, ref);
     }
@@ -87,6 +92,10 @@ public abstract class AbstractSerDeTest {
         return writeTest(data, write, ComparisonUtils::assertXmlEquals, ref);
     }
 
+    /**
+     * Writes the given data using the provided write function, then compares the resulting text file to the specified reference.
+     * @return the path of written file.
+     */
     protected <T> Path writeTxtTest(T data, BiConsumer<T, Path> write, String ref) throws IOException {
         return writeTest(data, write, ComparisonUtils::assertTxtEquals, ref);
     }

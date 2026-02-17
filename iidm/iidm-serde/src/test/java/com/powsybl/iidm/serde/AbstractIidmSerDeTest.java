@@ -269,6 +269,11 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         return allFormatsRoundTripTest(network, refXmlFile, new ExportOptions());
     }
 
+    /**
+     * All-formats round trip from the given network with reference XML file, using text comparison.
+     * <p>
+     * The network is written and read through JSON and text-based XML, then compared to the reference file using plain text.
+     */
     public Network allFormatsRoundTripTxtTest(Network network, String refXmlFile) throws IOException {
         return allFormatsRoundTripTxtTest(network, refXmlFile, new ExportOptions());
     }
@@ -320,6 +325,11 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         return allFormatsRoundTripTest(network, getVersionedNetworkPath(filename, version), exportOptions.setVersion(version.toString(".")));
     }
 
+    /**
+     * All-formats round trip from the given network with a versioned reference XML file, using text comparison.
+     * <p>
+     * The network is written and read through JSON and text-based XML, then compared to the reference file using plain text.
+     */
     public Network allFormatsRoundTripTxtTest(Network network, String filename, IidmVersion version, ExportOptions exportOptions) throws IOException {
         return allFormatsRoundTripTxtTest(network, getVersionedNetworkPath(filename, version), exportOptions.setVersion(version.toString(".")));
     }
@@ -349,6 +359,11 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
                 refXmlFile);
     }
 
+    /**
+     * Performs an all-formats round trip on the given network using text comparison.
+     * <p>
+     * The network is written and read through JSON and text-based XML, then compared to the reference file using a plain text check.
+     */
     public Network allFormatsRoundTripTxtTest(Network network, String refXmlFile, ExportOptions exportOptions) throws IOException {
         return roundTripTxtTest(network,
                 (n, p) -> binWriteAndRead(jsonWriteAndRead(n, exportOptions, p), exportOptions, p),
