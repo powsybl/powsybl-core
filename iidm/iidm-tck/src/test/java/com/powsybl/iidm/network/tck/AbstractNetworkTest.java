@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.util.TieLineUtil;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZoneOffset;
@@ -29,6 +31,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
+import static com.powsybl.iidm.network.test.NetworkTest1Factory.id;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -51,6 +54,13 @@ public abstract class AbstractNetworkTest {
     private static final String VLHV1 = "VLHV1";
     private static final String VLGEN = "VLGEN";
     private static final String VLBAT = "VLBAT";
+
+    @BeforeAll
+    public static void makeMergeNetwork() {
+        Network n1 = AbstractSubnetworksExplorationTest.createNetwork(ID_1, Country.BE);
+        Network n2 = AbstractSubnetworksExplorationTest.createNetwork(ID_2, Country.DE);
+        fullNetwork = Network.merge("full", n1, n2);
+    }
 
     @Test
     public void testNetwork1() {
@@ -706,5 +716,288 @@ public abstract class AbstractNetworkTest {
 
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+    }
+
+    private static final String ID_1 = "1";
+    private static final String ID_2 = "2";
+    private static Network fullNetwork;
+
+    @Test
+    public void testIdentifiableStreamNetwork() {
+        Set<String> expected = Set.of(
+                "full",
+                id("network", ID_1),
+                id("network", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.NETWORK);
+    }
+
+    @Test
+    public void testIdentifiableStreamSubstation() {
+        Set<String> expected = Set.of(
+                id("substation1", ID_1),
+                id("substation1", ID_2),
+                id("substation2", ID_1),
+                id("substation2", ID_2),
+                id("substation3", ID_1),
+                id("substation3", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.SUBSTATION);
+    }
+
+    @Test
+    public void testIdentifiableStreamVoltageLevel() {
+        Set<String> expected = Set.of(
+                id("voltageLevel1", ID_1),
+                id("voltageLevel1", ID_2),
+                id("voltageLevel2", ID_1),
+                id("voltageLevel2", ID_2),
+                id("voltageLevel3", ID_1),
+                id("voltageLevel3", ID_2),
+                id("voltageLevel4", ID_1),
+                id("voltageLevel4", ID_2),
+                id("voltageLevel5", ID_1),
+                id("voltageLevel5", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.VOLTAGE_LEVEL);
+    }
+
+    @Test
+    public void testIdentifiableStreamArea() {
+        Set<String> expected = Set.of(
+                id("area1", ID_1),
+                id("area1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.AREA);
+    }
+
+    @Test
+    public void testIdentifiableStreamHvdcLine() {
+        Set<String> expected = Set.of(
+                id("hvdcLine1", ID_1),
+                id("hvdcLine1", ID_2),
+                id("hvdcLine2", ID_1),
+                id("hvdcLine2", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.HVDC_LINE);
+    }
+
+    @Test
+    public void testIdentifiableStreamSwitch() {
+        Set<String> expected = Set.of(
+                id("voltageLevel1Breaker1", ID_1),
+                id("load1Disconnector1", ID_1),
+                id("load1Breaker1", ID_1),
+                id("generator1Disconnector1", ID_1),
+                id("generator1Breaker1", ID_1),
+                id("voltageLevel1Breaker1", ID_2),
+                id("load1Disconnector1", ID_2),
+                id("load1Breaker1", ID_2),
+                id("generator1Disconnector1", ID_2),
+                id("generator1Breaker1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.SWITCH);
+    }
+
+    @Test
+    public void testIdentifiableStreamBusBarSection() {
+        Set<String> expected = Set.of(
+                id("voltageLevel1BusbarSection1", ID_1),
+                id("voltageLevel1BusbarSection2", ID_1),
+                id("voltageLevel1BusbarSection1", ID_2),
+                id("voltageLevel1BusbarSection2", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.BUSBAR_SECTION);
+    }
+
+    @Test
+    public void testIdentifiableStreamLine() {
+        Set<String> expected = Set.of(
+                id("line1", ID_1),
+                id("line1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.LINE);
+    }
+
+    @Test
+    public void testIdentifiableStreamTieLine() {
+        Set<String> expected = Set.of(
+                id("tieLine1", ID_1),
+                id("tieLine1", ID_2),
+                TieLineUtil.buildMergedId(id("danglingLine3", ID_1), id("danglingLine3", ID_2))
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.TIE_LINE);
+    }
+
+    @Test
+    public void testIdentifiableStream2WT() {
+        Set<String> expected = Set.of(
+                id("twoWindingsTransformer1", ID_1),
+                id("twoWindingsTransformer1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.TWO_WINDINGS_TRANSFORMER);
+    }
+
+    @Test
+    public void testIdentifiableStream3WT() {
+        Set<String> expected = Set.of(
+                id("threeWindingsTransformer1", ID_1),
+                id("threeWindingsTransformer1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.THREE_WINDINGS_TRANSFORMER);
+    }
+
+    @Test
+    public void testIdentifiableStreamGenerator() {
+        Set<String> expected = Set.of(
+                id("generator1", ID_1),
+                id("generator1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.GENERATOR);
+    }
+
+    @Test
+    public void testIdentifiableStreamBattery() {
+        Set<String> expected = Set.of(
+                id("battery1", ID_1),
+                id("battery1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.BATTERY);
+    }
+
+    @Test
+    public void testIdentifiableStreamLoad() {
+        Set<String> expected = Set.of(
+                id("load1", ID_1),
+                id("load1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.LOAD);
+    }
+
+    @Test
+    public void testIdentifiableStreamShuntCompensator() {
+        Set<String> expected = Set.of(
+                id("shuntCompensator1", ID_1),
+                id("shuntCompensator1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.SHUNT_COMPENSATOR);
+    }
+
+    @Test
+    public void testIdentifiableStreamDanglingLine() {
+        Set<String> expected = Set.of(
+                id("danglingLine1", ID_1),
+                id("danglingLine2", ID_1),
+                id("danglingLine3", ID_1),
+                id("danglingLine1", ID_2),
+                id("danglingLine2", ID_2),
+                id("danglingLine3", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.DANGLING_LINE);
+    }
+
+    @Test
+    public void testIdentifiableStreamStaticVarCompensator() {
+        Set<String> expected = Set.of(
+                id("svc1", ID_1),
+                id("svc1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.STATIC_VAR_COMPENSATOR);
+    }
+
+    @Test
+    public void testIdentifiableStreamHvdcConverterStation() {
+        Set<String> expected = Set.of(
+                id("lcc1", ID_1),
+                id("lcc2", ID_1),
+                id("lcc1", ID_2),
+                id("lcc2", ID_2),
+                id("vsc1", ID_1),
+                id("vsc2", ID_1),
+                id("vsc1", ID_2),
+                id("vsc2", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.HVDC_CONVERTER_STATION);
+    }
+
+    @Test
+    public void testIdentifiableStreamOverloadManagementSystem() {
+        Set<String> expected = Set.of(
+                id("overloadManagementSystem", ID_1),
+                id("overloadManagementSystem", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.OVERLOAD_MANAGEMENT_SYSTEM);
+    }
+
+    @Test
+    public void testIdentifiableStreamDcNode() {
+        Set<String> expected = Set.of(
+                id("dcNode1", ID_1),
+                id("dcNode2", ID_1),
+                id("dcNode1", ID_2),
+                id("dcNode2", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.DC_NODE);
+    }
+
+    @Test
+    public void testIdentifiableStreamDcSwitch() {
+        Set<String> expected = Set.of(
+                id("dcSwitch1", ID_1),
+                id("dcSwitch1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.DC_SWITCH);
+    }
+
+    @Test
+    public void testIdentifiableStreamDcGround() {
+        Set<String> expected = Set.of(
+                id("dcGround1", ID_1),
+                id("dcGround1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.DC_GROUND);
+    }
+
+    @Test
+    public void testIdentifiableStreamDcLine() {
+        Set<String> expected = Set.of(
+                id("dcLine1", ID_1),
+                id("dcLine1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.DC_LINE);
+    }
+
+    @Test
+    public void testIdentifiableStreamLcc() {
+        Set<String> expected = Set.of(
+                id("lccDetailed1", ID_1),
+                id("lccDetailed1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.LINE_COMMUTATED_CONVERTER);
+    }
+
+    @Test
+    public void testIdentifiableStreamVsc() {
+        Set<String> expected = Set.of(
+                id("vscDetailed1", ID_1),
+                id("vscDetailed1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, IdentifiableType.VOLTAGE_SOURCE_CONVERTER);
+    }
+
+    @Test
+    public void testIdentifiableStreamUnsupportedType() {
+        // unsupported types also include DC_BUS
+        assertThrows(PowsyblException.class, () -> fullNetwork.getIdentifiableStream(IdentifiableType.BUS));
+    }
+
+    // GROUND not tested because there is no GROUND in the test network we are using
+
+    private void assertIdentifiableStreamEqual(Set<String> expected, IdentifiableType type) {
+        Set<String> actualIds = fullNetwork
+                .getIdentifiableStream(type)
+                .map(Identifiable::getId)
+                .collect(Collectors.toSet());
+        assertEquals(expected, actualIds);
     }
 }
