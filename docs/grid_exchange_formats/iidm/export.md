@@ -15,6 +15,8 @@ n.write(FORMAT, new Properties(), Path.of("/path/to/output.format"));
 ```
 
 ### Exporting with custom properties
+You can configure your export either with `ExportOptions` or with `Properties`.
+
 #### From ExportOptions
 
 ```java
