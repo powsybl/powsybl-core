@@ -36,7 +36,7 @@ prop.load(new FileInputStream("/path/to/powsybl_config.yaml"));
 String FORMAT = "XIIDM"; // or "BIIDM" or "JIIDM"
 n.write(FORMAT, prop, Path.of("/path/to/output.format"));
 ```
-With the content of my config file being:
+With the config file containing at least:
 ```yaml
 import-export-parameters-default-value:
   iidm.export.xml.version: 1.12
