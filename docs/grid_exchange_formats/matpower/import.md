@@ -29,7 +29,7 @@ Note that the `loadcase` and `savecase` are functions provided by the Matpower t
 This section assumes that you have a `.mat` file. If you have a `.m` file, please follow the [Matpower cases conversions](#matpower-cases-conversions) section above.
 ### Dependencies
 
-To be able to read `.mat` files, your `pom.xml` should contain the following dependency:
+To be able to read `.mat` files, your `pom.xml` should contain the  `powsybl-matpower-converter` dependency and an implementation of `powsybl-iidm-api`, for example `powsybl-iidm-impl`:
 ```xml
 <dependencies>
     <dependency>
