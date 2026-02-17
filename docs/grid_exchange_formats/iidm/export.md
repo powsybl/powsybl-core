@@ -7,7 +7,7 @@ Networks can be exported in three IIDM formats:
 
 ### Exporting with default values
 
-To use default values:
+To export a network using the default parameters, use:
 ```java
 Network n = ...;
 String FORMAT = "XIIDM"; // or "BIIDM" or "JIIDM"
