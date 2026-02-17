@@ -225,8 +225,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
             if (remainingConverters.remove(vsc)) { // only need to process other DC node if not already visited
                 TerminalNumber otherSide = terminalNumber == TerminalNumber.ONE ? TerminalNumber.TWO
                         : TerminalNumber.ONE;
-                toProcess.add(vsc.getDcTerminal(otherSide).getDcNode()); // TODO check if getDcNode is the right
-                // method
+                toProcess.add(vsc.getDcTerminal(otherSide).getDcNode()); // TODO check if getDcNode is the right method
             }
         }
 

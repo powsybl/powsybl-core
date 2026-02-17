@@ -13,12 +13,14 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
@@ -184,10 +186,10 @@ public class PowerFactoryImporter implements Importer {
         }
 
         // process terminals
+        NodeConverter nodeConverter = new NodeConverter(importContext, network);
         for (DataObject elmTerm : elmTerms) {
             if (!hvdcConverter.isDcNode(elmTerm)) {
-                // @todo This should rather be in a static function
-                new NodeConverter(importContext, network).createAndMapConnectedObjs(elmTerm);
+                nodeConverter.createAndMapConnectedObjs(elmTerm);
             }
         }
 
@@ -208,9 +210,8 @@ public class PowerFactoryImporter implements Importer {
         // Create HVDC subgrids in the network
         hvdcConverter.create();
 
-        // Attach a slack bus
-        // @todo This should rather be in a static function
-        new SlackConverter(importContext, network).create(slackObjects);
+        // Attach slack buses
+        attachSlackBus(network, slackObjects);
 
         LOGGER.info("{} substations, {} voltage levels, {} lines, {} 2w-transformers, {} 3w-transformers, {} generators, {} loads, {} shunts have been created",
                 network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
@@ -245,6 +246,26 @@ public class PowerFactoryImporter implements Importer {
         assert elmNets.isEmpty() || "ElmNet".equals(elmNets.getFirst().getDataClassName());
         return elmNets.stream()
                 .flatMap(elmNet -> elmNet.search(".*.ElmVsc").stream()).toList();
+    }
+
+    /**
+     * Attach slack buses where they are defined in ElmGenstat
+     * @param network PowSyBl network where to attach the slack buses.
+     * @param slackObjects collection of slack buses gathered in convertEquipment.
+     */
+    private static void attachSlackBus(Network network, List<DataObject> slackObjects){
+        assert slackObjects.isEmpty()
+                || Set.of("ElmGenstat", "ElmAsm", "ElmSym").contains(slackObjects.getFirst().getDataClassName());
+        // It might be possible to inline this directly to convertEquipment, without
+        // populating the slackObjects. But maybe some things need to be processed first, let's
+        // take no risk.
+        for (DataObject slackObject : slackObjects) {
+
+            Generator generator = network.getGenerator(GeneratorConverter.getId(slackObject));
+            if (generator != null) {
+                SlackTerminal.reset(generator.getTerminal().getVoltageLevel(), generator.getTerminal());
+            }
+        }
     }
 
     private static void convertEquipment(StudyCase studyCase, ImportContext importContext, AbstractHvdcConverter hvdcConverter,
