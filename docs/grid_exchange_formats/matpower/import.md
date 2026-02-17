@@ -29,7 +29,7 @@ Note that the `loadcase` and `savecase` are functions provided by the Matpower t
 This section assumes that you have a `.mat` file. If you have a `.m` file, please follow the [Matpower cases conversions](#matpower-cases-conversions) section above.
 ### Dependencies
 
-Your `pom.xml` should at least have the following dependencies to be able to read `.mat` files:
+To be able to read `.mat` files, your `pom.xml` should contain the following dependency:
 ```xml
 <dependencies>
     <dependency>
@@ -42,10 +42,11 @@ Your `pom.xml` should at least have the following dependencies to be able to rea
     </dependency>
 </dependencies>
 ```
-This is not necessary if you are using `powsybl-starter`. For version reference, either use [PowSyBl dependencies](https://github.com/powsybl/powsybl-dependencies?tab=readme-ov-file#getting-started)
+
+Note: This is not necessary if you are using `powsybl-starter` as it is already included. For version reference, either use [PowSyBl dependencies](https://github.com/powsybl/powsybl-dependencies?tab=readme-ov-file#getting-started)
 or use the correct version following the [table here](https://github.com/powsybl/powsybl-dependencies?tab=readme-ov-file#powsybl-included-repositories-versions)
 
-Note that you can use something else than powsybl-iidm-impl, as long as it implements the necessary interfaces in powsybl-iidm-api
+Your `pom.xml` should also contain an implementation of `powsybl-iidm-api`, for example `powsybl-iidm-impl`.
 
 ### Reading the file
 
