@@ -454,11 +454,11 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
-    private static final String ACTIVATED_ONE_ONE = "activated_1_1";
-    private static final String ACTIVATED_ONE_TWO = "activated_1_2";
-    private static final String ACTIVATED_TWO_ONE = "activated_2_1";
-    private static final String ACTIVATED_TWO_TWO = "activated_2_2";
-    private static final String NOT_ACTIVATED = "not_activated";
+    public static final String ACTIVATED_ONE_ONE = "activated_1_1";
+    public static final String ACTIVATED_ONE_TWO = "activated_1_2";
+    public static final String ACTIVATED_TWO_ONE = "activated_2_1";
+    public static final String ACTIVATED_TWO_TWO = "activated_2_2";
+    public static final String NOT_ACTIVATED = "not_activated";
 
     /**
      * Selected limits:

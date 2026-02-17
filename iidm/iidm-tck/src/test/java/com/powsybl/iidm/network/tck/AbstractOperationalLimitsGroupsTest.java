@@ -536,15 +536,25 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         Assertions.assertThat(currentLimits)
             .hasSize(3)
             .extracting(
-                   CurrentLimits::getPermanentLimit,
-                   l -> l.getTemporaryLimits()
-                           .stream()
-                           .map(LoadingLimits.TemporaryLimit::getValue)
-                           .collect(Collectors.toSet())
+                LoadingLimits::getPermanentLimit,
+                this::extractTemporaryLimitsSet
             ).containsExactlyInAnyOrder(
                     new Tuple(500.0, Set.of()),
                     new Tuple(200.0, Set.of(600.0, Double.MAX_VALUE)),
                     new Tuple(300.0, Set.of(Double.MAX_VALUE))
+            );
+        line.deselectOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
+
+        currentLimits = (Collection<CurrentLimits>) line.getAllSelectedLimits(LimitType.CURRENT, TwoSides.TWO);
+
+        Assertions.assertThat(currentLimits)
+            .hasSize(2)
+            .extracting(
+                LoadingLimits::getPermanentLimit,
+                this::extractTemporaryLimitsSet
+            ).containsExactlyInAnyOrder(
+                new Tuple(500.0, Set.of()),
+                new Tuple(300.0, Set.of(Double.MAX_VALUE))
             );
     }
 
@@ -556,15 +566,23 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         Assertions.assertThat(activePowerLimits)
             .hasSize(2)
             .extracting(
-                ActivePowerLimits::getPermanentLimit,
-                l -> l.getTemporaryLimits()
-                        .stream()
-                        .map(LoadingLimits.TemporaryLimit::getValue)
-                        .collect(Collectors.toSet())
+                LoadingLimits::getPermanentLimit,
+                this::extractTemporaryLimitsSet
             ).containsExactlyInAnyOrder(
                     new Tuple(250.0, Set.of()),
                     new Tuple(350.0, Set.of(400.0))
             );
+
+        //check that deselecting a non-selected group does nothing
+        legThree.newOperationalLimitsGroup(EurostagTutorialExample1Factory.NOT_ACTIVATED);
+        legThree.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.NOT_ACTIVATED);
+
+        activePowerLimits = (Collection<ActivePowerLimits>) legThree.getAllSelectedLimits(LimitType.ACTIVE_POWER);
+        assertEquals(2, activePowerLimits.size());
+
+        legThree.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE, "DEFAULT");
+        activePowerLimits = (Collection<ActivePowerLimits>) legThree.getAllSelectedLimits(LimitType.ACTIVE_POWER);
+        assertEquals(0, activePowerLimits.size());
     }
 
     @Test
@@ -575,14 +593,27 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         Assertions.assertThat(apparentPowerLimits)
             .hasSize(2)
             .extracting(
-                    ApparentPowerLimits::getPermanentLimit,
-                    l -> l.getTemporaryLimits()
-                            .stream()
-                            .map(LoadingLimits.TemporaryLimit::getValue)
-                            .collect(Collectors.toSet())
+                    LoadingLimits::getPermanentLimit,
+                    this::extractTemporaryLimitsSet
             ).containsExactlyInAnyOrder(
                     new Tuple(230.0, Set.of(240.0)),
                     new Tuple(240.0, Set.of(250.0))
             );
+
+        // Shouldn't affect the group 2
+        twoWindingsTransformer.cancelSelectedOperationalLimitsGroup1();
+        apparentPowerLimits = (Collection<ApparentPowerLimits>) twoWindingsTransformer.getAllSelectedLimits(LimitType.APPARENT_POWER, TwoSides.TWO);
+        assertEquals(2, apparentPowerLimits.size());
+
+        twoWindingsTransformer.cancelSelectedOperationalLimitsGroup2();
+        apparentPowerLimits = (Collection<ApparentPowerLimits>) twoWindingsTransformer.getAllSelectedLimits(LimitType.APPARENT_POWER, TwoSides.TWO);
+        assertEquals(0, apparentPowerLimits.size());
+    }
+
+    private Set<Double> extractTemporaryLimitsSet(LoadingLimits limits) {
+        return limits.getTemporaryLimits()
+            .stream()
+            .map(LoadingLimits.TemporaryLimit::getValue)
+            .collect(Collectors.toSet());
     }
 }
