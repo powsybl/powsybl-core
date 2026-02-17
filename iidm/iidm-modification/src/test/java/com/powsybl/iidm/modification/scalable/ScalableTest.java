@@ -569,4 +569,16 @@ class ScalableTest {
         assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-3);
         assertEquals(70.0, network.getGenerator("g3").getTargetP(), 1e-3);
     }
+
+    @Test
+    void testScalableAdapterWithPowerMinMaxValues() {
+        Scalable adapter = Scalable.scalable("g3", 10, 80);
+        assertEquals(10, adapter.minimumValue(network), 0.0);
+        assertEquals(80, adapter.maximumValue(network), 0.0);
+        network.getGenerator("g3").setTargetP(50);
+
+        double done = adapter.scale(network, 50.0);
+        assertEquals(30.0, done, 0.0);
+    }
+
 }
