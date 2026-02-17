@@ -187,12 +187,12 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         var adder = g.newVoltageRegulation()
             .withTargetValue(200.0);
         var e = assertThrows(PowsyblException.class, adder::build);
-        assertEquals("Generator 'g4': [VoltageRegulation] Undefined value for regulationMode", e.getMessage());
+        assertEquals("Generator 'g4': Undefined value for voltageRegulation.regulationMode", e.getMessage());
         adder = g.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(l.getTerminal(TwoSides.ONE));
         e = assertThrows(PowsyblException.class, adder::build);
-        assertEquals("Generator 'g4': [VoltageRegulation] Undefined value for target value", e.getMessage());
+        assertEquals("Generator 'g4': Undefined value for voltageRegulation.targetValue", e.getMessage());
         var voltageRegulation = g.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTargetValue(200.0)

@@ -196,21 +196,25 @@ public class MatpowerImporter implements Importer {
             boolean voltageRegulatorOn = mGen.getVoltageMagnitudeSetpoint() != 0;
             RegulationMode mode;
             double targetValue;
+            double targetQ = mGen.getReactivePowerOutput();
+            double targetV = mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV();
             if (voltageRegulatorOn) {
                 mode = RegulationMode.VOLTAGE;
-                targetValue = mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV();
+                targetValue = targetV;
+                targetV = Double.NaN;
             } else {
                 mode = RegulationMode.REACTIVE_POWER;
-                targetValue = mGen.getReactivePowerOutput();
+                targetValue = targetQ;
+                targetQ = Double.NaN;
             }
             Generator generator = voltageLevel.newGenerator()
                     .setId(genId)
                     .setEnsureIdUnicity(true)
                     .setConnectableBus(busId)
                     .setBus(isInService(mGen) ? busId : null)
-                    .setTargetV(mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV())
+                    .setTargetV(targetV)
                     .setTargetP(mGen.getRealPowerOutput())
-                    .setTargetQ(mGen.getReactivePowerOutput())
+                    .setTargetQ(targetQ)
                     .newVoltageRegulation()
                         .withMode(mode)
                         .withTargetValue(targetValue)

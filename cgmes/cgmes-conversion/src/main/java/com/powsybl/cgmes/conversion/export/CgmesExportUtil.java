@@ -540,7 +540,6 @@ public final class CgmesExportUtil {
     }
 
     public static String getGeneratorRegulatingControlMode(Generator generator) {
-        // TODO MSA add isValidVoltageSetpoint and isValidReactivePowerSetpoint
         if (generator.getVoltageRegulation() != null) {
             return switch (generator.getVoltageRegulation().getMode()) {
                 case REACTIVE_POWER ->
@@ -550,26 +549,6 @@ public final class CgmesExportUtil {
             };
         }
         return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-
-//
-//        if (rrpc == null) {
-//            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-//        }
-//        boolean enabledVoltageControl = generator.isVoltageRegulatorOn();
-//        boolean enabledReactivePowerControl = rrpc.isEnabled();
-//
-//        if (enabledVoltageControl) {
-//            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-//        } else if (enabledReactivePowerControl) {
-//            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-//        } else {
-//            boolean validVoltageSetpoint = isValidVoltageSetpoint(generator.getTargetV());
-//            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(rrpc.getTargetQ());
-//            if (validReactiveSetpoint && !validVoltageSetpoint) {
-//                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-//            }
-//            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-//        }
     }
 
     public static String getSvcMode(StaticVarCompensator svc) {

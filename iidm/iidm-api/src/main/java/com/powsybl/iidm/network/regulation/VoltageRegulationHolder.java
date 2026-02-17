@@ -9,29 +9,55 @@ package com.powsybl.iidm.network.regulation;
 
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.Objects;
+
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public interface VoltageRegulationHolder {
 
+    /**
+     * TODO MSA JAVADOC
+     */
     VoltageRegulationBuilder newVoltageRegulation();
 
+    /**
+     * TODO MSA JAVADOC
+     */
     VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation);
 
+    /**
+     * TODO MSA JAVADOC
+     */
     VoltageRegulation getVoltageRegulation();
 
+    /**
+     * TODO MSA JAVADOC
+     */
     void removeVoltageRegulation();
 
-    Terminal getFirstTerminal(); // TODO MSA not in the interface??
+    /**
+     * TODO MSA JAVADOC
+     */
+    Terminal getTerminal();
 
-    double getTargetV();
+    /**
+     * TODO MSA JAVADOC
+     */
+    default double getTargetV() {
+        return Double.NaN;
+    }
 
-    // TODO MSA add default indirection methods??
-//    default boolean isRegulating() {
-//        VoltageRegulation voltageRegulation = getVoltageRegulation();
-//        return voltageRegulation != null && voltageRegulation.isRegulating();
-//    }
+    /**
+     * TODO MSA JAVADOC
+     */
+    default double getTargetQ() {
+        return Double.NaN;
+    }
 
+    /**
+     * TODO MSA JAVADOC
+     */
     default boolean isRegulatingWithMode(RegulationMode mode) {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
         return voltageRegulation != null
@@ -39,11 +65,45 @@ public interface VoltageRegulationHolder {
             && (mode == null || mode.equals(voltageRegulation.getMode()));
     }
 
+    /**
+     * TODO MSA JAVADOC
+     */
     default double getRegulatingTargetV() {
         if (isRegulatingWithMode(RegulationMode.VOLTAGE)) {
             return getVoltageRegulation().getTargetValue();
         }
         return getTargetV();
+    }
+
+    /**
+     * TODO MSA JAVADOC
+     */
+    default double getLocalRegulatingTargetV() {
+        if (isRegulatingWithMode(RegulationMode.VOLTAGE) && !isRemoteRegulating()) {
+            return getVoltageRegulation().getTargetValue();
+        }
+        return getTargetV();
+    }
+
+    /**
+     * TODO MSA JAVADOC
+     * TODO MSA Other possible names : getEffectiveTargetQ / getApplicableTargetQ / resolveTargetQ / determineTargetQ
+     */
+    default double getRegulatingTargetQ() {
+        if (isRegulatingWithMode(RegulationMode.REACTIVE_POWER)) {
+            return getVoltageRegulation().getTargetValue();
+        }
+        return getTargetQ();
+    }
+
+    /**
+     * TODO MSA JAVADOC
+     */
+    default double getLocalRegulatingTargetQ() {
+        if (isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && !isRemoteRegulating()) {
+            return getVoltageRegulation().getTargetValue();
+        }
+        return getTargetQ();
     }
 
     /**
@@ -55,7 +115,14 @@ public interface VoltageRegulationHolder {
         if (voltageRegulation != null && voltageRegulation.getTerminal() != null) {
             return voltageRegulation.getTerminal();
         }
-        return getFirstTerminal();
+        return getTerminal();
+    }
+
+    /**
+     * TODO MSA JAVADOC
+     */
+    default boolean isRemoteRegulating() {
+        return !Objects.equals(getRegulatingTerminal().getBusBreakerView().getConnectableBus(), getTerminal().getBusBreakerView().getConnectableBus());
     }
 
 }

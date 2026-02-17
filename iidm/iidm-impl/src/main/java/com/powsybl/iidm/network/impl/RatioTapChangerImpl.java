@@ -247,7 +247,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
-    public Terminal getFirstTerminal() {
+    public Terminal getTerminal() {
         return null;
     }
 }

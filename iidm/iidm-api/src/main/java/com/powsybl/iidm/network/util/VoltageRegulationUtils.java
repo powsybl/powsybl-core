@@ -1,24 +1,44 @@
 /**
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.modification.util;
+package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.stream.Stream;
 
+/**
+ * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
+ */
 public final class VoltageRegulationUtils {
-
     private VoltageRegulationUtils() {
+        /* This utility class should not be instantiated */
+    }
+
+    public static void createVoltageRegulationBackwardCompatibility(GeneratorAdder adder, double targetV, double targetQ, Boolean voltageRegulatorOn) {
+        // Common attributes
+        VoltageRegulationAdder<GeneratorAdder> vrAdder = adder.newVoltageRegulation();
+        // VOLTAGE case
+        if (Boolean.TRUE.equals(voltageRegulatorOn)) {
+            vrAdder.withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(targetV)
+                .add();
+            // REACTIVE Power case
+        } else if (Boolean.FALSE.equals(voltageRegulatorOn) && !Double.isNaN(targetQ)) {
+            vrAdder.withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(targetQ)
+                .add();
+        }
     }
 
     /**
@@ -68,13 +88,12 @@ public final class VoltageRegulationUtils {
                 .map(ShuntCompensator::getTargetV).distinct().toList();
             default -> new ArrayList<>();
         };
-        if (targets.isEmpty() || targets.size() > 1) {
+        if (targets.size() != 1) {
             // it means that the network cannot give valuable information about targetV, this field has to be given in
             // the network modification.
             return OptionalDouble.empty();
         } else { // targets.size() == 1
-            return OptionalDouble.of(targets.get(0));
+            return OptionalDouble.of(targets.getFirst());
         }
     }
-
 }

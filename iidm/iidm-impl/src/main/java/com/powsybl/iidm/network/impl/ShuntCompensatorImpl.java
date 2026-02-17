@@ -343,9 +343,4 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public void removeVoltageRegulation() {
 
     }
-
-    @Override
-    public Terminal getFirstTerminal() {
-        return this.terminals.getFirst();
-    }
 }

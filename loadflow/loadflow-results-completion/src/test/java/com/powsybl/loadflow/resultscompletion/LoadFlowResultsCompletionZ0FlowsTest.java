@@ -477,7 +477,6 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .setTargetP(30.0)
-                .setTargetQ(-18.0)
                 .add();
         g.getTerminal().setP(-30.0).setQ(18.0);
         vl.newShuntCompensator()

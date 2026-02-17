@@ -53,9 +53,6 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
 
     GeneratorAdder setTargetV(double targetV);
 
-    GeneratorAdder setOldTargetV(double targetV);
-
-    @Deprecated(forRemoval = true, since = "7.2.0")
     GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV);
 
     GeneratorAdder setRatedS(double ratedS);

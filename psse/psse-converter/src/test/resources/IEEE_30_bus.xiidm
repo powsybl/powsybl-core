@@ -5,7 +5,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1" name="Glen Lyn    " v="139.92000000000002" angle="98.4316"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="260.948" targetV="139.92000000000002" targetQ="-16.787" bus="B1" connectableBus="B1">
+            <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="260.948" targetV="139.92000000000002" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
                 <iidm:voltageRegulation targetValue="-16.787" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
@@ -16,7 +16,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B2" name="Claytor     " v="137.69315999999998" angle="93.0798"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B2-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="40.0" targetV="137.94" targetQ="50.0" bus="B2" connectableBus="B2">
+            <iidm:generator id="B2-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="40.0" targetQ="50.0" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="50.0"/>
                 <iidm:voltageRegulation targetValue="137.94" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
@@ -61,7 +61,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B5" name="Fieldale    " v="133.32" angle="84.2658"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B5-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="0.0" targetV="133.32" targetQ="36.85" bus="B5" connectableBus="B5">
+            <iidm:generator id="B5-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="0.0" targetQ="36.85" bus="B5" connectableBus="B5">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="40.0"/>
                 <iidm:voltageRegulation targetValue="133.32" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
@@ -124,7 +124,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B8" name="Reusens     " v="133.32" angle="86.6183"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B8-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="0.0" targetV="133.32" targetQ="37.144" bus="B8" connectableBus="B8">
+            <iidm:generator id="B8-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="0.0" targetQ="37.144" bus="B8" connectableBus="B8">
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="40.0"/>
                 <iidm:voltageRegulation targetValue="133.32" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
@@ -136,7 +136,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B11" name="Roanoke     " v="11.902000000000001" angle="84.3227"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B11-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="0.0" targetV="11.902000000000001" targetQ="16.172" bus="B11" connectableBus="B11">
+            <iidm:generator id="B11-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="0.0" targetQ="16.172" bus="B11" connectableBus="B11">
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
                 <iidm:voltageRegulation targetValue="11.902000000000001" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
@@ -147,7 +147,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B13" name="Hancock     " v="11.780999999999999" angle="83.4883"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B13-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="0.0" targetV="11.780999999999999" targetQ="10.619" bus="B13" connectableBus="B13">
+            <iidm:generator id="B13-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="0.0" targetQ="10.619" bus="B13" connectableBus="B13">
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
                 <iidm:voltageRegulation targetValue="11.780999999999999" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>

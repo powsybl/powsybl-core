@@ -330,7 +330,7 @@ public class MatpowerExporter implements Exporter {
                 for (Battery battery : bus.getBatteries()) {
                     // generator convention for batteries
                     pDemand -= battery.getTargetP();
-                    qDemand -= battery.getTargetQ();
+                    qDemand -= battery.getRegulatingTargetQ();
                 }
                 for (LccConverterStation lcc : bus.getLccConverterStations()) {
                     pDemand += HvdcUtils.getConverterStationTargetP(lcc);
@@ -787,7 +787,7 @@ public class MatpowerExporter implements Exporter {
                 int busNumber = context.mBusesNumbersByIds.get(bus.getId());
                 String id = g.getId();
                 double targetP = g.getTargetP();
-                double targetQ = g.getTargetQ();
+                double targetQ = g.getRegulatingTargetQ();
                 double targetVpu = checkAndFixTargetVpu(findTargetVpu(g));
                 double minP = g.getMinP();
                 double maxP = g.getMaxP();
@@ -804,9 +804,7 @@ public class MatpowerExporter implements Exporter {
 
     // matpower only supports local control, all remote control will be localized with the defined targetVpu
     private static double findTargetVpu(Generator generator) {
-        double targetV = generator.getVoltageRegulation() != null && generator.getVoltageRegulation().isRegulating() && generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE ?
-            generator.getVoltageRegulation().getTargetValue() : generator.getTargetV();
-        return targetV / generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
+        return generator.getRegulatingTargetV() / generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
     }
 
     private void findStaticVarCompensatorGenerators(Network network, Context context) {

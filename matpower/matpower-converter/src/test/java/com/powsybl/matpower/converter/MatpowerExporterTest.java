@@ -157,7 +157,6 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .setId("GEN2")
                 .setBus("NGEN")
                 .setTargetP(10)
-                .setTargetQ(5)
                 .setMinP(0)
                 .setMaxP(1000)
                 .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(5).add()

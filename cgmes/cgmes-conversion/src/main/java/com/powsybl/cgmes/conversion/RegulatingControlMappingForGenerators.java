@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.*;
@@ -38,10 +37,6 @@ public class RegulatingControlMappingForGenerators {
         this.parent = parent;
         this.context = context;
         mapping = new HashMap<>();
-    }
-
-    public static void initialize(GeneratorAdder adder) {
-//        adder.setVoltageRegulatorOn(false); // TODO MSA remove it -> voltageRegulation can be null
     }
 
     public void add(String generatorId, PropertyBag sm) {
@@ -97,7 +92,7 @@ public class RegulatingControlMappingForGenerators {
         Terminal regulatingTerminal = RegulatingTerminalMapper
                 .mapForVoltageControl(control.cgmesTerminal, context)
                 .orElse(gen.getTerminal());
-        // TODO MSA check that
+
         if (regulatingTerminal.getConnectable().getId().equals(gen.getId())) {
             regulatingTerminal = null;
         }
@@ -133,7 +128,7 @@ public class RegulatingControlMappingForGenerators {
         VoltageRegulationBuilder voltageRegulationBuilder = gen.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
             .withRegulating(false);
-        // TODO MSA check that
+
         if (!mappedRegulatingTerminal.getTerminal().getConnectable().getId().equals(gen.getId())) {
             voltageRegulationBuilder.withTerminal(mappedRegulatingTerminal.getTerminal());
         }

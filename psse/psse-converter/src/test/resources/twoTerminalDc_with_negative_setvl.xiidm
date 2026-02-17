@@ -5,7 +5,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1" name="Bus 1" v="243.8" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B1-G1" energySource="OTHER" minP="0.0" maxP="464.8" targetP="268.81" targetV="243.8" targetQ="-37.65" bus="B1" connectableBus="B1">
+            <iidm:generator id="B1-G1" energySource="OTHER" minP="0.0" maxP="464.8" targetP="268.81" targetV="243.8" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
                 <iidm:voltageRegulation targetValue="-37.65" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
@@ -16,7 +16,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B2" name="Bus 2" v="240.35" angle="-5.78419916"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B2-G1" energySource="OTHER" minP="0.0" maxP="80.0" targetP="40.0" targetV="240.35" targetQ="4.45" bus="B2" connectableBus="B2">
+            <iidm:generator id="B2-G1" energySource="OTHER" minP="0.0" maxP="80.0" targetP="40.0" targetQ="4.45" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="50.0"/>
                 <iidm:voltageRegulation targetValue="240.35" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
@@ -28,7 +28,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B3" name="Bus 3" v="232.7220661" angle="-14.05192514"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B3-G1" energySource="OTHER" minP="0.0" maxP="-0.0" targetP="0.0" targetV="232.3" targetQ="0.0" bus="B3" connectableBus="B3">
+            <iidm:generator id="B3-G1" energySource="OTHER" minP="0.0" maxP="-0.0" targetP="0.0" targetQ="0.0" bus="B3" connectableBus="B3">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="40.0"/>
                 <iidm:voltageRegulation targetValue="232.3" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
@@ -78,7 +78,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B6" name="Bus 6" v="120.6430478" angle="-11.66424213"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B6-G1" energySource="OTHER" minP="0.0" maxP="-0.0" targetP="0.0" targetV="111.1" targetQ="-6.0" bus="B6" connectableBus="B6">
+            <iidm:generator id="B6-G1" energySource="OTHER" minP="0.0" maxP="-0.0" targetP="0.0" targetQ="-6.0" bus="B6" connectableBus="B6">
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
                 <iidm:voltageRegulation targetValue="111.1" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>

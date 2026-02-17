@@ -98,7 +98,6 @@ public abstract class AbstractCalculatedTopologyTest {
                 .setMinP(0)
                 .setMaxP(1)
                 .setTargetP(1)
-                .setTargetQ(0)
                 .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
                 .add();
         vl1.getBusBreakerView().newSwitch()
@@ -186,7 +185,6 @@ public abstract class AbstractCalculatedTopologyTest {
                 .setMinP(0)
                 .setMaxP(1)
                 .setTargetP(1)
-                .setTargetQ(0)
                 .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
                 .add();
         vl1.getNodeBreakerView().newBreaker()

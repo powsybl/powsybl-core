@@ -53,7 +53,6 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
                 .setTargetV(400)
                 .setMinP(0)
                 .setMaxP(200)
-                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(100).add()
                 .add();
         var line = network.newLine()
                 .setId("L12")
@@ -77,7 +76,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
         VoltageRegulation voltageRegulation = network.getGenerator("G").getVoltageRegulation();
         assertNotNull(voltageRegulation);
 
-        Network network2 = allFormatsRoundTripTest(network, "remoteReactivePowerControlRef.xml", IidmVersion.V_1_15);
+        Network network2 = allFormatsRoundTripTest(network, "remoteReactivePowerControlRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         Generator gen2 = network2.getGenerator("G");
         Line line = network.getLine("L12");

@@ -35,20 +35,20 @@ public final class VoltageRegulationSerDe {
 
     private VoltageRegulationSerDe() { }
 
-    public static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
+    public static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, VoltageRegulationHolder holder) {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
             if (voltageRegulation != null) {
                 String namespace = context.getVersion().getNamespaceURI(context.isValid());
-                writeVoltageRegulation(voltageRegulation, context, namespace);
+                writeVoltageRegulation(voltageRegulation, context, namespace, holder);
             }
         });
     }
 
-    private static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, String namespace) {
+    private static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, String namespace, VoltageRegulationHolder holder) {
         TreeDataWriter writer = context.getWriter();
         writer.writeStartNode(namespace, ELEMENT_NAME);
         writeVoltageRegulationAttribute(voltageRegulation, writer);
-        writeSubElements(voltageRegulation, context);
+        writeSubElements(voltageRegulation, context, holder);
         writer.writeEndNode();
     }
 
@@ -60,12 +60,10 @@ public final class VoltageRegulationSerDe {
         writer.writeBooleanAttribute(REGULATING, voltageRegulation.isRegulating());
     }
 
-    private static void writeSubElements(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
-        // TODO MSA write remote terminal only
-//        if (voltageRegulation.getTerminal() != null && !Objects.equals(voltageRegulation.getTerminal().getBusBreakerView().getConnectableBus(),
-//            voltageRegulation.getExtendable().getTerminal().getBusBreakerView().getConnectableBus())) {
-        TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
-//        }
+    private static void writeSubElements(VoltageRegulation voltageRegulation, NetworkSerializerContext context, VoltageRegulationHolder holder) {
+        if (holder.isRemoteRegulating()) {
+            TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
+        }
     }
 
     public static void readVoltageRegulation(VoltageRegulationHolder holder, NetworkDeserializerContext context, Network network) {

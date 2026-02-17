@@ -149,7 +149,7 @@
                 <iidm:switch id="S2VL1_LINES2S3_BREAKER" name="S2VL1_LINES2S3_BREAKER" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
                 <iidm:bus v="408.847" angle="0.7347" nodes="0,1,2,3,4,5,6"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="GTH1" energySource="THERMAL" minP="0.0" maxP="100.0" targetP="100.0" targetV="400.0" targetQ="70.0" node="2" p="-100.0" q="-70.0">
+            <iidm:generator id="GTH1" energySource="THERMAL" minP="0.0" maxP="100.0" targetP="100.0" targetV="400.0" node="2" p="-100.0" q="-70.0">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-76.8" maxQ="77.4"/>
                     <iidm:point p="100.0" minQ="-73.514" maxQ="76.4"/>

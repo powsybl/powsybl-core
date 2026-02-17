@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
 
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -24,7 +26,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
-    private VoltageRegulation voltageRegulation;
+    private VoltageRegulationImpl voltageRegulation;
 
     private Boolean voltageRegulatorOn;
 
@@ -33,8 +35,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     private double targetQ = Double.NaN;
 
     private double targetV = Double.NaN;
-
-    private double oldTargetV = Double.NaN;
 
     private double ratedS = Double.NaN;
 
@@ -98,12 +98,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public GeneratorAdderImpl setOldTargetV(double oldTargetV) {
-        this.oldTargetV = oldTargetV;
-        return this;
-    }
-
-    @Override
     public GeneratorAdderImpl setTargetV(double targetV, double equivalentLocalTargetV) {
         return this.setTargetV(targetV);
     }
@@ -137,11 +131,11 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                 network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
-        ValidationUtil.checkEquivalentLocalTargetV(this, targetV);
-        // TODO MSA Backward compatibility :
-        //
+        ValidationUtil.checkDoublePositive(this, targetV, "targetV");
+        // Backward compatibility : If a generator with old setters is added and voltageRegulation does not exist,
+        // the new voltageRegulation will be created from the old attributes.
         if (this.voltageRegulation == null) {
-            createVoltageRegulation(this);
+            createVoltageRegulationBackwardCompatibility(this, targetV, targetQ, voltageRegulatorOn);
         }
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
@@ -160,26 +154,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     public NetworkImpl getNetwork() {
         return getNetworkRef().get();
-    }
-
-    private void createVoltageRegulation(GeneratorAdder generatorAdder) {
-        // Common attributes
-        VoltageRegulationAdder<GeneratorAdder> vrAdder = generatorAdder.newVoltageRegulation()
-            .withTerminal(this.regulatingTerminal);
-        // VOLTAGE case
-        if (Boolean.TRUE.equals(this.voltageRegulatorOn)) {
-            vrAdder.withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(this.oldTargetV)
-                .add();
-            // REACTIVE Power case
-        } else if (!Double.isNaN(this.targetQ)) {
-            vrAdder.withMode(RegulationMode.REACTIVE_POWER)
-                .withTargetValue(this.targetQ)
-                .add();
-        }
-        if (Boolean.FALSE.equals(this.voltageRegulatorOn)) {
-            this.targetV = this.oldTargetV;
-        }
     }
 
     @Override

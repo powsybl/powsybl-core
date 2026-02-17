@@ -46,7 +46,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     @Override
     protected void writeSubElements(Battery b, VoltageLevel vl, NetworkSerializerContext context) {
         ReactiveLimitsSerDe.INSTANCE.write(b, context);
-        VoltageRegulationSerDe.writeVoltageRegulation(b.getVoltageRegulation(), context);
+        VoltageRegulationSerDe.writeVoltageRegulation(b.getVoltageRegulation(), context, b);
     }
 
     @Override

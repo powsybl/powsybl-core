@@ -14,29 +14,68 @@ import com.powsybl.iidm.network.Terminal;
  */
 public interface VoltageRegulation {
 
+    /**
+     * TODO MSA JAVADOC
+     */
     double getTargetValue();
 
+    /**
+     * TODO MSA JAVADOC
+     */
     double setTargetValue(double targetValue);
 
+    /**
+     * TODO MSA JAVADOC
+     */
     double getTargetDeadband();
 
+    /**
+     * TODO MSA JAVADOC
+     */
     double setTargetDeadband(double targetDeadband);
 
+    /**
+     * TODO MSA JAVADOC
+     */
     double getSlope();
 
+    /**
+     * TODO MSA JAVADOC
+     */
     double setSlope(double slope);
 
+    /**
+     * TODO MSA JAVADOC
+     */
     Terminal getTerminal();
 
+    /**
+     * TODO MSA JAVADOC
+     */
     void setTerminal(Terminal terminal);
 
+    /**
+     * TODO MSA JAVADOC
+     */
     RegulationMode getMode();
 
+    /**
+     * TODO MSA JAVADOC
+     */
     void setMode(RegulationMode mode);
 
+    /**
+     * TODO MSA JAVADOC
+     */
     boolean isRegulating();
 
+    /**
+     * TODO MSA JAVADOC
+     */
     boolean setRegulating(boolean regulating);
 
+    /**
+     * TODO MSA JAVADOC
+     */
     void removeTerminal();
 }

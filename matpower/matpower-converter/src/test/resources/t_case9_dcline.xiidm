@@ -5,7 +5,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-1" v="1.0" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN-1" energySource="OTHER" minP="90.0" maxP="250.0" ratedS="100.0" targetP="0.0" targetV="1.0" targetQ="0.0" bus="BUS-1" connectableBus="BUS-1">
+            <iidm:generator id="GEN-1" energySource="OTHER" minP="90.0" maxP="250.0" ratedS="100.0" targetP="0.0" targetQ="0.0" bus="BUS-1" connectableBus="BUS-1">
                 <iidm:minMaxReactiveLimits minQ="-300.0" maxQ="300.0"/>
                 <iidm:voltageRegulation targetValue="1.0" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
@@ -16,7 +16,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-2" v="1.0" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN-2" energySource="OTHER" minP="10.0" maxP="300.0" ratedS="100.0" targetP="163.0" targetV="1.0" targetQ="0.0" bus="BUS-2" connectableBus="BUS-2">
+            <iidm:generator id="GEN-2" energySource="OTHER" minP="10.0" maxP="300.0" ratedS="100.0" targetP="163.0" targetQ="0.0" bus="BUS-2" connectableBus="BUS-2">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-20.0" maxQ="20.0"/>
                     <iidm:point p="200.0" minQ="-10.0" maxQ="10.0"/>
@@ -30,7 +30,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-30" v="1.0" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN-30" energySource="OTHER" minP="10.0" maxP="270.0" ratedS="100.0" targetP="85.0" targetV="1.0" targetQ="0.0" bus="BUS-30" connectableBus="BUS-30">
+            <iidm:generator id="GEN-30" energySource="OTHER" minP="10.0" maxP="270.0" ratedS="100.0" targetP="85.0" targetQ="0.0" bus="BUS-30" connectableBus="BUS-30">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-30.0" maxQ="30.0"/>
                     <iidm:point p="200.0" minQ="-15.0" maxQ="15.0"/>

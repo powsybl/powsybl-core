@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -197,10 +196,10 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     }
 
     @Test
-    @Disabled("TODO MSA fix me")
     void testRegulatingBusIdExportGenerators() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
         Generator gen = network.getGenerator("GEN");
+        gen.setTargetV(gen.getRegulatingTargetV());
         gen.newVoltageRegulation()
             .withTargetValue(gen.getTargetQ())
             .withMode(RegulationMode.REACTIVE_POWER)

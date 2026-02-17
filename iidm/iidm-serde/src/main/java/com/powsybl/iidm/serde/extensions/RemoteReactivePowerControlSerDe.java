@@ -49,6 +49,9 @@ public class RemoteReactivePowerControlSerDe extends AbstractExtensionSerDe<Gene
         boolean enabled = context.getReader().readBooleanAttribute("enabled");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
         Terminal terminal = TerminalRefSerDe.readTerminal(networkContext, extendable.getNetwork());
+        if (extendable.isRegulatingWithMode(RegulationMode.REACTIVE_POWER)) {
+            extendable.setTargetQ(extendable.getVoltageRegulation().getTargetValue());
+        }
         if (extendable.getVoltageRegulation() == null || extendable.getVoltageRegulation().getMode() != RegulationMode.VOLTAGE) {
             extendable.newVoltageRegulation()
                 .withMode(RegulationMode.REACTIVE_POWER)

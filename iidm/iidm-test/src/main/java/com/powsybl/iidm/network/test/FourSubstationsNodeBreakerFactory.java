@@ -415,7 +415,6 @@ public final class FourSubstationsNodeBreakerFactory {
                 .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(70).add()
                 .setTargetP(100.0)
                 .setTargetV(400)
-                .setTargetQ(70)
                 .setNode(2)
                 .add();
         generatorThermal1.newReactiveCapabilityCurve()

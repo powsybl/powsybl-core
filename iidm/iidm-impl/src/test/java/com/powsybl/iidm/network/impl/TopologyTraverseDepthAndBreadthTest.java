@@ -36,10 +36,10 @@ class TopologyTraverseDepthAndBreadthTest {
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(400f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl1.getNodeBreakerView().newBusbarSection().setId("VL1_B1").setNode(0).add();
         vl1.getNodeBreakerView().newBusbarSection().setId("VL1_B2").setNode(1).add();
-        vl1.newGenerator().setId("G1").setNode(2).setMinP(0).setMaxP(1).setTargetP(1).setTargetQ(0)
+        vl1.newGenerator().setId("G1").setNode(2).setMinP(0).setMaxP(1).setTargetP(1)
             .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
             .add();
-        vl1.newGenerator().setId("G2").setNode(5).setMinP(0).setMaxP(1).setTargetP(1).setTargetQ(0)
+        vl1.newGenerator().setId("G2").setNode(5).setMinP(0).setMaxP(1).setTargetP(1)
             .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
             .add();
         vl1.getNodeBreakerView().newBreaker().setId("VL1_BREAKER3").setOpen(false).setNode1(3).setNode2(9).add();

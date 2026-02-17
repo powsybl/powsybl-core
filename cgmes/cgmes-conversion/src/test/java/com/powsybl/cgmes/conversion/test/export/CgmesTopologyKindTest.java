@@ -234,7 +234,6 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setId("GEN")
                 .setBus("GEN-BUS")
                 .setTargetP(1.0)
-                .setTargetQ(1.0)
                 .setMinP(0.0)
                 .setMaxP(2.0)
                 .newVoltageRegulation()
@@ -378,7 +377,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setOpen(true).setRetained(true).setKind(SwitchKind.BREAKER).add();
         voltageLevel1.newGenerator().setId("GEN")
                 .setNode(10)
-                .setTargetP(1.0).setTargetQ(1.0).setMinP(0.0).setMaxP(2.0)
+                .setTargetP(1.0).setMinP(0.0).setMaxP(2.0)
                 .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(1.0).add()
                 .add();
         voltageLevel1.getNodeBreakerView().newInternalConnection()

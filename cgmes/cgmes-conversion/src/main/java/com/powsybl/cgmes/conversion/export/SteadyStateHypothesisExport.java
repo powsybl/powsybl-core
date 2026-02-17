@@ -298,18 +298,18 @@ public final class SteadyStateHypothesisExport {
             boolean controlEnabled = g.getVoltageRegulation() != null && g.getVoltageRegulation().isRegulating();
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
-                    writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getTargetQ(),
+                    writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getRegulatingTargetQ(),
                             controlEnabled, g.getTargetV(), cimNamespace, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
                     writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), controlEnabled,
-                            -g.getTargetP(), -g.getTargetQ(), ReferencePriority.get(g),
+                            -g.getTargetP(), -g.getRegulatingTargetQ(), ReferencePriority.get(g),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
                     writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), controlEnabled,
-                            -g.getTargetP(), -g.getTargetQ(), ReferencePriority.get(g), obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
+                            -g.getTargetP(), -g.getRegulatingTargetQ(), ReferencePriority.get(g), obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
@@ -360,7 +360,7 @@ public final class SteadyStateHypothesisExport {
         for (Battery b : network.getBatteries()) {
             boolean controlEnabled = b.getVoltageRegulation() != null && b.getVoltageRegulation().isRegulating();
             writeSynchronousMachine(context.getNamingStrategy().getCgmesId(b), controlEnabled,
-                    -b.getTargetP(), -b.getTargetQ(), ReferencePriority.get(b), obtainOperatingMode(b, b.getMinP(), b.getMaxP(), b.getTargetP()),
+                    -b.getTargetP(), -b.getRegulatingTargetQ(), ReferencePriority.get(b), obtainOperatingMode(b, b.getMinP(), b.getMaxP(), b.getTargetP()),
                     cimNamespace, writer, context);
         }
     }
@@ -394,12 +394,12 @@ public final class SteadyStateHypothesisExport {
         switch (injection) {
             case Generator generator -> {
                 return generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(generator.getTargetV())
-                    || !Double.isNaN(generator.getTargetQ()) && generator.getTargetQ() != 0;
+                    || !Double.isNaN(generator.getRegulatingTargetQ()) && generator.getRegulatingTargetQ() != 0;
             }
             case Battery battery -> {
                 VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
                 return battery.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(voltageRegulation.getTargetValue())
-                    || !Double.isNaN(battery.getTargetQ()) && battery.getTargetQ() != 0;
+                    || !Double.isNaN(battery.getRegulatingTargetQ()) && battery.getRegulatingTargetQ() != 0;
             }
             default -> throw new IllegalStateException("Unexpected value: " + injection);
         }

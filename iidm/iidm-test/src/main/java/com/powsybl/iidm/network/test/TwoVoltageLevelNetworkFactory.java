@@ -87,7 +87,6 @@ public final class TwoVoltageLevelNetworkFactory {
             .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
             .setTargetP(0.0)
             .setTargetV(0.0)
-            .setTargetQ(0.0)
             .setBus("BUS1")
             .add();
         substation.newTwoWindingsTransformer()

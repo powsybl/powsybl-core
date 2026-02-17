@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
@@ -77,6 +78,9 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
         return self();
     }
 
+    /**
+     * TODO MSA JAVADOC
+     */
     protected @NonNull VoltageRegulationImpl createVoltageRegulation() {
         // VALIDATION
         if (parent instanceof Validable validable) {
@@ -87,12 +91,11 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
                 network.get().getReportNodeContext().getReportNode()));
             // TARGET VALUE
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationTargetValue(validable,
-                targetValue,
-                network.get().getMinValidationLevel(),
-                network.get().getReportNodeContext().getReportNode()));
+                targetValue, mode,
+                network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
             // SLOPE
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationSlope(validable,
-                mode, slope,
+                slope, mode,
                 network.get().getMinValidationLevel(),
                 network.get().getReportNodeContext().getReportNode()));
             // DEADBAND
@@ -103,12 +106,13 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
             // TERMINAL
             ValidationUtil.checkRegulatingTerminal(validable, terminal, network.get());
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationTerminal(validable,
-                terminal,
+                terminal, network.get(),
                 network.get().getMinValidationLevel(),
                 network.get().getReportNodeContext().getReportNode()));
+            //
+            return new VoltageRegulationImpl(validable, classHolder, network, targetValue, targetDeadband, slope, terminal, mode, regulating);
         }
-        //
-        return new VoltageRegulationImpl(network, targetValue, targetDeadband, slope, terminal, mode, regulating);
+        throw new PowsyblException("VoltageRegulation cannot be validated because its parent is not a Validable class");
     }
 
     protected abstract T self();
