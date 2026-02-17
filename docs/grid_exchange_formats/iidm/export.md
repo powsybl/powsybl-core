@@ -20,7 +20,7 @@ You can configure your export either with `ExportOptions` or with `Properties`.
 #### From ExportOptions
 
 ```java
-Network n = Network.read(filePath);
+Network n = ...;
 ExportOptions options = new ExportOptions();
 options.setVersion("1.13");
 options.setFormat(TreeDataFormat.BIN); // or XML or JSON
