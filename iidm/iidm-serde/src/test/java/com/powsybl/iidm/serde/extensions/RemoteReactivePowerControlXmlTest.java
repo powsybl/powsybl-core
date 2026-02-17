@@ -77,7 +77,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
         RemoteReactivePowerControl rrpc = network.getGenerator("G").getExtension(RemoteReactivePowerControl.class);
         assertNotNull(rrpc);
 
-        Network network2 = allFormatsRoundTripTest(network, "remoteReactivePowerControlRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTxtTest(network, "remoteReactivePowerControlRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         Generator gen2 = network2.getGenerator("G");
         Line line = network.getLine("L12");

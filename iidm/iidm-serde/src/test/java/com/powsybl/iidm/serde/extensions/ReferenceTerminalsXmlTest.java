@@ -70,6 +70,6 @@ class ReferenceTerminalsXmlTest extends AbstractIidmSerDeTest {
                 .withTerminals(terminals)
                 .add();
 
-        allFormatsRoundTripTest(network, "referenceTerminalsRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "referenceTerminalsRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
     }
 }

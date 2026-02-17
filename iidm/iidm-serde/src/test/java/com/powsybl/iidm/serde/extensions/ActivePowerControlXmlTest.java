@@ -70,7 +70,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void testIidmV12() throws IOException {
-        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlRoundTripRef.xml", IidmVersion.V_1_12);
+        Network network2 = allFormatsRoundTripTxtTest(network, "/activePowerControlRoundTripRef.xml", IidmVersion.V_1_12);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);

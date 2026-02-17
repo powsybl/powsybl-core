@@ -49,7 +49,7 @@ class SecondaryVoltageControlXmlTest extends AbstractIidmSerDeTest {
                     .add()
                 .add();
 
-        Network network2 = allFormatsRoundTripTest(network, "/secondaryVoltageControlRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTxtTest(network, "/secondaryVoltageControlRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         SecondaryVoltageControl control2 = network2.getExtension(SecondaryVoltageControl.class);
         assertNotNull(control2);

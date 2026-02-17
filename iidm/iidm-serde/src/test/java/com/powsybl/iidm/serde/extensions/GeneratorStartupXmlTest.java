@@ -41,7 +41,7 @@ class GeneratorStartupXmlTest extends AbstractIidmSerDeTest {
                 .withForcedOutageRate(0.7)
                 .add();
 
-        Network network2 = allFormatsRoundTripTest(network, "generatorStartupRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTxtTest(network, "generatorStartupRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);

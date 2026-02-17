@@ -145,7 +145,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(() -> twt.getLeg2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits());
         createLoadingLimits(() -> twt.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits());
         createLoadingLimits(() -> twt.getLeg3().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits());
-        allFormatsRoundTripTest(network, "t3w-loading-limits.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "t3w-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
         allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("t3w-loading-limits.xml", IidmVersion.V_1_5);
