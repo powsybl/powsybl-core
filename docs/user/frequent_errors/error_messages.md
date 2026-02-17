@@ -1,8 +1,5 @@
 # Frequent error messages
 
-If you wish to use the latest version of PowSyBl's library without having to specify versions, you should have a look at [powsybl-dependencies](https://github.com/powsybl/powsybl-dependencies)
-and related examples.
-
 ### No NetworkFactoryService providers found
 
 This most likely happened because you tried to read a file, but you didn't have any implementation of the interface used for reading those files.
