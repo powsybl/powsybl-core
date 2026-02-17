@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
@@ -639,15 +638,14 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @return a collection of all the <code>type</code> limits of this branch on the <code>side</code>,
      * one for each {@link OperationalLimitsGroup} that is selected. Might be empty if none is selected.
      */
-    default Collection<LoadingLimits> getAllSelectedLimits(LimitType type, TwoSides side) {
-        Collection<? extends LoadingLimits> allLoadingLimits = switch (type) {
+    default Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type, TwoSides side) {
+        return switch (type) {
             case CURRENT -> getAllSelectedCurrentLimits(side);
             case ACTIVE_POWER -> getAllSelectedActivePowerLimits(side);
             case APPARENT_POWER -> getAllSelectedApparentPowerLimits(side);
             default ->
                     throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         };
-        return new ArrayList<>(allLoadingLimits);
     }
 
     default CurrentLimits getNullableCurrentLimits(TwoSides side) {
