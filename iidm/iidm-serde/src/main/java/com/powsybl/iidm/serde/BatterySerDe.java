@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.removed.VoltageRegulationExtension;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.serde.extensions.ExtinctExtensionSerDe;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
@@ -48,9 +47,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
 
     @Override
     protected void addExtinctExtensions(Battery b, NetworkSerializerContext context) {
-        if (ExtinctExtensionSerDe.isExtensionExportable(context.getOptions(), VoltageRegulationExtension.NAME,
-                com.powsybl.iidm.serde.extensions.VoltageRegulationSerDe.LAST_SUPPORTED_VERSION)
-                && com.powsybl.iidm.serde.extensions.VoltageRegulationSerDe.isExtensionNeeded(b)) {
+        if (com.powsybl.iidm.serde.extensions.VoltageRegulationSerDe.isExtensionNeededAndExportable(b, context)) {
             VoltageRegulationExtension extension = new VoltageRegulationExtension(b,
                     b.getVoltageRegulation().getTerminal(),
                     b.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE,

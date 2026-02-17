@@ -132,7 +132,12 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
         return n.getBatteryStream().anyMatch(VoltageRegulationSerDe::isExtensionNeeded);
     }
 
-    public static boolean isExtensionNeeded(Battery b) {
+    private static boolean isExtensionNeeded(Battery b) {
         return b.getVoltageRegulation() != null;
+    }
+
+    public static boolean isExtensionNeededAndExportable(Battery b, NetworkSerializerContext context) {
+        return ExtinctExtensionSerDe.isExtensionExportable(context.getOptions(), VoltageRegulationExtension.NAME, LAST_SUPPORTED_VERSION)
+                && isExtensionNeeded(b);
     }
 }

@@ -74,9 +74,14 @@ public class RemoteReactivePowerControlSerDe extends AbstractExtensionSerDe<Gene
         return n.getGeneratorStream().anyMatch(RemoteReactivePowerControlSerDe::isExtensionNeeded);
     }
 
-    public static boolean isExtensionNeeded(Generator g) {
+    private static boolean isExtensionNeeded(Generator g) {
         return g.getVoltageRegulation() != null
                 && g.getVoltageRegulation().getTerminal() != null
                 && g.getVoltageRegulation().getMode() == RegulationMode.REACTIVE_POWER;
+    }
+
+    public static boolean isExtensionNeededAndExportable(Generator g, NetworkSerializerContext context) {
+        return ExtinctExtensionSerDe.isExtensionExportable(context.getOptions(), RemoteReactivePowerControl.NAME, LAST_SUPPORTED_VERSION)
+                && isExtensionNeeded(g);
     }
 }

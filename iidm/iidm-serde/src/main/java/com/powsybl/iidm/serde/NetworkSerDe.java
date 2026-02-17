@@ -406,7 +406,7 @@ public final class NetworkSerDe {
         }
         // Collect the SerDes for the extensions that don't exist anymore, but that should be exported for backward-compatibility
         Stream<ExtensionSerDe<?, ?>> extinctExtensionSerDes = ExtinctExtensionSerDeService.findAll().stream()
-                .filter(s -> s.isExtensionNeeded(n, options))
+                .filter(s -> s.isExtensionNeededAndExportable(n, options))
                 .map(s -> (ExtensionSerDe<?, ?>) s);
 
         // Collect the SerDes for the "classic" extensions

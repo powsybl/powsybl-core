@@ -22,7 +22,7 @@ import com.powsybl.iidm.serde.IidmVersion;
  */
 public interface ExtinctExtensionSerDe<T extends Extendable, E extends Extension<T>> extends ExtensionSerDe<T, E> {
 
-    default boolean isExtensionNeeded(Network network, ExportOptions options) {
+    default boolean isExtensionNeededAndExportable(Network network, ExportOptions options) {
         return isExtensionExportable(options) && isExtensionNeeded(network);
     }
 

@@ -10,7 +10,6 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.removed.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.serde.extensions.ExtinctExtensionSerDe;
 import com.powsybl.iidm.serde.extensions.RemoteReactivePowerControlSerDe;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
@@ -78,9 +77,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
 
     @Override
     protected void addExtinctExtensions(Generator g, NetworkSerializerContext context) {
-        if (ExtinctExtensionSerDe.isExtensionExportable(context.getOptions(), RemoteReactivePowerControl.NAME,
-                RemoteReactivePowerControlSerDe.LAST_SUPPORTED_VERSION)
-                && RemoteReactivePowerControlSerDe.isExtensionNeeded(g)) {
+        if (RemoteReactivePowerControlSerDe.isExtensionNeededAndExportable(g, context)) {
             RemoteReactivePowerControl extension = new RemoteReactivePowerControl(g,
                     g.getVoltageRegulation().getTargetValue(),
                     g.getVoltageRegulation().getTerminal(),
