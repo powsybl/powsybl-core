@@ -421,13 +421,6 @@ public final class NetworkSerDe {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private static Collection<? extends Extension<? extends Identifiable<?>>> concatExtensionsAndRemovedExtensions(Identifiable<?> identifiable, Map<String, Set<Extension<? extends Identifiable<?>>>> removedExtensions) {
-        if (removedExtensions.containsKey(identifiable.getId())) {
-            return Stream.concat(identifiable.getExtensions().stream(), removedExtensions.get(identifiable.getId()).stream()).toList();
-        }
-        return identifiable.getExtensions();
-    }
-
     private static void writeBaseNetwork(Network n, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_7, context, () -> context.getWriter().writeEnumAttribute(MINIMUM_VALIDATION_LEVEL, n.getValidationLevel()));
 
