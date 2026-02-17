@@ -24,13 +24,35 @@ savecase("case6515rte.mat", mpc);
 ```
 Note that the `loadcase` and `savecase` are functions provided by the Matpower toolbox.
 
-## Dependencies
+## Importing with PowSyBl
 
-Add the `matpower-converter` dependency to be able to read `.mat` files:
+This section assumes that you have a `.mat` file. If you have a `.m` file, please follow the [Matpower cases conversions](#matpower-cases-conversions) section above.
+### Dependencies
+
+Your `pom.xml` should at least have the following dependencies to be able to read `.mat` files:
 ```xml
-<dependency>
-    <groupId>com.powsybl</groupId>
-    <artifactId>powsybl-matpower-converter</artifactId>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-iidm-impl</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-matpower-converter</artifactId>
+    </dependency>
+</dependencies>
 ```
-This is not necessary if you are using `powsybl-starter`
+This is not necessary if you are using `powsybl-starter`. For version reference, either use [PowSyBl dependencies](https://github.com/powsybl/powsybl-dependencies?tab=readme-ov-file#getting-started)
+or use the correct version following the [table here](https://github.com/powsybl/powsybl-dependencies?tab=readme-ov-file#powsybl-included-repositories-versions)
+
+Note that you can use something else than powsybl-iidm-impl, as long as it implements the necessary interfaces in powsybl-iidm-api
+
+### Reading the file
+
+```java
+import java.nio.file.Path;
+import com.powsybl.iidm.network.Network;
+
+Path filePath = Path.of("/path/to/file.mat");
+Network n = Network.read(filePath);
+```
