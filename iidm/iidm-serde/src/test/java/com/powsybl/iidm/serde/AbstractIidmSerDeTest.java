@@ -295,8 +295,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     public Network allFormatsRoundTripTxtTest(Network network, String filename, IidmVersion version) throws IOException {
-        ExportOptions exportOptions = new ExportOptions();
-        return allFormatsRoundTripTxtTest(network, filename, version, exportOptions);
+        return allFormatsRoundTripTxtTest(network, filename, version, new ExportOptions());
     }
 
     /**

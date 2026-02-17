@@ -72,7 +72,7 @@ class OperatingStatusXmlTest extends AbstractIidmSerDeTest {
                 OperatingStatus.Status.PLANNED_OUTAGE);
         line.addExtension(OperatingStatus.class, lineOperatingStatus);
 
-        Network network2 = allFormatsRoundTripTest(network, "/operatingStatusRef.xml");
+        Network network2 = allFormatsRoundTripTxtTest(network, "/operatingStatusRef.xml");
 
         Line line2 = network2.getLine("L");
         assertNotNull(line2);

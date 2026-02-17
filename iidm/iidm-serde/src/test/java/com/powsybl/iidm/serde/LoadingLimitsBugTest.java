@@ -44,7 +44,7 @@ class LoadingLimitsBugTest extends AbstractIidmSerDeTest {
                 .setPermanentLimit(100)
                 .add();
         // check that XIIDM 1.5 is not ill-formed
-        allFormatsRoundTripTest(network, "/loading-limits-bug.xml",
+        allFormatsRoundTripTxtTest(network, "/loading-limits-bug.xml",
                 new ExportOptions().setVersion(IidmVersion.V_1_5.toString(".")));
     }
 }
