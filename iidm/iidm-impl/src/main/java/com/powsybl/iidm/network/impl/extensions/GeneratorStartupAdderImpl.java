@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 
@@ -33,6 +35,8 @@ public class GeneratorStartupAdderImpl extends AbstractExtensionAdder<Generator,
 
     @Override
     protected GeneratorStartup createExtension(Generator extendable) {
+        ValidationUtil.checkRate((Validable) extendable, "GeneratorStartup", forcedOutageRate, "forced outage rate");
+        ValidationUtil.checkRate((Validable) extendable, "GeneratorStartup", plannedOutageRate, "planned outage rate");
         return new GeneratorStartupImpl(extendable, plannedActivePowerSetpoint, startupCost, marginalCost, plannedOutageRate, forcedOutageRate);
     }
 

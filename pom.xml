@@ -98,7 +98,7 @@
             ../../../distribution-core/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
 
-        <assertj.version>3.27.3</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
         <autoservice.version>1.1.1</autoservice.version>
         <awaitility.version>4.3.0</awaitility.version>
         <commonscli.version>1.9.0</commonscli.version>
@@ -124,11 +124,11 @@
         <jgrapht.version>1.5.2</jgrapht.version>
         <jimfs.version>1.3.0</jimfs.version>
         <junit-jupiter.version>5.12.2</junit-jupiter.version>
-        <logback.version>1.5.19</logback.version>
+        <logback.version>1.5.26</logback.version>
         <maven.compat>3.9.9</maven.compat>
         <maven.core.version>3.8.5</maven.core.version>
         <maven.plugin.annotations.version>3.15.1</maven.plugin.annotations.version>
-        <maven.plugin.testing.harness.version>3.3.0</maven.plugin.testing.harness.version>
+        <maven.plugin.testing.harness.version>3.4.0</maven.plugin.testing.harness.version>
         <mfl.version>0.5.15</mfl.version>
         <mockito.version>5.18.0</mockito.version>
         <nativelibloader.version>2.5.0</nativelibloader.version>
@@ -140,7 +140,7 @@
         <snakeyaml.version>2.4</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <stringtemplate.version>4.3.4</stringtemplate.version>
-        <testcontainers.version>1.21.0</testcontainers.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
         <threeten.version>1.8.0</threeten.version>
         <!-- univocity-parsers seems abandoned - to be replaced ? -->
         <univocity-parsers.version>2.9.0</univocity-parsers.version>

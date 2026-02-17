@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="voltageSourceConverterTest" caseDate="2025-01-02T03:04:05.000+01:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:dcNode id="dcNode1" nominalV="500.0"/>
+    <iidm:dcNode id="dcNode2" nominalV="500.0"/>
+    <iidm:substation id="S">
+        <iidm:voltageLevel id="vlBB400" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="bus1"/>
+                <iidm:bus id="bus2"/>
+            </iidm:busBreakerTopology>
+            <iidm:voltageSourceConverter id="vscBb1ACWithoutSolvedV" name="VSC in Bus/Breaker with one AC Terminal without solved values" dcNode1="dcNode1" dcConnected1="false" dcNode2="dcNode2" dcConnected2="false" idleLoss="0.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetVdc="502.0" connectableBus1="bus1" voltageRegulatorOn="false" reactivePowerSetpoint="12.3">
+                <iidm:alias>someAlias</iidm:alias>
+                <iidm:property name="prop name" value="prop value"/>
+                <iidm:pccTerminal id="vscBb1ACWithoutSolvedV" number="ONE"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:voltageSourceConverter>
+            <iidm:voltageSourceConverter id="vscBb2ACWithSolvedV" name="VSC in Bus/Breaker with two AC Terminals with solved values and droop curve" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="2.0" switchingLoss="0.2" resistiveLoss="2.0E-6" controlMode="P_PCC_DROOP" targetP="301.0" targetVdc="502.0" bus1="bus1" connectableBus1="bus1" bus2="bus2" connectableBus2="bus2" voltageRegulatorOn="true" voltageSetpoint="387.0" reactivePowerSetpoint="12.3" p1="-100.0" q1="-200.0" p2="-100.1" q2="-200.2" dcP1="-100.0" dcI1="-200.0" dcP2="0.4" dcI2="200.0">
+                <iidm:pccTerminal id="lineBb" side="ONE"/>
+                <iidm:droopCurve>
+                    <iidm:segment minV="-500.0" maxV="-100.0" k="-10.0"/>
+                    <iidm:segment minV="-100.0" maxV="100.0" k="-5.0"/>
+                    <iidm:segment minV="100.0" maxV="500.0" k="-1.0"/>
+                </iidm:droopCurve>
+                <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="210.0"/>
+            </iidm:voltageSourceConverter>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="vlNB400" nominalV="400.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="bbs400-1" node="0"/>
+                <iidm:busbarSection id="bbs400-2" node="1"/>
+                <iidm:internalConnection node1="0" node2="2"/>
+                <iidm:internalConnection node1="2" node2="4"/>
+                <iidm:internalConnection node1="1" node2="3"/>
+                <iidm:internalConnection node1="3" node2="5"/>
+                <iidm:bus v="402.0" angle="12.3" nodes="0,2,4"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:voltageSourceConverter id="vscNb2ACWithPartiallySolvedV" name="VSC in Node/Breaker with two AC Terminals with some solved values missing" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="3.0" switchingLoss="0.3" resistiveLoss="3.0E-6" controlMode="P_PCC" targetP="302.0" targetVdc="503.0" node1="4" node2="5" voltageRegulatorOn="true" voltageSetpoint="397.0" p1="-105.0" q2="-200.8" dcP1="-102.0" dcI2="202.0">
+                <iidm:pccTerminal id="lineNb" side="TWO"/>
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="-200.0" minQ="-190.0" maxQ="192.0"/>
+                    <iidm:point p="0.0" minQ="-201.0" maxQ="202.0"/>
+                    <iidm:point p="200.0" minQ="-189.0" maxQ="191.0"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:voltageSourceConverter>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="lineBb" r="0.0" x="3.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="vlBB400" bus1="bus1" connectableBus1="bus1" voltageLevelId2="vlBB400" bus2="bus2" connectableBus2="bus2"/>
+    <iidm:line id="lineNb" r="0.0" x="3.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="vlNB400" node1="2" voltageLevelId2="vlNB400" node2="3"/>
+</iidm:network>

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Map;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,6 +99,40 @@ class TapChangerConversionTest extends AbstractSerDeTest {
         assertEquals("false", getAttribute(tapChangerControl, "RegulatingControl.enabled"));
         assertEquals("0", getAttribute(tapChangerControl, "RegulatingControl.targetDeadband"));
         assertEquals("0", getAttribute(tapChangerControl, "RegulatingControl.targetValue"));
+    }
+
+    @Test
+    void phaseTapChangerLinearTest() {
+        // CGMES network:
+        //   PowerTransformer PT_1 has a PhaseTapChangerLinear associated to its primary winding.
+        //   PowerTransformer PT_2 has a PhaseTapChangerLinear associated to its secondary winding.
+        //   The two TapChangers have different xMin and xMax values, but they represent in both cases
+        //   the x value and x + 10% value with x the branch reactance seen from the tap changer side.
+        // IIDM network:
+        //   Both tap changers induce a 0% to 10% reactance deviation.
+        Network network = readCgmesResources(DIR, "phaseTapChangerLinear.xml");
+
+        // Check phase tap changer on primary winding.
+        Map<Integer, PhaseTapChangerStep> steps1 = network.getTwoWindingsTransformer("PT_1").getPhaseTapChanger().getAllSteps();
+        assertTapStep(steps1.get(-2), 2.0, 10.0);
+        assertTapStep(steps1.get(-1), 1.0, 2.5);
+        assertTapStep(steps1.get(-0), 0.0, 0.0);
+        assertTapStep(steps1.get(1), -1.0, 2.5);
+        assertTapStep(steps1.get(2), -2.0, 10.0);
+
+        // Check phase tap changer on secondary winding.
+        Map<Integer, PhaseTapChangerStep> steps2 = network.getTwoWindingsTransformer("PT_2").getPhaseTapChanger().getAllSteps();
+        assertTapStep(steps2.get(-2), -2.0, 10.0);
+        assertTapStep(steps2.get(-1), -1.0, 2.5);
+        assertTapStep(steps2.get(-0), 0.0, 0.0);
+        assertTapStep(steps2.get(1), 1.0, 2.5);
+        assertTapStep(steps2.get(2), 2.0, 10.0);
+    }
+
+    private void assertTapStep(PhaseTapChangerStep step, double alpha, double x) {
+        double tolerance = 1e-3;
+        assertEquals(alpha, step.getAlpha(), tolerance);
+        assertEquals(x, step.getX(), tolerance);
     }
 
 }

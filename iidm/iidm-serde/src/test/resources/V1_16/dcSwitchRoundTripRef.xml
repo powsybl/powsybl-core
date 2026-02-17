@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="dcSwitchTest" caseDate="2025-01-02T03:04:05.000+01:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:dcNode id="dcNode1" nominalV="500.0"/>
+    <iidm:dcNode id="dcNode2" nominalV="500.0"/>
+    <iidm:dcSwitch id="dcSwitchOpened" name="An opened DC Switch" fictitious="true" dcNode1="dcNode1" dcNode2="dcNode2" kind="DISCONNECTOR" open="true">
+        <iidm:alias>someAlias</iidm:alias>
+        <iidm:property name="prop name" value="prop value"/>
+    </iidm:dcSwitch>
+    <iidm:dcSwitch id="dcSwitchClosed" name="A closed DC Switch" dcNode1="dcNode1" dcNode2="dcNode2" kind="BREAKER" open="false"/>
+</iidm:network>
