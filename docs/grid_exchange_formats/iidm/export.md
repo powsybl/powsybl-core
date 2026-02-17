@@ -41,7 +41,7 @@ With the config file containing at least:
 import-export-parameters-default-value:
   iidm.export.xml.version: 1.12
 ```
-Which allows us to export to IIDM-1.12. Note that the parameter includes "xml" in the name, but it can be used for any IIDM format (including JIIDM and BIIDM).
+This configuration allows to export to IIDM v1.12. Note that the parameter includes "xml" in the name, but it can be used for any IIDM format (including JIIDM and BIIDM).
 For more information about the config file, see [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module,
 or the [options below](#options).
 
