@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesReports;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
@@ -226,7 +225,7 @@ public final class CgmesExportUtil {
     }
 
     public static String loadClassName(Load load) {
-        String originalClassName = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "undefined");
+        String originalClassName = load.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "undefined");
         double p0 = load.getP0();
         LoadDetail loadDetail = load.getExtension(LoadDetail.class);
         if (originalClassName.equals(CgmesNames.ASYNCHRONOUS_MACHINE)
@@ -428,6 +427,16 @@ public final class CgmesExportUtil {
         return context.getNamingStrategy().getCgmesIdFromAlias(t.getConnectable(), aliasType);
     }
 
+    public static String getTerminalSignPropertyName(String endNumber) {
+        return switch (endNumber) {
+            case "" -> PROPERTY_TERMINAL_SIGN;
+            case "1" -> PROPERTY_TERMINAL_SIGN1;
+            case "2" -> PROPERTY_TERMINAL_SIGN2;
+            case "3" -> PROPERTY_TERMINAL_SIGN3;
+            default -> throw new IllegalStateException("Unexpected end number: " + endNumber);
+        };
+    }
+
     public static String getDcTerminalId(DcTerminal dcTerminal, CgmesExportContext context) {
         String aliasType = getDcTerminalSequenceNumber(dcTerminal) == 1 ? ALIAS_DC_TERMINAL1 : ALIAS_DC_TERMINAL2;
         return context.getNamingStrategy().getCgmesIdFromAlias(dcTerminal.getDcConnectable(), aliasType);
@@ -451,7 +460,7 @@ public final class CgmesExportUtil {
 
     public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {
         if (c instanceof ShuntCompensator shuntCompensator) {
-            return "true".equals(c.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))
+            return "true".equals(c.getProperty(PROPERTY_IS_EQUIVALENT_SHUNT))
                     && shuntCompensator.getSectionCount() == 0;
         }
         return false;
@@ -473,7 +482,7 @@ public final class CgmesExportUtil {
     // Original synchronous machine kind it is only preserved if it is compatible with the calculated synchronous machine kind
     // calculated synchronous machine kind is based on the present limits
     static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve, boolean isCondenser) {
-        String kind = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
+        String kind = i.getProperty(PROPERTY_SYNCHRONOUS_MACHINE_TYPE);
         String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, isCondenser);
         if (kind == null) {
             return calculatedKind;

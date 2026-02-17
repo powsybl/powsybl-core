@@ -15,10 +15,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.*;
+import java.util.function.DoubleBinaryOperator;
 import java.util.function.Supplier;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID;
+import static com.powsybl.cgmes.conversion.Conversion.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -280,22 +280,22 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void convertHighVoltageLimit(String operationalLimitId, double value) {
-        addVoltageLimitIdProperty(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, operationalLimitId);
+        addVoltageLimitIdProperty(vl, PROPERTY_OPERATIONAL_LIMIT_HIGH_VOLTAGE_LIMIT, operationalLimitId);
         if (value < vl.getLowVoltageLimit()) {
             context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
         } else if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
             vl.setHighVoltageLimit(value);
-            addVoltageLimitNormalValueProperty(vl, CgmesNames.HIGH_VOLTAGE_LIMIT, value);
+            vl.setProperty(PROPERTY_NORMAL_VALUE_HIGH_VOLTAGE_LIMIT, String.valueOf(value));
         }
     }
 
     private void convertLowVoltageLimit(String operationalLimitId, double value) {
-        addVoltageLimitIdProperty(vl, CgmesNames.LOW_VOLTAGE_LIMIT, operationalLimitId);
+        addVoltageLimitIdProperty(vl, PROPERTY_OPERATIONAL_LIMIT_LOW_VOLTAGE_LIMIT, operationalLimitId);
         if (value > vl.getHighVoltageLimit()) {
             context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
         } else if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
             vl.setLowVoltageLimit(value);
-            addVoltageLimitNormalValueProperty(vl, CgmesNames.LOW_VOLTAGE_LIMIT, value);
+            vl.setProperty(PROPERTY_NORMAL_VALUE_LOW_VOLTAGE_LIMIT, String.valueOf(value));
         }
     }
 
@@ -425,12 +425,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         operationalLimitsGroup.setProperty(getPropertyName(limitSubclass, true, 0, CgmesNames.NORMAL_VALUE), String.valueOf(value));
     }
 
-    private static void addVoltageLimitNormalValueProperty(VoltageLevel voltageLevel, String limitType, double value) {
-        voltageLevel.setProperty(getPropertyName(limitType, CgmesNames.NORMAL_VALUE), String.valueOf(value));
-    }
-
-    private static void addVoltageLimitIdProperty(VoltageLevel voltageLevel, String limitType, String operationalLimitId) {
-        String propertyName = getPropertyName(limitType, CgmesNames.OPERATIONAL_LIMIT);
+    private static void addVoltageLimitIdProperty(VoltageLevel voltageLevel, String propertyName, String operationalLimitId) {
         String operationalLimitIds = voltageLevel.hasProperty(propertyName)
                 ? String.join(";", voltageLevel.getProperty(propertyName), operationalLimitId)
                 : operationalLimitId;
@@ -468,8 +463,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     protected static void update(VoltageLevel voltageLevel, Context context) {
-        voltageLevel.setLowVoltageLimit(getValue(voltageLevel, CgmesNames.LOW_VOLTAGE_LIMIT, voltageLevel.getLowVoltageLimit(), context));
-        voltageLevel.setHighVoltageLimit(getValue(voltageLevel, CgmesNames.HIGH_VOLTAGE_LIMIT, voltageLevel.getHighVoltageLimit(), context));
+        voltageLevel.setLowVoltageLimit(getLowVoltageLimitValue(voltageLevel, voltageLevel.getLowVoltageLimit(), context));
+        voltageLevel.setHighVoltageLimit(getHighVoltageLimitValue(voltageLevel, voltageLevel.getHighVoltageLimit(), context));
     }
 
     public static void update(OperationalLimitsGroup operationalLimitsGroup, Context context) {
@@ -500,8 +495,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return (p == null) ? OptionalDouble.empty() : p.asOptionalDouble("value");
     }
 
-    private static List<String> getOperationalLimitIds(String limitType, VoltageLevel voltageLevel) {
-        String propertyName = getPropertyName(limitType, CgmesNames.OPERATIONAL_LIMIT);
+    private static List<String> getOperationalLimitIds(VoltageLevel voltageLevel, String propertyName) {
         String ids = voltageLevel.getProperty(propertyName);
         if (ids == null || ids.isEmpty()) {
             return List.of();
@@ -519,14 +513,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private static String getPropertyName(String limitSubclass, boolean isInfiniteDuration, int duration, String tagProperty) {
         if (isInfiniteDuration) {
-            return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_"
-                    + limitSubclass + "_"
-                    + "patl";
+            return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_" + limitSubclass + "_patl";
         } else {
-            return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_"
-                    + limitSubclass + "_"
-                    + "tatl" + "_"
-                    + duration;
+            return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_" + limitSubclass + "_tatl_" + duration;
         }
     }
 
@@ -534,40 +523,38 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return getDefaultValue(normalValue, previousValue, normalValue, normalValue != null ? normalValue : previousValue, context);
     }
 
-    private static double getValue(VoltageLevel voltageLevel, String limitType, double previousValue, Context context) {
-        List<String> operationalLimitIds = getOperationalLimitIds(limitType, voltageLevel);
-        return updatedValue(limitType, operationalLimitIds, context).orElseGet(() -> {
-            Double normalValue = getNormalValue(limitType, voltageLevel);
-            Double voltageLevelNormalValue = getVoltageLevelNormalValue(voltageLevel, limitType);
+    private static double getHighVoltageLimitValue(VoltageLevel voltageLevel, double previousValue, Context context) {
+        List<String> operationalLimitIds = getOperationalLimitIds(voltageLevel, PROPERTY_OPERATIONAL_LIMIT_HIGH_VOLTAGE_LIMIT);
+        return updatedValue(Double::min, operationalLimitIds, context).orElseGet(() -> {
+            Double normalValue = getNormalValue(voltageLevel, PROPERTY_NORMAL_VALUE_HIGH_VOLTAGE_LIMIT);
+            Double voltageLevelNormalValue = getVoltageLevelNormalValue(voltageLevel, PROPERTY_HIGH_VOLTAGE_LIMIT);
             return getDefaultValue(normalValue != null ? normalValue : voltageLevelNormalValue, previousValue, context);
         });
     }
 
-    private static OptionalDouble updatedValue(String limitType, List<String> operationalLimitIds, Context context) {
+    private static double getLowVoltageLimitValue(VoltageLevel voltageLevel, double previousValue, Context context) {
+        List<String> operationalLimitIds = getOperationalLimitIds(voltageLevel, PROPERTY_OPERATIONAL_LIMIT_LOW_VOLTAGE_LIMIT);
+        return updatedValue(Double::max, operationalLimitIds, context).orElseGet(() -> {
+            Double normalValue = getNormalValue(voltageLevel, PROPERTY_NORMAL_VALUE_LOW_VOLTAGE_LIMIT);
+            Double voltageLevelNormalValue = getVoltageLevelNormalValue(voltageLevel, PROPERTY_LOW_VOLTAGE_LIMIT);
+            return getDefaultValue(normalValue != null ? normalValue : voltageLevelNormalValue, previousValue, context);
+        });
+    }
+
+    private static OptionalDouble updatedValue(DoubleBinaryOperator operator, List<String> operationalLimitIds, Context context) {
         return operationalLimitIds.stream()
                 .map(operationalLimitId -> updatedValue(operationalLimitId, context))
                 .filter(OptionalDouble::isPresent)
                 .mapToDouble(OptionalDouble::getAsDouble)
-                .reduce(getUpperBound(limitType) ? Double::max : Double::min);
+                .reduce(operator);
     }
 
-    private static boolean getUpperBound(String limitType) {
-        return CgmesNames.LOW_VOLTAGE_LIMIT.equals(limitType);
-    }
-
-    private static Double getNormalValue(String limitType, VoltageLevel voltageLevel) {
-        String propertyName = getPropertyName(limitType, CgmesNames.NORMAL_VALUE);
+    private static Double getNormalValue(VoltageLevel voltageLevel, String propertyName) {
         return voltageLevel.getProperty(propertyName) != null ? Double.parseDouble(voltageLevel.getProperty(propertyName)) : null;
     }
 
-    private static Double getVoltageLevelNormalValue(VoltageLevel voltageLevel, String limitType) {
-        String propertyName = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + limitType;
+    private static Double getVoltageLevelNormalValue(VoltageLevel voltageLevel, String propertyName) {
         return voltageLevel.getProperty(propertyName) != null ? Double.parseDouble(voltageLevel.getProperty(propertyName)) : null;
-    }
-
-    private static String getPropertyName(String limitType, String tagProperty) {
-        return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_"
-                + limitType;
     }
 
     private record OLGA(OperationalLimitsGroup operationalLimitsGroup, LoadingLimitsAdder<?, ?> loadingLimitsAdder) {

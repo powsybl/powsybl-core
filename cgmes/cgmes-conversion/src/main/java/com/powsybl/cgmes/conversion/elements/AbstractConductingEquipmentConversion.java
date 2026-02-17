@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.*;
@@ -27,6 +26,7 @@ import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getTerminalAliasType;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getTerminalSignPropertyName;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -231,9 +231,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
         dl.addAlias(terminalId(boundarySide), ALIAS_TERMINAL_BOUNDARY);
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY, terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
+        dl.setProperty(PROPERTY_TERMINAL_BOUNDARY, terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
         dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), ALIAS_TERMINAL1);
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
+        dl.setProperty(PROPERTY_TERMINAL, terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
 
         Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> {
             if (isTopologicalNodeDefinedAtBoundary(tn, boundarySide)) {
@@ -247,7 +247,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // Dangling lines in IIDM only have one terminal, one side
         context.convertedTerminalWithOnlyEq(terminalId(modelSide), dl.getTerminal(), 1);
 
-        dl.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
+        dl.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
         return dl;
     }
 
@@ -417,7 +417,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (topologicalNodeIdOnBoundarySide != null) {
             return topologicalNodeIdOnBoundarySide;
         }
-        String terminalIdOnBoundarySide = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY);
+        String terminalIdOnBoundarySide = danglingLine.getProperty(PROPERTY_TERMINAL_BOUNDARY);
         if (terminalIdOnBoundarySide != null) {
             PropertyBag cgmesTerminal = context.cgmesTerminal(terminalIdOnBoundarySide);
             if (cgmesTerminal != null) {
@@ -740,7 +740,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected static int findTerminalSign(Connectable<?> connectable, String end) {
-        String terminalSign = connectable.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN + end);
+        String terminalSign = connectable.getProperty(getTerminalSignPropertyName(end));
         return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
     }
 
@@ -843,7 +843,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected static boolean getDefaultIsOpen(Switch sw, Context context) {
-        String normalOpen = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN);
+        String normalOpen = sw.getProperty(PROPERTY_NORMAL_OPEN);
         return getDefaultValue(normalOpen != null ? Boolean.parseBoolean(normalOpen) : null, sw.isOpen(), false, false, context);
     }
 

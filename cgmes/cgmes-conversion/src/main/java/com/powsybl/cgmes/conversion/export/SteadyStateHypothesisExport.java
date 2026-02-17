@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
@@ -233,7 +232,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeShuntCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
-            if ("true".equals(s.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
+            if ("true".equals(s.getProperty(PROPERTY_IS_EQUIVALENT_SHUNT))) {
                 continue;
             }
 
@@ -259,7 +258,7 @@ public final class SteadyStateHypothesisExport {
         if (hasRegulatingControlCapability(s)) {
             // PowSyBl has considered the control as discrete, with a certain targetDeadband
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, Conversion.PROPERTY_REGULATING_CONTROL);
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, PROPERTY_REGULATING_CONTROL);
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
                 s.isVoltageRegulatorOn(), s.getTargetDeadband(), s.getTargetV(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
@@ -269,7 +268,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeGenerators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                  XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Generator g : network.getGenerators()) {
-            String cgmesOriginalClass = g.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
+            String cgmesOriginalClass = g.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
 
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
@@ -594,7 +593,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeSwitch(Switch sw, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            String switchType = sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+            String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
             String className = switchType != null ? switchType : CgmesExportUtil.switchClassname(sw.getKind());
             CgmesExportUtil.writeStartAbout(className, context.getNamingStrategy().getCgmesId(sw), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "Switch.open");
@@ -658,7 +657,7 @@ public final class SteadyStateHypothesisExport {
 
     // if EQ is not exported, the original class name is preserved
     private static String obtainLoadClassName(Load load, CgmesExportContext context) {
-        String originalClassName = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        String originalClassName = load.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
         return (originalClassName != null && !context.isExportEquipment()) ? originalClassName : CgmesExportUtil.loadClassName(load);
     }
 
@@ -827,13 +826,13 @@ public final class SteadyStateHypothesisExport {
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> GeneratingUnit generatingUnitForGeneratorAndBatteries(I i, CgmesExportContext context) {
         String kind = obtainSynchronousMachineKind(i);
-        if (!OPERATING_MODE_CONDENSER.equals(kind) && (i.getExtension(ActivePowerControl.class) != null || i.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"))) {
+        if (!OPERATING_MODE_CONDENSER.equals(kind) && (i.getExtension(ActivePowerControl.class) != null || i.hasProperty(PROPERTY_NORMAL_PF))) {
             GeneratingUnit gu = new GeneratingUnit();
             gu.id = context.getNamingStrategy().getCgmesIdFromProperty(i, PROPERTY_GENERATING_UNIT);
             if (i.getExtension(ActivePowerControl.class) != null) {
                 gu.participationFactor = i.getExtension(ActivePowerControl.class).getParticipationFactor();
             } else {
-                gu.participationFactor = Double.parseDouble(i.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"));
+                gu.participationFactor = Double.parseDouble(i.getProperty(PROPERTY_NORMAL_PF));
             }
             gu.className = generatingUnitClassname(i);
             return gu;

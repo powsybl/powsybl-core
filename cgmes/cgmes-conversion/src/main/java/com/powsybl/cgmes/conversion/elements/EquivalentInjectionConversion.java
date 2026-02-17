@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -18,8 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_EQUIVALENT_INJECTION;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_EQUIVALENT_INJECTION_TERMINAL;
+import static com.powsybl.cgmes.conversion.Conversion.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -115,14 +113,14 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static void addSpecificProperties(Generator generator, PropertyBag propertyBag) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
-        generator.setProperty(Conversion.PROPERTY_CGMES_REGULATION_CAPABILITY, propertyBag.getOrDefault(CgmesNames.REGULATION_CAPABILITY, "false"));
+        generator.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
+        generator.setProperty(PROPERTY_REGULATION_CAPABILITY, propertyBag.getOrDefault(CgmesNames.REGULATION_CAPABILITY, "false"));
     }
 
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
 
-        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
+        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
 
         PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
 

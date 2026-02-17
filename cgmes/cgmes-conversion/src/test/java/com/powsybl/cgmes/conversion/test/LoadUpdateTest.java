@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -156,10 +156,10 @@ class LoadUpdateTest {
         assertNotNull(load);
         assertTrue(Double.isNaN(load.getP0()));
         assertTrue(Double.isNaN(load.getQ0()));
-        String originalClass = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        String originalClass = load.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
         if (originalClass.equals(CgmesNames.ENERGY_CONSUMER)) {
-            assertNotNull(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.P_FIXED));
-            assertNotNull(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.Q_FIXED));
+            assertNotNull(load.getProperty(PROPERTY_P_FIXED));
+            assertNotNull(load.getProperty(PROPERTY_Q_FIXED));
         }
     }
 

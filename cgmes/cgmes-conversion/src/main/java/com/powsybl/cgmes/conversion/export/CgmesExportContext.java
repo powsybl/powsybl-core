@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.fasterxml.uuid.Generators;
 import com.powsybl.cgmes.conversion.CgmesExport.ExportParameters;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
@@ -39,8 +38,6 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 public class CgmesExportContext {
 
     private static final String DEFAULT_REGION = "default region";
-    private static final String BOUNDARY_EQ_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_BD_ID";
-    private static final String BOUNDARY_TP_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
 
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.NODE_BREAKER;
@@ -225,8 +222,8 @@ public class CgmesExportContext {
             setBoundaryEqId(exportParameters.boundaryEqId());
         } else if (referenceDataProvider != null && referenceDataProvider.getEquipmentBoundaryId() != null) {
             setBoundaryEqId(referenceDataProvider.getEquipmentBoundaryId());
-        } else if (network.hasProperty(BOUNDARY_EQ_ID_PROPERTY)) {
-            setBoundaryEqId(network.getProperty(BOUNDARY_EQ_ID_PROPERTY));
+        } else if (network.hasProperty(PROPERTY_EQ_BD_ID)) {
+            setBoundaryEqId(network.getProperty(PROPERTY_EQ_BD_ID));
         }
 
         // Boundary TP id
@@ -234,8 +231,8 @@ public class CgmesExportContext {
             setBoundaryTpId(exportParameters.boundaryTpId());
         } else if (referenceDataProvider != null && referenceDataProvider.getTopologyBoundaryId() != null) {
             setBoundaryTpId(referenceDataProvider.getTopologyBoundaryId());
-        } else if (network.hasProperty(BOUNDARY_TP_ID_PROPERTY)) {
-            setBoundaryTpId(network.getProperty(BOUNDARY_TP_ID_PROPERTY));
+        } else if (network.hasProperty(PROPERTY_TP_BD_ID)) {
+            setBoundaryTpId(network.getProperty(PROPERTY_TP_BD_ID));
         }
     }
 
@@ -339,8 +336,8 @@ public class CgmesExportContext {
             ignored = load.isFictitious()
                     || isCim16BusBranchExport() && CgmesNames.STATION_SUPPLY.equals(CgmesExportUtil.loadClassName(load));
         } else if (c instanceof Switch sw) {
-            ignored = sw.isFictitious() && "true".equals(sw.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL))
-                    || isCim16BusBranchExport() && sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "").equals("GroundDisconnector")
+            ignored = sw.isFictitious() && "true".equals(sw.getProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL))
+                    || isCim16BusBranchExport() && sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "").equals("GroundDisconnector")
                     || isBusBranchExport() && !sw.isRetained()
                     || isBusBranchExport() && !hasDifferentTNsAtBothEnds(sw);
         }

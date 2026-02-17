@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.elements.dc;
 
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
@@ -168,7 +167,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         }
         converter.addAlias(p.getId(CgmesNames.DC_TERMINAL1), ALIAS_DC_TERMINAL1, context.config().isEnsureIdAliasUnicity());
         converter.addAlias(p.getId(CgmesNames.DC_TERMINAL2), ALIAS_DC_TERMINAL2, context.config().isEnsureIdAliasUnicity());
-        converter.setProperty(Conversion.PROPERTY_CGMES_DC_CONVERTER_UNIT, p.getId("DCConverterUnit"));
+        converter.setProperty(PROPERTY_DC_CONVERTER_UNIT, p.getId("DCConverterUnit"));
     }
 
     public static void update(AcDcConverter<?> converter, PropertyBag cgmesData, Context context) {

@@ -8,7 +8,6 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -19,6 +18,9 @@ import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -91,8 +93,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         }
         // Always preserve the original type
         addAliasesAndProperties(s);
-        s.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
-        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
+        s.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
+        s.setProperty(PROPERTY_NORMAL_OPEN, String.valueOf(normalOpen));
         return s;
     }
 
@@ -104,7 +106,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             String eqInstance = p.get("graph");
             danglingLine = convertToDanglingLine(eqInstance, boundarySide, CgmesNames.SWITCH);
             boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
-            danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
+            danglingLine.setProperty(PROPERTY_NORMAL_OPEN, String.valueOf(normalOpen));
         }
     }
 
@@ -135,7 +137,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private static Boolean getNormalOpen(DanglingLine danglingLine) {
-        String property = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN);
+        String property = danglingLine.getProperty(PROPERTY_NORMAL_OPEN);
         return property != null ? Boolean.parseBoolean(property) : null;
     }
 

@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesReports;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.export.elements.*;
@@ -168,7 +167,7 @@ public final class EquipmentExport {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 VoltageLevel vl = sw.getVoltageLevel();
-                String switchType = sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
+                String switchType = sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS); // may be null
                 // To ensure we do not violate rule SwitchTN1 of ENTSO-E QoCDC,
                 // we only export as retained a switch if it will be exported with different TNs at both ends
                 boolean exportAsRetained = sw.isRetained() && hasDifferentTNsAtBothEnds(sw);
@@ -360,7 +359,7 @@ public final class EquipmentExport {
         // We have to write each generating unit only once
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
-            String cgmesOriginalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
+            String cgmesOriginalClass = generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
             RemoteReactivePowerControl rrpc = generator.getExtension(RemoteReactivePowerControl.class);
             String mode = CgmesExportUtil.getGeneratorRegulatingControlMode(generator, rrpc);
             Terminal regulatingTerminal;
@@ -414,7 +413,7 @@ public final class EquipmentExport {
     }
 
     private static double obtainGeneratorGovernorScd(Generator generator) {
-        String governorScd = generator.getProperty(Conversion.PROPERTY_CGMES_GOVERNOR_SCD);
+        String governorScd = generator.getProperty(PROPERTY_GOVERNOR_SCD);
         return governorScd == null ? 0.0 : Double.parseDouble(governorScd);
     }
 
@@ -447,7 +446,7 @@ public final class EquipmentExport {
         if (generatingUnit != null && !generatingUnitsWritten.contains(generatingUnit)) {
 
             String hydroPowerPlantId = generatingUnitWriteHydroPowerPlantAndFossilFuel(i, cimNamespace, energySource, generatingUnit, writer, context);
-            String windGenUnitType = i.getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");  // considered onshore if property missing
+            String windGenUnitType = i.getProperty(PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");  // considered onshore if property missing
 
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
@@ -539,7 +538,7 @@ public final class EquipmentExport {
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String generatingUnitWriteHydroPowerPlantAndFossilFuel(I i, String cimNamespace, EnergySource energySource, String generatingUnit, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String hydroPlantStorageType = i.getProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
+        String hydroPlantStorageType = i.getProperty(PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
         String hydroPowerPlantId = null;
         if (hydroPlantStorageType != null && energySource.equals(EnergySource.HYDRO)) {
             String hydroPowerPlantName = i.getNameOrId();
@@ -547,7 +546,7 @@ public final class EquipmentExport {
             writeHydroPowerPlant(hydroPowerPlantId, hydroPowerPlantName, hydroPlantStorageType, cimNamespace, writer, context);
         }
 
-        String fossilFuelType = i.getProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE);
+        String fossilFuelType = i.getProperty(PROPERTY_FOSSIL_FUEL_TYPE);
         if (fossilFuelType != null && !fossilFuelType.isEmpty() && energySource.equals(EnergySource.THERMAL)) {
             String[] fossilFuelTypeArray = fossilFuelType.split(";");
             for (int j = 0; j < fossilFuelTypeArray.length; j++) {
@@ -599,7 +598,7 @@ public final class EquipmentExport {
 
     private static void writeShuntCompensators(Network network, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
-            if ("true".equals(s.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
+            if ("true".equals(s.getProperty(PROPERTY_IS_EQUIVALENT_SHUNT))) {
                 // Must have been mapped to a linear shunt compensator with 1 section
                 EquivalentShuntEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(),
                         s.getG(s.getMaximumSectionCount()), s.getB(s.getMaximumSectionCount()),
@@ -1181,14 +1180,14 @@ public final class EquipmentExport {
 
         // Write the OperationalLimitSet
         String operationalLimitSetId;
-        if (limitsGroup.hasProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID)) {
-            operationalLimitSetId = limitsGroup.getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID);
+        if (limitsGroup.hasProperty(PROPERTY_OPERATIONAL_LIMIT_SET_RDFID)) {
+            operationalLimitSetId = limitsGroup.getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_RDFID);
         } else {
             operationalLimitSetId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(limitsGroup.getId()), OPERATIONAL_LIMIT_SET);
         }
         String operationalLimitSetName;
-        if (limitsGroup.hasProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME)) {
-            operationalLimitSetName = limitsGroup.getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME);
+        if (limitsGroup.hasProperty(PROPERTY_OPERATIONAL_LIMIT_SET_NAME)) {
+            operationalLimitSetName = limitsGroup.getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_NAME);
         } else {
             operationalLimitSetName = limitsGroup.getId();
         }
@@ -1647,7 +1646,7 @@ public final class EquipmentExport {
         Stream.concat(network.getLineCommutatedConverterStream(), network.getVoltageSourceConverterStream())
                 .forEach(converter -> {
                     // Multiple ACDCConverter can be contained in the same DCConverterUnit if this property value is common.
-                    String unitId = converter.getProperty(Conversion.PROPERTY_CGMES_DC_CONVERTER_UNIT,
+                    String unitId = converter.getProperty(PROPERTY_DC_CONVERTER_UNIT,
                             context.getNamingStrategy().getCgmesId(refTyped(converter), DC_CONVERTER_UNIT));
 
                     // Only create a new DCConverterUnit if it hasn't been created already for another AcDcConverter.

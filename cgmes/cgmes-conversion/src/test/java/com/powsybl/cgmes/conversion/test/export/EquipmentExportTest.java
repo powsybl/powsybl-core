@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
@@ -57,8 +56,7 @@ import java.util.*;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_EQUIVALENT_INJECTION;
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_EQUIVALENT_INJECTION_TERMINAL;
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerAliasType;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getRatioTapChangerAliasType;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
@@ -602,7 +600,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     private static boolean loadOriginalClass(Load load, String originalClass) {
-        String cgmesClass = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        String cgmesClass = load.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
         return cgmesClass != null && cgmesClass.equals(originalClass);
     }
 
@@ -618,7 +616,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setVoltageRegulatorOn(true).setTargetV(400)
                 .setTargetP(0).setMinP(0).setMaxP(10)
                 .add();
-        g.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "EquivalentInjection");
+        g.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "EquivalentInjection");
 
         // Export to CGMES only the EQ instance file
         Properties exportParams = new Properties();
@@ -678,7 +676,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     private static boolean generatorOriginalClass(Generator generator, String originalClass) {
-        String cgmesClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        String cgmesClass = generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
         return cgmesClass != null && cgmesClass.equals(originalClass);
     }
 
@@ -941,7 +939,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator expectedGenerator = network.getGenerator("generator1");
         expectedGenerator.setEnergySource(EnergySource.THERMAL);
         String expectedFuelType = "gas;lignite";
-        expectedGenerator.setProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE, expectedFuelType);
+        expectedGenerator.setProperty(PROPERTY_FOSSIL_FUEL_TYPE, expectedFuelType);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -954,7 +952,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the fuelType property
-        String actualFuelType = actualGenerator.getProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE);
+        String actualFuelType = actualGenerator.getProperty(PROPERTY_FOSSIL_FUEL_TYPE);
         assertEquals(expectedFuelType, actualFuelType);
     }
 
@@ -966,7 +964,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator expectedGenerator = network.getGenerator("generator1");
         expectedGenerator.setEnergySource(EnergySource.HYDRO);
         String expectedStorageKind = "pumpedStorage";
-        expectedGenerator.setProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE, expectedStorageKind);
+        expectedGenerator.setProperty(PROPERTY_HYDRO_PLANT_STORAGE_TYPE, expectedStorageKind);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -979,7 +977,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the storage kind property
-        String actualStorageKind = actualGenerator.getProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
+        String actualStorageKind = actualGenerator.getProperty(PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
         assertEquals(expectedStorageKind, actualStorageKind);
     }
 
@@ -991,7 +989,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator expectedGenerator = network.getGenerator("generator1");
         expectedGenerator.setMinP(-50.0).setMaxP(0.0).setTargetP(-10.0);
         String expectedSynchronousMachineKind = "motorOrCondenser";
-        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, expectedSynchronousMachineKind);
+        expectedGenerator.setProperty(PROPERTY_SYNCHRONOUS_MACHINE_TYPE, expectedSynchronousMachineKind);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -1004,7 +1002,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the synchronous machine kind
-        String actualSynchronousMachineKind = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
+        String actualSynchronousMachineKind = actualGenerator.getProperty(PROPERTY_SYNCHRONOUS_MACHINE_TYPE);
         assertEquals(expectedSynchronousMachineKind, actualSynchronousMachineKind);
     }
 
@@ -1924,8 +1922,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
         topology1.newInternalConnection().setNode1(0).setNode2(5).add();
         topology1.newInternalConnection().setNode1(0).setNode2(6).add();
         topology1.newInternalConnection().setNode1(0).setNode2(7).add();
-        windOnshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");
-        windOffshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "offshore");
+        windOnshore.setProperty(PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");
+        windOffshore.setProperty(PROPERTY_WIND_GEN_UNIT_TYPE, "offshore");
         return network;
     }
 

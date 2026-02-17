@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
@@ -222,12 +221,12 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
 
     private static Optional<String> getTerminalId(Connectable<?> connectable, ThreeSides side) {
         if (side == null) {
-            return connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL)
+            return connectable.getAliasFromType(ALIAS_TERMINAL)
                     .or(() -> connectable.getAliasFromType(ALIAS_TERMINAL1));
         }
         return switch (side) {
             case ONE -> connectable.getAliasFromType(ALIAS_TERMINAL1)
-                    .or(() -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL));
+                    .or(() -> connectable.getAliasFromType(ALIAS_TERMINAL));
             case TWO -> connectable.getAliasFromType(ALIAS_TERMINAL2);
             case THREE -> connectable.getAliasFromType(ALIAS_TERMINAL3);
         };

@@ -7,13 +7,13 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -213,7 +213,7 @@ class DanglingLineUpdateTest {
             assertTrue(Double.isNaN(danglingLine.getGeneration().getTargetQ()));
             assertFalse(danglingLine.getGeneration().isVoltageRegulationOn());
         }
-        assertNotNull(danglingLine.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertNotNull(danglingLine.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
     }
 
     private static void assertSsh(DanglingLine danglingLine, double p0, double q0, boolean withGeneration, double targetP, double targetQ, double targetV, boolean isRegulatingOn) {

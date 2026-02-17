@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
@@ -566,8 +565,8 @@ class CgmesExportTest {
         Generator generatorNoRcc = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
         Generator generatorRcc = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
 
-        generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-        generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+        generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
+        generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
 
         String exportFolder = "/test-generator-control";
         String baseName = "testGeneratorControl";
@@ -582,8 +581,8 @@ class CgmesExportTest {
             // Check that RegulatingControl is properly exported
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
-            generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+            generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
+            generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
 
             // RegulatingControl is exported when targetV is not NaN, even if voltage regulation is disabled
             generatorRcc.setVoltageRegulatorOn(false);
@@ -592,8 +591,8 @@ class CgmesExportTest {
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
-            generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+            generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
+            generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
 
             // RegulatingControl isn't exported when targetV is NaN
             double rccTargetV = generatorRcc.getTargetV();
@@ -625,8 +624,8 @@ class CgmesExportTest {
             assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
 
             // RegulatingControl is however exported when the corresponding CGMES property is present
-            generatorRcc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, "3a3b27be-b18b-4385-b557-6735d733baf0_RC");
-            generatorNoRcc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, "550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC");
+            generatorRcc.setProperty(PROPERTY_REGULATING_CONTROL, "3a3b27be-b18b-4385-b557-6735d733baf0_RC");
+            generatorNoRcc.setProperty(PROPERTY_REGULATING_CONTROL, "550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC");
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));

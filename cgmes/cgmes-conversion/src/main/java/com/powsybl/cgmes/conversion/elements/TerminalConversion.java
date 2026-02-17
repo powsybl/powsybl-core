@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -160,15 +159,14 @@ public final class TerminalConversion {
                 .setKind(SwitchKind.BREAKER)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
-        sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
-        sw.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL, cgmesTerminalId);
+        sw.setProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
+        sw.setProperty(PROPERTY_TERMINAL, cgmesTerminalId);
     }
 
     static Terminal getTerminal(Connectable<?> connectable, String terminalId) {
         String aliasType = connectable.getAliasType(terminalId).orElse("");
         return switch (aliasType) {
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL,
-                 ALIAS_TERMINAL1 -> connectable.getTerminals().get(0);
+            case ALIAS_TERMINAL, ALIAS_TERMINAL1 -> connectable.getTerminals().get(0);
             case ALIAS_TERMINAL2 -> connectable.getTerminals().get(1);
             case ALIAS_TERMINAL3 -> connectable.getTerminals().get(2);
             case ALIAS_TERMINAL_BOUNDARY -> null;
@@ -186,7 +184,7 @@ public final class TerminalConversion {
     }
 
     private static Optional<Boolean> getIsTerminalConnected(Switch sw, Context context) {
-        String cgmesTerminalId = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL);
+        String cgmesTerminalId = sw.getProperty(PROPERTY_TERMINAL);
         return cgmesTerminalId != null
                 ? Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)).flatMap(cgmesTerminal -> cgmesTerminal.asBoolean(CgmesNames.CONNECTED))
                 : Optional.empty();

@@ -172,6 +172,9 @@ public final class CgmesNames {
     public static final String P_FIXED = "pFixed";
     public static final String Q_FIXED = "qFixed";
     public static final String TERMINAL_SIGN = "terminalSign";
+    public static final String TERMINAL_SIGN1 = "terminalSign1";
+    public static final String TERMINAL_SIGN2 = "terminalSign2";
+    public static final String TERMINAL_SIGN3 = "terminalSign3";
     public static final String GENERATING_UNIT = "GeneratingUnit";
     public static final String NORMAL_PF = "normalPF";
     public static final String REGULATION_CAPABILITY = "regulationCapability";
