@@ -37,18 +37,16 @@ class ScalableAdapter extends AbstractScalable {
     private Scalable getScalable(Network n) {
         Objects.requireNonNull(n);
         Identifiable<?> identifiable = n.getIdentifiable(id);
-        if (identifiable == null) {
-            throw new PowsyblException("Unable to find identifiable " + id);
-        }
         boolean withValues = minValue != null && maxValue != null;
-        return switch (identifiable) {
-            case Generator generator ->
-                    withValues ? new GeneratorScalable(id, minValue, maxValue) : new GeneratorScalable(id);
-            case Load load -> withValues ? new LoadScalable(id, minValue, maxValue) : new LoadScalable(id);
-            case DanglingLine danglingLine ->
-                    withValues ? new DanglingLineScalable(id, minValue, maxValue) : new DanglingLineScalable(id);
-            default -> throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
-        };
+        if (identifiable instanceof Generator) {
+            return withValues ? new GeneratorScalable(id, minValue, maxValue) : new GeneratorScalable(id);
+        } else if (identifiable instanceof Load) {
+            return withValues ? new LoadScalable(id, minValue, maxValue) : new LoadScalable(id);
+        } else if (identifiable instanceof DanglingLine) {
+            return withValues ? new DanglingLineScalable(id, minValue, maxValue) : new DanglingLineScalable(id);
+        } else {
+            throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
+        }
     }
 
     @Override
