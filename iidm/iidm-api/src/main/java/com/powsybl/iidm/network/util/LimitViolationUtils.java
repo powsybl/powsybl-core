@@ -203,22 +203,43 @@ public final class LimitViolationUtils {
         return new PermanentLimitCheckResult(false, originalPermanentLimit, limitReductionValue, opGroupId);
     }
 
-    public static boolean checkPermanentLimit(Branch<?> branch, TwoSides side, double limitReductionValue, double i, LimitType type) {
-        return getLimits(branch, side.toThreeSides(), type, LimitsComputer.NO_MODIFICATIONS)
-            .map(l -> checkPermanentLimitIfAny(l, i, limitReductionValue).isOverload())
-            .orElse(false);
+    /**
+     * Checks if the value <code>i</code> goes over any permanent limit of the <code>type</code>, for the <code>side</code> of the <code>identifiable</code>, taking into
+     * account any potential modification of that limit by a factor <code>limitReductionValue</code>
+     * @param identifiable the identifiable on which to check the permanent limits (usually a branch or a three-winding transformer)
+     * @param side the side of the identifiable to look (two sides)
+     * @param limitReductionValue used to reduce the permanent limit
+     * @param i the physical value of electrical value of the given type (Ampere for current, MVar for reactive power, MW for active power)
+     * @param type the type of the electrical value we are checking
+     * @return true if <code>i</code> is above any of the selected {@link OperationalLimitsGroup} permanent limit, false otherwise
+     */
+    public static boolean checkPermanentLimit(Identifiable<?> identifiable, TwoSides side, double limitReductionValue, double i, LimitType type) {
+        return checkPermanentLimit(identifiable, side.toThreeSides(), limitReductionValue, i, type);
+    }
+
+    /**
+     * Checks if the value <code>i</code> goes over any permanent limit of the <code>type</code>, for the <code>side</code> of the <code>identifiable</code>, taking into
+     * account any potential modification of that limit by a factor <code>limitReductionValue</code>
+     * @param identifiable the identifiable on which to check the permanent limits (usually a branch or a three-winding transformer)
+     * @param side the side of the identifiable to look (three sides)
+     * @param limitReductionValue used to reduce the permanent limit
+     * @param i the physical value of electrical value of the given type (Ampere for current, MVar for reactive power, MW for active power)
+     * @param type the type of the electrical value we are checking
+     * @return true if <code>i</code> is above any of the selected {@link OperationalLimitsGroup} permanent limit, false otherwise
+     */
+    public static boolean checkPermanentLimit(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, double i, LimitType type) {
+        for (LimitsContainer<LoadingLimits> limit : getAllLimits(identifiable, side, type, LimitsComputer.NO_MODIFICATIONS)) {
+            if (checkPermanentLimitIfAny(limit, i, limitReductionValue).isOverload()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static PermanentLimitCheckResult checkPermanentLimit(Branch<?> branch, TwoSides side, double i, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
         return getLimits(branch, side.toThreeSides(), type, computer)
                 .map(l -> checkPermanentLimitIfAny(l, i))
                 .orElse(new PermanentLimitCheckResult(false, Double.NaN, 1.0, ""));
-    }
-
-    public static boolean checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double i, LimitType type) {
-        return getLimits(transformer, side, type, LimitsComputer.NO_MODIFICATIONS)
-            .map(l -> checkPermanentLimitIfAny(l, i, limitReductionValue).isOverload())
-            .orElse(false);
     }
 
     public static PermanentLimitCheckResult checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
