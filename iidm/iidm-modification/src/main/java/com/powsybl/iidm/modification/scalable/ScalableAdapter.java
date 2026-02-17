@@ -16,8 +16,8 @@ import java.util.Objects;
 class ScalableAdapter extends AbstractScalable {
 
     private final String id;
-    private final double minValue;
-    private final double maxValue;
+    private Double minValue = null;
+    private Double maxValue = null;
 
     public ScalableAdapter(String id, double minValue, double maxValue) {
         this.id = Objects.requireNonNull(id);
@@ -26,25 +26,29 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     public ScalableAdapter(String id) {
-        this(id, -Double.MAX_VALUE, Double.MAX_VALUE);
+        this.id = Objects.requireNonNull(id);
     }
 
     public ScalableAdapter(Injection<?> injection) {
-        this(Objects.requireNonNull(injection).getId(), -Double.MAX_VALUE, Double.MAX_VALUE);
+        Objects.requireNonNull(injection);
+        this.id = injection.getId();
     }
 
     private Scalable getScalable(Network n) {
         Objects.requireNonNull(n);
         Identifiable<?> identifiable = n.getIdentifiable(id);
-        if (identifiable instanceof Generator) {
-            return new GeneratorScalable(id, minValue, maxValue);
-        } else if (identifiable instanceof Load) {
-            return new LoadScalable(id, Math.max(0.0, minValue), maxValue);
-        } else if (identifiable instanceof DanglingLine) {
-            return new DanglingLineScalable(id, minValue, maxValue);
-        } else {
-            throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
+        if (identifiable == null) {
+            throw new PowsyblException("Unable to find identifiable " + id);
         }
+        boolean withValues = minValue != null && maxValue != null;
+        return switch (identifiable) {
+            case Generator generator ->
+                    withValues ? new GeneratorScalable(id, minValue, maxValue) : new GeneratorScalable(id);
+            case Load load -> withValues ? new LoadScalable(id, minValue, maxValue) : new LoadScalable(id);
+            case DanglingLine danglingLine ->
+                    withValues ? new DanglingLineScalable(id, minValue, maxValue) : new DanglingLineScalable(id);
+            default -> throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
+        };
     }
 
     @Override
