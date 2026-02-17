@@ -1,8 +1,8 @@
 # Export
 
-There exists three import formats:
-- xml: "XIIDM"
-- json: "JIIDM"
+Networks can be exported in three IIDM formats:
+- XML: "XIIDM"
+- JSON: "JIIDM"
 - binary: "BIIDM"
 
 ### Exporting with default values
