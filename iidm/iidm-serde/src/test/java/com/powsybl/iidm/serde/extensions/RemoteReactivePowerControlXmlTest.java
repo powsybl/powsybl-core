@@ -107,7 +107,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
 
         // check it doesn't fail for all versions < 1.5 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteXmlAllPreviousVersions(network, options, "remoteReactivePowerControlNotSupported.xml", IidmVersion.V_1_5);
+        testWriteTxtAllPreviousVersions(network, options, "remoteReactivePowerControlNotSupported.xml", IidmVersion.V_1_5);
     }
 
     private static void write(Network network, Path path, IidmVersion version) {

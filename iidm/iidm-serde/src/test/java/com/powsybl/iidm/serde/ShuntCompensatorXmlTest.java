@@ -61,7 +61,7 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
 
         // check that it doesn't fail for versions previous to 1.2 when log error is the IIDM version incompatibility behavior
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteXmlAllPreviousVersions(network, options, "nonLinearShuntRoundTripRef.xml", IidmVersion.V_1_3);
+        testWriteTxtAllPreviousVersions(network, options, "nonLinearShuntRoundTripRef.xml", IidmVersion.V_1_3);
     }
 
     @Test

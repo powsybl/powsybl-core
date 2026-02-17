@@ -98,7 +98,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteXmlAllPreviousVersions(network, options, "eurostag-loading-limits.xml", IidmVersion.V_1_5);
+        testWriteTxtAllPreviousVersions(network, options, "eurostag-loading-limits.xml", IidmVersion.V_1_5);
     }
 
     @Test
@@ -132,7 +132,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteXmlAllPreviousVersions(network, options, "tl-loading-limits.xml", IidmVersion.V_1_5);
+        testWriteTxtAllPreviousVersions(network, options, "tl-loading-limits.xml", IidmVersion.V_1_5);
     }
 
     @Test
@@ -164,7 +164,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteXmlAllPreviousVersions(network, options, "t3w-loading-limits.xml", IidmVersion.V_1_5);
+        testWriteTxtAllPreviousVersions(network, options, "t3w-loading-limits.xml", IidmVersion.V_1_5);
     }
 
     @Test
