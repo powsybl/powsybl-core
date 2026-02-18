@@ -261,4 +261,13 @@ public abstract class AbstractBusBreakerTest {
         assertThrows(PowsyblException.class, () -> nodeBreakerView.getNodeInternalConnectedToStream(2), "Not supported in a bus breaker topology");
         assertThrows(PowsyblException.class, () -> nodeBreakerView.getNodesInternalConnectedTo(3), "Not supported in a bus breaker topology");
     }
+
+    @Test
+    void testFictitiousP0AndFictitiousQ0ForInvalidatedBus() {
+        Network network = createTestNetwork();
+        Bus bus = network.getVoltageLevel("VL1").getBusView().getBus("VL1_0");
+        network.getSwitch("BR1").setOpen(true);
+        assertThrows(PowsyblException.class, bus::getFictitiousP0, "Bus has been invalidated");
+        assertThrows(PowsyblException.class, bus::getFictitiousQ0, "Bus has been invalidated");
+    }
 }
