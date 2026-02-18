@@ -53,7 +53,7 @@ public class ReferencePrioritiesSerDe<C extends Connectable<C>> extends Abstract
         for (ReferencePriority referencePriority : extension.getReferencePriorities()) {
             writer.writeStartNode(getNamespaceUri(), REFERENCE_PRIORITY_ROOT_ELEMENT_NAME);
             writer.writeIntAttribute("priority", referencePriority.getPriority());
-            TerminalRefSerDe.writeTerminalRefAttribute(referencePriority.getTerminal(), networkContext);
+            TerminalRefSerDe.writeTerminalRefAttribute(referencePriority.getTerminal(), networkContext, REFERENCE_PRIORITY_ROOT_ELEMENT_NAME);
             writer.writeEndNode();
         }
         writer.writeEndNodes();

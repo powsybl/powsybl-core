@@ -31,7 +31,7 @@ public class AreaBoundarySerDe {
             writer.writeBooleanAttribute("ac", boundary.isAc());
             boundary.getTerminal().ifPresent(terminal -> {
                 writer.writeStringAttribute("type", TERMINAL_REF);
-                TerminalRefSerDe.writeTerminalRefAttribute(terminal, context, writer);
+                TerminalRefSerDe.writeTerminalRefAttribute(terminal, context, TERMINAL_REF, writer);
             });
             boundary.getBoundary().ifPresent(danglingLineBoundary -> {
                 writer.writeStringAttribute("type", BoundaryRefSerDe.ROOT_ELEMENT_NAME);

@@ -53,7 +53,7 @@ public class ReferenceTerminalsSerDe extends AbstractExtensionSerDe<Network,
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         for (Terminal terminal : extension.getReferenceTerminals()) {
             writer.writeStartNode(getNamespaceUri(), REFERENCE_TERMINAL_ROOT_ELEMENT_NAME);
-            TerminalRefSerDe.writeTerminalRefAttribute(terminal, networkContext);
+            TerminalRefSerDe.writeTerminalRefAttribute(terminal, networkContext, REFERENCE_TERMINAL_ROOT_ELEMENT_NAME);
             writer.writeEndNode();
         }
         writer.writeEndNodes();
