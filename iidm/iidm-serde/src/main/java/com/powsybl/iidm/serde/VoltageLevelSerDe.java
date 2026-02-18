@@ -349,8 +349,16 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 case VscConverterStationSerDe.ROOT_ELEMENT_NAME -> VscConverterStationSerDe.INSTANCE.read(vl, context);
                 case LccConverterStationSerDe.ROOT_ELEMENT_NAME -> LccConverterStationSerDe.INSTANCE.read(vl, context);
                 case GroundSerDe.ROOT_ELEMENT_NAME -> GroundSerDe.INSTANCE.read(vl, context);
-                case LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME -> LineCommutatedConverterSerDe.INSTANCE.read(vl, context);
-                case VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME -> VoltageSourceConverterSerDe.INSTANCE.read(vl, context);
+                case LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME,
+                            IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
+                    LineCommutatedConverterSerDe.INSTANCE.read(vl, context);
+                }
+                case VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME,
+                            IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
+                    VoltageSourceConverterSerDe.INSTANCE.read(vl, context);
+                }
                 default -> readSubElement(elementName, vl, context);
             }
         });
