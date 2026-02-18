@@ -89,6 +89,7 @@ public abstract class AbstractTieLineTest {
                 .setX(x2)
                 .setB(hl2b1 + hl2b2)
                 .setG(hl2g1 + hl2g2)
+                .setPairingKey("ucte")
                 .add();
 
         assertEquals(List.of(dl1, dl2), network.getDanglingLines(DanglingLineFilter.UNPAIRED));
@@ -191,9 +192,182 @@ public abstract class AbstractTieLineTest {
         assertTrue(otherSide2.isPresent());
         assertEquals(danglingLine1, otherSide2.orElseThrow());
 
-        // try to change pairing key, but not allowed.
-        assertThrows(ValidationException.class, () -> danglingLine1.setPairingKey("new_code"),
-                "Dangling line 'hl1': pairing key cannot be set if dangling line is paired.");
+    }
+
+    @Test
+    public void inconsistentPairingKeysTest() {
+        network = EurostagTutorialExample1Factory.createWithTieLine();
+
+        // Remove tie line to separate dangling lines
+        network.getTieLine("NHV1_NHV2_1").remove();
+        DanglingLine dl11 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE1_1);
+        DanglingLine dl12 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE1_2);
+        assertFalse(dl11.isPaired());
+        assertFalse(dl12.isPaired());
+
+        // trying to pair back with non-consistent pairing keys
+        dl11.setPairingKey("anotherPairingKey");
+        TieLineAdder tla = network.newTieLine()
+                .setId("tl")
+                .setDanglingLine1(dl11.getId())
+                .setDanglingLine2(dl12.getId());
+        ValidationException e = assertThrows(ValidationException.class, tla::add);
+        assertEquals("AC tie Line 'tl': danglingLine1 pairingKey (anotherPairingKey) is not consistent with danglingLine2 pairingKey (XNODE1)", e.getMessage());
+
+        // trying to pair back with a null pairing key on one side
+        dl11.setPairingKey(null);
+        tla.setDanglingLine1(dl11.getId())
+                .setDanglingLine2(dl12.getId());
+        e = assertThrows(ValidationException.class, tla::add);
+        assertEquals("AC tie Line 'tl': danglingLine1 pairingKey is null", e.getMessage());
+
+        // trying to pair back with a null pairing key on the other side
+        tla.setDanglingLine1(dl12.getId())
+                .setDanglingLine2(dl11.getId());
+        e = assertThrows(ValidationException.class, tla::add);
+        assertEquals("AC tie Line 'tl': danglingLine2 pairingKey is null", e.getMessage());
+    }
+
+    @Test
+    public void setPairingKeyWithMultipleConnectedCandidatesTest() {
+        String pairingKey = "XNODE";
+
+        DanglingLine candidate1 = voltageLevelA.newDanglingLine()
+                .setId("DL_CANDIDATE_1")
+                .setBus("busA")
+                .setPairingKey(pairingKey)
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+
+        DanglingLine candidate2 = voltageLevelA.newDanglingLine()
+                .setId("DL_CANDIDATE_2")
+                .setBus("busA")
+                .setPairingKey(pairingKey)
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+
+        DanglingLine probeLine = voltageLevelB.newDanglingLine()
+                .setId("DL_PROBE")
+                .setBus("busB")
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+
+        probeLine.setPairingKey(pairingKey);
+
+        assertFalse(network.getTieLines().iterator().hasNext());
+        assertFalse(probeLine.isPaired());
+        assertFalse(candidate1.isPaired());
+        assertFalse(candidate2.isPaired());
+    }
+
+    @Test
+    public void setPairingKeyWithMultipleDisconnectedCandidatesTest() {
+        String pairingKey = "DISCONNECTED_KEY";
+
+        DanglingLine dlDisc1 = voltageLevelA.newDanglingLine()
+                .setId("DL_DISC_1")
+                .setBus("busA")
+                .setPairingKey(pairingKey)
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+        dlDisc1.getTerminal().disconnect();
+
+        DanglingLine dlDisc2 = voltageLevelA.newDanglingLine()
+                .setId("DL_DISC_2")
+                .setBus("busA")
+                .setPairingKey(pairingKey)
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+        dlDisc2.getTerminal().disconnect();
+
+        DanglingLine probeLine = voltageLevelB.newDanglingLine()
+                .setId("DL_PROBE")
+                .setBus("busB")
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .add();
+
+        probeLine.setPairingKey(pairingKey);
+
+        assertFalse(network.getTieLines().iterator().hasNext());
+    }
+
+    @Test
+    public void changePairingKeyTest() {
+
+        DanglingLine dl1 = voltageLevelA.newDanglingLine()
+                .setId("DL1")
+                .setBus("busA")
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .setPairingKey("KEY")
+                .add();
+
+        DanglingLine dl2 = voltageLevelB.newDanglingLine()
+                .setId("DL2")
+                .setBus("busB")
+                .setR(1.0).setX(1.0).setP0(200).setQ0(0)
+                .setPairingKey("KEY")
+                .add();
+
+        TieLine tieLine = network.newTieLine()
+                .setId("TIE1")
+                .setDanglingLine1(dl1.getId())
+                .setDanglingLine2(dl2.getId())
+                .add();
+
+        assertNotNull(network.getTieLine("TIE1"));
+        assertTrue(dl1.isPaired());
+        assertTrue(dl2.isPaired());
+
+        dl2.setPairingKey("newKey");
+
+        assertNull(network.getTieLine("TIE1"));
+        assertFalse(dl1.isPaired());
+        assertFalse(dl2.isPaired());
+    }
+
+    @Test
+    public void setPairingKeyTest() {
+        network = EurostagTutorialExample1Factory.createWithTieLine();
+
+        // First tie line
+        DanglingLine dl11 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE1_1);
+        DanglingLine dl12 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE1_2);
+        String tl1Id = "NHV1_NHV2_1";
+        assertEquals(tl1Id, dl11.getTieLine().map(TieLine::getId).orElse(null));
+        assertEquals(tl1Id, dl12.getTieLine().map(TieLine::getId).orElse(null));
+
+        // should not unpair if setting same pairing key
+        String pairingKey1 = dl11.getPairingKey();
+        dl11.setPairingKey(pairingKey1);
+        assertTrue(dl11.isPaired());
+        assertTrue(dl12.isPaired());
+        assertNotNull(network.getTieLine(tl1Id));
+
+        // unpair tie line tl1 by setting a new pairing key on dl11
+        String newPairingKey = "new pairing key";
+        dl11.setPairingKey(newPairingKey);
+        assertFalse(dl11.isPaired());
+        assertFalse(dl12.isPaired());
+        assertNull(network.getTieLine(tl1Id));
+
+        // Second tie line
+        DanglingLine dl21 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE2_1);
+        DanglingLine dl22 = network.getDanglingLine(EurostagTutorialExample1Factory.DANGLING_LINE_XNODE2_2);
+        String tl2Id = "NHV1_NHV2_2";
+        assertEquals(tl2Id, dl21.getTieLine().map(TieLine::getId).orElse(null));
+        assertEquals(tl2Id, dl22.getTieLine().map(TieLine::getId).orElse(null));
+
+        // unpair tie line tl2 and create new tie line by setting the same new pairing key on dl22
+        dl22.setPairingKey(newPairingKey);
+        assertTrue(dl11.isPaired());
+        assertTrue(dl22.isPaired());
+        assertFalse(dl21.isPaired());
+        assertNull(network.getTieLine(tl2Id));
+
+        // pairing together the two remaining dangling lines dl12 and dl21
+        dl21.setPairingKey(pairingKey1);
+        assertTrue(dl12.isPaired());
+        assertTrue(dl21.isPaired());
     }
 
     @Test
@@ -414,6 +588,7 @@ public abstract class AbstractTieLineTest {
                 .setG(g)
                 .setP0(0)
                 .setQ0(0)
+                .setPairingKey(code)
                 .add();
         DanglingLine dl2 = voltageLevelB.newDanglingLine()
                 .setBus("busB")
