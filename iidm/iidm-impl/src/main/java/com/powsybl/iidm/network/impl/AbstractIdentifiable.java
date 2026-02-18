@@ -33,6 +33,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     private final Set<String> aliasesWithoutType = new HashSet<>();
     private final Map<String, String> aliasesByType = new HashMap<>();
+    private int sortIndex;
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -217,6 +218,16 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public Set<String> getPropertyNames() {
         return properties.getPropertyNames();
+    }
+
+    @Override
+    public int getSortIndex() {
+        return sortIndex;
+    }
+
+    @Override
+    public void setSortIndex(int sortIndex) {
+        this.sortIndex = sortIndex;
     }
 
     @Override

@@ -37,6 +37,13 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I>, 
     String getId();
 
     /**
+     * Get the sort index of the object.
+     */
+    int getSortIndex();
+
+    void setSortIndex(int index);
+
+    /**
      * Get the aliases of the object.
      */
     default Set<String> getAliases() {
