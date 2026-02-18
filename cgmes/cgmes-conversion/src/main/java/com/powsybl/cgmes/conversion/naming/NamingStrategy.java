@@ -91,37 +91,4 @@ public interface NamingStrategy {
         }
         return new CgmesObjectReference[]{refTyped(identifiable), Part.GENERATING_UNIT};
     }
-
-    final class Identity implements NamingStrategy {
-
-        @Override
-        public String getName() {
-            return NamingStrategyFactory.IDENTITY;
-        }
-
-        @Override
-        public String getIidmId(String type, String id) {
-            return id;
-        }
-
-        @Override
-        public String getCgmesId(Identifiable<?> identifiable) {
-            return identifiable.getId();
-        }
-
-        @Override
-        public String getIidmName(String type, String name) {
-            return name;
-        }
-
-        @Override
-        public void debug(String baseName, DataSource ds) {
-            // do nothing
-        }
-
-        @Override
-        public String getCgmesId(CgmesObjectReference... refs) {
-            return CgmesObjectReference.combine(refs);
-        }
-    }
 }
