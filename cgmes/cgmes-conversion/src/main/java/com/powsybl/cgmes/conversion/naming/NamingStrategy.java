@@ -30,27 +30,15 @@ public interface NamingStrategy {
 
     String getCgmesId(Identifiable<?> identifiable);
 
-    default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
-        if (identifiable.getAliasFromType(aliasType).isPresent()) {
-            return getCgmesId(identifiable.getAliasFromType(aliasType).orElseThrow());
-        }
-        return getCgmesId(getCgmesObjectReferences(identifiable, aliasType));
-    }
+    String getCgmesId(CgmesObjectReference... refs);
 
-    default String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
-        if (identifiable.hasProperty(propertyName)) {
-            return getCgmesId(identifiable.getProperty(propertyName));
-        }
-        return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
-    }
+    String getCgmesId(String identifier);
 
-    default String getCgmesId(String identifier) {
-        return identifier;
-    }
+    String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType);
+
+    String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName);
 
     void debug(String baseName, DataSource ds);
-
-    String getCgmesId(CgmesObjectReference... refs);
 
     default CgmesObjectReference[] getCgmesObjectReferences(Identifiable<?> identifiable, String aliasOrProperty) {
         return switch (aliasOrProperty) {
