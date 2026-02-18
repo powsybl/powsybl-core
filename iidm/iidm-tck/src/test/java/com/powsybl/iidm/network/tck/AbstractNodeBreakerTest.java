@@ -18,6 +18,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -596,5 +599,128 @@ public abstract class AbstractNodeBreakerTest {
         assertNotNull(busBv);
         assertEquals(1, n.getBusView().getBusStream().count());
         assertEquals(3, busBv.getConnectedTerminalCount());
+    }
+
+    @Test
+    public void testCalculatedBusConnectableTerminals() {
+        // Create a network where we have a calculated bus with both connected and connectable terminals
+        Network network = Network.create("test", "test");
+        Substation s = network.newSubstation().setId("S").add();
+        VoltageLevel vl = s.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        // Create busbar section at node 0
+        vl.getNodeBreakerView().newBusbarSection().setId("BBS").setNode(0).add();
+
+        // Create connected load at node 1
+        vl.newLoad().setId("L1").setNode(1).setP0(10).setQ0(0).add();
+
+        // Create disconnected generator at node 2 (connectable but not connected)
+        vl.newGenerator()
+                .setId("G1")
+                .setNode(2)
+                .setMinP(0)
+                .setMaxP(100)
+                .setTargetP(50)
+                .setTargetV(400)
+                .setVoltageRegulatorOn(true)
+                .add();
+
+        // Connect BBS to L1 via closed breaker
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B1")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(false)
+                .add();
+
+        // Connect BBS to G1 via open breaker (G1 is connectable but not connected)
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B2")
+                .setNode1(0)
+                .setNode2(2)
+                .setOpen(true)
+                .add();
+
+        // Get the calculated bus in bus view (bus topology)
+        Bus bus = vl.getBusView().getBus("VL_0");
+        assertNotNull(bus);
+
+        // Verify visitConnectedOrConnectableEquipments includes all equipments
+        List<Connectable<?>> visitedConnectables = new ArrayList<>();
+        bus.visitConnectedOrConnectableEquipments(new TopologyVisitor() {
+            @Override
+            public void visitBusbarSection(BusbarSection section) {
+                visitedConnectables.add(section);
+            }
+
+            @Override
+            public void visitLoad(Load load) {
+                visitedConnectables.add(load);
+            }
+
+            @Override
+            public void visitGenerator(Generator generator) {
+                visitedConnectables.add(generator);
+            }
+
+            @Override
+            public void visitLine(Line line, TwoSides side) {
+                visitedConnectables.add(line);
+            }
+
+            @Override
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
+                visitedConnectables.add(transformer);
+            }
+
+            @Override
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
+                visitedConnectables.add(transformer);
+            }
+
+            @Override
+            public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+                visitedConnectables.add(converterStation);
+            }
+
+            @Override
+            public void visitShuntCompensator(ShuntCompensator compensator) {
+                visitedConnectables.add(compensator);
+            }
+
+            @Override
+            public void visitDanglingLine(DanglingLine danglingLine) {
+                visitedConnectables.add(danglingLine);
+            }
+
+            @Override
+            public void visitStaticVarCompensator(StaticVarCompensator compensator) {
+                visitedConnectables.add(compensator);
+            }
+
+            @Override
+            public void visitGround(Ground ground) {
+                visitedConnectables.add(ground);
+            }
+
+            @Override
+            public void visitBattery(Battery battery) {
+                visitedConnectables.add(battery);
+            }
+
+            @Override
+            public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
+                visitedConnectables.add(converter);
+            }
+        });
+        assertEquals(2, bus.getConnectedTerminalCount());
+        assertEquals(3, visitedConnectables.size(), "Should visit 3 equipments: BBS, L1, and G1");
+        assertTrue(visitedConnectables.stream().anyMatch(c -> "BBS".equals(c.getId())));
+        assertTrue(visitedConnectables.stream().anyMatch(c -> "L1".equals(c.getId())));
+        assertTrue(visitedConnectables.stream().anyMatch(c -> "G1".equals(c.getId())));
     }
 }
