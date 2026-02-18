@@ -336,4 +336,14 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     public double getValueForLimit(Terminal t, LimitType type) {
         return BranchUtil.getValueForLimit(t, type);
     }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, LimitType type) {
+        return checkAllTemporaryLimits(side, 1, type);
+    }
 }
