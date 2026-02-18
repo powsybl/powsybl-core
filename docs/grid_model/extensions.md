@@ -310,6 +310,19 @@ This extension models the homopolar line data to be used for asymmetrical short-
 
 This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
+(line-mutual-coupling)=
+## Line Mutual Coupling
+
+This extension models the mutual coupling of two lines.
+It should be added to a line. 
+
+| Attribute | Type   | Unit | Required | Default value | Description                                |
+|-----------|--------|------|----------|---------------|--------------------------------------------|
+| r         | double | Ω    | no       | -             | The mutual coupling resistance of the line |
+| x         | double | Ω    | no       | -             | The mutual coupling reactance of the line  |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
 (two-winding-transformer-fortescue)=
 ## Two-winding Transformer Fortescue
 
