@@ -39,7 +39,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -173,7 +172,7 @@ public class PowerFactoryImporter implements Importer {
         // We need to create the HVDC converter now so that we can discard the DC lines and
         // DC nodes from some AC grid processing, before the network is ready
         // to be enriched with the DC subgrids.
-        AbstractHvdcConverter hvdcConverter = null;
+        AbstractHvdcConverter hvdcConverter;
         // simplified HVDC = lines only
         // detailed = possibly full multi-terminals DC subgrids
         if (Parameter.readBoolean(getFormat(), parameters, HVDC_IMPORT_DETAILED_PARAMETER, defaultValueConfig)) {
@@ -228,7 +227,7 @@ public class PowerFactoryImporter implements Importer {
      * @return List of terminals.
      * This guarantees consistency between PowerFactoryImporter and the HVDC converters.
      */
-    static List<DataObject> gatherElmTerms(List<DataObject> elmNets){
+    static List<DataObject> gatherElmTerms(List<DataObject> elmNets) {
         Objects.requireNonNull(elmNets);
         assert elmNets.isEmpty() || "ElmNet".equals(elmNets.getFirst().getDataClassName());
         return elmNets.stream()
@@ -241,7 +240,7 @@ public class PowerFactoryImporter implements Importer {
      * @return List of ACDC converters.
      * This guarantees consistency between PowerFactoryImporter and the HVDC converters.
      */
-    static List<DataObject> gatherElmVscs(List<DataObject> elmNets){
+    static List<DataObject> gatherElmVscs(List<DataObject> elmNets) {
         Objects.requireNonNull(elmNets);
         assert elmNets.isEmpty() || "ElmNet".equals(elmNets.getFirst().getDataClassName());
         return elmNets.stream()
@@ -253,7 +252,7 @@ public class PowerFactoryImporter implements Importer {
      * @param network PowSyBl network where to attach the slack buses.
      * @param slackObjects collection of slack buses gathered in convertEquipment.
      */
-    private static void attachSlackBus(Network network, List<DataObject> slackObjects){
+    private static void attachSlackBus(Network network, List<DataObject> slackObjects) {
         assert slackObjects.isEmpty()
                 || Set.of("ElmGenstat", "ElmAsm", "ElmSym").contains(slackObjects.getFirst().getDataClassName());
         // It might be possible to inline this directly to convertEquipment, without

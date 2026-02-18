@@ -28,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,10 +75,14 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     }
 
     private Network importAndCompareXml(String id, String fileExtension) {
+        return importAndCompareXml(id, fileExtension, null);
+    }
+
+    private Network importAndCompareXml(String id, String fileExtension, Properties parameters) {
         Network network = new PowerFactoryImporter()
                 .importData(new ResourceDataSource(id, new ResourceSet("/", id + fileExtension)),
                         NetworkFactory.findDefault(),
-                        null);
+                        parameters);
 
         Path file = fileSystem.getPath("/work/" + id + ".xiidm");
         network.setCaseDate(ZonedDateTime.parse("2021-01-01T10:00:00.000+02:00"));
@@ -499,6 +504,13 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     @Test
     void threeMibPhaseWinding12() {
         assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding12", 575.835158, 0.09));
+    }
+
+    @Test
+    void simpleAcDcCase() {
+        Properties importParams = new Properties();
+        importParams.put(PowerFactoryImporter.HVDC_IMPORT_DETAILED, true);
+        importAndCompareXml("hvdc-3-VSC-ACDC-links", ".dgs", importParams);
     }
 
     private boolean threeWindingPhaseImportCompareXmlAndNetworkBalance(String caseFile, double targetQ, double tol) {
