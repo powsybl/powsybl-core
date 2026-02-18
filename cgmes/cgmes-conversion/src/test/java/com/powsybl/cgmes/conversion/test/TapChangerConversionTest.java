@@ -14,6 +14,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -127,6 +128,29 @@ class TapChangerConversionTest extends AbstractSerDeTest {
         assertTapStep(steps2.get(-0), 0.0, 0.0);
         assertTapStep(steps2.get(1), 1.0, 2.5);
         assertTapStep(steps2.get(2), 2.0, 10.0);
+    }
+
+    @Test
+    void tapChangerControlIdTest() throws IOException {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+
+        // The IIDM ThreeWindingTransformer has 2 RatioTapChanger, each regulating a different terminal.
+        ThreeWindingsTransformer tw3 = network.getThreeWindingsTransformer("3WT");
+        assertFalse(tw3.getLeg1().hasRatioTapChanger());
+        assertTrue(tw3.getLeg2().hasRatioTapChanger());
+        assertEquals("LOAD_33", tw3.getLeg2().getRatioTapChanger().getRegulationTerminal().getConnectable().getId());
+        assertTrue(tw3.getLeg3().hasRatioTapChanger());
+        assertEquals("LOAD_11", tw3.getLeg3().getRatioTapChanger().getRegulationTerminal().getConnectable().getId());
+
+        // The CGMES (3-winding) PowerTransformer has 2 CGMES RatioTapChanger, each having its own TapChangerControl.
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        assertEquals(2, getElementCount(eqFile, "TapChangerControl"));
+        String sshFile = writeCgmesProfile(network, "SSH", tmpDir);
+        assertEquals(2, getElementCount(sshFile, "TapChangerControl"));
+        String leg2RatioTapChanger = getElement(eqFile, "RatioTapChanger", "3WT_PT_RTC_2");
+        assertEquals("3WT_RTC_2_RC", getResource(leg2RatioTapChanger, "TapChanger.TapChangerControl"));
+        String leg3RatioTapChanger = getElement(eqFile, "RatioTapChanger", "3WT_PT_RTC_3");
+        assertEquals("3WT_RTC_3_RC", getResource(leg3RatioTapChanger, "TapChanger.TapChangerControl"));
     }
 
     private void assertTapStep(PhaseTapChangerStep step, double alpha, double x) {
