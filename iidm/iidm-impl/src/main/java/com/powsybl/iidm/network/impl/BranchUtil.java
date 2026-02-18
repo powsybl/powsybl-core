@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -58,10 +59,11 @@ public final class BranchUtil {
         throw new IllegalStateException("Unexpected side: " + side);
     }
 
-    static int getOverloadDuration(Overload o1, Overload o2) {
-        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        return Math.min(duration1, duration2);
+    static int getOverloadDuration(Overload... overloads) {
+        return Arrays.stream(overloads)
+            .map(o -> o != null ? o.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE)
+            .min(Integer::compareTo)
+            .orElse(Integer.MAX_VALUE);
     }
 
     static double getValueForLimit(Terminal t, LimitType type) {
