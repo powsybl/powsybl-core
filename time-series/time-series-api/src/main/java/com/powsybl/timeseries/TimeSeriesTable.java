@@ -54,7 +54,6 @@ import static com.powsybl.timeseries.TimeSeries.writeInstantToNanoString;
  * Some design considerations and limitations:
  * <ul>
  *     <li>Number of version loadable in the table has to be specified at creation</li>
- *     <li>Versions have to contiguous</li>
  *     <li>Once first batch of time series has been loaded, new time series cannot be added but data of existing one can be updated</li>
  *     <li>Concurrent load (i.e multi-thread) of data is supported (using same time series list)</li>
  *     <li>Concurrency between data loading and other operations (CSV writing, statistics computation) is NOT supported</li>
