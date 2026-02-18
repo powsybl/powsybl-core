@@ -42,7 +42,7 @@ $$StaCubic;ID(a:40);loc_name(a:40);fold_id(p);obj_bus(i);obj_id(p)
 114;line 23 node 1;16;0;23
 115;line 23 node 2;11;1;23
 
-$$TypLne;ID(a:40);loc_name(a:40);fold_id(p);uline(r);sline(r);rline(r);xline(r);systype(i)
+$$TypLne;ID(a:40);loc_name(a:40);fold_id(p);uline(r);sline(r);rline(r);xline(r);systp(i)
 41;DC Cable Type 320kV;9;320;17.49546;0.1;0.309789;1
 42;AC Cable Type 320kV;9;320;17.49546;0.1;0.309789;0
 

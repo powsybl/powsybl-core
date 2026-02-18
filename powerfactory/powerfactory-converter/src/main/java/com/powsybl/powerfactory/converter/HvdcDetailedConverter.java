@@ -42,7 +42,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
          * @param elmNets All the "networks" from the PowerFactory data model.
          * @return DC lines, DC terminals and converters.
          * <p>
-         * Selection is done based on the systype attribute of ElmTerm and of TypLne.
+         * Selection is done based on the systp attribute of ElmTerm and of TypLne.
          */
         static DcGridData createGridData(List<DataObject> elmNets) {
             assert elmNets.isEmpty() || "ElmNet".equals(elmNets.getFirst().getDataClassName());
@@ -61,7 +61,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
             for (DataObject elmLne : elmLines) {
                 DataObjectRef typLneRef = elmLne.getObjectAttributeValue("typ_id");
                 DataObject typLne = typLneRef.resolve().orElseThrow(() -> new PowerFactoryException("Missing line type in TypLne for ElmLne " + elmLne.getId() + "."));
-                int lineSysType = typLne.findIntAttributeValue("systype").orElseThrow(() -> new PowerFactoryException("Missing systype for TypLne " + typLne.getId() + "."));
+                int lineSysType = typLne.findIntAttributeValue("systp").orElseThrow(() -> new PowerFactoryException("Missing systp for TypLne " + typLne.getId() + "."));
                 if (lineSysType == 1) {
                     dcElmLnes.add(elmLne);
                 }
