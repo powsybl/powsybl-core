@@ -39,7 +39,7 @@ public class RemoteReactivePowerControlSerDe extends AbstractExtensionSerDe<Gene
         IidmSerDeUtil.assertMinimumVersion(getName(), IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, networkContext);
         context.getWriter().writeBooleanAttribute("enabled", extension.isEnabled());
         context.getWriter().writeDoubleAttribute("targetQ", extension.getTargetQ());
-        TerminalRefSerDe.writeTerminalRefAttribute(extension.getRegulatingTerminal(), networkContext);
+        TerminalRefSerDe.writeTerminalRefAttribute(extension.getRegulatingTerminal(), networkContext, getName());
     }
 
     @Override

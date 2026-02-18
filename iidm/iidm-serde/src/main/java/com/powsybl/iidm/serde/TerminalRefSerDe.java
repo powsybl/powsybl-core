@@ -40,16 +40,26 @@ public final class TerminalRefSerDe {
     public static void writeTerminalRef(Terminal t, NetworkSerializerContext context, String namespace, String elementName, TreeDataWriter writer) {
         if (t != null) {
             writer.writeStartNode(namespace, elementName);
-            writeTerminalRefAttribute(t, context, writer);
+            writeTerminalRefAttribute(t, context, elementName, writer);
             writer.writeEndNode();
         }
     }
 
+    @Deprecated(since = "7.2.0")
     public static void writeTerminalRefAttribute(Terminal t, NetworkSerializerContext context) {
         writeTerminalRefAttribute(t, context, context.getWriter());
     }
 
+    public static void writeTerminalRefAttribute(Terminal t, NetworkSerializerContext context, String parentElementName) {
+        writeTerminalRefAttribute(t, context, parentElementName, context.getWriter());
+    }
+
+    @Deprecated(since = "7.2.0")
     public static void writeTerminalRefAttribute(Terminal terminal, NetworkSerializerContext context, TreeDataWriter writer) {
+        writeTerminalRefAttribute(terminal, context, null, writer);
+    }
+
+    public static void writeTerminalRefAttribute(Terminal terminal, NetworkSerializerContext context, String parentElementName, TreeDataWriter writer) {
 
         String connectableId = Optional.ofNullable(terminal)
                 .map(t -> {
@@ -66,7 +76,15 @@ public final class TerminalRefSerDe {
 
         writer.writeStringAttribute(ID, connectableId);
         writer.writeEnumAttribute(SIDE, tSide);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> writer.writeEnumAttribute(NUMBER, tNumber));
+        if (context.getVersion().compareTo(IidmVersion.V_1_15) >= 0 || tNumber != null) {
+            //TODO This allow to export the terminal number when present in IIDM versions < 1.15 with
+            // the "iidmVersionIncompatibilityBehavior" export option set to LOG_ERROR.
+            // But this may cause problem in this specific case with BIIDM format
+            // (the number is set in the file but won't be read => invalid file)
+            IidmSerDeUtil.assertMinimumVersion(parentElementName != null ? parentElementName : "terminalRef", NUMBER,
+                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
+            writer.writeEnumAttribute(NUMBER, tNumber);
+        }
     }
 
     private static void checkTerminal(Terminal t, NetworkSerializerContext context) {
