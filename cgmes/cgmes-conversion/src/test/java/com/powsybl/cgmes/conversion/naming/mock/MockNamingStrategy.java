@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.naming.mock;
 
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
+import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Identifiable;
@@ -18,7 +19,7 @@ import com.powsybl.iidm.network.Identifiable;
  */
 public class MockNamingStrategy implements NamingStrategy {
 
-    private final NamingStrategy delegate = new NamingStrategy.Identity();
+    private final NamingStrategy delegate = new IdentityNamingStrategy();
 
     @Override
     public String getName() {

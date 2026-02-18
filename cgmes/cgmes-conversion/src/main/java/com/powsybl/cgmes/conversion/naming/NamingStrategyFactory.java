@@ -36,7 +36,7 @@ public final class NamingStrategyFactory {
 
         // Fallback to built-in implementations for backward compatibility
         return switch (impl) {
-            case IDENTITY -> new NamingStrategy.Identity();
+            case IDENTITY -> new IdentityNamingStrategy();
             case CGMES -> new SimpleCgmesAliasNamingStrategy(uuidNamespace);
             case CGMES_FIX_ALL_INVALID_IDS -> new FixedCgmesAliasNamingStrategy(uuidNamespace);
             default -> throw new PowsyblException("Unknown naming strategy: " + impl);
