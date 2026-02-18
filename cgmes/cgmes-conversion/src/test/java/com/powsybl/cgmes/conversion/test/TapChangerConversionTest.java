@@ -87,7 +87,7 @@ class TapChangerConversionTest extends AbstractSerDeTest {
         // PhaseTapChanger is in active power regulation mode and the regulation is disabled.
         // A CurentLimit with the value 200A has been created.
         String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
-        String tapChangerControl = getElement(eqFile, "TapChangerControl", "PS1_PTC_RC");
+        String tapChangerControl = getElement(eqFile, "TapChangerControl", "PS1_PTC_1_RC");
         assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.activePower", getResource(tapChangerControl, "RegulatingControl.mode"));
         String limitSet = getElement(eqFile, "OperationalLimitSet", "PS1_PT_T_2_CURRENT_LIMITER_OLS");
         assertEquals("PS1_PT_T_2", getResource(limitSet, "OperationalLimitSet.Terminal"));
@@ -95,7 +95,7 @@ class TapChangerConversionTest extends AbstractSerDeTest {
         assertEquals("200", getAttribute(currentLimit, "CurrentLimit.value"));
 
         String sshFile = writeCgmesProfile(network, "SSH", tmpDir);
-        tapChangerControl = getElement(sshFile, "TapChangerControl", "PS1_PTC_RC");
+        tapChangerControl = getElement(sshFile, "TapChangerControl", "PS1_PTC_1_RC");
         assertEquals("false", getAttribute(tapChangerControl, "RegulatingControl.enabled"));
         assertEquals("0", getAttribute(tapChangerControl, "RegulatingControl.targetDeadband"));
         assertEquals("0", getAttribute(tapChangerControl, "RegulatingControl.targetValue"));
