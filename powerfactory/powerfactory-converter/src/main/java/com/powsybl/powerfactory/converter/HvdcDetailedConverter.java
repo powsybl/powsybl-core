@@ -34,7 +34,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
 
     // Small record that directly transcribes the DC data from the PowerFactory data
     // model for a connected subgrid
-    private record DcGridData(Set<DataObject> dcElmLnes, Set<DataObject> dcElmTerms, Set<DataObject> acDcConverters) {
+    private record DcGridData(List<DataObject> dcElmLnes, List<DataObject> dcElmTerms, List<DataObject> acDcConverters) {
 
         /**
          * Create the data model by reading from the PowerFactory data models.
@@ -52,33 +52,29 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
             List<DataObject> elmVscs = PowerFactoryImporter.gatherElmVscs(elmNets);
             assert elmVscs.isEmpty() || "ElmVsc".equals(elmVscs.getFirst().getDataClassName());
 
-            Set<DataObject> dcElmLnes = new HashSet<>();
-            Set<DataObject> dcElmTerms = new HashSet<>();
-            Set<DataObject> usedVscs = new HashSet<>(elmVscs);
+            List<DataObject> dcElmLnes = new ArrayList<>();
+            List<DataObject> dcElmTerms = new ArrayList<>();
+            List<DataObject> usedVscs = new ArrayList<>(elmVscs);
 
-            // This test determines if DC elements may be expected in the model.
-            if (!elmVscs.isEmpty()) {
-                LOGGER.info("Reading detailed HVDC data from DGS file.");
-
-                // Add DC lines
-                List<DataObject> elmLines = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmLne").stream()).toList();
-                for (DataObject elmLne : elmLines) {
-                    DataObjectRef typLneRef = elmLne.getObjectAttributeValue("typ_id");
-                    DataObject typLne = typLneRef.resolve().orElseThrow(() -> new PowerFactoryException("Missing line type in TypLne for ElmLne " + elmLne.getId() + "."));
-                    int lineSysType = typLne.findIntAttributeValue("systype").orElseThrow(() -> new PowerFactoryException("Missing systype for TypLne " + typLne.getId() + "."));
-                    if (lineSysType == 1) {
-                        dcElmLnes.add(elmLne);
-                    }
-                }
-
-                // Add DC terminals
-                for (DataObject elmTerm : elmTerms) {
-                    int termSystyp = elmTerm.findIntAttributeValue("systype").orElseThrow(() -> new PowerFactoryException("Missing systype for ElmTerm " + elmTerm.getId() + "."));
-                    if (termSystyp == 1) {
-                        dcElmTerms.add(elmTerm);
-                    }
+            // Add DC lines
+            List<DataObject> elmLines = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmLne").stream()).toList();
+            for (DataObject elmLne : elmLines) {
+                DataObjectRef typLneRef = elmLne.getObjectAttributeValue("typ_id");
+                DataObject typLne = typLneRef.resolve().orElseThrow(() -> new PowerFactoryException("Missing line type in TypLne for ElmLne " + elmLne.getId() + "."));
+                int lineSysType = typLne.findIntAttributeValue("systype").orElseThrow(() -> new PowerFactoryException("Missing systype for TypLne " + typLne.getId() + "."));
+                if (lineSysType == 1) {
+                    dcElmLnes.add(elmLne);
                 }
             }
+
+            // Add DC terminals
+            for (DataObject elmTerm : elmTerms) {
+                int termSystyp = elmTerm.findIntAttributeValue("systype").orElseThrow(() -> new PowerFactoryException("Missing systype for ElmTerm " + elmTerm.getId() + "."));
+                if (termSystyp == 1) {
+                    dcElmTerms.add(elmTerm);
+                }
+            }
+
             return new DcGridData(dcElmLnes, dcElmTerms, usedVscs);
         }
 
@@ -87,6 +83,10 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
     public HvdcDetailedConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
         super(importContext, network);
         gridData = DcGridData.createGridData(elmNets);
+        final int nRead = gridData.acDcConverters.size()
+                + gridData.dcElmLnes.size()
+                + gridData.dcElmTerms.size();
+        LOGGER.info("{} data objects read from the DGS file for detailed HVDC data .", nRead);
     }
 
     @Override
@@ -107,19 +107,19 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
         Network network = getNetwork();
 
         // Create nodes
-        LOGGER.debug("Creating DC nodes.");
+        LOGGER.debug("Creating {} DC nodes.", gridData.dcElmTerms.size());
         for (DataObject terminal : gridData.dcElmTerms) {
             addNode(terminal, network);
         }
 
         // create and connect converters
-        LOGGER.debug("Creating DC converters.");
+        LOGGER.debug("Creating {} DC converters.", gridData.acDcConverters.size());
         for (DataObject converter : gridData.acDcConverters) {
             addConverter(converter, network, getImportContext());
         }
 
         // create and connect lines
-        LOGGER.debug("Creating DC lines.");
+        LOGGER.debug("Creating {} DC lines.", gridData.dcElmLnes.size());
         for (DataObject line : gridData.dcElmLnes) {
             addLine(line, network);
         }
@@ -165,7 +165,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
 
         // TODO see if possible to split.
         // Start with all converters in the network that correspond to a PowerFactory converter.
-        Set<VoltageSourceConverter> remainingConverters = Collections.newSetFromMap(new IdentityHashMap<>());
+        Set<VoltageSourceConverter> remainingConverters = new LinkedHashSet<>();
         for (DataObject converterPowerFactory : gridData.acDcConverters) {
             VoltageSourceConverter converter = network.getVoltageSourceConverter(idInNetworkString(converterPowerFactory));
             remainingConverters.add(converter);
@@ -509,7 +509,6 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
             throw new PowerFactoryException("DcNode " + dcNode1.getId() + " and DcNode " + dcNode2.getId() + " are connected to the same convertor but have different nominal voltages.");
         }
     }
-
 
     /**
      * Unique string Id in network from DataObject in DGS file. This guarantees some

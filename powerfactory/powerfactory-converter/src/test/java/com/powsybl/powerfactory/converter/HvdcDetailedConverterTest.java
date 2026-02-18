@@ -2,12 +2,12 @@ package com.powsybl.powerfactory.converter;
 
 // import static org.mockito.Mockito.when;
 
-import java.util.Properties;
-
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
+
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
