@@ -522,8 +522,9 @@ public class CgmesExportContext {
                 continue;
             }
             String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            if (regulatingControlId == null && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getTargetV())
-                                            || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && shuntCompensator.getVoltageRegulation() != null
+                && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getVoltageRegulation().getTargetValue())
+                || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(shuntCompensator), Part.REGULATING_CONTROL);
                 shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
             }

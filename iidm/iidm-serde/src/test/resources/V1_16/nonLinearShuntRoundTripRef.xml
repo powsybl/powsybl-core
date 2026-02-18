@@ -5,13 +5,15 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="SHUNT" sectionCount="1" voltageRegulatorOn="true" targetV="200.0" targetDeadband="5.0" bus="B1" connectableBus="B1">
+            <iidm:shunt id="SHUNT" sectionCount="1" bus="B1" connectableBus="B1">
                 <iidm:property name="test" value="test"/>
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="1.0E-5" g="0.0"/>
                     <iidm:section b="0.02" g="0.3"/>
                 </iidm:shuntNonLinearModel>
-                <iidm:regulatingTerminal id="LOAD"/>
+                <iidm:voltageRegulation targetValue="200.0" mode="VOLTAGE" regulating="true" targetDeadband="5.0">
+                    <iidm:terminal id="LOAD"/>
+                </iidm:voltageRegulation>
             </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>

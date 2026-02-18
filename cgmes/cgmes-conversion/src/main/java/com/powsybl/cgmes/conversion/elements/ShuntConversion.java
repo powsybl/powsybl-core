@@ -12,6 +12,8 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -132,28 +134,27 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     // and regulation must be turned off before assigning potentially invalid values,
     // to ensure consistency with the applied checks
     private static void setRegulation(ShuntCompensator shuntCompensator, double targetV, double targetDeadband, boolean regulatingOn) {
-        if (regulatingOn) {
-            shuntCompensator.setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband)
-                    .setVoltageRegulatorOn(true);
-        } else {
-            shuntCompensator
-                    .setVoltageRegulatorOn(false)
-                    .setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband);
+        if (shuntCompensator.getVoltageRegulation() == null) {
+            shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
         }
+        VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
+        voltageRegulation.setRegulating(regulatingOn);
+        voltageRegulation.setTargetValue(targetV);
+        voltageRegulation.setTargetDeadband(targetDeadband);
     }
 
     private static double getDefaultTargetV(ShuntCompensator shuntCompensator, Context context) {
-        return getDefaultValue(null, shuntCompensator.getTargetV(), Double.NaN, Double.NaN, context);
+        double previousTargetV = shuntCompensator.getVoltageRegulation() != null ? shuntCompensator.getVoltageRegulation().getTargetValue() : Double.NaN;
+        return getDefaultValue(null, previousTargetV, Double.NaN, Double.NaN, context);
     }
 
     private static double getDefaultTargetDeadband(ShuntCompensator shuntCompensator, Context context) {
-        return getDefaultValue(null, shuntCompensator.getTargetDeadband(), 0.0, 0.0, context);
+        double targetDeadband = shuntCompensator.getVoltageRegulation() != null ? shuntCompensator.getVoltageRegulation().getTargetDeadband() : Double.NaN;
+        return getDefaultValue(null, targetDeadband, 0.0, 0.0, context);
     }
 
     private static boolean getDefaultRegulatingOn(ShuntCompensator shuntCompensator, Context context) {
-        return getDefaultValue(null, shuntCompensator.isVoltageRegulatorOn(), false, false, context);
+        return getDefaultValue(null, shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
     }
 
     private static boolean isDefaultRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled) {
@@ -162,11 +163,15 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static void setDefaultRegulatingControl(ShuntCompensator shuntCompensator) {
-        shuntCompensator.setTargetV(Optional.ofNullable(shuntCompensator.getRegulatingTerminal().getBusView().getBus())
-                        .map(Bus::getV)
-                        .filter(v -> !Double.isNaN(v))
-                        .orElse(shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV()))
-                .setTargetDeadband(0.0)
-                .setVoltageRegulatorOn(true); // SSH controlEnabled attribute is true when this method is called
+        Double targetV = Optional.ofNullable(shuntCompensator.getRegulatingTerminal().getBusView().getBus())
+            .map(Bus::getV)
+            .filter(v -> !Double.isNaN(v))
+            .orElse(shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV());
+        shuntCompensator.newVoltageRegulation()
+            .withTargetValue(targetV)
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetDeadband(0.0)
+            .withRegulating(true) // SSH controlEnabled attribute is true when this method is called
+            .build();
     }
 }

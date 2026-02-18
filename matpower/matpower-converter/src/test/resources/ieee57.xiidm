@@ -43,7 +43,7 @@
                 <iidm:bus id="BUS-18" v="1.001" angle="-11.71"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-18" loadType="UNDEFINED" p0="27.2" q0="9.8" bus="BUS-18" connectableBus="BUS-18"/>
-            <iidm:shunt id="SHUNT-18" sectionCount="1" voltageRegulatorOn="false" bus="BUS-18" connectableBus="BUS-18">
+            <iidm:shunt id="SHUNT-18" sectionCount="1" bus="BUS-18" connectableBus="BUS-18">
                 <iidm:shuntLinearModel bPerSection="10.0" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -238,7 +238,7 @@
                 <iidm:bus id="BUS-25" v="0.982" angle="-18.13"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-25" loadType="UNDEFINED" p0="6.3" q0="3.2" bus="BUS-25" connectableBus="BUS-25"/>
-            <iidm:shunt id="SHUNT-25" sectionCount="1" voltageRegulatorOn="false" bus="BUS-25" connectableBus="BUS-25">
+            <iidm:shunt id="SHUNT-25" sectionCount="1" bus="BUS-25" connectableBus="BUS-25">
                 <iidm:shuntLinearModel bPerSection="5.9" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -396,7 +396,7 @@
                 <iidm:bus id="BUS-53" v="0.971" angle="-12.23"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-53" loadType="UNDEFINED" p0="20.0" q0="10.0" bus="BUS-53" connectableBus="BUS-53"/>
-            <iidm:shunt id="SHUNT-53" sectionCount="1" voltageRegulatorOn="false" bus="BUS-53" connectableBus="BUS-53">
+            <iidm:shunt id="SHUNT-53" sectionCount="1" bus="BUS-53" connectableBus="BUS-53">
                 <iidm:shuntLinearModel bPerSection="6.3" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>

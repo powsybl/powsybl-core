@@ -49,11 +49,12 @@
                 <iidm:bus id="B7" name="Bus 7" v="150.5097264" angle="-13.70448468"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B7-L1" loadType="UNDEFINED" p0="7.6" q0="1.6" bus="B7" connectableBus="B7"/>
-            <iidm:shunt id="B7-SwSH1" sectionCount="2" voltageRegulatorOn="true" targetV="109.45" targetDeadband="1.0999999999999943" bus="B7" connectableBus="B7">
+            <iidm:shunt id="B7-SwSH1" sectionCount="2" bus="B7" connectableBus="B7">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.008264462809917356" g="0.0"/>
                 </iidm:shuntNonLinearModel>
+                <iidm:voltageRegulation targetValue="109.45" targetDeadband="1.0999999999999943" mode="VOLTAGE" regulating="true"/>
             </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-4-7-1" r="0.0" x="25.30352" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL7" bus2="B7" connectableBus2="B7" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
@@ -112,7 +113,7 @@
                 <iidm:bus id="B9" name="Bus 9" v="2418.0541240000002" angle="-15.10432485"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B9-L1" loadType="UNDEFINED" p0="98.75" q0="-24.1" bus="B9" connectableBus="B9"/>
-            <iidm:shunt id="B9-SH1" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
+            <iidm:shunt id="B9-SH1" sectionCount="1" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="3.5916824196597355E-6" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>

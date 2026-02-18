@@ -67,7 +67,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public double setTargetValue(double targetValue) {
-        validate();
+        ValidationUtil.checkVoltageRegulationTargetValue(validable, targetValue, mode, isRegulating(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.targetValue.set(getCurrentIndex(), targetValue);
     }
 
@@ -78,7 +78,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public double setTargetDeadband(double targetDeadband) {
-        validate();
+        ValidationUtil.checkVoltageRegulationDeadband(validable, targetDeadband, isRegulating(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.targetDeadband.set(getCurrentIndex(), targetDeadband);
     }
 
@@ -89,7 +89,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public double setSlope(double slope) {
-        validate();
+        ValidationUtil.checkVoltageRegulationSlope(validable, slope, mode, isRegulating(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.slope.set(getCurrentIndex(), slope);
     }
 
@@ -100,7 +100,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public void setTerminal(Terminal terminal) {
-        validate();
+        ValidationUtil.checkVoltageRegulationTerminal(validable, terminal, isRegulating(), network.get(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         updateTerminal(terminal);
     }
 
@@ -111,7 +111,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public void setMode(RegulationMode mode) {
-        validate();
+        ValidationUtil.checkVoltageRegulationMode(validable, mode, isRegulating(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         this.mode = mode;
     }
 
@@ -122,7 +122,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     @Override
     public boolean setRegulating(boolean regulating) {
-        validate();
+        ValidationUtil.checkVoltageRegulation(validable, this, regulating, network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.regulating.set(getCurrentIndex(), regulating);
     }
 
@@ -188,10 +188,6 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
 
     private int getCurrentIndex() {
         return network.get().getVariantIndex();
-    }
-
-    private void validate() {
-        ValidationUtil.checkVoltageRegulation(validable, this, network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
     }
 
     private void updateTerminal(Terminal terminal) {

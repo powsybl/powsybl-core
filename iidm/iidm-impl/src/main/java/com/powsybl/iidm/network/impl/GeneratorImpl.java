@@ -316,7 +316,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public VoltageRegulationImpl getVoltageRegulation() {
-        return voltageRegulation;
+        return this.voltageRegulation;
     }
 
     private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
@@ -340,7 +340,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.voltageRegulation = null;
     }
 
-    public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
         this.removeVoltageRegulation();
         this.voltageRegulation = voltageRegulation;
     }

@@ -97,13 +97,16 @@ class ShuntCompensatorModificationTest {
         g3.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         g3.getVoltageRegulation().setTargetValue(33.);
         shunt.getTerminal().disconnect();
-        shunt.setRegulatingTerminal(g3.getRegulatingTerminal());
-        shunt.setTargetV(2);
-        shunt.setTargetDeadband(1);
-        shunt.setVoltageRegulatorOn(true);
+        shunt.newVoltageRegulation()
+            .withTargetValue(2)
+            .withTargetDeadband(1)
+            .withTerminal(g3.getRegulatingTerminal())
+            .withMode(RegulationMode.VOLTAGE)
+            .build();
         new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
         Assertions.assertTrue(shunt.getTerminal().isConnected());
-        Assertions.assertEquals(2.0, shunt.getTargetV(), 0.1); // and not 33.
+        Assertions.assertEquals(2.0, shunt.getRegulatingTargetV(), 0.1); // and not 33.
+        Assertions.assertEquals(Double.NaN, shunt.getTargetV()); // and not 33.
     }
 
     @Test
@@ -112,13 +115,16 @@ class ShuntCompensatorModificationTest {
         network.getGenerator("GH2").getTerminal().disconnect();
         Generator g3 = network.getGenerator("GH3");
         g3.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
-        shunt.setTargetV(2);
-        shunt.setTargetDeadband(1);
-        shunt.setVoltageRegulatorOn(true);
-        shunt.setRegulatingTerminal(g3.getTerminal());
+        shunt.newVoltageRegulation()
+            .withTargetValue(2)
+            .withTargetDeadband(1)
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(g3.getTerminal())
+            .build();
         new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
         Assertions.assertTrue(shunt.getTerminal().isConnected());
-        Assertions.assertEquals(2.0, shunt.getTargetV(), 0.1);
+        Assertions.assertEquals(2.0, shunt.getRegulatingTargetV(), 0.1);
+        Assertions.assertEquals(Double.NaN, shunt.getTargetV());
     }
 
     @Test

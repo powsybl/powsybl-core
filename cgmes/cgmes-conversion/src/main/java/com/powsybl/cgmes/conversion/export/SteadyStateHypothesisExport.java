@@ -265,7 +265,7 @@ public final class SteadyStateHypothesisExport {
                 case LINEAR -> "Linear";
                 case NON_LINEAR -> "Nonlinear";
             };
-            boolean controlEnabled = s.isVoltageRegulatorOn();
+            boolean controlEnabled = s.isRegulatingWithMode(RegulationMode.VOLTAGE);
 
             CgmesExportUtil.writeStartAbout(shuntType + "ShuntCompensator", context.getNamingStrategy().getCgmesId(s), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
@@ -285,7 +285,7 @@ public final class SteadyStateHypothesisExport {
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
             String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, Conversion.PROPERTY_REGULATING_CONTROL);
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
-                s.isVoltageRegulatorOn(), s.getTargetDeadband(), s.getTargetV(), "k");
+                s.isRegulatingWithMode(RegulationMode.VOLTAGE), s.getVoltageRegulation().getTargetDeadband(), s.getVoltageRegulation().getTargetValue(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }

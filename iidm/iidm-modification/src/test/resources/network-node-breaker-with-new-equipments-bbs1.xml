@@ -103,7 +103,7 @@
                 <iidm:voltageRegulation targetValue="10.0" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
             <iidm:load id="load3" name="load3" loadType="UNDEFINED" p0="10.0" q0="10.0" node="2"/>
-            <iidm:shunt id="newShuntCompensator" sectionCount="0" voltageRegulatorOn="false" node="24">
+            <iidm:shunt id="newShuntCompensator" sectionCount="0" node="24">
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
             <iidm:danglingLine id="newDanglingLine" p0="50.0" q0="60.0" r="10.0" x="20.0" g="30.0" b="40.0" node="22"/>

@@ -5,13 +5,13 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="VL41" v="91.1261139" angle="-11.1787205"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="SHUNT_VL4.11" sectionCount="1" voltageRegulatorOn="false" connectableBus="VL41" q="9999.0">
+            <iidm:shunt id="SHUNT_VL4.11" sectionCount="1" connectableBus="VL41" q="9999.0">
                 <iidm:shuntLinearModel bPerSection="0.0035802468191832304" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:shunt id="SHUNT_VL4.21" sectionCount="1" voltageRegulatorOn="false" connectableBus="VL41" q="9999.0">
+            <iidm:shunt id="SHUNT_VL4.21" sectionCount="1" connectableBus="VL41" q="9999.0">
                 <iidm:shuntLinearModel bPerSection="0.003703703638166189" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:shunt id="SHUNT_VL4.31" sectionCount="1" voltageRegulatorOn="false" connectableBus="VL41" q="9999.0">
+            <iidm:shunt id="SHUNT_VL4.31" sectionCount="1" connectableBus="VL41" q="9999.0">
                 <iidm:shuntLinearModel bPerSection="0.003703703638166189" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>

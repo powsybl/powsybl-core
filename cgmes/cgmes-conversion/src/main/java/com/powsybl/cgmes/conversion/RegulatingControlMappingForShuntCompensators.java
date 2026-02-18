@@ -11,6 +11,8 @@ import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
@@ -36,7 +38,7 @@ public class RegulatingControlMappingForShuntCompensators {
 
         if (mapping.containsKey(iidmId)) {
             throw new CgmesModelException(
-                    "ShuntCompensator already added, IIDM ShuntCompensator Id: " + iidmId);
+                "ShuntCompensator already added, IIDM ShuntCompensator Id: " + iidmId);
         }
 
         mapping.put(iidmId, rcId);
@@ -62,9 +64,13 @@ public class RegulatingControlMappingForShuntCompensators {
 
     private void setRegulatingControl(ShuntCompensator shuntCompensator, String rcId, RegulatingControl rc) {
         // Take default terminal if it has not been defined in CGMES files (it is never null)
-        shuntCompensator.setRegulatingTerminal(RegulatingTerminalMapper
-                .mapForVoltageControl(rc.cgmesTerminal, context)
-                .orElse(shuntCompensator.getTerminal()));
+        Terminal terminal = RegulatingTerminalMapper
+            .mapForVoltageControl(rc.cgmesTerminal, context)
+            .orElse(shuntCompensator.getTerminal());
+        if (shuntCompensator.getVoltageRegulation() == null) {
+            shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
+        }
+        shuntCompensator.getVoltageRegulation().setTerminal(terminal);
         shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rcId);
     }
 }

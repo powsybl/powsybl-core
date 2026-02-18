@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
 import org.junit.jupiter.api.Test;
 
@@ -80,7 +81,8 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         ShuntCompensator sc = n.getShuntCompensator("SHUNT");
         assertEquals(Double.MIN_NORMAL, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
 
-        network.getShuntCompensator("SHUNT").setVoltageRegulatorOn(false).setTargetV(Double.NaN).setTargetDeadband(Double.NaN).setRegulatingTerminal(null);
+        network.getShuntCompensator("SHUNT")
+            .newVoltageRegulation().withRegulating(false).withTargetValue(Double.NaN).withTargetDeadband(Double.NaN).withMode(RegulationMode.VOLTAGE).build();
         NetworkSerDe.write(network, new ExportOptions().setVersion(IidmVersion.V_1_1.toString(".")), path);
         Network n2 = NetworkSerDe.read(path);
         ShuntCompensator sc2 = n2.getShuntCompensator("SHUNT");

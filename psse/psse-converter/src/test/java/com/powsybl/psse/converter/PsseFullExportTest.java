@@ -171,7 +171,6 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setGPerSection(0.001)
                 .setBPerSection(0.1)
                 .add()
-                .setVoltageRegulatorOn(false)
                 .add();
 
         VoltageLevel vl2S4 = createVoltageLevel(sub4, "Vl2-Sub4", 110.0, TopologyKind.NODE_BREAKER);
@@ -188,9 +187,11 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setGPerSection(0.001)
                 .setBPerSection(0.1)
                 .add()
-                .setTargetV(vl2S4.getNominalV() * 1.01)
-                .setTargetDeadband(0.5)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(vl2S4.getNominalV() * 1.01)
+                    .withTargetDeadband(0.5)
+                    .add()
                 .add();
         createLoad(vl2S4, "Load-Vl2-Sub4", 4, 12.0, 4.0);
 

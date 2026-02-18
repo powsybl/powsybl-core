@@ -48,12 +48,14 @@
                 <iidm:bus id="B8" name="Bus 8" v="122.13161290000001" angle="-15.7635741"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B8-L1" loadType="UNDEFINED" p0="7.6" q0="1.6" bus="B8" connectableBus="B8"/>
-            <iidm:shunt id="B7-SwSH1" sectionCount="2" voltageRegulatorOn="true" targetV="228.85" targetDeadband="2.3000000000000114" bus="B7" connectableBus="B7">
+            <iidm:shunt id="B7-SwSH1" sectionCount="2" bus="B7" connectableBus="B7">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.008264462809917356" g="0.0"/>
                 </iidm:shuntNonLinearModel>
-                <iidm:regulatingTerminal id="B4-L1"/>
+                <iidm:voltageRegulation targetValue="228.85" targetDeadband="2.3000000000000114" mode="VOLTAGE" regulating="true">
+                    <iidm:terminal id="B4-L1"/>
+                </iidm:voltageRegulation>
             </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL9" nominalV="20.0" topologyKind="BUS_BREAKER">
@@ -61,7 +63,7 @@
                 <iidm:bus id="B9" name="Bus 9" v="23.8083726" angle="-20.324152"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B9-L1" loadType="UNDEFINED" p0="19.5" q0="16.6" bus="B9" connectableBus="B9"/>
-            <iidm:shunt id="B9-SH1" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
+            <iidm:shunt id="B9-SH1" sectionCount="1" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="0.0475" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>

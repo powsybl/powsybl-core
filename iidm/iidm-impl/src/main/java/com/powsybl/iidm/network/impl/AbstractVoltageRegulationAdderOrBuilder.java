@@ -86,29 +86,28 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
         if (parent instanceof Validable validable) {
             // MODE
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationMode(validable,
-                mode, classHolder,
-                network.get().getMinValidationLevel(),
-                network.get().getReportNodeContext().getReportNode()));
+                mode, regulating,
+                classHolder,
+                network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
             // TARGET VALUE
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationTargetValue(validable,
-                targetValue, mode,
+                targetValue, mode, regulating,
                 network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
             // SLOPE
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationSlope(validable,
-                slope, mode,
-                network.get().getMinValidationLevel(),
-                network.get().getReportNodeContext().getReportNode()));
+                slope, mode, regulating,
+                network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
             // DEADBAND
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationDeadband(validable,
-                targetDeadband, classHolder,
-                network.get().getMinValidationLevel(),
-                network.get().getReportNodeContext().getReportNode()));
+                targetDeadband, regulating,
+                classHolder,
+                network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
             // TERMINAL
             ValidationUtil.checkRegulatingTerminal(validable, terminal, network.get());
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulationTerminal(validable,
-                terminal, network.get(),
-                network.get().getMinValidationLevel(),
-                network.get().getReportNodeContext().getReportNode()));
+                terminal, regulating,
+                network.get(),
+                network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode()));
             //
             return new VoltageRegulationImpl(validable, classHolder, network, targetValue, targetDeadband, slope, terminal, mode, regulating);
         }

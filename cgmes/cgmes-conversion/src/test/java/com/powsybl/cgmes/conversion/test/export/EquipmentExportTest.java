@@ -1767,51 +1767,40 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 // Nothing to do
             } else if (identifiable instanceof BusbarSection) {
                 // Nothing to do
-            } else if (identifiable instanceof ShuntCompensator) {
-                ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
-                shuntCompensator.setVoltageRegulatorOn(false);
-                shuntCompensator.setTargetV(Double.NaN);
-                shuntCompensator.setTargetDeadband(Double.NaN);
+            } else if (identifiable instanceof ShuntCompensator shuntCompensator) {
+                shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
                 shuntCompensator.getTerminal().setQ(0.0);
                 shuntCompensator.getTerminal().setP(0.0);
                 shuntCompensator.setSectionCount(0);
-            } else if (identifiable instanceof Generator) {
-                Generator generator = (Generator) identifiable;
+            } else if (identifiable instanceof Generator generator) {
                 generator.removeVoltageRegulation();
                 generator.setTargetV(Double.NaN);
                 generator.setTargetP(Double.NaN);
                 generator.setTargetQ(Double.NaN);
                 generator.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof StaticVarCompensator) {
-                StaticVarCompensator staticVarCompensator = (StaticVarCompensator) identifiable;
+            } else if (identifiable instanceof StaticVarCompensator staticVarCompensator) {
                 staticVarCompensator.setRegulating(false).setVoltageSetpoint(0.0)
                         .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
                 staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof VscConverterStation) {
-                VscConverterStation converter = (VscConverterStation) identifiable;
+            } else if (identifiable instanceof VscConverterStation converter) {
                 converter.setVoltageRegulatorOn(false);
                 converter.setLossFactor(0.8f);
                 converter.setVoltageSetpoint(Double.NaN);
                 converter.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof LccConverterStation) {
-                LccConverterStation converter = (LccConverterStation) identifiable;
+            } else if (identifiable instanceof LccConverterStation converter) {
                 converter.setPowerFactor(0.8f);
                 converter.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof Injection) {
-                Injection injection = (Injection) identifiable;
+            } else if (identifiable instanceof Injection<?> injection) {
                 injection.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof HvdcLine) {
-                HvdcLine hvdcLine = (HvdcLine) identifiable;
+            } else if (identifiable instanceof HvdcLine hvdcLine) {
                 hvdcLine.setActivePowerSetpoint(0.0);
                 hvdcLine.setMaxP(0.0);
                 hvdcLine.getConverterStation1().getTerminal().setP(0.0).setQ(0.0);
                 hvdcLine.getConverterStation2().getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof Branch) {
-                Branch branch = (Branch) identifiable;
+            } else if (identifiable instanceof Branch<?> branch) {
                 branch.getTerminal1().setP(0.0).setQ(0.0);
                 branch.getTerminal2().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer threeWindingsTransformer = (ThreeWindingsTransformer) identifiable;
+            } else if (identifiable instanceof ThreeWindingsTransformer threeWindingsTransformer) {
                 threeWindingsTransformer.getLeg1().getTerminal().setP(0.0).setQ(0.0);
                 threeWindingsTransformer.getLeg2().getTerminal().setP(0.0).setQ(0.0);
                 threeWindingsTransformer.getLeg3().getTerminal().setP(0.0).setQ(0.0);

@@ -314,7 +314,6 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         options.setFormat(format);
         Anonymizer anonymizer = NetworkSerDe.write(networkInput, options, path);
         try (InputStream is = Files.newInputStream(path)) {
-//            String msa = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(format), anonymizer);
             options.setFormat(previousFormat);
             return networkOutput;

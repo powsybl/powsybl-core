@@ -75,7 +75,7 @@
             <iidm:load id="LD2" loadType="UNDEFINED" p0="60.0" q0="5.0" node="13" p="60.0" q="5.0"/>
             <iidm:load id="LD3" loadType="UNDEFINED" p0="60.0" q0="5.0" node="15" p="60.0" q="5.0"/>
             <iidm:load id="LD4" loadType="UNDEFINED" p0="40.0" q0="5.0" node="17" p="40.0" q="5.0"/>
-            <iidm:shunt id="SHUNT" sectionCount="1" voltageRegulatorOn="false" node="19" q="1920.0">
+            <iidm:shunt id="SHUNT" sectionCount="1" node="19" q="1920.0">
                 <iidm:shuntLinearModel bPerSection="-0.012" maximumSectionCount="1"/>
             </iidm:shunt>
             <iidm:vscConverterStation id="VSC1" name="VSC1" voltageRegulatorOn="true" lossFactor="1.1" voltageSetpoint="400.0" reactivePowerSetpoint="500.0" node="5" p="10.11" q="-512.0814">

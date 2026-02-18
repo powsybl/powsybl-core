@@ -118,7 +118,7 @@ public final class ScadaNetworkFactory {
         vl2.newShuntCompensator()
                 .setId("shunt")
                 .setBus(bus2Id)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .newLinearModel()
                 .setBPerSection(10.0)
                 .setMaximumSectionCount(1)

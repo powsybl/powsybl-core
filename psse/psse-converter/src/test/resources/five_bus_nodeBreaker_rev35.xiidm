@@ -81,7 +81,7 @@
                 <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" node="4"/>
-            <iidm:shunt id="B2-SH1 " sectionCount="1" voltageRegulatorOn="false" node="5">
+            <iidm:shunt id="B2-SH1 " sectionCount="1" node="5">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -98,7 +98,7 @@
                 <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="7.6" q0="1.6" node="4"/>
-            <iidm:shunt id="B5-SwSH1 " sectionCount="2" voltageRegulatorOn="false" node="5">
+            <iidm:shunt id="B5-SwSH1 " sectionCount="2" node="5">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.005250997689561016" g="0.0"/>

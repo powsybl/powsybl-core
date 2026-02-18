@@ -44,7 +44,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B4-L1 " loadType="UNDEFINED" p0="47.8" q0="-3.9" bus="B4" connectableBus="B4"/>
             <iidm:load id="B9-L1 " loadType="UNDEFINED" p0="29.5" q0="16.6" bus="B9" connectableBus="B9"/>
-            <iidm:shunt id="B9-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
+            <iidm:shunt id="B9-SH 1" sectionCount="1" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -143,11 +143,12 @@
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
                 <iidm:voltageRegulation targetValue="17.623" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
-            <iidm:shunt id="B16-SwSH1" sectionCount="2" voltageRegulatorOn="true" targetV="37.81" targetDeadband="0.38000000000000256" connectableBus="B16">
+            <iidm:shunt id="B16-SwSH1" sectionCount="2" connectableBus="B16">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.06925207756232687" g="0.0"/>
                 </iidm:shuntNonLinearModel>
+                <iidm:voltageRegulation targetValue="37.81" targetDeadband="0.38000000000000256" mode="VOLTAGE" regulating="true"/>
             </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-15-16-1 " r="0.0" x="3.6391688" g="0.0" b="0.0" ratedU1="138.0" ratedU2="38.0" voltageLevelId1="VL15" connectableBus1="B15" voltageLevelId2="VL16" connectableBus2="B16">

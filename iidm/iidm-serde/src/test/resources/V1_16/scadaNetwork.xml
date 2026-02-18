@@ -25,8 +25,9 @@
                 <iidm:bus id="bus2"/>
             </iidm:busBreakerTopology>
             <iidm:load id="load" loadType="UNDEFINED" bus="bus2" connectableBus="bus2"/>
-            <iidm:shunt id="shunt" voltageRegulatorOn="true" bus="bus2" connectableBus="bus2">
+            <iidm:shunt id="shunt" bus="bus2" connectableBus="bus2">
                 <iidm:shuntLinearModel bPerSection="10.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:shunt>
             <iidm:staticVarCompensator id="svc" bMin="1.1" bMax="3.2" regulationMode="VOLTAGE" regulating="false" bus="bus2" connectableBus="bus2"/>
             <iidm:vscConverterStation id="vcs" voltageRegulatorOn="true" lossFactor="80.0" bus="bus2" connectableBus="bus2">

@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,10 +103,13 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
             voltageRegulatorOn = psseVoltageRegulatorOn;
         }
 
-        shunt.setTargetV(targetV)
-            .setTargetDeadband(targetDeadband)
-            .setVoltageRegulatorOn(voltageRegulatorOn)
-            .setRegulatingTerminal(regulatingTerminal);
+        shunt.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(targetV)
+            .withTargetDeadband(targetDeadband)
+            .withRegulating(voltageRegulatorOn)
+            .withTerminal(regulatingTerminal)
+            .build();
     }
 
     private static boolean isControllingVoltage(PsseSwitchedShunt psseSwitchedShunt) {
@@ -307,17 +311,17 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static int getModsw(ShuntCompensator shuntCompensator) {
-        return shuntCompensator.isVoltageRegulatorOn() ? 1 : 0;
+        return shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE) ? 1 : 0;
     }
 
     private static double getVswhi(ShuntCompensator shuntCompensator) {
-        double targetV = shuntCompensator.getTargetV() + shuntCompensator.getTargetDeadband() * 0.5;
+        double targetV = shuntCompensator.getRegulatingTargetV() + shuntCompensator.getVoltageRegulation().getTargetDeadband() * 0.5;
         double nominalV = getRegulatingTerminalNominalV(shuntCompensator);
         return Double.isFinite(targetV) && Double.isFinite(nominalV) && targetV > 0 && nominalV > 0 ? targetV / nominalV : 1.0;
     }
 
     private static double getVswlo(ShuntCompensator shuntCompensator) {
-        double targetV = shuntCompensator.getTargetV() - shuntCompensator.getTargetDeadband() * 0.5;
+        double targetV = shuntCompensator.getRegulatingTargetV() - shuntCompensator.getVoltageRegulation().getTargetDeadband() * 0.5;
         double nominalV = getRegulatingTerminalNominalV(shuntCompensator);
 
         return Double.isFinite(targetV) && Double.isFinite(nominalV) && targetV > 0 && nominalV > 0 ? targetV / nominalV : 1.0;
