@@ -11,6 +11,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 
 import java.util.Optional;
@@ -62,7 +63,7 @@ public final class TerminalRefSerDe {
 
         writer.writeStringAttribute(ID, connectableId);
         writer.writeEnumAttribute(SIDE, tSide);
-        writer.writeEnumAttribute(NUMBER, tNumber);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> writer.writeEnumAttribute(NUMBER, tNumber));
     }
 
     private static void checkTerminal(Terminal t, NetworkSerializerContext context) {
@@ -89,10 +90,11 @@ public final class TerminalRefSerDe {
     public static void readTerminalRef(NetworkDeserializerContext context, Network network, Consumer<Terminal> endTaskTerminalConsumer) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         ThreeSides side = context.getReader().readEnumAttribute(SIDE, ThreeSides.class);
-        TerminalNumber number = context.getReader().readEnumAttribute(NUMBER, TerminalNumber.class);
+        TerminalNumber[] number = {null};
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () -> number[0] = context.getReader().readEnumAttribute(NUMBER, TerminalNumber.class));
         context.getReader().readEndNode();
         context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
-            Terminal t = resolve(id, side, number, network);
+            Terminal t = resolve(id, side, number[0], network);
             endTaskTerminalConsumer.accept(t);
         });
     }
