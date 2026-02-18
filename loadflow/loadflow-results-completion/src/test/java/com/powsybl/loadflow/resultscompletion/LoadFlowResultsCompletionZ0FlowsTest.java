@@ -11,6 +11,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.CandidateComputation;
 import com.powsybl.loadflow.validation.ValidationConfig;
@@ -424,7 +425,10 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setId("G1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(115.0)
+                    .add()
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .setTargetV(115.0)
@@ -436,7 +440,10 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setId("G2")
                 .setConnectableBus("B2")
                 .setBus("B2")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(115)
+                    .add()
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .setTargetV(115.0)
@@ -448,7 +455,10 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setId("G5")
                 .setConnectableBus("B5")
                 .setBus("B5")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(115)
+                    .add()
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .setTargetV(115.0)
@@ -460,11 +470,13 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setId("G3.2")
                 .setConnectableBus("B3.2")
                 .setBus("B3.2")
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(-18)
+                    .add()
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .setTargetP(30.0)
-                .setTargetQ(-18.0)
                 .add();
         g.getTerminal().setP(-30.0).setQ(18.0);
         vl.newShuntCompensator()

@@ -15,10 +15,10 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="C1_Filter1" name="Filter 1" sectionCount="1" voltageRegulatorOn="false" bus="B1" connectableBus="B1" q="25.0">
+            <iidm:shunt id="C1_Filter1" name="Filter 1" sectionCount="1" bus="B1" connectableBus="B1" q="25.0">
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:shunt id="C1_Filter2" name="Filter 2" sectionCount="0" voltageRegulatorOn="false" connectableBus="B1" q="25.0">
+            <iidm:shunt id="C1_Filter2" name="Filter 2" sectionCount="0" connectableBus="B1" q="25.0">
                 <iidm:shuntLinearModel bPerSection="2.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
             <iidm:lccConverterStation id="C1" name="Converter1" lossFactor="1.1" powerFactor="0.5" bus="B1" connectableBus="B1" p="100.0" q="50.0"/>
@@ -35,10 +35,10 @@
                 <iidm:switch id="DISC_BBS1_BK3" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
                 <iidm:switch id="BK3" name="Breaker" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
             </iidm:nodeBreakerTopology>
-            <iidm:shunt id="C2_Filter1" name="Filter 3" sectionCount="1" voltageRegulatorOn="false" node="4" q="12.5">
+            <iidm:shunt id="C2_Filter1" name="Filter 3" sectionCount="1" node="4" q="12.5">
                 <iidm:shuntLinearModel bPerSection="3.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:shunt id="C2_Filter2" name="Filter 4" sectionCount="1" voltageRegulatorOn="false" node="6" q="12.5">
+            <iidm:shunt id="C2_Filter2" name="Filter 4" sectionCount="1" node="6" q="12.5">
                 <iidm:shuntLinearModel bPerSection="4.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
             <iidm:lccConverterStation id="C2" name="Converter2" lossFactor="1.1" powerFactor="0.6" node="2" p="75.0" q="25.0"/>

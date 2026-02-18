@@ -15,6 +15,7 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -347,14 +348,16 @@ public class Comparison {
                 expected.getSectionCount(),
                 actual.getSectionCount());
         compare("voltageRegulationOn",
-                expected.isVoltageRegulatorOn(),
-                actual.isVoltageRegulatorOn());
-        compare("targetV",
-                expected.getTargetV(),
-                actual.getTargetV());
-        compare("targetDeadband",
-                expected.getTargetDeadband(),
-                actual.getTargetDeadband());
+                expected.isRegulatingWithMode(RegulationMode.VOLTAGE),
+                actual.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        if (expected.getVoltageRegulation() != null) {
+            compare("targetV",
+                expected.getVoltageRegulation().getTargetValue(),
+                actual.getVoltageRegulation().getTargetValue());
+            compare("targetDeadband",
+                expected.getVoltageRegulation().getTargetDeadband(),
+                actual.getVoltageRegulation().getTargetDeadband());
+        }
         sameIdentifier("regulationTerminal",
                 expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                 actual.getRegulatingTerminal().getBusBreakerView().getBus());
@@ -455,10 +458,11 @@ public class Comparison {
         compareGeneratorReactiveLimits(expected.getReactiveLimits(), actual.getReactiveLimits());
         compare("targetP", expected.getTargetP(), actual.getTargetP());
         compare("targetQ", expected.getTargetQ(), actual.getTargetQ());
-        compare("targetV", expected.getTargetV(), actual.getTargetV());
-        compare("isVoltageRegulatorOn",
-                expected.isVoltageRegulatorOn(),
-                actual.isVoltageRegulatorOn());
+        if (expected.getVoltageRegulation() != null) {
+            compare("VoltageRegulation.mode", expected.getVoltageRegulation().getMode(), actual.getVoltageRegulation().getMode());
+            compare("VoltageRegulation.regulating", expected.getVoltageRegulation().isRegulating(), actual.getVoltageRegulation().isRegulating());
+            compare("VoltageRegulation.targetValue", expected.getVoltageRegulation().getTargetValue(), actual.getVoltageRegulation().getTargetValue());
+        }
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null
                 || actual.getRegulatingTerminal() != null)) {

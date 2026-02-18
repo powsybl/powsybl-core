@@ -46,6 +46,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     @Override
     protected void writeSubElements(Battery b, VoltageLevel vl, NetworkSerializerContext context) {
         ReactiveLimitsSerDe.INSTANCE.write(b, context);
+        VoltageRegulationSerDe.writeVoltageRegulation(b.getVoltageRegulation(), context, b);
     }
 
     @Override
@@ -77,6 +78,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
             switch (elementName) {
                 case ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(b, context);
                 case ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(b, context);
+                case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(b, context, b.getNetwork());
                 default -> readSubElement(elementName, b, context);
             }
         });

@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +65,14 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
      */
     private void setLocalRegulation(Generator generator, ReportNode reportNode) {
         // Change the regulation (local instead of remote)
-        generator.setTargetV(calculateTargetVoltage(generator));
-        generator.setRegulatingTerminal(generator.getTerminal());
+        if (generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+            double targetV = generator.getTargetV();
+            if (Double.isNaN(targetV)) {
+                targetV = calculateTargetVoltage(generator);
+            }
+            generator.getVoltageRegulation().setTargetValue(targetV);
+            generator.getVoltageRegulation().setTerminal(null);
+        }
 
         // Notify the change
         LOG.info("Changed regulation for generator: {} to local instead of remote", generator.getId());
@@ -85,7 +92,7 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
         }
         // Calculate the (new) local targetV which should be the same value in per unit
         // as the (old) remote targetV
-        double remoteTargetV = generator.getTargetV();
+        double remoteTargetV = generator.getVoltageRegulation().getTargetValue();
         double remoteNominalV = generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
         return localNominalV * remoteTargetV / remoteNominalV;
     }

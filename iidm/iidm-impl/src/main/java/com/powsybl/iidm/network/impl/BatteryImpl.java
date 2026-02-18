@@ -9,7 +9,10 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.regulation.*;
 import gnu.trove.list.array.TDoubleArrayList;
+
+import java.util.Optional;
 
 /**
  * {@inheritDoc}
@@ -28,10 +31,19 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private double maxP;
 
-    BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, double targetP, double targetQ, double minP, double maxP) {
+    private VoltageRegulationImpl voltageRegulation;
+
+    BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+                double targetP, double targetQ,
+                VoltageRegulationImpl voltageRegulation,
+                double minP, double maxP) {
         super(ref, id, name, fictitious);
         this.minP = minP;
         this.maxP = maxP;
+        this.voltageRegulation = voltageRegulation;
+        if (this.voltageRegulation != null) {
+            this.voltageRegulation.updateValidable(this);
+        }
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
@@ -144,7 +156,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public TerminalExt getTerminal() {
-        return terminals.get(0);
+        return terminals.getFirst();
     }
 
     /**
@@ -176,7 +188,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
 
     /**
@@ -184,7 +196,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this);
     }
 
     /**
@@ -199,6 +211,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
             targetP.add(targetP.get(sourceIndex));
             targetQ.add(targetQ.get(sourceIndex));
         }
+        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
     }
 
     /**
@@ -209,6 +222,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         super.reduceVariantArraySize(number);
         targetP.remove(targetP.size() - number, number);
         targetQ.remove(targetQ.size() - number, number);
+        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
     }
 
     /**
@@ -221,5 +235,43 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
             targetP.set(index, targetP.get(sourceIndex));
             targetQ.set(index, targetQ.get(sourceIndex));
         }
+        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
+    }
+
+    @Override
+    public void remove() {
+        this.removeVoltageRegulation();
+        super.remove();
+    }
+
+    @Override
+    public VoltageRegulation getVoltageRegulation() {
+        return this.voltageRegulation;
+    }
+
+    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+        return Optional.ofNullable(this.voltageRegulation);
+    }
+
+    @Override
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return new VoltageRegulationBuilderImpl<>(Battery.class, this, getNetwork().getRef(), this::setVoltageRegulation);
+    }
+
+    @Override
+    public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
+        this.setVoltageRegulation((VoltageRegulationImpl) voltageRegulation);
+        return this.voltageRegulation;
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.voltageRegulation = null;
+    }
+
+    public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+        this.removeVoltageRegulation();
+        this.voltageRegulation = voltageRegulation;
     }
 }

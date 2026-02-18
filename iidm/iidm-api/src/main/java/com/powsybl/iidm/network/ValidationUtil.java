@@ -9,15 +9,18 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.network.util.NetworkReports;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.ComponentConstants.MAX_RATE;
 import static com.powsybl.iidm.network.ComponentConstants.MIN_RATE;
@@ -232,9 +235,9 @@ public final class ValidationUtil {
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
-    public static void checkEquivalentLocalTargetV(Validable validable, double equivalentLocalTargetV) {
-        if (!Double.isNaN(equivalentLocalTargetV) && equivalentLocalTargetV < 0) {
-            throw createInvalidValueException(validable, equivalentLocalTargetV, "equivalentLocalTargetV", "must be positive");
+    public static void checkDoublePositive(Validable validable, double value, String valueName) {
+        if (!Double.isNaN(value) && value < 0) {
+            throw createInvalidValueException(validable, value, valueName, "must be positive");
         }
     }
 
@@ -857,7 +860,8 @@ public final class ValidationUtil {
         if (identifiable instanceof Validable validable) {
             if (identifiable instanceof Battery battery) {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, battery.getTargetP(), actionOnError, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getTargetQ(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getRegulatingTargetQ(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationIfRegulating(validable, battery.getVoltageRegulation(), battery.getNetwork(), Generator.class, actionOnError, reportNode));
             } else if (identifiable instanceof DanglingLine danglingLine) {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, danglingLine.getP0(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, danglingLine.getQ0(), actionOnError, reportNode));
@@ -865,7 +869,7 @@ public final class ValidationUtil {
                 validationLevel = checkOperationalLimitsGroups(validable, danglingLine.getOperationalLimitsGroups(), validationLevel, actionOnError, reportNode);
             } else if (identifiable instanceof Generator generator) {
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), actionOnError, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationIfRegulating(validable, generator.getVoltageRegulation(), generator.getNetwork(), Generator.class, actionOnError, reportNode));
             } else if (identifiable instanceof HvdcLine hvdcLine) {
                 validationLevel = ValidationLevel.min(validationLevel, checkConvertersMode(validable, hvdcLine.getConvertersMode(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkHvdcActivePowerSetpoint(validable, hvdcLine.getActivePowerSetpoint(), actionOnError, reportNode));
@@ -873,8 +877,7 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, load.getP0(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, load.getQ0(), actionOnError, reportNode));
             } else if (identifiable instanceof ShuntCompensator shunt) {
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, shunt.isVoltageRegulatorOn(), shunt.getTargetV(), actionOnError, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "shunt compensator", shunt.isVoltageRegulatorOn(), shunt.getTargetDeadband(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationIfRegulating(validable, shunt.getVoltageRegulation(), shunt.getNetwork(), ShuntCompensator.class, actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, getSectionCount(shunt), shunt.getMaximumSectionCount(), actionOnError, reportNode));
             } else if (identifiable instanceof StaticVarCompensator svc) {
                 validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.isRegulating(), svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), actionOnError, reportNode));
@@ -912,6 +915,141 @@ public final class ValidationUtil {
             validationLevel = checkOperationalLimitsGroup(validable, group, validationLevel, actionOnError, reportNode);
         }
         return validationLevel;
+    }
+
+    public static void checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, boolean newRegulating, Network network, Class<? extends VoltageRegulationHolder> classHolder, ValidationLevel validationLevel, ReportNode reportNode) {
+        if (newRegulating) {
+            checkVoltageRegulation(owner, voltageRegulation, network, classHolder, checkValidationActionOnError(validationLevel), reportNode);
+        }
+    }
+
+    private static ValidationLevel checkVoltageRegulationIfRegulating(@NonNull Validable owner, VoltageRegulation voltageRegulation, Network network, Class<? extends VoltageRegulationHolder> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
+        if (voltageRegulation != null && voltageRegulation.isRegulating()) {
+            return checkVoltageRegulation(owner, voltageRegulation, network, classHolder, actionOnError, reportNode);
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+        /**
+         * TODO MSA JAVADOC
+         */
+    private static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, Network network, Class<? extends VoltageRegulationHolder> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
+        ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        // TODO MSA change NetworkReports for each checkVoltageRegulation
+        // Only validate when the regulation is true
+        // This means that we can set all attributes when regulating is false and then validate them when we set regulating to true
+        if (voltageRegulation != null) {
+            // CHECK Regulation MODE
+            validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationMode(owner, voltageRegulation.getMode(), classHolder, actionOnError, reportNode));
+            // CHECK TERMINAL
+            validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationTerminal(owner, voltageRegulation.getTerminal(), network, actionOnError, reportNode));
+            // CHECK SLOPE attribute
+            validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationSlope(owner, voltageRegulation.getMode(), voltageRegulation.getSlope(), actionOnError, reportNode));
+            // CHECK Target Deadband attribute
+            validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationDeadband(owner, voltageRegulation.getTargetDeadband(), classHolder, actionOnError, reportNode, validationLevel));
+            // CHECK Target Value attribute
+            validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationTargetValue(owner, voltageRegulation.getTargetValue(), voltageRegulation.getMode(), actionOnError, reportNode));
+        }
+        return validationLevel;
+    }
+
+    public static ValidationLevel checkVoltageRegulationTargetValue(@NonNull Validable owner, double targetValue, RegulationMode mode, boolean regulating, ValidationLevel validationLevel, ReportNode reportNode) {
+        if (regulating) {
+            return checkVoltageRegulationTargetValue(owner, targetValue, mode, checkValidationActionOnError(validationLevel), reportNode);
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    private static ValidationLevel checkVoltageRegulationTargetValue(@NonNull Validable owner, double targetValue, RegulationMode mode, ActionOnError actionOnError, ReportNode reportNode) {
+        if (Double.isNaN(targetValue)) {
+            throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.targetValue", actionOnError,
+                id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+            return ValidationLevel.EQUIPMENT;
+        }
+        if (mode == RegulationMode.VOLTAGE) {
+            checkDoublePositive(owner, targetValue, "voltageRegulation.targetValue");
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    public static ValidationLevel checkVoltageRegulationDeadband(@NonNull Validable owner, double targetDeadband, boolean regulating, Class<? extends VoltageRegulationHolder> classHolder, ValidationLevel validationLevel, ReportNode reportNode) {
+        if (regulating) {
+            return checkVoltageRegulationDeadband(owner, targetDeadband, classHolder, checkValidationActionOnError(validationLevel), reportNode, validationLevel);
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    private static ValidationLevel checkVoltageRegulationDeadband(@NonNull Validable owner, double targetDeadband, Class<? extends VoltageRegulationHolder> classHolder, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
+        if ((classHolder == RatioTapChanger.class || classHolder == ShuntCompensator.class)
+            && Double.isNaN(targetDeadband)) {
+            throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.targetDeadband. Must be not null for RatioTapChanger and ShuntCompensator", actionOnError,
+                id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+            return ValidationLevel.EQUIPMENT;
+        }
+        if (targetDeadband < 0) {
+            throw new ValidationException(owner, "Unexpected value for target deadband of " + classHolder.getSimpleName() + ": " + targetDeadband + " < 0");
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    public static ValidationLevel checkVoltageRegulationSlope(@NonNull Validable owner, double slope, RegulationMode mode, boolean regulating, ValidationLevel validationLevel, ReportNode reportNode) {
+        if (regulating) {
+            return checkVoltageRegulationSlope(owner, mode, slope, checkValidationActionOnError(validationLevel), reportNode);
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    private static ValidationLevel checkVoltageRegulationSlope(@NonNull Validable owner, RegulationMode mode, double slope, ActionOnError actionOnError, ReportNode reportNode) {
+        Set<RegulationMode> slopeMode = Set.of(com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE_PER_REACTIVE_POWER, com.powsybl.iidm.network.regulation.RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+        if (mode != null && Double.isNaN(slope) && slopeMode.contains(mode)) {
+            throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.slope. Must be not null for regulationMode VOLTAGE_PER_REACTIVE_POWER and REACTIVE_POWER_PER_ACTIVE_POWER", actionOnError,
+                id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+            return ValidationLevel.EQUIPMENT;
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    public static ValidationLevel checkVoltageRegulationTerminal(@NonNull Validable owner, Terminal terminal, boolean regulating, Network network, ValidationLevel validationLevel, ReportNode reportNode) {
+        if (regulating) {
+            return checkVoltageRegulationTerminal(owner, terminal, network, checkValidationActionOnError(validationLevel), reportNode);
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    private static ValidationLevel checkVoltageRegulationTerminal(@NonNull Validable owner, Terminal terminal, Network network, ActionOnError actionOnError, ReportNode reportNode) {
+        if (terminal != null && terminal.getVoltageLevel().getNetwork() != network) {
+            throwExceptionOrLogError(owner, "voltageRegulation.terminal is not part of the network", actionOnError,
+                id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+            return ValidationLevel.EQUIPMENT;
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    public static <T extends VoltageRegulationHolder> ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, RegulationMode mode, boolean regulating, Class<T> classHolder, ValidationLevel validationLevel, ReportNode reportNode) {
+        if (regulating) {
+            return checkVoltageRegulationMode(owner, mode, classHolder, checkValidationActionOnError(validationLevel), reportNode);
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    private static <T extends VoltageRegulationHolder> ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, RegulationMode mode, Class<T> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
+        if (mode == null) {
+            throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.regulationMode", actionOnError,
+                id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+            return ValidationLevel.EQUIPMENT;
+        } else {
+            // CHECK ALLOWED MODE
+            Set<RegulationMode> allowedModes = com.powsybl.iidm.network.regulation.RegulationMode.getAllowedRegulationModes(classHolder);
+            if (!allowedModes.contains(mode)) {
+                String allowedModesString = allowedModes.stream().map(com.powsybl.iidm.network.regulation.RegulationMode::name).collect(Collectors.joining(", "));
+                String message = String.format("The current regulationMode is %s but allowed modes are %s",
+                    mode, allowedModesString);
+                throwExceptionOrLogError(owner, message, actionOnError,
+                    id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+                return ValidationLevel.EQUIPMENT;
+            }
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
     private static ValidationLevel checkOperationalLimitsGroup(Validable validable, OperationalLimitsGroup operationalLimitsGroup, ValidationLevel previous, ActionOnError actionOnError, ReportNode reportNode) {

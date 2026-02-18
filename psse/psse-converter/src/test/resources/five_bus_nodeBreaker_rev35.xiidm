@@ -13,9 +13,9 @@
                 <iidm:switch id="VL1-Sw-2-5-1 " name="Sw-T3wToBus3Bus4" kind="BREAKER" retained="false" open="false" node1="2" node2="5"/>
                 <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5,6,7"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="false" targetP="232.392" targetV="146.28" targetQ="-16.549" node="7">
-                <iidm:regulatingTerminal id="VL1-Busbar-2"/>
+            <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="232.392" targetV="146.28" node="7">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+                <iidm:voltageRegulation targetValue="-16.549" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
             <iidm:lccConverterStation id="LccConverter-1-EATL P1     " name="EATL P1     " lossFactor="0.0" powerFactor="0.7273804" node="6"/>
         </iidm:voltageLevel>
@@ -81,7 +81,7 @@
                 <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" node="4"/>
-            <iidm:shunt id="B2-SH1 " sectionCount="1" voltageRegulatorOn="false" node="5">
+            <iidm:shunt id="B2-SH1 " sectionCount="1" node="5">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -98,7 +98,7 @@
                 <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="7.6" q0="1.6" node="4"/>
-            <iidm:shunt id="B5-SwSH1 " sectionCount="2" voltageRegulatorOn="false" node="5">
+            <iidm:shunt id="B5-SwSH1 " sectionCount="2" node="5">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.005250997689561016" g="0.0"/>

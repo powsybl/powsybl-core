@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferenceTerminalsAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ class ReferenceTerminalsXmlTest extends AbstractIidmSerDeTest {
                 .setTargetV(400)
                 .setMinP(0)
                 .setMaxP(200)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .add();
         var line = network.newLine()
                 .setId("L12")

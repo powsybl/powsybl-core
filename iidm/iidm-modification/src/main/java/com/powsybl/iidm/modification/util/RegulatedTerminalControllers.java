@@ -10,9 +10,9 @@ package com.powsybl.iidm.modification.util;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.iidm.network.extensions.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 import java.util.*;
 
@@ -47,6 +47,10 @@ public class RegulatedTerminalControllers {
     private List<TerminalRef> findRegulatedTerminalsInModel(Identifiable<?> identifiable) {
         List<TerminalRef> regulatedTerminals = new ArrayList<>();
         switch (identifiable.getType()) {
+            case BATTERY -> {
+                Battery battery = (Battery) identifiable;
+                add(regulatedTerminals, battery.getRegulatingTerminal());
+            }
             case TWO_WINDINGS_TRANSFORMER -> {
                 TwoWindingsTransformer t2w = (TwoWindingsTransformer) identifiable;
                 t2w.getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatedTerminals, rtc.getRegulationTerminal()));
@@ -106,16 +110,6 @@ public class RegulatedTerminalControllers {
 
     private static Terminal findRegulatedTerminalInExtension(Identifiable<?> identifiable, String extensionName) {
         switch (extensionName) {
-            case "voltageRegulation" -> {
-                Battery battery = (Battery) identifiable;
-                VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
-                return voltageRegulation.getRegulatingTerminal();
-            }
-            case "generatorRemoteReactivePowerControl" -> {
-                Generator generator = (Generator) identifiable;
-                RemoteReactivePowerControl remoteReactivePowerControl = generator.getExtension(RemoteReactivePowerControl.class);
-                return remoteReactivePowerControl.getRegulatingTerminal();
-            }
             case "slackTerminal" -> {
                 VoltageLevel voltageLevel = (VoltageLevel) identifiable;
                 SlackTerminal slackTerminal = voltageLevel.getExtension(SlackTerminal.class);
@@ -148,15 +142,15 @@ public class RegulatedTerminalControllers {
             case THREE_WINDINGS_TRANSFORMER ->
                 replaceRegulatedTerminalThreeWindingsTransformer((ThreeWindingsTransformer) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case GENERATOR ->
-                replaceRegulatedTerminalGenerator((Generator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalVoltageRegulationHolder((Generator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case SHUNT_COMPENSATOR ->
-                replaceRegulatedTerminalShuntCompensator((ShuntCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalVoltageRegulationHolder((ShuntCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case STATIC_VAR_COMPENSATOR ->
                 replaceRegulatedTerminalStaticVarCompensator((StaticVarCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case HVDC_CONVERTER_STATION ->
                 replaceRegulatedTerminalHvdcConverterStation((HvdcConverterStation<?>) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case BATTERY ->
-                replaceRegulatedTerminalBattery((Battery) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalVoltageRegulationHolder((Battery) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case VOLTAGE_LEVEL ->
                 replaceRegulatedTerminalVoltageLevel((VoltageLevel) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER ->
@@ -185,25 +179,6 @@ public class RegulatedTerminalControllers {
         }
     }
 
-    private static void replaceRegulatedTerminalGenerator(Generator generator, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
-        if (generator.getRegulatingTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(generator.getRegulatingTerminal()))) {
-            generator.setRegulatingTerminal(newRegulatedTerminal);
-        } else {
-            RemoteReactivePowerControl remoteReactivePowerControl = generator.getExtension(RemoteReactivePowerControl.class);
-            if (remoteReactivePowerControl != null
-                    && remoteReactivePowerControl.getRegulatingTerminal() != null
-                    && currentRegulatedTerminal.equals(newTerminalRef(remoteReactivePowerControl.getRegulatingTerminal()))) {
-                remoteReactivePowerControl.setRegulatingTerminal(newRegulatedTerminal);
-            }
-        }
-    }
-
-    private static void replaceRegulatedTerminalShuntCompensator(ShuntCompensator shuntCompensator, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
-        if (shuntCompensator.getRegulatingTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(shuntCompensator.getRegulatingTerminal()))) {
-            shuntCompensator.setRegulatingTerminal(newRegulatedTerminal);
-        }
-    }
-
     private static void replaceRegulatedTerminalStaticVarCompensator(StaticVarCompensator staticVarCompensator, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
         if (staticVarCompensator.getRegulatingTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(staticVarCompensator.getRegulatingTerminal()))) {
             staticVarCompensator.setRegulatingTerminal(newRegulatedTerminal);
@@ -225,10 +200,13 @@ public class RegulatedTerminalControllers {
         }
     }
 
-    private static void replaceRegulatedTerminalBattery(Battery battery, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
-        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
-        if (voltageRegulation != null && voltageRegulation.getRegulatingTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(voltageRegulation.getRegulatingTerminal()))) {
-            voltageRegulation.setRegulatingTerminal(newRegulatedTerminal);
+    private static void replaceRegulatedTerminalVoltageRegulationHolder(VoltageRegulationHolder voltageRegulationHolder, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        VoltageRegulation voltageRegulation = voltageRegulationHolder.getVoltageRegulation();
+        if (voltageRegulation != null) {
+            Terminal currentTerminal = voltageRegulation.getTerminal() != null ? voltageRegulation.getTerminal() : voltageRegulationHolder.getTerminal();
+            if (currentRegulatedTerminal.equals(newTerminalRef(currentTerminal))) {
+                voltageRegulation.setTerminal(newRegulatedTerminal);
+            }
         }
     }
 

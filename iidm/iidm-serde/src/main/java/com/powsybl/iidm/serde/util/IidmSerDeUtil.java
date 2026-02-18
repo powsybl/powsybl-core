@@ -279,6 +279,16 @@ public final class IidmSerDeUtil {
     }
 
     /**
+     * Run a given runnable if the context's IIDM version is older than a given minimum version, or more recent that the maximum given IIDM version.
+     */
+    public static <C extends AbstractNetworkSerDeContext> void runFromMinimumVersionAndUntilMaximumVersion(IidmVersion minVersion, IidmVersion maxVersion, C context, Runnable runnable) {
+        if (context.getVersion().compareTo(minVersion) >= 0
+            && context.getVersion().compareTo(maxVersion) <= 0) {
+            runnable.run();
+        }
+    }
+
+    /**
      * Write a <b>mandatory</b> boolean attribute from a given minimum IIDM version.<br>
      * If the context's IIDM version is strictly older than the given minimum IIDM version, the attribute's value <b>should be default</b>
      * (else an exception is thrown).

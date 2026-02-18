@@ -19,6 +19,7 @@ import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.ieeecdf.model.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
@@ -174,16 +175,19 @@ public class IeeeCdfImporter implements Importer {
 
                 case HOLD_MVAR_GENERATION_WITHIN_VOLTAGE_LIMITS:
                     newGeneratorAdder(ieeeCdfBus, voltageLevel)
-                            .setTargetQ(ieeeCdfBus.getReactiveGeneration())
-                            .setVoltageRegulatorOn(false)
+                            .newVoltageRegulation()
+                                .withMode(RegulationMode.REACTIVE_POWER)
+                                .withTargetValue(ieeeCdfBus.getReactiveGeneration())
+                                .add()
                             .add();
                     break;
 
-                case HOLD_VOLTAGE_WITHIN_VAR_LIMITS:
-                case HOLD_VOLTAGE_AND_ANGLE:
+                case HOLD_VOLTAGE_WITHIN_VAR_LIMITS, HOLD_VOLTAGE_AND_ANGLE:
                     Generator generator = newGeneratorAdder(ieeeCdfBus, voltageLevel)
-                            .setTargetV(ieeeCdfBus.getDesiredVoltage() * voltageLevel.getNominalV())
-                            .setVoltageRegulatorOn(true)
+                            .newVoltageRegulation()
+                                .withTargetValue(ieeeCdfBus.getDesiredVoltage() * voltageLevel.getNominalV())
+                                .withMode(RegulationMode.VOLTAGE)
+                                .add()
                             .add();
                     if (ieeeCdfBus.getMinReactivePowerOrVoltageLimit() != 0 || ieeeCdfBus.getMaxReactivePowerOrVoltageLimit() != 0) {
                         generator.newMinMaxReactiveLimits()

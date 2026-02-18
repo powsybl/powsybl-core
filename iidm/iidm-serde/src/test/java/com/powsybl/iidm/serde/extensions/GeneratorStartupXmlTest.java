@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde.extensions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
@@ -81,7 +82,7 @@ class GeneratorStartupXmlTest extends AbstractIidmSerDeTest {
                 .setConnectableBus("B")
                 .setTargetP(100)
                 .setTargetV(380)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(380).add()
                 .setMaxP(100)
                 .setMinP(0)
                 .add();

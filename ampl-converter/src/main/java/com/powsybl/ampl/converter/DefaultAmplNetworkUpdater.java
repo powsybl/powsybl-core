@@ -9,6 +9,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.Objects;
 
@@ -30,7 +31,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
 
     public void updateNetworkGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP,
                                         double targetQ, double p, double q) {
-        g.setVoltageRegulatorOn(vregul);
+        g.getVoltageRegulation().setMode(vregul ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER);
 
         g.setTargetP(targetP);
         g.setTargetQ(targetQ);

@@ -12,6 +12,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
@@ -170,7 +171,6 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setGPerSection(0.001)
                 .setBPerSection(0.1)
                 .add()
-                .setVoltageRegulatorOn(false)
                 .add();
 
         VoltageLevel vl2S4 = createVoltageLevel(sub4, "Vl2-Sub4", 110.0, TopologyKind.NODE_BREAKER);
@@ -187,9 +187,11 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setGPerSection(0.001)
                 .setBPerSection(0.1)
                 .add()
-                .setTargetV(vl2S4.getNominalV() * 1.01)
-                .setTargetDeadband(0.5)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(vl2S4.getNominalV() * 1.01)
+                    .withTargetDeadband(0.5)
+                    .add()
                 .add();
         createLoad(vl2S4, "Load-Vl2-Sub4", 4, 12.0, 4.0);
 
@@ -412,6 +414,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
 
     private static Generator createGenerator(VoltageLevel voltageLevel, String generatorId, int node, double targetP, double targetQ, double targetV, boolean isRegulating) {
         assertSame(TopologyKind.NODE_BREAKER, voltageLevel.getTopologyKind());
+        RegulationMode mode = isRegulating ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER;
         Generator gen = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setName(generatorId)
@@ -422,10 +425,8 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setTargetV(targetV)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation().withMode(mode).withTargetValue(targetQ).add()
                 .add();
-        gen.setRegulatingTerminal(gen.getTerminal())
-                .setVoltageRegulatorOn(isRegulating);
         gen.newMinMaxReactiveLimits().setMinQ(-225.0).setMaxQ(230.0).add();
 
         return gen;

@@ -17,6 +17,7 @@ import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.matpower.model.*;
 import org.apache.commons.math3.complex.Complex;
@@ -329,7 +330,7 @@ public class MatpowerExporter implements Exporter {
                 for (Battery battery : bus.getBatteries()) {
                     // generator convention for batteries
                     pDemand -= battery.getTargetP();
-                    qDemand -= battery.getTargetQ();
+                    qDemand -= battery.getRegulatingTargetQ();
                 }
                 for (LccConverterStation lcc : bus.getLccConverterStations()) {
                     pDemand += HvdcUtils.getConverterStationTargetP(lcc);
@@ -786,14 +787,14 @@ public class MatpowerExporter implements Exporter {
                 int busNumber = context.mBusesNumbersByIds.get(bus.getId());
                 String id = g.getId();
                 double targetP = g.getTargetP();
-                double targetQ = g.getTargetQ();
+                double targetQ = g.getRegulatingTargetQ();
                 double targetVpu = checkAndFixTargetVpu(findTargetVpu(g));
                 double minP = g.getMinP();
                 double maxP = g.getMaxP();
                 double maxQ = g.getReactiveLimits().getMaxQ(g.getTargetP());
                 double minQ = g.getReactiveLimits().getMinQ(g.getTargetP());
                 Bus regulatedBus = g.getRegulatingTerminal().getBusView().getBus();
-                boolean isValidVoltageRegulation = isValidVoltageRegulation(g.isVoltageRegulatorOn(), regulatedBus);
+                boolean isValidVoltageRegulation = isValidVoltageRegulation(g.isRegulatingWithMode(RegulationMode.VOLTAGE), regulatedBus);
                 boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
                 double ratedS = g.getRatedS();
                 addMgen(context, busNumber, id, targetVpu, targetP, minP, maxP, targetQ, Math.min(minQ, maxQ), Math.max(minQ, maxQ), isValidVoltageRegulation, isRemoteRegulation, ratedS);
@@ -803,7 +804,7 @@ public class MatpowerExporter implements Exporter {
 
     // matpower only supports local control, all remote control will be localized with the defined targetVpu
     private static double findTargetVpu(Generator generator) {
-        return generator.getTargetV() / generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
+        return generator.getRegulatingTargetV() / generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
     }
 
     private void findStaticVarCompensatorGenerators(Network network, Context context) {

@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -175,7 +176,8 @@ class CgmesConformity1ConversionTest {
         // But the SSH data says the synchronous machine has control disabled
         // So the generator is not participating in the voltage regulation
         // Voltage regulating must be off
-        assertFalse(tester.lastConvertedNetwork().getGenerator("2970a2b7-b840-4e9c-b405-0cb854cd2318").isVoltageRegulatorOn());
+        assertFalse(tester.lastConvertedNetwork().getGenerator("2970a2b7-b840-4e9c-b405-0cb854cd2318").getVoltageRegulation().isRegulating());
+        assertEquals(RegulationMode.VOLTAGE, tester.lastConvertedNetwork().getGenerator("2970a2b7-b840-4e9c-b405-0cb854cd2318").getVoltageRegulation().getMode());
     }
 
     @Test

@@ -8,8 +8,9 @@
                 <iidm:switch id="VL8_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
                 <iidm:bus v="233.19998168945312" angle="0.0" nodes="0,1,2"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="50.54999923706055" voltageRegulatorOn="true" targetP="50.54999923706055" targetV="233.19998741149902" targetQ="0.0" node="2">
+            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="50.54999923706055" targetP="50.54999923706055" targetV="233.19998741149902" targetQ="0.0" node="2">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+                <iidm:voltageRegulation targetValue="233.19998741149902" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

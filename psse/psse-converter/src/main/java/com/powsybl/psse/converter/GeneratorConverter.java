@@ -10,6 +10,7 @@ package com.powsybl.psse.converter;
 import java.util.*;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +43,7 @@ class GeneratorConverter extends AbstractConverter {
                 .setTargetP(psseGenerator.getPg())
                 .setMaxP(psseGenerator.getPt())
                 .setMinP(psseGenerator.getPb())
-                .setTargetQ(psseGenerator.getQg())
-                .setVoltageRegulatorOn(false);
+                .setTargetQ(psseGenerator.getQg());
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_GENERATOR, psseGenerator.getI(), psseGenerator.getId());
         OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseGenerator.getI(), 0, 0, psseGenerator.getI(), "I"));
@@ -90,9 +90,24 @@ class GeneratorConverter extends AbstractConverter {
             voltageRegulatorOn = psseVoltageRegulatorOn;
         }
 
-        generator.setTargetV(targetV)
-            .setRegulatingTerminal(regulatingTerminal)
-            .setVoltageRegulatorOn(voltageRegulatorOn);
+        RegulationMode mode;
+        double targetValue;
+        if (voltageRegulatorOn) {
+            mode = RegulationMode.VOLTAGE;
+            targetValue = targetV;
+        } else {
+            mode = RegulationMode.REACTIVE_POWER;
+            targetValue = generator.getTargetQ();
+            generator.setTargetV(targetV);
+            generator.setTargetQ(Double.NaN); // was set previously
+        }
+        generator.newVoltageRegulation()
+            .withMode(mode)
+            .withTargetValue(targetValue)
+            .build();
+        if (generator.getTerminal().getBusBreakerView().getConnectableBus() != regulatingTerminal.getBusBreakerView().getConnectableBus()) {
+            generator.getVoltageRegulation().setTerminal(regulatingTerminal);
+        }
     }
 
     private static boolean defineVoltageRegulatorOn(PsseBus psseBus) {
@@ -201,7 +216,7 @@ class GeneratorConverter extends AbstractConverter {
 
     private static double getQ(Generator gen) {
         if (Double.isNaN(gen.getTerminal().getQ())) {
-            return gen.getTargetQ();
+            return gen.getRegulatingTargetQ();
         } else {
             return -gen.getTerminal().getQ();
         }

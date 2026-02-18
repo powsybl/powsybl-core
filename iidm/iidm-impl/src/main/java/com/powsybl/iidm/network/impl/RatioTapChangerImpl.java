@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.*;
@@ -19,7 +21,7 @@ import java.util.function.Supplier;
  */
 class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, RatioTapChangerImpl, RatioTapChangerStepImpl> implements RatioTapChanger {
 
-    private RatioTapChanger.RegulationMode regulationMode;
+    private RegulationMode regulationMode;
 
     // attributes depending on the variant
 
@@ -27,7 +29,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
-                        Integer tapPosition, Integer solvedTapPosition, Boolean regulating, RatioTapChanger.RegulationMode regulationMode, double regulationValue, double targetDeadband) {
+                        Integer tapPosition, Integer solvedTapPosition, Boolean regulating, RegulationMode regulationMode, double regulationValue, double targetDeadband) {
         super(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, targetDeadband, "ratio tap changer");
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
@@ -118,7 +120,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
                 RegulationMode.VOLTAGE, targetV, n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
         double oldRegulationValue = this.regulationValue.set(variantIndex, targetV);
-        RatioTapChanger.RegulationMode oldRegulationMode = this.regulationMode;
+        RegulationMode oldRegulationMode = this.regulationMode;
         if (!Double.isNaN(targetV)) {
             regulationMode = RegulationMode.VOLTAGE;
         }
@@ -130,17 +132,17 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
-    public RatioTapChanger.RegulationMode getRegulationMode() {
+    public RegulationMode getRegulationMode() {
         return regulationMode;
     }
 
     @Override
-    public RatioTapChangerImpl setRegulationMode(RatioTapChanger.RegulationMode regulationMode) {
+    public RatioTapChangerImpl setRegulationMode(RegulationMode regulationMode) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
                 regulatingPoint.getRegulatingTerminal(), regulationMode,
                 getRegulationValue(), n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        RatioTapChanger.RegulationMode oldValue = this.regulationMode;
+        RegulationMode oldValue = this.regulationMode;
         this.regulationMode = regulationMode;
         n.invalidateValidationLevel();
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
@@ -222,5 +224,30 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
             allSteps.put(i + lowTapPosition, steps.get(i));
         }
         return allSteps;
+    }
+
+    @Override
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return null;
+    }
+
+    @Override
+    public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
+        return null;
+    }
+
+    @Override
+    public VoltageRegulation getVoltageRegulation() {
+        return null;
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+
+    }
+
+    @Override
+    public Terminal getTerminal() {
+        return null;
     }
 }

@@ -11,6 +11,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -123,10 +124,12 @@ class NodeMappingTest extends AbstractSerDeTest {
                 .setId("GEN")
                 .setNode(4)
                 .setTargetP(3.0)
-                .setTargetQ(0.0)
                 .setMinP(0.0)
                 .setMaxP(3.0)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(0.0)
+                    .add()
                 .add();
 
         return network;

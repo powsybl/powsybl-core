@@ -10,11 +10,12 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 
 import java.util.Objects;
 
@@ -69,9 +70,9 @@ public final class ConnectGenerator extends AbstractNetworkModification {
 
         Terminal t = g.getTerminal();
         t.connect();
-        if (g.isVoltageRegulatorOn()) {
+        if (g.getVoltageRegulation() != null && g.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE) {
             VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(), g.getId(), IdentifiableType.GENERATOR)
-                    .ifPresent(g::setTargetV);
+                .ifPresent(targetV -> g.getVoltageRegulation().setTargetValue(targetV));
         }
     }
 }

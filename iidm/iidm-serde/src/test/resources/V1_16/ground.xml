@@ -22,8 +22,9 @@
                 <iidm:bus id="BUS2"/>
                 <iidm:switch id="BR_VL2" kind="BREAKER" retained="true" open="false" bus1="BUS1" bus2="BUS2"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="CB" energySource="HYDRO" minP="0.0" maxP="70.0" voltageRegulatorOn="false" targetP="0.0" targetV="0.0" targetQ="0.0" bus="BUS1" connectableBus="BUS1">
+            <iidm:generator id="CB" energySource="HYDRO" minP="0.0" maxP="70.0" targetP="0.0" targetV="0.0" bus="BUS1" connectableBus="BUS1">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation targetValue="0.0" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
             <iidm:ground id="GroundBB" name="GroundBB1" bus="BUS2" connectableBus="BUS2"/>
         </iidm:voltageLevel>

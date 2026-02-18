@@ -20,7 +20,6 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -478,8 +477,7 @@ public class CgmesExportContext {
     }
 
     private static boolean hasRegulatingControlCapability(Generator generator) {
-        return generator.getExtension(RemoteReactivePowerControl.class) != null
-                || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
+        return generator.getVoltageRegulation() != null && hasReactiveCapability(generator);
     }
 
     private static boolean hasReactiveCapability(Generator generator) {
@@ -524,8 +522,9 @@ public class CgmesExportContext {
                 continue;
             }
             String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            if (regulatingControlId == null && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getTargetV())
-                                            || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && shuntCompensator.getVoltageRegulation() != null
+                && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getVoltageRegulation().getTargetValue())
+                || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(shuntCompensator), Part.REGULATING_CONTROL);
                 shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
             }

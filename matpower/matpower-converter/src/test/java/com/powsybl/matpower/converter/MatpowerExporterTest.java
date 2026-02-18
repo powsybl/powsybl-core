@@ -21,6 +21,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -156,10 +157,9 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .setId("GEN2")
                 .setBus("NGEN")
                 .setTargetP(10)
-                .setTargetQ(5)
                 .setMinP(0)
                 .setMaxP(1000)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(5).add()
                 .add();
         exportToMatAndCompareTo(network, "/sim1-with-non-regulating-gen.json");
     }
@@ -338,7 +338,9 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .newVoltageLevel().setId("VL32").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         vl32.getBusBreakerView().newBus().setId("BUS-32").add();
 
-        vl11.newGenerator().setId("GENERATOR-11").setBus("BUS-11").setTargetP(10.0).setTargetQ(8.0).setTargetV(410.0).setMinP(0.0).setMaxP(15.0).setVoltageRegulatorOn(true).add();
+        vl11.newGenerator().setId("GENERATOR-11").setBus("BUS-11").setTargetP(10.0).setTargetQ(8.0).setTargetV(410.0).setMinP(0.0).setMaxP(15.0)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(410).add()
+            .add();
         SlackTerminal.attach(network.getBusBreakerView().getBus("BUS-11"));
         vl22.newLoad().setId("LOAD-22").setBus("BUS-22").setP0(5.0).setQ0(4.0).add();
         vl32.newLoad().setId("LOAD-32").setBus("BUS-32").setP0(5.0).setQ0(4.0).add();

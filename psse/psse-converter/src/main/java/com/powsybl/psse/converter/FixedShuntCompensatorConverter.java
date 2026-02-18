@@ -44,7 +44,6 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
             .getVoltageLevel(getContainersMapping().getVoltageLevelId(psseFixedShunt.getI()));
         ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
             .setId(getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId()))
-            .setVoltageRegulatorOn(false)
             .setSectionCount(1);
         adder.newLinearModel()
             .setGPerSection(powerToShuntAdmittance(psseFixedShunt.getGl(), voltageLevel.getNominalV()))

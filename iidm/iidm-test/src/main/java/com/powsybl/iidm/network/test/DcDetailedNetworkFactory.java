@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.*;
 
@@ -109,7 +110,7 @@ public final class DcDetailedNetworkFactory {
                 .setId("GEN-" + country.name())
                 .setMinP(0.0)
                 .setMaxP(4000.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetV(400.0)
                 .setTargetP(2000.0)
                 .setTargetQ(0.0)

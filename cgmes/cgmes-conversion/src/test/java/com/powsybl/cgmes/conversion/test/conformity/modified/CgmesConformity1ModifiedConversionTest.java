@@ -22,9 +22,10 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -249,7 +250,7 @@ class CgmesConformity1ModifiedConversionTest {
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidRegulatingControl().dataSource(), NetworkFactory.findDefault(), importParams);
 
         Generator generator1 = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
-        assertFalse(generator1.isVoltageRegulatorOn());
+        assertNull(generator1.getVoltageRegulation());
         assertTrue(Double.isNaN(generator1.getTargetV()));
         assertSame(generator1.getTerminal(), generator1.getRegulatingTerminal());
 
@@ -268,7 +269,8 @@ class CgmesConformity1ModifiedConversionTest {
         assertNull(ptc.getRegulationTerminal());
 
         Generator generator2 = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
-        assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getTargetV(), 0.0);
+        assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getVoltageRegulation().getTargetValue(), 0.0);
+        assertEquals(RegulationMode.VOLTAGE, generator2.getVoltageRegulation().getMode());
     }
 
     @Test
@@ -277,7 +279,7 @@ class CgmesConformity1ModifiedConversionTest {
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingRegulatingControl().dataSource(), NetworkFactory.findDefault(), importParams);
 
         Generator generator = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertNull(generator.getVoltageRegulation());
         assertTrue(Double.isNaN(generator.getTargetV()));
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
@@ -362,9 +364,10 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog
                         .microGridBaseCaseBEMissingShuntRegulatingControlId().dataSource(), NetworkFactory.findDefault(), importParams);
         ShuntCompensator shunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
-        assertTrue(shunt.isVoltageRegulatorOn());
-        assertEquals(shunt.getTerminal().getVoltageLevel().getNominalV(), shunt.getTargetV(), 0.0d);
-        assertEquals(0.0d, shunt.getTargetDeadband(), 0.0d);
+        assertTrue(shunt.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(shunt.getTerminal().getVoltageLevel().getNominalV(), shunt.getRegulatingTargetV(), 0.0d);
+        assertEquals(Double.NaN, shunt.getTargetV());
+        assertEquals(0.0d, shunt.getVoltageRegulation().getTargetDeadband(), 0.0d);
         assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
     }
 
@@ -476,11 +479,12 @@ class CgmesConformity1ModifiedConversionTest {
     void microBEReactivePowerGen() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactivePowerGen().dataSource(), NetworkFactory.findDefault(), importParams);
         Generator g = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
-        RemoteReactivePowerControl ext = g.getExtension(RemoteReactivePowerControl.class);
-        assertNotNull(ext);
-        assertEquals(115.5, ext.getTargetQ(), 0.0);
-        assertTrue(ext.isEnabled());
-        assertSame(network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), ext.getRegulatingTerminal());
+        VoltageRegulation voltageRegulation = g.getVoltageRegulation();
+        assertNotNull(voltageRegulation);
+        assertEquals(115.5, voltageRegulation.getTargetValue(), 0.0);
+        assertEquals(RegulationMode.REACTIVE_POWER, voltageRegulation.getMode());
+        assertTrue(voltageRegulation.isRegulating());
+        assertSame(network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), voltageRegulation.getTerminal());
     }
 
     @Test
@@ -685,11 +689,19 @@ class CgmesConformity1ModifiedConversionTest {
         // External network injections with shared control enabled
         // One external network injection has control enabled
         // The other one has it disabled
-        assertFalse(network.getGenerator("089c1945-4101-487f-a557-66c013b748f6").isVoltageRegulatorOn());
-        assertTrue(network.getGenerator("3de9e1ad-4562-44df-b268-70ed0517e9e7").isVoltageRegulatorOn());
-        assertEquals(10.0, network.getGenerator("089c1945-4101-487f-a557-66c013b748f6").getTargetV(), 1e-10);
+        Generator generatorDisabledRegulation = network.getGenerator("089c1945-4101-487f-a557-66c013b748f6");
+        Generator generatorWithRegulation = network.getGenerator("3de9e1ad-4562-44df-b268-70ed0517e9e7");
+        assertFalse(generatorDisabledRegulation.getVoltageRegulation().isRegulating());
+        assertEquals(RegulationMode.VOLTAGE, generatorDisabledRegulation.getVoltageRegulation().getMode());
+        assertTrue(generatorWithRegulation.getVoltageRegulation().isRegulating());
+        assertEquals(RegulationMode.VOLTAGE, generatorWithRegulation.getVoltageRegulation().getMode());
+        assertFalse(generatorDisabledRegulation.getVoltageRegulation().isRegulating());
+        assertTrue(generatorWithRegulation.getVoltageRegulation().isRegulating());
+        assertEquals(10.0, generatorDisabledRegulation.getVoltageRegulation().getTargetValue(), 1e-10);
+        assertEquals(RegulationMode.VOLTAGE, generatorDisabledRegulation.getVoltageRegulation().getMode());
         // Even if the control is disabled, the target voltage must be set
-        assertEquals(10.0, network.getGenerator("3de9e1ad-4562-44df-b268-70ed0517e9e7").getTargetV(), 1e-10);
+        assertEquals(10.0, generatorWithRegulation.getVoltageRegulation().getTargetValue(), 1e-10);
+        assertEquals(RegulationMode.VOLTAGE, generatorWithRegulation.getVoltageRegulation().getMode());
     }
 
     @Test

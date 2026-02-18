@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.test;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.univocity.parsers.annotations.Parsed;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.csv.CsvParser;
@@ -71,7 +72,7 @@ public final class EuropeanLvTestFeederFactory {
                 .setMinP(0)
                 .setMaxP(0)
                 .setTargetP(0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(voltage * pu).add()
                 .setTargetV(voltage * pu)
                 .add();
         sourceVoltageLevel.newExtension(SlackTerminalAdder.class)

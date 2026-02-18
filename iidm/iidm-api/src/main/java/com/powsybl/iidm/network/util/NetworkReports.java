@@ -151,6 +151,15 @@ public final class NetworkReports {
                 .add();
     }
 
+    public static void invalidVoltageRegulationSection(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationSection")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withUntypedValue("cause", "MESSAGE")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
     public static void invalidP0(ReportNode reportNode, String id) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.invalidP0")

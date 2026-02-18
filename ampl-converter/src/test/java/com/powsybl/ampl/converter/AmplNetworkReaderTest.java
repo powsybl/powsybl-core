@@ -253,13 +253,15 @@ class AmplNetworkReaderTest {
         Generator generator = network.getGenerator("GEN");
         VoltageLevel voltageLevel = generator.getTerminal().getVoltageLevel();
 
-        assertEquals(24.5, generator.getTargetV(), 0.0);
+        assertEquals(Double.NaN, generator.getTargetV());
+        assertEquals(24.5, generator.getRegulatingTargetV(), 0.0);
         assertEquals(607.0, generator.getTargetP(), 0.0);
         assertTrue(Double.isNaN(generator.getTerminal().getP()));
         assertEquals(301.0, generator.getTargetQ(), 0.0);
         assertTrue(Double.isNaN(generator.getTerminal().getQ()));
 
         reader.readGenerators();
+        // TODO MSA Change ampl output/input ?
 
         assertEquals(voltageLevel.getNominalV() * 1.01000, generator.getTargetV(), 0.0);
         assertEquals(300.0, generator.getTargetP(), 0.0);
