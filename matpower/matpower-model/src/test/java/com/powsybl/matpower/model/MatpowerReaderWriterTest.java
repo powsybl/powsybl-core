@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
+import static com.powsybl.matpower.model.MatpowerReader.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -92,9 +94,9 @@ class MatpowerReaderWriterTest {
     }
 
     @Test
-    void testInvalidModel() throws IOException {
+    void testInvalidModel() {
         MatpowerModel model = new MatpowerModel("not-valid");
-        model.setVersion("1");
+        model.setVersion(MatpowerFormatVersion.V1);
         assertThrows(IllegalStateException.class, () -> testMatpowerFile(model));
     }
 
@@ -110,4 +112,24 @@ class MatpowerReaderWriterTest {
         assertThrows(IllegalArgumentException.class, () -> bus.setType(MBus.Type.fromInt(0)));
     }
 
+    @Test
+    void testRequiredColumns() {
+        int generatorV2Columns = MatpowerFormatVersion.V2.getGeneratorColumns();
+        assertEquals(MatpowerFormatVersion.V2,
+                     MatpowerReader.checkNumberOfColumns(MATPOWER_BUSES_COLUMNS, generatorV2Columns, MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS).generatorVersion());
+        assertEquals(MatpowerFormatVersion.V1,
+                MatpowerReader.checkNumberOfColumns(MATPOWER_BUSES_COLUMNS, MatpowerFormatVersion.V1.getGeneratorColumns(), MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS).generatorVersion());
+        assertEquals(MatpowerFormatVersion.V1,
+                MatpowerReader.checkNumberOfColumns(MATPOWER_BUSES_COLUMNS, 12, MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS).generatorVersion());
+        assertEquals(MatpowerFormatVersion.V2,
+                MatpowerReader.checkNumberOfColumns(MATPOWER_BUSES_COLUMNS, 23, MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS).generatorVersion());
+        var e = assertThrows(PowsyblException.class, () -> MatpowerReader.checkNumberOfColumns(MATPOWER_BUSES_COLUMNS, 5, MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS));
+        assertEquals("Unexpected number of columns for generators, expected at least 10 columns, but got 5", e.getMessage());
+        e = assertThrows(PowsyblException.class, () -> MatpowerReader.checkNumberOfColumns(4, generatorV2Columns, MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS));
+        assertEquals("Unexpected number of columns for buses, expected at least 13 columns, but got 4", e.getMessage());
+        e = assertThrows(PowsyblException.class, () -> MatpowerReader.checkNumberOfColumns(MATPOWER_BUSES_COLUMNS, generatorV2Columns, 7, MATPOWER_DCLINES_COLUMNS));
+        assertEquals("Unexpected number of columns for branches, expected at least 13 columns, but got 7", e.getMessage());
+        e = assertThrows(PowsyblException.class, () -> MatpowerReader.checkNumberOfColumns(MATPOWER_BUSES_COLUMNS, generatorV2Columns, MATPOWER_BRANCHES_COLUMNS, 13));
+        assertEquals("Unexpected number of columns for DC lines, expected at least 17 columns, but got 13", e.getMessage());
+    }
 }

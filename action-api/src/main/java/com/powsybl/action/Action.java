@@ -7,6 +7,8 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.NetworkModification;
+
 /**
  * An action is taken according to an operator strategy when a condition occurs.
  * It aims at solving violations.
@@ -18,4 +20,8 @@ public interface Action {
     String getType();
 
     String getId();
+
+    default NetworkModification toModification() {
+        throw new UnsupportedOperationException("toModification not implemented");
+    }
 }

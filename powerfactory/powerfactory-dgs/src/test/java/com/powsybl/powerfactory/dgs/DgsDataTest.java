@@ -9,6 +9,7 @@ package com.powsybl.powerfactory.dgs;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -19,10 +20,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -83,6 +81,12 @@ class DgsDataTest extends AbstractSerDeTest {
     @Test
     void v7ErrorTest() {
         assertThrows(PowerFactoryException.class, () -> loadCase("/ascii_v7.dgs"));
+    }
+
+    @Test
+    void missingElementInLineTest() {
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> loadCase("/ascii_missing_element.dgs"));
+        assertEquals("Not enough fields in the line: '1;Version'", exception.getMessage());
     }
 
     private boolean test(String dgs, String json) throws IOException {

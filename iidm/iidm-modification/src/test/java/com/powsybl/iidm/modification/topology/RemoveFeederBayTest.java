@@ -8,10 +8,14 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportConstants;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -24,6 +28,7 @@ import java.util.Set;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNetworkWithForkFeeder;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -143,17 +148,21 @@ class RemoveFeederBayTest {
     @Test
     void testRemoveBbs() {
         Network network = createNetwork2Feeders();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveBbs", "Testing reportNode when trying to remove a busbar section").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestRemoveBbs")
+                .build();
         RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
+        assertDoesNotThrow(() -> removeBbs.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reportNode));
         assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
-        assertEquals("removeBayBusbarSectionConnectable", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.removeBayBusbarSectionConnectable", reportNode.getChildren().get(0).getMessageKey());
         assertEquals("Cannot remove feeder bay for connectable ${connectableId}, as it is a busbarSection", reportNode.getChildren().get(0).getMessageTemplate());
         Map<String, TypedValue> values = reportNode.getChildren().get(0).getValues();
         assertEquals(2, values.size());
-        assertEquals(TypedValue.ERROR_SEVERITY, values.get(ReportConstants.REPORT_SEVERITY_KEY));
+        assertEquals(TypedValue.ERROR_SEVERITY, values.get(ReportConstants.SEVERITY_KEY));
         assertEquals("BBS_TEST_1_1", values.get("connectableId").getValue());
-        assertEquals(TypedValue.UNTYPED, values.get("connectableId").getType());
+        assertEquals(TypedValue.UNTYPED_TYPE, values.get("connectableId").getType());
     }
 
     private Network createNetwork2Feeders() {
@@ -219,61 +228,6 @@ class RemoveFeederBayTest {
                 .build();
         modification3.apply(network);
 
-        return network;
-    }
-
-    /**
-     *   L(1)   G(2)
-     *   |       |
-     *   B1      B2
-     *   |       |
-     *   ----3----
-     *       |
-     *       D
-     *       |
-     *       BBS(0)
-     */
-    private static Network createNetworkWithForkFeeder() {
-        Network network = Network.create("test", "test");
-        VoltageLevel vl = network.newVoltageLevel()
-                .setId("VL")
-                .setNominalV(400.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        vl.getNodeBreakerView().newBusbarSection()
-                .setId("BBS")
-                .setNode(0)
-                .add();
-        vl.newLoad()
-                .setId("LD")
-                .setNode(1)
-                .setP0(0)
-                .setQ0(0)
-                .add();
-        vl.newGenerator()
-                .setId("G")
-                .setNode(2)
-                .setTargetP(0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(400)
-                .setMinP(0)
-                .setMaxP(10)
-                .add();
-        vl.getNodeBreakerView().newDisconnector()
-                .setId("D")
-                .setNode1(0)
-                .setNode2(3)
-                .add();
-        vl.getNodeBreakerView().newBreaker()
-                .setId("B1")
-                .setNode1(1)
-                .setNode2(3)
-                .add();
-        vl.getNodeBreakerView().newBreaker()
-                .setId("B2")
-                .setNode1(2)
-                .setNode2(3)
-                .add();
         return network;
     }
 
@@ -346,5 +300,25 @@ class RemoveFeederBayTest {
 
         Set<String> removedIdentifiables = Set.of("VL2_B1", "VL2_D1", "LINE1", "VL1_B2", "VL1_D2", "VL1_D3");
         assertEquals(removedIdentifiables, beforeRemovalObjects);
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new RemoveFeederBay("LINE1");
+        assertEquals("RemoveFeederBay", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+
+        NetworkModification modification1 = new RemoveFeederBay("WRONG_ID");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new RemoveFeederBay("S1VL1_BBS");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new RemoveFeederBay("LD1");
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
     }
 }

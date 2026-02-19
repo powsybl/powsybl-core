@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.model;
 
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.*;
@@ -66,7 +65,7 @@ public final class CgmesModelFactory {
         // Only triple store implementations are available
         TripleStore tripleStore = TripleStoreFactory.create(implementation, tripleStoreOptions);
         String cimNamespace = obtainCimNamespace(ds, alternativeDataSourceForBoundary);
-        return new CgmesModelTripleStore(cimNamespace, tripleStore);
+        return new CgmesModelTripleStore(cimNamespace, tripleStore, tripleStoreOptions.queryCatalog());
     }
 
     private static String obtainCimNamespace(ReadOnlyDataSource ds, ReadOnlyDataSource dsBoundary) {
@@ -81,34 +80,6 @@ public final class CgmesModelFactory {
                 }
             } else {
                 throw x;
-            }
-        }
-    }
-
-    public static CgmesModel copy(CgmesModel cgmes) {
-        if (cgmes instanceof CgmesModelTripleStore cgmests) {
-            TripleStore tripleStore = TripleStoreFactory.copy(cgmests.tripleStore());
-            CgmesModel cgmesCopy = new CgmesModelTripleStore(cgmests.getCimNamespace(), tripleStore);
-            cgmesCopy.setBasename(cgmes.getBasename());
-            buildCaches(cgmesCopy);
-            return cgmesCopy;
-        } else {
-            throw new PowsyblException("CGMES model copy not supported, soource is " + cgmes.getClass().getSimpleName());
-        }
-    }
-
-    private static void buildCaches(CgmesModel cgmes) {
-        // TODO This is rebuilding only some caches
-        boolean isNodeBreaker = cgmes.isNodeBreaker();
-        for (PropertyBags tends : cgmes.groupedTransformerEnds().values()) {
-            for (PropertyBag end : tends) {
-                CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
-                cgmes.substation(t, isNodeBreaker);
-                if (isNodeBreaker) {
-                    t.connectivityNode();
-                } else {
-                    t.topologicalNode();
-                }
             }
         }
     }

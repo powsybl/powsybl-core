@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
@@ -61,6 +62,7 @@ class ShuntCompensatorModificationTest {
         assertThrows(PowsyblException.class, () -> modif2.apply(network, true, ReportNode.NO_OP),
             "Trying to set the number of section outside of range should not be accepted.");
         assertEquals(1, shunt.getSectionCount(), "Failed applies should not modify the value");
+        assertDoesNotThrow(() -> modif2.apply(network, false, ReportNode.NO_OP));
     }
 
     @Test
@@ -115,5 +117,38 @@ class ShuntCompensatorModificationTest {
         new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
         Assertions.assertTrue(shunt.getTerminal().isConnected());
         Assertions.assertEquals(2.0, shunt.getTargetV(), 0.1);
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ShuntCompensatorModification("ID", true, 1);
+        assertEquals("ShuntCompensatorModification", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        ShuntCompensatorModification modification1 = new ShuntCompensatorModification("SHUNT_NOT_EXISTING", false, null);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification2 = new ShuntCompensatorModification(shunt.getId(), false, null);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification3 = new ShuntCompensatorModification(shunt.getId(), true, 1);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification4 = new ShuntCompensatorModification(shunt.getId(), true, null);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification5 = new ShuntCompensatorModification(shunt.getId(), true, 0);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification6 = new ShuntCompensatorModification(shunt.getId(), null, null);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification6.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification7 = new ShuntCompensatorModification(shunt.getId(), true, -1);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification7.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification8 = new ShuntCompensatorModification(shunt.getId(), true, 10);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification8.hasImpactOnNetwork(network));
     }
 }

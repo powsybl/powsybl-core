@@ -11,26 +11,45 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.timeseries.ast.NodeCalc;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.ResultIterator;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,6 +65,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     enum TimeFormat {
         DATE_TIME,
         MILLIS,
+        MICROS,
+        NANOS,
         FRACTIONS_OF_SECOND;
     }
 
@@ -53,11 +74,63 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     void synchronize(TimeSeriesIndex newIndex);
 
-    Stream<P> stream();
+    /**
+     * Get a point stream. Defaults to {@link #uncompressedStream()}
+     *
+     * @return a point stream
+     */
+    default Stream<P> stream() {
+        return uncompressedStream();
+    }
 
-    Iterator<P> iterator();
+    /**
+     * Get an uncompressed point stream (i.e., there will be as many elements in the stream as in the TimeSeriesIndex).
+     *
+     * @return a point stream
+     */
+    Stream<P> uncompressedStream();
+
+    /**
+     * Get a compressed point stream. The compression depends on the implementation. By default, there is no compression.
+     *
+     * @return a point stream
+     */
+    default Stream<P> compressedStream() {
+        return uncompressedStream();
+    }
+
+    /**
+     * Get a point iterator. Defaults to {@link #uncompressedIterator()}
+     *
+     * @return a point iterator
+     */
+    @NonNull
+    default Iterator<P> iterator() {
+        return uncompressedIterator();
+    }
+
+    /**
+     * Get an uncompressed point iterator (i.e., there will be as many elements in the iterator as in the TimeSeriesIndex).
+     *
+     * @return a point iterator
+     */
+    Iterator<P> uncompressedIterator();
+
+    /**
+     * Get a compressed point iterator. The compression depends on the implementation. By default, there is no compression.
+     *
+     * @return a point iterator
+     */
+    default Iterator<P> compressedIterator() {
+        return uncompressedIterator();
+    }
 
     List<T> split(int newChunkSize);
+
+    /**
+     * Splits a list of chunks into sublists based on the specified ranges.
+     */
+    List<T> splitByRanges(List<Range<@NonNull Integer>> newChunks);
 
     void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver);
 
@@ -102,33 +175,19 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> split(List<T> timeSeriesList, int newChunkSize) {
-        Objects.requireNonNull(timeSeriesList);
-        if (timeSeriesList.isEmpty()) {
-            throw new IllegalArgumentException("Time series list is empty");
-        }
+        verifyTimeSeriesList(timeSeriesList);
         if (newChunkSize < 1) {
             throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
-        Set<TimeSeriesIndex> indexes = timeSeriesList.stream()
-                .map(ts -> ts.getMetadata().getIndex())
-                .filter(index -> !(index instanceof InfiniteTimeSeriesIndex))
-                .collect(Collectors.toSet());
-        if (indexes.isEmpty()) {
-            throw new IllegalArgumentException("Cannot split a list of time series with only infinite index");
-        }
-        if (indexes.size() != 1) {
-            throw new IllegalArgumentException("Cannot split a list of time series with different time indexes: " + indexes);
-        }
+        Set<TimeSeriesIndex> indexes = getTimeSeriesIndexes(timeSeriesList);
+        verifyIndexes(indexes);
         TimeSeriesIndex index = indexes.iterator().next();
         if (newChunkSize > index.getPointCount()) {
             throw new IllegalArgumentException("New chunk size " + newChunkSize + " is greater than point count "
-                    + index.getPointCount());
+                + index.getPointCount());
         }
         int chunkCount = computeChunkCount(index, newChunkSize);
-        List<List<T>> splitList = new ArrayList<>(chunkCount);
-        for (int i = 0; i < chunkCount; i++) {
-            splitList.add(new ArrayList<>(timeSeriesList.size()));
-        }
+        List<List<T>> splitList = getSplitList(timeSeriesList, chunkCount);
         for (T timeSeries : timeSeriesList) {
             List<T> split = timeSeries.split(newChunkSize);
             for (int i = 0; i < chunkCount; i++) {
@@ -136,6 +195,63 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             }
         }
         return splitList;
+    }
+
+    private static <P extends AbstractPoint, T extends TimeSeries<P, T>> @NonNull List<List<T>> getSplitList(List<T> timeSeriesList, int chunkCount) {
+        List<List<T>> splitList = new ArrayList<>(chunkCount);
+        for (int i = 0; i < chunkCount; i++) {
+            splitList.add(new ArrayList<>(timeSeriesList.size()));
+        }
+        return splitList;
+    }
+
+    private static <P extends AbstractPoint, T extends TimeSeries<P, T>> Set<TimeSeriesIndex> getTimeSeriesIndexes(List<T> timeSeriesList) {
+        return timeSeriesList.stream()
+            .map(ts -> ts.getMetadata().getIndex())
+            .filter(index -> !(index instanceof InfiniteTimeSeriesIndex))
+            .collect(Collectors.toSet());
+    }
+
+    private static void verifyIndexes(Set<TimeSeriesIndex> indexes) {
+        if (indexes.isEmpty()) {
+            throw new IllegalArgumentException("Cannot split a list of time series with only infinite index");
+        }
+        if (indexes.size() != 1) {
+            throw new IllegalArgumentException("Cannot split a list of time series with different time indexes: " + indexes);
+        }
+    }
+
+    /**
+     * <p>Splits a list of time series into multiple lists based on the specified ranges.</p>
+     *
+     * This method takes a list of time series and a list of ranges, and splits each time series
+     * according to the ranges. The resulting split time series are then grouped into separate lists,
+     * where each list corresponds to a specific range.
+     *
+     * @param timeSeriesList The list of time series to be split.
+     * @param ranges The list of ranges used to split the time series.
+     * @return A list of lists, where each inner list contains the split time series corresponding to a specific range.
+     *
+     */
+    static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> splitByRanges(List<T> timeSeriesList, List<Range<@NonNull Integer>> ranges) {
+        verifyTimeSeriesList(timeSeriesList);
+        verifyIndexes(getTimeSeriesIndexes(timeSeriesList));
+        int chunkCount = ranges.size();
+        List<List<T>> splitList = getSplitList(timeSeriesList, chunkCount);
+        for (T timeSeries : timeSeriesList) {
+            List<T> split = timeSeries.splitByRanges(ranges);
+            for (int i = 0; i < chunkCount; i++) {
+                splitList.get(i).add(split.get(i));
+            }
+        }
+        return splitList;
+    }
+
+    private static <P extends AbstractPoint, T extends TimeSeries<P, T>> void verifyTimeSeriesList(List<T> timeSeriesList) {
+        Objects.requireNonNull(timeSeriesList);
+        if (timeSeriesList.isEmpty()) {
+            throw new IllegalArgumentException("Time series list is empty");
+        }
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(Path file) {
@@ -188,7 +304,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         private final TimeSeriesDataType[] dataTypes;
         private final Object[] values;
 
-        private final List<Long> times = new ArrayList<>();
+        private final List<Instant> instants = new ArrayList<>();
 
         private TimeSeriesIndex refIndex;
 
@@ -210,16 +326,16 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         private TDoubleArrayList createDoubleValues() {
             TDoubleArrayList doubleValues = new TDoubleArrayList();
-            if (!times.isEmpty()) {
-                doubleValues.fill(0, times.size(), Double.NaN);
+            if (!instants.isEmpty()) {
+                doubleValues.fill(0, instants.size(), Double.NaN);
             }
             return doubleValues;
         }
 
         private List<String> createStringValues() {
             List<String> stringValues = new ArrayList<>();
-            if (!times.isEmpty()) {
-                for (int j = 0; j < times.size(); j++) {
+            if (!instants.isEmpty()) {
+                for (int j = 0; j < instants.size(); j++) {
                     stringValues.add(null);
                 }
             }
@@ -242,12 +358,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                             DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES,
                             line));
                     } else {
-                        reportNode.newReportNode()
-                            .withMessageTemplate("invalidVersionNumber", "The version number for a versioned TimeSeries should not be equals to the default version number (${versionNumber}) at line \"${line}\"")
-                            .withSeverity(TypedValue.WARN_SEVERITY)
-                            .withUntypedValue("versionNumber", DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES)
-                            .withUntypedValue("line", line)
-                            .add();
+                        TimeseriesReports.warnsOnTimeseriesVersionNumber(reportNode, DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES, line);
                         LOGGER.warn("The version number for a versioned TimeSeries should not be equals to the default version number ({}) at line \"{}}\"",
                             DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES,
                             line);
@@ -258,7 +369,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         int timesSize() {
-            return times.size();
+            return instants.size();
         }
 
         int expectedTokens() {
@@ -290,38 +401,47 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             }
         }
 
+        void parseLineDuplicate(String[] tokens) {
+            Instant time = parseTokenTime(tokens[0]);
+            if (instants.isEmpty() || !instants.get(instants.size() - 1).equals(time)) {
+                parseTokenData(tokens);
+                instants.add(time);
+            } else {
+                LOGGER.warn("Row with the same time have already been read, the row will be skipped");
+            }
+        }
+
         void parseLine(String[] tokens) {
+            parseTokenData(tokens);
+            instants.add(parseTokenTime(tokens[0]));
+        }
+
+        void parseTokenData(String[] tokens) {
             for (int i = fixedColumns; i < tokens.length; i++) {
                 String token = tokens[i] != null ? tokens[i].trim() : "";
                 parseToken(i, token);
             }
-
-            parseTokenTime(tokens);
         }
 
-        void parseTokenTime(String[] tokens) {
+        Instant parseTokenTime(String token) {
             TimeFormat timeFormat = timeSeriesCsvConfig.timeFormat();
-            switch (timeFormat) {
-                case DATE_TIME -> times.add(ZonedDateTime.parse(tokens[0]).toInstant().toEpochMilli());
-                case FRACTIONS_OF_SECOND -> {
-                    Double time = Double.parseDouble(tokens[0]) * 1000;
-                    times.add(time.longValue());
-                }
-                case MILLIS -> {
-                    Double millis = Double.parseDouble(tokens[0]);
-                    times.add(millis.longValue());
-                }
-            }
+            return switch (timeFormat) {
+                case DATE_TIME -> ZonedDateTime.parse(token).toInstant();
+                case FRACTIONS_OF_SECOND -> parseDoubleToInstant(token);
+                case MILLIS -> Instant.ofEpochMilli(Long.parseLong(token));
+                case MICROS -> parseMicrosToInstant(token);
+                case NANOS -> parseNanosToInstant(token);
+            };
         }
 
         void reInit() {
             // re-init
-            times.clear();
+            instants.clear();
             for (int i = 0; i < dataTypes.length; i++) {
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
                     ((TDoubleArrayList) values[i]).clear();
                 } else if (dataTypes[i] == TimeSeriesDataType.STRING) {
-                    ((List) values[i]).clear();
+                    ((List<?>) values[i]).clear();
                 } else {
                     throw assertDataType(dataTypes[i]);
                 }
@@ -362,27 +482,27 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         private TimeSeriesIndex getTimeSeriesIndex() {
-            Long spacing = checkRegularSpacing();
-            if (spacing != Long.MIN_VALUE) {
-                return new RegularTimeSeriesIndex(times.get(0), times.get(times.size() - 1), spacing);
+            Duration spacing = checkRegularSpacing();
+            if (spacing != null) {
+                return new RegularTimeSeriesIndex(instants.get(0), instants.get(instants.size() - 1), spacing);
             } else {
-                return new IrregularTimeSeriesIndex(times.stream().mapToLong(l -> l).toArray());
+                return IrregularTimeSeriesIndex.create(instants);
             }
         }
 
-        private long checkRegularSpacing() {
-            if (times.size() < 2) {
+        private Duration checkRegularSpacing() {
+            if (instants.size() < 2) {
                 throw new TimeSeriesException("At least 2 rows are expected");
             }
 
-            long spacing = Long.MIN_VALUE;
-            for (int i = 1; i < times.size(); i++) {
-                long duration = times.get(i) - times.get(i - 1);
-                if (spacing == Long.MIN_VALUE) {
+            Duration spacing = null;
+            for (int i = 1; i < instants.size(); i++) {
+                Duration duration = Duration.between(instants.get(i - 1), instants.get(i));
+                if (spacing == null) {
                     spacing = duration;
                 } else {
-                    if (duration != spacing) {
-                        return Long.MIN_VALUE;
+                    if (!duration.equals(spacing)) {
+                        return null;
                     }
                 }
             }
@@ -394,6 +514,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     static void readCsvValues(ResultIterator<String[], ParsingContext> iterator, CsvParsingContext context,
                               Map<Integer, List<TimeSeries>> timeSeriesPerVersion, ReportNode reportNode) {
         int currentVersion = Integer.MIN_VALUE;
+        Consumer<String[]> lineparser = context.timeSeriesCsvConfig.isSkipDuplicateTimeEntry()
+                ? context::parseLineDuplicate
+                : context::parseLine;
         while (iterator.hasNext()) {
             String[] tokens = iterator.next();
 
@@ -409,8 +532,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 context.reInit();
                 currentVersion = version;
             }
-
-            context.parseLine(tokens);
+            lineparser.accept(tokens);
         }
         timeSeriesPerVersion.put(currentVersion, context.createTimeSeries());
     }
@@ -439,11 +561,15 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static void checkCsvHeader(TimeSeriesCsvConfig timeSeriesCsvConfig, String[] tokens) {
         String separatorStr = Character.toString(timeSeriesCsvConfig.separator());
-        if (timeSeriesCsvConfig.versioned() && (tokens.length < 3 || !"time".equals(tokens[0].toLowerCase()) || !"version".equals(tokens[1].toLowerCase()))) {
+        if (timeSeriesCsvConfig.versioned() && (tokens.length < 3 || !"time".equalsIgnoreCase(tokens[0]) || !"version".equalsIgnoreCase(tokens[1]))) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "version" + separatorStr + "...");
-        } else if (tokens.length < 2 || !"time".equals(tokens[0].toLowerCase())) {
+        } else if (tokens.length < 2 || !"time".equalsIgnoreCase(tokens[0])) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "...");
         }
+    }
+
+    static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, TimeSeriesCsvConfig timeSeriesCsvConfig) {
+        return parseCsv(reader, timeSeriesCsvConfig, ReportNode.NO_OP);
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, TimeSeriesCsvConfig timeSeriesCsvConfig,
@@ -466,14 +592,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         long timing = stopwatch.elapsed(TimeUnit.MILLISECONDS);
         LOGGER.info("{} time series loaded from CSV in {} ms",
-                timeSeriesPerVersion.entrySet().stream().mapToInt(e -> e.getValue().size()).sum(),
+                timeSeriesPerVersion.values().stream().mapToInt(List::size).sum(),
                     timing);
-        reportNode.newReportNode()
-            .withMessageTemplate("timeseriesLoadingTime", "${tsNumber} time series loaded from CSV in ${timing} ms")
-            .withUntypedValue("tsNumber", timeSeriesPerVersion.entrySet().stream().mapToInt(e -> e.getValue().size()).sum())
-            .withUntypedValue("timing", timing)
-            .add();
-
+        TimeseriesReports.timeseriesLoadingTimeDuration(reportNode, timeSeriesPerVersion.values().stream().mapToInt(List::size).sum(), timing);
         return timeSeriesPerVersion;
     }
 
@@ -539,7 +660,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
+                    String fieldName = parser.currentName();
                     switch (fieldName) {
                         case "metadata" -> metadata = TimeSeriesMetadata.parseJson(parser);
                         case "chunks" -> {
@@ -579,5 +700,74 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static List<TimeSeries> parseJson(Path file) {
         return JsonUtil.parseJson(file, TimeSeries::parseJson);
+    }
+
+    static Instant parseDoubleToInstant(String doubleString) {
+        BigDecimal bd = new BigDecimal(doubleString);
+        BigDecimal seconds = bd.setScale(0, RoundingMode.DOWN);
+        BigDecimal nanos = bd.subtract(seconds).multiply(BigDecimal.valueOf(1_000_000_000));
+
+        return Instant.ofEpochSecond(
+            seconds.longValue(),
+            nanos.longValue()
+        );
+    }
+
+    static Instant parseMicrosToInstant(String token) {
+        return parsePreciseDateToInstant(token, 6);
+    }
+
+    static Instant parseNanosToInstant(String token) {
+        return parsePreciseDateToInstant(token, 9);
+    }
+
+    static Instant parsePreciseDateToInstant(String timestamp, int precision) {
+        long multiplier = (long) Math.pow(10, 9. - precision);
+        return timestamp.length() > precision ?
+            Instant.ofEpochSecond(Long.parseLong(timestamp.substring(0, timestamp.length() - precision)),
+                Long.parseLong(timestamp.substring(timestamp.length() - precision)) * multiplier) :
+            Instant.ofEpochSecond(0, Long.parseLong(timestamp) * multiplier);
+    }
+
+    static String writeInstantToMicroString(Instant instant) {
+        return writeInstantToString(instant, 6);
+    }
+
+    static String writeInstantToNanoString(Instant instant) {
+        return writeInstantToString(instant, 9);
+    }
+
+    static String writeInstantToString(Instant instant, int precision) {
+        long seconds = instant.getEpochSecond();
+        int nanos = instant.getNano();
+        // Compute the divisor to bring nanos to the right precision
+        long divisor = (long) Math.pow(10, 9. - precision);
+
+        // Compute the fractional part before rounding off
+        long fraction = nanos / divisor;
+
+        // Rounding: if the remainder is at least half the divisor, round up.
+        if (nanos % divisor * 2 >= divisor) {
+            fraction++;
+        }
+
+        // If rounding reduces the fraction to 10^(precision), the seconds must be carried forward.
+        long scale = (long) Math.pow(10, precision);
+        if (fraction >= scale && seconds > 0) {
+            // If seconds == 0, we prefer to keep the added second in the fraction to use the shortest way in the next part
+            seconds++;
+            fraction = 0;
+        }
+
+        if (seconds > 0) {
+            // Format the fraction with any zeros to obtain exactly ‘precision’ digits.
+            String format = "%0" + precision + "d";
+            String fractionStr = String.format(format, fraction);
+            return seconds + fractionStr;
+        } else {
+            // For seconds == 0, the value is returned as-is, without initial zeros.
+            return String.valueOf(fraction);
+        }
+
     }
 }

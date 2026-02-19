@@ -10,8 +10,10 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.SV;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -137,7 +139,7 @@ public abstract class AbstractTieLineTest {
         danglingLine2.setX(x + 1);
         danglingLine2.setG(hl2g1 + hl1g2 + 2);
         danglingLine2.setB(hl2b1 + hl2b2 + 2);
-        verify(mockedListener, times(8)).onUpdate(any(DanglingLine.class), anyString(), any(), any());
+        verify(mockedListener, times(8)).onUpdate(any(DanglingLine.class), anyString(), nullable(String.class), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
         // Cancel changes on dangling lines
@@ -153,7 +155,8 @@ public abstract class AbstractTieLineTest {
         verifyNoMoreInteractions(mockedListener);
 
         // Reuse adder
-        ValidationException e = assertThrows(ValidationException.class, () -> adder.setId("testTie2").add());
+        adder.setId("testTie2");
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
         assertTrue(e.getMessage().contains("already has a tie line"));
 
         // Update power flows, voltages and angles
@@ -170,15 +173,15 @@ public abstract class AbstractTieLineTest {
 
         // test boundaries values
         SV expectedSV1 = new SV(p1, q1, v1, angle1, TwoSides.ONE);
-        SV expectedSV2 = new SV(p2, q2, v2, angle2, TwoSides.TWO);
-        assertEquals(expectedSV1.otherSideP(danglingLine1, true), danglingLine1.getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV1.otherSideQ(danglingLine1, true), danglingLine1.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.otherSideP(danglingLine2, true), danglingLine2.getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV2.otherSideQ(danglingLine2, true), danglingLine2.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.otherSideU(danglingLine1, true), danglingLine1.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.otherSideA(danglingLine1, true), danglingLine1.getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.otherSideU(danglingLine2, true), danglingLine2.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.otherSideA(danglingLine2, true), danglingLine2.getBoundary().getAngle(), 0.0d);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2, TwoSides.ONE);
+        assertEquals(expectedSV1.otherSideP(danglingLine1, false), danglingLine1.getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.otherSideQ(danglingLine1, false), danglingLine1.getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.otherSideP(danglingLine2, false), danglingLine2.getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.otherSideQ(danglingLine2, false), danglingLine2.getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.otherSideU(danglingLine1, false), danglingLine1.getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.otherSideA(danglingLine1, false), danglingLine1.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.otherSideU(danglingLine2, false), danglingLine2.getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.otherSideA(danglingLine2, false), danglingLine2.getBoundary().getAngle(), 0.0d);
 
         // test paired dangling line retrieval - For paired dangling lines
         Optional<DanglingLine> otherSide1 = TieLineUtil.getPairedDanglingLine(danglingLine1);
@@ -196,10 +199,10 @@ public abstract class AbstractTieLineTest {
     @Test
     public void danglingLine1NotSet() {
         // adder
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
+        TieLineAdder tieLineAdder = network.newTieLine()
                 .setId("testTie")
-                .setName("testNameTie")
-                .add());
+                .setName("testNameTie");
+        ValidationException e = assertThrows(ValidationException.class, tieLineAdder::add);
         assertTrue(e.getMessage().contains("undefined dangling line"));
     }
 
@@ -219,11 +222,11 @@ public abstract class AbstractTieLineTest {
                 .setPairingKey("ucte")
                 .add();
         // adder
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
+        TieLineAdder tieLineAdder = network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
-                .setDanglingLine1(dl1.getId())
-                .add());
+                .setDanglingLine1(dl1.getId());
+        ValidationException e = assertThrows(ValidationException.class, tieLineAdder::add);
         assertTrue(e.getMessage().contains("undefined dangling line"));
     }
 
@@ -307,14 +310,14 @@ public abstract class AbstractTieLineTest {
         assertEquals(0.0, line2.getDanglingLine2().getQ0());
         line1.remove(true);
         line2.remove(true);
-        assertEquals(301.316, line1.getDanglingLine1().getP0(), 0.001);
-        assertEquals(116.525, line1.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(-301.782, line1.getDanglingLine2().getP0(), 0.001);
-        assertEquals(-116.442, line1.getDanglingLine2().getQ0(), 0.001);
-        assertEquals(301.316, line2.getDanglingLine1().getP0(), 0.001);
-        assertEquals(116.525, line2.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(-301.782, line2.getDanglingLine2().getP0(), 0.001);
-        assertEquals(-116.442, line2.getDanglingLine2().getQ0(), 0.001);
+        assertEquals(301.278, line1.getDanglingLine1().getP0(), 0.001);
+        assertEquals(116.563, line1.getDanglingLine1().getQ0(), 0.001);
+        assertEquals(-301.745, line1.getDanglingLine2().getP0(), 0.001);
+        assertEquals(-116.566, line1.getDanglingLine2().getQ0(), 0.001);
+        assertEquals(301.278, line2.getDanglingLine1().getP0(), 0.001);
+        assertEquals(116.563, line2.getDanglingLine1().getQ0(), 0.001);
+        assertEquals(-301.745, line2.getDanglingLine2().getP0(), 0.001);
+        assertEquals(-116.567, line2.getDanglingLine2().getQ0(), 0.001);
     }
 
     @Test
@@ -431,5 +434,118 @@ public abstract class AbstractTieLineTest {
                 .setDanglingLine1(dl1.getId())
                 .setDanglingLine2(dl2.getId())
                 .add();
+    }
+
+    @Test
+    void testConnectDisconnect() {
+        Network networkWithTieLine = createNetworkWithTieLine();
+        TieLine tieLine = networkWithTieLine.getTieLine("TL");
+
+        // Check that the tie line is connected
+        assertTieLineConnection(tieLine, true, true);
+
+        // Connection fails since it's already connected
+        assertFalse(tieLine.connectDanglingLines());
+
+        // Disconnection fails if switches cannot be opened (here, only fictional switches could be opened)
+        assertFalse(tieLine.disconnectDanglingLines(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
+
+        // Disconnection
+        assertTrue(tieLine.disconnectDanglingLines());
+        assertTieLineConnection(tieLine, false, false);
+
+        // Disconnection fails since it's already disconnected
+        assertFalse(tieLine.disconnectDanglingLines());
+
+        // Connection fails if switches cannot be opened (here, only fictional switches could be closed)
+        assertFalse(tieLine.connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL.negate()));
+
+        // Connection
+        assertTrue(tieLine.connectDanglingLines());
+        assertTieLineConnection(tieLine, true, true);
+
+        // Disconnect one side
+        assertTrue(tieLine.disconnectDanglingLines(SwitchPredicates.IS_CLOSED_BREAKER, TwoSides.ONE));
+        assertTieLineConnection(tieLine, false, true);
+
+        // Connection on the other side fails since it's still connected
+        assertFalse(tieLine.connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
+    }
+
+    private void assertTieLineConnection(TieLine tieLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
+        assertEquals(expectedConnectionOnSide1, tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, tieLine.getDanglingLine2().getTerminal().isConnected());
+    }
+
+    private Network createNetworkWithTieLine() {
+        // Initialize the network
+        Network networkWithTieLine = FourSubstationsNodeBreakerFactory.create();
+
+        // Existing voltage levels in Node-breaker view
+        VoltageLevel s1vl1 = networkWithTieLine.getVoltageLevel("S1VL1");
+
+        // New voltage levels in bus-breaker view
+        VoltageLevel s2vl2 = networkWithTieLine.getSubstation("S2").newVoltageLevel()
+            .setId("S2VL2")
+            .setNominalV(1.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+
+        // New buses
+        s2vl2.getBusBreakerView()
+            .newBus()
+            .setId("bus22")
+            .add();
+
+        /*
+         * First Tie line on node-breaker
+         */
+        // Add a dangling line in the first Voltage level
+        createSwitch(s1vl1, "S1VL1_DL_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 20);
+        createSwitch(s1vl1, "S1VL1_DL_BREAKER", SwitchKind.BREAKER, false, 20, 21);
+        DanglingLine danglingLine1 = s1vl1.newDanglingLine()
+            .setId("NHV1_XNODE1")
+            .setP0(0.0)
+            .setQ0(0.0)
+            .setR(1.5)
+            .setX(20.0)
+            .setG(1E-6)
+            .setB(386E-6 / 2)
+            .setNode(21)
+            .setPairingKey("XNODE1")
+            .add();
+
+        // Add a dangling line in the second Voltage level
+        DanglingLine danglingLine2 = s2vl2.newDanglingLine()
+            .setId("S2VL2_DL")
+            .setP0(0.0)
+            .setQ0(0.0)
+            .setR(1.5)
+            .setX(13.0)
+            .setG(2E-6)
+            .setB(386E-6 / 2)
+            .setBus("bus22")
+            .setPairingKey("XNODE1")
+            .add();
+        networkWithTieLine.newTieLine()
+            .setId("TL")
+            .setDanglingLine1(danglingLine1.getId())
+            .setDanglingLine2(danglingLine2.getId())
+            .add();
+
+        return networkWithTieLine;
+    }
+
+    private static void createSwitch(VoltageLevel vl, String id, SwitchKind kind, boolean open, int node1, int node2) {
+        vl.getNodeBreakerView().newSwitch()
+            .setId(id)
+            .setName(id)
+            .setKind(kind)
+            .setRetained(kind.equals(SwitchKind.BREAKER))
+            .setOpen(open)
+            .setFictitious(false)
+            .setNode1(node1)
+            .setNode2(node2)
+            .add();
     }
 }

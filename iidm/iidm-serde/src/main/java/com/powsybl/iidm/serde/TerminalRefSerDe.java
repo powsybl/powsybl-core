@@ -11,6 +11,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -22,6 +23,7 @@ public final class TerminalRefSerDe {
 
     private static final String ID = "id";
     private static final String SIDE = "side";
+    private static final String NUMBER = "number";
 
     public static void writeTerminalRef(Terminal t, NetworkSerializerContext context, String elementName) {
         writeTerminalRef(t, context, context.getVersion().getNamespaceURI(context.isValid()), elementName);
@@ -54,9 +56,13 @@ public final class TerminalRefSerDe {
         ThreeSides tSide = Optional.ofNullable(terminal)
                 .flatMap(Terminal::getConnectableSide)
                 .orElse(null);
+        TerminalNumber tNumber = Optional.ofNullable(terminal)
+                .flatMap(Terminal::getConnectableTerminalNumber)
+                .orElse(null);
 
-        writer.writeStringAttribute("id", connectableId);
-        writer.writeEnumAttribute("side", tSide);
+        writer.writeStringAttribute(ID, connectableId);
+        writer.writeEnumAttribute(SIDE, tSide);
+        writer.writeEnumAttribute(NUMBER, tNumber);
     }
 
     private static void checkTerminal(Terminal t, NetworkSerializerContext context) {
@@ -65,7 +71,7 @@ public final class TerminalRefSerDe {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
         if (t.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER
-                && context.getOptions().getTopologyLevel() != TopologyLevel.NODE_BREAKER
+                && TopologyLevelUtil.determineTopologyLevel(t.getVoltageLevel(), context) != TopologyLevel.NODE_BREAKER
                 && t.getConnectable() instanceof BusbarSection) {
             throw new PowsyblException(String.format("Terminal ref should not point to a busbar section (here %s). Try to export in node-breaker or delete this terminal ref.",
                     t.getConnectable().getId()));
@@ -75,24 +81,32 @@ public final class TerminalRefSerDe {
     public static Terminal readTerminal(NetworkDeserializerContext context, Network n) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         ThreeSides side = context.getReader().readEnumAttribute(SIDE, ThreeSides.class);
+        TerminalNumber number = context.getReader().readEnumAttribute(NUMBER, TerminalNumber.class);
         context.getReader().readEndNode();
-        return TerminalRefSerDe.resolve(id, side, n);
+        return TerminalRefSerDe.resolve(id, side, number, n);
     }
 
     public static void readTerminalRef(NetworkDeserializerContext context, Network network, Consumer<Terminal> endTaskTerminalConsumer) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         ThreeSides side = context.getReader().readEnumAttribute(SIDE, ThreeSides.class);
+        TerminalNumber number = context.getReader().readEnumAttribute(NUMBER, TerminalNumber.class);
         context.getReader().readEndNode();
-        context.getEndTasks().add(() -> {
-            Terminal t = resolve(id, side, network);
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> {
+            Terminal t = resolve(id, side, number, network);
             endTaskTerminalConsumer.accept(t);
         });
     }
 
-    public static Terminal resolve(String id, ThreeSides side, Network network) {
+    public static Terminal resolve(String id, ThreeSides side, TerminalNumber number, Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(id);
         if (identifiable == null) {
             throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
+        }
+        if (side != null && number != null) {
+            throw new PowsyblException("Terminal reference specifies both terminal side and terminal number: '" + id + "'");
+        }
+        if (number != null) {
+            return Terminal.getTerminal(identifiable, number);
         }
         return Terminal.getTerminal(identifiable, side != null ? side : ThreeSides.ONE);
     }

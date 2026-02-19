@@ -23,9 +23,6 @@ import java.util.List;
  */
 public class StringTemplateBashCompletionGenerator implements BashCompletionGenerator {
 
-    public StringTemplateBashCompletionGenerator() {
-    }
-
     private STGroup createTemplateGroup() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("completion.sh.stg")) {
             return new STGroupString(IOUtils.toString(is, StandardCharsets.UTF_8));

@@ -40,9 +40,11 @@ public class PsseCaseIdentification {
     private float rev = 33;
 
     @Parsed
+    @Format(formats = {"0"})
     private double xfrrat = Double.NaN;
 
     @Parsed
+    @Format(formats = {"0"})
     private double nxfrat = Double.NaN;
 
     @Parsed
@@ -128,7 +130,7 @@ public class PsseCaseIdentification {
         }
     }
 
-    private static class RevisionSerializer extends JsonSerializer<Float> {
+    private static final class RevisionSerializer extends JsonSerializer<Float> {
         @Override
         public void serialize(Float value, JsonGenerator generator, SerializerProvider provider) throws IOException {
             String rev = PsseVersion.fromRevision(value).toString();

@@ -43,7 +43,7 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
         List<Extension<SecurityAnalysisParameters>> extensions = Collections.emptyList();
         String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     parser.nextToken();
                     version = parser.getValueAsString();
@@ -69,7 +69,7 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));

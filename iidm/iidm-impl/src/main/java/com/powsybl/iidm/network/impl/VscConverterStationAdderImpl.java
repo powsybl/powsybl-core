@@ -71,9 +71,9 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         validate();
         VscConverterStationImpl converterStation
                 = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetworkRef(),
-                voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint, regulatingTerminal == null ? terminal : regulatingTerminal);
+                voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint, regulatingTerminal);
         converterStation.addTerminal(terminal);
-        getVoltageLevel().attach(terminal, false);
+        getVoltageLevel().getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(converterStation);
         network.getListeners().notifyCreation(converterStation);
         return converterStation;
@@ -84,7 +84,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         super.validate();
         NetworkImpl network = getNetwork();
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
-                reactivePowerSetpoint, network.getMinValidationLevel()));
+                reactivePowerSetpoint, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
     }
 

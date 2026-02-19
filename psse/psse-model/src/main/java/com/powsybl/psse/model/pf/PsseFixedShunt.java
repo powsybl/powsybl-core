@@ -69,4 +69,14 @@ public class PsseFixedShunt {
     public void setBl(double bl) {
         this.bl = bl;
     }
+
+    public PsseFixedShunt copy() {
+        PsseFixedShunt copy = new PsseFixedShunt();
+        copy.i = this.i;
+        copy.id = this.id;
+        copy.status = this.status;
+        copy.gl = this.gl;
+        copy.bl = this.bl;
+        return copy;
+    }
 }

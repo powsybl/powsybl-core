@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
@@ -24,6 +23,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -47,7 +47,7 @@ public class NetworkMetadataDeserializer extends StdDeserializer<NetworkMetadata
         List<Extension<NetworkMetadata>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "id":
                     id = parser.nextTextValue();
                     break;
@@ -70,7 +70,7 @@ public class NetworkMetadataDeserializer extends StdDeserializer<NetworkMetadata
                     break;
 
                 default:
-                    throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
+                    throw new PowsyblException("Unexpected field: " + parser.currentName());
             }
         }
 

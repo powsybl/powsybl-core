@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_DISTRIBUTION;
@@ -94,8 +95,12 @@ public class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     public ProportionalScalable(List<? extends Injection> injections, DistributionMode distributionMode, double minValue, double maxValue) {
+        this(injections, ScalableAdapter::new, distributionMode, minValue, maxValue);
+    }
+
+    protected ProportionalScalable(List<? extends Injection> injections, Function<Injection, Scalable> scalableMapping, DistributionMode distributionMode, double minValue, double maxValue) {
         // Create the scalable for each injection
-        List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+        List<Scalable> injectionScalables = injections.stream().map(scalableMapping).collect(Collectors.toList());
 
         // Compute the sum of every individual power
         double totalDistribution = computeTotalDistribution(injections, distributionMode);
@@ -108,10 +113,10 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         DistributionMode finalDistributionMode;
         double finalTotalDistribution;
         if (totalDistribution == 0.0 &&
-            (distributionMode == DistributionMode.PROPORTIONAL_TO_P0
-                || distributionMode == DistributionMode.PROPORTIONAL_TO_TARGETP
-                || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_PMAX_TARGETP
-                || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_TARGETP_PMIN)) {
+                (distributionMode == DistributionMode.PROPORTIONAL_TO_P0
+                        || distributionMode == DistributionMode.PROPORTIONAL_TO_TARGETP
+                        || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_PMAX_TARGETP
+                        || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_TARGETP_PMIN)) {
             finalDistributionMode = DistributionMode.UNIFORM_DISTRIBUTION;
             finalTotalDistribution = computeTotalDistribution(injections, finalDistributionMode);
         } else {
@@ -198,7 +203,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    Collection<Scalable> getScalables() {
+    protected Collection<Scalable> getScalables() {
         return scalablePercentageList.stream().map(ScalablePercentage::getScalable).toList();
     }
 
@@ -256,9 +261,23 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
             double iterationPercentage = scalablePercentage.getIterationPercentage();
+            if (iterationPercentage == 0.0) {
+                // no need to go further
+                continue;
+            }
             double askedOnScalable = iterationPercentage / 100 * asked;
             double doneOnScalable = s.scale(n, askedOnScalable, parameters);
-            if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
+
+            // check if scalable reached limit
+            double scalableMin = s.minimumValue(n, parameters.getScalingConvention());
+            double scalableMax = s.maximumValue(n, parameters.getScalingConvention());
+            double scalableP = s.getSteadyStatePower(n, asked, parameters.getScalingConvention());
+            boolean saturated = asked > 0 ?
+                    Math.abs(scalableMax - scalableP) < EPSILON / 100 :
+                    Math.abs(scalableMin - scalableP) < EPSILON / 100;
+            if (doneOnScalable == 0 || saturated) {
+                // If didn't move now (tested by a perfect zero equality), it won't move in subsequent iterations for sure.
+                // If reached saturation, can exclude right now to avoid earlier another iteration.
                 scalablePercentage.setIterationPercentage(0);
             }
             done += doneOnScalable;

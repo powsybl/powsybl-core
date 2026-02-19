@@ -40,10 +40,9 @@ public class PrefixNamespace {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof PrefixNamespace)) {
+        if (!(obj instanceof PrefixNamespace other)) {
             return false;
         }
-        PrefixNamespace other = (PrefixNamespace) obj;
         return prefix.equals(other.getPrefix()) && namespace.equals(other.getNamespace());
     }
 

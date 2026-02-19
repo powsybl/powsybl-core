@@ -27,4 +27,8 @@ public interface Overload {
      * The name of the current limit which has been overloaded.
      */
     String getPreviousLimitName();
+
+    default double getLimitReductionCoefficient() {
+        return 1;
+    }
 }

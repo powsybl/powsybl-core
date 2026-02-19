@@ -29,8 +29,7 @@ public class CgmesLineBoundaryNodeSerDe extends AbstractExtensionSerDe<TieLine, 
     @Override
     public void write(CgmesLineBoundaryNode extension, SerializerContext context) {
         context.getWriter().writeBooleanAttribute("isHvdc", extension.isHvdc());
-        extension.getLineEnergyIdentificationCodeEic().ifPresent(lineEnergyIdentificationCodeEic ->
-                context.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEic));
+        context.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", extension.getLineEnergyIdentificationCodeEic().orElse(null));
     }
 
     @Override

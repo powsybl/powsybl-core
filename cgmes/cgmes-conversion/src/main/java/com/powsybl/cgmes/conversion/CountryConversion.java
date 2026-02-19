@@ -47,32 +47,16 @@ public final class CountryConversion {
         if (name == null) {
             return Optional.empty();
         }
-        switch (name.trim().toUpperCase()) {
-            case "NO1":
-            case "NO2":
-            case "NO3":
-            case "NO4":
-            case "NO5":
-                return Optional.of(Country.NO);
-            case "SE1":
-            case "SE2":
-            case "SE3":
-            case "SE4":
-                return Optional.of(Country.SE);
-            case "FI1":
-                return Optional.of(Country.FI);
-            case "DK1":
-            case "DK2":
-                return Optional.of(Country.DK);
-            case "EE1":
-                return Optional.of(Country.EE);
-            case "LV1":
-                return Optional.of(Country.LV);
-            case "LT1":
-                return Optional.of(Country.LT);
-            default:
-                return Optional.empty();
-        }
+        return switch (name.trim().toUpperCase()) {
+            case "NO1", "NO2", "NO3", "NO4", "NO5" -> Optional.of(Country.NO);
+            case "SE1", "SE2", "SE3", "SE4" -> Optional.of(Country.SE);
+            case "FI1" -> Optional.of(Country.FI);
+            case "DK1", "DK2" -> Optional.of(Country.DK);
+            case "EE1" -> Optional.of(Country.EE);
+            case "LV1" -> Optional.of(Country.LV);
+            case "LT1" -> Optional.of(Country.LT);
+            default -> Optional.empty();
+        };
     }
 
     public static Optional<Country> fromIsoCode(String iso) {

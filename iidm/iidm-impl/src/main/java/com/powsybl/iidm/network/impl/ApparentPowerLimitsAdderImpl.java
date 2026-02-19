@@ -40,4 +40,5 @@ public class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<App
         group.setApparentPowerLimits(limits);
         return limits;
     }
+
 }

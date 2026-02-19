@@ -72,6 +72,16 @@ class LimitsContainerTest {
             public Double getOriginalTemporaryLimit(int acceptableDuration) {
                 return originalLimits.getTemporaryLimitValue(acceptableDuration);
             }
+
+            @Override
+            public double getPermanentLimitReduction() {
+                return 0.5;
+            }
+
+            @Override
+            public Double getTemporaryLimitReduction(int acceptableDuration) {
+                return acceptableDuration * 0.001;
+            }
         };
         assertTrue(container.isDistinct());
         assertEquals(originalLimits, container.getOriginalLimits());
@@ -80,5 +90,7 @@ class LimitsContainerTest {
         assertEquals(1050., container.getLimits().getTemporaryLimit(300).getValue(), 0.01);
         assertEquals(1000., container.getOriginalPermanentLimit(), 0.01);
         assertEquals(1400., container.getOriginalTemporaryLimit(300), 0.01);
+        assertEquals(0.5, container.getPermanentLimitReduction());
+        assertEquals(0.005, container.getTemporaryLimitReduction(5));
     }
 }

@@ -16,6 +16,7 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
@@ -40,7 +41,7 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
     public ScalingParameters deserialize(JsonParser parser, DeserializationContext context, ScalingParameters parameters) throws IOException {
         String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version" -> {
                     parser.nextToken(); // do nothing
                     version = parser.getValueAsString();
@@ -67,7 +68,11 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                     parser.nextToken();
                     parameters.setPriority(JsonUtil.readValue(context, parser, ScalingParameters.Priority.class));
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                case "ignoredInjectionIds" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: ignoredInjectionIds", version, "1.2");
+                    parameters.setIgnoredInjectionIds(new HashSet<>(JsonUtil.parseStringArray(parser)));
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         return parameters;

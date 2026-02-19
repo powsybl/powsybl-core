@@ -24,10 +24,21 @@ public interface NetworkElementIdentifier {
     enum IdentifierType {
         ID_BASED,
         VOLTAGE_LEVELS_AND_ORDER,
-        LIST
+        LIST,
+        ID_WITH_WILDCARDS,
+        SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS,
     }
 
     IdentifierType getType();
 
     Optional<String> getContingencyId();
+
+    /**
+     * Determine if one contingency per element found or a contingency with all the elements found should be created
+     * @return {@code true} if one contingency per element found should be created, {@code false} if a contingency with
+     * all the elements found should be created
+     */
+    default boolean isMonoElementContingencies() {
+        return false;
+    }
 }

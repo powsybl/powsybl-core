@@ -20,7 +20,7 @@ public class MatpowerModel {
     @JsonProperty("caseName")
     private String caseName;
     private double baseMva;
-    private String version;
+    private MatpowerFormatVersion version;
 
     private final List<MBus> buses = new ArrayList<>();
 
@@ -39,12 +39,12 @@ public class MatpowerModel {
         this.caseName = Objects.requireNonNull(caseName);
     }
 
-    public String getVersion() {
+    public MatpowerFormatVersion getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setVersion(MatpowerFormatVersion version) {
+        this.version = Objects.requireNonNull(version);
     }
 
     public String getCaseName() {

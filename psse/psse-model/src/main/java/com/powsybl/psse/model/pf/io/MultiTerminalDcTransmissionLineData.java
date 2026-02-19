@@ -56,14 +56,14 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             List<String> linkRecords = new ArrayList<>();
 
             if (!reader.isQRecordFound()) {
-                String line = reader.readRecordLine();
+                String line = reader.readUntilFindingARecordLineNotEmpty();
                 while (!reader.endOfBlock(line)) {
                     PsseMultiTerminalDcMain main = mainData.readFromStrings(Collections.singletonList(line), context).get(0);
 
                     addNextNrecords(reader, converterRecords, main.getNconv());
                     addNextNrecords(reader, busRecords, main.getNdcbs());
                     addNextNrecords(reader, linkRecords, main.getNdcln());
-                    line = reader.readRecordLine();
+                    line = reader.readUntilFindingARecordLineNotEmpty();
 
                     PsseMultiTerminalDcTransmissionLine multiTerminal = new PsseMultiTerminalDcTransmissionLine(main);
                     multiTerminalList.add(multiTerminal);

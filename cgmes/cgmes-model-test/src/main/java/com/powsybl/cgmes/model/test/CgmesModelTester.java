@@ -89,6 +89,7 @@ public class CgmesModelTester {
         testPropertyBags(expected.phaseTapChangers(), actual.phaseTapChangers());
         testPropertyBags(expected.energyConsumers(), actual.energyConsumers());
         testPropertyBags(expected.shuntCompensators(), actual.shuntCompensators());
+        testPropertyBags(expected.nonlinearShuntCompensatorPoints(), actual.nonlinearShuntCompensatorPoints());
         testPropertyBags(expected.staticVarCompensators(), actual.staticVarCompensators());
         testPropertyBags(expected.synchronousMachinesGenerators(), actual.synchronousMachinesGenerators());
         testPropertyBags(expected.synchronousMachinesCondensers(), actual.synchronousMachinesCondensers());

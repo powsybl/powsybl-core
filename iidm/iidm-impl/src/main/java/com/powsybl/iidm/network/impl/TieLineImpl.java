@@ -8,13 +8,16 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -163,6 +166,51 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public boolean connectDanglingLines() {
+        return connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
+    }
+
+    @Override
+    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectDanglingLines(isTypeSwitchToOperate, null);
+    }
+
+    @Override
+    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+        return ConnectDisconnectUtil.connectAllTerminals(
+            this,
+            getTerminalsOfDanglingLines(side),
+            isTypeSwitchToOperate,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    @Override
+    public boolean disconnectDanglingLines() {
+        return disconnectDanglingLines(SwitchPredicates.IS_CLOSED_BREAKER, null);
+    }
+
+    @Override
+    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable) {
+        return disconnectDanglingLines(isSwitchOpenable, null);
+    }
+
+    @Override
+    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+        return ConnectDisconnectUtil.disconnectAllTerminals(
+            this,
+            getTerminalsOfDanglingLines(side),
+            isSwitchOpenable,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    private List<Terminal> getTerminalsOfDanglingLines(TwoSides side) {
+        return side == null ? List.of(getTerminal1(), getTerminal2()) : switch (side) {
+            case ONE -> List.of(getTerminal1());
+            case TWO -> List.of(getTerminal2());
+        };
+    }
+
+    @Override
     public TerminalExt getTerminal1() {
         return danglingLine1.getTerminal();
     }
@@ -227,18 +275,40 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public CurrentLimitsAdder newCurrentLimits1() {
-        return danglingLine1.newCurrentLimits();
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1() {
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup();
     }
 
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2() {
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup();
+    }
+
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
+    @Override
+    public CurrentLimitsAdder newCurrentLimits1() {
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+    }
+
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return danglingLine1.newActivePowerLimits();
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return danglingLine1.newApparentPowerLimits();
+        return danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override
@@ -281,19 +351,31 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         danglingLine2.cancelSelectedOperationalLimitsGroup();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return danglingLine2.newCurrentLimits();
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return danglingLine2.newActivePowerLimits();
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return danglingLine2.newApparentPowerLimits();
+        return danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override

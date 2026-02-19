@@ -35,7 +35,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = null;
         List<SensitivityFactor> factors = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     parser.nextToken(); // skip
                     version = parser.getValueAsString();
@@ -56,7 +56,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                     contingencyStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityContingencyStatus.class);
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 

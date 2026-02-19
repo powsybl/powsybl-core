@@ -39,7 +39,7 @@ public class VoltageRangeDeserializer extends StdDeserializer<VoltageRange> {
         // from the context with `context.getAttribute(ParametersDeserializationConstants.SOURCE_PARAMETER_TYPE_ATTRIBUTE)`
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "minimumNominalVoltage" -> {
                     parser.nextToken();
                     minimumVoltage = parser.readValueAs(Double.class);
@@ -53,11 +53,11 @@ public class VoltageRangeDeserializer extends StdDeserializer<VoltageRange> {
                     coefficient = parser.readValueAs(Double.class);
                 }
                 case "voltage" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.currentName(), version, "1.3");
                     parser.nextToken();
                     voltage = parser.readValueAs(Double.class);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 

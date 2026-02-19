@@ -1532,5 +1532,6 @@
     "b8" : 0.0
   } ],
   "gneDevice" : [ ],
-  "inductionMachines" : [ ]
+  "inductionMachines" : [ ],
+  "substations" : [ ]
 }

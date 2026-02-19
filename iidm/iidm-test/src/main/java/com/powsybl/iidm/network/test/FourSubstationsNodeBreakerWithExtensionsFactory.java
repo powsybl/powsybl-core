@@ -20,6 +20,9 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
  */
 public final class FourSubstationsNodeBreakerWithExtensionsFactory {
 
+    public static final String LINE_S2S3 = "LINE_S2S3";
+    public static final String LINE_S3S4 = "LINE_S3S4";
+
     private FourSubstationsNodeBreakerWithExtensionsFactory() {
     }
 
@@ -194,26 +197,26 @@ public final class FourSubstationsNodeBreakerWithExtensionsFactory {
                     .add()
                 .add();
 
-        network.getLine("LINE_S2S3").newExtension(ConnectablePositionAdder.class)
+        network.getLine(LINE_S2S3).newExtension(ConnectablePositionAdder.class)
                 .newFeeder1()
-                    .withName("LINE_S2S3")
+                    .withName(LINE_S2S3)
                     .withDirection(ConnectablePosition.Direction.BOTTOM)
                     .withOrder(30)
                     .add()
                 .newFeeder2()
-                    .withName("LINE_S2S3")
+                    .withName(LINE_S2S3)
                     .withDirection(ConnectablePosition.Direction.BOTTOM)
                     .withOrder(10)
                     .add()
                 .add();
-        network.getLine("LINE_S3S4").newExtension(ConnectablePositionAdder.class)
+        network.getLine(LINE_S3S4).newExtension(ConnectablePositionAdder.class)
                 .newFeeder1()
-                    .withName("LINE_S3S4")
+                    .withName(LINE_S3S4)
                     .withDirection(ConnectablePosition.Direction.BOTTOM)
                     .withOrder(40)
                     .add()
                 .newFeeder2()
-                    .withName("LINE_S3S4")
+                    .withName(LINE_S3S4)
                     .withDirection(ConnectablePosition.Direction.TOP)
                     .withOrder(30)
                     .add()

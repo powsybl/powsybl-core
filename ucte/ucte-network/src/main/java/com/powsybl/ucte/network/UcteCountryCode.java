@@ -7,6 +7,10 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.VoltageLevel;
+
 import java.util.Objects;
 
 /**
@@ -70,46 +74,46 @@ public enum UcteCountryCode {
     }
 
     public static UcteCountryCode fromUcteCode(char ucteCode) {
-        switch (ucteCode) {
-            case 'O': return AT;
-            case 'A': return AL;
-            case 'B': return BE;
-            case 'V': return BG;
-            case 'W': return BA;
-            case '3': return BY;
-            case 'S': return CH;
-            case 'C': return CZ;
-            case 'D': return DE;
-            case 'K': return DK;
-            case 'E': return ES;
-            case 'F': return FR;
-            case '5': return GB;
-            case 'G': return GR;
-            case 'M': return HU;
-            case 'H': return HR;
-            case 'I': return IT;
-            case '1': return LU;
-            case '6': return LT;
-            case '2': return MA;
-            case '7': return MD;
-            case 'Y': return MK;
-            case '9': return NO;
-            case 'N': return NL;
-            case 'P': return PT;
-            case 'Z': return PL;
-            case 'R': return RO;
-            case '4': return RU;
-            case '8': return SE;
-            case 'Q': return SK;
-            case 'L': return SI;
-            case 'T': return TR;
-            case 'U': return UA;
-            case '0': return ME;
-            case 'J': return RS;
-            case '_': return KS;
-            case 'X': return XX;
-            default: throw new IllegalArgumentException("Unknown UCTE country code " + ucteCode);
-        }
+        return switch (ucteCode) {
+            case 'O' -> AT;
+            case 'A' -> AL;
+            case 'B' -> BE;
+            case 'V' -> BG;
+            case 'W' -> BA;
+            case '3' -> BY;
+            case 'S' -> CH;
+            case 'C' -> CZ;
+            case 'D' -> DE;
+            case 'K' -> DK;
+            case 'E' -> ES;
+            case 'F' -> FR;
+            case '5' -> GB;
+            case 'G' -> GR;
+            case 'M' -> HU;
+            case 'H' -> HR;
+            case 'I' -> IT;
+            case '1' -> LU;
+            case '6' -> LT;
+            case '2' -> MA;
+            case '7' -> MD;
+            case 'Y' -> MK;
+            case '9' -> NO;
+            case 'N' -> NL;
+            case 'P' -> PT;
+            case 'Z' -> PL;
+            case 'R' -> RO;
+            case '4' -> RU;
+            case '8' -> SE;
+            case 'Q' -> SK;
+            case 'L' -> SI;
+            case 'T' -> TR;
+            case 'U' -> UA;
+            case '0' -> ME;
+            case 'J' -> RS;
+            case '_' -> KS;
+            case 'X' -> XX;
+            default -> throw new IllegalArgumentException("Unknown UCTE country code " + ucteCode);
+        };
     }
 
     public static boolean isUcteCountryCode(char character) {
@@ -118,6 +122,17 @@ public enum UcteCountryCode {
             return true;
         } catch (IllegalArgumentException e) {
             return false;
+        }
+    }
+
+    public static UcteCountryCode fromVoltagelevel(VoltageLevel voltageLevel) {
+        Country country = voltageLevel.getSubstation()
+                .flatMap(Substation::getCountry)
+                .orElseThrow(() -> new UcteException("No UCTE country found for substation"));
+        try {
+            return UcteCountryCode.valueOf(country.name());
+        } catch (IllegalArgumentException e) {
+            throw new UcteException(String.format("No UCTE country found for %s", country.name()));
         }
     }
 

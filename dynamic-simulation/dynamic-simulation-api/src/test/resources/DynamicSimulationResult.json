@@ -16,6 +16,46 @@
       "offset" : 0,
       "values" : [ 0.0, 0.1, 0.1, 0.2, 0.1, 0.0 ]
     } ]
+  }, {
+    "metadata" : {
+      "name" : "curve2",
+      "dataType" : "DOUBLE",
+      "tags" : [ ],
+      "regularIndex" : {
+        "startTime" : 0,
+        "endTime" : 5,
+        "spacing" : 1
+      }
+    },
+    "chunks" : [ {
+      "offset" : 0,
+      "values" : [ 0.0, 0.3, 0.3, 0.4, 0.5, 1.0 ]
+    } ]
+  }, {
+    "metadata" : {
+      "name" : "curve3",
+      "dataType" : "DOUBLE",
+      "tags" : [ ],
+      "regularIndex" : {
+        "startTime" : 0,
+        "endTime" : 5,
+        "spacing" : 1
+      }
+    },
+    "chunks" : [ {
+      "offset" : 0,
+      "values" : [ 10.0, 10.0, 10.5, 10.2, 10.1, 5.0 ]
+    } ]
+  } ],
+  "finalStateValues" : [ {
+    "name" : "fsv1",
+    "value" : 20.0
+  }, {
+    "name" : "fsv2",
+    "value" : 30.0
+  }, {
+    "name" : "fsv3",
+    "value" : 10.0
   } ],
   "timeLine" : [ {
     "time" : 0.1,

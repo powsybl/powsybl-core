@@ -8,7 +8,7 @@
 package com.powsybl.contingency;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.iidm.network.Identifiable;
@@ -45,7 +45,7 @@ class ContingencyTest {
         assertEquals(ContingencyElementType.GENERATOR, elements.get(1).getType());
 
         NetworkModification modification = contingency.toModification();
-        assertTrue(modification instanceof NetworkModificationList);
+        assertInstanceOf(NetworkModificationList.class, modification);
 
         ContingencyElement bbsElement = new BusbarSectionContingency("bbs");
         contingency.addElement(bbsElement);
@@ -71,7 +71,7 @@ class ContingencyTest {
         List<String> expectedValidIds = Arrays.asList("GEN contingency", "NHV1_NHV2_1 contingency");
 
         assertEquals(expectedValidIds,
-                validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
+                validContingencies.stream().map(Contingency::getId).toList());
 
         assertEquals(expectedValidIds,
                 ContingencyList.getValidContingencies(Arrays.asList(generatorContingency, generatorInvalidContingency, lineContingency, lineInvalidContingency), network)

@@ -77,7 +77,7 @@ public final class HvdcUtils {
         }
     }
 
-    private static double getHvdcLineLosses(double rectifierPDc, double nominalV, double r) {
+    public static double getHvdcLineLosses(double rectifierPDc, double nominalV, double r) {
         // This method computes the losses due to the HVDC line.
         // The active power value on rectifier DC side is known as the HVDC active power set point minus the losses related
         // to AC/DC conversion (rectifier conversion), the voltage is approximated to the nominal voltage as attribute of the HVDC line.

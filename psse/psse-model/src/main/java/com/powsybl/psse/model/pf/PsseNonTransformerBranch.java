@@ -194,7 +194,36 @@ public class PsseNonTransformerBranch extends PsseVersioned {
         return ownership;
     }
 
+    public void setOwnership(PsseOwnership ownership) {
+        this.ownership = ownership;
+    }
+
     public PsseRates getRates() {
         return rates;
+    }
+
+    public void setRates(PsseRates rates) {
+        this.rates = rates;
+    }
+
+    public PsseNonTransformerBranch copy() {
+        PsseNonTransformerBranch copy = new PsseNonTransformerBranch();
+        copy.i = this.i;
+        copy.j = this.j;
+        copy.ckt = this.ckt;
+        copy.r = this.r;
+        copy.x = this.x;
+        copy.b = this.b;
+        copy.rates = this.rates.copy();
+        copy.gi = this.gi;
+        copy.bi = this.bi;
+        copy.gj = this.gj;
+        copy.bj = this.bj;
+        copy.st = this.st;
+        copy.met = this.met;
+        copy.len = this.len;
+        copy.ownership = this.ownership.copy();
+        copy.name = this.name;
+        return copy;
     }
 }

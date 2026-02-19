@@ -59,11 +59,13 @@ class SVTest {
         double q1 = -77.444122;
         double v1 = 118.13329315185547;
         double a1 = 0.19568365812301636;
+        double i1 = 726.224579;
 
         double p2 = 15.098317;
         double q2 = 64.333028;
         double v2 = 138.0;
         double a2 = 0.0;
+        double i2 = 276.462893;
 
         SV svA1 = new SV(p1, q1, v1, a1, TwoSides.ONE);
         SV svA2 = svA1.otherSide(dl);
@@ -71,6 +73,7 @@ class SVTest {
         assertEquals(q2, svA2.getQ(), tol);
         assertEquals(v2, svA2.getU(), tol);
         assertEquals(a2, svA2.getA(), tol);
+        assertEquals(i2, svA2.getI(), tol);
 
         SV svB2 = new SV(p2, q2, v2, a2, TwoSides.TWO);
         SV svB1 = svB2.otherSide(dl);
@@ -78,26 +81,31 @@ class SVTest {
         assertEquals(q1, svB1.getQ(), tol);
         assertEquals(v1, svB1.getU(), tol);
         assertEquals(a1, svB1.getA(), tol);
+        assertEquals(i1, svB1.getI(), tol);
 
         assertEquals(p2, svA1.otherSideP(dl), tol);
         assertEquals(q2, svA1.otherSideQ(dl), tol);
         assertEquals(v2, svA1.otherSideU(dl), tol);
         assertEquals(a2, svA1.otherSideA(dl), tol);
+        assertEquals(i2, svA1.otherSideI(dl), tol);
 
         assertEquals(p1, svB2.otherSideP(dl), tol);
         assertEquals(q1, svB2.otherSideQ(dl), tol);
         assertEquals(v1, svB2.otherSideU(dl), tol);
         assertEquals(a1, svB2.otherSideA(dl), tol);
+        assertEquals(i1, svB2.otherSideI(dl), tol);
 
         assertEquals(p2, svA1.otherSideP(dl, false), tol);
         assertEquals(q2, svA1.otherSideQ(dl, false), tol);
         assertEquals(v2, svA1.otherSideU(dl, false), tol);
         assertEquals(a2, svA1.otherSideA(dl, false), tol);
+        assertEquals(i2, svA1.otherSideI(dl, false), tol);
 
         assertEquals(p1, svB2.otherSideP(dl, false), tol);
         assertEquals(q1, svB2.otherSideQ(dl, false), tol);
         assertEquals(v1, svB2.otherSideU(dl, false), tol);
         assertEquals(a1, svB2.otherSideA(dl, false), tol);
+        assertEquals(i1, svB2.otherSideI(dl, false), tol);
     }
 
     @Test

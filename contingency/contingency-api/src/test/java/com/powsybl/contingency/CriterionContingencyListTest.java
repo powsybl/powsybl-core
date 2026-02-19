@@ -7,7 +7,7 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.contingency.list.*;
+import com.powsybl.contingency.list.*;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -285,7 +285,7 @@ class CriterionContingencyListTest {
                 null, Collections.singletonList(propertyCriterion), null);
         var cl = contingencyList;
         Exception e = assertThrows(IllegalArgumentException.class, () -> cl.getContingencies(network));
-        assertTrue(e.getMessage().contains("enum to check side can not be null for threeWindingsTransformer to check their voltage level"));
+        assertTrue(e.getMessage().contains("enum to check side cannot be null for threeWindingsTransformer to check their voltage level"));
 
         assertThreeWindingsTransformerContingencies(false, network, "value0", PropertyCriterion.SideToCheck.ONE);
         assertThreeWindingsTransformerContingencies(true, network, "value1", PropertyCriterion.SideToCheck.ONE);

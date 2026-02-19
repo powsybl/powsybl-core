@@ -13,10 +13,11 @@ import com.powsybl.iidm.network.Identifiable;
 import java.util.Objects;
 
 /**
- *  An extension to describe the operating status of an equipment. This is typically used in addition to an equipment
+ *  Extension to describe the operating status of some equipment. This is typically used in addition to an equipment
  *  disconnection (so using topological changes), to specify the reason of the disconnection: for instance a planned
- *  outage.
- * `Identifiable` is needed as generic type because we also have to support HVDC lines which are not `Connectable`
+ *  outage (or scheduled outage), i.e. an outage due to a programmed taking out of service of an equipment, or a forced
+ *  outage, i.e. an outage due to an unscheduled putting out of service of an equipment.
+ * `Identifiable` is needed as generic type because we support HVDC lines and tie lines which are not `Connectable`.
  * @author Nicolas Noir {@literal <nicolas.noir at rte-france.com>}
  */
 public interface OperatingStatus<I extends Identifiable<I>> extends Extension<I> {
@@ -32,7 +33,7 @@ public interface OperatingStatus<I extends Identifiable<I>> extends Extension<I>
     static boolean isAllowedIdentifiable(Identifiable<?> identifiable) {
         Objects.requireNonNull(identifiable);
         return switch (identifiable.getType()) {
-            case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, DANGLING_LINE, HVDC_LINE, TIE_LINE -> true;
+            case BUSBAR_SECTION, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, DANGLING_LINE, HVDC_LINE, TIE_LINE -> true;
             default -> false;
         };
     }

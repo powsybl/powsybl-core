@@ -124,7 +124,7 @@ public class BinaryOperation extends AbstractBinaryNodeCalc {
     }
 
     static void parseFieldName(JsonParser parser, JsonToken token, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         if ("op".equals(fieldName)) {
             context.operator = Operator.valueOf(parser.nextTextValue());
         } else {

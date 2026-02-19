@@ -65,6 +65,16 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Execute an all-formats round trip test on the test resource IIDM-XML file with a given
+     * file name comparing to the given reference file for the given IIDM versions.
+     */
+    protected void allFormatsRoundTripFromVersionedXmlTest(String file, String reference, IidmVersion... versions) throws IOException {
+        for (IidmVersion version : versions) {
+            allFormatsRoundTripTest(NetworkSerDe.read(getVersionedNetworkAsStream(file, version)), reference, version);
+        }
+    }
+
+    /**
      * Execute a round trip test on the test resource IIDM-JSON file with a given file name for the given IIDM versions.
      */
     protected void roundTripVersionedJsonTest(String file, IidmVersion... versions) throws IOException {
@@ -100,6 +110,27 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     protected void allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest(String file, IidmVersion minVersion) throws IOException {
         allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_VERSION) < 0)
+                .toArray(IidmVersion[]::new));
+    }
+
+    /**
+     * Execute a round trip test reading the test resource IIDM-XML file with a given file name comparing
+     * the output IIDM-XML file to a reference file for all IIDM versions equals or more recent than
+     * a given minimum IIDM version <b>and</b> strictly older than a given maximum IIDM version.
+     */
+    protected void allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest(String file, String reference, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, reference, Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) < 0)
+                .toArray(IidmVersion[]::new));
+    }
+
+    /**
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions
+     * equals or more recent than a given minimum IIDM version.
+     */
+    protected void allFormatsRoundTripFromVersionedXmlFromMinVersionTest(String file, IidmVersion minVersion) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0)
                 .toArray(IidmVersion[]::new));
     }
 
@@ -248,7 +279,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     public Network allFormatsRoundTripTest(Network network, String refXmlFile, ExportOptions exportOptions) throws IOException {
         return roundTripXmlTest(network,
-                (n, p) -> jsonWriteAndRead(n, exportOptions, p),
+                (n, p) -> binWriteAndRead(jsonWriteAndRead(n, exportOptions, p), exportOptions, p),
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),
                 NetworkSerDe::validateAndRead,
                 refXmlFile);
@@ -258,22 +289,22 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * Writes given network to JSON file, then reads the resulting file and returns the resulting network
      */
     private static Network jsonWriteAndRead(Network networkInput, ExportOptions options, Path path) {
+        return writeAndRead(TreeDataFormat.JSON, networkInput, options, path);
+    }
+
+    private static Network binWriteAndRead(Network networkInput, ExportOptions options, Path path) {
+        return writeAndRead(TreeDataFormat.BIN, networkInput, options, path);
+    }
+
+    /**
+     * Writes given network to file of given format, then reads the resulting file and returns the resulting network
+     */
+    private static Network writeAndRead(TreeDataFormat format, Network networkInput, ExportOptions options, Path path) {
         TreeDataFormat previousFormat = options.getFormat();
-        options.setFormat(TreeDataFormat.JSON);
+        options.setFormat(format);
         Anonymizer anonymizer = NetworkSerDe.write(networkInput, options, path);
-
-        Network network1;
         try (InputStream is = Files.newInputStream(path)) {
-            network1 = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.JSON), anonymizer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        options.setFormat(TreeDataFormat.BIN);
-        anonymizer = NetworkSerDe.write(network1, options, path);
-
-        try (InputStream is = Files.newInputStream(path)) {
-            Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.BIN), anonymizer);
+            Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(format), anonymizer);
             options.setFormat(previousFormat);
             return networkOutput;
         } catch (IOException e) {

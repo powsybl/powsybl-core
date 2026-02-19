@@ -8,6 +8,8 @@
 package com.powsybl.shortcircuit;
 
 /**
+ * An interface describing the voltage results on a bus.
+ *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public interface ShortCircuitBusResults {

@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.test;
 
 import java.util.List;
-
 import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.Substation;

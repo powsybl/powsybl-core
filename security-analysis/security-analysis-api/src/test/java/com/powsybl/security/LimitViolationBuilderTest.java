@@ -60,14 +60,14 @@ class LimitViolationBuilderTest {
         LimitViolation violation2 = builder
                 .subjectName("name")
                 .limitName("limitName")
-                .reduction(0.9f)
+                .reduction(0.9)
                 .side2()
                 .duration(60)
                 .build();
         assertEquals(TwoSides.TWO, violation2.getSideAsTwoSides());
         assertEquals("name", violation2.getSubjectName());
         assertEquals("limitName", violation2.getLimitName());
-        assertEquals(0.9f, violation2.getLimitReduction(), 0);
+        assertEquals(0.9, violation2.getLimitReduction(), 0);
         assertEquals(60, violation2.getAcceptableDuration(), 0);
     }
 
@@ -115,7 +115,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.LOW_VOLTAGE_ANGLE, violation.getLimitType());
-        assertEquals(null, violation.getSide());
+        assertNull(violation.getSide());
         assertNull(violation.getLimitName());
         assertEquals(0.25, violation.getLimit(), 0);
         assertEquals(0.30, violation.getValue(), 0);
@@ -129,7 +129,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation2 = builder2.build();
         assertEquals("id", violation2.getSubjectId());
         assertSame(LimitViolationType.HIGH_VOLTAGE_ANGLE, violation2.getLimitType());
-        assertEquals(null, violation2.getSide());
+        assertNull(violation2.getSide());
         assertNull(violation2.getLimitName());
         assertEquals(0.50, violation2.getLimit(), 0);
         assertEquals(0.60, violation2.getValue(), 0);

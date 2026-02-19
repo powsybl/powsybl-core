@@ -1,23 +1,23 @@
 {
-  "version" : "2.0",
+  "version" : "3.0",
+  "dictionaries" : {
+    "default" : {
+      "core.iidm.network.testImportPostProcessor" : "testing import post processor",
+      "testImportModel" : "Import model ${model}",
+      "testPostProcessor" : "Test importer post processor"
+    }
+  },
   "reportRoot" : {
     "messageKey" : "testPostProcessor",
     "children" : [ {
-      "messageKey" : "test",
+      "messageKey" : "testImportModel",
       "values" : {
         "model" : {
           "value" : "eurostagTutorialExample1"
         }
       }
     }, {
-      "messageKey" : "testImportPostProcessor"
-    } ],
-    "dictionaries" : {
-      "default" : {
-        "test" : "Import model ${model}",
-        "testImportPostProcessor" : "testing import post processor",
-        "testPostProcessor" : "Test importer post processor"
-      }
-    }
+      "messageKey" : "core.iidm.network.testImportPostProcessor"
+    } ]
   }
 }

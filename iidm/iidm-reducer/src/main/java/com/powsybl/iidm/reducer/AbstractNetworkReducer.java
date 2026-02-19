@@ -23,9 +23,9 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
 
     private final NetworkPredicate predicate;
 
-    private Set<String> vlIds = new HashSet<>();
+    private final Set<String> vlIds = new HashSet<>();
 
-    public AbstractNetworkReducer(NetworkPredicate predicate) {
+    protected AbstractNetworkReducer(NetworkPredicate predicate) {
         this.predicate = Objects.requireNonNull(predicate);
     }
 
@@ -37,6 +37,12 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
                 .filter(l -> !test(l))
                 .toList();
         lines.forEach(this::reduce);
+
+        // Remove all unwanted tie lines
+        List<TieLine> tieLines = network.getTieLineStream()
+                .filter(l -> !test(l))
+                .toList();
+        tieLines.forEach(this::reduce);
 
         // Remove all unwanted two windings transformers
         List<TwoWindingsTransformer> twoWindingsTransformers = network.getTwoWindingsTransformerStream()
@@ -79,6 +85,8 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
 
     protected abstract void reduce(Line line);
 
+    protected abstract void reduce(TieLine tieLine);
+
     protected abstract void reduce(TwoWindingsTransformer transformer);
 
     protected abstract void reduce(ThreeWindingsTransformer transformer);
@@ -98,20 +106,27 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
      * Return true if the given {@link Line} should be kept in the network, false otherwise
      */
     protected boolean test(Line line) {
-        return test((Branch) line);
+        return test((Branch<?>) line);
+    }
+
+    /**
+     * Return true if the given {@link TieLine} should be kept in the network, false otherwise
+     */
+    protected boolean test(TieLine tieLine) {
+        return test((Branch<?>) tieLine);
     }
 
     /**
      * Return true if the given {@link TwoWindingsTransformer} should be kept in the network, false otherwise
      */
     protected boolean test(TwoWindingsTransformer transformer) {
-        return test((Branch) transformer);
+        return test((Branch<?>) transformer);
     }
 
     /**
      * Return true if the given {@link Branch} should be kept in the network, false otherwise
      */
-    private boolean test(Branch branch) {
+    private boolean test(Branch<?> branch) {
         Objects.requireNonNull(branch);
         VoltageLevel vl1 = branch.getTerminal1().getVoltageLevel();
         VoltageLevel vl2 = branch.getTerminal2().getVoltageLevel();

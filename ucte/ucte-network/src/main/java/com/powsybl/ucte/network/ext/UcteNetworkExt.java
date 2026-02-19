@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -217,7 +216,7 @@ public class UcteNetworkExt implements UcteNetwork {
             node2voltageLevel = new TreeMap<>();
             Graph<UcteNodeCode, Object> graph = createSubstationGraph(network);
             for (Set<UcteNodeCode> substationNodes : new ConnectivityInspector<>(graph).connectedSets()) {
-                List<UcteNodeCode> sortedNodes = substationNodes.stream().sorted(UcteNetworkExt::compareUcteNodeCode).collect(Collectors.toList());
+                List<UcteNodeCode> sortedNodes = substationNodes.stream().sorted(UcteNetworkExt::compareUcteNodeCode).toList();
                 UcteNodeCode mainNode = sortedNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
 
                 Multimap<UcteVoltageLevelCode, UcteNodeCode> nodesByVoltageLevel

@@ -21,6 +21,11 @@ public class LoadTripping extends AbstractInjectionTripping {
     }
 
     @Override
+    public String getName() {
+        return "LoadTripping";
+    }
+
+    @Override
     protected Load getInjection(Network network) {
         Load injection = network.getLoad(id);
         if (injection == null) {

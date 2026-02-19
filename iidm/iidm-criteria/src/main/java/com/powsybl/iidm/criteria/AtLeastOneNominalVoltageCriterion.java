@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,8 +19,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <p>Criterion checking that one of the nominal voltages of the network element, <b>on whichever side</b>,
+ * <p>Criterion checking that one of the nominal voltages of the network element
  * is inside a {@link VoltageInterval}.</p>
+ * <p>When <code>filter</code> is called with a non-null <code>side</code>, the voltage level on this particular side
+ * should be inside the {@link VoltageInterval}. Else, the validation is performed on whichever side.</p>
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
  */
 public class AtLeastOneNominalVoltageCriterion implements Criterion {
@@ -43,23 +46,31 @@ public class AtLeastOneNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(NetworkElement networkElement) {
-        return filterNominalVoltages(getNominalVoltagesToCheck(networkElement));
+        return filter(networkElement, null);
+    }
+
+    @Override
+    public boolean filter(NetworkElement networkElement, ThreeSides side) {
+        return filterNominalVoltages(getNominalVoltagesToCheck(networkElement, side));
     }
 
     private List<Double> getNominalVoltagesToCheck(Identifiable<?> identifiable, IdentifiableType type) {
         return switch (type) {
-            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, SWITCH, HVDC_CONVERTER_STATION, BUS ->
-                    Collections.singletonList(SingleNominalVoltageCriterion.getNominalVoltage(identifiable, type));
+            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION,
+                 SWITCH, HVDC_CONVERTER_STATION, BUS, LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER ->
+                Collections.singletonList(SingleNominalVoltageCriterion.getNominalVoltage(identifiable, type));
             case LINE, HVDC_LINE, TIE_LINE, TWO_WINDINGS_TRANSFORMER -> TwoNominalVoltageCriterion.getNominalVoltages(identifiable, type);
             case THREE_WINDINGS_TRANSFORMER -> ThreeNominalVoltageCriterion.getNominalVoltages(identifiable, type);
             default -> Collections.emptyList();
         };
     }
 
-    private List<Double> getNominalVoltagesToCheck(NetworkElement networkElement) {
-        return Arrays.asList(networkElement.getNominalVoltage1().orElse(null),
-                networkElement.getNominalVoltage2().orElse(null),
-                networkElement.getNominalVoltage3().orElse(null));
+    private List<Double> getNominalVoltagesToCheck(NetworkElement networkElement, ThreeSides side) {
+        return side != null ?
+                Collections.singletonList(networkElement.getNominalVoltage(side).orElse(null)) :
+                Arrays.asList(networkElement.getNominalVoltage1().orElse(null),
+                        networkElement.getNominalVoltage2().orElse(null),
+                        networkElement.getNominalVoltage3().orElse(null));
     }
 
     private boolean filterNominalVoltages(List<Double> nominalVoltagesToCheck) {

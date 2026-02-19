@@ -106,7 +106,7 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
     }
 
     static void parseFieldName(JsonParser parser, JsonToken token, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         if ("op".equals(fieldName)) {
             context.operator = Operator.valueOf(parser.nextTextValue());
         } else {

@@ -24,9 +24,11 @@ public class CreateBranchFeederBaysBuilder {
     private String feederName2 = null;
     private ConnectablePosition.Direction direction1 = ConnectablePosition.Direction.TOP;
     private ConnectablePosition.Direction direction2 = ConnectablePosition.Direction.TOP;
+    private boolean logOrThrowIfIncorrectPositionOrder1 = false;
+    private boolean logOrThrowIfIncorrectPositionOrder2 = false;
 
     public CreateBranchFeederBays build() {
-        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2);
+        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2, logOrThrowIfIncorrectPositionOrder1, logOrThrowIfIncorrectPositionOrder2);
     }
 
     public CreateBranchFeederBaysBuilder withBranchAdder(BranchAdder<?, ?> branchAdder) {
@@ -34,25 +36,9 @@ public class CreateBranchFeederBaysBuilder {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #withBusOrBusbarSectionId1(String)} instead.
-     */
-    @Deprecated(since = "5.1.0")
-    public CreateBranchFeederBaysBuilder withBbs1(String bbs1) {
-        return withBusOrBusbarSectionId1(bbs1);
-    }
-
     public CreateBranchFeederBaysBuilder withBusOrBusbarSectionId1(String busOrBbs1) {
         this.busOrBbs1 = busOrBbs1;
         return this;
-    }
-
-    /**
-     * @deprecated Use {@link #withBusOrBusbarSectionId2(String)} instead.
-     */
-    @Deprecated(since = "5.1.0")
-    public CreateBranchFeederBaysBuilder withBbsId2(String bbsId2) {
-        return withBusOrBusbarSectionId2(bbsId2);
     }
 
     public CreateBranchFeederBaysBuilder withBusOrBusbarSectionId2(String busOrBbs2) {
@@ -97,6 +83,16 @@ public class CreateBranchFeederBaysBuilder {
 
     public CreateBranchFeederBaysBuilder withDirection2(ConnectablePosition.Direction direction2) {
         this.direction2 = direction2;
+        return this;
+    }
+
+    public CreateBranchFeederBaysBuilder withLogOrThrowIfIncorrectPositionOrder1(boolean logOrThrowIfIncorrectPositionOrder) {
+        this.logOrThrowIfIncorrectPositionOrder1 = logOrThrowIfIncorrectPositionOrder;
+        return this;
+    }
+
+    public CreateBranchFeederBaysBuilder withLogOrThrowIfIncorrectPositionOrder2(boolean logOrThrowIfIncorrectPositionOrder) {
+        this.logOrThrowIfIncorrectPositionOrder2 = logOrThrowIfIncorrectPositionOrder;
         return this;
     }
 }

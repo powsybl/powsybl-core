@@ -1,0 +1,4 @@
+#Batteries (fictitious/InitialState)
+#"variant" "num" "bus" "con. bus" "substation" "p0 (MW)" "q0 (MVar)" "minP (MW)" "maxP (MW)" "minQmaxP (MVar)" "minQ0 (MVar)" "minQminP (MVar)" "maxQmaxP (MVar)" "maxQ0 (MVar)" "maxQminP (MVar)" "fault" "curative" "id" "description" "P (MW)" "Q (MVar)"
+1 1 2 2 2 9999.99 9999.99 -9999.99 9999.99 -9999.99 -9999.99 -9999.99 9999.99 9999.99 9999.99 0 0 "BAT" "BAT" -605.000 -225.000
+1 2 2 2 2 100.000 200.000 -200.000 200.000 -54.5500 -59.3000 -59.3000 46.2500 60.0000 60.0000 0 0 "BAT2" "BAT2" -605.000 -225.000

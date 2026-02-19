@@ -9,7 +9,54 @@
       Instance file MicroGridTestConfiguration_BC_BE_GL_V2.xml
       Instance file MicroGridTestConfiguration_BC_BE_SSH_V2.xml
       Instance file MicroGridTestConfiguration_BC_BE_DY_V2.xml
-   + Importing CGMES file(s)
-      Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0
-      Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0
+   + Importing CGMES file(s) with basename 'MicroGridTestConfiguration_BC_BE'
+      Applying preprocessors.
+      Building mappings.
+      Converting Substation.
+      Converting VoltageLevel.
+      Converting TopologicalNode.
+      Converting BusbarSection.
+      Converting Ground.
+      Converting EnergyConsumer.
+      Converting EnergySource.
+      Converting EquivalentInjection.
+      Converting ExternalNetworkInjection.
+      Converting ShuntCompensator.
+      Converting EquivalentShunt.
+      Converting StaticVarCompensator.
+      Converting AsynchronousMachine.
+      Converting SynchronousMachine.
+      Converting Switch.
+      Converting ACLineSegment.
+      Converting EquivalentBranch.
+      Converting SeriesCompensator.
+      Converting PowerTransformer.
+      Converting equipments at boundaries.
+      Converting DC network.
+      Converting OperationalLimit.
+      Converting ControlArea.
+      Converting TieFlow.
+      Converting RegulatingControl.
+      Applying postprocessors.
       CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.
+      Converting during update Terminal.
+      Converting during update TIE_LINE.
+      Converting during update SvInjection.
+      Updating SWITCH.
+      Updating LOAD.
+      Updating GENERATOR.
+      Updating LINE.
+      + Updating TWO_WINDINGS_TRANSFORMER.
+         Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0.
+      + Updating THREE_WINDINGS_TRANSFORMER.
+         Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0.
+      Updating STATIC_VAR_COMPENSATOR.
+      Updating SHUNT_COMPENSATOR.
+      Updating HVDC_LINE.
+      Updating DANGLING_LINE.
+      Fixing issues with dangling lines.
+      Updating VOLTAGE_LEVEL.
+      Updating GROUND.
+      Updating AREA.
+      Setting voltages and angles.
+      Running validation checks on IIDM network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73

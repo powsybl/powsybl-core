@@ -37,4 +37,5 @@ public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<Activ
         group.setActivePowerLimits(limits);
         return limits;
     }
+
 }

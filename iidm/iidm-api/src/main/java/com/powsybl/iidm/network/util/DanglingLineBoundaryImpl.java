@@ -11,12 +11,15 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.network.util.DanglingLineData.zeroImpedance;
+
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class DanglingLineBoundaryImpl implements Boundary {
-    // for SV use: side represents the network side, that is always
-    // Side.ONE for a dangling line.
+    // Notes about SV utility class usage here:
+    // - side represents the network side, which is always Side.ONE for a dangling line.
+    // - DanglingLine model has shunt admittance on network side only, hence splitShuntAdmittance argument in SV methods must be set to false.
 
     private final DanglingLine parent;
 
@@ -27,24 +30,32 @@ public class DanglingLineBoundaryImpl implements Boundary {
     @Override
     public double getV() {
         if (useHypothesis(parent)) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+            DanglingLineData danglingLineData = new DanglingLineData(parent);
             return danglingLineData.getBoundaryBusU();
         }
 
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideU(parent, true);
+        if (zeroImpedance(parent)) {
+            return getV(b);
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideU(parent, false);
+        }
     }
 
     @Override
     public double getAngle() {
         if (useHypothesis(parent)) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+            DanglingLineData danglingLineData = new DanglingLineData(parent);
             return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideA(parent, true);
+        if (zeroImpedance(parent)) {
+            return getAngle(b);
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideA(parent, false);
+        }
     }
 
     @Override
@@ -54,7 +65,11 @@ public class DanglingLineBoundaryImpl implements Boundary {
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideP(parent, true);
+        if (zeroImpedance(parent)) {
+            return -t.getP();
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideP(parent, false);
+        }
     }
 
     @Override
@@ -64,7 +79,25 @@ public class DanglingLineBoundaryImpl implements Boundary {
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideQ(parent, true);
+        if (zeroImpedance(parent)) {
+            return -t.getQ();
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideQ(parent, false);
+        }
+    }
+
+    @Override
+    public double getI() {
+        if (useHypothesis(parent)) {
+            return Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * getV() / 1000);
+        }
+        Terminal t = parent.getTerminal();
+        Bus b = t.getBusView().getBus();
+        if (zeroImpedance(parent)) {
+            return t.getI();
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideI(parent, false);
+        }
     }
 
     @Override

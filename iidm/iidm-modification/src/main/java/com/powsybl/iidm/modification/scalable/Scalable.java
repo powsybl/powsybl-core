@@ -86,7 +86,6 @@ public interface Scalable {
      */
     void filterInjections(Network network, List<Injection> injections, List<String> notFound);
 
-
     /**
      * Scans all the expected injections of the scalable.
      * If the injection can be found in given network, it is added the the injections list.
@@ -97,7 +96,6 @@ public interface Scalable {
      * @return network injections used in the scalable
      */
     List<Injection> filterInjections(Network network, List<String> notFound);
-
 
     /**
      * Scans all the expected injections of the scalable.
@@ -185,6 +183,10 @@ public interface Scalable {
 
     static Scalable scalable(String id) {
         return new ScalableAdapter(id);
+    }
+
+    static Scalable scalable(String id, double minValue, double maxValue) {
+        return new ScalableAdapter(id, minValue, maxValue);
     }
 
     static List<Scalable> scalables(String... ids) {

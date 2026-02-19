@@ -7,6 +7,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conformity.*;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -26,6 +28,8 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -41,11 +45,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.matcherCount;
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -55,6 +59,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
     private Properties importParams;
 
+    @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -66,7 +71,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     void microGridBE() throws IOException, XMLStreamException {
         assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(),
                 false,
-                2,
                 false,
                 StateVariablesExportTest::addRepackagerFiles));
     }
@@ -77,7 +81,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         // Writing flows for all switches has impact on performance
         assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(),
                 false,
-                2,
                 true,
                 StateVariablesExportTest::addRepackagerFiles));
     }
@@ -110,7 +113,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         b1.setV(99.7946677).setAngle(-0.568404640);
 
         new LoadFlowResultsCompletion(new LoadFlowResultsCompletionParameters(), new LoadFlowParameters()).run(n, null);
-        String sv = exportSvAsString(n, 1, true);
+        String sv = exportSvAsString(n, true);
 
         assertEqualsPowerFlow(new PowerFlow(10, 1), extractSvPowerFlow(sv, cgmesTerminal(n, "LOAD", 1)));
         assertEqualsPowerFlow(new PowerFlow(-10, -1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK11", 1)));
@@ -155,7 +158,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     void microGridAssembled() throws IOException, XMLStreamException {
         assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(),
                 false,
-                4,
                 false,
             r -> {
                 addRepackagerFiles("NL", r);
@@ -167,7 +169,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     void smallGridBusBranch() throws IOException, XMLStreamException {
         assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(),
                 false,
-                4,
                 false,
                 StateVariablesExportTest::addRepackagerFiles));
     }
@@ -176,7 +177,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     void smallGridNodeBreakerHVDC() throws IOException, XMLStreamException {
         assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(),
                 true,
-                4,
                 false,
                 StateVariablesExportTest::addRepackagerFilesExcludeTp));
     }
@@ -185,7 +185,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     void smallGridNodeBreaker() throws IOException, XMLStreamException {
         assertTrue(test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(),
                 true,
-                4,
                 false,
                 StateVariablesExportTest::addRepackagerFilesExcludeTp));
     }
@@ -194,7 +193,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     void miniBusBranchWithSvInjection() throws IOException, XMLStreamException {
         assertTrue(test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(),
                 false,
-                4,
                 false,
                 StateVariablesExportTest::addRepackagerFiles));
     }
@@ -211,17 +209,17 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         load.getTerminal().setP(-0.12);
         load.getTerminal().setQ(-13.03);
-        String sv = exportSvAsString(network, 4);
+        String sv = exportSvAsString(network);
         assertTrue(sv.contains(cgmesTerminal));
 
         load.getTerminal().setP(Double.NaN);
         load.getTerminal().setQ(-13.03);
-        String sv1 = exportSvAsString(network, 4);
+        String sv1 = exportSvAsString(network);
         assertTrue(sv1.contains(cgmesTerminal));
 
         load.getTerminal().setP(-0.12);
         load.getTerminal().setQ(Double.NaN);
-        String sv2 = exportSvAsString(network, 4);
+        String sv2 = exportSvAsString(network);
         assertTrue(sv2.contains(cgmesTerminal));
     }
 
@@ -236,14 +234,14 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         // If P and Q both are NaN is not exported
 
         shuntCompensator.getTerminal().setQ(-13.03);
-        String sv = exportSvAsString(network, 4);
+        String sv = exportSvAsString(network);
         assertTrue(sv.contains(cgmesTerminal));
     }
 
     @Test
     void microGridBEWithHiddenTapChangers() throws XMLStreamException {
         Network network = importNetwork(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource());
-        String sv = exportSvAsString(network, 2);
+        String sv = exportSvAsString(network);
         String hiddenTapChangerId = "_6ebbef67-3061-4236-a6fd-6ccc4595f6c3-x";
         assertTrue(sv.contains(hiddenTapChangerId));
     }
@@ -253,7 +251,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
-        String sv = exportSvAsString(network, 2);
+        String sv = exportSvAsString(network);
 
         String equivalentShuntId = "d771118f-36e9-4115-a128-cc3d9ce3e3da";
         assertNotNull(network.getShuntCompensator(equivalentShuntId));
@@ -270,7 +268,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         SvShuntCompensatorSections svdata = new SvShuntCompensatorSections();
         try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             Integer sections = null;
             String shuntCompensatorId = null;
             while (reader.hasNext()) {
@@ -285,10 +283,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                     } else if (reader.getLocalName().equals(svShuntCompensatorSectionsShuntCompensator)) {
                         shuntCompensatorId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
                     }
-                } else if (next == XMLStreamConstants.END_ELEMENT) {
-                    if (reader.getLocalName().equals(svShuntCompensatorSections) && sections != null) {
-                        svdata.add(shuntCompensatorId, sections);
-                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(svShuntCompensatorSections) && sections != null) {
+                    svdata.add(shuntCompensatorId, sections);
                 }
             }
             reader.close();
@@ -358,7 +354,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         t3wt.addAlias(t3ptcId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
 
         String expected = buildNetworkSvTapStepsString(network);
-        String sv = exportSvAsString(network, 2);
+        String sv = exportSvAsString(network);
         String actual = readSvTapSteps(sv).toSortedString();
         assertEquals(expected, actual);
     }
@@ -428,7 +424,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         String description = "";
         boolean insideTopologicalIsland = false;
         try (InputStream is = Files.newInputStream(sv)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 int token = reader.next();
                 if (token == XMLStreamConstants.START_ELEMENT) {
@@ -500,7 +496,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         SvTapSteps svTapSteps = new SvTapSteps();
         try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             Integer position = null;
             String tapChangerId = null;
             while (reader.hasNext()) {
@@ -515,10 +511,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                     } else if (reader.getLocalName().equals(svTapStepTapChanger)) {
                         tapChangerId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
                     }
-                } else if (next == XMLStreamConstants.END_ELEMENT) {
-                    if (reader.getLocalName().equals(svTapStep) && position != null) {
-                        svTapSteps.add(tapChangerId, position);
-                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(svTapStep) && position != null) {
+                    svTapSteps.add(tapChangerId, position);
                 }
             }
             reader.close();
@@ -550,15 +544,14 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         return new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
     }
 
-    private String exportSvAsString(Network network, int svVersion) throws XMLStreamException {
-        return exportSvAsString(network, svVersion, false);
+    private String exportSvAsString(Network network) throws XMLStreamException {
+        return exportSvAsString(network, false);
     }
 
-    private String exportSvAsString(Network network, int svVersion, boolean exportFlowsForSwitches) throws XMLStreamException {
+    private String exportSvAsString(Network network, boolean exportFlowsForSwitches) throws XMLStreamException {
         CgmesExportContext context = new CgmesExportContext(network);
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
-        context.getExportedSVModel().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(exportFlowsForSwitches);
         StateVariablesExport.write(network, writer, context);
@@ -587,7 +580,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .with("test_SSH.xml", Repackager::ssh);
     }
 
-    private boolean test(ReadOnlyDataSource dataSource, boolean exportTp, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
+    private boolean test(ReadOnlyDataSource dataSource, boolean exportTp, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
         // Import original
         importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
@@ -602,7 +595,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
-        context.getExportedSVModel().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(exportFlowsForSwitches);
         context.setExportSvInjectionsForSlacks(false);
@@ -647,7 +639,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         // Export original and with new SV
         // comparison without extensions, only Networks
         ExportOptions exportOptions = new ExportOptions().setSorted(true);
-        exportOptions.setExtensions(Collections.emptySet());
+        exportOptions.setIncludedExtensions(Collections.emptySet());
         Path expectedPath = tmpDir.resolve("expected.xml");
         Path actualPath = tmpDir.resolve("actual.xml");
         NetworkSerDe.write(expected, exportOptions, expectedPath);
@@ -656,5 +648,74 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         // Compare
         return ExportXmlCompare.compareNetworks(expectedPath, actualPath);
+    }
+
+    @Test
+    void testDisconnectedTerminalForSlack() {
+        Network network = EurostagTutorialExample1Factory.createWithLFResults();
+        Pattern svInjectionPattern = Pattern.compile("cim:SvInjection.TopologicalNode rdf:resource=\"#(.*)\"/>");
+
+        // Set slack terminal
+        Terminal terminal = network.getGenerator("GEN").getTerminal();
+        SlackTerminal.reset(network.getVoltageLevel("VLGEN"), terminal);
+
+        // Export only the CGMES SV instance file and check that no SvInjection is present (slack bus is balanced)
+        String svBalanced = export(network, "tmp-slackTerminal-balanced").sv;
+        assertFalse(svInjectionPattern.matcher(svBalanced).find());
+
+        // Introduce a mismatch in the slack bus
+        terminal.setP(0);
+
+        // Export again, now an SvInjection must be present in the SV output (slack has a mismatch)
+        // And it should refer to a TopologicalNode present in the TP output
+        ExportedContent exportedMismatch = export(network, "tmp-slackTerminal-mismatch");
+        Matcher m = svInjectionPattern.matcher(exportedMismatch.sv);
+        assertTrue(exportedMismatch.sv.contains("cim:SvInjection.TopologicalNode"));
+        assertTrue(m.find());
+        String svInjectionTopologicalNode = m.group(1);
+        String tnDefinition = "cim:TopologicalNode rdf:ID=\"" + svInjectionTopologicalNode + "\"";
+        assertTrue(exportedMismatch.tp.contains(tnDefinition));
+
+        // Disconnect the generator
+        terminal.disconnect();
+        assertFalse(terminal.isConnected());
+        assertNull(terminal.getBusView().getBus());
+
+        // We still have a mismatch, but we do not have a slack bus to assign it, no SvInjection in the output
+        String svDisconnected = export(network, "tmp-slackTerminal-disconnected").sv;
+        assertFalse(svInjectionPattern.matcher(svDisconnected).find());
+    }
+
+    @Test
+    void testWriteBoundaryTnInTopologicalIsland() throws XMLStreamException {
+        Network network = Network.read(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource());
+        Optional<? extends Terminal> terminal = network.getBusBreakerView().getBus("97d7d14a-7294-458f-a8d7-024700a08717").getConnectedTerminalStream().findFirst();
+        assertTrue(terminal.isPresent());
+        ReferenceTerminals.addTerminal(terminal.get());
+        String sv = exportSvAsString(network, false);
+        Pattern p = Pattern.compile("<cim:TopologicalIsland.TopologicalNodes rdf:resource=");
+        assertEquals(10, matcherCount(p.matcher(sv)));
+        // 10 is the number of topological nodes in the island associated to buses and to dangling lines
+        assertEquals(5, network.getBusBreakerView().getBusStream().count());
+        assertEquals(5, network.getDanglingLineStream().count());
+    }
+
+    record ExportedContent(String sv, String tp) {
+    }
+
+    private ExportedContent export(Network network, String basename) {
+        Path outputPath = tmpDir.resolve(basename);
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, "SV,TP");
+        exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
+        network.write("CGMES", exportParams, outputPath);
+        try {
+            return new ExportedContent(
+                    Files.readString(tmpDir.resolve(String.format("%s_SV.xml", basename))),
+                    Files.readString(tmpDir.resolve(String.format("%s_TP.xml", basename)))
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

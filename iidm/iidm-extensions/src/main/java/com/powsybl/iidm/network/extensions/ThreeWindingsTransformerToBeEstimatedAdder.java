@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 /**
@@ -26,9 +27,13 @@ public interface ThreeWindingsTransformerToBeEstimatedAdder extends ExtensionAdd
 
     ThreeWindingsTransformerToBeEstimatedAdder withRatioTapChanger3Status(boolean toBeEstimated);
 
+    ThreeWindingsTransformerToBeEstimatedAdder withRatioTapChangerStatus(ThreeSides side, boolean toBeEstimated);
+
     ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger1Status(boolean toBeEstimated);
 
     ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger2Status(boolean toBeEstimated);
 
     ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger3Status(boolean toBeEstimated);
+
+    ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChangerStatus(ThreeSides side, boolean toBeEstimated);
 }

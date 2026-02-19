@@ -157,7 +157,8 @@ public class SensitivityFactor {
                 if (token == JsonToken.FIELD_NAME) {
                     parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
-                    return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
+                    boolean variableSet = Objects.requireNonNull(context.variableSet, "Parameter variableSet is missing");
+                    return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, variableSet,
                             new ContingencyContext(context.contingencyId, context.contingencyContextType));
                 }
             }
@@ -168,7 +169,7 @@ public class SensitivityFactor {
     }
 
     static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         switch (fieldName) {
             case "functionType":
                 context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());

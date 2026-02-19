@@ -52,8 +52,8 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
             writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
             writer.writeStringAttribute("type", tapChanger.getType());
             writer.writeBooleanAttribute("hidden", tapChanger.isHidden(), false);
-            writer.writeOptionalIntAttribute("step",
-                    !tapChanger.isHidden() ? null : tapChanger.getStep().orElseThrow(() -> new PowsyblException("Step should be defined")));
+            Integer step = tapChanger.getStep().isPresent() ? tapChanger.getStep().getAsInt() : null;
+            writer.writeOptionalIntAttribute("step", step);
             writer.writeStringAttribute("controlId", tapChanger.getControlId());
             writer.writeEndNode();
         }
@@ -72,9 +72,9 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
                         .setId(reader.readStringAttribute("id"))
                         .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))
                         .setType(reader.readStringAttribute("type"))
-                        .setHiddenStatus(reader.readBooleanAttribute("hidden", false))
-                        .setControlId(reader.readStringAttribute("controlId"));
+                        .setHiddenStatus(reader.readBooleanAttribute("hidden", false));
                 reader.readOptionalIntAttribute("step").ifPresent(adder::setStep);
+                adder.setControlId(reader.readStringAttribute("controlId"));
                 context.getReader().readEndNode();
                 adder.add();
             } else {

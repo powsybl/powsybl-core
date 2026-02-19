@@ -13,9 +13,11 @@ import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,6 +55,7 @@ public final class ConnectableSerDeUtil {
     static final String LIMITS_GROUPS_1 = "operationalLimitsGroups1";
     static final String LIMITS_GROUPS_2 = "operationalLimitsGroups2";
     static final String LIMITS_GROUPS_3 = "operationalLimitsGroups3";
+    static final String PROPERTY = "property";
     static final String SELECTED_GROUP_ID = "selectedOperationalLimitsGroupId";
 
     private static String indexToString(Integer index) {
@@ -63,19 +66,39 @@ public final class ConnectableSerDeUtil {
         if (index != null) {
             context.getWriter().writeStringAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
         }
-        TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
+        TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(t.getVoltageLevel(), context);
         switch (topologyLevel) {
-            case NODE_BREAKER:
-                writeNode(index, t, context);
-                break;
-            case BUS_BREAKER:
-                writeBus(index, t.getBusBreakerView().getBus(), t.getBusBreakerView().getConnectableBus(), context);
-                break;
-            case BUS_BRANCH:
-                writeBus(index, t.getBusView().getBus(), t.getBusView().getConnectableBus(), context);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
+            case NODE_BREAKER -> writeNode(index, t, context);
+            case BUS_BREAKER -> writeBus(index, t.getBusBreakerView().getBus(), t.getBusBreakerView().getConnectableBus(), context);
+            case BUS_BRANCH -> writeBus(index, t.getBusView().getBus(), t.getBusView().getConnectableBus(), context);
+            default -> throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
+        }
+    }
+
+    public static void writeNodeOrBus(AcDcConverter<?> converter, NetworkSerializerContext context) {
+        Terminal t1 = converter.getTerminal1();
+        Optional<Terminal> t2 = converter.getTerminal2();
+        // Note that t1 and t2 are in the same voltage level, and therefore share the same topology level.
+        TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(t1.getVoltageLevel(), context);
+        switch (topologyLevel) {
+            case NODE_BREAKER -> {
+                context.getWriter().writeIntAttribute(NODE + "1", t1.getNodeBreakerView().getNode());
+                Integer n2 = t2.map(t -> t.getNodeBreakerView().getNode()).orElse(null);
+                context.getWriter().writeOptionalIntAttribute(NODE + "2", n2);
+            }
+            case BUS_BREAKER -> {
+                writeBus(1, t1.getBusBreakerView().getBus(), t1.getBusBreakerView().getConnectableBus(), context);
+                Bus b2 = t2.map(t -> t.getBusBreakerView().getBus()).orElse(null);
+                Bus cb2 = t2.map(t -> t.getBusBreakerView().getConnectableBus()).orElse(null);
+                writeBus(2, b2, cb2, context);
+            }
+            case BUS_BRANCH -> {
+                writeBus(1, t1.getBusView().getBus(), t1.getBusView().getConnectableBus(), context);
+                Bus b2 = t2.map(t -> t.getBusView().getBus()).orElse(null);
+                Bus cb2 = t2.map(t -> t.getBusView().getConnectableBus()).orElse(null);
+                writeBus(2, b2, cb2, context);
+            }
+            default -> throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
         }
     }
 
@@ -113,6 +136,24 @@ public final class ConnectableSerDeUtil {
     public static void readVoltageLevelAndNodeOrBus(BranchAdder<?, ?> adder, Network network, NetworkDeserializerContext context) {
         readVoltageLevelAndNodeOrBus("1", adder::setVoltageLevel1, adder::setNode1, adder::setBus1, adder::setConnectableBus1, network, context);
         readVoltageLevelAndNodeOrBus("2", adder::setVoltageLevel2, adder::setNode2, adder::setBus2, adder::setConnectableBus2, network, context);
+    }
+
+    public static void readNodeOrBus(AcDcConverterAdder<?, ?> adder, TopologyKind topologyKind, NetworkDeserializerContext context) {
+        switch (topologyKind) {
+            case NODE_BREAKER -> {
+                int node1 = context.getReader().readIntAttribute(NODE + "1");
+                adder.setNode1(node1);
+                OptionalInt node2 = context.getReader().readOptionalIntAttribute(NODE + "2");
+                node2.ifPresent(adder::setNode2);
+            }
+            case BUS_BREAKER -> {
+                readBus(adder::setBus1, "1", context);
+                readConnectableBus(adder::setConnectableBus1, "1", context);
+                readBus(adder::setBus2, "2", context);
+                readConnectableBus(adder::setConnectableBus2, "2", context);
+            }
+            default -> throw new IllegalStateException();
+        }
     }
 
     private static void readVoltageLevelAndNodeOrBus(String suffix, Consumer<String> voltageLevelSetter, IntConsumer nodeSetter, Consumer<String> busSetter, Consumer<String> connectableBusSetter, Network network, NetworkDeserializerContext context) {
@@ -170,6 +211,25 @@ public final class ConnectableSerDeUtil {
                 .ifPresent(t::setQ);
     }
 
+    private static String dcTerminalNumSuffix(DcTerminal t) {
+        TerminalNumber number = t.getTerminalNumber();
+        TwoSides side = t.getSide();
+        return "" + (side != null ? side.getNum() : "") + (number != null ? number.getNum() : "");
+    }
+
+    public static void writePI(DcTerminal t, TreeDataWriter writer) {
+        String numSuffix = dcTerminalNumSuffix(t);
+        writer.writeDoubleAttribute("dcP" + numSuffix, t.getP());
+        writer.writeDoubleAttribute("dcI" + numSuffix, t.getI());
+    }
+
+    public static void readPI(DcTerminal t, TreeDataReader reader) {
+        String numSuffix = dcTerminalNumSuffix(t);
+        double p = reader.readDoubleAttribute("dcP" + numSuffix);
+        double i = reader.readDoubleAttribute("dcI" + numSuffix);
+        t.setP(p).setI(i);
+    }
+
     public static void readActivePowerLimits(ActivePowerLimitsAdder activePowerLimitsAdder, NetworkDeserializerContext context) {
         readLoadingLimits(ACTIVE_POWER_LIMITS, activePowerLimitsAdder, context);
     }
@@ -220,6 +280,7 @@ public final class ConnectableSerDeUtil {
     private static void readAllLoadingLimits(String groupElementName, OperationalLimitsGroup group, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(limitElementName -> {
             switch (limitElementName) {
+                case PROPERTY -> PropertiesSerDe.read(group, context);
                 case ACTIVE_POWER_LIMITS -> readActivePowerLimits(group.newActivePowerLimits(), context);
                 case APPARENT_POWER_LIMITS -> readApparentPowerLimits(group.newApparentPowerLimits(), context);
                 case CURRENT_LIMITS -> readCurrentLimits(group.newCurrentLimits(), context);
@@ -288,7 +349,7 @@ public final class ConnectableSerDeUtil {
         String suffix = index == null ? "" : String.valueOf(index);
         String selectedGroupId = context.getReader().readStringAttribute(SELECTED_GROUP_ID + suffix);
         if (selectedGroupId != null) {
-            context.getEndTasks().add(() -> selectedGroupIdSetter.accept(selectedGroupId));
+            context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> selectedGroupIdSetter.accept(selectedGroupId));
         }
     }
 
@@ -314,15 +375,21 @@ public final class ConnectableSerDeUtil {
         });
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
-                writeLoadingLimitsGroups(index, groups, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+                writeLoadingLimitsGroups(context, index, groups));
     }
 
-    private static void writeLoadingLimitsGroups(Integer index, Collection<OperationalLimitsGroup> groups, TreeDataWriter writer, IidmVersion version, boolean valid, ExportOptions exportOptions) {
+    private static void writeLoadingLimitsGroups(NetworkSerializerContext context, Integer index, Collection<OperationalLimitsGroup> groups) {
+        TreeDataWriter writer = context.getWriter();
+        IidmVersion version = context.getVersion();
+        boolean valid = context.isValid();
+        ExportOptions exportOptions = context.getOptions();
+
         String suffix = index == null ? "" : String.valueOf(index);
         writer.writeStartNodes();
         for (OperationalLimitsGroup g : groups) {
             writer.writeStartNode(version.getNamespaceURI(valid), LIMITS_GROUP + suffix);
             writer.writeStringAttribute("id", g.getId());
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> PropertiesSerDe.write(g, context));
             g.getActivePowerLimits()
                     .ifPresent(l -> writeActivePowerLimits(null, l, writer, version, valid, exportOptions));
             g.getApparentPowerLimits()

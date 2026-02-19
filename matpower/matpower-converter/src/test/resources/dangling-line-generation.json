@@ -19,7 +19,7 @@
     "minimumVoltageMagnitude" : 0.8
   }, {
     "number" : 2,
-    "type" : "PQ",
+    "type" : "PV",
     "name" : "DL",
     "realPowerDemand" : 50.0,
     "reactivePowerDemand" : 30.0,
@@ -58,7 +58,7 @@
   }, {
     "number" : 2,
     "realPowerOutput" : 440.0,
-    "reactivePowerOutput" : "NaN",
+    "reactivePowerOutput" : 0.0,
     "maximumReactivePowerOutput" : 46.25,
     "minimumReactivePowerOutput" : -54.55,
     "voltageMagnitudeSetpoint" : 1.01,

@@ -72,4 +72,9 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     public void visitGround(Ground ground) {
         // empty default implementation
     }
+
+    @Override
+    public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
+        // empty default implementation
+    }
 }

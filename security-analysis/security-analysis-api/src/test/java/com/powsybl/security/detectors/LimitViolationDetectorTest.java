@@ -11,7 +11,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.LimitViolations;
 import org.junit.jupiter.api.BeforeEach;

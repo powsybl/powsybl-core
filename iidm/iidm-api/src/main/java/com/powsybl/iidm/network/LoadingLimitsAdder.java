@@ -132,4 +132,5 @@ public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLi
         LoadingLimitsUtil.fixMissingPermanentLimit(this, missingPermanentLimitPercentage, getOwnerId(), limitFixLogger);
         return (A) this;
     }
+
 }

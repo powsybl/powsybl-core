@@ -7,8 +7,11 @@
  */
 package com.powsybl.itools;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -25,9 +28,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  *
@@ -64,6 +66,9 @@ public class ItoolsPackagerMojo extends AbstractMojo {
         }
     }
 
+    @Parameter(defaultValue = "zip")
+    private String packageType;
+
     @Parameter
     private CopyTo copyToBin;
 
@@ -73,7 +78,17 @@ public class ItoolsPackagerMojo extends AbstractMojo {
     @Parameter
     private CopyTo copyToEtc;
 
-    private static void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
+    @Parameter
+    private CopyTo copyToPackageRoot;
+
+    @Parameter
+    private String licenseFile;
+
+    @Parameter
+    private String thirdPartyFile;
+
+    private void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
+        getLog().info("Zip package");
         try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(Files.newOutputStream(zipFilePath))) {
             Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
                 @Override
@@ -98,6 +113,38 @@ public class ItoolsPackagerMojo extends AbstractMojo {
                 }
             });
         }
+    }
+
+    private void targz(Path dir, Path baseDir, Path zipFilePath) throws IOException {
+        getLog().info("Targz package");
+        try (TarArchiveOutputStream zos =
+                new TarArchiveOutputStream(new GzipCompressorOutputStream(Files.newOutputStream(zipFilePath)))) {
+            zos.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX); // allow long file paths
+            zos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX); // allow large numbers (for instance a big GID)
+            Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    TarArchiveEntry entry = new TarArchiveEntry(file.toFile(), baseDir.relativize(file).toString());
+                    if (Files.isExecutable(file)) {
+                        entry.setMode(0100770);
+                    } else {
+                        entry.setMode(0100660);
+                    }
+                    zos.putArchiveEntry(entry);
+                    Files.copy(file, zos);
+                    zos.closeArchiveEntry();
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    zos.putArchiveEntry(new TarArchiveEntry(baseDir.relativize(dir).toString() + "/"));
+                    zos.closeArchiveEntry();
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+
     }
 
     private void copyFiles(CopyTo copyTo, Path destDir) {
@@ -127,6 +174,46 @@ public class ItoolsPackagerMojo extends AbstractMojo {
         writer.write("java_xmx=");
         writer.write(javaXmx);
         writer.newLine();
+    }
+
+    private void addLicenseFiles(Path packageDir) {
+        Path projectRoot = project.getBasedir().toPath();
+
+        List<Path> candidateLicenseFiles = getFilePathList(licenseFile, "LICENSE", projectRoot);
+        addLicenseFile(packageDir, candidateLicenseFiles);
+
+        List<Path> candidateThirdPartyFiles = getFilePathList(thirdPartyFile, "THIRD-PARTY", projectRoot);
+        addLicenseFile(packageDir, candidateThirdPartyFiles);
+    }
+
+    private List<Path> getFilePathList(String fileName, String defaultFileNameBase, Path projectRoot) {
+        if (fileName != null) {
+            return List.of(
+                    projectRoot.resolve(fileName),
+                    projectRoot.resolve("..").resolve(fileName)
+            );
+        }
+        // Search for default names
+        return Stream.of("", ".txt")
+                .flatMap(ext -> Stream.of(
+                        projectRoot.resolve(defaultFileNameBase + ext),
+                        projectRoot.resolve("..").resolve(defaultFileNameBase + ext)
+                ))
+                .toList();
+    }
+
+    private void addLicenseFile(Path packageDir, List<Path> candidateLicenseFiles) {
+        Optional<Path> foundLicenseFile = candidateLicenseFiles.stream().filter(Files::exists).findFirst();
+        foundLicenseFile.ifPresentOrElse(file -> {
+            try {
+                getLog().info("Copy license file " + file + " to " + packageDir);
+                Files.copy(file, packageDir.resolve(file.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                getLog().warn("Failed to copy license file " + file + ": " + e.getMessage());
+            }
+        },
+            () -> getLog().warn("License file not found (tried " + candidateLicenseFiles + ")")
+        );
     }
 
     @Override
@@ -179,9 +266,20 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             Files.createDirectories(libDir);
             copyFiles(copyToLib, libDir);
 
-            getLog().info("Zip package");
+            // Add misc files to package root
+            copyFiles(copyToPackageRoot, packageDir);
+
+            // Add licenses
+            addLicenseFiles(packageDir);
+
             String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
-            zip(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".zip"));
+            if (packageType.equalsIgnoreCase("zip")) {
+                zip(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".zip"));
+            } else if (packageType.equalsIgnoreCase("tgz")) {
+                targz(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".tgz"));
+            } else {
+                throw new IllegalArgumentException("Unknown filetype '" + packageType + "': should be either zip or tgz");
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

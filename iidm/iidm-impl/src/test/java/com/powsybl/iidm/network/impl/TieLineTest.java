@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import java.time.ZonedDateTime;
+
+import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.util.LinkData;
@@ -55,12 +57,14 @@ class TieLineTest {
         assertTrue(compare(caseSv0.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
         assertTrue(compare(getP(caseSv0.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
         assertTrue(compare(getQ(caseSv0.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(getI(caseSv0.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getI(), isvHalf1.getI()));
 
         SV isvHalf2 = initialHalf2SvBoundary(caseSv0, initialModelCase(TwoSides.TWO, TwoSides.ONE), TwoSides.ONE);
         assertTrue(compare(caseSv0.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
         assertTrue(compare(caseSv0.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
         assertTrue(compare(getP(caseSv0.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
         assertTrue(compare(getQ(caseSv0.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(getI(caseSv0.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getI(), isvHalf2.getI()));
     }
 
     @Test
@@ -90,12 +94,14 @@ class TieLineTest {
         assertTrue(compare(caseSv1.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
         assertTrue(compare(getP(caseSv1.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
         assertTrue(compare(getQ(caseSv1.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(getI(caseSv1.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getI(), isvHalf1.getI()));
 
         SV isvHalf2 = initialHalf2SvBoundary(caseSv1, initialModelCase(TwoSides.TWO, TwoSides.TWO), TwoSides.TWO);
         assertTrue(compare(caseSv1.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
         assertTrue(compare(caseSv1.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
         assertTrue(compare(getP(caseSv1.line2, TwoSides.TWO), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
         assertTrue(compare(getQ(caseSv1.line2, TwoSides.TWO), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(getI(caseSv1.line2, TwoSides.TWO), tieLine.getDanglingLine2().getBoundary().getI(), isvHalf2.getI()));
     }
 
     @Test
@@ -125,12 +131,14 @@ class TieLineTest {
         assertTrue(compare(caseSv2.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
         assertTrue(compare(getP(caseSv2.line1, TwoSides.ONE), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
         assertTrue(compare(getQ(caseSv2.line1, TwoSides.ONE), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(getI(caseSv2.line1, TwoSides.ONE), tieLine.getDanglingLine1().getBoundary().getI(), isvHalf1.getI()));
 
         SV isvHalf2 = initialHalf2SvBoundary(caseSv2, initialModelCase(TwoSides.ONE, TwoSides.ONE), TwoSides.ONE);
         assertTrue(compare(caseSv2.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
         assertTrue(compare(caseSv2.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
         assertTrue(compare(getP(caseSv2.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
         assertTrue(compare(getQ(caseSv2.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(getI(caseSv2.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getI(), isvHalf2.getI()));
     }
 
     @Test
@@ -160,12 +168,14 @@ class TieLineTest {
         assertTrue(compare(caseSv3.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
         assertTrue(compare(getP(caseSv3.line1, TwoSides.ONE), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
         assertTrue(compare(getQ(caseSv3.line1, TwoSides.ONE), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(getI(caseSv3.line1, TwoSides.ONE), tieLine.getDanglingLine1().getBoundary().getI(), isvHalf1.getI()));
 
         SV isvHalf2 = initialHalf2SvBoundary(caseSv3, initialModelCase(TwoSides.ONE, TwoSides.TWO), TwoSides.TWO);
         assertTrue(compare(caseSv3.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
         assertTrue(compare(caseSv3.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
         assertTrue(compare(getP(caseSv3.line2, TwoSides.TWO), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
         assertTrue(compare(getQ(caseSv3.line2, TwoSides.TWO), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(getI(caseSv3.line2, TwoSides.TWO), tieLine.getDanglingLine2().getBoundary().getI(), isvHalf2.getI()));
     }
 
     @Test
@@ -195,12 +205,51 @@ class TieLineTest {
         assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
         assertTrue(compare(getP(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
         assertTrue(compare(getQ(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(getI(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getI(), isvHalf1.getI()));
 
         SV isvHalf2 = initialHalf2SvBoundary(caseSv, initialModelDifferentVlCase(TwoSides.TWO, TwoSides.ONE), TwoSides.ONE);
         assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
         assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
         assertTrue(compare(getP(caseSv.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
         assertTrue(compare(getQ(caseSv.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(getI(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getI(), isvHalf1.getI()));
+    }
+
+    @Test
+    void tieLineWithNaNVoltagesTest() {
+
+        // Line1 from node1 to boundaryNode, Line2 from boundaryNode to node2
+        CaseSv caseSv = createCaseNaNVoltages();
+        Network n = createNetworkWithTieLineWithDifferentNominalVoltageAtEnds(NetworkFactory.findDefault(), TwoSides.TWO, TwoSides.ONE, caseSv);
+        TieLine tieLine = n.getTieLine("TWO + ONE");
+
+        SV sv2 = new SV(tieLine.getDanglingLine1().getTerminal().getP(), tieLine.getDanglingLine1().getTerminal().getQ(),
+                tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(),
+                tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(),
+                TwoSides.ONE).otherSide(tieLine);
+        SV isv2 = initialSv2(caseSv, initialModelDifferentVlCase(TwoSides.TWO, TwoSides.ONE), TwoSides.TWO, TwoSides.ONE);
+        assertTrue(compare(sv2, caseSv.node2, caseSv.line2, TwoSides.ONE, isv2));
+
+        SV sv1 = new SV(tieLine.getDanglingLine2().getTerminal().getP(), tieLine.getDanglingLine2().getTerminal().getQ(),
+                tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getV(),
+                tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getAngle(),
+                TwoSides.TWO).otherSide(tieLine);
+        SV isv1 = initialSv1(caseSv, initialModelDifferentVlCase(TwoSides.TWO, TwoSides.ONE), TwoSides.TWO, TwoSides.ONE);
+        assertTrue(compare(sv1, caseSv.node1, caseSv.line1, TwoSides.TWO, isv1));
+
+        SV isvHalf1 = initialHalf1SvBoundary(caseSv, initialModelDifferentVlCase(TwoSides.TWO, TwoSides.ONE), TwoSides.TWO);
+        assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getDanglingLine1().getBoundary().getV(), isvHalf1.getU()));
+        assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
+        assertTrue(compare(getP(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
+        assertTrue(compare(getQ(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(getI(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getI(), isvHalf1.getI()));
+
+        SV isvHalf2 = initialHalf2SvBoundary(caseSv, initialModelDifferentVlCase(TwoSides.TWO, TwoSides.ONE), TwoSides.ONE);
+        assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
+        assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
+        assertTrue(compare(getP(caseSv.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
+        assertTrue(compare(getQ(caseSv.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(getI(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getI(), isvHalf1.getI()));
     }
 
     @Test
@@ -271,6 +320,76 @@ class TieLineTest {
 
         assertSame(s1vl1, tieLine.getDanglingLine1().getTerminal().getVoltageLevel());
         assertSame(s2vl1, tieLine.getDanglingLine2().getTerminal().getVoltageLevel());
+    }
+
+    @Test
+    void tieLineTestZeroImpedanceDl1() {
+        // Line1 from node1 to boundaryNode, Line2 from node2 to boundaryNode
+        CaseSv caseSv0 = createCase0();
+        Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), TwoSides.TWO, TwoSides.TWO, caseSv0);
+        Branch<?> branch = n.getBranch("TWO + TWO");
+        assertTrue(branch instanceof TieLine);
+
+        TieLine tieLine = (TieLine) branch;
+        tieLine.getDanglingLine1().setR(0.0).setX(0.0).setG(0.0).setB(0.0);
+
+        double tol = 1.0e-6;
+        assertEquals(tieLine.getDanglingLine2().getR(), tieLine.getR(), tol);
+        assertEquals(tieLine.getDanglingLine2().getX(), tieLine.getX(), tol);
+        assertEquals(tieLine.getDanglingLine2().getG(), tieLine.getG2(), tol);
+        assertEquals(tieLine.getDanglingLine2().getB(), tieLine.getB2(), tol);
+        assertEquals(0.0, tieLine.getG1(), tol);
+        assertEquals(0.0, tieLine.getB1(), tol);
+
+        assertEquals(tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(), TieLineUtil.getBoundaryV(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
+        assertEquals(tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(), TieLineUtil.getBoundaryAngle(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
+    }
+
+    @Test
+    void tieLineTestZeroImpedanceDl2() {
+        // Line1 from node1 to boundaryNode, Line2 from node2 to boundaryNode
+        CaseSv caseSv0 = createCase0();
+        Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), TwoSides.TWO, TwoSides.TWO, caseSv0);
+        Branch<?> branch = n.getBranch("TWO + TWO");
+        assertTrue(branch instanceof TieLine);
+
+        TieLine tieLine = (TieLine) branch;
+        tieLine.getDanglingLine2().setR(0.0).setX(0.0).setG(0.0).setB(0.0);
+
+        double tol = 1.0e-6;
+        assertEquals(tieLine.getDanglingLine1().getR(), tieLine.getR(), tol);
+        assertEquals(tieLine.getDanglingLine1().getX(), tieLine.getX(), tol);
+        assertEquals(tieLine.getDanglingLine1().getG(), tieLine.getG1(), tol);
+        assertEquals(tieLine.getDanglingLine1().getB(), tieLine.getB1(), tol);
+        assertEquals(0.0, tieLine.getG2(), tol);
+        assertEquals(0.0, tieLine.getB2(), tol);
+
+        assertEquals(tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getV(), TieLineUtil.getBoundaryV(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
+        assertEquals(tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getAngle(), TieLineUtil.getBoundaryAngle(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
+    }
+
+    @Test
+    void tieLineTestZeroImpedanceDl1AndDl2() {
+        // Line1 from node1 to boundaryNode, Line2 from node2 to boundaryNode
+        CaseSv caseSv0 = createCase0();
+        Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), TwoSides.TWO, TwoSides.TWO, caseSv0);
+        Branch<?> branch = n.getBranch("TWO + TWO");
+        assertTrue(branch instanceof TieLine);
+
+        TieLine tieLine = (TieLine) branch;
+        tieLine.getDanglingLine1().setR(0.0).setX(0.0).setG(0.0).setB(0.0);
+        tieLine.getDanglingLine2().setR(0.0).setX(0.0).setG(0.0).setB(0.0);
+
+        double tol = 1.0e-6;
+        assertEquals(0.0, tieLine.getR(), tol);
+        assertEquals(0.0, tieLine.getX(), tol);
+        assertEquals(0.0, tieLine.getG1(), tol);
+        assertEquals(0.0, tieLine.getB1(), tol);
+        assertEquals(0.0, tieLine.getG2(), tol);
+        assertEquals(0.0, tieLine.getB2(), tol);
+
+        assertEquals(tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(), TieLineUtil.getBoundaryV(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
+        assertEquals(tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(), TieLineUtil.getBoundaryAngle(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
     }
 
     private static Network createNetworkWithTieLine(NetworkFactory networkFactory,
@@ -481,6 +600,14 @@ class TieLineTest {
         }
     }
 
+    private static double getI(LineSv line, TwoSides boundarySide) {
+        if (boundarySide == TwoSides.ONE) {
+            return line.getI1();
+        } else {
+            return line.getI2();
+        }
+    }
+
     // We define an error by value to adjust the case. The error is calculated by difference between
     // the calculated value with both models, the initial model of the case and the current model of the danglingLine
     // Errors are due to the danglingLine model (it does not allow shunt admittance at both ends)
@@ -523,8 +650,8 @@ class TieLineTest {
         NodeSv nodeBoundary = new NodeSv(1.05913402, Math.toDegrees(-0.01700730));
         NodeSv node2 = new NodeSv(1.04546576, Math.toDegrees(-0.04168907));
 
-        LineSv line1 = new LineSv(0.32101578, -0.16210107, -0.26328124, 0.00991455);
-        LineSv line2 = new LineSv(0.26328124, -0.00991455, -0.21700000, -0.12700000);
+        LineSv line1 = new LineSv(0.32101578, -0.16210107, -0.26328124, 0.00991455, node1.v, nodeBoundary.v);
+        LineSv line2 = new LineSv(0.26328124, -0.00991455, -0.21700000, -0.12700000, nodeBoundary.v, node2.v);
         return new CaseSv(node1, node2, nodeBoundary, line1, line2);
     }
 
@@ -534,8 +661,8 @@ class TieLineTest {
         NodeSv nodeBoundary = new NodeSv(1.05916756, Math.toDegrees(-0.01702560));
         NodeSv node2 = new NodeSv(1.04216358, Math.toDegrees(-0.03946400));
 
-        LineSv line1 = new LineSv(0.32116645, -0.16274609, -0.26342655, 0.01056498);
-        LineSv line2 = new LineSv(-0.21700000, -0.12700000, 0.26342655, -0.01056498);
+        LineSv line1 = new LineSv(0.32116645, -0.16274609, -0.26342655, 0.01056498, node1.v, nodeBoundary.v);
+        LineSv line2 = new LineSv(-0.21700000, -0.12700000, 0.26342655, -0.01056498, node2.v, nodeBoundary.v);
         return new CaseSv(node1, node2, nodeBoundary, line1, line2);
     }
 
@@ -545,8 +672,8 @@ class TieLineTest {
         NodeSv nodeBoundary = new NodeSv(1.05998661, Math.toDegrees(-0.01660626));
         NodeSv node2 = new NodeSv(1.04634503, Math.toDegrees(-0.04125738));
 
-        LineSv line1 = new LineSv(-0.26335112, 0.01016197, 0.32106283, -0.16270573);
-        LineSv line2 = new LineSv(0.26335112, -0.01016197, -0.21700000, -0.12700000);
+        LineSv line1 = new LineSv(-0.26335112, 0.01016197, 0.32106283, -0.16270573, nodeBoundary.v, node1.v);
+        LineSv line2 = new LineSv(0.26335112, -0.01016197, -0.21700000, -0.12700000, nodeBoundary.v, node2.v);
         return new CaseSv(node1, node2, nodeBoundary, line1, line2);
     }
 
@@ -556,12 +683,11 @@ class TieLineTest {
         NodeSv nodeBoundary = new NodeSv(1.06002014, Math.toDegrees(-0.01662448));
         NodeSv node2 = new NodeSv(1.04304009, Math.toDegrees(-0.03903205));
 
-        LineSv line1 = new LineSv(-0.26349561, 0.01081185, 0.32121215, -0.16335034);
-        LineSv line2 = new LineSv(-0.21700000, -0.12700000, 0.26349561, -0.01081185);
+        LineSv line1 = new LineSv(-0.26349561, 0.01081185, 0.32121215, -0.16335034, nodeBoundary.v, node1.v);
+        LineSv line2 = new LineSv(-0.21700000, -0.12700000, 0.26349561, -0.01081185, node2.v, nodeBoundary.v);
         return new CaseSv(node1, node2, nodeBoundary, line1, line2);
     }
 
-    // Line1 from nodeBoundary to node1, Line2 from node2 to nodeBoundary
     // Line1 from node1 to nodeBoundary, Line2 from nodeBoundary to node2
     // Different nominal voltage at node1 and node2
     private static CaseSv createCaseDifferentNominalVoltageAtEnds() {
@@ -569,8 +695,21 @@ class TieLineTest {
         NodeSv nodeBoundary = new NodeSv(145.42378472578227, Math.toDegrees(-0.02324020));
         NodeSv node2 = new NodeSv(231.30269602522478, Math.toDegrees(-0.02818192));
 
-        LineSv line1 = new LineSv(11.729938, -8.196614, -11.713527, 1.301712);
-        LineSv line2 = new LineSv(11.713527, -1.301712, -11.700000, -6.700000);
+        LineSv line1 = new LineSv(11.729938, -8.196614, -11.713527, 1.301712, node1.v, nodeBoundary.v);
+        LineSv line2 = new LineSv(11.713527, -1.301712, -11.700000, -6.700000, nodeBoundary.v, node2.v);
+        return new CaseSv(node1, node2, nodeBoundary, line1, line2);
+    }
+
+    // Line1 from node1 to nodeBoundary, Line2 from nodeBoundary to node2
+    // Different nominal voltage at node1 and node2
+    // NaN values for voltages - simulates DC LF
+    private static CaseSv createCaseNaNVoltages() {
+        NodeSv node1 = new NodeSv(Double.NaN, Math.toDegrees(-0.01745197));
+        NodeSv nodeBoundary = new NodeSv(Double.NaN, Math.toDegrees(-0.02324020));
+        NodeSv node2 = new NodeSv(Double.NaN, Math.toDegrees(-0.02818192));
+
+        LineSv line1 = new LineSv(11.729938, -8.196614, -11.713527, 1.301712, node1.v, nodeBoundary.v);
+        LineSv line2 = new LineSv(11.713527, -1.301712, -11.700000, -6.700000, nodeBoundary.v, node2.v);
         return new CaseSv(node1, node2, nodeBoundary, line1, line2);
     }
 
@@ -605,12 +744,24 @@ class TieLineTest {
         private final double q1;
         private final double p2;
         private final double q2;
+        private final double v1;
+        private final double v2;
 
-        private LineSv(double p1, double q1, double p2, double q2) {
+        private LineSv(double p1, double q1, double p2, double q2, double v1, double v2) {
             this.p1 = p1;
             this.q1 = q1;
             this.p2 = p2;
             this.q2 = q2;
+            this.v1 = v1;
+            this.v2 = v2;
+        }
+
+        private double getI1() {
+            return Math.hypot(p1, q1) / (Math.sqrt(3.) * v1 / 1000);
+        }
+
+        private double getI2() {
+            return Math.hypot(p2, q2) / (Math.sqrt(3.) * v2 / 1000);
         }
     }
 

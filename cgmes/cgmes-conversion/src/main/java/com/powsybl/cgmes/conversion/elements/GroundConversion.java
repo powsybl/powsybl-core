@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -17,16 +18,20 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class GroundConversion extends AbstractConductingEquipmentConversion {
 
     public GroundConversion(PropertyBag ec, Context context) {
-        super("Ground", ec, context);
+        super(CgmesNames.GROUND, ec, context);
     }
 
     @Override
     public void convert() {
         GroundAdder adder = voltageLevel().newGround();
         identify(adder);
-        connect(adder);
+        connectWithOnlyEq(adder);
         Ground g = adder.add();
         addAliasesAndProperties(g);
-        convertedTerminals(g.getTerminal());
+        convertedTerminalsWithOnlyEq(g.getTerminal());
+    }
+
+    public static void update(Ground ground, Context context) {
+        updateTerminals(ground, context, ground.getTerminal());
     }
 }

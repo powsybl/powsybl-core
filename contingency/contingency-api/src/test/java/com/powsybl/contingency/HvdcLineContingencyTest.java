@@ -8,7 +8,7 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.modification.tripping.HvdcLineTripping;
@@ -31,7 +31,7 @@ class HvdcLineContingencyTest {
         assertEquals(ContingencyElementType.HVDC_LINE, contingency.getType());
 
         assertNotNull(contingency.toModification());
-        assertTrue(contingency.toModification() instanceof HvdcLineTripping);
+        assertInstanceOf(HvdcLineTripping.class, contingency.toModification());
 
         contingency = new HvdcLineContingency("id", "voltageLevelId");
         assertEquals("voltageLevelId", contingency.getVoltageLevelId());

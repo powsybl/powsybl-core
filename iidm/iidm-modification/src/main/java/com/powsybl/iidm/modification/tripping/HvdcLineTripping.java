@@ -33,6 +33,11 @@ public class HvdcLineTripping extends AbstractTripping {
     }
 
     @Override
+    public String getName() {
+        return "HvdcLineTripping";
+    }
+
+    @Override
     public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 

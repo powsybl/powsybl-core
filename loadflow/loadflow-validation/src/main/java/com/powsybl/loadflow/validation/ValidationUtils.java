@@ -7,12 +7,13 @@
  */
 package com.powsybl.loadflow.validation;
 
-import java.io.Writer;
-import java.util.Objects;
-
 import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.loadflow.validation.io.ValidationWriterFactory;
+
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 
 /**
  *
@@ -32,9 +33,9 @@ public final class ValidationUtils {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(validationType);
         try {
-            ValidationWriterFactory factory = config.getValidationOutputWriter().getValidationWriterFactory().newInstance();
+            ValidationWriterFactory factory = config.getValidationOutputWriter().getValidationWriterFactory().getDeclaredConstructor().newInstance();
             return factory.create(id, config.getTableFormatterFactory(), writer, config.isVerbose(), validationType, config.isCompareResults());
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new ConfigurationException(e);
         }
     }
@@ -85,7 +86,7 @@ public final class ValidationUtils {
 
     public static boolean isMainComponent(ValidationConfig config, boolean mainComponent) {
         Objects.requireNonNull(config);
-        return config.isCheckMainComponentOnly() ? mainComponent : true;
+        return !config.isCheckMainComponentOnly() || mainComponent;
     }
 
 }

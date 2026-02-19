@@ -49,7 +49,7 @@ public final class AmplUtil {
     }
 
     private static void createLimitsIds(StringToIntMapper<AmplSubset> mapper, CurrentLimits limits, String branchId, String sideId) {
-        for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
+        for (LoadingLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
             String limitId = branchId + "_" + sideId + "_" + tl.getAcceptableDuration();
             mapper.newInt(AmplSubset.TEMPORARY_CURRENT_LIMIT, limitId);
         }

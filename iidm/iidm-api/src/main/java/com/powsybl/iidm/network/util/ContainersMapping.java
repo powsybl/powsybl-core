@@ -30,6 +30,14 @@ public class ContainersMapping {
 
     private final Map<String, String> voltageLevelIdToSubstationId = new HashMap<>();
 
+    public Set<Integer> getBusesSet(String voltageLevelId) {
+        return voltageLevelIdToBusNums.computeIfAbsent(voltageLevelId, k -> new HashSet<>());
+    }
+
+    public boolean isBusDefined(int num) {
+        return busNumToVoltageLevelId.containsKey(num);
+    }
+
     public String getVoltageLevelId(int num) {
         String voltageLevelId = busNumToVoltageLevelId.get(num);
         if (voltageLevelId == null) {
@@ -46,24 +54,11 @@ public class ContainersMapping {
         return substationId;
     }
 
-    /**
-     * @deprecated Not used anymore. Use
-     * {@link ContainersMapping#create(List, List, ToIntFunction, ToIntFunction, ToIntFunction,
-     * Predicate, Predicate, ToDoubleFunction, Function, IntFunction)} instead.
-     */
-    @Deprecated(since = "4.9.2")
-    public static <N, B> ContainersMapping create(List<N> buses, List<B> branches, ToIntFunction<N> busToNum,
-                                                  ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2, ToIntFunction<B> branchToNum3,
-                                                  ToDoubleFunction<B> branchToResistance, ToDoubleFunction<B> branchToReactance,
-                                                  Predicate<B> branchToIsTransformer, Function<Set<Integer>, String> busesToVoltageLevelId,
-                                                  IntFunction<String> substationNumToId) {
-        throw new PowsyblException("Deprecated. Not used anymore");
-    }
-
     public static <N, B> ContainersMapping create(List<N> buses, List<B> branches,
         ToIntFunction<N> busToNum, ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
         Predicate<B> branchToIsZeroImpedance, Predicate<B> branchToIsTransformer,
-        ToDoubleFunction<Integer> busToNominalVoltage, Function<Set<Integer>, String> busesToVoltageLevelId,
+        ToDoubleFunction<Integer> busToNominalVoltage, ToIntFunction<Integer> busToControlArea,
+        Function<Set<Integer>, String> busesToVoltageLevelId,
         Function<Set<Integer>, String> busesToSubstationId) {
 
         Objects.requireNonNull(buses);
@@ -96,7 +91,8 @@ public class ContainersMapping {
         for (Set<Integer> busNums : new ConnectivityInspector<>(sGraph).connectedSets()) {
 
             createAndMapSubstationAndVoltageLevelsInside(branchToNum1, branchToNum2, branchToIsZeroImpedance,
-                busToNominalVoltage, busesToVoltageLevelId, busesToSubstationId, busNums, sGraph, containersMapping);
+                    busToNominalVoltage, busToControlArea, busesToVoltageLevelId, busesToSubstationId, busNums,
+                    sGraph, containersMapping);
         }
 
         return containersMapping;
@@ -104,7 +100,8 @@ public class ContainersMapping {
 
     private static <B> void createAndMapSubstationAndVoltageLevelsInside(ToIntFunction<B> branchToNum1,
         ToIntFunction<B> branchToNum2, Predicate<B> branchToIsZeroImpedance,
-        ToDoubleFunction<Integer> busToNominalVoltage, Function<Set<Integer>, String> busesToVoltageLevelId,
+        ToDoubleFunction<Integer> busToNominalVoltage, ToIntFunction<Integer> busToControlArea,
+        Function<Set<Integer>, String> busesToVoltageLevelId,
         Function<Set<Integer>, String> busesToSubstationId, Set<Integer> substationBusNums,
         Graph<Integer, B> sGraph, ContainersMapping containersMapping) {
 
@@ -131,18 +128,20 @@ public class ContainersMapping {
             Map<String, Set<Integer>> vls = new HashMap<>();
 
             new ConnectivityInspector<>(vlGraph).connectedSets()
-                .forEach(voltageLevelIds -> vls.merge(getNominalVoltage(voltageLevelIds, busToNominalVoltage), voltageLevelIds, ContainersMapping::unionSet));
+                .forEach(voltageLevelIds -> vls.merge(getNominalVoltageAndControlArea(voltageLevelIds, busToNominalVoltage, busToControlArea), voltageLevelIds, ContainersMapping::unionSet));
 
             vls.values().forEach(voltageLevelIds -> mapSubstationAndVoltageLevel(busesToVoltageLevelId, substationId, voltageLevelIds, containersMapping));
         }
     }
 
-    private static String getNominalVoltage(Set<Integer> voltageLevelIds, ToDoubleFunction<Integer> busToVoltageLevelNominal) {
+    private static String getNominalVoltageAndControlArea(Set<Integer> voltageLevelIds, ToDoubleFunction<Integer> busToVoltageLevelNominal, ToIntFunction<Integer> busToControlArea) {
         Objects.requireNonNull(busToVoltageLevelNominal);
+        Objects.requireNonNull(busToControlArea);
         if (voltageLevelIds.isEmpty()) { // should never happen
             throw new PowsyblException("Unexpected empty connected set");
         }
-        return String.valueOf(busToVoltageLevelNominal.applyAsDouble(voltageLevelIds.iterator().next()));
+        int bus = voltageLevelIds.iterator().next();
+        return busToVoltageLevelNominal.applyAsDouble(bus) + "-" + busToControlArea.applyAsInt(bus);
     }
 
     private static Set<Integer> unionSet(Set<Integer> set1, Set<Integer> set2) {

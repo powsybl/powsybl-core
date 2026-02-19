@@ -15,6 +15,7 @@ public enum IdentifiableType {
     NETWORK,
     SUBSTATION,
     VOLTAGE_LEVEL,
+    AREA,
     HVDC_LINE,
     BUS,
     SWITCH,
@@ -31,5 +32,12 @@ public enum IdentifiableType {
     STATIC_VAR_COMPENSATOR,
     HVDC_CONVERTER_STATION,
     OVERLOAD_MANAGEMENT_SYSTEM,
-    GROUND
+    GROUND,
+    DC_NODE,
+    DC_SWITCH,
+    DC_GROUND,
+    DC_LINE,
+    LINE_COMMUTATED_CONVERTER,
+    VOLTAGE_SOURCE_CONVERTER,
+    DC_BUS
 }

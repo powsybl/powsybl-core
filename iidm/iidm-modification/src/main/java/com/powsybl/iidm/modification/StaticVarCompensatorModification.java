@@ -22,6 +22,11 @@ public class StaticVarCompensatorModification extends AbstractSetpointModificati
     }
 
     @Override
+    public String getName() {
+        return "StaticVarCompensatorModification";
+    }
+
+    @Override
     public String getElementName() {
         return "StaticVarCompensator";
     }

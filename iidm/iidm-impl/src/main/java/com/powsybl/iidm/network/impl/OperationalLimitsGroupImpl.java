@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
  */
-public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Validable {
+public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder implements OperationalLimitsGroup, Validable {
 
     private final String id;
     private CurrentLimits currentLimits;
@@ -130,6 +130,12 @@ public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Valid
         doNotify(attributeName + "_" + limitType, oldOperationalLimitsInfo, newOperationalLimitsInfo);
     }
 
+    public void notifyTemporaryLimitValueUpdate(LimitType limitType, double oldValue, double newValue, int acceptableDuration) {
+        TemporaryLimitInfo oldTemporaryLimitInfo = new TemporaryLimitInfo(oldValue, id, id.equals(selectedGroupId), acceptableDuration);
+        TemporaryLimitInfo newTemporaryLimitInfo = new TemporaryLimitInfo(newValue, id, id.equals(selectedGroupId), acceptableDuration);
+        doNotify(attributeName + "_" + limitType + ".temporaryLimit.value", oldTemporaryLimitInfo, newTemporaryLimitInfo);
+    }
+
     private void doNotify(String attribute, Object oldValue, Object newValue) {
         if (listeners != null) {
             listeners.notifyUpdate(identifiable, attribute, oldValue, newValue);
@@ -137,7 +143,7 @@ public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Valid
     }
 
     @Override
-    public String getMessageHeader() {
+    public MessageHeader getMessageHeader() {
         return validable.getMessageHeader();
     }
 
@@ -154,5 +160,8 @@ public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Valid
     }
 
     public record OperationalLimitsInfo(OperationalLimits value, String groupId, boolean inSelectedGroup) {
+    }
+
+    public record TemporaryLimitInfo(double value, String groupId, boolean inSelectedGroup, int acceptableDuration) {
     }
 }

@@ -7,6 +7,7 @@
  */
 package com.powsybl.dsl
 
+import groovy.transform.ThreadInterrupt
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.codehaus.groovy.control.customizers.ImportCustomizer
@@ -38,6 +39,9 @@ class DslLoader {
         def astCustomizer = new ASTTransformationCustomizer(new PowsyblDslAstTransformation())
         def config = new CompilerConfiguration()
         config.addCompilationCustomizers(astCustomizer, imports)
+
+        // Add a check on thread interruption in every loop (for, while) in the script
+        config.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt.class))
 
         ExpressionDslLoader.prepareClosures(binding)
         new GroovyShell(binding, config)

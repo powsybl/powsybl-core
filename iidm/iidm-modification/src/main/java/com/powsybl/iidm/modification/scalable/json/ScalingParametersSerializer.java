@@ -33,6 +33,12 @@ public class ScalingParametersSerializer extends StdSerializer<ScalingParameters
         jsonGenerator.writeBooleanField("reconnect", scalingParameters.isReconnect());
         jsonGenerator.writeStringField("priority", scalingParameters.getPriority().name());
 
+        jsonGenerator.writeArrayFieldStart("ignoredInjectionIds");
+        for (String id : scalingParameters.getIgnoredInjectionIds().stream().sorted().toList()) { //sorted alphabetically
+            jsonGenerator.writeString(id);
+        }
+        jsonGenerator.writeEndArray();
+
         jsonGenerator.writeEndObject();
     }
 }

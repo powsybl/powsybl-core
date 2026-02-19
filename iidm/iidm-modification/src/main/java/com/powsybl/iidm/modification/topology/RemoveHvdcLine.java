@@ -7,10 +7,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
@@ -36,6 +37,11 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     RemoveHvdcLine(String hvdcLineId, List<String> shuntCompensatorIds) {
         this.hvdcLineId = Objects.requireNonNull(hvdcLineId);
         this.shuntCompensatorIds = Objects.requireNonNull(shuntCompensatorIds);
+    }
+
+    @Override
+    public String getName() {
+        return "RemoveHvdcLine";
     }
 
     @Override
@@ -63,20 +69,25 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         } else {
             LOGGER.error("Hvdc Line {} not found", hvdcLineId);
             notFoundHvdcLineReport(reportNode, hvdcLineId);
-            if (throwException) {
-                throw new PowsyblException("Hvdc Line " + hvdcLineId + " not found");
-            }
+            logOrThrow(throwException, "Hvdc Line " + hvdcLineId + " not found");
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        if (network.getHvdcLine(hvdcLineId) == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        }
+        return impact;
     }
 
     private static ShuntCompensator getShuntCompensator(String id, Network network, boolean throwException, ReportNode reportNode) {
         ShuntCompensator sc = network.getShuntCompensator(id);
         if (sc == null) {
             notFoundShuntReport(reportNode, id);
-            LOGGER.error("Shunt {} not found", id);
-            if (throwException) {
-                throw new PowsyblException("Shunt " + id + " not found");
-            }
+            logOrThrow(throwException, "Shunt " + id + " not found");
+            return null;
         }
         return sc;
     }

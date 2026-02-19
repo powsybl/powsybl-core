@@ -138,12 +138,14 @@ final class ExportXmlCompare {
                 ignored = attr.getLocalName().equals("converterStation1") || attr.getLocalName().equals("converterStation2") || attr.getLocalName().equals("convertersMode");
             } else if (elementName.contains("TapChanger")) {
                 ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
-                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
+                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband") || attr.getLocalName().equals("solvedTapPosition");
             } else if (elementName.startsWith("generator")) {
                 // ratedS is optional for generators,
                 // but we always export it to keep up with the quality of datasets rules.
                 // So we do not enforce this attribute to be equal in the original and exported network
-                ignored = attr.getLocalName().equals("ratedS");
+                ignored = attr.getLocalName().equals("ratedS") || attr.getLocalName().equals("bus");
+            } else if (elementName.startsWith("shunt")) {
+                ignored = attr.getLocalName().equals("solvedSectionCount") || attr.getLocalName().equals("bus");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
@@ -363,6 +365,8 @@ final class ExportXmlCompare {
                     return ComparisonResult.EQUAL;
                 } else if (control != null && control.getLocalName().equals("targetQ")) {
                     return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().equals("tapPosition")) {
+                    return ComparisonResult.EQUAL;
                 } else if (comparison.getControlDetails().getXPath().contains("temporaryLimit")) {
                     // If the control node is a temporary limit, the order depends on the name attribute,
                     // this attribute is generated as a unique identifier in the EQ export to avoid duplicates in CGMES
@@ -379,6 +383,21 @@ final class ExportXmlCompare {
                 }
             }
             return result;
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringOperationalLimitsGroupId(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (comparison.getControlDetails().getXPath().contains("operationalLimitsGroup") && control != null
+                        && control.getLocalName().equals("id")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().contains("selectedOperationalLimitsGroupId")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
         }
         return result;
     }
@@ -435,36 +454,6 @@ final class ExportXmlCompare {
             }
         }
         return true;
-    }
-
-    static ComparisonResult ignoringControlAreaNetInterchange(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT) {
-            if (comparison.getType() == ComparisonType.ELEMENT_NUM_ATTRIBUTES) {
-                Node control = comparison.getControlDetails().getTarget();
-                Node test = comparison.getTestDetails().getTarget();
-                if (control.getLocalName().equals("controlArea")
-                        && control.getAttributes().getLength() - test.getAttributes().getLength() == 1
-                        && control.getAttributes().getNamedItem("netInterchange") != null && test.getAttributes().getNamedItem("netInterchange") == null) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-            if (comparison.getType() == ComparisonType.ATTR_NAME_LOOKUP) {
-                Comparison.Detail control = comparison.getControlDetails();
-                if (control.getValue().toString().equals("netInterchange")
-                        && control.getTarget().getLocalName().equals("controlArea")) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
-                Comparison.Detail control = comparison.getControlDetails();
-                Comparison.Detail test = comparison.getTestDetails();
-                if (control.getTarget().getLocalName().equals("netInterchange")
-                        && test.getTarget().getLocalName().equals("netInterchange")) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-        }
-        return result;
     }
 
     static ComparisonResult ignoringFullModelAbout(Comparison comparison, ComparisonResult result) {
@@ -559,6 +548,16 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringSshOperatingMode(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ATTR_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("SynchronousMachine.operatingMode")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringTextValueShuntCompensatorControlEnabled(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
             String cxpath = comparison.getControlDetails().getXPath();
@@ -589,18 +588,33 @@ final class ExportXmlCompare {
         return result;
     }
 
-    static ComparisonResult ignoringRdfChildLookupStaticVarCompensator(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+    static ComparisonResult ignoringStaticVarCompensatorControlEnabled(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("StaticVarCompensator")) {
+            if (cxpath != null && cxpath.contains("StaticVarCompensator") && cxpath.contains(".controlEnabled")) {
                 return ComparisonResult.EQUAL;
             }
         }
         return result;
     }
 
-    static ComparisonResult ignoringRdfChildLookupRegulatingControl(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+    static ComparisonResult ignoringStaticVarCompensatorQ(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("StaticVarCompensator.q")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringRegulatingControl(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("RegulatingControl")) {
+                return ComparisonResult.EQUAL;
+            }
+        } else if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
             String cxpath = comparison.getControlDetails().getXPath();
             if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("RegulatingControl")) {
                 return ComparisonResult.EQUAL;
@@ -770,7 +784,7 @@ final class ExportXmlCompare {
             return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
                 || name.equals("r") || name.equals("x") || name.equals("g") || name.equals("b") || name.equals("rho") || name.equals("alpha")
                 || name.equals("b1") || name.equals("b2") || name.equals("g1") || name.equals("g2")
-                || name.equals("bPerSection") || name.equals("activePowerSetpoint")
+                || name.equals("bPerSection") || name.equals("activePowerSetpoint") || name.equals("maxP")
                 || isAttrValueOfNumericProperty((Attr) n);
         }
         return false;
@@ -803,7 +817,8 @@ final class ExportXmlCompare {
                 || n.getLocalName().equals("b1") || n.getLocalName().equals("b2")
                 || n.getLocalName().equals("g1") || n.getLocalName().equals("g2")
                 || n.getLocalName().equals("alpha") || n.getLocalName().equals("rho")
-                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")) {
+                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")
+                || n.getLocalName().equals("maxP")) {
             return 1e-5;
         }
         return 1e-10;

@@ -7,11 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.*;
+import com.powsybl.commons.ref.Ref;
 
 import java.util.Optional;
 
@@ -53,7 +50,7 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
 
     @Override
     public T setLossFactor(float lossFactor) {
-        ValidationUtil.checkLossFactor(this, lossFactor);
+        ValidationUtil.checkLossFactor(this, lossFactor, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         float oldValue = this.lossFactor;
         this.lossFactor = lossFactor;
         notifyUpdate("lossFactor", oldValue, lossFactor);

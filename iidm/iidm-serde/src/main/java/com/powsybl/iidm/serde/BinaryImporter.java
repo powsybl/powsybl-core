@@ -27,7 +27,7 @@ import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 @AutoService(Importer.class)
 public class BinaryImporter extends AbstractTreeDataImporter {
 
-    private static final String[] EXTENSIONS = {"biidm", "bin", "iidm.bin"};
+    private static final String[] EXTENSIONS = {"biidm", "bin"};
 
     @Override
     protected String[] getExtensions() {

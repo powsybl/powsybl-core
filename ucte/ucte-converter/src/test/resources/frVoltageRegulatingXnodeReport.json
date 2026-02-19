@@ -1,17 +1,29 @@
 {
-  "version" : "2.0",
+  "version" : "3.0",
+  "dictionaries" : {
+    "default" : {
+      "core.ucte.UcteReading" : "Reading UCTE network file",
+      "core.ucte.fixUcteLines" : "Fix UCTE lines",
+      "core.ucte.fixUcteNodes" : "Fix UCTE nodes",
+      "core.ucte.fixUcteRegulations" : "Fix UCTE regulations",
+      "core.ucte.fixUcteTransformer" : "Fix UCTE transformers",
+      "core.ucte.negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+      "novalueReport" : "No value report",
+      "roundTripReportNodeJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct"
+    }
+  },
   "reportRoot" : {
     "messageKey" : "roundTripReportNodeJsonTest",
     "children" : [ {
       "messageKey" : "novalueReport"
     }, {
-      "messageKey" : "UcteReading",
+      "messageKey" : "core.ucte.UcteReading",
       "children" : [ {
-        "messageKey" : "fixUcteNodes"
+        "messageKey" : "core.ucte.fixUcteNodes"
       }, {
-        "messageKey" : "fixUcteLines",
+        "messageKey" : "core.ucte.fixUcteLines",
         "children" : [ {
-          "messageKey" : "negativeLineResistance",
+          "messageKey" : "core.ucte.negativeLineResistance",
           "values" : {
             "lineId" : {
               "value" : "FFFFFF11 XXXXXX11 1"
@@ -26,7 +38,7 @@
             }
           }
         }, {
-          "messageKey" : "negativeLineResistance",
+          "messageKey" : "core.ucte.negativeLineResistance",
           "values" : {
             "lineId" : {
               "value" : "FFFFFF11 XXXXXX12 1"
@@ -41,7 +53,7 @@
             }
           }
         }, {
-          "messageKey" : "negativeLineResistance",
+          "messageKey" : "core.ucte.negativeLineResistance",
           "values" : {
             "lineId" : {
               "value" : "FFFFFF13 XXXXXX13 1"
@@ -56,7 +68,7 @@
             }
           }
         }, {
-          "messageKey" : "negativeLineResistance",
+          "messageKey" : "core.ucte.negativeLineResistance",
           "values" : {
             "lineId" : {
               "value" : "FFFFFF13 XXXXXX14 1"
@@ -72,22 +84,10 @@
           }
         } ]
       }, {
-        "messageKey" : "fixUcteTransformer"
+        "messageKey" : "core.ucte.fixUcteTransformer"
       }, {
-        "messageKey" : "fixUcteRegulations"
+        "messageKey" : "core.ucte.fixUcteRegulations"
       } ]
-    } ],
-    "dictionaries" : {
-      "default" : {
-        "UcteReading" : "Reading UCTE network file",
-        "fixUcteLines" : "Fix UCTE lines",
-        "fixUcteNodes" : "Fix UCTE nodes",
-        "fixUcteRegulations" : "Fix UCTE regulations",
-        "fixUcteTransformer" : "Fix UCTE transformers",
-        "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
-        "novalueReport" : "No value report",
-        "roundTripReportNodeJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct"
-      }
-    }
+    } ]
   }
 }

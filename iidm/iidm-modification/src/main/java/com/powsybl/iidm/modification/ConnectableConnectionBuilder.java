@@ -7,16 +7,41 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.iidm.network.ThreeSides;
+
 /**
+ * <p>This builder help creating the network modification used to connect a network element to the closest bus or bus
+ * bar section. It works on:</p>
+ * <ul>
+ *     <li>Connectables by connecting their terminals</li>
+ *     <li>HVDC lines by connecting the terminals of their converter stations</li>
+ *     <li>Tie lines by connecting the terminals of their underlying dangling lines</li>
+ * </ul>
+ * <p>The user can specify a side of the element to connect. If no side is specified, the network modification will
+ * try to connect every side.</p>
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class ConnectableConnectionBuilder {
-    String connectableId = null;
+    String identifiableId = null;
     boolean operateFictitiousSwitches = false;
     boolean operateOnlyBreakers = false;
+    ThreeSides side;
 
+    /**
+     * Specify the network element to connect. It can be either a connectable, an HVDC line or a tie line.
+     * @param identifiableId id of the network element to connect
+     */
+    public ConnectableConnectionBuilder withIdentifiableId(String identifiableId) {
+        this.identifiableId = identifiableId;
+        return this;
+    }
+
+    /**
+     * @deprecated Use {@link ConnectableConnectionBuilder#withIdentifiableId(String)} instead
+     */
+    @Deprecated(since = "6.4.0")
     public ConnectableConnectionBuilder withConnectableId(String connectableId) {
-        this.connectableId = connectableId;
+        this.identifiableId = connectableId;
         return this;
     }
 
@@ -30,7 +55,12 @@ public class ConnectableConnectionBuilder {
         return this;
     }
 
+    public ConnectableConnectionBuilder withSide(ThreeSides side) {
+        this.side = side;
+        return this;
+    }
+
     public ConnectableConnection build() {
-        return new ConnectableConnection(connectableId, operateFictitiousSwitches, operateOnlyBreakers);
+        return new ConnectableConnection(identifiableId, operateFictitiousSwitches, operateOnlyBreakers, side);
     }
 }

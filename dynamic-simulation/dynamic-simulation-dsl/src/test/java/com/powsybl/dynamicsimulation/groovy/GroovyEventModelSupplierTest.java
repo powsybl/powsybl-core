@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +38,7 @@ class GroovyEventModelSupplierTest {
     void setup() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
-        Files.copy(getClass().getResourceAsStream("/eventModels.groovy"), fileSystem.getPath("/eventModels.groovy"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/eventModels.groovy")), fileSystem.getPath("/eventModels.groovy"));
     }
 
     @AfterEach
@@ -75,12 +76,12 @@ class GroovyEventModelSupplierTest {
         List<EventModel> eventModels = supplier.get(network);
         assertEquals(2, eventModels.size());
 
-        assertTrue(eventModels.get(0) instanceof DummyEventModel);
+        assertInstanceOf(DummyEventModel.class, eventModels.get(0));
         DummyEventModel eventModel1 = (DummyEventModel) eventModels.get(0);
         assertEquals("NHV1_NHV2_1", eventModel1.getId());
         assertEquals(50, eventModel1.getStartTime(), 0);
 
-        assertTrue(eventModels.get(1) instanceof DummyEventModel);
+        assertInstanceOf(DummyEventModel.class, eventModels.get(1));
         DummyEventModel eventModel2 = (DummyEventModel) eventModels.get(1);
         assertEquals("NHV1_NHV2_2", eventModel2.getId());
         assertEquals(50, eventModel2.getStartTime(), 0);

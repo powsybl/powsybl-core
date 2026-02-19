@@ -129,7 +129,7 @@ public final class PhaseShifterTestCaseFactory {
         ps1.newPhaseTapChanger()
                 .setTapPosition(1)
                 .setRegulationTerminal(ps1.getTerminal2())
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(200)
                 .beginStep()
                     .setAlpha(-20.0)
@@ -180,7 +180,48 @@ public final class PhaseShifterTestCaseFactory {
         Network network = create();
         network.getTwoWindingsTransformer("PS1")
                 .getPhaseTapChanger()
-                .setTargetDeadband(10.0);
+                .setTargetDeadband(10.0)
+                .setRegulating(false);
+        return network;
+    }
+
+    public static Network createRegulatingWithoutMode() {
+        Network network = create();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setTargetDeadband(10.0)
+                .setRegulating(true);
+        return network;
+    }
+
+    public static Network createLocalActivePowerWithTargetDeadband() {
+        Network network = createWithTargetDeadband();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        return network;
+    }
+
+    public static Network createLocalCurrentLimiterWithTargetDeadband() {
+        Network network = createWithTargetDeadband();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
+        return network;
+    }
+
+    public static Network createRemoteActivePowerWithTargetDeadband() {
+        return createRemote(createLocalActivePowerWithTargetDeadband());
+    }
+
+    public static Network createRemoteCurrentLimiterWithTargetDeadband() {
+        return createRemote(createLocalCurrentLimiterWithTargetDeadband());
+    }
+
+    private static Network createRemote(Network network) {
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationTerminal(network.getLoad("LD2").getTerminal());
         return network;
     }
 }

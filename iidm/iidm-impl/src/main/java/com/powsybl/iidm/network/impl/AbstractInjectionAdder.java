@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
 /**
  *
@@ -48,7 +48,7 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
     }
 
     protected TerminalExt checkAndGetTerminal() {
-        return new TerminalBuilder(getNetworkRef(), this, null)
+        return new TerminalBuilder(getNetworkRef(), this, null, null)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)

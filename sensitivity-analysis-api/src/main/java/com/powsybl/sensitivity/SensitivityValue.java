@@ -105,7 +105,7 @@ public class SensitivityValue {
     }
 
     private static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         switch (fieldName) {
             case "factorIndex":
                 parser.nextToken();

@@ -7,39 +7,37 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.PowsyblException;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * A Three Windings Power Transformer.
+ * A three-winding power transformer.
  * <p>
  * The equivalent star model used is: <div>
  * <object data="doc-files/threeWindingsTransformer.svg" type="image/svg+xml">
  * </object> </div>
  * <p>
- * Usually side 1 is the primary (high voltage), side 2 is the secondary (medium
+ * Usually, side 1 is the primary (high voltage), side 2 is the secondary (medium
  * voltage) and side 3 the tertiary voltage (low voltage).
  * <p>
- * g1, g2, g3 and b1, b2, b3 unit is siemens.
+ * The g1, g2, g3 and b1, b2, b3 unit is siemens.
  * <p>
- * r1, r2, r3, x1, x2 and x3 unit is ohm.
+ * The r1, r2, r3, x1, x2 and x3 unit is ohm.
  * <p>
- * A Three Windings Transformer is connected to three voltage levels (side 1, side 2 and
- * side 3) that belong to the same substation. It has three identical legs. Each leg has
- * the same model of a Two Windings Power Transformer.
+ * A three-winding transformer is connected to three voltage levels (sides 1, 2 and 3)
+ * that belong to the same substation. It has three identical legs. Each leg has
+ * the same model of a two-winding power transformer.
  * <p>
- * All three legs may have a Ratio Tap Changer and a Phase Tap Changer.
- * A warning is emitted if a leg has both Ratio and Phase Tap Changers.
+ * All three legs may have a ratio tap changer and a phase tap changer.
+ * A warning is emitted if a leg has both a ratio tap changer and a phase tap changer.
  * <p>
- * Only one Tap Changer is allowed to be regulating on the equipment. An exception is thrown if
+ * Only one tap changer is allowed to be regulating on the equipment. An exception is thrown if
  * two or more regulating controls are enabled.
  *
  * <p>
- *  Characteristics
+ * Characteristics
  * </p>
  * <table style="border: 1px solid black; border-collapse: collapse">
  *     <thead>
@@ -48,7 +46,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -83,7 +81,7 @@ import java.util.stream.Stream;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The leg at the primary side</td>
+ *             <td style="border: 1px solid black">The leg at the side 1</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">Leg2</td>
@@ -91,7 +89,7 @@ import java.util.stream.Stream;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The leg at the secondary side</td>
+ *             <td style="border: 1px solid black">The leg at the side 2</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">Leg3</td>
@@ -99,13 +97,13 @@ import java.util.stream.Stream;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The leg at the tertiary side</td>
+ *             <td style="border: 1px solid black">The leg at the side 3</td>
  *         </tr>
  *     </tbody>
  * </table>
  *
  * <p>
- * To create a three windings transformer, see {@link ThreeWindingsTransformerAdder}
+ * To create a three-winding transformer, see {@link ThreeWindingsTransformerAdder}
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see RatioTapChanger
@@ -118,7 +116,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Transformer leg
      *
      * <p>
-     *     Characteristics
+     * Characteristics
      * </p>
      *
      * <table style="border: 1px solid black; border-collapse: collapse">
@@ -128,7 +126,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      *             <th style="border: 1px solid black">Type</th>
      *             <th style="border: 1px solid black">Unit</th>
      *             <th style="border: 1px solid black">Required</th>
-     *             <th style="border: 1px solid black">Defaut value</th>
+     *             <th style="border: 1px solid black">Default value</th>
      *             <th style="border: 1px solid black">Description</th>
      *         </tr>
      *     </thead>
@@ -288,14 +286,21 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         }
 
         /**
-         * Get side of the leg on the three windings transformer
+         * Get the side of the leg on the three-winding transformer.
          */
         ThreeSides getSide();
 
         Optional<? extends LoadingLimits> getLimits(LimitType type);
+
+        /**
+         * Get the associated three-winding transformer.
+         */
+        ThreeWindingsTransformer getTransformer();
     }
 
     Terminal getTerminal(ThreeSides side);
+
+    Terminal getTerminal(String voltageLevelId);
 
     /**
      * Get the side the terminal is connected to.
@@ -309,31 +314,26 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     }
 
     /**
-     * Get the leg at the primary side.
+     * Get the leg at side 1.
      */
     Leg getLeg1();
 
     /**
-     * Get the leg at the secondary side.
+     * Get the leg at side 2.
      */
     Leg getLeg2();
 
     /**
-     * Get the leg at the tertiary side.
+     * Get the leg at side 3.
      */
     Leg getLeg3();
 
     default Leg getLeg(ThreeSides side) {
-        switch (side) {
-            case ONE:
-                return getLeg1();
-            case TWO:
-                return getLeg2();
-            case THREE:
-                return getLeg3();
-            default:
-                throw new PowsyblException("Can't get leg from side. Unsupported Side \"" + side + "\"");
-        }
+        return switch (side) {
+            case ONE -> getLeg1();
+            case TWO -> getLeg2();
+            case THREE -> getLeg3();
+        };
     }
 
     /**
@@ -351,9 +351,16 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     }
 
     /**
-     * Get the ratedU at the fictitious bus in kV (also used as nominal voltage)
+     * Get the ratedU on the fictitious bus in kV (also used as nominal voltage)
      */
     double getRatedU0();
+
+    /**
+     * Set the rated voltage at the fictitious bus.
+     */
+    default ThreeWindingsTransformer setRatedU0(double ratedU0) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     default IdentifiableType getType() {
@@ -403,4 +410,17 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     Overload checkTemporaryLimits3(double limitReductionValue, LimitType type);
 
     Overload checkTemporaryLimits3(LimitType type);
+
+    default void applySolvedValues() {
+        setRatioTapPositionToSolvedTapPosition();
+        setPhaseTapPositionToSolvedTapPosition();
+    }
+
+    default void setRatioTapPositionToSolvedTapPosition() {
+        this.getLegStream().forEach(leg -> leg.getOptionalRatioTapChanger().ifPresent(TapChanger::applySolvedValues));
+    }
+
+    default void setPhaseTapPositionToSolvedTapPosition() {
+        this.getLegStream().forEach(leg -> leg.getOptionalPhaseTapChanger().ifPresent(TapChanger::applySolvedValues));
+    }
 }

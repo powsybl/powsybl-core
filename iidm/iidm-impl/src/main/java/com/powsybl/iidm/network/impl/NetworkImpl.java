@@ -16,10 +16,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
+import com.powsybl.iidm.network.components.AbstractDcComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
-import com.powsybl.iidm.network.impl.util.RefChain;
-import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.commons.ref.RefChain;
+import com.powsybl.commons.ref.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.util.NetworkReports;
 import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +135,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         // and it needs to be notified when and extension or a reduction of
         // the variant array is requested
         index.checkAndAdd(this);
+        dcTopologyModel = new DcTopologyModel(ref, subnetworkRef);
     }
 
     static Network merge(String id, String name, Network... networks) {
@@ -173,6 +176,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             }
         }
         mergedNetwork.setCaseDate(caseDate);
+    }
+
+    RefChain<SubnetworkImpl> getSubnetworkRef() {
+        return subnetworkRef;
     }
 
     RefChain<NetworkImpl> getRef() {
@@ -255,6 +262,46 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
+    public Iterable<String> getAreaTypes() {
+        return getAreaTypeStream().toList();
+    }
+
+    @Override
+    public Stream<String> getAreaTypeStream() {
+        return getAreaStream().map(Area::getAreaType).distinct();
+    }
+
+    @Override
+    public int getAreaTypeCount() {
+        return (int) getAreaTypeStream().count();
+    }
+
+    @Override
+    public AreaAdder newArea() {
+        return new AreaAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        return Collections.unmodifiableCollection(index.getAll(AreaImpl.class));
+    }
+
+    @Override
+    public Stream<Area> getAreaStream() {
+        return index.getAll(AreaImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public Area getArea(String id) {
+        return index.get(id, AreaImpl.class);
+    }
+
+    @Override
+    public int getAreaCount() {
+        return index.getAll(AreaImpl.class).size();
+    }
+
+    @Override
     public SubstationAdder newSubstation() {
         return new SubstationAdderImpl(ref, subnetworkRef);
     }
@@ -296,20 +343,17 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
-                index.getAll(NodeBreakerVoltageLevel.class));
+        return Collections.unmodifiableCollection(index.getAll(VoltageLevelImpl.class));
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return Stream.concat(index.getAll(BusBreakerVoltageLevel.class).stream(),
-                index.getAll(NodeBreakerVoltageLevel.class).stream());
+        return index.getAll(VoltageLevelImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getVoltageLevelCount() {
-        return index.getAll(BusBreakerVoltageLevel.class).size()
-                + index.getAll(NodeBreakerVoltageLevel.class).size();
+        return index.getAll(VoltageLevelImpl.class).size();
     }
 
     @Override
@@ -319,11 +363,20 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public LineAdderImpl newLine() {
-        return newLine(null);
+        return newLine((String) null);
     }
 
     LineAdderImpl newLine(String subnetwork) {
         return new LineAdderImpl(this, subnetwork);
+    }
+
+    @Override
+    public LineAdderImpl newLine(Line copiedLine) {
+        return newLine(null, copiedLine);
+    }
+
+    LineAdderImpl newLine(String subnetwork, Line copiedLine) {
+        return new LineAdderImpl(this, subnetwork, copiedLine);
     }
 
     @Override
@@ -740,6 +793,146 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         return index.getAll(GroundImpl.class).size();
     }
 
+    @Override
+    public DcNodeAdder newDcNode() {
+        return new DcNodeAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcNode> getDcNodes() {
+        return Collections.unmodifiableCollection(index.getAll(DcNodeImpl.class));
+    }
+
+    @Override
+    public Stream<DcNode> getDcNodeStream() {
+        return index.getAll(DcNodeImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcNodeCount() {
+        return index.getAll(DcNodeImpl.class).size();
+    }
+
+    @Override
+    public DcNode getDcNode(String id) {
+        return index.get(id, DcNodeImpl.class);
+    }
+
+    @Override
+    public DcLineAdder newDcLine() {
+        return new DcLineAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcLine> getDcLines() {
+        return Collections.unmodifiableCollection(index.getAll(DcLineImpl.class));
+    }
+
+    @Override
+    public Stream<DcLine> getDcLineStream() {
+        return index.getAll(DcLineImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcLineCount() {
+        return index.getAll(DcLineImpl.class).size();
+    }
+
+    @Override
+    public DcLine getDcLine(String id) {
+        return index.get(id, DcLineImpl.class);
+    }
+
+    @Override
+    public DcSwitchAdder newDcSwitch() {
+        return new DcSwitchAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcSwitch> getDcSwitches() {
+        return Collections.unmodifiableCollection(index.getAll(DcSwitchImpl.class));
+    }
+
+    @Override
+    public Stream<DcSwitch> getDcSwitchStream() {
+        return index.getAll(DcSwitchImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcSwitchCount() {
+        return index.getAll(DcSwitchImpl.class).size();
+    }
+
+    @Override
+    public DcSwitch getDcSwitch(String id) {
+        return index.get(id, DcSwitchImpl.class);
+    }
+
+    @Override
+    public DcGroundAdder newDcGround() {
+        return new DcGroundAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcGround> getDcGrounds() {
+        return Collections.unmodifiableCollection(index.getAll(DcGroundImpl.class));
+    }
+
+    @Override
+    public Stream<DcGround> getDcGroundStream() {
+        return index.getAll(DcGroundImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcGroundCount() {
+        return index.getAll(DcGroundImpl.class).size();
+    }
+
+    @Override
+    public DcGround getDcGround(String id) {
+        return index.get(id, DcGroundImpl.class);
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        return Collections.unmodifiableCollection(index.getAll(LineCommutatedConverterImpl.class));
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        return index.getAll(LineCommutatedConverterImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        return index.getAll(LineCommutatedConverterImpl.class).size();
+    }
+
+    @Override
+    public LineCommutatedConverter getLineCommutatedConverter(String id) {
+        return index.get(id, LineCommutatedConverterImpl.class);
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        return Collections.unmodifiableCollection(index.getAll(VoltageSourceConverterImpl.class));
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        return index.getAll(VoltageSourceConverterImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        return index.getAll(VoltageSourceConverterImpl.class).size();
+    }
+
+    @Override
+    public VoltageSourceConverter getVoltageSourceConverter(String id) {
+        return index.get(id, VoltageSourceConverterImpl.class);
+    }
+
     HvdcLineAdder newHvdcLine(String subnetwork) {
         return new HvdcLineAdderImpl(this, subnetwork);
     }
@@ -790,6 +983,41 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
+    public <C extends DcConnectable> Iterable<C> getDcConnectables(Class<C> clazz) {
+        return getDcConnectableStream(clazz).toList();
+    }
+
+    @Override
+    public <C extends DcConnectable> Stream<C> getDcConnectableStream(Class<C> clazz) {
+        return index.getAll().stream().filter(clazz::isInstance).map(clazz::cast);
+    }
+
+    @Override
+    public <C extends DcConnectable> int getDcConnectableCount(Class<C> clazz) {
+        return Ints.checkedCast(getDcConnectableStream(clazz).count());
+    }
+
+    @Override
+    public Iterable<DcConnectable> getDcConnectables() {
+        return getDcConnectables(DcConnectable.class);
+    }
+
+    @Override
+    public Stream<DcConnectable> getDcConnectableStream() {
+        return getDcConnectableStream(DcConnectable.class);
+    }
+
+    @Override
+    public DcConnectable<?> getDcConnectable(String id) {
+        return index.get(id, DcConnectable.class);
+    }
+
+    @Override
+    public int getDcConnectableCount() {
+        return Ints.checkedCast(getDcConnectableStream().count());
+    }
+
+    @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
         return newVoltageAngleLimit(null);
     }
@@ -828,6 +1056,12 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
 
         @Override
+        protected void setComponentNumber(DcBus dcBus, int num) {
+            Objects.requireNonNull(dcBus);
+            ((DcBusImpl) dcBus).setConnectedComponentNumber(num);
+        }
+
+        @Override
         protected ConnectedComponentImpl createComponent(int num, int size) {
             return new ConnectedComponentImpl(num, size, network.ref);
         }
@@ -855,6 +1089,31 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         @Override
         protected SynchronousComponentImpl createComponent(int num, int size) {
             return new SynchronousComponentImpl(num, size, network.ref);
+        }
+    }
+
+    static final class DcComponentsManager extends AbstractDcComponentsManager<DcComponentImpl> {
+
+        private final NetworkImpl network;
+
+        private DcComponentsManager(NetworkImpl network) {
+            this.network = Objects.requireNonNull(network);
+        }
+
+        @Override
+        protected Network getNetwork() {
+            return network;
+        }
+
+        @Override
+        protected void setComponentNumber(DcBus dcBus, int num) {
+            Objects.requireNonNull(dcBus);
+            ((DcBusImpl) dcBus).setDcComponentNumber(num);
+        }
+
+        @Override
+        protected DcComponentImpl createComponent(int num, int size) {
+            return new DcComponentImpl(num, size, network.ref);
         }
     }
 
@@ -892,13 +1151,16 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    private class VariantImpl implements Variant {
+    private final class VariantImpl implements Variant {
 
         private final ConnectedComponentsManager connectedComponentsManager
                 = new ConnectedComponentsManager(NetworkImpl.this);
 
         private final SynchronousComponentsManager synchronousComponentsManager
                 = new SynchronousComponentsManager(NetworkImpl.this);
+
+        private final DcComponentsManager dcComponentsManager
+                = new DcComponentsManager(NetworkImpl.this);
 
         private final BusCache busViewCache = new BusCache(() -> getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream()));
 
@@ -925,9 +1187,20 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         return variants.get().synchronousComponentsManager;
     }
 
+    DcComponentsManager getDcComponentsManager() {
+        return variants.get().dcComponentsManager;
+    }
+
+    @Override
+    public Collection<Component> getDcComponents() {
+        return Collections.unmodifiableList(variants.get().dcComponentsManager.getConnectedComponents());
+    }
+
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, final int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        dcTopologyModel.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().extendVariantArraySize(initVariantArraySize, number, sourceIndex));
 
         variants.push(number, () -> variants.copy(sourceIndex));
     }
@@ -935,6 +1208,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
+        dcTopologyModel.reduceVariantArraySize(number);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().reduceVariantArraySize(number));
 
         variants.pop(number);
     }
@@ -942,6 +1217,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
+        dcTopologyModel.deleteVariantArrayElement(index);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().deleteVariantArrayElement(index));
 
         variants.delete(index);
     }
@@ -949,6 +1226,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
+        dcTopologyModel.allocateVariantArrayElement(indexes, sourceIndex);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().allocateVariantArrayElement(indexes, sourceIndex));
 
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }
@@ -1036,9 +1315,12 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {
-        // The root network reference should point to parent and not original anymore
-        // All substations/voltage levels will this way refer to parent instead of original
-        original.ref.setRef(new RefObj<>(parent));
+        // The root network reference should point to parent and not original anymore.
+        // All substations/voltage levels will this way refer to parent instead of original.
+        // Note that "ref" should directly reference the parent network's ref and not reference directly
+        // the parent network. This is needed to avoid inconsistencies if the whole network is latter flatten
+        // then merged with another one (see "#flatten" for further details).
+        original.ref.setRef(parent.ref);
 
         // Handles the case of creating a subnetwork for itself without duplicating the id
         String idSubNetwork = parent != original ? original.getId() : Identifiables.getUniqueId(original.getId(), parent.getIndex()::contains);
@@ -1047,6 +1329,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                 original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
         transferExtensions(original, sn);
         transferProperties(original, sn);
+        sn.attachDcTopologyModel(original.detachDcTopologyModel(), sn.getRootNetworkRef(), sn.getRef());
         parent.subnetworks.put(idSubNetwork, sn);
         parent.index.checkAndAdd(sn);
     }
@@ -1101,7 +1384,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    class DanglingLinePair {
+    static class DanglingLinePair {
         String id;
         String name;
         String dl1Id;
@@ -1115,7 +1398,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         if (subnetworks.containsKey(subnetworkId)) {
             throw new IllegalArgumentException("The network already contains another subnetwork of id " + subnetworkId);
         }
-        SubnetworkImpl subnetwork = new SubnetworkImpl(new RefChain<>(new RefObj<>(this)), subnetworkId, name, sourceFormat);
+        SubnetworkImpl subnetwork = new SubnetworkImpl(new RefChain<>(ref), subnetworkId, name, sourceFormat);
         subnetworks.put(subnetworkId, subnetwork);
         index.checkAndAdd(subnetwork);
         return subnetwork;
@@ -1151,6 +1434,30 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
+    public void flatten() {
+        if (subnetworks.isEmpty()) {
+            // Nothing to do
+            return;
+        }
+        subnetworks.values().forEach(subnetwork -> {
+            // the subnetwork DC topology model is transferred into this network DC topology model
+            dcTopologyModel.addAndDetachSubnetworkDcTopologyModel(subnetwork);
+            // The subnetwork ref chain should point to the current network's subnetworkRef
+            // (thus, we obtain a "double ref chain": a refChain referencing another refChain).
+            // This way, all its network elements (using this ref chain) will have a reference to the current network
+            // if it is merged later.
+            subnetwork.getRef().setRef(this.subnetworkRef);
+            // Transfer the extensions and the properties from the subnetwork to the current network.
+            // Those which are already present in the current network are not transferred.
+            transferExtensions(subnetwork, this, true);
+            transferProperties(subnetwork, this, true);
+            index.remove(subnetwork);
+        });
+        dcTopologyModel.invalidateAllVariantsCache();
+        subnetworks.clear();
+    }
+
+    @Override
     public void addListener(NetworkListener listener) {
         listeners.add(listener);
     }
@@ -1172,33 +1479,28 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
-        ReportNode readReportNode = Objects.requireNonNull(reportNode).newReportNode()
-                .withMessageTemplate("IIDMValidation", "Running validation checks on IIDM network ${networkId}")
-                .withUntypedValue("networkId", id)
-                .add();
+        ReportNode readReportNode = NetworkReports.runIidmNetworkValidationCHecks(reportNode, id);
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
-                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
+                true, throwsException ? ValidationUtil.ActionOnError.THROW_EXCEPTION : ValidationUtil.ActionOnError.LOG_ERROR, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
         return validationLevel;
     }
 
     @Override
     public ValidationLevel getValidationLevel() {
         if (validationLevel == null) {
-            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, ReportNode.NO_OP);
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, ValidationUtil.ActionOnError.IGNORE, minValidationLevel, ReportNode.NO_OP);
         }
         return validationLevel;
     }
 
     @Override
-    public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
-        Objects.requireNonNull(validationLevel);
-        if (this.validationLevel == null) {
-            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, ReportNode.NO_OP);
+    public Network setMinimumAcceptableValidationLevel(ValidationLevel minLevel) {
+        Objects.requireNonNull(minLevel);
+        ValidationLevel currentLevel = getValidationLevel();
+        if (currentLevel.compareTo(minLevel) < 0) {
+            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + minLevel);
         }
-        if (this.validationLevel.compareTo(validationLevel) < 0) {
-            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + validationLevel);
-        }
-        this.minValidationLevel = validationLevel;
+        this.minValidationLevel = minLevel;
         return this;
     }
 
@@ -1217,4 +1519,41 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             validationLevel = null;
         }
     }
+
+    @Override
+    public Iterable<DcBus> getDcBuses() {
+        List<Iterable<DcBus>> iterables = new ArrayList<>();
+        iterables.add(getDcTopologyModel().getDcBuses());
+        getSubnetworks().stream().map(Network::getDcBuses).forEach(iterables::add);
+        return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        return Stream.concat(
+                getDcTopologyModel().getDcBusStream(),
+                getSubnetworks().stream().map(n -> ((SubnetworkImpl) n).getDcTopologyModel()).flatMap(DcTopologyModel::getDcBusStream)
+        );
+    }
+
+    @Override
+    public int getDcBusCount() {
+        return getDcTopologyModel().getDcBusCount() + getSubnetworks().stream().mapToInt(Network::getDcBusCount).sum();
+    }
+
+    @Override
+    public DcBus getDcBus(String id) {
+        DcBus found = getDcTopologyModel().getDcBus(id);
+        if (found != null) {
+            return found;
+        }
+        for (Network sn : getSubnetworks()) {
+            found = ((SubnetworkImpl) sn).getDcTopologyModel().getDcBus(id);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
+    }
+
 }

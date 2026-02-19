@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public final class TripleStoreFactory {
 
     private static final ServiceLoaderCache<TripleStoreFactoryService> LOADER = new ServiceLoaderCache<>(TripleStoreFactoryService.class);
+    private static final String NO_AVAILABLE_IMPLEMENTATION = "No implementation available for triple store ";
 
     private TripleStoreFactory() {
     }
@@ -63,7 +64,7 @@ public final class TripleStoreFactory {
                 return ts.copy(source);
             }
         }
-        throw new PowsyblException("No implementation available for triple store " + impl);
+        throw new PowsyblException(NO_AVAILABLE_IMPLEMENTATION + impl);
     }
 
     /**
@@ -79,7 +80,7 @@ public final class TripleStoreFactory {
                 return ts.create();
             }
         }
-        throw new PowsyblException("No implementation available for triple store " + impl);
+        throw new PowsyblException(NO_AVAILABLE_IMPLEMENTATION + impl);
     }
 
     /**
@@ -96,7 +97,7 @@ public final class TripleStoreFactory {
                 return ts.create(options);
             }
         }
-        throw new PowsyblException("No implementation available for triple store " + impl);
+        throw new PowsyblException(NO_AVAILABLE_IMPLEMENTATION + impl);
     }
 
     /**

@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class UpDownScalable extends AbstractScalable {
+public class UpDownScalable extends AbstractScalable {
     private final Scalable upScalable;
     private final Scalable downScalable;
     private final double minValue;

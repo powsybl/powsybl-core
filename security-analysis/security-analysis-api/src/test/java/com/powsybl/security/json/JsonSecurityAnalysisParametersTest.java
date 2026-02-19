@@ -38,7 +38,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
     void writeExtension() throws IOException {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonSecurityAnalysisParameters::write, ComparisonUtils::compareTxt, "/SecurityAnalysisParametersWithExtension.json");
+        writeTest(parameters, JsonSecurityAnalysisParameters::write, ComparisonUtils::assertTxtEquals, "/SecurityAnalysisParametersWithExtension.json");
     }
 
     @Test

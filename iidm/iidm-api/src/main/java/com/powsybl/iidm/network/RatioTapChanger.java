@@ -38,7 +38,6 @@ public interface RatioTapChanger extends TapChanger<
      */
     RatioTapChanger setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
 
-
     /**
      * Get the regulation value.
      *   - a setpoint in kV in case of {@link RegulationMode#VOLTAGE} regulation
@@ -77,15 +76,4 @@ public interface RatioTapChanger extends TapChanger<
      * @return itself for method chaining.
      */
     RatioTapChanger setTargetV(double targetV);
-
-    /**
-     * Get the load tap changing capabilities status.
-     */
-    boolean hasLoadTapChangingCapabilities();
-
-    /**
-     * Set the load tap changing capabilities status.
-     * @return itself for method chaining.
-     */
-    RatioTapChanger setLoadTapChangingCapabilities(boolean status);
 }

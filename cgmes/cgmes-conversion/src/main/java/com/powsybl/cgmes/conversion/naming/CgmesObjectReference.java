@@ -64,7 +64,13 @@ public interface CgmesObjectReference {
                 Map.entry(IdentifiableType.SHUNT_COMPENSATOR, "SC"),
                 Map.entry(IdentifiableType.DANGLING_LINE, "ACLS"),
                 Map.entry(IdentifiableType.STATIC_VAR_COMPENSATOR, "SVC"),
-                Map.entry(IdentifiableType.HVDC_CONVERTER_STATION, "DCCS")
+                Map.entry(IdentifiableType.HVDC_CONVERTER_STATION, "DCCS"),
+                Map.entry(IdentifiableType.LINE_COMMUTATED_CONVERTER, "LCC"),
+                Map.entry(IdentifiableType.VOLTAGE_SOURCE_CONVERTER, "VSC"),
+                Map.entry(IdentifiableType.DC_NODE, "DCN"),
+                Map.entry(IdentifiableType.DC_GROUND, "DCG"),
+                Map.entry(IdentifiableType.DC_LINE, "DCLS"),
+                Map.entry(IdentifiableType.DC_SWITCH, "DCSW")
         ));
 
         public Identifiable(com.powsybl.iidm.network.Identifiable<?> value, boolean addType) {
@@ -120,6 +126,8 @@ public interface CgmesObjectReference {
         CONVERTER_STATION("CS"),
         DCNODE("DCNODE"),
         DC_CONVERTER_UNIT("DCCU"),
+        DC_GROUND("DCG"),
+        DC_TERMINAL("DCT"),
         DC_TOPOLOGICAL_NODE("DCTN"),
         EQUIVALENT_INJECTION("EI"),
         FICTITIOUS("FICT"),

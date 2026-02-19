@@ -38,7 +38,7 @@ class TripleStoreCopyTest {
             assertEquals(expected.getNamespaces(), actual.getNamespaces());
         });
 
-        Expected expectedContents = new Expected().expect("nick", "SweetCaroline", "Wonderland");
+        Expected expectedContents = new Expected().expect("nick", "Wonderland", "SweetCaroline");
         tester.testQuery(queries.get("selectNickName"), expectedContents);
         tester.testQueryOnCopies(queries.get("selectNickName"), expectedContents);
 

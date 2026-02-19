@@ -39,26 +39,44 @@ public class FortescueValue {
             this.angleC = angleC;
         }
 
+        /**
+         * The magnitude on phase A
+         */
         public double getMagnitudeA() {
             return magnitudeA;
         }
 
+        /**
+         * The magnitude on phase B
+         */
         public double getMagnitudeB() {
             return magnitudeB;
         }
 
+        /**
+         * The magnitude on phase C
+         */
         public double getMagnitudeC() {
             return magnitudeC;
         }
 
+        /**
+         * The angle on phase A
+         */
         public double getAngleA() {
             return angleA;
         }
 
+        /**
+         * The angle on phase B
+         */
         public double getAngleB() {
             return angleB;
         }
 
+        /**
+         * The angle on phase C
+         */
         public double getAngleC() {
             return angleC;
         }
@@ -89,30 +107,52 @@ public class FortescueValue {
         this(positiveMagnitude, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
+    /**
+     * The magnitude on the positive sequence
+     */
     public double getPositiveMagnitude() {
         return positiveMagnitude;
     }
 
+    /**
+     * The magnitude on the zero sequence
+     */
     public double getZeroMagnitude() {
         return zeroMagnitude;
     }
 
+    /**
+     * The magnitude on the negative sequence
+     */
     public double getNegativeMagnitude() {
         return negativeMagnitude;
     }
 
+    /**
+     * The angle on the positive sequence
+     */
     public double getPositiveAngle() {
         return positiveAngle;
     }
 
+    /**
+     * The angle on the zero sequence
+     */
     public double getZeroAngle() {
         return zeroAngle;
     }
 
+    /**
+     * The angle on the negative sequence
+     */
     public double getNegativeAngle() {
         return negativeAngle;
     }
 
+    /**
+     * Convert the value from the positive, zero and negative sequence to the A, B and C phase components.
+     * @return the three phase components.
+     */
     public ThreePhaseValue toThreePhaseValue() {
 
         // [G1]   [ 1  1  1 ]   [Gh]

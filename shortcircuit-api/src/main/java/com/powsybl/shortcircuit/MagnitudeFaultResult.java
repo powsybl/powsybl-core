@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Results for one fault computation with current magnitude.
+ * Results for one fault with three-phase current magnitude.
  *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */

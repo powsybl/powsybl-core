@@ -1,0 +1,12 @@
+{
+  "type" : "default",
+  "version" : "1.0",
+  "name" : "list",
+  "contingencies" : [ {
+    "id" : "contingency",
+    "elements" : [ {
+      "id" : "3WT",
+      "type" : "THREE_WINDINGS_TRANSFORMER"
+    } ]
+  } ]
+}

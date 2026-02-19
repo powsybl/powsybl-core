@@ -47,7 +47,7 @@ public abstract class AbstractLimitsReducer<L> {
     public abstract IntStream getTemporaryLimitsAcceptableDurationStream();
 
     public LimitsContainer<L> getLimits() {
-        if (permanentLimitReduction == 1.0
+        if (getPermanentLimitReduction() == 1.0
                 && (temporaryLimitReductionByAcceptableDuration.isEmpty()
                     || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0))) {
             // No reductions are applicable

@@ -12,10 +12,12 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.extensions.Measurement.Type.*;
 
@@ -26,7 +28,20 @@ public final class CgmesAnalogPostProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesAnalogPostProcessor.class);
 
-    public static void process(Network network, String id, String terminalId, String powerSystemResourceId, String measurementType, PropertyBags bays, Map<String, String> typesMapping) {
+    /**
+     * @deprecated use {{@link #process(Network, String, String, String, String, Map, Map)}} instead.
+     */
+    @Deprecated(since = "6.7.1")
+    public static void process(Network network, String id, String terminalId, String powerSystemResourceId,
+            String measurementType, PropertyBags bays, Map<String, String> typesMapping) {
+
+        Map<String, PropertyBag> m = bays.stream().collect(Collectors.toMap(b -> b.getId("Bay"), b -> b));
+        process(network, id, terminalId, powerSystemResourceId, measurementType, m, typesMapping);
+    }
+
+    public static void process(Network network, String id, String terminalId,
+            String powerSystemResourceId, String measurementType,
+            Map<String, PropertyBag> idToBayBag, Map<String, String> typesMapping) {
         if (terminalId != null) {
             Identifiable<?> identifiable = network.getIdentifiable(terminalId);
             if (identifiable != null) {
@@ -40,7 +55,7 @@ public final class CgmesAnalogPostProcessor {
             createMeas(identifiable, id, terminalId, measurementType, typesMapping);
             return;
         }
-        PropertyBag bay = bays.stream().filter(b -> b.getId("Bay").equals(powerSystemResourceId)).findFirst().orElse(null);
+        PropertyBag bay = idToBayBag.get(powerSystemResourceId);
         if (bay != null) {
             String voltageLevelId = bay.getId("VoltageLevel");
             LOG.info("Power resource system {} of Analog {} is a Bay: Analog is attached to the associated voltage level {}",

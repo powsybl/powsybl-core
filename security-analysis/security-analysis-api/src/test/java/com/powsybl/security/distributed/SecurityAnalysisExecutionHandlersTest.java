@@ -309,7 +309,7 @@ class SecurityAnalysisExecutionHandlersTest {
                 "security-analysis-task_1.out",
                 "security-analysis-task_1.err");
         for (String logFileName : expectedLogs) {
-            Files.write(workingDir.resolve(logFileName), "logs".getBytes(StandardCharsets.UTF_8));
+            Files.writeString(workingDir.resolve(logFileName), "logs");
         }
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
@@ -331,7 +331,7 @@ class SecurityAnalysisExecutionHandlersTest {
             fail();
         } catch (Exception e) {
             // ignored
-            assertTrue(e instanceof ComputationException);
+            assertInstanceOf(ComputationException.class, e);
         }
 
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_0_result.json"))) {
@@ -368,7 +368,7 @@ class SecurityAnalysisExecutionHandlersTest {
                 "security-analysis.err");
 
         for (String logFileName : expectedLogs) {
-            Files.write(workingDir.resolve(logFileName), "logs".getBytes(StandardCharsets.UTF_8));
+            Files.writeString(workingDir.resolve(logFileName), "logs");
         }
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()

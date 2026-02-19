@@ -11,13 +11,12 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
-
-import static com.powsybl.cgmes.model.CgmesNames.EXTERNAL_NETWORK_INJECTION;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -25,32 +24,23 @@ import static com.powsybl.cgmes.model.CgmesNames.EXTERNAL_NETWORK_INJECTION;
 public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOwnerConversion {
 
     public ExternalNetworkInjectionConversion(PropertyBag sm, Context context) {
-        super(EXTERNAL_NETWORK_INJECTION, sm, context);
+        super(CgmesNames.EXTERNAL_NETWORK_INJECTION, sm, context);
     }
 
     @Override
     public void convert() {
         double minP = p.asDouble("minP", -Double.MAX_VALUE);
         double maxP = p.asDouble("maxP", Double.MAX_VALUE);
-        double targetP = 0;
-        double targetQ = 0;
-        PowerFlow f = powerFlow();
-        if (f.defined()) {
-            targetP = -f.p();
-            targetQ = -f.q();
-        }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
         RegulatingControlMappingForGenerators.initialize(adder);
         setMinPMaxP(adder, minP, maxP);
-        adder.setTargetP(targetP)
-                .setTargetQ(targetQ)
-                .setEnergySource(EnergySource.OTHER);
+        adder.setEnergySource(EnergySource.OTHER);
         identify(adder);
-        connect(adder);
+        connectWithOnlyEq(adder);
         Generator g = adder.add();
         addAliasesAndProperties(g);
-        convertedTerminals(g.getTerminal());
+        convertedTerminalsWithOnlyEq(g.getTerminal());
         convertReactiveLimits(g);
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
@@ -59,10 +49,26 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
     }
 
     private static void addSpecificProperties(Generator generator, PropertyBag p) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, EXTERNAL_NETWORK_INJECTION);
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EXTERNAL_NETWORK_INJECTION);
         double governorSCD = p.asDouble("governorSCD");
         if (!Double.isNaN(governorSCD)) {
             generator.setProperty(Conversion.PROPERTY_CGMES_GOVERNOR_SCD, String.valueOf(governorSCD));
         }
+    }
+
+    public static void update(Generator generator, PropertyBag cgmesData, Context context) {
+        updateTerminals(generator, context, generator.getTerminal());
+
+        double targetP = getDefaultValue(null, generator.getTargetP(), 0.0, 0.0, context);
+        double targetQ = getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
+        PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
+        if (updatedPowerFlow.defined()) {
+            targetP = -updatedPowerFlow.p();
+            targetQ = -updatedPowerFlow.q();
+        }
+        generator.setTargetP(targetP).setTargetQ(targetQ);
+
+        Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
+        updateRegulatingControl(generator, controlEnabled, context);
     }
 }

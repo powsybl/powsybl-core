@@ -70,7 +70,7 @@ public class PsseLoad extends PsseVersioned {
 
     @Parsed
     @Revision(since = 35)
-    private double dgenm = 0;
+    private int dgenm = 0;
 
     @Parsed(defaultNullRead = "            ")
     @Revision(since = 35)
@@ -210,12 +210,12 @@ public class PsseLoad extends PsseVersioned {
         this.dgenq = dgenq;
     }
 
-    public double getDgenm() {
+    public int getDgenm() {
         checkVersion("dgenm");
         return dgenm;
     }
 
-    public void setDgenm(double dgenm) {
+    public void setDgenm(int dgenm) {
         checkVersion("dgenm");
         this.dgenm = dgenm;
     }
@@ -228,5 +228,29 @@ public class PsseLoad extends PsseVersioned {
     public void setLoadtype(String loadtype) {
         checkVersion("loadtype");
         this.loadtype = loadtype;
+    }
+
+    public PsseLoad copy() {
+        PsseLoad copy = new PsseLoad();
+        copy.i = this.i;
+        copy.id = this.id;
+        copy.status = this.status;
+        copy.area = this.area;
+        copy.zone = this.zone;
+        copy.owner = this.owner;
+        copy.pl = this.pl;
+        copy.ql = this.ql;
+        copy.ip = this.ip;
+        copy.iq = this.iq;
+        copy.yp = this.yp;
+        copy.yq = this.yq;
+        copy.owner = this.owner;
+        copy.scale = this.scale;
+        copy.intrpt = this.intrpt;
+        copy.dgenp = this.dgenp;
+        copy.dgenq = this.dgenq;
+        copy.dgenm = this.dgenm;
+        copy.loadtype = this.loadtype;
+        return copy;
     }
 }

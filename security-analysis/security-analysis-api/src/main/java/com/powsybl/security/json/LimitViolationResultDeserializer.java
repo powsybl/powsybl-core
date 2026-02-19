@@ -22,9 +22,9 @@ import java.util.List;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> {
+public class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> {
 
-    LimitViolationResultDeserializer() {
+    public LimitViolationResultDeserializer() {
         super(LimitViolationsResult.class);
     }
 
@@ -34,7 +34,7 @@ class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsRe
         List<LimitViolation> limitViolations = Collections.emptyList();
         List<String> actionsTaken = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "computationOk":
                     parser.nextToken();
                     computationOk = parser.readValueAs(Boolean.class);
@@ -51,7 +51,7 @@ class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsRe
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 

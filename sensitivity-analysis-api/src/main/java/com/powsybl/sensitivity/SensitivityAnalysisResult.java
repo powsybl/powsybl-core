@@ -118,7 +118,7 @@ public class SensitivityAnalysisResult {
         }
 
         private static void parseJson(JsonParser parser, SensitivityContingencyStatus.ParsingContext context) throws IOException {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName();
             switch (fieldName) {
                 case "contingencyId":
                     parser.nextToken();

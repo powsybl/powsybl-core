@@ -14,7 +14,12 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimatedAdder;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import java.time.ZonedDateTime;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -61,5 +66,40 @@ public abstract class AbstractThreeWindingsTransformerToBeEstimatedTest {
         assertFalse(ext.shouldEstimateRatioTapChanger2());
         ext.shouldEstimateRatioTapChanger(true, ThreeSides.TWO);
         assertTrue(ext.shouldEstimateRatioTapChanger2());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideThreeSidesArguments")
+    public void test2(ThreeSides ratioTapChangerThreeSides, ThreeSides phaseTapChangerThreeSides) {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
+
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+        ThreeWindingsTransformerToBeEstimated ext = twt.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
+                .withRatioTapChangerStatus(ratioTapChangerThreeSides, true)
+                .withPhaseTapChangerStatus(phaseTapChangerThreeSides, true)
+                .add();
+
+        assertNotNull(ext);
+        assertEquals(ratioTapChangerThreeSides == ThreeSides.ONE, ext.shouldEstimateRatioTapChanger1());
+        assertEquals(ratioTapChangerThreeSides == ThreeSides.ONE, ext.shouldEstimateRatioTapChanger(ThreeSides.ONE));
+        assertEquals(ratioTapChangerThreeSides == ThreeSides.TWO, ext.shouldEstimateRatioTapChanger2());
+        assertEquals(ratioTapChangerThreeSides == ThreeSides.TWO, ext.shouldEstimateRatioTapChanger(ThreeSides.TWO));
+        assertEquals(ratioTapChangerThreeSides == ThreeSides.THREE, ext.shouldEstimateRatioTapChanger3());
+        assertEquals(ratioTapChangerThreeSides == ThreeSides.THREE, ext.shouldEstimateRatioTapChanger(ThreeSides.THREE));
+        assertEquals(phaseTapChangerThreeSides == ThreeSides.ONE, ext.shouldEstimatePhaseTapChanger1());
+        assertEquals(phaseTapChangerThreeSides == ThreeSides.ONE, ext.shouldEstimatePhaseTapChanger(ThreeSides.ONE));
+        assertEquals(phaseTapChangerThreeSides == ThreeSides.TWO, ext.shouldEstimatePhaseTapChanger2());
+        assertEquals(phaseTapChangerThreeSides == ThreeSides.TWO, ext.shouldEstimatePhaseTapChanger(ThreeSides.TWO));
+        assertEquals(phaseTapChangerThreeSides == ThreeSides.THREE, ext.shouldEstimatePhaseTapChanger3());
+        assertEquals(phaseTapChangerThreeSides == ThreeSides.THREE, ext.shouldEstimatePhaseTapChanger(ThreeSides.THREE));
+    }
+
+    private static Stream<Arguments> provideThreeSidesArguments() {
+        return Stream.of(
+            Arguments.of(ThreeSides.ONE, ThreeSides.TWO),
+            Arguments.of(ThreeSides.TWO, ThreeSides.THREE),
+            Arguments.of(ThreeSides.THREE, ThreeSides.ONE)
+        );
     }
 }

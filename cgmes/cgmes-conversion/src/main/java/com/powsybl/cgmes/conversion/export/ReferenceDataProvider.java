@@ -37,6 +37,7 @@ public class ReferenceDataProvider {
     private final Map<Double, String> baseVoltagesByNominalVoltage = new HashMap<>();
     private String equipmentBoundaryId = null;
     private String topologyBoundaryId = null;
+    private PropertyBags boundaryNodes = null;
 
     private boolean loaded = false;
 
@@ -56,6 +57,10 @@ public class ReferenceDataProvider {
     public String getBaseVoltage(double nominalV) {
         ensureReferenceDataIsLoaded();
         return baseVoltagesByNominalVoltage.get(nominalV);
+    }
+
+    public PropertyBags getBoundaryNodes() {
+        return boundaryNodes;
     }
 
     public PropertyBag getSourcingActor() {
@@ -89,6 +94,7 @@ public class ReferenceDataProvider {
         loadBoundaryModelIds();
         loadBaseVoltages();
         loadSourcingActor();
+        loadBoundaryNodes();
         loaded = true;
     }
 
@@ -136,6 +142,13 @@ public class ReferenceDataProvider {
                 bv -> bv.asDouble("nominalVoltage"),
                 bv -> bv.getId("BaseVoltage")
         )));
+    }
+
+    private void loadBoundaryNodes() {
+        if (referenceData == null) {
+            return;
+        }
+        boundaryNodes = referenceData.boundaryNodes();
     }
 
     private void loadSourcingActor() {

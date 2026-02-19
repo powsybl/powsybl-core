@@ -9,8 +9,8 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.contingency.contingency.list.AbstractEquipmentCriterionContingencyList;
-import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.AbstractEquipmentCriterionContingencyList;
+import com.powsybl.contingency.list.ContingencyList;
 
 import java.io.IOException;
 

@@ -8,17 +8,16 @@
 
 package com.powsybl.cgmes.model;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.xml.XmlUtil;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -36,9 +35,17 @@ public final class NamespaceReader {
         }
     }
 
-    public static Set<String> namespaces1(InputStream is) throws XMLStreamException {
+    public static Set<String> namespacesOrEmpty(InputStream is) {
+        try {
+            return namespaces1(is);
+        } catch (XMLStreamException x) {
+            return Set.of();
+        }
+    }
+
+    private static Set<String> namespaces1(InputStream is) throws XMLStreamException {
         Set<String> found = new HashSet<>();
-        XMLStreamReader xmlsr = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
+        XMLStreamReader xmlsr = getXMLInputFactory().createXMLStreamReader(is);
         try {
             boolean root = false;
             while (xmlsr.hasNext() && !root) {
@@ -52,7 +59,7 @@ public final class NamespaceReader {
             }
         } finally {
             xmlsr.close();
-            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
+            XmlUtil.gcXmlInputFactory(getXMLInputFactory());
         }
         return found;
     }
@@ -60,7 +67,7 @@ public final class NamespaceReader {
     public static String base(InputStream is) {
         XMLStreamReader xmlsr;
         try {
-            xmlsr = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
+            xmlsr = getXMLInputFactory().createXMLStreamReader(is);
             try {
                 while (xmlsr.hasNext()) {
                     int eventType = xmlsr.next();
@@ -70,13 +77,11 @@ public final class NamespaceReader {
                 }
             } finally {
                 xmlsr.close();
-                XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
+                XmlUtil.gcXmlInputFactory(getXMLInputFactory());
             }
             return null;
         } catch (XMLStreamException e) {
             throw new CgmesModelException("base", e);
         }
     }
-
-    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 }

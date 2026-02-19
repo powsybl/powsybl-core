@@ -14,7 +14,6 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -65,8 +64,8 @@ public class DockerLocalCommandExecutor implements LocalCommandExecutor {
                 //  - subdirectories of containerWorkingDir created inside the container WON'T BE DELETABLE BY THE HOST,
                 //  so we need to change their permissions
                 container.execInContainer("chmod", "-R", "777", containerWorkingDir);
-                Files.write(errFile, execResult.getStderr().getBytes(StandardCharsets.UTF_8));
-                Files.write(outFile, execResult.getStdout().getBytes(StandardCharsets.UTF_8));
+                Files.writeString(errFile, execResult.getStderr());
+                Files.writeString(outFile, execResult.getStdout());
                 container.stop();
             } finally {
                 containers.remove(workingDir);

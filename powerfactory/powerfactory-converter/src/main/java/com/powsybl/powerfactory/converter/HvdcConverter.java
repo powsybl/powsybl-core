@@ -149,7 +149,7 @@ class HvdcConverter extends AbstractConverter {
     private Optional<DataObject> findAcElmTerm(DataObject elmVsc, List<DataObject> dcElmTerms) {
         List<DataObject> elmTermsAc = elmTermsConnectedToVscs.get(elmVsc).stream()
                 .filter(elmTerm -> !dcElmTerms.contains(elmTerm))
-                .collect(Collectors.toList());
+                .toList();
         return findTheOnlyOneDataObject(elmTermsAc);
     }
 

@@ -10,6 +10,7 @@ package com.powsybl.shortcircuit.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FeederResult;
 import com.powsybl.shortcircuit.FortescueFeederResult;
 import com.powsybl.shortcircuit.MagnitudeFeederResult;
@@ -39,6 +40,7 @@ public class FeederResultSerializer extends StdSerializer<FeederResult> {
                 serializerProvider.defaultSerializeField("currentMagnitude", ((MagnitudeFeederResult) result).getCurrent(), jsonGenerator);
             }
         }
+        JsonUtil.writeOptionalEnumField(jsonGenerator, "side", result.getSide());
         jsonGenerator.writeEndObject();
     }
 }

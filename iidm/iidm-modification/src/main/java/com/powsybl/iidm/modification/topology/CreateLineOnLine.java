@@ -7,10 +7,9 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionPositionExtensionReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFictitiousSubstationId;
 
@@ -81,13 +81,15 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         this.lineAdder = Objects.requireNonNull(lineAdder);
     }
 
+    @Override
+    public String getName() {
+        return "CreateLineOnLine";
+    }
+
     private static boolean checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, boolean throwException, ReportNode reportNode) {
         if (createFictSubstation && fictitiousSubstationId == null) {
-            LOG.error("Fictitious substation ID must be defined if a fictitious substation is to be created");
             undefinedFictitiousSubstationId(reportNode);
-            if (throwException) {
-                throw new PowsyblException("Fictitious substation ID must be defined if a fictitious substation is to be created");
-            }
+            logOrThrow(throwException, "Fictitious substation ID must be defined if a fictitious substation is to be created");
             return false;
         }
         return true;
@@ -122,7 +124,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         // Checks
-        if (failChecks(network, throwException, reportNode, LOG)) {
+        if (failChecks(network, throwException, reportNode)) {
             return;
         }
 
@@ -232,14 +234,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         // Create the new line
         Line newLine = lineAdder.add();
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
-        reportNode.newReportNode()
-                .withMessageTemplate("newLineOnLineCreated", "New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
-                .withUntypedValue("newLineId", newLine.getId())
-                .withUntypedValue("line1Id", line1Id)
-                .withUntypedValue("line2Id", line2Id)
-                .withUntypedValue("originalLineId", originalLineId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+        ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);
     }
 
     public LineAdder getLineAdder() {

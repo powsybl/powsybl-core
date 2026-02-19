@@ -12,8 +12,10 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolation;
+import com.powsybl.security.ViolationLocation;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -27,8 +29,11 @@ public class LimitViolationSerializer extends StdSerializer<LimitViolation> {
     @Override
     public void serialize(LimitViolation limitViolation, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-
         jsonGenerator.writeStringField("subjectId", limitViolation.getSubjectId());
+        Optional<ViolationLocation> violationLocation = limitViolation.getViolationLocation();
+        if (violationLocation.isPresent()) {
+            serializerProvider.defaultSerializeField("violationLocation", violationLocation.get(), jsonGenerator);
+        }
         if (limitViolation.getSubjectName() != null) {
             jsonGenerator.writeStringField("subjectName", limitViolation.getSubjectName());
         }

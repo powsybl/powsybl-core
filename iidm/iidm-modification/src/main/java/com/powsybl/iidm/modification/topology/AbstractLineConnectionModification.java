@@ -7,16 +7,17 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.util.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+import static com.powsybl.iidm.modification.util.ModificationReports.undefinedPercent;
+import static com.powsybl.iidm.modification.util.ModificationReports.unexpectedIdentifiableType;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -100,42 +101,46 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         return line2Name;
     }
 
-    private static boolean checkPositionPercent(double positionPercent, boolean throwException, ReportNode reportNode, Logger logger) {
+    private static boolean checkPositionPercent(double positionPercent, boolean throwException, ReportNode reportNode) {
         if (Double.isNaN(positionPercent)) {
-            logger.error("Percent should not be undefined");
             undefinedPercent(reportNode);
-            if (throwException) {
-                throw new PowsyblException("Percent should not be undefined");
-            }
+            logOrThrow(throwException, "Percent should not be undefined");
             return false;
         }
         return true;
     }
 
-    protected boolean failChecks(Network network, boolean throwException, ReportNode reportNode, Logger logger) {
+    protected boolean failChecks(Network network, boolean throwException, ReportNode reportNode) {
         Identifiable<?> identifiable = network.getIdentifiable(bbsOrBusId);
         if (identifiable == null) {
             ModificationLogs.busOrBbsDoesNotExist(bbsOrBusId, reportNode, throwException);
             return true;
         }
-        if (!checkPositionPercent(positionPercent, throwException, reportNode, logger)) {
+        if (!checkPositionPercent(positionPercent, throwException, reportNode)) {
             return true;
         }
-        voltageLevel = getVoltageLevel(identifiable, throwException, reportNode, logger);
+        voltageLevel = getVoltageLevel(identifiable, throwException, reportNode);
         return voltageLevel == null;
     }
 
-    private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, ReportNode reportNode, Logger logger) {
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Identifiable<?> identifiable = network.getIdentifiable(bbsOrBusId);
+        if (!checkVoltageLevel(identifiable) || Double.isNaN(positionPercent)) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        }
+        return impact;
+    }
+
+    private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, ReportNode reportNode) {
         if (identifiable instanceof Bus bus) {
             return bus.getVoltageLevel();
         } else if (identifiable instanceof BusbarSection bbs) {
             return bbs.getTerminal().getVoltageLevel();
         } else {
-            logger.error("Unexpected type of identifiable {}: {}", identifiable.getId(), identifiable.getType());
             unexpectedIdentifiableType(reportNode, identifiable);
-            if (throwException) {
-                throw new PowsyblException("Unexpected type of identifiable " + identifiable.getId() + ": " + identifiable.getType());
-            }
+            logOrThrow(throwException, String.format("Unexpected type of identifiable %s: %s", identifiable.getId(), identifiable.getType()));
             return null;
         }
     }

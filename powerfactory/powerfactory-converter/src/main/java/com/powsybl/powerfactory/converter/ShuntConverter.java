@@ -61,14 +61,11 @@ class ShuntConverter extends AbstractConverter {
 
         private static LinearShuntModel create(DataObject elmShnt) {
             int shtype = elmShnt.getIntAttributeValue("shtype");
-            switch (shtype) {
-                case 1:
-                    return rlShunt(elmShnt);
-                case 2:
-                    return cShunt(elmShnt);
-                default:
-                    throw new PowerFactoryException("Shunt type not supported: " + shtype);
-            }
+            return switch (shtype) {
+                case 1 -> rlShunt(elmShnt);
+                case 2 -> cShunt(elmShnt);
+                default -> throw new PowerFactoryException("Shunt type not supported: " + shtype);
+            };
         }
 
         private static LinearShuntModel rlShunt(DataObject elmShnt) {

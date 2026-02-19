@@ -17,6 +17,7 @@ import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -24,12 +25,14 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
  */
 class BusData extends AbstractRecordGroup<PsseBus> {
 
+    static final String[] FIELD_NAMES_BUS_35 = {"ibus", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, "nvhi", "nvlo", "evhi", "evlo"};
+
     BusData() {
         super(PowerFlowRecordGroup.BUS);
-        withFieldNames(V32, "i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va");
-        withFieldNames(V33, "i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
-        withFieldNames(V35, "ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
-        withQuotedFields("name");
+        withFieldNames(V32, "i", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA);
+        withFieldNames(V33, "i", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, "nvhi", "nvlo", "evhi", "evlo");
+        withFieldNames(V35, FIELD_NAMES_BUS_35);
+        withQuotedFields(STR_NAME);
         withIO(LEGACY_TEXT, new BusLegacyText(this));
     }
 

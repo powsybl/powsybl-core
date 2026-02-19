@@ -61,7 +61,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
         AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> limitsReducerCreator = Objects.requireNonNull(getLimitsReducerCreator());
         NetworkElement networkElement = Objects.requireNonNull(asNetworkElement(processable));
         AbstractLimitsReducer<L> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
-        updateLimitReducer(limitsReducer, networkElement, limitType, monitoringOnly);
+        updateLimitReducer(limitsReducer, networkElement, limitType, side, monitoringOnly);
 
         LimitsContainer<L> limitsContainer = limitsReducer.getLimits();
         // Cache the value to avoid recomputing it
@@ -91,11 +91,11 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     protected abstract NetworkElement asNetworkElement(P processable);
 
     private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement networkElement,
-                                    LimitType limitType, boolean monitoringOnly) {
+                                    LimitType limitType, ThreeSides side, boolean monitoringOnly) {
         for (LimitReduction limitReduction : reductionsForThisContingency) {
             if (limitReduction.getLimitType() == limitType
                     && limitReduction.isMonitoringOnly() == monitoringOnly
-                    && isNetworkElementAffectedByLimitReduction(networkElement, limitReduction)) {
+                    && isNetworkElementAffectedByLimitReduction(networkElement, side, limitReduction)) {
                 setLimitReductionsToLimitReducer(limitsReducer, limitReduction);
             }
         }
@@ -138,8 +138,8 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
                 || contingencyContext.getContextType() == SPECIFIC && contingencyContext.getContingencyId().equals(contingencyId);
     }
 
-    protected static boolean isNetworkElementAffectedByLimitReduction(NetworkElement networkElement, LimitReduction limitReduction) {
-        NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
+    protected static boolean isNetworkElementAffectedByLimitReduction(NetworkElement networkElement, ThreeSides side, LimitReduction limitReduction) {
+        NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement, side);
         List<NetworkElementCriterion> networkElementCriteria = limitReduction.getNetworkElementCriteria();
         return networkElementCriteria.isEmpty()
                 || networkElementCriteria.stream().anyMatch(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor));

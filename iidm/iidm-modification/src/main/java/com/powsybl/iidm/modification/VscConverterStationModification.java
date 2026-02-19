@@ -22,6 +22,11 @@ public class VscConverterStationModification extends AbstractSetpointModificatio
     }
 
     @Override
+    public String getName() {
+        return "VscConverterStationModification";
+    }
+
+    @Override
     public String getElementName() {
         return "VscConverterStation";
     }

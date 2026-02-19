@@ -26,10 +26,23 @@ import java.nio.file.Path;
 public abstract class AbstractCgmesExtensionTest extends AbstractSerDeTest {
 
     protected void allFormatsRoundTripTest(Network network, String xmlRefFile) throws IOException {
-        roundTripXmlTest(network, this::jsonWriteAndRead, NetworkSerDe::write, NetworkSerDe::validateAndRead, xmlRefFile);
+        roundTripXmlTest(network,
+                (n, p) -> binWriteAndRead(jsonWriteAndRead(n, p), p),
+                NetworkSerDe::write,
+                NetworkSerDe::validateAndRead,
+                xmlRefFile);
     }
 
-    private Network jsonWriteAndRead(Network network, Path path) {
+    private static Network binWriteAndRead(Network network, Path path) {
+        var anonymizer = NetworkSerDe.write(network, new ExportOptions().setFormat(TreeDataFormat.BIN), path);
+        try (InputStream is = Files.newInputStream(path)) {
+            return NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.BIN), anonymizer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static Network jsonWriteAndRead(Network network, Path path) {
         var anonymizer = NetworkSerDe.write(network, new ExportOptions().setFormat(TreeDataFormat.JSON), path);
         try (InputStream is = Files.newInputStream(path)) {
             return NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.JSON), anonymizer);

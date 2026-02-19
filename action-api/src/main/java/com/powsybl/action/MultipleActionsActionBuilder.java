@@ -46,7 +46,7 @@ public class MultipleActionsActionBuilder implements ActionBuilder<MultipleActio
     }
 
     @Override
-    public Action build() {
+    public MultipleActionsAction build() {
         return new MultipleActionsAction(id, actionBuilders.stream().map(ActionBuilder::build).toList());
     }
 }

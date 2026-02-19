@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.TerminalNumber;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.condition.*;
 
@@ -25,10 +27,17 @@ import java.util.Set;
  */
 public class ConditionDeserializer extends StdDeserializer<Condition> {
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         String type;
         List<String> violationIds;
         Set<LimitViolationType> conditionFilters = Collections.emptySet();
+        double threshold;
+        String equipmentId;
+        ThreeSides side;
+        boolean isAcSide;
+        TerminalNumber terminalNumber;
+        AbstractThresholdCondition.ComparisonType comparisonType;
+        AbstractThresholdCondition.Variable variable;
     }
 
     public ConditionDeserializer() {
@@ -51,6 +60,33 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                     parser.nextToken();
                     context.conditionFilters = JsonUtil.readSet(deserializationContext, parser, LimitViolationType.class);
                     return true;
+                case "threshold":
+                    parser.nextToken();
+                    context.threshold = parser.getValueAsDouble();
+                    return true;
+                case "equipmentId":
+                    context.equipmentId = parser.nextTextValue();
+                    return true;
+                case "side":
+                    parser.nextToken();
+                    context.side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
+                    return true;
+                case "acSide":
+                    parser.nextToken();
+                    context.isAcSide = parser.getBooleanValue();
+                    return true;
+                case "terminalNumber":
+                    parser.nextToken();
+                    context.terminalNumber = TerminalNumber.valueOf(parser.getValueAsInt());
+                    return true;
+                case "comparisonType":
+                    parser.nextToken();
+                    context.comparisonType = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.ComparisonType.class);
+                    return true;
+                case "variable":
+                    parser.nextToken();
+                    context.variable = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.Variable.class);
+                    return true;
                 default:
                     return false;
             }
@@ -64,6 +100,14 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 return new AtLeastOneViolationCondition(context.violationIds, context.conditionFilters);
             case AllViolationCondition.NAME:
                 return new AllViolationCondition(context.violationIds, context.conditionFilters);
+            case InjectionThresholdCondition.NAME:
+                return new InjectionThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold);
+            case BranchThresholdCondition.NAME:
+                return new BranchThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.side.toTwoSides());
+            case ThreeWindingsTransformerThresholdCondition.NAME:
+                return new ThreeWindingsTransformerThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.side);
+            case AcDcConverterThresholdCondition.NAME:
+                return new AcDcConverterThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.isAcSide, context.terminalNumber);
             default:
                 throw new JsonMappingException(parser, "Unexpected condition type: " + context.type);
         }

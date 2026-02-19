@@ -70,19 +70,20 @@ public abstract class AbstractGeneratorTest {
         assertFalse(generator.isVoltageRegulatorOn());
         generator.setVoltageRegulatorOn(true);
         assertTrue(generator.isVoltageRegulatorOn());
+        assertFalse(generator.isCondenser());
 
         assertEquals(12, generator.getTerminal().getNodeBreakerView().getNode());
     }
 
     @Test
     public void undefinedVoltageRegulatorOn() {
-        ValidationException e = assertThrows(ValidationException.class, () -> voltageLevel.newGenerator()
+        GeneratorAdder generatorAdder = voltageLevel.newGenerator()
                 .setId("GEN")
                 .setMaxP(Double.MAX_VALUE)
                 .setMinP(-Double.MAX_VALUE)
                 .setTargetP(30.0)
-                .setNode(1)
-                .add());
+                .setNode(1);
+        ValidationException e = assertThrows(ValidationException.class, generatorAdder::add);
         assertEquals("Generator 'GEN': voltage regulator status is not set", e.getMessage());
     }
 
@@ -108,20 +109,22 @@ public abstract class AbstractGeneratorTest {
     }
 
     /**
-     * This test goal is to check if targetP is allowed to be freely set outside of the bounds defined by minP and maxP.
+     * This test goal is to check if targetP is allowed to be freely set outside the bounds defined by minP and maxP.
      * <p>
-     * For a Battery it is expected that the current power is between this bounds but it is not mandatory for a Generator
+     * For a Battery it is expected that the current power is between these bounds, but it is not mandatory for a Generator</p>
      */
     @Test
     public void invalidPowerBounds() {
         // targetP < minP
         Generator invalidMinGenerator = createGenerator("invalid_min", EnergySource.HYDRO, 20.0, 10.0, 20.0,
                 0.0, 40.0, false, 20.0);
+        assertEquals(0.0, invalidMinGenerator.getTargetP(), 0.0);
         invalidMinGenerator.remove();
 
         // targetP > maxP
-        createGenerator("invalid_max", EnergySource.HYDRO, 20.0, 10.0, 20.0,
+        Generator invalidMaxGenerator = createGenerator("invalid_max", EnergySource.HYDRO, 20.0, 10.0, 20.0,
                 30.0, 40.0, false, 20.0);
+        assertEquals(30.0, invalidMaxGenerator.getTargetP(), 0.0);
 
     }
 
@@ -189,6 +192,7 @@ public abstract class AbstractGeneratorTest {
                 .setTargetQ(20.0)
                 .setNode(1)
                 .setTargetV(31.0)
+                .setCondenser(true)
                 .add();
         Generator generator = network.getGenerator(GEN_ID);
         assertNotNull(generator);
@@ -201,6 +205,8 @@ public abstract class AbstractGeneratorTest {
         assertEquals(30.0, generator.getTargetP(), 0.0);
         assertEquals(20.0, generator.getTargetQ(), 0.0);
         assertEquals(31.0, generator.getTargetV(), 0.0);
+        assertEquals(Double.NaN, generator.getEquivalentLocalTargetV(), 0.0);
+        assertTrue(generator.isCondenser());
     }
 
     @Test
@@ -304,7 +310,7 @@ public abstract class AbstractGeneratorTest {
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
         createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
-                15.0, 40.0, true, 2.0);
+                15.0, 40.0, true, 2.0, 1.0);
         Generator generator = network.getGenerator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
@@ -315,11 +321,12 @@ public abstract class AbstractGeneratorTest {
         assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
+        assertEquals(1.0, generator.getEquivalentLocalTargetV(), 0.0);
         // change values in s4
         generator.setVoltageRegulatorOn(false);
         generator.setTargetP(12.1);
         generator.setTargetQ(9.2);
-        generator.setTargetV(9.3);
+        generator.setTargetV(9.3, 4.2);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -331,6 +338,7 @@ public abstract class AbstractGeneratorTest {
         assertEquals(12.1, generator.getTargetP(), 0.0);
         assertEquals(9.2, generator.getTargetQ(), 0.0);
         assertEquals(9.3, generator.getTargetV(), 0.0);
+        assertEquals(4.2, generator.getEquivalentLocalTargetV(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
@@ -338,6 +346,7 @@ public abstract class AbstractGeneratorTest {
         assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
+        assertEquals(1.0, generator.getEquivalentLocalTargetV(), 0.0);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
@@ -350,19 +359,74 @@ public abstract class AbstractGeneratorTest {
         }
     }
 
+    @Test
+    void invalidLocalTargetVAdder() {
+        // GIVEN
+        double targetV = 220.0;
+        double equivalentLocalTargetV = -10.0;
+        GeneratorAdder generatorAdder = voltageLevel.newGenerator()
+            .setId("GEN1")
+            .setNode(1)
+            .setTargetP(15)
+            .setMinP(10)
+            .setMaxP(25)
+            .setVoltageRegulatorOn(true)
+            .setTargetV(targetV, equivalentLocalTargetV);
+        // WHEN
+        ValidationException e = assertThrows(ValidationException.class, generatorAdder::add);
+        // THEN
+        assertEquals("Generator 'GEN1': invalid value (-10.0) for equivalentLocalTargetV (must be positive)", e.getMessage());
+    }
+
+    @Test
+    void invalidLocalTargetV() {
+        // GIVEN
+        double targetV = 220.0;
+        double equivalentLocalTargetV = -17.6;
+        Generator generator = voltageLevel.newGenerator()
+            .setId("GEN1")
+            .setNode(1)
+            .setTargetP(15)
+            .setMinP(10)
+            .setMaxP(25)
+            .setVoltageRegulatorOn(true)
+            .setTargetV(targetV)
+            .add();
+        // WHEN
+        ValidationException e = assertThrows(ValidationException.class, () -> generator.setTargetV(targetV, equivalentLocalTargetV));
+        // THEN
+        assertEquals("Generator 'GEN1': invalid value (-17.6) for equivalentLocalTargetV (must be positive)", e.getMessage());
+    }
+
     private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
-                                 double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
+                                      double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
         return voltageLevel.newGenerator()
-                .setId(id)
-                .setVoltageRegulatorOn(regulatorOn)
-                .setEnergySource(source)
-                .setMaxP(maxP)
-                .setMinP(minP)
-                .setRatedS(ratedS)
-                .setTargetP(activePowerSetpoint)
-                .setTargetQ(reactivePowerSetpoint)
-                .setNode(1)
-                .setTargetV(voltageSetpoint)
-                .add();
+            .setId(id)
+            .setVoltageRegulatorOn(regulatorOn)
+            .setEnergySource(source)
+            .setMaxP(maxP)
+            .setMinP(minP)
+            .setRatedS(ratedS)
+            .setTargetP(activePowerSetpoint)
+            .setTargetQ(reactivePowerSetpoint)
+            .setNode(1)
+            .setTargetV(voltageSetpoint)
+            .add();
+    }
+
+    private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
+                                      double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint, double equivalentLocalTargetV) {
+        return voltageLevel.newGenerator()
+            .setId(id)
+            .setVoltageRegulatorOn(regulatorOn)
+            .setEnergySource(source)
+            .setMaxP(maxP)
+            .setMinP(minP)
+            .setRatedS(ratedS)
+            .setTargetP(activePowerSetpoint)
+            .setTargetQ(reactivePowerSetpoint)
+            .setNode(1)
+            .setTargetV(voltageSetpoint, equivalentLocalTargetV)
+            .add();
     }
 }

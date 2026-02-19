@@ -7,19 +7,38 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
-import static com.powsybl.iidm.modification.util.ModificationReports.*;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createBusBreakerSwitch;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBBreaker;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBDisconnector;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+import static com.powsybl.iidm.modification.util.ModificationReports.busBreakerVoltageLevelButConnectConnectables;
+import static com.powsybl.iidm.modification.util.ModificationReports.busbarSectionsWithoutPositionReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.countLowerThanMin;
+import static com.powsybl.iidm.modification.util.ModificationReports.createdNewSymmetricalTopology;
+import static com.powsybl.iidm.modification.util.ModificationReports.notFoundVoltageLevelReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.undefinedSwitchKind;
+import static com.powsybl.iidm.modification.util.ModificationReports.unexpectedSwitchKindsCount;
+import static com.powsybl.iidm.modification.util.ModificationReports.wrongBusbarPosition;
+import static com.powsybl.iidm.modification.util.ModificationReports.wrongSwitchKind;
 
 /**
  * Creates symmetrical matrix topology in a given voltage level,
@@ -42,11 +61,14 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     private final String busOrBusbarSectionPrefixId;
     private final String switchPrefixId;
 
+    private final boolean connectExistingConnectables;
+
     private final List<SwitchKind> switchKinds;
 
     CreateVoltageLevelTopology(String voltageLevelId, int lowBusOrBusbarIndex, Integer alignedBusesOrBusbarCount,
                                int lowSectionIndex, Integer sectionCount,
-                               String busOrBusbarSectionPrefixId, String switchPrefixId, List<SwitchKind> switchKinds) {
+                               String busOrBusbarSectionPrefixId, String switchPrefixId, List<SwitchKind> switchKinds,
+                               boolean connectExistingConnectables) {
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId, "Undefined voltage level ID");
         this.lowBusOrBusbarIndex = lowBusOrBusbarIndex;
         this.alignedBusesOrBusbarCount = Objects.requireNonNull(alignedBusesOrBusbarCount, "Undefined aligned buses or busbars count");
@@ -55,15 +77,19 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         this.busOrBusbarSectionPrefixId = Objects.requireNonNull(busOrBusbarSectionPrefixId, "Undefined busbar section prefix ID");
         this.switchPrefixId = Objects.requireNonNull(switchPrefixId, "Undefined switch prefix ID");
         this.switchKinds = switchKinds;
+        this.connectExistingConnectables = connectExistingConnectables;
+    }
+
+    @Override
+    public String getName() {
+        return "CreateVoltageLevelTopology";
     }
 
     private static boolean checkCountAttributes(Integer count, String type, int min, ReportNode reportNode, boolean throwException) {
         if (count < min) {
             LOG.error("{} must be >= {}", type, min);
             countLowerThanMin(reportNode, type, min);
-            if (throwException) {
-                throw new PowsyblException(type + " must be >= " + min);
-            }
+            logOrThrow(throwException, type + " must be >= " + min);
             return false;
         }
         return true;
@@ -80,27 +106,42 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     private static boolean checkSwitchKinds(List<SwitchKind> switchKinds, int sectionCount, ReportNode reportNode, boolean throwException) {
         Objects.requireNonNull(switchKinds, "Undefined switch kinds");
         if (switchKinds.size() != sectionCount - 1) {
-            LOG.error("Unexpected switch kinds count ({}). Should be {}", switchKinds.size(), sectionCount - 1);
             unexpectedSwitchKindsCount(reportNode, switchKinds.size(), sectionCount - 1);
-            if (throwException) {
-                throw new PowsyblException("Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
-            }
+            logOrThrow(throwException, "Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
             return false;
         }
         if (switchKinds.contains(null)) {
-            LOG.error("All switch kinds must be defined");
             undefinedSwitchKind(reportNode);
-            if (throwException) {
-                throw new PowsyblException("All switch kinds must be defined");
-            }
+            logOrThrow(throwException, "All switch kinds must be defined");
             return false;
         }
         if (switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER)) {
-            LOG.error("Switch kinds must be DISCONNECTOR or BREAKER");
             wrongSwitchKind(reportNode);
-            if (throwException) {
-                throw new PowsyblException("Switch kinds must be DISCONNECTOR or BREAKER");
-            }
+            logOrThrow(throwException, "Switch kinds must be DISCONNECTOR or BREAKER");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkBusbarSectionPosition(VoltageLevel voltageLevel, boolean throwException, ReportNode reportNode) {
+        List<BusbarSectionPosition> bbsPosition = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+                .map(bbs -> bbs.getExtension(BusbarSectionPosition.class))
+                .map(BusbarSectionPosition.class::cast)
+                .toList();
+
+        boolean positionTaken = bbsPosition.stream().filter(Objects::nonNull).anyMatch(position -> position.getBusbarIndex() >= lowBusOrBusbarIndex
+                && position.getBusbarIndex() < lowBusOrBusbarIndex + alignedBusesOrBusbarCount
+                && position.getSectionIndex() >= lowSectionIndex
+                && position.getSectionIndex() < lowSectionIndex + sectionCount);
+
+        if (bbsPosition.stream().anyMatch(Objects::isNull)) {
+            logOrThrow(throwException, "Some busbar sections have no position in voltage level " + voltageLevel.getId());
+            busbarSectionsWithoutPositionReport(reportNode, voltageLevel.getId());
+            return false;
+        }
+        if (positionTaken) {
+            wrongBusbarPosition(reportNode);
+            logOrThrow(throwException, "A busbar section already has the same position.");
             return false;
         }
         return true;
@@ -142,12 +183,17 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         if (voltageLevel == null) {
             LOG.error("Voltage level {} is not found", voltageLevelId);
             notFoundVoltageLevelReport(reportNode, voltageLevelId);
-            if (throwException) {
-                throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
-            }
+            logOrThrow(throwException, String.format("Voltage level %s is not found", voltageLevelId));
             return;
         }
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
+
+        if (connectExistingConnectables && topologyKind != TopologyKind.NODE_BREAKER) {
+            logOrThrow(throwException, "Voltage level " + voltageLevel.getId() + " is not NODE_BREAKER. Connectables cannot be connected.");
+            busBreakerVoltageLevelButConnectConnectables(reportNode, voltageLevelId);
+            return;
+        }
+
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             if (!switchKinds.isEmpty()) {
                 LOG.warn("Voltage level {} is BUS_BREAKER. Switchkinds is ignored.", voltageLevelId);
@@ -157,34 +203,68 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             // Create switches between buses
             createBusBreakerSwitches(voltageLevel, namingStrategy);
         } else {
+            if (!checkBusbarSectionPosition(voltageLevel, throwException, reportNode)) {
+                return;
+            }
             // Check switch kinds
             if (!checkSwitchKinds(switchKinds, sectionCount, reportNode, throwException)) {
                 return;
             }
             // Create busbar sections
-            createBusbarSections(voltageLevel, namingStrategy);
+            List<BusbarSection> createdBusbarSection = createBusbarSections(voltageLevel, namingStrategy);
             // Create switches
             createSwitches(voltageLevel, namingStrategy);
+            // Connect connectables that are on parallel busbar sections
+            if (connectExistingConnectables) {
+                new ConnectFeedersToBusbarSectionsBuilder()
+                    .withConnectablesToConnect(voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).toList())
+                    .withBusbarSectionsToConnect(createdBusbarSection)
+                    .withConnectCouplingDevices(true)
+                    .withCouplingDeviceSwitchPrefixId(switchPrefixId)
+                    .build()
+                    .apply(network, namingStrategy, throwException, computationManager, reportNode);
+            }
         }
         LOG.info("New symmetrical topology in voltage level {}: creation of {} bus(es) or busbar(s) with {} section(s) each.", voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
         createdNewSymmetricalTopology(reportNode, voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
     }
 
-    private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
-        int node = 0;
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, false, ReportNode.NO_OP)) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else {
+            VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+            if (voltageLevel == null ||
+                voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER &&
+                    (switchKinds.size() != sectionCount - 1 || switchKinds.contains(null)
+                        || switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER))) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            }
+        }
+        return impact;
+    }
+
+    private List<BusbarSection> createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
+        List<BusbarSection> createdBusbarSections = new ArrayList<>();
+        int node = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {
             for (int busbarNum = lowBusOrBusbarIndex; busbarNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busbarNum++) {
                 BusbarSection bbs = voltageLevel.getNodeBreakerView().newBusbarSection()
                         .setId(namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, switchKinds, busbarNum, sectionNum))
+                        .setName(namingStrategy.getBusbarName(busOrBusbarSectionPrefixId, switchKinds, busbarNum, sectionNum))
                         .setNode(node)
                         .add();
                 bbs.newExtension(BusbarSectionPositionAdder.class)
                         .withBusbarIndex(busbarNum)
                         .withSectionIndex(sectionNum)
                         .add();
+                createdBusbarSections.add(bbs);
                 node++;
             }
         }
+        return createdBusbarSections;
     }
 
     private void createBuses(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
@@ -192,6 +272,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             for (int busNum = lowBusOrBusbarIndex; busNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busNum++) {
                 voltageLevel.getBusBreakerView().newBus()
                         .setId(namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, busNum, sectionNum))
+                        .setName(namingStrategy.getBusbarName(busOrBusbarSectionPrefixId, busNum, sectionNum))
                         .add();
             }
         }
@@ -202,7 +283,8 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             for (int busNum = lowBusOrBusbarIndex; busNum < lowSectionIndex + alignedBusesOrBusbarCount; busNum++) {
                 String bus1Id = namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, busNum, sectionNum);
                 String bus2Id = namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, busNum, sectionNum + 1);
-                createBusBreakerSwitch(bus1Id, bus2Id, namingStrategy.getSwitchId(switchPrefixId, busNum, sectionNum), voltageLevel.getBusBreakerView());
+                createBusBreakerSwitch(bus1Id, bus2Id, namingStrategy.getSwitchId(switchPrefixId, busNum, sectionNum),
+                    namingStrategy.getSwitchName(switchPrefixId, busNum, sectionNum), voltageLevel.getBusBreakerView());
             }
         }
     }
@@ -228,15 +310,19 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
                     String chunkingPrefixId = namingStrategy.getChunkPrefix(switchPrefixId, switchKinds, busBarNum, sectionNum, sectionNum + 1);
 
                     // Breaker and disconnectors creation
-                    createNBDisconnector(node1, newNode1, namingStrategy.getDisconnectorBetweenChunksId(bbs1, chunkingPrefixId, node1, newNode1), voltageLevel.getNodeBreakerView(), false);
-                    createNBBreaker(newNode1, newNode2, namingStrategy.getBreakerId(chunkingPrefixId, busBarNum, sectionNum), voltageLevel.getNodeBreakerView(), false);
-                    createNBDisconnector(newNode2, node2, namingStrategy.getDisconnectorBetweenChunksId(bbs2, chunkingPrefixId, newNode2, node2), voltageLevel.getNodeBreakerView(), false);
+                    createNBDisconnector(node1, newNode1, namingStrategy.getDisconnectorBetweenChunksId(bbs1, chunkingPrefixId, node1, newNode1),
+                        namingStrategy.getDisconnectorBetweenChunksName(bbs1, chunkingPrefixId, node1, newNode1), voltageLevel.getNodeBreakerView(), false);
+                    createNBBreaker(newNode1, newNode2, namingStrategy.getBreakerId(chunkingPrefixId, busBarNum, sectionNum),
+                        namingStrategy.getBreakerName(chunkingPrefixId, busBarNum, sectionNum), voltageLevel.getNodeBreakerView(), false);
+                    createNBDisconnector(newNode2, node2, namingStrategy.getDisconnectorBetweenChunksId(bbs2, chunkingPrefixId, newNode2, node2),
+                        namingStrategy.getDisconnectorBetweenChunksName(bbs2, chunkingPrefixId, newNode2, node2), voltageLevel.getNodeBreakerView(), false);
                 } else if (switchKind == SwitchKind.DISCONNECTOR) {
                     // Prefix
                     String sectioningPrefix = namingStrategy.getSectioningPrefix(switchPrefixId, bbs1, busBarNum, sectionNum, sectionNum + 1);
 
                     // Disconnector creation
-                    createNBDisconnector(node1, node2, namingStrategy.getDisconnectorId(sectioningPrefix, node1, node2), voltageLevel.getNodeBreakerView(), false);
+                    createNBDisconnector(node1, node2, namingStrategy.getDisconnectorId(sectioningPrefix, node1, node2),
+                        namingStrategy.getDisconnectorName(sectioningPrefix, node1, node2), voltageLevel.getNodeBreakerView(), false);
                 } // other cases cannot happen (has been checked in the constructor)
             }
         }

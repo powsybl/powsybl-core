@@ -145,12 +145,37 @@ public class ContingencyBuilder {
     }
 
     public ContingencyBuilder addIdentifiable(Identifiable<?> identifiable) {
-        elements.add(ContingencyElement.of(identifiable));
+        elements.add(ContingencyElementFactory.create(identifiable));
         return this;
     }
 
     public ContingencyBuilder addName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public ContingencyBuilder addVoltageSourceConverter(String id) {
+        elements.add(new VoltageSourceConverterContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcLine(String id, String dcNodeId) {
+        elements.add(new DcLineContingency(id, dcNodeId));
+        return this;
+    }
+
+    public ContingencyBuilder addDcLine(String id) {
+        elements.add(new DcLineContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcGround(String id) {
+        elements.add(new DcGroundContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcNode(String id) {
+        elements.add(new DcNodeContingency(id));
         return this;
     }
 }

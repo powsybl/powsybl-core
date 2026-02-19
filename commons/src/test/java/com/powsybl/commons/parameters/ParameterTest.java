@@ -138,4 +138,13 @@ class ParameterTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> new Parameter("i", ParameterType.INTEGER, "an integer", null));
         assertEquals("With Integer parameter you are not allowed to pass a null default value", e.getMessage());
     }
+
+    @Test
+    void getCategoryKeyTest() {
+        Parameter param0 = new Parameter("p0", ParameterType.BOOLEAN, "param0", Boolean.FALSE);
+        Parameter param1 = new Parameter("p1", ParameterType.BOOLEAN, "another param", Boolean.FALSE,
+                ParameterScope.FUNCTIONAL, "Category");
+        assertNull(param0.getCategoryKey());
+        assertEquals("Category", param1.getCategoryKey());
+    }
 }

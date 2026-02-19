@@ -8,11 +8,8 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.iidm.network.Area;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +17,13 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.extensions.CgmesControlArea;
-import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -33,63 +32,72 @@ import com.powsybl.iidm.network.Network;
 class TieFlowConversionTest {
 
     @Test
-    void smallBaseCaseTieFlowMappedToSwitch() throws IOException {
+    void smallBaseCaseTieFlowMappedToSwitch() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(Cgmes3ModifiedCatalog.smallGridBaseCaseTieFlowMappedToSwitch(), config);
 
-        CgmesControlAreas cgmesControlAreas = n.getExtension(CgmesControlAreas.class);
-        assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+        assertEquals(1, n.getAreaStream().count());
 
-        cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
-            assertEquals(1, cgmesControlArea.getTerminals().size());
-            assertEquals(2, cgmesControlArea.getBoundaries().size());
-            assertTrue(containsTerminal(cgmesControlArea, "044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
-        });
+        Area controlArea = n.getAreas().iterator().next();
+        assertEquals(1, controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).count());
+        assertEquals(2, controlArea.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent()).count());
+        assertTrue(containsTerminal(controlArea, "044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
     }
 
     @Test
-    void smallBaseCaseTieFlowMappedToEquivalentInjection() throws IOException {
+    void smallBaseCaseTieFlowMappedToEquivalentInjection() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(Cgmes3ModifiedCatalog.smallGridBaseCaseTieFlowMappedToEquivalentInjection(), config);
 
-        CgmesControlAreas cgmesControlAreas = n.getExtension(CgmesControlAreas.class);
-        assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+        assertEquals(1, n.getAreaStream().count());
 
-        cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
-            assertEquals(0, cgmesControlArea.getTerminals().size());
-            assertEquals(3, cgmesControlArea.getBoundaries().size());
-            assertTrue(containsBoundary(cgmesControlArea, "044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
-        });
+        Area controlArea = n.getAreas().iterator().next();
+        assertEquals(0, controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).count());
+        assertEquals(3, controlArea.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent()).count());
+        assertTrue(containsBoundary(controlArea, "044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
     }
 
     @Test
-    void microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection() throws IOException {
+    void microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection(), config);
 
-        CgmesControlAreas cgmesControlAreas = n.getExtension(CgmesControlAreas.class);
-        assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+        assertEquals(1, n.getAreaStream().count());
 
-        cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
-            assertEquals(4, cgmesControlArea.getTerminals().size());
-            assertEquals(1, cgmesControlArea.getBoundaries().size());
-            assertTrue(containsBoundary(cgmesControlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
-        });
+        Area controlArea = n.getAreas().iterator().next();
+        assertEquals(4, controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).count());
+        assertEquals(1, controlArea.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent()).count());
+        assertTrue(containsBoundary(controlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
     }
 
     @Test
-    void microGridBaseCaseBEWithTieFlowMappedToSwitch() throws IOException {
+    void microGridBaseCaseBEWithTieFlowMappedToSwitch() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToSwitch(), config);
 
-        CgmesControlAreas cgmesControlAreas = n.getExtension(CgmesControlAreas.class);
-        assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+        assertEquals(1, n.getAreaStream().count());
 
-        cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
-            assertEquals(5, cgmesControlArea.getTerminals().size());
-            assertEquals(0, cgmesControlArea.getBoundaries().size());
-            assertTrue(containsTerminal(cgmesControlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
-        });
+        Area controlArea = n.getAreas().iterator().next();
+        assertEquals(5, controlArea.getAreaBoundaryStream().filter(b -> b.getTerminal().isPresent()).count());
+        assertEquals(0, controlArea.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent()).count());
+        assertTrue(containsTerminal(controlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
+    }
+
+    @Test
+    void testHvdcTieFlow() {
+        Network n = ConversionUtil.readCgmesResources("/issues/control-areas", "HvdcTieFlow_EQ.xml", "HvdcTieFlow_EQBD.xml", "HvdcTieFlow_TPBD.xml");
+        assertNotNull(n);
+        // The first and only boundary inside the control area must be boundary and HVDC
+        assertTrue(n.getArea("Control_Area").getAreaBoundaries().iterator().next().getBoundary().isPresent());
+        assertFalse(n.getArea("Control_Area").getAreaBoundaries().iterator().next().isAc());
+
+        Properties importConvertingBoundary = new Properties();
+        importConvertingBoundary.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        Network n2 = ConversionUtil.readCgmesResources(importConvertingBoundary, "/issues/control-areas", "HvdcTieFlow_EQ.xml", "HvdcTieFlow_EQBD.xml", "HvdcTieFlow_TPBD.xml");
+        assertNotNull(n2);
+        // The first and only boundary inside the control area must be a terminal and HVDC
+        assertTrue(n2.getArea("Control_Area").getAreaBoundaries().iterator().next().getTerminal().isPresent());
+        assertFalse(n2.getArea("Control_Area").getAreaBoundaries().iterator().next().isAc());
     }
 
     private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
@@ -97,24 +105,32 @@ class TieFlowConversionTest {
         return ConversionUtil.networkModel(testGridModel, config);
     }
 
-    private static boolean containsTerminal(CgmesControlArea cgmesControlArea, String connectableId, IdentifiableType identifiableType) {
-        boolean ok = cgmesControlArea.getTerminals().stream().anyMatch(t -> isConnectableOk(connectableId, identifiableType,
-            t.getConnectable().getId(), t.getConnectable().getType()));
+    private static boolean containsTerminal(Area controlArea, String connectableId, IdentifiableType identifiableType) {
+        boolean ok = controlArea.getAreaBoundaryStream()
+                .filter(b -> b.getTerminal().isPresent())
+                .anyMatch(t -> isConnectableOk(connectableId, identifiableType,
+                    t.getTerminal().get().getConnectable().getId(), t.getTerminal().get().getConnectable().getType()));
         if (!ok) {
             LOG.info("Terminal to find connectableId {} identifiableType {}", connectableId, identifiableType);
-            cgmesControlArea.getTerminals().forEach(t -> LOG.info("Terminal inside cgmesControlArea connectableId {} identifiableType {}",
-                    t.getConnectable().getId(), t.getConnectable().getType()));
+            controlArea.getAreaBoundaryStream()
+                    .filter(b -> b.getTerminal().isPresent())
+                    .forEach(b -> LOG.info("Terminal inside cgmesControlArea connectableId {} identifiableType {}",
+                        b.getTerminal().get().getConnectable().getId(), b.getTerminal().get().getConnectable().getType()));
         }
         return ok;
     }
 
-    private static boolean containsBoundary(CgmesControlArea cgmesControlArea, String connectableId, IdentifiableType identifiableType) {
-        boolean ok = cgmesControlArea.getBoundaries().stream().anyMatch(b -> isConnectableOk(connectableId, identifiableType,
-            b.getDanglingLine().getId(), b.getDanglingLine().getType()));
+    private static boolean containsBoundary(Area controlArea, String connectableId, IdentifiableType identifiableType) {
+        boolean ok = controlArea.getAreaBoundaryStream()
+                .filter(b -> b.getBoundary().isPresent())
+                .anyMatch(b -> isConnectableOk(connectableId, identifiableType,
+                    b.getBoundary().get().getDanglingLine().getId(), b.getBoundary().get().getDanglingLine().getType()));
         if (!ok) {
             LOG.info("Boundary to find connectableId {} identifiableType {}", connectableId, identifiableType);
-            cgmesControlArea.getBoundaries().forEach(b -> LOG.info("Boundary inside cgmesControlArea danglingLineId {}}",
-                    b.getDanglingLine().getId()));
+            controlArea.getAreaBoundaryStream()
+                    .filter(b -> b.getBoundary().isPresent())
+                    .forEach(b -> LOG.info("Boundary inside cgmesControlArea danglingLineId {}}",
+                        b.getBoundary().get().getDanglingLine().getId()));
         }
         return ok;
     }

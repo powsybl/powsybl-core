@@ -22,6 +22,8 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
 
     private int lineReplacedCount = 0;
 
+    private int tieLineRemovedCount = 0;
+
     private int twoWindingsTransformerRemovedCount = 0;
 
     private int twoWindingsTransformerReplacedCount = 0;
@@ -48,6 +50,10 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
 
     int getLineReplacedCount() {
         return lineReplacedCount;
+    }
+
+    public int getTieLineRemovedCount() {
+        return tieLineRemovedCount;
     }
 
     int getTwoWindingsTransformerRemovedCount() {
@@ -100,6 +106,13 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
         super.lineRemoved(line);
 
         lineRemovedCount++;
+    }
+
+    @Override
+    public void tieLineRemoved(TieLine tieLine) {
+        super.tieLineRemoved(tieLine);
+
+        tieLineRemovedCount++;
     }
 
     @Override

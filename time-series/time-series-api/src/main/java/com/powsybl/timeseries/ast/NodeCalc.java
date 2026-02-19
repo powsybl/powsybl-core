@@ -107,7 +107,7 @@ public interface NodeCalc {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(token);
         if (token == JsonToken.FIELD_NAME) {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName();
             switch (fieldName) {
                 case IntegerNodeCalc.NAME -> {
                     return IntegerNodeCalc.parseJson(parser);

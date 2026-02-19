@@ -10,7 +10,6 @@ package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -37,14 +35,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedTransformerEnds() {
-        if (cachedGroupedTransformerEnds == null) {
-            cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
-        }
-        return cachedGroupedTransformerEnds;
-    }
-
-    @Override
     public Collection<CgmesTerminal> computedTerminals() {
         if (cachedTerminals == null) {
             cachedTerminals = computeTerminals();
@@ -58,24 +48,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             cachedTerminals = computeTerminals();
         }
         return cachedTerminals.get(terminalId);
-    }
-
-    @Override
-    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
-        if (cachedDcTerminals == null) {
-            cachedDcTerminals = computeDcTerminals();
-        }
-        return cachedDcTerminals.get(dcTerminalId);
-    }
-
-    @Override
-    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
-        return powerTransformerRatioTapChanger.get(powerTransformerId) == null ? null : Arrays.asList(powerTransformerRatioTapChanger.get(powerTransformerId));
-    }
-
-    @Override
-    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
-        return powerTransformerPhaseTapChanger.get(powerTransformerId) == null ? null : Arrays.asList(powerTransformerPhaseTapChanger.get(powerTransformerId));
     }
 
     @Override
@@ -101,16 +73,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         if (cachedContainers == null) {
             cachedContainers = computeContainers();
         }
-        if (cachedContainers.get(containerId) == null) { // container ID is substation
-            String fixedContainerId = connectivityNodeContainers().stream()
-                    .filter(p -> p.containsKey(SUBSTATION))
-                    .filter(p -> p.getId(SUBSTATION).equals(containerId))
-                    .findFirst()
-                    .map(p -> p.getId("VoltageLevel"))
-                    .orElseThrow(() -> new CgmesModelException(containerId + " should be a connectivity node container containing at least one voltage level"));
-            LOG.warn("{} is a substation, not a voltage level, a line or a bay but contains nodes. " +
-                    "The first CGMES voltage level found in this substation ({}}) is used instead.", containerId, fixedContainerId);
-            cachedContainers.put(containerId, cachedContainers.get(fixedContainerId));
+        if (cachedContainers.get(containerId) == null) {
+            throw new CgmesModelException("Unexpected CgmesContainer for containerId: " + containerId);
         }
         return cachedContainers.get(containerId);
     }
@@ -122,11 +86,33 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             baseVoltages()
                 .forEach(bv -> cachedBaseVoltages.put(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage")));
         }
-        if (cachedBaseVoltages.containsKey(baseVoltageId)) {
-            return cachedBaseVoltages.get(baseVoltageId);
-        } else {
-            return Double.NaN;
+        return cachedBaseVoltages.getOrDefault(baseVoltageId, Double.NaN);
+    }
+
+    @Override
+    public Optional<String> node(CgmesTerminal t, boolean nodeBreaker) {
+        cacheNodes();
+        String nodeId = nodeBreaker && t.connectivityNode() != null ? t.connectivityNode() : t.topologicalNode();
+        return nodeId != null ? Optional.of(nodeId) : Optional.empty();
+    }
+
+    @Override
+    public Optional<CgmesContainer> nodeContainer(String nodeId) {
+        cacheNodes();
+
+        String containerId = null;
+
+        if (nodeId != null) {
+            PropertyBag node = cachedNodesById.get(nodeId);
+            if (node != null) {
+                containerId = node.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
+            } else {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Missing node {}", nodeId);
+                }
+            }
         }
+        return containerId == null ? Optional.empty() : Optional.of(container(containerId));
     }
 
     private CgmesContainer container(CgmesTerminal t, boolean nodeBreaker) {
@@ -136,7 +122,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         if (nodeId != null) {
             PropertyBag node = cachedNodesById.get(nodeId);
             if (node != null) {
-                containerId = node.getId("ConnectivityNodeContainer");
+                containerId = node.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
             } else {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Missing node {} from terminal {}", nodeId, t.id());
@@ -145,41 +131,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         }
 
         return (containerId == null) ? null : container(containerId);
-    }
-
-    private Map<String, PropertyBags> computeGroupedTransformerEnds() {
-        // Alternative implementation:
-        // instead of sorting after building each list,
-        // use a sorted collection when inserting
-        String endNumber = "endNumber";
-        Map<String, PropertyBags> gends = new HashMap<>();
-        powerTransformerRatioTapChanger = new HashMap<>();
-        powerTransformerPhaseTapChanger = new HashMap<>();
-        transformerEnds()
-            .forEach(end -> {
-                String id = end.getId("PowerTransformer");
-                PropertyBags ends = gends.computeIfAbsent(id, x -> new PropertyBags());
-                ends.add(end);
-                if (end.getId("PhaseTapChanger") != null) {
-                    powerTransformerPhaseTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerPhaseTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("PhaseTapChanger");
-                }
-                if (end.getId("RatioTapChanger") != null) {
-                    powerTransformerRatioTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
-                }
-            });
-        gends.entrySet()
-            .forEach(tends -> {
-                PropertyBags tends1 = new PropertyBags(
-                    tends.getValue().stream()
-                        .sorted(Comparator
-                            .comparing(WindingType::fromTransformerEnd)
-                            .thenComparing(end -> end.asInt(endNumber, -1)))
-                        .collect(Collectors.toList()));
-                tends.setValue(tends1);
-            });
-        return gends;
     }
 
     protected void cacheNodes() {
@@ -205,27 +156,18 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return ts;
     }
 
-    private Map<String, CgmesDcTerminal> computeDcTerminals() {
-        Map<String, CgmesDcTerminal> ts = new HashMap<>();
-        dcTerminals().forEach(t -> {
-            CgmesDcTerminal td = new CgmesDcTerminal(t);
-            if (ts.containsKey(td.id())) {
-                return;
-            }
-            ts.put(td.id(), td);
-        });
-        return ts;
-    }
-
     // TODO(Luma): better caches create an object "Cache" that is final ...
     // (avoid filling all places with if cached == null...)
     private Map<String, CgmesContainer> computeContainers() {
         Map<String, CgmesContainer> cs = new HashMap<>();
         connectivityNodeContainers().forEach(c -> {
-            String id = c.getId("ConnectivityNodeContainer");
+            String id = c.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
             String voltageLevel = c.getId("VoltageLevel");
             String substation = c.getId(SUBSTATION);
-            cs.put(id, new CgmesContainer(voltageLevel, substation));
+            String type = c.getId("connectivityNodeContainerType");
+            String line = type != null && type.contains("Line") ? id : null;
+            String name = c.get("name");
+            cs.put(id, new CgmesContainer(voltageLevel, substation, line, name));
         });
         return cs;
     }
@@ -258,11 +200,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
-            reportNode.newReportNode()
-                    .withMessageTemplate("CGMESFileRead", "Instance file ${instanceFile}")
-                    .withTypedValue("instanceFile", name, TypedValue.FILENAME)
-                    .withSeverity(TypedValue.INFO_SEVERITY)
-                    .add();
+            CgmesModelReports.readFile(reportNode, name);
             try (InputStream is = cds.dataSource().newInputStream(name)) {
                 read(is, baseName, name, reportNode);
             } catch (IOException e) {
@@ -274,9 +212,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     protected void invalidateCaches() {
-        cachedGroupedTransformerEnds = null;
-        powerTransformerRatioTapChanger = null;
-        powerTransformerPhaseTapChanger = null;
         cachedTerminals = null;
         cachedContainers = null;
         cachedBaseVoltages = null;
@@ -284,14 +219,12 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         cachedConnectivityNodes = null;
         cachedTopologicalNodes = null;
         cachedNodesById = null;
-        cachedDcTerminals = null;
     }
 
     private final Properties properties;
     private String baseName;
 
     // Caches
-    private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;
     private Map<String, Double> cachedBaseVoltages;
@@ -299,10 +232,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     protected PropertyBags cachedConnectivityNodes;
     protected PropertyBags cachedTopologicalNodes;
     private Map<String, PropertyBag> cachedNodesById;
-    // equipmentId, sequenceNumber, terminalId
-    private Map<String, String[]> powerTransformerRatioTapChanger;
-    private Map<String, String[]> powerTransformerPhaseTapChanger;
-    private Map<String, CgmesDcTerminal> cachedDcTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
     private static final String SUBSTATION = "Substation";

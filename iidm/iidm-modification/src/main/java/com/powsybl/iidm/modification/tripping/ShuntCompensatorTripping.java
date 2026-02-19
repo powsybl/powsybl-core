@@ -21,6 +21,11 @@ public class ShuntCompensatorTripping extends AbstractInjectionTripping {
     }
 
     @Override
+    public String getName() {
+        return "ShuntCompensatorTripping";
+    }
+
+    @Override
     protected ShuntCompensator getInjection(Network network) {
         ShuntCompensator injection = network.getShuntCompensator(id);
         if (injection == null) {

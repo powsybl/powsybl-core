@@ -135,7 +135,7 @@ public class DifferencesReport implements Differences {
         UNEXPECTED, MISSING, MATCHES, DIFFS
     }
 
-    private static class Summary {
+    private static final class Summary {
         void inc(Category cat, String context, int size) {
             Map<String, Integer> s = data.get(cat);
             if (s == null) {

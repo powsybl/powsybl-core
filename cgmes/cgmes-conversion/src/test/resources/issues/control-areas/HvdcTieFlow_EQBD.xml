@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:cgmbp="http://entsoe.eu/CIM/Extensions/CGM-BP/2020#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+<md:FullModel rdf:about="urn:uuid:99999999-cfff-4252-a5a8-1784fb5a4514">
+    <md:Model.scenarioTime>2024-11-14T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2024-11-14T10:22:58Z</md:Model.created>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.description>Test TieFlow</md:Model.description>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentBoundary/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentBoundaryOperation/3/1</md:Model.profile>
+</md:FullModel>
+<cim:BaseVoltage rdf:ID="_Base_Voltage">
+    <cim:IdentifiedObject.name>1</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+<cim:ConnectivityNode rdf:ID="_Node_Boundary">
+    <cim:IdentifiedObject.name>Node Boundary</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>HVDC boundary</cim:IdentifiedObject.description>
+    <entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_Line"/>
+</cim:ConnectivityNode>
+<cim:Line rdf:ID="_Line">
+    <cim:IdentifiedObject.name>TieLine HVDC</cim:IdentifiedObject.name>
+</cim:Line>
+</rdf:RDF>

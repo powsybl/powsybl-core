@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
@@ -28,21 +29,45 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         ScalingParameters parameters = new ScalingParameters()
                 .setScalingConvention(Scalable.ScalingConvention.LOAD)
-                .setReconnect(true);
+                .setReconnect(true)
+                .setIgnoredInjectionIds(Set.of("id1", "id2"));
         roundTripTest(parameters, JsonScalingParameters::write, JsonScalingParameters::read, "/json/ScalingParameters.json");
     }
 
     @Test
-    void testDeserializerV1dot1() {
+    void testDeserializerV1dot0() {
         ScalingParameters parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.0.json"));
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertFalse(parameters.isConstantPowerFactor());
         assertEquals(ONESHOT, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertTrue(parameters.getIgnoredInjectionIds().isEmpty());
 
         parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.0b.json"));
         assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
+    }
+
+    @Test
+    void testDeserializerV1dot1() {
+        ScalingParameters parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.1.json"));
+        assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
+        assertFalse(parameters.isConstantPowerFactor());
+        assertEquals(ONESHOT, parameters.getPriority());
+        assertTrue(parameters.isReconnect());
+        assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertTrue(parameters.getIgnoredInjectionIds().isEmpty());
+    }
+
+    @Test
+    void testDeserializerV1dot2() {
+        ScalingParameters parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.2.json"));
+        assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
+        assertFalse(parameters.isConstantPowerFactor());
+        assertEquals(ONESHOT, parameters.getPriority());
+        assertTrue(parameters.isReconnect());
+        assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(Set.of("id1", "id2"), parameters.getIgnoredInjectionIds());
     }
 
     @Test

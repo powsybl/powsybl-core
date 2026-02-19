@@ -29,7 +29,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -125,6 +125,12 @@ public interface Substation extends Container<Substation> {
      * Else use {@link Network#newTwoWindingsTransformer()}.
      */
     TwoWindingsTransformerAdder newTwoWindingsTransformer();
+
+    /**
+     * Get a builder to create a new two windings transformer in the substation by copying an existing one.
+     * Only use this builder if the two ends of the transformer are in the substation.
+     */
+    TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer);
 
     /**
      * Get the two windings transformers connected to the substation.

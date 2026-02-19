@@ -158,8 +158,8 @@ class NodeBreakerConnectTest {
         assertTrue(network.getSwitch("B2").isOpen());
 
         if (l.getTerminal() instanceof TerminalExt terminal) {
-            NodeBreakerVoltageLevel voltageLevel = (NodeBreakerVoltageLevel) network.getVoltageLevel("VL");
-            voltageLevel.connect(terminal);
+            NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) network.getVoltageLevel("VL")).getTopologyModel();
+            topologyModel.connect(terminal);
         }
         assertTrue(network.getSwitch("B2").isOpen());
         assertTrue(l.getTerminal().isConnected());
@@ -183,8 +183,8 @@ class NodeBreakerConnectTest {
         Load l = network.getLoad("L");
         assertTrue(l.getTerminal().isConnected());
         if (l.getTerminal() instanceof TerminalExt terminal) {
-            NodeBreakerVoltageLevel voltageLevel = (NodeBreakerVoltageLevel) network.getVoltageLevel("VL");
-            voltageLevel.disconnect(terminal);
+            NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) network.getVoltageLevel("VL")).getTopologyModel();
+            topologyModel.disconnect(terminal);
         }
         assertFalse(l.getTerminal().isConnected());
     }

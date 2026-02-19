@@ -7,11 +7,11 @@
  */
 package com.powsybl.security.preprocessor;
 
-import com.powsybl.security.SecurityAnalysisInput;
+import com.powsybl.security.SecurityAnalysisInputInterface;
 
 /**
  * A preprocessor which may be called before the execution of a security analysis,
- * in order to customize its {@link SecurityAnalysisInput}, in particular
+ * in order to customize its {@link SecurityAnalysisInputInterface}, in particular
  * contingencies and limit violations detection.
  *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
@@ -23,5 +23,5 @@ public interface SecurityAnalysisPreprocessor {
      *
      * @param input The configuration to be customized.
      */
-    void preprocess(SecurityAnalysisInput input);
+    void preprocess(SecurityAnalysisInputInterface input);
 }

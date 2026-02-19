@@ -15,10 +15,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -95,7 +92,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -148,6 +145,14 @@ import java.util.stream.Stream;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The kind of topology</td>
  *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Areas</td>
+ *             <td style="border: 1px solid black">Set of Areas</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">List of Areas it belongs to (at most one area for each area type)</td>
+ *         </tr>
  *     </tbody>
  * </table>
  *
@@ -164,7 +169,7 @@ import java.util.stream.Stream;
  * </div>
  * The node/breaker topology model is stored inside the voltage level as a graph
  * where connection nodes are the vertices and switches are the edges.
- * <p>The next diagram shows how to map the subtation topology to a graph.
+ * <p>The next diagram shows how to map the substation topology to a graph.
  * <div>
  *    <object data="doc-files/nodeBreakerTopologyGraph.svg" type="image/svg+xml"></object>
  * </div>
@@ -174,9 +179,9 @@ import java.util.stream.Stream;
  * connection nodes. Voltage level VL2 has 3 nodes, line LN is connected to
  * node 1, busbar section BBS3 to node 2. Transformer TR is connected
  * to node 8 of voltage level 400Kv and node 3 of voltage level 225Kv. Plain
- * edges represent closed switches. Dashed edges reprensent opened switches.
+ * edges represent closed switches. Dashed edges represent opened switches.
  * Green edges will disappear during the bus/breaker topology computation
- * whereas pink edges (like in this case 3<->4) will be retained whatever their
+ * whereas pink edges (like in this case 3 {@literal <->} 4) will be retained whatever their
  * position are (see {@link Switch#isRetained()}).
  * <p>The following code shows how to create the substation with a node/breaker
  *   topology model.
@@ -187,7 +192,6 @@ import java.util.stream.Stream;
  *        .setId("VL1")
  *        .setTopologyKind(TopologyKind.NODE_BREAKER)
  *        .add();
- *    vl1.getNodeBreakerView().setNodeCount(8);
  *    // create busbar sections BBS1 and BBS2
  *    vl1.getNodeBreakerView().newBusbarSection()
  *        .setId("BBS1")
@@ -212,19 +216,19 @@ import java.util.stream.Stream;
  *        .setId("BR1")
  *        .setOpen(false)
  *        .setNode1(1)
- *        .setNode1(2)
+ *        .setNode2(2)
  *        .add();
  *    vl1.getNodeBreakerView().newDisconnector()
  *        .setId("DI1")
  *        .setOpen(false)
  *        .setNode1(2)
- *        .setNode1(3)
+ *        .setNode2(3)
  *        .add();
  *    vl1.getNodeBreakerView().newDisconnector()
  *        .setId("DI2")
  *        .setOpen(true)
  *        .setNode1(2)
- *        .setNode1(4)
+ *        .setNode2(4)
  *        .add();
  *    // connect load LD
  *    ...
@@ -241,7 +245,6 @@ import java.util.stream.Stream;
  *        .setId("VL2")
  *        .setTopologyKind(TopologyKind.NODE_BREAKER)
  *        .add();
- *    vl2.getNodeBreakerView().setNodeCount(3);
  *    // create busbar section BBS3
  *    vl2.getNodeBreakerView().newBusbarSection()
  *        .setId("BBS3")
@@ -268,7 +271,7 @@ import java.util.stream.Stream;
  * </pre>
  *
  * <p>The following diagram shows computed bus/breaker topology. Compared to
- * node/breaker topology, only remains equipements (GN, LD, TR, LN), and switches
+ * node/breaker topology, only remains equipments (GN, LD, TR, LN), and switches
  * flagged as retained (BR3). Equipments are now connected through buses
  * (B1 and B2).
  * <div>
@@ -301,7 +304,7 @@ import java.util.stream.Stream;
  * </pre>
  *
  * <p>The following diagram shows computed bus topology. Compared to bus/breaker
- * topology, there is no switches anymore. Only remains equipements (GN, LD, TR, LN)
+ * topology, there is no switches anymore. Only remains equipments (GN, LD, TR, LN)
  * connected through buses.
  * <div>
  *    <object data="doc-files/busTopology.svg" type="image/svg+xml"></object>
@@ -313,7 +316,7 @@ import java.util.stream.Stream;
  *    // VL1 contains 1 buses in the bus view
  *    Iterator&lt;Bus&gt; itB = vl1.getBusView().getBuses();
  *
- *    // the bus connects all the equipements of voltage level VL1
+ *    // the bus connects all the equipments of voltage level VL1
  *    Bus b1 = itB.next();
  * </pre>
  * <h3>Creating a substation with a bus/breaker topology model:</h3>
@@ -397,19 +400,43 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     interface NodeBreakerView {
 
+        /**
+         * Returns the fictitious active power injection to the node if set, or 0. The value is in MW and uses the load sign convention (a positive value has the same effect as a load connected to the node)
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * @param node the node to which the fictitious load is connected.
+         */
         default double getFictitiousP0(int node) {
             return 0.0;
         }
 
+        /**
+         * If supported by the implementation, adds a fictitious active power injection to the node using the load sign convention (a positive value has the same effect as a load connected to the node)
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * The method has no effect if the NodeBreakerView implementation does not support fictitious injections.
+         * @param node the node to which the fictitious load is connected.
+         * @param p0 fictitious load in MW, using the load sign convention.
+         */
         default NodeBreakerView setFictitiousP0(int node, double p0) {
             // do nothing
             return this;
         }
 
+        /**
+         * Returns the fictitious reactive power injection to the node if set, or 0. The value is in MVar and uses the load sign convention (a positive value has the same effect as a load connected to the node)
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * @param node the node to which the fictitious load is connected.
+         */
         default double getFictitiousQ0(int node) {
             return 0.0;
         }
 
+        /**
+         * If supported by the implementation, adds a fictitious reactive power injection to the node using the load sign convention (a positive value has the same effect as a load connected to the node)
+         * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+         * The method has no effect if the NodeBreakerView implementation does not support fictitious injections.
+         * @param node the node to which the fictitious load is connected.
+         * @param q0 fictitious load in MVar, using the load sign convention.
+         */
         default NodeBreakerView setFictitiousQ0(int node, double q0) {
             // do nothing
             return this;
@@ -467,7 +494,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         SwitchAdder newSwitch();
 
         /**
-         * Get a builder to create a new switch.
+         * Get a builder to create a new internal connection.
          */
         InternalConnectionAdder newInternalConnection();
 
@@ -900,6 +927,43 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     Optional<Substation> getSubstation();
 
+    /**
+     * Get an iterable on all the Areas that this voltage level belongs to.
+     *
+     * @return all the areas
+     */
+    Iterable<Area> getAreas();
+
+    /**
+     * Get a stream on all the Areas that this voltage level belongs to.
+     *
+     * @return all the areas
+     */
+    Stream<Area> getAreasStream();
+
+    /**
+     * Get the Area that this voltage level belongs to for a given area type.
+     *
+     * @param areaType the area type
+     * @return the optional area or empty if not found
+     */
+    Optional<Area> getArea(String areaType);
+
+    /**
+     * Add the voltage level to an area.
+     *
+     * @param area the area
+     * @throws PowsyblException if the area is in another network or if the voltage level already belongs to an area of the same type
+     */
+    void addArea(Area area);
+
+    /**
+     * Remove the voltage level from an area.
+     *
+     * @param area the area
+     */
+    void removeArea(Area area);
+
     default Substation getNullableSubstation() {
         return getSubstation().orElse(null);
     }
@@ -1274,6 +1338,48 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getGroundCount();
 
     /**
+     * Get a builder to create a new AC/DC Line-Commutated Converter.
+     * @return a builder to create a new AC/DC Line-Commutated Converter
+     */
+    LineCommutatedConverterAdder newLineCommutatedConverter();
+
+    /**
+     * Get AC/DC Line-Commutated Converters connected to this voltage level.
+     */
+    Iterable<LineCommutatedConverter> getLineCommutatedConverters();
+
+    /**
+     * Get AC/DC Line-Commutated Converters connected to this voltage level.
+     */
+    Stream<LineCommutatedConverter> getLineCommutatedConverterStream();
+
+    /**
+     * Get AC/DC Line-Commutated Converter connected to this voltage level count.
+     */
+    int getLineCommutatedConverterCount();
+
+    /**
+     * Get a builder to create a new AC/DC Voltage-Source Converter.
+     * @return a builder to create a new AC/DC Voltage-Source Converter
+     */
+    VoltageSourceConverterAdder newVoltageSourceConverter();
+
+    /**
+     * Get AC/DC Voltage-Source Converters connected to this voltage level.
+     */
+    Iterable<VoltageSourceConverter> getVoltageSourceConverters();
+
+    /**
+     * Get AC/DC Voltage-Source Converters connected to this voltage level.
+     */
+    Stream<VoltageSourceConverter> getVoltageSourceConverterStream();
+
+    /**
+     * Get AC/DC Voltage-Source Converter connected to this voltage level count.
+     */
+    int getVoltageSourceConverterCount();
+
+    /**
      * Remove this voltage level from the network.
      */
     default void remove() {
@@ -1314,7 +1420,16 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     BusView getBusView();
 
     /**
-     * Print an ASCII representation of the topology on the standard ouput.
+     * Convert the topology model to another one. Notice that when converting from a
+     * node/breaker model to a bus/breaker model, we definitely lost some information as
+     * we are converting to a simpler topology model.
+     *
+     * @param newTopologyKind the new topology model kind
+     */
+    void convertToTopology(TopologyKind newTopologyKind);
+
+    /**
+     * Print an ASCII representation of the topology on the standard output.
      */
     void printTopology();
 

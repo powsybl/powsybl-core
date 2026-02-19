@@ -19,7 +19,9 @@ import java.util.stream.Stream;
  */
 public enum ReportNodeVersion {
     V_1_0(List.of(1, 0)),
-    V_2_0(List.of(2, 0));
+    V_2_0(List.of(2, 0)),
+    V_2_1(List.of(2, 1)),
+    V_3_0(List.of(3, 0));
 
     private final List<Integer> versionArray;
 

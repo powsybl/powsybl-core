@@ -7,6 +7,9 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.ShuntCompensatorModification;
+
 import java.util.Objects;
 
 /**
@@ -36,5 +39,30 @@ public class ShuntCompensatorPositionAction extends AbstractAction {
 
     public int getSectionCount() {
         return sectionCount;
+    }
+
+    @Override
+    public NetworkModification toModification() {
+        return new ShuntCompensatorModification(getShuntCompensatorId(), null, getSectionCount());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        ShuntCompensatorPositionAction that = (ShuntCompensatorPositionAction) o;
+        return sectionCount == that.sectionCount && Objects.equals(shuntCompensatorId, that.shuntCompensatorId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), shuntCompensatorId, sectionCount);
     }
 }

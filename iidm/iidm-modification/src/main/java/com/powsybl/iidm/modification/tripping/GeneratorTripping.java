@@ -24,6 +24,11 @@ public class GeneratorTripping extends AbstractInjectionTripping {
     }
 
     @Override
+    public String getName() {
+        return "GeneratorTripping";
+    }
+
+    @Override
     protected Generator getInjection(Network network) {
         Generator injection = network.getGenerator(id);
         if (injection == null) {
