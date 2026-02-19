@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -275,5 +276,72 @@ class TimeSeriesTableTest {
         // load time series in the table
         TimeSeriesException e = assertThrows(TimeSeriesException.class, () -> new TimeSeriesTable(1, 0, index));
         assertTrue(e.getMessage().contains("toVersion (0) is expected to be greater than fromVersion (1)"));
+    }
+
+    private static TimeSeriesTable getTimeSeriesTableWithMultipleNonContiguousVersion(TimeSeriesIndex index) {
+        TimeSeriesMetadata metadata1 = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        TimeSeriesMetadata metadata2 = new TimeSeriesMetadata("ts2", TimeSeriesDataType.DOUBLE, index);
+        TimeSeriesMetadata metadata3 = new TimeSeriesMetadata("ts3", TimeSeriesDataType.STRING, index);
+        DoubleTimeSeries ts1 = new StoredDoubleTimeSeries(metadata1, new UncompressedDoubleDataChunk(0, new double[] {1, 2, 3, 4}));
+        DoubleTimeSeries ts2 = new StoredDoubleTimeSeries(metadata2, new UncompressedDoubleDataChunk(0, new double[] {5, 6, 7, 8}));
+        StringTimeSeries ts3 = new StringTimeSeries(metadata3, new UncompressedStringDataChunk(1, new String[] {"a", "b", "c"}));
+
+        // load time series in the table
+        TimeSeriesTable table = new TimeSeriesTable(List.of(1, 3), index, ByteBuffer::allocateDirect);
+
+        table.load(1, List.of(ts1, ts2, ts3));
+
+        TimeSeriesMetadata metadata4 = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        TimeSeriesMetadata metadata5 = new TimeSeriesMetadata("ts2", TimeSeriesDataType.DOUBLE, index);
+        TimeSeriesMetadata metadata6 = new TimeSeriesMetadata("ts3", TimeSeriesDataType.STRING, index);
+        DoubleTimeSeries ts4 = new StoredDoubleTimeSeries(metadata4, new UncompressedDoubleDataChunk(0, new double[] {9, 10, 11, 12}));
+        DoubleTimeSeries ts5 = new StoredDoubleTimeSeries(metadata5, new UncompressedDoubleDataChunk(0, new double[] {13, 14, 15, 16}));
+        StringTimeSeries ts6 = new StringTimeSeries(metadata6, new UncompressedStringDataChunk(1, new String[] {"d", "e", "f"}));
+
+        table.load(3, List.of(ts4, ts5, ts6));
+
+        return table;
+    }
+
+    @Test
+    void testMicrosCSVWithNonContiguousVersions() {
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(3), Duration.ofMillis(1));
+        TimeSeriesTable table = getTimeSeriesTableWithMultipleNonContiguousVersion(index);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"));
+
+        // test CSV export
+        assertEquals(String.join(System.lineSeparator(),
+                        "Time;Version;ts1;ts2;ts3",
+                        "1970-01-01T00:00:00Z;1;1.0;5.0;",
+                        "1970-01-01T00:00:00.001Z;1;2.0;6.0;a",
+                        "1970-01-01T00:00:00.002Z;1;3.0;7.0;b",
+                        "1970-01-01T00:00:00.003Z;1;4.0;8.0;c",
+                        "1970-01-01T00:00:00Z;3;9.0;13.0;",
+                        "1970-01-01T00:00:00.001Z;3;10.0;14.0;d",
+                        "1970-01-01T00:00:00.002Z;3;11.0;15.0;e",
+                        "1970-01-01T00:00:00.003Z;3;12.0;16.0;f") + System.lineSeparator(),
+                table.toCsvString(timeSeriesCsvConfig));
+
+    }
+
+    @Test
+    void testMicrosUnversionnedCSVWithNonContiguousVersions() {
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(3), Duration.ofMillis(1));
+        TimeSeriesTable table = getTimeSeriesTableWithMultipleNonContiguousVersion(index);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), TimeSeriesConstants.DEFAULT_SEPARATOR, false, TimeFormat.DATE_TIME);
+
+        // test CSV export
+        assertEquals(String.join(System.lineSeparator(),
+                        "Time;ts1;ts2;ts3",
+                        "1970-01-01T00:00:00Z;1.0;5.0;",
+                        "1970-01-01T00:00:00.001Z;2.0;6.0;a",
+                        "1970-01-01T00:00:00.002Z;3.0;7.0;b",
+                        "1970-01-01T00:00:00.003Z;4.0;8.0;c",
+                        "1970-01-01T00:00:00Z;9.0;13.0;",
+                        "1970-01-01T00:00:00.001Z;10.0;14.0;d",
+                        "1970-01-01T00:00:00.002Z;11.0;15.0;e",
+                        "1970-01-01T00:00:00.003Z;12.0;16.0;f") + System.lineSeparator(),
+                table.toCsvString(timeSeriesCsvConfig));
+
     }
 }

@@ -54,7 +54,6 @@ import static com.powsybl.timeseries.TimeSeries.writeInstantToNanoString;
  * Some design considerations and limitations:
  * <ul>
  *     <li>Number of version loadable in the table has to be specified at creation</li>
- *     <li>Versions have to contiguous</li>
  *     <li>Once first batch of time series has been loaded, new time series cannot be added but data of existing one can be updated</li>
  *     <li>Concurrent load (i.e multi-thread) of data is supported (using same time series list)</li>
  *     <li>Concurrency between data loading and other operations (CSV writing, statistics computation) is NOT supported</li>
@@ -130,9 +129,7 @@ public class TimeSeriesTable {
         }
     }
 
-    private final int fromVersion;
-
-    private final int toVersion;
+    private final List<Integer> versions;
 
     private List<TimeSeriesMetadata> timeSeriesMetadata;
 
@@ -164,13 +161,18 @@ public class TimeSeriesTable {
     }
 
     public TimeSeriesTable(int fromVersion, int toVersion, TimeSeriesIndex tableIndex, IntFunction<ByteBuffer> byteBufferAllocator) {
-        TimeSeriesVersions.check(fromVersion);
-        TimeSeriesVersions.check(toVersion);
+        this(IntStream.range(fromVersion, toVersion + 1).boxed().toList(), tableIndex, byteBufferAllocator);
         if (toVersion < fromVersion) {
             throw new TimeSeriesException("toVersion (" + toVersion + ") is expected to be greater than fromVersion (" + fromVersion + ")");
         }
-        this.fromVersion = fromVersion;
-        this.toVersion = toVersion;
+    }
+
+    public TimeSeriesTable(List<Integer> versions, TimeSeriesIndex tableIndex, IntFunction<ByteBuffer> byteBufferAllocator) {
+        for (Integer version : versions) {
+            TimeSeriesVersions.check(version);
+        }
+
+        this.versions = versions.stream().sorted().toList();
         this.tableIndex = Objects.requireNonNull(tableIndex);
         this.byteBufferAllocator = Objects.requireNonNull(byteBufferAllocator);
     }
@@ -211,7 +213,7 @@ public class TimeSeriesTable {
                 throw new TimeSeriesException("None of the time series have a finite index");
             }
 
-            int versionCount = toVersion - fromVersion + 1;
+            int versionCount = versions.size();
 
             // allocate double buffer
             long doubleBufferSize = (long) versionCount * doubleTimeSeriesNames.size() * tableIndex.getPointCount();
@@ -265,16 +267,20 @@ public class TimeSeriesTable {
     }
 
     private long getTimeSeriesOffset(int version, int timeSeriesNum) {
-        return (long) timeSeriesNum * tableIndex.getPointCount() * (toVersion - fromVersion + 1) + (long) (version - fromVersion) * tableIndex.getPointCount();
+        return (long) timeSeriesNum * tableIndex.getPointCount() * versions.size() + (long) getVersionIndex(version) * tableIndex.getPointCount();
     }
 
     private int getStatisticsIndex(int version, int timeSeriesNum) {
-        return (version - fromVersion) * doubleTimeSeriesNames.size() + timeSeriesNum;
+        return getVersionIndex(version) * doubleTimeSeriesNames.size() + timeSeriesNum;
+    }
+
+    private int getVersionIndex(int version) {
+        return versions.indexOf(version);
     }
 
     private void checkVersionIsInRange(int version) {
-        if (version < fromVersion || version > toVersion) {
-            throw new IllegalArgumentException("Version is out of range [" + fromVersion + ", " + toVersion + "]");
+        if (!versions.contains(version)) {
+            throw new IllegalArgumentException("Version is out of the list " + versions);
         }
     }
 
@@ -685,9 +691,8 @@ public class TimeSeriesTable {
                 CsvCache cache = new CsvCache();
 
                 // write data
-                for (int version = fromVersion; version <= toVersion; version++) {
+                for (int version : versions) {
                     for (int point = 0; point < tableIndex.getPointCount(); point += CsvCache.CACHE_SIZE) {
-
                         int cachedPoints = Math.min(CsvCache.CACHE_SIZE, tableIndex.getPointCount() - point);
 
                         // copy from doubleBuffer to cache
