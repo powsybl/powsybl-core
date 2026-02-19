@@ -58,32 +58,73 @@ public class XMLImporter extends AbstractTreeDataImporter {
     }
 
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        try {
-            if (ext != null) {
-                try (InputStream is = dataSource.newInputStream(null, ext)) {
-                    // check the first root element is network and namespace is IIDM
-                    XMLStreamReader xmlsr = getXMLInputFactory().createXMLStreamReader(is);
-                    try {
-                        while (xmlsr.hasNext()) {
-                            int eventType = xmlsr.next();
-                            if (eventType == XMLStreamConstants.START_ELEMENT) {
-                                String name = xmlsr.getLocalName();
-                                String ns = xmlsr.getNamespaceURI();
-                                return NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name)
-                                        && (Stream.of(IidmVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
-                                        || Stream.of(IidmVersion.values()).filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0).anyMatch(v -> v.getNamespaceURI(false).equals(ns)));
-                            }
-                        }
-                    } finally {
-                        cleanClose(xmlsr);
+        if (ext == null) {
+            return false;
+        }
+
+        try (InputStream is = dataSource.newInputStream(null, ext)) {
+            XMLStreamReader xmlsr = getXMLInputFactory().createXMLStreamReader(is);
+            try {
+                return isValidNetworkRoot(xmlsr);
+            } finally {
+                cleanClose(xmlsr);
+            }
+        } catch (XMLStreamException e) {
+            return false; // not a valid XML file
+        }
+    }
+
+    private boolean isValidNetworkRoot(XMLStreamReader xmlsr) throws XMLStreamException {
+        while (xmlsr.hasNext()) {
+            if (xmlsr.next() == XMLStreamConstants.START_ELEMENT) {
+                String name = xmlsr.getLocalName();
+                String ns = xmlsr.getNamespaceURI();
+
+                if (ns == null || ns.isEmpty() || !NetworkSerDe.NETWORK_ROOT_ELEMENT_NAME.equals(name)) {
+                    return false;
+                }
+
+                String currentPrefix = extractPrefix(ns);
+                if (isValidPrefix(currentPrefix)) {
+                    String version = extractVersion(ns);
+                    if (!version.isEmpty()) {
+                        // If it is not supported, this will throw an exception giving details on the encountered version
+                        // and the maximum supported version.
+                        IidmVersion.of(version, "_");
+                        return isValidNamespace(ns);
                     }
                 }
             }
-            return false;
-        } catch (XMLStreamException e) {
-            // not a valid xml file
-            return false;
         }
+        return false;
+    }
+
+    private String extractPrefix(String namespace) {
+        int lastSlash = namespace.lastIndexOf('/');
+        return (lastSlash > 0) ? namespace.substring(0, lastSlash) : namespace;
+    }
+
+    private String extractVersion(String namespace) {
+        int lastSlash = namespace.lastIndexOf('/');
+        return (lastSlash >= 0 && lastSlash < namespace.length() - 1) ? namespace.substring(lastSlash + 1) : "";
+    }
+
+    private boolean isValidPrefix(String prefix) {
+        return Stream.of(IidmVersion.values())
+                .map(v -> extractPrefix(v.getNamespaceURI(true)))
+                .anyMatch(prefix::equals)
+                || Stream.of(IidmVersion.values())
+                .filter(IidmVersion::supportEquipmentValidationLevel)
+                .map(v -> extractPrefix(v.getNamespaceURI(false)))
+                .anyMatch(prefix::equals);
+    }
+
+    private boolean isValidNamespace(String ns) {
+        return Stream.of(IidmVersion.values())
+                .anyMatch(v -> v.getNamespaceURI().equals(ns))
+                || Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0)
+                .anyMatch(v -> v.getNamespaceURI(false).equals(ns));
     }
 
     private void cleanClose(XMLStreamReader xmlStreamReader) {
