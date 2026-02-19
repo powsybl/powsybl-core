@@ -85,12 +85,27 @@ public interface FlowsLimitsHolder {
      * <p>Set the {@link OperationalLimitsGroup} corresponding to the given IDs as selected. If other groups were also selected, they are still selected</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
      * <p>Throw an {@link NullPointerException} if any ID is <code>null</code>.</p>
-     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)} (String)}.
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)}.
      * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
      * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup(String)}
      * @param ids the IDs of one or more {@link OperationalLimitsGroup}
      */
     void addSelectedOperationalLimitsGroups(String... ids);
+
+    /**
+     * <p>Set all the existing {@link OperationalLimitsGroup} as selected</p>
+     * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)}.
+     * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
+     * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup(String)}
+     */
+    default void selectAllOperationalLimitsGroups() {
+        addSelectedOperationalLimitsGroups(
+            getOperationalLimitsGroups()
+                .stream()
+                .map(OperationalLimitsGroup::getId)
+                .toArray(String[]::new)
+        );
+    }
 
     /**
      * <p>Remove the {@link OperationalLimitsGroup} corresponding to the given ID.</p>
