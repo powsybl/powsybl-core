@@ -126,6 +126,9 @@ public class VariantManagerImpl implements VariantManager {
             throw new IllegalArgumentException("Empty target variant id list");
         }
         LOGGER.debug("Creating variants {}", targetVariantIds);
+        if (!mayOverwrite) {
+            checkExistingVariantIds(targetVariantIds);
+        }
         int sourceIndex = getVariantIndex(sourceVariantId);
         int initVariantArraySize = variantArraySize;
         int extendedCount = 0;
@@ -133,13 +136,9 @@ public class VariantManagerImpl implements VariantManager {
         List<Integer> overwritten = new ArrayList<>();
         for (String targetVariantId : targetVariantIds) {
             if (id2index.containsKey(targetVariantId)) {
-                if (mayOverwrite) {
-                    overwritten.add(id2index.get(targetVariantId));
+                overwritten.add(id2index.get(targetVariantId));
 
-                    network.getListeners().notifyVariantOverwritten(sourceVariantId, targetVariantId);
-                } else {
-                    throw new PowsyblException("Target variant '" + targetVariantId + "' already exists");
-                }
+                network.getListeners().notifyVariantOverwritten(sourceVariantId, targetVariantId);
             } else if (unusedIndexes.isEmpty()) {
                 // extend variant array size
                 id2index.put(targetVariantId, variantArraySize);
@@ -164,6 +163,16 @@ public class VariantManagerImpl implements VariantManager {
                 obj.extendVariantArraySize(initVariantArraySize, extendedCount, sourceIndex);
             }
             LOGGER.trace("Extending variant array size to {} (+{})", variantArraySize, extendedCount);
+        }
+    }
+
+    private void checkExistingVariantIds(List<String> targetVariantIds) {
+        List<String> alreadyExistingVariantIds = targetVariantIds.stream()
+                .filter(id2index::containsKey)
+                .toList();
+
+        if (!alreadyExistingVariantIds.isEmpty()) {
+            throw new PowsyblException("Target variants already exist: " + alreadyExistingVariantIds);
         }
     }
 
