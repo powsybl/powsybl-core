@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Update.*;
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.isBoundaryTerminalConnected;
-import static com.powsybl.cgmes.model.CgmesNames.REGULATION_CAPABILITY;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -470,9 +470,9 @@ public class Conversion {
 
     public static String getDanglingLineBoundaryNode(DanglingLine dl) {
         String node;
-        node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
+        node = dl.getProperty(PROPERTY_CONNECTIVITY_NODE_BOUNDARY);
         if (node == null) {
-            node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+            node = dl.getProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY);
         }
         if (node == null) {
             LOG.warn("Dangling line {} does not have a boundary node identifier.", dl.getId());
@@ -705,7 +705,7 @@ public class Conversion {
                 .setName(containerName)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
-        vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", containerId);
+        vl.setProperty(PROPERTY_LINE_CONTAINER, containerId);
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
@@ -1138,18 +1138,68 @@ public class Conversion {
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
+
+    public static final String ALIAS_DC_LINE_SEGMENT2 = CGMES_PREFIX_ALIAS_PROPERTIES + DC_LINE_SEGMENT2;
+    public static final String ALIAS_DC_TERMINAL1 = CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1;
+    public static final String ALIAS_DC_TERMINAL2 = CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2;
+    public static final String ALIAS_PHASE_TAP_CHANGER1 = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER1;
+    public static final String ALIAS_PHASE_TAP_CHANGER2 = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER2;
+    public static final String ALIAS_PHASE_TAP_CHANGER3 = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER3;
+    public static final String ALIAS_RATIO_TAP_CHANGER1 = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER1;
+    public static final String ALIAS_RATIO_TAP_CHANGER2 = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER2;
+    public static final String ALIAS_RATIO_TAP_CHANGER3 = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER3;
+    public static final String ALIAS_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL;
+    public static final String ALIAS_TERMINAL_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY;
+    public static final String ALIAS_TERMINAL1 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL1;
+    public static final String ALIAS_TERMINAL2 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL2;
+    public static final String ALIAS_TERMINAL3 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL3;
+    public static final String ALIAS_TRANSFORMER_END1 = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END1;
+    public static final String ALIAS_TRANSFORMER_END2 = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END2;
+    public static final String ALIAS_TRANSFORMER_END3 = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END3;
+
+    public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
+    public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
+    public static final String PROPERTY_CONNECTIVITY_NODE_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + CONNECTIVITY_NODE_BOUNDARY;
+    public static final String PROPERTY_DC_CONVERTER_UNIT = CGMES_PREFIX_ALIAS_PROPERTIES + "DCConverterUnit";
+    public static final String PROPERTY_EQ_BD_ID = CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_BD_ID";
+    public static final String PROPERTY_EQUIVALENT_INJECTION = CGMES_PREFIX_ALIAS_PROPERTIES + EQUIVALENT_INJECTION;
+    public static final String PROPERTY_EQUIVALENT_INJECTION_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + EQUIVALENT_INJECTION_TERMINAL;
+    public static final String PROPERTY_FOSSIL_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "fuelType";
+    public static final String PROPERTY_GENERATING_UNIT = CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT;
+    public static final String PROPERTY_GOVERNOR_SCD = CGMES_PREFIX_ALIAS_PROPERTIES + "governorSCD";
+    public static final String PROPERTY_HIGH_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + HIGH_VOLTAGE_LIMIT;
+    public static final String PROPERTY_HYDRO_PLANT_STORAGE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "hydroPlantStorageKind";
+    public static final String PROPERTY_INITIAL_P = CGMES_PREFIX_ALIAS_PROPERTIES + INITIAL_P;
     public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
     public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
-    public static final String PROPERTY_HYDRO_PLANT_STORAGE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "hydroPlantStorageKind";
-    public static final String PROPERTY_FOSSIL_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "fuelType";
-    public static final String PROPERTY_WIND_GEN_UNIT_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "windGenUnitType";
-    public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
-    public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
-    public static final String PROPERTY_CGMES_GOVERNOR_SCD = CGMES_PREFIX_ALIAS_PROPERTIES + "governorSCD";
-    public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineType";
+    public static final String PROPERTY_LINE_CONTAINER = CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId";
+    public static final String PROPERTY_LOW_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + LOW_VOLTAGE_LIMIT;
+    public static final String PROPERTY_MODE = CGMES_PREFIX_ALIAS_PROPERTIES + MODE;
+    public static final String PROPERTY_NORMAL_OPEN = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_OPEN;
+    public static final String PROPERTY_NORMAL_PF = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_PF;
+    public static final String PROPERTY_NORMAL_SECTIONS = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_SECTIONS;
+    public static final String PROPERTY_NORMAL_VALUE_HIGH_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_VALUE + "_" + HIGH_VOLTAGE_LIMIT;
+    public static final String PROPERTY_NORMAL_VALUE_LOW_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_VALUE + "_" + LOW_VOLTAGE_LIMIT;
+    public static final String PROPERTY_OPERATIONAL_LIMIT_HIGH_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + OPERATIONAL_LIMIT + "_" + HIGH_VOLTAGE_LIMIT;
+    public static final String PROPERTY_OPERATIONAL_LIMIT_LOW_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + OPERATIONAL_LIMIT + "_" + LOW_VOLTAGE_LIMIT;
     public static final String PROPERTY_OPERATIONAL_LIMIT_SET_NAME = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetName";
     public static final String PROPERTY_OPERATIONAL_LIMIT_SET_RDFID = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetRdfID";
-    public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL;
-    public static final String PROPERTY_CGMES_REGULATION_CAPABILITY = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATION_CAPABILITY;
-    public static final String PROPERTY_CGMES_DC_CONVERTER_UNIT = CGMES_PREFIX_ALIAS_PROPERTIES + "DCConverterUnit";
+    public static final String PROPERTY_P_FIXED = CGMES_PREFIX_ALIAS_PROPERTIES + P_FIXED;
+    public static final String PROPERTY_Q_FIXED = CGMES_PREFIX_ALIAS_PROPERTIES + Q_FIXED;
+    public static final String PROPERTY_REGION_ID = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID;
+    public static final String PROPERTY_REGION_NAME = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME;
+    public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL;
+    public static final String PROPERTY_REGULATION_CAPABILITY = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATION_CAPABILITY;
+    public static final String PROPERTY_SUB_REGION_ID = CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID;
+    public static final String PROPERTY_SVC_EQ_VOLTAGE_SET_POINT = CGMES_PREFIX_ALIAS_PROPERTIES + SVC_EQ_VOLTAGE_SET_POINT;
+    public static final String PROPERTY_SYNCHRONOUS_MACHINE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineType";
+    public static final String PROPERTY_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL;
+    public static final String PROPERTY_TERMINAL_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY;
+    public static final String PROPERTY_TERMINAL_SIGN = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_SIGN;
+    public static final String PROPERTY_TERMINAL_SIGN1 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_SIGN1;
+    public static final String PROPERTY_TERMINAL_SIGN2 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_SIGN2;
+    public static final String PROPERTY_TERMINAL_SIGN3 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_SIGN3;
+    public static final String PROPERTY_TOPOLOGICAL_NODE_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + TOPOLOGICAL_NODE_BOUNDARY;
+    public static final String PROPERTY_TP_BD_ID = CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
+    public static final String PROPERTY_WIND_GEN_UNIT_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "windGenUnitType";
 }

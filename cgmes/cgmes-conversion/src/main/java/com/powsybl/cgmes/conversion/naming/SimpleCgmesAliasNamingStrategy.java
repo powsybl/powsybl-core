@@ -7,8 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.naming;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.UUID;
@@ -29,24 +27,17 @@ public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStra
 
     @Override
     public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
-        // We assume all identifiers stored in aliases came from original CGMES models
-        // and we do not try to fix them
-        if (identifiable instanceof DanglingLine dl) {
-            return identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+        if (identifiable.getAliasFromType(aliasType).isPresent()) {
+            return identifiable.getAliasFromType(aliasType).orElseThrow();
         }
-        return identifiable.getAliasFromType(aliasType)
-                .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+        return getCgmesId(getCgmesObjectReferences(identifiable, aliasType));
     }
 
     @Override
     public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
-        // We only try to fix subRegionId and regionId identifiers stored in properties
-        // Any other identifer stored in a property comes from original CGMES data
-        // and is assumed to be correct
-        if (propertyName.endsWith("egionId")) {
-            return super.getCgmesIdFromProperty(identifiable, propertyName);
-        } else {
+        if (identifiable.hasProperty(propertyName)) {
             return identifiable.getProperty(propertyName);
         }
+        return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
     }
 }

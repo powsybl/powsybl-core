@@ -7,8 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
@@ -16,6 +14,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_IS_EQUIVALENT_SHUNT;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_SECTIONS;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -149,8 +149,8 @@ class ShuntCompensatorUpdateTest {
         assertNotNull(shuntCompensator.getRegulatingTerminal());
         assertFalse(shuntCompensator.isVoltageRegulatorOn());
 
-        if (!shuntCompensator.getPropertyNames().contains(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT)) {
-            assertNotNull(shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_SECTIONS));
+        if (!shuntCompensator.getPropertyNames().contains(PROPERTY_IS_EQUIVALENT_SHUNT)) {
+            assertNotNull(shuntCompensator.getProperty(PROPERTY_NORMAL_SECTIONS));
         }
 
         assertEquals(0, shuntCompensator.getSectionCount());

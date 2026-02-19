@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.getDefaultIsOpen;
 
 /**
@@ -81,9 +81,9 @@ public final class TerminalConversion {
 
     private static int getNode(Switch sw, String terminalId) {
         String aliasType = sw.getAliasType(terminalId).orElse("");
-        if (aliasType.equals(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1)) {
+        if (ALIAS_TERMINAL1.equals(aliasType)) {
             return sw.getVoltageLevel().getNodeBreakerView().getNode1(sw.getId());
-        } else if (aliasType.equals(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2)) {
+        } else if (ALIAS_TERMINAL2.equals(aliasType)) {
             return sw.getVoltageLevel().getNodeBreakerView().getNode2(sw.getId());
         } else {
             throw new PowsyblException("Unexpected terminal " + terminalId + " in the switch " + sw.getId());
@@ -159,18 +159,17 @@ public final class TerminalConversion {
                 .setKind(SwitchKind.BREAKER)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
-        sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
-        sw.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL, cgmesTerminalId);
+        sw.setProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
+        sw.setProperty(PROPERTY_TERMINAL, cgmesTerminalId);
     }
 
     static Terminal getTerminal(Connectable<?> connectable, String terminalId) {
         String aliasType = connectable.getAliasType(terminalId).orElse("");
         return switch (aliasType) {
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL,
-                 Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1 -> connectable.getTerminals().get(0);
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2 -> connectable.getTerminals().get(1);
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 3 -> connectable.getTerminals().get(2);
-            case Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY -> null;
+            case ALIAS_TERMINAL, ALIAS_TERMINAL1 -> connectable.getTerminals().get(0);
+            case ALIAS_TERMINAL2 -> connectable.getTerminals().get(1);
+            case ALIAS_TERMINAL3 -> connectable.getTerminals().get(2);
+            case ALIAS_TERMINAL_BOUNDARY -> null;
             default -> throw new PowsyblException("Unexpected terminal " + terminalId + " in the connectable " + connectable.getId());
         };
     }
@@ -185,7 +184,7 @@ public final class TerminalConversion {
     }
 
     private static Optional<Boolean> getIsTerminalConnected(Switch sw, Context context) {
-        String cgmesTerminalId = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL);
+        String cgmesTerminalId = sw.getProperty(PROPERTY_TERMINAL);
         return cgmesTerminalId != null
                 ? Optional.ofNullable(context.cgmesTerminal(cgmesTerminalId)).flatMap(cgmesTerminal -> cgmesTerminal.asBoolean(CgmesNames.CONNECTED))
                 : Optional.empty();

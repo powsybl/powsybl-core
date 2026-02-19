@@ -2,7 +2,6 @@ package com.powsybl.cgmes.conversion.test.export.issues;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
@@ -13,6 +12,7 @@ import java.nio.file.Files;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BusbarSectionTerminalsExportTest extends AbstractSerDeTest {
@@ -29,7 +29,7 @@ class BusbarSectionTerminalsExportTest extends AbstractSerDeTest {
         String ssh = export(network, "SSH");
         String tp = export(network, "TP");
         network.getBusBreakerView().getBusStream().forEach(bus -> {
-            String bbsTerminals = bus.getProperty(Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS, "");
+            String bbsTerminals = bus.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
             if (bbsTerminals.isEmpty()) {
                 // Only this bus is missing a busbar in CGMES input (it is a Topological Node without busbar)
                 assertEquals("f96d552a-618d-4d0c-a39a-2dea3c411dee", bus.getId());
@@ -60,7 +60,7 @@ class BusbarSectionTerminalsExportTest extends AbstractSerDeTest {
         assertTrue(ssh.contains(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile()));
         assertTrue(tp.contains(CgmesSubset.TOPOLOGY.getProfile()));
         network.getBusBreakerView().getBusStream().forEach(bus -> {
-            String bbsTerminals = bus.getProperty(Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS, "");
+            String bbsTerminals = bus.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
             if (bbsTerminals.isEmpty()) {
                 // Only this bus is missing a busbar in CGMES input (it is a Topological Node without busbar)
                 assertEquals("f96d552a-618d-4d0c-a39a-2dea3c411dee", bus.getId());

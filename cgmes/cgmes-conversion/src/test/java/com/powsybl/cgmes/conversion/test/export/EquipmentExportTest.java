@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
@@ -57,6 +56,9 @@ import java.util.*;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerAliasType;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getRatioTapChangerAliasType;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
 import static org.junit.jupiter.api.Assertions.*;
@@ -183,8 +185,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         // Remove aliases of equivalent injections, so they will have to be created during export
         for (DanglingLine danglingLine : expected.getDanglingLines(DanglingLineFilter.ALL)) {
-            danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
-            danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            danglingLine.removeProperty(PROPERTY_EQUIVALENT_INJECTION);
+            danglingLine.removeProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
         }
         Network actual = exportImportBusBranch(expected, dataSource);
         assertTrue(compareNetworksEQdata(expected, actual));
@@ -349,37 +351,23 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Network network = createThreeWindingTransformerNetwork();
         String t3id = "threeWindingsTransformer1";
 
-        // Export an IIDM Network created from scratch, identifiers for tap changers will be created and stored in aliases
+        // Export an IIDM Network created from scratch
         exportToCgmesEQ(network);
-        ThreeWindingsTransformer expected = network.getThreeWindingsTransformer(t3id);
-
-        // The 3-winding transformer has a ratio and phase tap changer at every end
-        Network network1 = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
-        ThreeWindingsTransformer actual1 = network1.getThreeWindingsTransformer(t3id);
-        for (int k = 1; k <= 3; k++) {
-            String aliasType;
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + k;
-            assertEquals(
-                    expected.getAliasFromType(aliasType).get(),
-                    actual1.getAliasFromType(aliasType).get());
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + k;
-            assertEquals(
-                    expected.getAliasFromType(aliasType).get(),
-                    actual1.getAliasFromType(aliasType).get());
-        }
 
         // Export an IIDM Network that has been imported from CGMES,
         // identifiers for tap changers must be preserved
+        Network network1 = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        ThreeWindingsTransformer expected = network1.getThreeWindingsTransformer(t3id);
         exportToCgmesEQ(network1);
         Network network2 = new CgmesImport().importData(new DirectoryDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
         ThreeWindingsTransformer actual2 = network2.getThreeWindingsTransformer(t3id);
         for (int k = 1; k <= 3; k++) {
             String aliasType;
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + k;
+            aliasType = getRatioTapChangerAliasType(Integer.toString(k));
             assertEquals(
                     expected.getAliasFromType(aliasType).get(),
                     actual2.getAliasFromType(aliasType).get());
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + k;
+            aliasType = getPhaseTapChangerAliasType(Integer.toString(k));
             assertEquals(
                     expected.getAliasFromType(aliasType).get(),
                     actual2.getAliasFromType(aliasType).get());
@@ -424,6 +412,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         busS400.setV(400.0).setAngle(0.0);
         Bus busS225 = twtSorted.getTerminal2().getBusView().getBus();
         busS225.setV(264.38396259257394).setAngle(2.4025237265837864);
+
+        // Set the same tap position (since the SSH isn't exported, the tap position resets to the neutral step).
+        twtSorted.getRatioTapChanger().setTapPosition(twt.getRatioTapChanger().getTapPosition());
+        twtSorted.getPhaseTapChanger().setTapPosition(twt.getPhaseTapChanger().getTapPosition());
 
         BranchData twtDataSorted = new BranchData(twtSorted, 0.0, false, false);
 
@@ -470,6 +462,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         busS400.setV(400.0).setAngle(0.0);
         Bus busS225 = twtSorted.getTerminal2().getBusView().getBus();
         busS225.setV(264.38396259257394).setAngle(2.4025237265837864);
+
+        // Set the same tap position (since the SSH isn't exported, the tap position resets to the neutral step).
+        twtSorted.getRatioTapChanger().setTapPosition(twt.getRatioTapChanger().getTapPosition());
+        twtSorted.getPhaseTapChanger().setTapPosition(twt.getPhaseTapChanger().getTapPosition());
 
         BranchData twtDataSorted = new BranchData(twtSorted, 0.0, false, false);
 
@@ -525,6 +521,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         busS33.setV(28.884977348881097).setAngle(-0.7602433704291399);
         Bus busS11 = twtSorted.getLeg3().getTerminal().getBusView().getBus();
         busS11.setV(11.777636198340568).setAngle(-0.78975650100671);
+
+        // Set the same tap position (since the SSH isn't exported, the tap position resets to the neutral step).
+        twtSorted.getLeg3().getRatioTapChanger().setTapPosition(twt.getLeg1().getRatioTapChanger().getTapPosition());
+        twtSorted.getLeg2().getRatioTapChanger().setTapPosition(twt.getLeg3().getRatioTapChanger().getTapPosition());
 
         TwtData twtDataSorted = new TwtData(twtSorted, 0.0, false);
 
@@ -600,7 +600,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     private static boolean loadOriginalClass(Load load, String originalClass) {
-        String cgmesClass = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        String cgmesClass = load.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
         return cgmesClass != null && cgmesClass.equals(originalClass);
     }
 
@@ -616,7 +616,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setVoltageRegulatorOn(true).setTargetV(400)
                 .setTargetP(0).setMinP(0).setMaxP(10)
                 .add();
-        g.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "EquivalentInjection");
+        g.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "EquivalentInjection");
 
         // Export to CGMES only the EQ instance file
         Properties exportParams = new Properties();
@@ -676,7 +676,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     private static boolean generatorOriginalClass(Generator generator, String originalClass) {
-        String cgmesClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        String cgmesClass = generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
         return cgmesClass != null && cgmesClass.equals(originalClass);
     }
 
@@ -939,7 +939,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator expectedGenerator = network.getGenerator("generator1");
         expectedGenerator.setEnergySource(EnergySource.THERMAL);
         String expectedFuelType = "gas;lignite";
-        expectedGenerator.setProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE, expectedFuelType);
+        expectedGenerator.setProperty(PROPERTY_FOSSIL_FUEL_TYPE, expectedFuelType);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -952,7 +952,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the fuelType property
-        String actualFuelType = actualGenerator.getProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE);
+        String actualFuelType = actualGenerator.getProperty(PROPERTY_FOSSIL_FUEL_TYPE);
         assertEquals(expectedFuelType, actualFuelType);
     }
 
@@ -964,7 +964,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator expectedGenerator = network.getGenerator("generator1");
         expectedGenerator.setEnergySource(EnergySource.HYDRO);
         String expectedStorageKind = "pumpedStorage";
-        expectedGenerator.setProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE, expectedStorageKind);
+        expectedGenerator.setProperty(PROPERTY_HYDRO_PLANT_STORAGE_TYPE, expectedStorageKind);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -977,7 +977,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the storage kind property
-        String actualStorageKind = actualGenerator.getProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
+        String actualStorageKind = actualGenerator.getProperty(PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
         assertEquals(expectedStorageKind, actualStorageKind);
     }
 
@@ -989,7 +989,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator expectedGenerator = network.getGenerator("generator1");
         expectedGenerator.setMinP(-50.0).setMaxP(0.0).setTargetP(-10.0);
         String expectedSynchronousMachineKind = "motorOrCondenser";
-        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, expectedSynchronousMachineKind);
+        expectedGenerator.setProperty(PROPERTY_SYNCHRONOUS_MACHINE_TYPE, expectedSynchronousMachineKind);
 
         // Export as cgmes
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
@@ -1002,7 +1002,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the synchronous machine kind
-        String actualSynchronousMachineKind = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
+        String actualSynchronousMachineKind = actualGenerator.getProperty(PROPERTY_SYNCHRONOUS_MACHINE_TYPE);
         assertEquals(expectedSynchronousMachineKind, actualSynchronousMachineKind);
     }
 
@@ -1922,8 +1922,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
         topology1.newInternalConnection().setNode1(0).setNode2(5).add();
         topology1.newInternalConnection().setNode1(0).setNode2(6).add();
         topology1.newInternalConnection().setNode1(0).setNode2(7).add();
-        windOnshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");
-        windOffshore.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, "offshore");
+        windOnshore.setProperty(PROPERTY_WIND_GEN_UNIT_TYPE, "onshore");
+        windOffshore.setProperty(PROPERTY_WIND_GEN_UNIT_TYPE, "offshore");
         return network;
     }
 

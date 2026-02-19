@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.TieLineUtil;
@@ -18,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGION_NAME;
 import static com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion.identify;
 
 /**
@@ -58,7 +59,7 @@ public final class TieLineConversion {
     }
 
     private static String obtainRegionName(VoltageLevel voltageLevel) {
-        return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
+        return voltageLevel.getSubstation().map(s -> s.getProperty(PROPERTY_REGION_NAME)).orElse(null);
     }
 
     private static void convertToTieLine(Context context, DanglingLine dl1, DanglingLine dl2) {
@@ -88,7 +89,7 @@ public final class TieLineConversion {
     // We use the raw terminal connected attribute received in CGMES because in nodeBreaker models,
     // depending on the configuration, this information is not reflected in the terminal status of the danglingLine
     private static boolean isConnected(DanglingLine danglingLine, Context context) {
-        return danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1)
+        return danglingLine.getAliasFromType(ALIAS_TERMINAL1)
                 .map(context::cgmesTerminal)
                 .map(cgmesData -> cgmesData.asBoolean(CgmesNames.CONNECTED, true))
                 .orElse(true);

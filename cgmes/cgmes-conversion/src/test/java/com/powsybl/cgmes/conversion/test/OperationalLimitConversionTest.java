@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -21,6 +20,8 @@ import com.google.re2j.Pattern;
 import java.io.IOException;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,8 +67,8 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertFalse(line.getSelectedOperationalLimitsGroup2().isPresent());
 
         // The CGMES id/name have been preserved in a property.
-        assertEquals("OLS_3", winterLimits.get().getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID));
-        assertEquals("Winter", winterLimits.get().getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME));
+        assertEquals("OLS_3", winterLimits.get().getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_RDFID));
+        assertEquals("Winter", winterLimits.get().getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_NAME));
     }
 
     @Test

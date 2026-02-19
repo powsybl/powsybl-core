@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
@@ -38,6 +37,7 @@ import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.*;
@@ -130,8 +130,8 @@ class CgmesExportTest {
             Network n2 = Network.read(new GenericReadOnlyDataSource(tmpDir, baseName), importParams);
             Generator g1 = n2.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
             Generator g2 = n2.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
-            String gu1 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
-            String gu2 = g2.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
+            String gu1 = g1.getProperty(PROPERTY_GENERATING_UNIT);
+            String gu2 = g2.getProperty(PROPERTY_GENERATING_UNIT);
             assertEquals(gu1, gu2);
         }
     }
@@ -250,7 +250,7 @@ class CgmesExportTest {
         // For this test we chose the Conformity MicroGrid BaseCase
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         String boundaryTN = "d4affe50316740bdbbf4ae9c7cbf3cfd";
-        expected.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, boundaryTN);
+        expected.setProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY, boundaryTN);
         // We also inform the identifiers of the boundaries we depend on
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66");
@@ -321,7 +321,7 @@ class CgmesExportTest {
         // For this test we chose the Conformity MicroGrid BaseCase
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         String boundaryCN = "b675a570-cb6e-11e1-bcee-406c8f32ef58";
-        expected.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, boundaryCN);
+        expected.setProperty(PROPERTY_CONNECTIVITY_NODE_BOUNDARY, boundaryCN);
         // We inform the identifier of the boundaries we depend on
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:536f9bf1-3f8f-a546-87e3-7af2272f29b7");
@@ -565,8 +565,8 @@ class CgmesExportTest {
         Generator generatorNoRcc = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
         Generator generatorRcc = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
 
-        generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-        generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+        generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
+        generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
 
         String exportFolder = "/test-generator-control";
         String baseName = "testGeneratorControl";
@@ -581,8 +581,8 @@ class CgmesExportTest {
             // Check that RegulatingControl is properly exported
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
-            generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+            generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
+            generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
 
             // RegulatingControl is exported when targetV is not NaN, even if voltage regulation is disabled
             generatorRcc.setVoltageRegulatorOn(false);
@@ -591,8 +591,8 @@ class CgmesExportTest {
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
-            generatorRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            generatorNoRcc.removeProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+            generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
+            generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
 
             // RegulatingControl isn't exported when targetV is NaN
             double rccTargetV = generatorRcc.getTargetV();
@@ -624,8 +624,8 @@ class CgmesExportTest {
             assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
 
             // RegulatingControl is however exported when the corresponding CGMES property is present
-            generatorRcc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, "3a3b27be-b18b-4385-b557-6735d733baf0_RC");
-            generatorNoRcc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, "550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC");
+            generatorRcc.setProperty(PROPERTY_REGULATING_CONTROL, "3a3b27be-b18b-4385-b557-6735d733baf0_RC");
+            generatorNoRcc.setProperty(PROPERTY_REGULATING_CONTROL, "550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC");
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));

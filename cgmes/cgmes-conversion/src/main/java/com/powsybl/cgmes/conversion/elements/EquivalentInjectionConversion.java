@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -17,6 +16,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.Conversion.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -86,10 +87,10 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal
         // under a separate, specific, alias type
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, this.id);
+        dl.setProperty(PROPERTY_EQUIVALENT_INJECTION, this.id);
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
         if (cgmesTerminal != null) {
-            dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", cgmesTerminal.id());
+            dl.setProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL, cgmesTerminal.id());
         }
         return dl;
     }
@@ -112,14 +113,14 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static void addSpecificProperties(Generator generator, PropertyBag propertyBag) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
-        generator.setProperty(Conversion.PROPERTY_CGMES_REGULATION_CAPABILITY, propertyBag.getOrDefault(CgmesNames.REGULATION_CAPABILITY, "false"));
+        generator.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
+        generator.setProperty(PROPERTY_REGULATION_CAPABILITY, propertyBag.getOrDefault(CgmesNames.REGULATION_CAPABILITY, "false"));
     }
 
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
 
-        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
+        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
 
         PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
 
@@ -210,7 +211,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static Optional<PropertyBag> getCgmesEquivalentInjection(DanglingLine danglingLine, Context context) {
-        String equivalentInjectionId = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
+        String equivalentInjectionId = danglingLine.getProperty(PROPERTY_EQUIVALENT_INJECTION);
         return equivalentInjectionId != null ? Optional.ofNullable(context.equivalentInjection(equivalentInjectionId)) : Optional.empty();
     }
 

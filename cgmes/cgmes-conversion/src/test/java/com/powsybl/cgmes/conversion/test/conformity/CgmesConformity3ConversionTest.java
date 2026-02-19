@@ -9,11 +9,9 @@ package com.powsybl.cgmes.conversion.test.conformity;
 
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Network;
@@ -26,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_EQUIVALENT_INJECTION_TERMINAL;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -113,15 +113,15 @@ class CgmesConformity3ConversionTest {
 
         // For all tie lines we have exported the power flows with the right terminal identifiers
         for (TieLine tieLine : network.getTieLines()) {
-            String terminal1 = tieLine.getDanglingLine1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
-            String terminal2 = tieLine.getDanglingLine2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
+            String terminal1 = tieLine.getDanglingLine1().getAliasFromType(ALIAS_TERMINAL1).orElseThrow();
+            String terminal2 = tieLine.getDanglingLine2().getAliasFromType(ALIAS_TERMINAL1).orElseThrow();
             String terminal1Resource = "#_" + terminal1;
             String terminal2Resource = "#_" + terminal2;
             assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
             assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
 
-            String eiTerminal1 = tieLine.getDanglingLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
-            String eiTerminal2 = tieLine.getDanglingLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            String eiTerminal1 = tieLine.getDanglingLine1().getProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
+            String eiTerminal2 = tieLine.getDanglingLine2().getProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
             String eiTerminal1Resource = "#_" + eiTerminal1;
             String eiTerminal2Resource = "#_" + eiTerminal2;
             assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", eiTerminal1Resource));
