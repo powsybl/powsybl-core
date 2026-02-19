@@ -69,9 +69,50 @@ public final class TopologyExport {
         writeBoundaryTerminals(network, cimNamespace, writer, context);
         writeSwitchesTerminals(network, cimNamespace, writer, context);
         writeDcTerminals(network, cimNamespace, writer, context);
+        // Fictitious injections as NonConformLoad in Bus/Breaker topology: link terminals to TopologicalNode (bus)
+        writeFictitiousInjectionTerminals(network, cimNamespace, writer, context);
         // Only if it is an updated export
         if (!context.isExportEquipment()) {
             writeBusbarSectionTerminalsFromBusBranchCgmesModel(network, cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeFictitiousInjectionTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (VoltageLevel vl : network.getVoltageLevels()) {
+            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
+                writeNodeBreakerFictitiousTerminals(vl, cimNamespace, writer, context);
+            } else {
+                writeBusBranchFictitiousTerminals(vl, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeNodeBreakerFictitiousTerminals(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        VoltageLevel.NodeBreakerView nodeBreakerView = vl.getNodeBreakerView();
+
+        for (int node : nodeBreakerView.getNodes()) {
+            double p = nodeBreakerView.getFictitiousP0(node);
+            double q = nodeBreakerView.getFictitiousQ0(node);
+
+            if (p != 0.0 || q != 0.0) {
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, TERMINAL, ref(node));
+                Bus bus = getBusForBusBreakerViewBus(vl, node);
+                String topologicalNodeId = context.getNamingStrategy().getCgmesId(bus);
+                writeTerminal(terminalId, topologicalNodeId, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeBusBranchFictitiousTerminals(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (Bus bus : vl.getBusBreakerView().getBuses()) {
+            double p = bus.getFictitiousP0();
+            double q = bus.getFictitiousQ0();
+
+            if (p != 0.0 || q != 0.0) {
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(bus), FICTITIOUS, TERMINAL);
+                String topologicalNodeId = context.getNamingStrategy().getCgmesId(bus);
+                writeTerminal(terminalId, topologicalNodeId, cimNamespace, writer, context);
+            }
         }
     }
 
