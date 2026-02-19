@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.removed.VoltageRegulationExtension;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -24,8 +25,11 @@ import java.util.Objects;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-@AutoService(ExtensionSerDe.class)
-public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, VoltageRegulationExtension, VoltageRegulationSerDe.Version> {
+@AutoService({ExtensionSerDe.class, ExtinctExtensionSerDe.class})
+public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, VoltageRegulationExtension, VoltageRegulationSerDe.Version>
+    implements ExtinctExtensionSerDe<Battery, VoltageRegulationExtension> {
+
+    public static final IidmVersion LAST_SUPPORTED_VERSION = IidmVersion.V_1_15;
 
     public enum Version implements SerDeVersion<Version> {
         V_1_0_LEGACY("/xsd/voltageRegulation_V1_0_legacy.xsd", "http://www.itesla_project.eu/schema/iidm/ext/voltageregulation/1_0",
@@ -116,5 +120,24 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
     protected Version getDefaultVersion() {
         // Default version is v1.1, the subsequent ones have been added without any change
         return Version.V_1_1;
+    }
+
+    @Override
+    public IidmVersion getLastSupportedVersion() {
+        return LAST_SUPPORTED_VERSION;
+    }
+
+    @Override
+    public boolean isExtensionNeeded(Network n) {
+        return n.getBatteryStream().anyMatch(VoltageRegulationSerDe::isExtensionNeeded);
+    }
+
+    private static boolean isExtensionNeeded(Battery b) {
+        return b.getVoltageRegulation() != null;
+    }
+
+    public static boolean isExtensionNeededAndExportable(Battery b, NetworkSerializerContext context) {
+        return ExtinctExtensionSerDe.isExtensionExportable(context.getOptions(), VoltageRegulationExtension.NAME, LAST_SUPPORTED_VERSION)
+                && isExtensionNeeded(b);
     }
 }

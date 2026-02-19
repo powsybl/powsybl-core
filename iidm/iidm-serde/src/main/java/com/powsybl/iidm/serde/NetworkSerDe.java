@@ -29,14 +29,9 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.removed.RemoteReactivePowerControl;
-import com.powsybl.iidm.network.extensions.removed.VoltageRegulationExtension;
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import com.powsybl.iidm.serde.anonymizer.SimpleAnonymizer;
-import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
-import com.powsybl.iidm.serde.extensions.RemoteReactivePowerControlSerDe;
-import com.powsybl.iidm.serde.extensions.VoltageRegulationSerDe;
+import com.powsybl.iidm.serde.extensions.*;
 import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
@@ -81,6 +76,54 @@ public final class NetworkSerDe {
     static final String NETWORK_ARRAY_ELEMENT_NAME = "networks";
     private static final String EXTENSION_ROOT_ELEMENT_NAME = "extension";
     private static final String EXTENSION_ARRAY_ELEMENT_NAME = "extensions";
+
+    private static final Map<String, String> BASIC_MAP = Map.ofEntries(
+            Map.entry(NETWORK_ARRAY_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME),
+            Map.entry(EXTENSION_ARRAY_ELEMENT_NAME, EXTENSION_ROOT_ELEMENT_NAME),
+            Map.entry(AbstractSwitchSerDe.ARRAY_ELEMENT_NAME, AbstractSwitchSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(AbstractTransformerSerDe.STEP_ARRAY_ELEMENT_NAME, AbstractTransformerSerDe.STEP_ROOT_ELEMENT_NAME),
+            Map.entry(AliasesSerDe.ARRAY_ELEMENT_NAME, AliasesSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(AreaSerDe.ARRAY_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(BatterySerDe.ARRAY_ELEMENT_NAME, BatterySerDe.ROOT_ELEMENT_NAME),
+            Map.entry(AreaBoundarySerDe.ARRAY_ELEMENT_NAME, AreaBoundarySerDe.ROOT_ELEMENT_NAME),
+            Map.entry(BusSerDe.ARRAY_ELEMENT_NAME, BusSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(BusbarSectionSerDe.ARRAY_ELEMENT_NAME, BusbarSectionSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(ConnectableSerDeUtil.TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME, ConnectableSerDeUtil.TEMPORARY_LIMITS_ROOT_ELEMENT_NAME),
+            Map.entry(DanglingLineSerDe.ARRAY_ELEMENT_NAME, DanglingLineSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(DcNodeSerDe.ARRAY_ELEMENT_NAME, DcNodeSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(DcGroundSerDe.ARRAY_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(DcLineSerDe.ARRAY_ELEMENT_NAME, DcLineSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(DcSwitchSerDe.ARRAY_ELEMENT_NAME, DcSwitchSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(DroopCurveSerDe.ARRAY_ELEMENT_NAME, DroopCurveSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(GeneratorSerDe.ARRAY_ELEMENT_NAME, GeneratorSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(HvdcLineSerDe.ARRAY_ELEMENT_NAME, HvdcLineSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(LccConverterStationSerDe.ARRAY_ELEMENT_NAME, LccConverterStationSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(LineSerDe.ARRAY_ELEMENT_NAME, LineSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(LineCommutatedConverterSerDe.ARRAY_ELEMENT_NAME, LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(LoadSerDe.ARRAY_ELEMENT_NAME, LoadSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(NodeBreakerViewInternalConnectionSerDe.ARRAY_ELEMENT_NAME, NodeBreakerViewInternalConnectionSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(OverloadManagementSystemSerDe.ARRAY_ELEMENT_NAME, OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(PropertiesSerDe.ARRAY_ELEMENT_NAME, PropertiesSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(ReactiveLimitsSerDe.POINT_ARRAY_ELEMENT_NAME, ReactiveLimitsSerDe.POINT_ROOT_ELEMENT_NAME),
+            Map.entry(ShuntSerDe.ARRAY_ELEMENT_NAME, ShuntSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(ShuntSerDe.SECTION_ARRAY_ELEMENT_NAME, ShuntSerDe.SECTION_ROOT_ELEMENT_NAME),
+            Map.entry(StaticVarCompensatorSerDe.ARRAY_ELEMENT_NAME, StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(SubstationSerDe.ARRAY_ELEMENT_NAME, SubstationSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(ThreeWindingsTransformerSerDe.ARRAY_ELEMENT_NAME, ThreeWindingsTransformerSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(TieLineSerDe.ARRAY_ELEMENT_NAME, TieLineSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(TwoWindingsTransformerSerDe.ARRAY_ELEMENT_NAME, TwoWindingsTransformerSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(VoltageAngleLimitSerDe.ARRAY_ELEMENT_NAME, VoltageAngleLimitSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(VoltageLevelSerDe.ARRAY_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(VoltageLevelSerDe.INJ_ARRAY_ELEMENT_NAME, VoltageLevelSerDe.INJ_ROOT_ELEMENT_NAME),
+            Map.entry(VoltageSourceConverterSerDe.ARRAY_ELEMENT_NAME, VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(VscConverterStationSerDe.ARRAY_ELEMENT_NAME, VscConverterStationSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(GroundSerDe.ARRAY_ELEMENT_NAME, GroundSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS, ConnectableSerDeUtil.LIMITS_GROUP),
+            Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_1, ConnectableSerDeUtil.LIMITS_GROUP_1),
+            Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_2, ConnectableSerDeUtil.LIMITS_GROUP_2),
+            Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_3, ConnectableSerDeUtil.LIMITS_GROUP_3)
+    );
+
     private static final String CASE_DATE = "caseDate";
     private static final String FORECAST_DISTANCE = "forecastDistance";
     private static final String SOURCE_FORMAT = "sourceFormat";
@@ -213,17 +256,17 @@ public final class NetworkSerDe {
 
     private static void writeExtensions(Network n, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
         context.getWriter().writeStartNodes();
-        Map<String, Set<Extension<? extends Identifiable<?>>>> removedExtensions = getRemovedExtension(n, context.getOptions(), extensionsSupplier);
         for (Identifiable<?> identifiable : IidmSerDeUtil.sorted(n.getIdentifiables(), context.getOptions())) {
             if (ignoreEquipmentAtExport(identifiable, context) || !isElementWrittenInsideNetwork(identifiable, n, context)) {
                 continue;
             }
-            Collection<? extends Extension<? extends Identifiable<?>>> identifiableExtensions = concatExtensionsAndRemovedExtensions(identifiable, removedExtensions);
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiableExtensions.stream()
-                    .filter(e ->
-                            isExtensionIncluded(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
-                            canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
-                    .toList();
+            Collection<? extends Extension<? extends Identifiable<?>>> extensions =
+                    Stream.concat(identifiable.getExtensions().stream(), context.getExtinctExtensionsToSerialize(identifiable.getId()))
+                    .filter(e -> {
+                        ExtensionSerDe<?, ?> extensionSerializer = getExtensionSerializer(context.getOptions(), e, extensionsSupplier);
+                        return isExtensionIncluded(extensionSerializer, context.getOptions()) &&
+                                canTheExtensionBeWritten(extensionSerializer, context.getVersion(), context.getOptions());
+                    }).toList();
 
             if (!extensions.isEmpty()) {
                 context.getWriter().writeStartNode(context.getNamespaceURI(), EXTENSION_ROOT_ELEMENT_NAME);
@@ -272,16 +315,15 @@ public final class NetworkSerDe {
         context.getWriter().writeStringAttribute(SOURCE_FORMAT, n.getSourceFormat());
     }
 
-    private static XmlWriter createXmlWriter(Network n, OutputStream os, ExportOptions options, ExtensionsSupplier extensionsSupplier) {
+    private static XmlWriter createXmlWriter(Network n, OutputStream os, ExportOptions options, Set<ExtensionSerDe<?, ?>> usedExtensionSerDes) {
         try {
             String iidmNamespace = options.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
             String indent = options.isIndent() ? INDENT : null;
             XmlWriter xmlWriter = new XmlWriter(os, indent, options.getCharset(), iidmNamespace, IIDM_PREFIX);
 
-            Set<ExtensionSerDe<?, ?>> serializers = getExtensionSerializers(n, options, extensionsSupplier);
             Set<String> extensionUris = new HashSet<>();
             Set<String> extensionPrefixes = new HashSet<>();
-            for (ExtensionSerDe<?, ?> extensionSerDe : serializers) {
+            for (ExtensionSerDe<?, ?> extensionSerDe : usedExtensionSerDes) {
                 String extensionVersion = getExtensionVersion(extensionSerDe, options);
                 String namespaceUri = extensionSerDe.getNamespaceUri(extensionVersion);
                 String realNamespacePrefix = extensionSerDe.getNamespacePrefix(extensionVersion);
@@ -315,54 +357,9 @@ public final class NetworkSerDe {
         }
     }
 
-    private static Map<String, Set<Extension<? extends Identifiable<?>>>> getRemovedExtension(Network n, ExportOptions options, ExtensionsSupplier extensionsSupplier) {
-        Map<String, Set<Extension<? extends Identifiable<?>>>> mapMsa = new HashMap<>();
-        var extensionsWithProvider = extensionsSupplier.get().getProviders();
-        var version = options.getVersion();
-        if (version.compareTo(IidmVersion.V_1_16) < 0) {
-            if (extensionsWithProvider.stream()
-                .anyMatch(VoltageRegulationSerDe.class::isInstance)) {
-                buildRemovedVoltageRegulationExtension(n, mapMsa);
-            }
-            if (extensionsWithProvider.stream()
-                .anyMatch(RemoteReactivePowerControlSerDe.class::isInstance)) {
-                n.getGeneratorStream()
-                    .filter(g -> g.getVoltageRegulation() != null
-                        && g.getVoltageRegulation().getTerminal() != null
-                        && g.getVoltageRegulation().getMode() == RegulationMode.REACTIVE_POWER)
-                    .forEach(g -> {
-                        mapMsa.putIfAbsent(g.getId(), new HashSet<>());
-                        //
-                        RemoteReactivePowerControl removedExtension = new RemoteReactivePowerControl(g,
-                            g.getVoltageRegulation().getTargetValue(),
-                            g.getVoltageRegulation().getTerminal(),
-                            g.getVoltageRegulation().isRegulating());
-                        //
-                        mapMsa.get(g.getId()).add(removedExtension);
-                    });
-            }
-        }
-        return mapMsa;
-    }
-
-    private static void buildRemovedVoltageRegulationExtension(Network n, Map<String, Set<Extension<? extends Identifiable<?>>>> mapMsa) {
-        n.getBatteryStream()
-            .filter(b -> b.getVoltageRegulation() != null)
-            .forEach(b -> {
-                mapMsa.putIfAbsent(b.getId(), new HashSet<>());
-                //
-                VoltageRegulationExtension removedExtension = new VoltageRegulationExtension(b,
-                    b.getVoltageRegulation().getTerminal(),
-                    b.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE,
-                    b.getVoltageRegulation().getTargetValue());
-                //
-                mapMsa.get(b.getId()).add(removedExtension);
-            });
-    }
-
-    private static JsonWriter createJsonWriter(OutputStream os, ExportOptions options, ExtensionsSupplier extensionsSupplier) {
+    private static JsonWriter createJsonWriter(OutputStream os, ExportOptions options, Set<ExtensionSerDe<?, ?>> usedExtensionSerDes) {
         try {
-            return new JsonWriter(os, options.isIndent(), options.getVersion().toString("."), createSingleNameToArrayNameMap(options, extensionsSupplier));
+            return new JsonWriter(os, options.isIndent(), options.getVersion().toString("."), createSingleNameToArrayNameMap(options, usedExtensionSerDes));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -380,9 +377,9 @@ public final class NetworkSerDe {
         writeMainAttributes(n, context);
     }
 
-    private static Map<String, String> getExtensionVersions(Network n, ExportOptions options, ExtensionsSupplier extensionsSupplier) {
+    private static Map<String, String> getExtensionVersions(ExportOptions options, Set<ExtensionSerDe<?, ?>> usedExtensionSerDes) {
         Map <String, String> extensionVersionsMap = new LinkedHashMap<>();
-        for (ExtensionSerDe<?, ?> extensionSerDe : getExtensionSerializers(n, options, extensionsSupplier)) {
+        for (ExtensionSerDe<?, ?> extensionSerDe : usedExtensionSerDes) {
             String version = getExtensionVersion(extensionSerDe, options);
             extensionVersionsMap.put(extensionSerDe.getExtensionName(), version);
         }
@@ -407,21 +404,21 @@ public final class NetworkSerDe {
         if (options.withNoExtension()) {
             return Collections.emptySet();
         }
-        Map<String, Set<Extension<? extends Identifiable<?>>>> phantomSerializers = getRemovedExtension(n, options, extensionsSupplier);
+        // Collect the SerDes for the extensions that don't exist anymore, but that should be exported for backward-compatibility
+        Stream<ExtensionSerDe<?, ?>> extinctExtensionSerDes = ExtinctExtensionSerDeService.findAll().stream()
+                .filter(s -> s.isExtensionNeededAndExportable(n, options))
+                .map(s -> (ExtensionSerDe<?, ?>) s);
 
+        // Collect the SerDes for the "classic" extensions
+        // Extinct extensions won't be retrieved by the following stream: they don't exist anymore, so they cannot be present on the identifiables
         IidmVersion networkVersion = options.getVersion();
-        return n.getIdentifiables().stream().flatMap(identifiable -> concatExtensionsAndRemovedExtensions(identifiable, phantomSerializers)
-                        .stream()
-                        .map(extension -> (ExtensionSerDe<?, ?>) getExtensionSerializer(options, extension, extensionsSupplier))
-                        .filter(exs -> canTheExtensionBeWritten(exs, networkVersion, options)))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
+        Stream<ExtensionSerDe<?, ?>> classicExtensionSerDes = n.getIdentifiables().stream()
+                .flatMap(identifiable -> identifiable.getExtensions().stream())
+                .map(extension -> (ExtensionSerDe<?, ?>) getExtensionSerializer(options, extension, extensionsSupplier));
 
-    private static Collection<? extends Extension<? extends Identifiable<?>>> concatExtensionsAndRemovedExtensions(Identifiable<?> identifiable, Map<String, Set<Extension<? extends Identifiable<?>>>> removedExtensions) {
-        if (removedExtensions.containsKey(identifiable.getId())) {
-            return Stream.concat(identifiable.getExtensions().stream(), removedExtensions.get(identifiable.getId()).stream()).toList();
-        }
-        return identifiable.getExtensions();
+        return Stream.concat(classicExtensionSerDes, extinctExtensionSerDes)
+                .filter(exs -> canTheExtensionBeWritten(exs, networkVersion, options))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private static void writeBaseNetwork(Network n, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
@@ -581,10 +578,11 @@ public final class NetworkSerDe {
         context.getWriter().writeEndNodes();
     }
 
-    private static TreeDataWriter createTreeDataWriter(Network n, ExportOptions options, OutputStream os, ExtensionsSupplier extensionsSupplier) {
+    private static TreeDataWriter createTreeDataWriter(Network n, ExportOptions options, OutputStream os,
+                                                       Set<ExtensionSerDe<?, ?>> usedExtensionSerDes) {
         return switch (options.getFormat()) {
-            case XML -> createXmlWriter(n, os, options, extensionsSupplier);
-            case JSON -> createJsonWriter(os, options, extensionsSupplier);
+            case XML -> createXmlWriter(n, os, options, usedExtensionSerDes);
+            case JSON -> createJsonWriter(os, options, usedExtensionSerDes);
             case BIN -> createBinWriter(os, options);
         };
     }
@@ -605,9 +603,10 @@ public final class NetworkSerDe {
     }
 
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os, ExtensionsSupplier extensionsSupplier) {
-        try (TreeDataWriter writer = createTreeDataWriter(n, options, os, extensionsSupplier)) {
+        Set<ExtensionSerDe<?, ?>> usedExtensionSerDes = getExtensionSerializers(n, options, extensionsSupplier);
+        try (TreeDataWriter writer = createTreeDataWriter(n, options, os, usedExtensionSerDes)) {
             NetworkSerializerContext context = createContext(n, options, writer);
-            writer.setVersions(getExtensionVersions(n, options, extensionsSupplier));
+            writer.setVersions(getExtensionVersions(options, usedExtensionSerDes));
             write(n, context, extensionsSupplier);
             return context.getAnonymizer();
         }
@@ -713,8 +712,9 @@ public final class NetworkSerDe {
         }
     }
 
-    private static Map<String, String> createSingleNameToArrayNameMap(ExportOptions config, ExtensionsSupplier extensionsSupplier) {
-        return createArrayNameSingleNameBiMap(!config.withNoExtension(), extensionsSupplier).inverse();
+    private static Map<String, String> createSingleNameToArrayNameMap(ExportOptions config, Set<ExtensionSerDe<?, ?>> usedExtensionSerDes) {
+        return createArrayNameSingleNameBiMap(!config.withNoExtension(),
+                usedExtensionSerDes.stream().map(s -> (ExtensionSerDe) s).toList()).inverse();
     }
 
     private static Map<String, String> createArrayNameToSingleNameMap(ImportOptions config, ExtensionsSupplier extensionsSupplier) {
@@ -722,62 +722,18 @@ public final class NetworkSerDe {
     }
 
     private static BiMap<String, String> createArrayNameSingleNameBiMap(boolean withExtensions, ExtensionsSupplier extensionsSupplier) {
-        Map<String, String> basicMap = Map.ofEntries(
-                Map.entry(NETWORK_ARRAY_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME),
-                Map.entry(EXTENSION_ARRAY_ELEMENT_NAME, EXTENSION_ROOT_ELEMENT_NAME),
-                Map.entry(AbstractSwitchSerDe.ARRAY_ELEMENT_NAME, AbstractSwitchSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(AbstractTransformerSerDe.STEP_ARRAY_ELEMENT_NAME, AbstractTransformerSerDe.STEP_ROOT_ELEMENT_NAME),
-                Map.entry(AliasesSerDe.ARRAY_ELEMENT_NAME, AliasesSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(AreaSerDe.ARRAY_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(BatterySerDe.ARRAY_ELEMENT_NAME, BatterySerDe.ROOT_ELEMENT_NAME),
-                Map.entry(AreaBoundarySerDe.ARRAY_ELEMENT_NAME, AreaBoundarySerDe.ROOT_ELEMENT_NAME),
-                Map.entry(BusSerDe.ARRAY_ELEMENT_NAME, BusSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(BusbarSectionSerDe.ARRAY_ELEMENT_NAME, BusbarSectionSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(ConnectableSerDeUtil.TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME, ConnectableSerDeUtil.TEMPORARY_LIMITS_ROOT_ELEMENT_NAME),
-                Map.entry(DanglingLineSerDe.ARRAY_ELEMENT_NAME, DanglingLineSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(DcNodeSerDe.ARRAY_ELEMENT_NAME, DcNodeSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(DcGroundSerDe.ARRAY_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(DcLineSerDe.ARRAY_ELEMENT_NAME, DcLineSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(DcSwitchSerDe.ARRAY_ELEMENT_NAME, DcSwitchSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(DroopCurveSerDe.ARRAY_ELEMENT_NAME, DroopCurveSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(GeneratorSerDe.ARRAY_ELEMENT_NAME, GeneratorSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(HvdcLineSerDe.ARRAY_ELEMENT_NAME, HvdcLineSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(LccConverterStationSerDe.ARRAY_ELEMENT_NAME, LccConverterStationSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(LineSerDe.ARRAY_ELEMENT_NAME, LineSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(LineCommutatedConverterSerDe.ARRAY_ELEMENT_NAME, LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(LoadSerDe.ARRAY_ELEMENT_NAME, LoadSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(NodeBreakerViewInternalConnectionSerDe.ARRAY_ELEMENT_NAME, NodeBreakerViewInternalConnectionSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(OverloadManagementSystemSerDe.ARRAY_ELEMENT_NAME, OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(PropertiesSerDe.ARRAY_ELEMENT_NAME, PropertiesSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(ReactiveLimitsSerDe.POINT_ARRAY_ELEMENT_NAME, ReactiveLimitsSerDe.POINT_ROOT_ELEMENT_NAME),
-                Map.entry(ShuntSerDe.ARRAY_ELEMENT_NAME, ShuntSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(ShuntSerDe.SECTION_ARRAY_ELEMENT_NAME, ShuntSerDe.SECTION_ROOT_ELEMENT_NAME),
-                Map.entry(StaticVarCompensatorSerDe.ARRAY_ELEMENT_NAME, StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(SubstationSerDe.ARRAY_ELEMENT_NAME, SubstationSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(ThreeWindingsTransformerSerDe.ARRAY_ELEMENT_NAME, ThreeWindingsTransformerSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(TieLineSerDe.ARRAY_ELEMENT_NAME, TieLineSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(TwoWindingsTransformerSerDe.ARRAY_ELEMENT_NAME, TwoWindingsTransformerSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(VoltageAngleLimitSerDe.ARRAY_ELEMENT_NAME, VoltageAngleLimitSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(VoltageLevelSerDe.ARRAY_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(VoltageLevelSerDe.INJ_ARRAY_ELEMENT_NAME, VoltageLevelSerDe.INJ_ROOT_ELEMENT_NAME),
-                Map.entry(VoltageSourceConverterSerDe.ARRAY_ELEMENT_NAME, VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(VscConverterStationSerDe.ARRAY_ELEMENT_NAME, VscConverterStationSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(GroundSerDe.ARRAY_ELEMENT_NAME, GroundSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS, ConnectableSerDeUtil.LIMITS_GROUP),
-                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_1, ConnectableSerDeUtil.LIMITS_GROUP_1),
-                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_2, ConnectableSerDeUtil.LIMITS_GROUP_2),
-                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_3, ConnectableSerDeUtil.LIMITS_GROUP_3)
-        );
+        return createArrayNameSingleNameBiMap(withExtensions, extensionsSupplier.get().getProviders());
+    }
 
+    private static BiMap<String, String> createArrayNameSingleNameBiMap(boolean withExtensions, Collection<ExtensionSerDe> extensionSerDes) {
         Map<String, String> extensionsMap = new HashMap<>();
         if (withExtensions) {
-            for (ExtensionSerDe<?, ?> e : extensionsSupplier.get().getProviders()) {
+            for (ExtensionSerDe<?, ?> e : extensionSerDes) {
                 extensionsMap.putAll(e.getArrayNameToSingleNameMap());
             }
         }
-
         BiMap<String, String> biMergedMap = HashBiMap.create();
-        biMergedMap.putAll(basicMap);
+        biMergedMap.putAll(BASIC_MAP);
         biMergedMap.putAll(extensionsMap);
         return biMergedMap;
     }
