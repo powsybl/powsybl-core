@@ -16,6 +16,14 @@ import java.util.Objects;
 class ScalableAdapter extends AbstractScalable {
 
     private final String id;
+    private Double minValue = null;
+    private Double maxValue = null;
+
+    public ScalableAdapter(String id, double minValue, double maxValue) {
+        this.id = Objects.requireNonNull(id);
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+    }
 
     public ScalableAdapter(String id) {
         this.id = Objects.requireNonNull(id);
@@ -29,12 +37,13 @@ class ScalableAdapter extends AbstractScalable {
     private Scalable getScalable(Network n) {
         Objects.requireNonNull(n);
         Identifiable<?> identifiable = n.getIdentifiable(id);
+        boolean withValues = minValue != null && maxValue != null;
         if (identifiable instanceof Generator) {
-            return new GeneratorScalable(id);
+            return withValues ? new GeneratorScalable(id, minValue, maxValue) : new GeneratorScalable(id);
         } else if (identifiable instanceof Load) {
-            return new LoadScalable(id);
+            return withValues ? new LoadScalable(id, minValue, maxValue) : new LoadScalable(id);
         } else if (identifiable instanceof DanglingLine) {
-            return new DanglingLineScalable(id);
+            return withValues ? new DanglingLineScalable(id, minValue, maxValue) : new DanglingLineScalable(id);
         } else {
             throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
         }
