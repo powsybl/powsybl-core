@@ -17,7 +17,7 @@ import java.io.IOException;
 class GeneratorSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
-    void isCondenserTest() throws IOException {
+    void hasCondenserCapabilityTest() throws IOException {
         allFormatsRoundTripFromVersionedXmlFromMinVersionTest("generator.xml", IidmVersion.V_1_12);
     }
 }

@@ -262,6 +262,12 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkCondenserCapability(Validable validable, boolean hasCondenserCapability, boolean isCondenser) {
+        if (!hasCondenserCapability && isCondenser) {
+            throw new ValidationException(validable, "is condenser but has no condenser capability");
+        }
+    }
+
     public static void checkHvdcMaxP(Validable validable, double maxP) {
         if (Double.isNaN(maxP)) {
             throw createInvalidValueException(validable, maxP, MAXIMUM_P);

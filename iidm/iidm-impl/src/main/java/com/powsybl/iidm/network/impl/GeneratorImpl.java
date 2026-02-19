@@ -40,14 +40,16 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final TDoubleArrayList equivalentLocalTargetV;
 
-    private final boolean isCondenser;
+    private boolean hasCondenserCapability;
+
+    private boolean isCondenser;
 
     GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
                   boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
                   double targetP, double targetQ, double targetV, double equivalentLocalTargetV,
-                  double ratedS, boolean isCondenser) {
+                  double ratedS, boolean hasCondenserCapability, boolean isCondenser) {
         super(network, id, name, fictitious);
         this.network = network;
         this.energySource = energySource;
@@ -68,6 +70,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             this.targetV.add(targetV);
             this.equivalentLocalTargetV.add(equivalentLocalTargetV);
         }
+        this.hasCondenserCapability = hasCondenserCapability;
         this.isCondenser = isCondenser;
     }
 
@@ -235,8 +238,30 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
+    public boolean hasCondenserCapability() {
+        return hasCondenserCapability;
+    }
+
+    @Override
+    public GeneratorImpl setCondenserCapability(boolean hasCondenserCapability) {
+        boolean oldValue = this.hasCondenserCapability;
+        this.hasCondenserCapability = hasCondenserCapability;
+        notifyUpdate("hasCondenserCapability", oldValue, hasCondenserCapability);
+        return this;
+    }
+
+    @Override
     public boolean isCondenser() {
         return isCondenser;
+    }
+
+    @Override
+    public GeneratorImpl setCondenser(boolean isCondenser) {
+        ValidationUtil.checkCondenserCapability(this, this.hasCondenserCapability, isCondenser);
+        boolean oldValue = this.isCondenser;
+        this.isCondenser = isCondenser;
+        notifyUpdate("isCondenser", oldValue, isCondenser);
+        return this;
     }
 
     @Override

@@ -70,7 +70,13 @@ public abstract class AbstractGeneratorTest {
         assertFalse(generator.isVoltageRegulatorOn());
         generator.setVoltageRegulatorOn(true);
         assertTrue(generator.isVoltageRegulatorOn());
+        assertFalse(generator.hasCondenserCapability());
         assertFalse(generator.isCondenser());
+        assertThrows(ValidationException.class, () -> generator.setCondenser(true));
+        generator.setCondenserCapability(true);
+        generator.setCondenser(true);
+        assertTrue(generator.isCondenser());
+        assertTrue(generator.hasCondenserCapability());
 
         assertEquals(12, generator.getTerminal().getNodeBreakerView().getNode());
     }
@@ -192,6 +198,7 @@ public abstract class AbstractGeneratorTest {
                 .setTargetQ(20.0)
                 .setNode(1)
                 .setTargetV(31.0)
+                .setCondenserCapability(true)
                 .setCondenser(true)
                 .add();
         Generator generator = network.getGenerator(GEN_ID);
@@ -206,7 +213,7 @@ public abstract class AbstractGeneratorTest {
         assertEquals(20.0, generator.getTargetQ(), 0.0);
         assertEquals(31.0, generator.getTargetV(), 0.0);
         assertEquals(Double.NaN, generator.getEquivalentLocalTargetV(), 0.0);
-        assertTrue(generator.isCondenser());
+        assertTrue(generator.hasCondenserCapability());
     }
 
     @Test
