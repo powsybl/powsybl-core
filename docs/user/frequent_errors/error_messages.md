@@ -18,7 +18,7 @@ If you wish to use powsybl-core in-memory implementation, add the following to y
 ```
 
 :::{admonition} Using the correct version
-:class: tip dropdown
+:class: dropdown
 
 Replace `$version$` by the version of this impl that will work with other PowSyBl packages.
 A comprehensive table of matching versions can be found at [powsybl-dependencies](https://github.com/powsybl/powsybl-dependencies?tab=readme-ov-file#powsybl-included-repositories-versions);
