@@ -12,9 +12,13 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -615,5 +619,34 @@ public abstract class AbstractOperationalLimitsGroupsTest {
             .stream()
             .map(LoadingLimits.TemporaryLimit::getValue)
             .collect(Collectors.toSet());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideOverloadDurationWithMultipleSelectedOperationalLimitsGroupArguments")
+    void overloadDurationWithMultipleSelectedOperationalLimitsGroup(Network n, String lineId, double p, double q, int expectedOverloadDuration) {
+        Line line = n.getLine(lineId);
+        line.getTerminal1().setP(p).setQ(q);
+        line.getTerminal2().setP(-p).setQ(-q);
+        n.getBusBreakerView().getBus(EurostagTutorialExample1Factory.NHV1).setV(400);
+        n.getBusBreakerView().getBus(EurostagTutorialExample1Factory.NHV2).setV(400);
+        System.out.println(line.getTerminal1().getI());
+        assertEquals(expectedOverloadDuration, line.getOverloadDuration());
+    }
+
+    private static Stream<Arguments> provideOverloadDurationWithMultipleSelectedOperationalLimitsGroupArguments() {
+        String line1 = EurostagTutorialExample1Factory.NHV1_NHV2_1;
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        return Stream.of(
+            Arguments.of(n, line1, 200, 10, Integer.MAX_VALUE), // current = 289 A
+            Arguments.of(n, line1, 200, 60, 40 * 60), // 301 A
+            Arguments.of(n, line1, 350, 60, 40 * 60), // 512 A
+            Arguments.of(n, line1, 450, 60, 10 * 60), // 655 A
+            Arguments.of(n, line1, 550, 100, 30), // 806 A
+            Arguments.of(n, line1, 700, 100, 0), // 1020 A
+            Arguments.of(n, line1, 800, 200, 0), // 1190 A
+            Arguments.of(n, line1, 800, 250, 0), // 1209 A
+            Arguments.of(n, line1, 1000, 300, 0), // 1506 A
+            Arguments.of(n, line1, 1100, 300, 0) // 1645 A
+        );
     }
 }

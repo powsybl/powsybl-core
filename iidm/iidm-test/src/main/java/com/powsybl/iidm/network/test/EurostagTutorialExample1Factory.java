@@ -462,7 +462,7 @@ public final class EurostagTutorialExample1Factory {
 
     /**
      * Selected limits:
-     * On {@link #NHV1_NHV2_1}, side 1
+     * On {@link #NHV1_NHV2_1}, side 1 (also has a {@link #NOT_ACTIVATED} group)
      * <pre>
      *      Default      activated_1_1       activated_1_2
      *      |                                ---- IT0.5 1600 (30s)
@@ -486,7 +486,7 @@ public final class EurostagTutorialExample1Factory {
      *      | ---- IT20 1200 (1200s)
      *      | ---- ITP 1100
      * </pre>
-     * Side 2
+     * Side 2 (also has a {@link #NOT_ACTIVATED} group)
      * <pre>
      *     Default              activated_2_1       activated_2_2
      *     |                    ---- IT20 600 (1200s)
@@ -501,7 +501,7 @@ public final class EurostagTutorialExample1Factory {
 
     /**
      * Selected limits:
-     * On {@link #NHV1_NHV2_1}, side 1
+     * On {@link #NHV1_NHV2_1}, side 1 (also has a {@link #NOT_ACTIVATED} group)
      * <pre>
      *      Default      activated_1_1       activated_1_2
      *      |                                ---- IT0.5 1600 (30s)
@@ -525,7 +525,7 @@ public final class EurostagTutorialExample1Factory {
      *      | ---- IT20 1200 (1200s)
      *      | ---- ITP 1100
      * </pre>
-     * Side 2
+     * Side 2 (also has a {@link #NOT_ACTIVATED} group)
      * <pre>
      *     Default              activated_2_1       activated_2_2
      *     |                    ---- IT20 600 (1200s)
