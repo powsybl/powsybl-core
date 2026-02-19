@@ -53,6 +53,10 @@ public class XmlReader extends AbstractTreeDataReader {
         return namespaceVersionsMap.get(reader.getNamespaceURI());
     }
 
+    public String getNamespaceURI() {
+        return reader.getNamespaceURI();
+    }
+
     @Override
     public Map<String, String> readExtensionVersions() {
         int namespaceCount = reader.getNamespaceCount();

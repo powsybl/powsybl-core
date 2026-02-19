@@ -20,6 +20,17 @@ import java.util.List;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.network.NetworkFactory;
+
+import java.io.BufferedWriter;
+import java.nio.charset.StandardCharsets;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonImporterTest extends AbstractIidmSerDeTest {
 
@@ -69,4 +80,30 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
         assertEquals(List.of("jiidm", "json"), importer.getSupportedExtensions());
         assertEquals(6, importer.getParameters().size());
     }
+
+    @Test
+    void testUnsupportedIidmVersion() throws IOException {
+        writeNetwork("/test1.json", "1.16");
+        importer = new JsonImporter();
+        ReadOnlyDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test1");
+        assertThatCode(() -> importer.importData(dataSource, NetworkFactory.findDefault(), null))
+                .isInstanceOf(PowsyblException.class)
+                .hasMessage("IIDM Version 1.16 is not supported. Max supported version: 1.15");
+    }
+
+    private void writeNetwork(String fileName, String version) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        ObjectNode root = mapper.createObjectNode();
+        root.put("version", version);
+        root.put("id", "shuntTestCase");
+        root.put("caseDate", "2019-09-30T16:29:18.263+02:00");
+        root.put("forecastDistance", 0);
+        root.put("sourceFormat", "test");
+        root.put("minimumValidationLevel", "STEADY_STATE_HYPOTHESIS");
+        try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
+            mapper.writeValue(writer, root);
+        }
+    }
+
 }
