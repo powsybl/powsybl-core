@@ -14,10 +14,15 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.json.JsonReader;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Importer;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.HashMap;
 import java.util.Properties;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -65,11 +70,30 @@ public class JsonImporter extends AbstractTreeDataImporter {
                 if (version == null || version.isEmpty()) {
                     return false;
                 }
-                IidmVersion.of(version, ".");
                 return true;
             }
         } catch (IOException e) {
             return false;
+        }
+    }
+
+    @Override
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory,
+                              Properties parameters, ReportNode reportNode) {
+        try {
+            String ext = findExtension(dataSource);
+            String version = readRootVersion(dataSource, ext);
+            IidmVersion.of(version);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return super.importData(dataSource, networkFactory, parameters, reportNode);
+    }
+
+    private String readRootVersion(ReadOnlyDataSource ds, String ext) throws IOException {
+        try (InputStream is = ds.newInputStream(null, ext)) {
+            JsonReader reader = new JsonReader(is, "network", new HashMap<>());
+            return reader.readRootVersion();
         }
     }
 

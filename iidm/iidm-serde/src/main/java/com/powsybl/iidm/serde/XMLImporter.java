@@ -10,8 +10,12 @@ package com.powsybl.iidm.serde;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Importer;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +24,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
@@ -90,13 +99,49 @@ public class XMLImporter extends AbstractTreeDataImporter {
                     if (!version.isEmpty()) {
                         // If it is not supported, this will throw an exception giving details on the encountered version
                         // and the maximum supported version.
-                        IidmVersion.of(version, "_");
+//                        IidmVersion.of(version);
                         return isValidNamespace(ns);
                     }
                 }
             }
         }
         return false;
+    }
+
+    @Override
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory,
+                              Properties parameters, ReportNode reportNode) {
+        try {
+            String ext = findExtension(dataSource);
+            String ns = readNamespaceURI(dataSource, ext);
+            if (ns != null) {
+                String version = extractVersion(ns);
+                IidmVersion.of(version);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return super.importData(dataSource, networkFactory, parameters, reportNode);
+    }
+
+    private String readNamespaceURI(ReadOnlyDataSource ds, String ext) throws IOException {
+        try (InputStream is = ds.newInputStream(null, ext)) {
+            XmlReader reader = new XmlReader(is, namespaceVersionMap(), List.of());
+            return reader.getNamespaceURI();
+        } catch (XMLStreamException e) {
+            return null;
+        }
+    }
+
+    private static Map<String, String> namespaceVersionMap() {
+        Map<String, String> map = new HashMap<>();
+        for (IidmVersion v : IidmVersion.values()) {
+            map.put(v.getNamespaceURI(), v.toString("."));
+            if (v.supportEquipmentValidationLevel()) {
+                map.put(v.getNamespaceURI(false), v.toString("."));
+            }
+        }
+        return map;
     }
 
     private String extractPrefix(String namespace) {
@@ -123,7 +168,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
         return Stream.of(IidmVersion.values())
                 .anyMatch(v -> v.getNamespaceURI().equals(ns))
                 || Stream.of(IidmVersion.values())
-                .filter(v -> v.compareTo(IidmVersion.V_1_7) >= 0)
+                .filter(IidmVersion::supportEquipmentValidationLevel)
                 .anyMatch(v -> v.getNamespaceURI(false).equals(ns));
     }
 

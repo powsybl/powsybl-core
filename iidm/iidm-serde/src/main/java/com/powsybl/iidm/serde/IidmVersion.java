@@ -39,6 +39,7 @@ public enum IidmVersion {
 
     private final String domain;
     private final List<Integer> versionArray;
+    private static final String SEPARATOR = ".";
 
     IidmVersion(String domain, List<Integer> versionArray) {
         this.domain = domain;
@@ -82,18 +83,19 @@ public enum IidmVersion {
         return "iidm_equipment_V" + toString("_") + ".xsd";
     }
 
-    public static IidmVersion of(String version, String separator) {
+    public static IidmVersion of(String version) {
         Objects.requireNonNull(version);
+        String normalized = version.replace('_', '.');
         return Stream.of(IidmVersion.values())
-                .filter(v -> version.equals(v.toString(separator)))
+                .filter(v -> normalized.equals(v.toString(SEPARATOR)))
                 .findFirst() // there can only be 0 or exactly 1 match
-                .orElseThrow(() -> new PowsyblException("IIDM Version " + version + " is not supported. Max supported version: "
-                        + CURRENT_IIDM_VERSION.toString(separator)));
+                .orElseThrow(() -> new PowsyblException("IIDM Version " + normalized + " is not supported. Max supported version: "
+                        + CURRENT_IIDM_VERSION.toString(SEPARATOR)));
     }
 
     public static IidmVersion fromNamespaceURI(String namespaceURI) {
         String version = namespaceURI.substring(namespaceURI.lastIndexOf('/') + 1);
-        IidmVersion v = of(version, "_");
+        IidmVersion v = of(version);
         String namespaceUriV = v.getNamespaceURI();
         if (!namespaceURI.equals(namespaceUriV)) {
             if (v.compareTo(V_1_7) >= 0 && namespaceURI.equals(v.getNamespaceURI(false))) {
