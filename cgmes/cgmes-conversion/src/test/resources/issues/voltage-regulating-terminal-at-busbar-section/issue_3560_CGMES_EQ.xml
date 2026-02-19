@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#">
+    <md:FullModel rdf:about="urn:uuid:test_N_EQUIPMENT_2025-11-25T12:06:35Z_1_1D__FM">
+        <md:Model.scenarioTime>2025-11-25T12:06:35Z</md:Model.scenarioTime>
+        <md:Model.created>2025-11-25T12:06:36Z</md:Model.created>
+        <md:Model.description>EQ Model</md:Model.description>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+    <cim:ConnectivityNode rdf:ID="_VL1_400_VL_0_CN">
+        <cim:IdentifiedObject.name>0</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL1_400"/>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_VL1_15_VL_0_CN">
+        <cim:IdentifiedObject.name>0</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL1_15"/>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_VL2_400_VL_0_CN">
+        <cim:IdentifiedObject.name>0</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL2_400"/>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_VL2_400_VL_1_CN">
+        <cim:IdentifiedObject.name>1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL2_400"/>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_VL2_400_VL_6_CN">
+        <cim:IdentifiedObject.name>6</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL2_400"/>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_VL2_400_VL_7_CN">
+        <cim:IdentifiedObject.name>7</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL2_400"/>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_VL2_400_VL_8_CN">
+        <cim:IdentifiedObject.name>8</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL2_400"/>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_VL2_400_VL_9_CN">
+        <cim:IdentifiedObject.name>9</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL2_400"/>
+    </cim:ConnectivityNode>
+    <cim:ConnectivityNode rdf:ID="_VL2_400_VL_10_CN">
+        <cim:IdentifiedObject.name>10</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL2_400"/>
+    </cim:ConnectivityNode>
+    <cim:Terminal rdf:ID="_VL1_400_BBS_BS_T_1">
+        <cim:IdentifiedObject.name>VL1_400_BBS</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL1_400_BBS"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL1_400_VL_0_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_LOAD_EC_T_1">
+        <cim:IdentifiedObject.name>LOAD</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_LOAD"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_1_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_line_ACLS_T_1">
+        <cim:IdentifiedObject.name>line</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_line"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL1_400_VL_0_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_line_ACLS_T_2">
+        <cim:IdentifiedObject.name>line</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_line"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_1_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL1_15_BBS_BS_T_1">
+        <cim:IdentifiedObject.name>VL1_15_BBS</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL1_15_BBS"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL1_15_VL_0_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_2WT_PT_T_1">
+        <cim:IdentifiedObject.name>2WT</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_2WT"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL1_15_VL_0_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_2WT_PT_T_2">
+        <cim:IdentifiedObject.name>2WT</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_2WT"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL1_400_VL_0_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_GEN_SM_T_1">
+        <cim:IdentifiedObject.name>GEN</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_GEN"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL1_15_VL_0_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_BBS3_BS_T_1">
+        <cim:IdentifiedObject.name>VL2_400_BBS3</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_BBS3"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_8_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_BBS1_BS_T_1">
+        <cim:IdentifiedObject.name>VL2_400_BBS1</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_BBS1"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_0_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_BBS2_BS_T_1">
+        <cim:IdentifiedObject.name>VL2_400_BBS2</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_BBS2"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_1_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_COUPLER_BBS2_BBS3_SW_T_1">
+        <cim:IdentifiedObject.name>VL2_400_COUPLER_BBS2_BBS3</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_COUPLER_BBS2_BBS3"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_9_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_COUPLER_BBS2_BBS3_SW_T_2">
+        <cim:IdentifiedObject.name>VL2_400_COUPLER_BBS2_BBS3</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_COUPLER_BBS2_BBS3"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_10_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_DISCONNECTOR_23a_SW_T_1">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_23a</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_DISCONNECTOR_23a"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_1_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_DISCONNECTOR_23a_SW_T_2">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_23a</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_DISCONNECTOR_23a"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_10_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_DISCONNECTOR_23b_SW_T_1">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_23b</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_DISCONNECTOR_23b"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_8_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_DISCONNECTOR_23b_SW_T_2">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_23b</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_DISCONNECTOR_23b"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_9_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_COUPLER_BBS1_BBS3_SW_T_1">
+        <cim:IdentifiedObject.name>VL2_400_COUPLER_BBS1_BBS3</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_COUPLER_BBS1_BBS3"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_6_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_COUPLER_BBS1_BBS3_SW_T_2">
+        <cim:IdentifiedObject.name>VL2_400_COUPLER_BBS1_BBS3</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_COUPLER_BBS1_BBS3"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_7_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_DISCONNECTOR_13a_SW_T_1">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_13a</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_DISCONNECTOR_13a"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_0_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_DISCONNECTOR_13a_SW_T_2">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_13a</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_DISCONNECTOR_13a"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_6_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_DISCONNECTOR_13b_SW_T_1">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_13b</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_DISCONNECTOR_13b"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_7_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_VL2_400_DISCONNECTOR_13b_SW_T_2">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_13b</cim:IdentifiedObject.name>
+        <cim:Terminal.ConductingEquipment rdf:resource="#_VL2_400_DISCONNECTOR_13b"/>
+        <cim:Terminal.ConnectivityNode rdf:resource="#_VL2_400_VL_8_CN"/>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    </cim:Terminal>
+    <cim:Breaker rdf:ID="_VL2_400_COUPLER_BBS2_BBS3">
+        <cim:IdentifiedObject.name>VL2_400_COUPLER_BBS2_BBS3</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL2_400"/>
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>true</cim:Switch.retained>
+    </cim:Breaker>
+    <cim:Disconnector rdf:ID="_VL2_400_DISCONNECTOR_23a">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_23a</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL2_400"/>
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>false</cim:Switch.retained>
+    </cim:Disconnector>
+    <cim:Disconnector rdf:ID="_VL2_400_DISCONNECTOR_23b">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_23b</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL2_400"/>
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>false</cim:Switch.retained>
+    </cim:Disconnector>
+    <cim:Breaker rdf:ID="_VL2_400_COUPLER_BBS1_BBS3">
+        <cim:IdentifiedObject.name>VL2_400_COUPLER_BBS1_BBS3</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL2_400"/>
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>true</cim:Switch.retained>
+    </cim:Breaker>
+    <cim:Disconnector rdf:ID="_VL2_400_DISCONNECTOR_13a">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_13a</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL2_400"/>
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>false</cim:Switch.retained>
+    </cim:Disconnector>
+    <cim:Disconnector rdf:ID="_VL2_400_DISCONNECTOR_13b">
+        <cim:IdentifiedObject.name>VL2_400_DISCONNECTOR_13b</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL2_400"/>
+        <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+        <cim:Switch.retained>false</cim:Switch.retained>
+    </cim:Disconnector>
+    <cim:GeographicalRegion rdf:ID="_default+region_GR">
+        <cim:IdentifiedObject.name>default region</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_default+region_SGR">
+        <cim:IdentifiedObject.name>default region</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_default+region_GR"/>
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_S1">
+        <cim:IdentifiedObject.name>S1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_default+region_SGR"/>
+    </cim:Substation>
+    <cim:Substation rdf:ID="_S2">
+        <cim:IdentifiedObject.name>S2</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_default+region_SGR"/>
+    </cim:Substation>
+    <cim:BaseVoltage rdf:ID="_400_BV">
+        <cim:IdentifiedObject.name>400</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>400</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VL1_400">
+        <cim:IdentifiedObject.name>VL1_400</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_S1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_400_BV"/>
+    </cim:VoltageLevel>
+    <cim:BaseVoltage rdf:ID="_15_BV">
+        <cim:IdentifiedObject.name>15</cim:IdentifiedObject.name>
+        <cim:BaseVoltage.nominalVoltage>15</cim:BaseVoltage.nominalVoltage>
+    </cim:BaseVoltage>
+    <cim:VoltageLevel rdf:ID="_VL1_15">
+        <cim:IdentifiedObject.name>VL1_15</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_S1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_15_BV"/>
+    </cim:VoltageLevel>
+    <cim:VoltageLevel rdf:ID="_VL2_400">
+        <cim:IdentifiedObject.name>VL2_400</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.Substation rdf:resource="#_S2"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_400_BV"/>
+    </cim:VoltageLevel>
+    <cim:BusbarSection rdf:ID="_VL1_400_BBS">
+        <cim:IdentifiedObject.name>VL1_400_BBS</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL1_400"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_400_BV"/>
+    </cim:BusbarSection>
+    <cim:BusbarSection rdf:ID="_VL1_15_BBS">
+        <cim:IdentifiedObject.name>VL1_15_BBS</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL1_15"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_15_BV"/>
+    </cim:BusbarSection>
+    <cim:BusbarSection rdf:ID="_VL2_400_BBS1">
+        <cim:IdentifiedObject.name>VL2_400_BBS1</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL2_400"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_400_BV"/>
+    </cim:BusbarSection>
+    <cim:BusbarSection rdf:ID="_VL2_400_BBS2">
+        <cim:IdentifiedObject.name>VL2_400_BBS2</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL2_400"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_400_BV"/>
+    </cim:BusbarSection>
+    <cim:BusbarSection rdf:ID="_VL2_400_BBS3">
+        <cim:IdentifiedObject.name>VL2_400_BBS3</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL2_400"/>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_400_BV"/>
+    </cim:BusbarSection>
+    <cim:EnergyConsumer rdf:ID="_LOAD">
+        <cim:IdentifiedObject.name>LOAD</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL2_400"/>
+    </cim:EnergyConsumer>
+    <cim:LoadArea rdf:ID="_test_N_LA">
+        <cim:IdentifiedObject.name>test Load Area</cim:IdentifiedObject.name>
+    </cim:LoadArea>
+    <cim:SubLoadArea rdf:ID="_test_N_SLA">
+        <cim:IdentifiedObject.name>test SubLoad Area</cim:IdentifiedObject.name>
+        <cim:SubLoadArea.LoadArea rdf:resource="#_test_N_LA"/>
+    </cim:SubLoadArea>
+    <cim:RegulatingControl rdf:ID="_GEN_RC">
+        <cim:IdentifiedObject.name>RC_GEN</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.Terminal rdf:resource="#_VL2_400_BBS1_BS_T_1"/>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+    </cim:RegulatingControl>
+    <cim:SynchronousMachine rdf:ID="_GEN">
+        <cim:IdentifiedObject.name>GEN</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_VL1_15"/>
+        <cim:RotatingMachine.GeneratingUnit rdf:resource="#_GEN_GU"/>
+        <cim:RegulatingCondEq.RegulatingControl rdf:resource="#_GEN_RC"/>
+        <cim:SynchronousMachine.minQ>-3.402823E38</cim:SynchronousMachine.minQ>
+        <cim:SynchronousMachine.maxQ>3.402823E38</cim:SynchronousMachine.maxQ>
+        <cim:RotatingMachine.ratedS>179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</cim:RotatingMachine.ratedS>
+        <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineKind.generatorOrCondenser"/>
+    </cim:SynchronousMachine>
+    <cim:GeneratingUnit rdf:ID="_GEN_GU">
+        <cim:IdentifiedObject.name>GU_GEN</cim:IdentifiedObject.name>
+        <cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+        <cim:GeneratingUnit.maxOperatingP>500</cim:GeneratingUnit.maxOperatingP>
+        <cim:GeneratingUnit.initialP>100</cim:GeneratingUnit.initialP>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_S1"/>
+    </cim:GeneratingUnit>
+    <cim:ACLineSegment rdf:ID="_line">
+        <cim:IdentifiedObject.name>line</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>
+        <cim:ACLineSegment.x>1</cim:ACLineSegment.x>
+        <cim:ACLineSegment.bch>0.000002</cim:ACLineSegment.bch>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_400_BV"/>
+    </cim:ACLineSegment>
+    <cim:PowerTransformer rdf:ID="_2WT">
+        <cim:IdentifiedObject.name>2WT</cim:IdentifiedObject.name>
+        <cim:Equipment.EquipmentContainer rdf:resource="#_S1"/>
+    </cim:PowerTransformer>
+    <cim:PowerTransformerEnd rdf:ID="_2WT_TW1">
+        <cim:IdentifiedObject.name>2WT_1</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.r>0.00140625</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>0.028125</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.g>0.00071111111111</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.b>0.00071111111111</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedS>100</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>15</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_2WT"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_2WT_PT_T_1"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_15_BV"/>
+    </cim:PowerTransformerEnd>
+    <cim:PowerTransformerEnd rdf:ID="_2WT_TW2">
+        <cim:IdentifiedObject.name>2WT_2</cim:IdentifiedObject.name>
+        <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+        <cim:PowerTransformerEnd.r>0</cim:PowerTransformerEnd.r>
+        <cim:PowerTransformerEnd.x>0</cim:PowerTransformerEnd.x>
+        <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+        <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+        <cim:PowerTransformerEnd.ratedS>100</cim:PowerTransformerEnd.ratedS>
+        <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
+        <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_2WT"/>
+        <cim:TransformerEnd.Terminal rdf:resource="#_2WT_PT_T_2"/>
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_400_BV"/>
+    </cim:PowerTransformerEnd>
+</rdf:RDF>
