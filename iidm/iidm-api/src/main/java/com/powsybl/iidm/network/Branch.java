@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
 
@@ -689,7 +690,14 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     boolean isOverloaded(double limitReductionValue);
 
-    int getOverloadDuration();
+    default int getOverloadDuration() {
+        return Stream.concat(
+                checkAllTemporaryLimits(TwoSides.ONE, LimitType.CURRENT).stream(),
+                checkAllTemporaryLimits(TwoSides.TWO, LimitType.CURRENT).stream()
+            ).map(o -> o != null ? o.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE)
+            .min(Integer::compareTo)
+            .orElse(Integer.MAX_VALUE);
+    }
 
     boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type);
 

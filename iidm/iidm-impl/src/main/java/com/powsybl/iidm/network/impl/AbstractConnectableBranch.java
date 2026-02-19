@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -263,16 +262,6 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     @Override
     public boolean isOverloaded(double limitReductionValue) {
         return checkPermanentLimit1(limitReductionValue, LimitType.CURRENT) || checkPermanentLimit2(limitReductionValue, LimitType.CURRENT);
-    }
-
-    @Override
-    public int getOverloadDuration() {
-        return BranchUtil.getOverloadDuration(
-            Stream.concat(
-                checkAllTemporaryLimits(TwoSides.ONE, LimitType.CURRENT).stream(),
-                checkAllTemporaryLimits(TwoSides.TWO, LimitType.CURRENT).stream()
-            ).toArray(Overload[]::new)
-        );
     }
 
     @Override

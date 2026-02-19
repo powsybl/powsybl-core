@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -428,16 +427,6 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Override
     public boolean isOverloaded(double limitReductionValue) {
         return checkPermanentLimit1(limitReductionValue, LimitType.CURRENT) || checkPermanentLimit2(limitReductionValue, LimitType.CURRENT);
-    }
-
-    @Override
-    public int getOverloadDuration() {
-        return BranchUtil.getOverloadDuration(
-            Stream.concat(
-                checkAllTemporaryLimits(TwoSides.ONE, LimitType.CURRENT).stream(),
-                checkAllTemporaryLimits(TwoSides.TWO, LimitType.CURRENT).stream()
-            ).toArray(Overload[]::new)
-        );
     }
 
     @Override
