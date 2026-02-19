@@ -2,10 +2,10 @@
 
 ## No NetworkFactoryService providers found
 
-This most likely happened because you tried to read a file, but you didn't have any implementation of the interface used for reading those files.
+This most likely happened because you tried to read a file, but didn't have any implementation of the IIDM API in your classpath.
 Use the implementation provided by PowSyBl / a third party, or write your own.
 
-### Fix missing impl
+### Fixing the issue by using powsybl-core implementation
 
 If you wish to use powsybl-core in-memory implementation, add the following to your `pom.xml` in the `<dependencies>` section:
 
