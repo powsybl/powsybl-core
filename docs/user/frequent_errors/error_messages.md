@@ -18,7 +18,7 @@ If you wish to use powsybl-core in-memory implementation, add the following to y
 ```
 
 :::{admonition} Using the correct version
-:class: dropdown
+:class: tip
 
 Replace `$version$` by the version of this impl that will work with other PowSyBl packages.
 A comprehensive table of matching versions can be found at [powsybl-dependencies](https://github.com/powsybl/powsybl-dependencies?tab=readme-ov-file#powsybl-included-repositories-versions);
@@ -45,7 +45,7 @@ If you wish to import an IIDM file using powsybl-core implementation, add the fo
 ```
 
 :::{admonition} Using the correct version
-:class: tip dropdown
+:class: tip
 
 Replace `$version$` by the version of this impl that will work with other PowSyBl packages.
 A comprehensive table of matching versions can be found at [powsybl-dependencies](https://github.com/powsybl/powsybl-dependencies?tab=readme-ov-file#powsybl-included-repositories-versions);
