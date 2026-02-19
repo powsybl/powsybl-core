@@ -9,6 +9,8 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.list.AbstractEquipmentCriterionContingencyList;
@@ -23,10 +25,22 @@ import java.util.List;
 /**
  @author Hugo Kulesza hugo.kulesza@rte-france.com
  */
-public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T extends AbstractEquipmentCriterionContingencyList> extends StdDeserializer<T> {
+public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T extends AbstractEquipmentCriterionContingencyList>
+    extends StdDeserializer<T> implements ContextualDeserializer {
+
+    protected final JsonDeserializer<Object> criterionDeserializer;
+    protected final JsonDeserializer<Object> propertyCriteriaDeserializer;
 
     protected AbstractEquipmentCriterionContingencyListDeserializer(Class<T> c) {
+        this(c, null, null);
+    }
+
+    protected AbstractEquipmentCriterionContingencyListDeserializer(Class<T> c,
+                                                                    JsonDeserializer<?> criterionDeserializer,
+                                                                    JsonDeserializer<?> propertyCriteriaDeserializer) {
         super(c);
+        this.criterionDeserializer = (JsonDeserializer<Object>) criterionDeserializer;
+        this.propertyCriteriaDeserializer = (JsonDeserializer<Object>) propertyCriteriaDeserializer;
     }
 
     protected static class ParsingContext {
@@ -46,22 +60,24 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
             }
             case "countryCriterion" -> {
                 parser.nextToken();
-                parsingCtx.countryCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
+                parsingCtx.countryCriterion = readCriterion(parser, ctx);
                 return true;
             }
             case "nominalVoltageCriterion" -> {
                 parser.nextToken();
-                parsingCtx.nominalVoltageCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
+                parsingCtx.nominalVoltageCriterion = readCriterion(parser, ctx);
                 return true;
             }
             case "propertyCriteria" -> {
                 parser.nextToken();
-                parsingCtx.propertyCriteria = JsonUtil.readList(ctx, parser, Criterion.class);
+                parsingCtx.propertyCriteria = propertyCriteriaDeserializer != null ?
+                    (List<PropertyCriterion>) propertyCriteriaDeserializer.deserialize(parser, ctx) :
+                    JsonUtil.readList(ctx, parser, Criterion.class);
                 return true;
             }
             case "regexCriterion" -> {
                 parser.nextToken();
-                parsingCtx.regexCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
+                parsingCtx.regexCriterion = (RegexCriterion) readCriterion(parser, ctx);
                 return true;
             }
             case "version" -> {
@@ -80,4 +96,10 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
         }
     }
 
+    private Criterion readCriterion(JsonParser parser, DeserializationContext ctx) throws IOException {
+        if (criterionDeserializer != null) {
+            return (Criterion) criterionDeserializer.deserialize(parser, ctx);
+        }
+        return JsonUtil.readValue(ctx, parser, Criterion.class);
+    }
 }

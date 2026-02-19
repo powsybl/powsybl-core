@@ -9,7 +9,12 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
@@ -20,6 +25,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -29,13 +35,30 @@ import java.util.function.Supplier;
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
-public class ContingencyDeserializer extends StdDeserializer<Contingency> {
+public class ContingencyDeserializer extends StdDeserializer<Contingency>
+    implements ContextualDeserializer {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
+    private JsonDeserializer<Object> elementDeserializer;
+
     public ContingencyDeserializer() {
+        this(null);
+    }
+
+    public ContingencyDeserializer(JsonDeserializer<?> elementDeserializer) {
         super(Contingency.class);
+        this.elementDeserializer = (JsonDeserializer<Object>) elementDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext deserializationContext,
+                                                BeanProperty property) throws JsonMappingException {
+        JavaType elementsType = deserializationContext.getTypeFactory()
+            .constructCollectionType(ArrayList.class, ContingencyElement.class);
+        JsonDeserializer<?> deserializer = deserializationContext.findContextualValueDeserializer(elementsType, property);
+        return new ContingencyDeserializer(deserializer);
     }
 
     @Override
@@ -52,7 +75,9 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
                 case "name" -> name = parser.nextTextValue();
                 case "elements" -> {
                     parser.nextToken();
-                    elements = JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);
+                    elements = elementDeserializer != null ?
+                        (List<ContingencyElement>) elementDeserializer.deserialize(parser, deserializationContext) :
+                        JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);
                 }
                 case "extensions" -> {
                     parser.nextToken();
