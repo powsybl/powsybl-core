@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="P1" country="FR" tso="RTE" geographicalTags="A">
+        <iidm:voltageLevel id="VLGEN" nominalV="24.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NGEN1"/>
+                <iidm:bus id="NGEN2"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN1" connectableBus="NGEN1">
+                <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VLHV1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NHV1"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.2" x="11.1" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="NGEN1" connectableBus1="NGEN1" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"/>
+        <iidm:twoWindingsTransformer id="NGEN_NHV2" r="0.2" x="11.1" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="NGEN2" connectableBus1="NGEN2" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"/>
+        <iidm:twoWindingsTransformer id="twtTest" r="1.0" x="1.0" g="0.0" b="0.0" ratedU1="220.0" ratedU2="400.0" bus1="NGEN1" connectableBus1="NGEN1" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"/>
+    </iidm:substation>
+</iidm:network>
