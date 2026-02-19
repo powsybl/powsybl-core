@@ -40,10 +40,10 @@ class LoadModelXmlTest extends AbstractIidmSerDeTest {
                     .add()
                 .add();
 
-        allFormatsRoundTripTest(network, "eurostag-tutorial-example1-zip-load-model.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "eurostag-tutorial-example1-zip-load-model.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility, load model is skipped
-        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
+        allFormatsRoundTripAllPreviousVersionedTxtTest("eurostag-tutorial-example1.xml");
     }
 
     @Test
@@ -61,9 +61,9 @@ class LoadModelXmlTest extends AbstractIidmSerDeTest {
                     .add()
                 .add();
 
-        allFormatsRoundTripTest(network, "eurostag-tutorial-example1-expo-load-model.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "eurostag-tutorial-example1-expo-load-model.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility, load model is skipped
-        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
+        allFormatsRoundTripAllPreviousVersionedTxtTest("eurostag-tutorial-example1.xml");
     }
 }

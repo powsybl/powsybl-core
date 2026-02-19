@@ -29,10 +29,10 @@ class FictitiousInjectionsXmlTest extends AbstractIidmSerDeTest {
         network.getBusBreakerView().getBus("NGEN").setFictitiousP0(1.0).setFictitiousQ0(2.0);
         network.getBusBreakerView().getBus("NLOAD").setFictitiousP0(3.0);
         network.getBusBreakerView().getBus("NHV1").setFictitiousQ0(4.0);
-        allFormatsRoundTripTest(network, "eurostag-fict-inj.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "eurostag-fict-inj.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("eurostag-fict-inj.xml", IidmVersion.V_1_8);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("eurostag-fict-inj.xml", IidmVersion.V_1_8);
     }
 
     @Test
@@ -44,9 +44,9 @@ class FictitiousInjectionsXmlTest extends AbstractIidmSerDeTest {
                 .setFictitiousQ0(1, 2.0)
                 .setFictitiousP0(2, 3.0)
                 .setFictitiousQ0(2, 4.0);
-        allFormatsRoundTripTest(network, "fictitiousSwitchRef-fict-inj.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "fictitiousSwitchRef-fict-inj.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("fictitiousSwitchRef-fict-inj.xml", IidmVersion.V_1_8);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("fictitiousSwitchRef-fict-inj.xml", IidmVersion.V_1_8);
     }
 }

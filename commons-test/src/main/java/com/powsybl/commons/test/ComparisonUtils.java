@@ -98,6 +98,14 @@ public final class ComparisonUtils {
     public static void assertTxtEquals(String expected, String actual) {
         String expectedStr = TestUtil.normalizeLineSeparator(expected);
         String actualStr = TestUtil.normalizeLineSeparator(actual);
+        // Ensure element ends with exactly one newline before assertion
+        String lineSeparator = "\n";
+        if (!expectedStr.endsWith(lineSeparator)) {
+            expectedStr += lineSeparator;
+        }
+        if (!actualStr.endsWith(lineSeparator)) {
+            actualStr += lineSeparator;
+        }
         assertEquals(expectedStr, actualStr);
     }
 

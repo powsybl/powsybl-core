@@ -44,7 +44,7 @@ class TwoWindingsTransformerFortescueXmlSerDeTest extends AbstractIidmSerDeTest 
                 .withGroundingX2(0.95d)
                 .add();
 
-        Network network2 = allFormatsRoundTripTest(network, "/fortescue/twoWindingsTransformerFortescueRef.xml");
+        Network network2 = allFormatsRoundTripTxtTest(network, "/fortescue/twoWindingsTransformerFortescueRef.xml");
 
         TwoWindingsTransformer twt2 = network2.getTwoWindingsTransformer("NGEN_NHV1");
         assertNotNull(twt2);

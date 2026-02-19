@@ -55,7 +55,7 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
-        Network network2 = allFormatsRoundTripTest(network, "voltageRegulationRoundTripRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTxtTest(network, "voltageRegulationRoundTripRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
         assertExtension(network2);
     }
 
@@ -74,13 +74,13 @@ class VoltageRegulationSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testOlderVersion() throws IOException {
         // Round trip with default extension version (v1_1)
-        Network network2 = allFormatsRoundTripTest(network, "voltageRegulationRoundTripRef.xml", IidmVersion.V_1_12);
+        Network network2 = allFormatsRoundTripTxtTest(network, "voltageRegulationRoundTripRef.xml", IidmVersion.V_1_12);
         assertExtension(network2);
 
         // Import then export with version v1_12
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.addExtensionVersion(VoltageRegulation.NAME, "1.12");
-        Network network3 = allFormatsRoundTripTest(network, "voltageRegulationCompatibilityVersion.xml", IidmVersion.V_1_12, exportOptions);
+        Network network3 = allFormatsRoundTripTxtTest(network, "voltageRegulationCompatibilityVersion.xml", IidmVersion.V_1_12, exportOptions);
         assertExtension(network3);
     }
 }

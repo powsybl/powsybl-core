@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
-import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
@@ -39,7 +38,7 @@ class SimpleAnonymizerTest extends AbstractIidmSerDeTest {
 
         // check we have 2 files, the anonymized IIDM XML and a CSV mapping file and compare to anonymized reference files
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            assertXmlEquals(getVersionedNetworkAsStream("eurostag-tutorial-example1-anonymized.xml", CURRENT_IIDM_VERSION), is);
+            assertTxtEquals(getVersionedNetworkAsStream("eurostag-tutorial-example1-anonymized.xml", CURRENT_IIDM_VERSION), is);
         }
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("_mapping", "csv"))) {
             assertTxtEquals(getClass().getResourceAsStream("/eurostag-tutorial-example1-mapping.csv"), is);
@@ -51,7 +50,7 @@ class SimpleAnonymizerTest extends AbstractIidmSerDeTest {
         new XMLExporter(platformConfig).export(network2, null, dataSource2);
 
         // check that re-imported IIDM XML has been deanonymized and is equals to reference file
-        allFormatsRoundTripTest(network2, "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network2, "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test

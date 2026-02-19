@@ -39,7 +39,7 @@ class LoadAsymmetricalXmlSerDeTest extends AbstractIidmSerDeTest {
                 .withDeltaQc(2)
                 .add();
 
-        Network network2 = allFormatsRoundTripTest(network, "/asymmetrical/loadAsymmetricalRef.xml");
+        Network network2 = allFormatsRoundTripTxtTest(network, "/asymmetrical/loadAsymmetricalRef.xml");
 
         var load2 = network2.getLoad("LOAD");
         assertNotNull(load2);

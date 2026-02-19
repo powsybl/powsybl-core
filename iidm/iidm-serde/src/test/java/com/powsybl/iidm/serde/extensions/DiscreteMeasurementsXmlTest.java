@@ -55,7 +55,7 @@ class DiscreteMeasurementsXmlTest extends AbstractIidmSerDeTest {
                 .putProperty("source", "test2")
                 .add();
 
-        allFormatsRoundTripTest(network, "disMeasRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("disMeasRef.xiidm", IidmVersion.V_1_5);
+        allFormatsRoundTripTxtTest(network, "disMeasRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("disMeasRef.xiidm", IidmVersion.V_1_5);
     }
 }
