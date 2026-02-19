@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,22 +7,42 @@
  */
 package com.powsybl.cgmes.conversion.naming;
 
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Identifiable;
 
-import java.util.UUID;
-
 /**
- * @author Luma Zamarreño {@literal <zamarrenolm at rte-france.com>}
+ * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
-public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStrategy {
-
-    public SimpleCgmesAliasNamingStrategy(UUID uuidNamespace) {
-        super(uuidNamespace);
-    }
+public final class IdentityNamingStrategy implements NamingStrategy {
 
     @Override
     public String getName() {
-        return NamingStrategyFactory.CGMES;
+        return NamingStrategyFactory.IDENTITY;
+    }
+
+    @Override
+    public String getIidmId(String type, String id) {
+        return id;
+    }
+
+    @Override
+    public String getIidmName(String type, String name) {
+        return name;
+    }
+
+    @Override
+    public String getCgmesId(Identifiable<?> identifiable) {
+        return identifiable.getId();
+    }
+
+    @Override
+    public String getCgmesId(CgmesObjectReference... refs) {
+        return CgmesObjectReference.combine(refs);
+    }
+
+    @Override
+    public String getCgmesId(String identifier) {
+        return identifier;
     }
 
     @Override
@@ -39,5 +59,10 @@ public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStra
             return identifiable.getProperty(propertyName);
         }
         return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
+    }
+
+    @Override
+    public void debug(String baseName, DataSource ds) {
+        // do nothing
     }
 }
