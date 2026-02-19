@@ -38,6 +38,7 @@ public class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<App
         }
         ApparentPowerLimits limits = new ApparentPowerLimitsImpl(group, permanentLimit, temporaryLimits);
         group.setApparentPowerLimits(limits);
+        this.copyPropertiesTo(limits);
         return limits;
     }
 

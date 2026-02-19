@@ -24,7 +24,7 @@ public interface TapChangerAdder<
     A extends TapChangerStepAdder<A, S>,
     B extends TapChangerStepAdder<B, R>,
     R extends TapChangerStepsReplacer<R, B>,
-    C extends TapChanger<C, D, R, B>> {
+    C extends TapChanger<C, D, R, B>> extends PropertiesHolder {
 
     S setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 

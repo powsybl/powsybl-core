@@ -14,10 +14,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -116,6 +114,46 @@ class LoadingLimitsUtilTest {
         private final String ownerId;
         private final List<TemporaryLimitToCreate> temporaryLimitToCreateList;
         private double permanentLimit;
+        protected final Properties properties = new Properties();
+
+        public Properties getProperties() {
+            return properties;
+        }
+
+        @Override
+        public boolean hasProperty() {
+            return properties.size() > 1;
+        }
+
+        @Override
+        public boolean hasProperty(String key) {
+            return properties.containsKey(key);
+        }
+
+        @Override
+        public String getProperty(String key) {
+            return properties.getProperty(key);
+        }
+
+        @Override
+        public String getProperty(String key, String defaultValue) {
+            return properties.getProperty(key, defaultValue);
+        }
+
+        @Override
+        public String setProperty(String key, String value) {
+            return (String) properties.setProperty(key, value);
+        }
+
+        @Override
+        public boolean removeProperty(String key) {
+            return properties.remove(key) != null;
+        }
+
+        @Override
+        public Set<String> getPropertyNames() {
+            return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+        }
 
         public LimitsAdder(String ownerId, double permanentLimit, List<TemporaryLimitToCreate> temporaryLimitToCreateList) {
             this.ownerId = ownerId;

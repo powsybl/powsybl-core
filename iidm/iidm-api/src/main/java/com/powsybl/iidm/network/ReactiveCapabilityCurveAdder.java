@@ -11,9 +11,9 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface ReactiveCapabilityCurveAdder {
+public interface ReactiveCapabilityCurveAdder extends PropertiesHolder {
 
-    interface PointAdder {
+    interface PointAdder extends PropertiesHolder {
 
         PointAdder setP(double p);
 
@@ -22,9 +22,11 @@ public interface ReactiveCapabilityCurveAdder {
         PointAdder setMaxQ(double maxQ);
 
         ReactiveCapabilityCurveAdder endPoint();
+
     }
 
     PointAdder beginPoint();
 
     ReactiveCapabilityCurve add();
+
 }

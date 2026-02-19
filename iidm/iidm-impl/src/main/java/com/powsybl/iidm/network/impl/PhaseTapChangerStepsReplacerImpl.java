@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.PhaseTapChangerStepsReplacer;
  */
 public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsReplacer<PhaseTapChangerStepsReplacerImpl, PhaseTapChangerStepImpl> implements PhaseTapChangerStepsReplacer {
 
-    class StepAdderImpl implements PhaseTapChangerStepsReplacer.StepAdder {
+    class StepAdderImpl extends AbstractPropertiesHolder implements PhaseTapChangerStepsReplacer.StepAdder {
 
         private double alpha = Double.NaN;
 
@@ -68,10 +68,10 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         @Override
         public PhaseTapChangerStepsReplacer endStep() {
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
+            this.copyPropertiesTo(step);
             steps.add(step);
             return PhaseTapChangerStepsReplacerImpl.this;
         }
-
     }
 
     PhaseTapChangerStepsReplacerImpl(PhaseTapChangerImpl phaseTapChanger) {

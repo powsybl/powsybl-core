@@ -7,15 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Area;
-import com.powsybl.iidm.network.AreaBoundary;
-import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class AreaBoundaryImpl implements AreaBoundary {
+public class AreaBoundaryImpl extends AbstractPropertiesHolder implements AreaBoundary {
 
     private final Area area;
 
@@ -76,4 +73,5 @@ public class AreaBoundaryImpl implements AreaBoundary {
             terminal = newTerminal;
         }
     }
+
 }
