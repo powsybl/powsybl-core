@@ -8,12 +8,12 @@
             <iidm:generator id="B1-G1 " energySource="OTHER" minP="0.0" maxP="1000.0" voltageRegulatorOn="true" targetP="35.849" targetV="138.0" targetQ="180.357" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="-9900.0" maxQ="9900.0"/>
             </iidm:generator>
-            <iidm:shunt id="B1-SwSH1" sectionCount="2" voltageRegulatorOn="false" bus="B1" connectableBus="B1">
+            <iidm:shuntCompensator id="B1-SwSH1" sectionCount="2" voltageRegulatorOn="false" bus="B1" connectableBus="B1">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.00630119722747322" g="0.0"/>
                 </iidm:shuntNonLinearModel>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S2">
@@ -120,12 +120,12 @@
                 <iidm:bus id="B6" name="6           " v="125.35506" angle="0.3902"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B6-L1 " loadType="UNDEFINED" p0="68.0" q0="14.0" bus="B6" connectableBus="B6"/>
-            <iidm:shunt id="B6-SwSH1" sectionCount="2" voltageRegulatorOn="false" bus="B6" connectableBus="B6">
+            <iidm:shuntCompensator id="B6-SwSH1" sectionCount="2" voltageRegulatorOn="false" bus="B6" connectableBus="B6">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.005250997689561016" g="0.0"/>
                 </iidm:shuntNonLinearModel>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S7">

@@ -7,9 +7,9 @@
                 <iidm:switch id="VL3_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
                 <iidm:internalConnection node1="0" node2="2"/>
             </iidm:nodeBreakerTopology>
-            <iidm:shunt id="Shunt/Filter" sectionCount="1" voltageRegulatorOn="false" node="2">
+            <iidm:shuntCompensator id="Shunt/Filter" sectionCount="1" voltageRegulatorOn="false" node="2">
                 <iidm:shuntLinearModel bPerSection="-5.165289039723575E-4" gPerSection="0.0" maximumSectionCount="1"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S4">
