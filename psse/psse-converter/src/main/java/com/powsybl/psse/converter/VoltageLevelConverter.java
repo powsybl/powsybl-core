@@ -262,9 +262,21 @@ class VoltageLevelConverter extends AbstractConverter {
     }
 
     private static void createBusBranchContextExportForFullExport(VoltageLevel voltageLevel, ContextExport contextExport) {
-        voltageLevel.getBusView().getBuses().forEach(bus -> contextExport.getFullExport().addBusIBusView(contextExport.getFullExport().getNewPsseBusI(), bus));
+        // If only the buses defined in BusView were considered, certain de-energized configurations could lead to terminals lacking an associated bus reference
+        voltageLevel.getConnectableStream().flatMap(connectable -> connectableBuses(voltageLevel, connectable).stream())
+                .collect(Collectors.toSet()).stream().sorted(Comparator.comparing(Identifiable::getId))
+                .forEach(bus -> contextExport.getFullExport().addBusIBus(contextExport.getFullExport().getNewPsseBusI(), bus));
+
         voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
+                .sorted(Comparator.comparing(Identifiable::getId))
                 .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
+    }
+
+    private static List<Bus> connectableBuses(VoltageLevel voltageLevel, Connectable<?> connectable) {
+        return connectable.getTerminals().stream()
+                .filter(t -> voltageLevel.equals(t.getVoltageLevel()))
+                .map(AbstractConverter::resolveTerminalBus)
+                .toList();
     }
 
     private static void createBusBranchContextExportForUpdating(VoltageLevel voltageLevel, ContextExport contextExport) {
@@ -323,24 +335,26 @@ class VoltageLevelConverter extends AbstractConverter {
 
         contextExport.getFullExport().addPsseSubstationIdVoltageLevel(psseSubstationId, voltageLevel);
 
-        connectedSetsBySwitchesAndInternalConnections.forEach(connectedSet -> {
-            int busI = contextExport.getFullExport().getNewPsseBusI();
-            Set<Bus> busViewBusesForBusI = new HashSet<>();
+        connectedSetsBySwitchesAndInternalConnections.stream()
+                .sorted(Comparator.comparing(connectedSet -> connectedSet.stream().min(Integer::compareTo).orElse(Integer.MAX_VALUE)))
+                .forEach(connectedSet -> {
+                    int busI = contextExport.getFullExport().getNewPsseBusI();
+                    Set<Bus> busViewBusesForBusI = new HashSet<>();
 
-            connectedSet.stream()
-                    .filter(node -> !isRepresented(representativeForInternalConnectionsNodes, node))
-                    .forEach(nonRepresentedNode -> contextForNonRepresentedNode(voltageLevel, nonRepresentedNode, busI, busViewBusesForBusI, psseSubstationId, contextExport));
+                    connectedSet.stream()
+                            .filter(node -> !isRepresented(representativeForInternalConnectionsNodes, node))
+                            .forEach(nonRepresentedNode -> contextForNonRepresentedNode(voltageLevel, nonRepresentedNode, busI, busViewBusesForBusI, psseSubstationId, contextExport));
 
-            connectedSet.stream()
-                    .filter(node -> isRepresented(representativeForInternalConnectionsNodes, node))
-                    .forEach(representedNode -> {
-                        int representativeNode = representativeForInternalConnectionsNodes.get(representedNode);
-                        contextForRepresentedNode(voltageLevel, representedNode, representativeNode, contextExport);
-                    });
+                    connectedSet.stream()
+                            .filter(node -> isRepresented(representativeForInternalConnectionsNodes, node))
+                            .forEach(representedNode -> {
+                                int representativeNode = representativeForInternalConnectionsNodes.get(representedNode);
+                                contextForRepresentedNode(voltageLevel, representedNode, representativeNode, contextExport);
+                            });
 
-            Bus selectedBus = busViewBusesForBusI.stream().min(Comparator.comparingInt(VoltageLevelConverter::findPriorityType).thenComparing(Bus::getId)).orElse(null);
-            contextExport.getFullExport().addBusIBusView(busI, selectedBus);
-        });
+                    Bus selectedBus = busViewBusesForBusI.stream().min(Comparator.comparingInt(VoltageLevelConverter::findPriorityType).thenComparing(Bus::getId)).orElse(null);
+                    contextExport.getFullExport().addBusIBus(busI, selectedBus);
+                });
 
         voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
                 .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
@@ -351,7 +365,7 @@ class VoltageLevelConverter extends AbstractConverter {
             if (!mergedSet.contains(node)) {
                 int busI = contextExport.getFullExport().getNewPsseBusI();
                 contextForIsolatedNode(voltageLevel, node, busI, psseSubstationId, contextExport);
-                contextExport.getFullExport().addBusIBusView(busI, null);
+                contextExport.getFullExport().addBusIBus(busI, null);
             }
         }
 
@@ -435,9 +449,9 @@ class VoltageLevelConverter extends AbstractConverter {
     private static void contextForNonRepresentedNode(VoltageLevel voltageLevel, int node, int busI, Set<Bus> busViewBusesForBusI, String psseSubstationId, ContextExport contextExport) {
         int psseNode = contextExport.getFullExport().getNewPsseNode(psseSubstationId);
         findConnectedBusViewNode(voltageLevel, node).ifPresentOrElse(busView -> {
-            contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, busView);
+            contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, busView, false);
             busViewBusesForBusI.add(busView);
-        }, () -> contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, null));
+        }, () -> contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, null, false));
     }
 
     private static void contextForRepresentedNode(VoltageLevel voltageLevel, int node, int representativeNode, ContextExport contextExport) {
@@ -445,12 +459,12 @@ class VoltageLevelConverter extends AbstractConverter {
         int psseNode = contextExport.getFullExport().getPsseNode(voltageLevel, representativeNode).orElseThrow();
         Bus busView = contextExport.getFullExport().getVoltageBus(voltageLevel, representativeNode).orElse(null);
 
-        contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, busView);
+        contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, busView, true);
     }
 
     private static void contextForIsolatedNode(VoltageLevel voltageLevel, int node, int busI, String psseSubstationId, ContextExport contextExport) {
         int psseNode = contextExport.getFullExport().getNewPsseNode(psseSubstationId);
-        contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, null);
+        contextExport.getFullExport().addNodeData(voltageLevel, node, busI, psseNode, null, false);
     }
 
     private static int findPriorityType(Bus busView) {
@@ -509,6 +523,9 @@ class VoltageLevelConverter extends AbstractConverter {
         List<PsseSubstation.PsseSubstationNode> nodes = new ArrayList<>();
 
         for (int node : voltageLevel.getNodeBreakerView().getNodes()) {
+            if (contextExport.getFullExport().isRepresentedNode(voltageLevel, node)) {
+                continue;
+            }
             contextExport.getFullExport().getBusI(voltageLevel, node).ifPresent(busI -> {
                 int ni = contextExport.getFullExport().getPsseNode(voltageLevel, node).orElseThrow();
                 Bus voltageBusView = contextExport.getFullExport().getVoltageBus(voltageLevel, node).orElse(null);
@@ -627,7 +644,7 @@ class VoltageLevelConverter extends AbstractConverter {
                         buses.add(otherNodeBusR.busI);
                     }
                 } else {
-                    Bus busView = getTerminalConnectableBusView(terminal);
+                    Bus busView = resolveTerminalBus(terminal);
                     buses.add(contextExport.getFullExport().getBusI(busView).orElseThrow());
                 }
             });

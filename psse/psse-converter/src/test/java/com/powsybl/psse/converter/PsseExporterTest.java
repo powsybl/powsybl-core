@@ -28,6 +28,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 
+import com.powsybl.iidm.serde.XMLImporter;
 import com.powsybl.psse.converter.extensions.PsseModelExtension;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
@@ -51,7 +52,7 @@ import java.util.Properties;
  */
 class PsseExporterTest extends AbstractSerDeTest {
 
-    private Network importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+    private Network importTest(String basename, String filename, boolean ignoreBaseVoltage) {
         Properties properties = new Properties();
         properties.put("psse.import.ignore-base-voltage", ignoreBaseVoltage);
 
@@ -66,9 +67,8 @@ class PsseExporterTest extends AbstractSerDeTest {
         Path path = fileSystem.getPath(pathName);
         Path file = fileSystem.getPath(pathName + fileName);
 
-        Properties properties = null;
         DataSource dataSource = new DirectoryDataSource(path, baseName);
-        new PsseExporter().export(network, properties, dataSource);
+        new PsseExporter().export(network, null, dataSource);
 
         try (InputStream is = Files.newInputStream(file)) {
             assertTxtEquals(getClass().getResourceAsStream("/" + fileName), is);
@@ -295,7 +295,7 @@ class PsseExporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void exportDataTest() throws IOException {
+    void exportDataTest() {
         PsseExporter psseExporter = new PsseExporter();
 
         assertEquals("Update IIDM to PSS/E ", psseExporter.getComment());
@@ -303,5 +303,214 @@ class PsseExporterTest extends AbstractSerDeTest {
         assertEquals(2, psseExporter.getParameters().size());
         assertEquals("psse.export.update", psseExporter.getParameters().get(0).getName());
         assertEquals("psse.export.raw-format", psseExporter.getParameters().get(1).getName());
+    }
+
+    @Test
+    void rawExportFailingTest() throws IOException {
+        ReadOnlyDataSource ds = new ResourceDataSource("raw-export-failing", new ResourceSet("/", "raw-export-failing.xiidm"));
+        Network network = new XMLImporter().importData(ds, new NetworkFactoryImpl(), null);
+        exportTest(network, "raw-export-failing", "raw-export-failing.raw");
+    }
+
+    @Test
+    void exportBusWithoutInjectionInBusBreakerModelTest() throws IOException {
+        Network network = createBusBreakerModel();
+        exportTest(network, "busWithoutInjectionInBusBreakerModel", "busWithoutInjectionInBusBreakerModel.raw");
+    }
+
+    @Test
+    void exportBusWithoutInjectionInNodeBreakerModelWithoutSwitchesTest() throws IOException {
+        Network network = createNodeBreakerModelWithoutSwitches();
+        exportTest(network, "busWithoutInjectionInNodeBreakerModelWithoutSwitches", "busWithoutInjectionInNodeBreakerModelWithoutSwitches.raw");
+    }
+
+    @Test
+    void exportBusWithoutInjectionInNodeBreakerModelWithSwitchesTest() throws IOException {
+        Network network = createNodeBreakerModelWithSwitches();
+        exportTest(network, "busWithoutInjectionInNodeBreakerModelWithSwitches", "busWithoutInjectionInNodeBreakerModelWithSwitches.raw");
+    }
+
+    @Test
+    void exportBusWithoutInjectionInNodeBreakerModelWithIsolatedInternalConnectionTest() throws IOException {
+        Network network = createNodeBreakerModelWithSwitches();
+        network.getVoltageLevel("voltageLevel3").getNodeBreakerView().newInternalConnection().setNode1(4).setNode2(40).add();
+
+        exportTest(network, "busWithoutInjectionInNodeBreakerModelWithIsolatedInternalConnection", "busWithoutInjectionInNodeBreakerModelWithIsolatedInternalConnection.raw");
+    }
+
+    private static Network createBusBreakerModel() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "busBreakerModelTest")
+                .setCaseDate(ZonedDateTime.parse("2026-02-16T10:00:00.000+02:00"));
+        Substation substation1 = createSubstation(network, "substation1");
+        VoltageLevel voltageLevel1 = createVoltageLevel(substation1, "voltageLevel1", TopologyKind.BUS_BREAKER);
+        Substation substation2 = createSubstation(network, "substation2");
+        VoltageLevel voltageLevel2 = createVoltageLevel(substation2, "voltageLevel2", TopologyKind.BUS_BREAKER);
+        Substation substation3 = createSubstation(network, "substation3");
+        VoltageLevel voltageLevel3 = createVoltageLevel(substation3, "voltageLevel3", TopologyKind.BUS_BREAKER);
+
+        voltageLevel1.getBusBreakerView().newBus().setId("bus1").add();
+        voltageLevel2.getBusBreakerView().newBus().setId("bus2").add();
+        voltageLevel3.getBusBreakerView().newBus().setId("bus3").add();
+
+        createGeneratorInBusBreakerModel(voltageLevel1);
+        createLoadInBusBreakerModel(voltageLevel2);
+
+        createLineInBusBreakerModel(network, "Line1", voltageLevel1.getId(), "bus1", voltageLevel2.getId(), "bus2");
+        Line line2 = createLineInBusBreakerModel(network, "Line2", voltageLevel2.getId(), "bus2", voltageLevel3.getId(), "bus3");
+        line2.getTerminal2().disconnect();
+
+        return network;
+    }
+
+    private static Network createNodeBreakerModelWithoutSwitches() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "nodeBreakerModelWithoutSwitchesTest")
+                .setCaseDate(ZonedDateTime.parse("2026-02-16T10:00:00.000+02:00"));
+        Substation substation1 = createSubstation(network, "substation1");
+        VoltageLevel voltageLevel1 = createVoltageLevel(substation1, "voltageLevel1", TopologyKind.NODE_BREAKER);
+        Substation substation2 = createSubstation(network, "substation2");
+        VoltageLevel voltageLevel2 = createVoltageLevel(substation2, "voltageLevel2", TopologyKind.NODE_BREAKER);
+        Substation substation3 = createSubstation(network, "substation3");
+        VoltageLevel voltageLevel3 = createVoltageLevel(substation3, "voltageLevel3", TopologyKind.NODE_BREAKER);
+
+        voltageLevel1.getNodeBreakerView().newBusbarSection().setId("bus1").setNode(1);
+        voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(1).setNode2(10).add();
+        voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(1).setNode2(11).add();
+
+        voltageLevel2.getNodeBreakerView().newBusbarSection().setId("bus2").setNode(2);
+        voltageLevel2.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(20).add();
+        voltageLevel2.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(21).add();
+        voltageLevel2.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(22).add();
+
+        voltageLevel3.getNodeBreakerView().newBusbarSection().setId("bus3").setNode(3);
+        voltageLevel3.getNodeBreakerView().newInternalConnection().setNode1(3).setNode2(30).add();
+
+        createGeneratorInNodeBreakerModel(voltageLevel1);
+        createLoadInNodeBreakerModel(voltageLevel2);
+
+        createLineInNodeBreakerModel(network, "Line1", voltageLevel1.getId(), 11, voltageLevel2.getId(), 21);
+        Line line2 = createLineInNodeBreakerModel(network, "Line2", voltageLevel2.getId(), 22, voltageLevel3.getId(), 30);
+        line2.getTerminal2().disconnect();
+
+        return network;
+    }
+
+    private static Network createNodeBreakerModelWithSwitches() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "nodeBreakerModelWithSwitchesTest")
+                .setCaseDate(ZonedDateTime.parse("2026-02-16T10:00:00.000+02:00"));
+        Substation substation1 = createSubstation(network, "substation1");
+        VoltageLevel voltageLevel1 = createVoltageLevel(substation1, "voltageLevel1", TopologyKind.NODE_BREAKER);
+        Substation substation2 = createSubstation(network, "substation2");
+        VoltageLevel voltageLevel2 = createVoltageLevel(substation2, "voltageLevel2", TopologyKind.NODE_BREAKER);
+        Substation substation3 = createSubstation(network, "substation3");
+        VoltageLevel voltageLevel3 = createVoltageLevel(substation3, "voltageLevel3", TopologyKind.NODE_BREAKER);
+
+        voltageLevel1.getNodeBreakerView().newBusbarSection().setId("bus1").setNode(1);
+        voltageLevel1.getNodeBreakerView().newBreaker().setId("Sw-Gen-Line1-from").setNode1(1).setNode2(10).setOpen(false).add();
+        voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(10).setNode2(11).add();
+
+        voltageLevel2.getNodeBreakerView().newBusbarSection().setId("bus2").setNode(2);
+        voltageLevel2.getNodeBreakerView().newBreaker().setId("Sw-Load").setNode1(2).setNode2(20).setOpen(false).add();
+        voltageLevel2.getNodeBreakerView().newBreaker().setId("Sw-Line1-To").setNode1(2).setNode2(21).setOpen(false).add();
+        voltageLevel2.getNodeBreakerView().newBreaker().setId("Sw-Line2-From").setNode1(2).setNode2(22).setOpen(false).add();
+
+        voltageLevel3.getNodeBreakerView().newBusbarSection().setId("bus3").setNode(3);
+        voltageLevel3.getNodeBreakerView().newBreaker().setId("Sw-Line2-To").setNode1(3).setNode2(30).setOpen(true).add();
+
+        createGeneratorInNodeBreakerModel(voltageLevel1);
+        createLoadInNodeBreakerModel(voltageLevel2);
+
+        createLineInNodeBreakerModel(network, "Line1", voltageLevel1.getId(), 11, voltageLevel2.getId(), 21);
+        createLineInNodeBreakerModel(network, "Line2", voltageLevel2.getId(), 22, voltageLevel3.getId(), 30);
+
+        return network;
+    }
+
+    private static Substation createSubstation(Network network, String substationId) {
+        return network.newSubstation()
+                .setId(substationId)
+                .add();
+    }
+
+    private static VoltageLevel createVoltageLevel(Substation substation, String voltageLevelId, TopologyKind topologyKind) {
+        return substation.newVoltageLevel()
+                .setId(voltageLevelId)
+                .setNominalV(400.0)
+                .setTopologyKind(topologyKind)
+                .add();
+    }
+
+    private static void createGeneratorInBusBreakerModel(VoltageLevel voltageLevel) {
+        Generator generator = voltageLevel.newGenerator()
+                .setId("Gen")
+                .setTargetP(10.0)
+                .setTargetQ(0.0)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
+                .setMinP(0.0)
+                .setMaxP(25.0)
+                .setBus("bus1")
+                .setConnectableBus("bus1")
+                .add();
+        generator.newMinMaxReactiveLimits().setMinQ(-10.0).setMaxQ(15.0).add();
+
+    }
+
+    private static void createGeneratorInNodeBreakerModel(VoltageLevel voltageLevel) {
+        Generator generator = voltageLevel.newGenerator()
+                .setId("Gen")
+                .setTargetP(10.0)
+                .setTargetQ(0.0)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
+                .setMinP(0.0)
+                .setMaxP(25.0)
+                .setNode(10)
+                .add();
+        generator.newMinMaxReactiveLimits().setMinQ(-10.0).setMaxQ(15.0).add();
+    }
+
+    private static void createLoadInBusBreakerModel(VoltageLevel voltageLevel) {
+        voltageLevel.newLoad()
+                .setId("Load")
+                .setP0(10.0)
+                .setQ0(3.0)
+                .setBus("bus2")
+                .setConnectableBus("bus2")
+                .add();
+    }
+
+    private static void createLoadInNodeBreakerModel(VoltageLevel voltageLevel) {
+        voltageLevel.newLoad()
+                .setId("Load")
+                .setP0(10.0)
+                .setQ0(3.0)
+                .setNode(20)
+                .add();
+    }
+
+    private static Line createLineInBusBreakerModel(Network network, String lineId, String voltageLevelId1, String busId1, String voltageLevelId2, String busId2) {
+        return network.newLine()
+                .setId(lineId)
+                .setR(0.001)
+                .setX(0.001)
+                .setVoltageLevel1(voltageLevelId1)
+                .setVoltageLevel2(voltageLevelId2)
+                .setBus1(busId1)
+                .setConnectableBus1(busId1)
+                .setBus2(busId2)
+                .setConnectableBus2(busId2)
+                .add();
+    }
+
+    private static Line createLineInNodeBreakerModel(Network network, String lineId, String voltageLevelId1, int node1, String voltageLevelId2, int node2) {
+        return network.newLine()
+                .setId(lineId)
+                .setR(0.001)
+                .setX(0.001)
+                .setVoltageLevel1(voltageLevelId1)
+                .setVoltageLevel2(voltageLevelId2)
+                .setNode1(node1)
+                .setNode2(node2)
+                .add();
     }
 }
