@@ -89,7 +89,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
     }
 
     protected TerminalExt checkAndGetTerminal1() {
-        return new TerminalBuilder(voltageLevel.getNetworkRef(), this, null, TerminalNumber.ONE)
+        return new TerminalBuilder(voltageLevel.getNetworkRef(), voltageLevel.getTopologyKind(), this, null, TerminalNumber.ONE)
                 .setNode(node1)
                 .setBus(bus1)
                 .setConnectableBus(connectableBus1)
@@ -113,7 +113,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
 
     protected Optional<TerminalExt> checkAndGetTerminal2() {
         if (hasTwoAcTerminals()) {
-            return Optional.of(new TerminalBuilder(voltageLevel.getNetworkRef(), this, null, TerminalNumber.TWO)
+            return Optional.of(new TerminalBuilder(voltageLevel.getNetworkRef(), voltageLevel.getTopologyKind(), this, null, TerminalNumber.TWO)
                     .setNode(node2)
                     .setBus(bus2)
                     .setConnectableBus(connectableBus2)
