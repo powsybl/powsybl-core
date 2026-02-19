@@ -10,6 +10,7 @@ package com.powsybl.action.ial.simulator.tools;
 import com.powsybl.action.ial.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
 import com.powsybl.action.ial.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.results.PostContingencyResult;

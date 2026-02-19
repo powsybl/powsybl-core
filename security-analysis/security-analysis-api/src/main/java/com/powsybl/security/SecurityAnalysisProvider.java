@@ -14,6 +14,7 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 

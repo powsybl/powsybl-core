@@ -10,6 +10,12 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.list.*;
+import com.powsybl.contingency.strategy.ConditionalActions;
+import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.contingency.strategy.OperatorStrategyList;
+import com.powsybl.contingency.strategy.condition.Condition;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.ViolationLocation;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.criteria.Criterion;
 import com.powsybl.iidm.criteria.VoltageInterval;
@@ -45,7 +51,16 @@ public class ContingencyJsonModule extends SimpleModule {
         addSerializer(IdentifierContingencyList.class, new IdentifierContingencyListSerializer());
         addSerializer(NetworkElementIdentifier.class, new IdentifierSerializer());
 
+        addSerializer(LimitViolation.class, new LimitViolationSerializer());
+        addSerializer(ViolationLocation.class, new ViolationLocationSerializer());
+
+        addSerializer(OperatorStrategy.class, new OperatorStrategySerializer());
+        addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
+        addSerializer(ConditionalActions.class, new ConditionalActionsSerializer());
+        addSerializer(Condition.class, new ConditionSerializer());
+
         addDeserializer(Criterion.class, new CriterionDeserializer());
+
         // criterion lists
         addDeserializer(InjectionCriterionContingencyList.class, new InjectionCriterionContingencyListDeserializer());
         addDeserializer(HvdcLineCriterionContingencyList.class, new HvdcLineCriterionContingencyListDeserializer());
@@ -62,5 +77,13 @@ public class ContingencyJsonModule extends SimpleModule {
         addDeserializer(ListOfContingencyLists.class, new ListOfContingencyListsDeserializer());
         addDeserializer(IdentifierContingencyList.class, new IdentifierContingencyListDeserializer());
         addDeserializer(NetworkElementIdentifier.class, new IdentifierDeserializer());
+
+        addDeserializer(LimitViolation.class, new LimitViolationDeserializer());
+        addDeserializer(ViolationLocation.class, new ViolationLocationDeserializer());
+
+        addDeserializer(OperatorStrategy.class, new OperatorStrategyDeserializer());
+        addDeserializer(OperatorStrategyList.class, new OperatorStrategyListDeserializer());
+        addDeserializer(ConditionalActions.class, new ConditionalActionsDeserializer());
+        addDeserializer(Condition.class, new ConditionDeserializer());
     }
 }

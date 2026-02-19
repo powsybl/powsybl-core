@@ -11,6 +11,8 @@ import com.google.common.io.ByteSource;
 import com.powsybl.action.Action;
 import com.powsybl.action.ActionList;
 import com.powsybl.computation.*;
+import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.contingency.strategy.OperatorStrategyList;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.security.execution.AbstractSecurityAnalysisExecutionInput;
 import com.powsybl.security.execution.NetworkVariant;
@@ -18,8 +20,6 @@ import com.powsybl.security.json.limitreduction.LimitReductionListSerDeUtil;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.limitreduction.LimitReductionList;
 import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.strategy.OperatorStrategy;
-import com.powsybl.security.strategy.OperatorStrategyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

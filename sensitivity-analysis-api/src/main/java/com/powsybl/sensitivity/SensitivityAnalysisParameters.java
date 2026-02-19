@@ -22,12 +22,13 @@ import java.util.Objects;
  */
 public class SensitivityAnalysisParameters extends AbstractExtendable<SensitivityAnalysisParameters> {
 
-    public static final String VERSION = "1.1";
+    public static final String VERSION = "1.2";
 
     static final double FLOW_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
     static final double VOLTAGE_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
     static final double FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
     static final double ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final SensitivityOperatorStrategiesCalculationMode SENSITIVITY_OPERATOR_STRATEGY_CALCULATION_MODE_DEFAULT_VALUE = SensitivityOperatorStrategiesCalculationMode.NONE;
 
     private double flowFlowSensitivityValueThreshold = FLOW_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
     private double voltageVoltageSensitivityValueThreshold = VOLTAGE_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
@@ -35,6 +36,8 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
     private double angleFlowSensitivityValueThreshold = ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+
+    private SensitivityOperatorStrategiesCalculationMode operatorStrategiesCalculationMode = SENSITIVITY_OPERATOR_STRATEGY_CALCULATION_MODE_DEFAULT_VALUE;
 
     /**
      * Load parameters from platform default config.
@@ -133,5 +136,21 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
      */
     public double getAngleFlowSensitivityValueThreshold() {
         return angleFlowSensitivityValueThreshold;
+    }
+
+    /**
+     * Retrieves the calculation mode used for operator strategies sensitivities.
+     *
+     * @return The current {@code SensitivityOperatorStrategyCalculationMode} defining how
+     *         operator strategies sensitivities are calculated. Possible values include:
+     *         NONE, ALL_CONTINGENCIES, or ONLY_OPERATOR_STRATEGIES.
+     */
+    public SensitivityOperatorStrategiesCalculationMode getOperatorStrategiesCalculationMode() {
+        return operatorStrategiesCalculationMode;
+    }
+
+    public SensitivityAnalysisParameters setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode operatorStrategiesCalculationMode) {
+        this.operatorStrategiesCalculationMode = Objects.requireNonNull(operatorStrategiesCalculationMode);
+        return this;
     }
 }

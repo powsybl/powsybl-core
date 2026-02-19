@@ -16,7 +16,7 @@ import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.iidm.network.ImportersServiceLoader;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.security.LimitViolationFilter;
+import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.security.SecurityAnalysisInput;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisReport;

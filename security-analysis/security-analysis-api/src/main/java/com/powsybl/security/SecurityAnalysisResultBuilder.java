@@ -9,12 +9,13 @@ package com.powsybl.security;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisResultContext;
 import com.powsybl.security.results.*;
-import com.powsybl.security.results.OperatorStrategyResult;
-import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.*;
 

@@ -9,8 +9,8 @@ package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 
 import java.time.Duration;
 import java.util.ArrayList;

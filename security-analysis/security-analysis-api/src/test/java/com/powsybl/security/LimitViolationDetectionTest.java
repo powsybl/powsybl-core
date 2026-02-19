@@ -8,6 +8,7 @@
 package com.powsybl.security;
 
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.contingency.violations.*;
 import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
 import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
@@ -16,7 +17,6 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.security.detectors.AbstractLimitViolationDetectionTest;
-import com.powsybl.security.detectors.LoadingLimitType;
 import com.powsybl.security.limitreduction.DefaultLimitReductionsApplier;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.limitreduction.SimpleLimitsComputer;

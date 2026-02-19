@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisParameters;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
