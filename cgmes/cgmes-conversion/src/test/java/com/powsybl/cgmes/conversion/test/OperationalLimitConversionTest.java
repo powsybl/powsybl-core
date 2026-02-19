@@ -98,6 +98,16 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertEquals(0, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
         assertEquals(6, getUniqueMatches(eqFile, CURRENT_LIMIT).size());
 
+        // Two selected on side 2, check that both are correctly exported
+        network.getLine("LN").addSelectedOperationalLimitsGroups(TwoSides.TWO, "OLS_3");
+        eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
+        assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_SET).size());
+        assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_TYPE).size());
+        assertEquals(3, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
+        assertEquals(9, getUniqueMatches(eqFile, CURRENT_LIMIT).size());
+        // revert to original situation
+        network.getLine("LN").deselectOperationalLimitsGroups(TwoSides.TWO, "OLS_3");
+
         // Export all 3 limits groups, regardless of selected (default value of the parameter).
         eqFile = writeCgmesProfile(network, "EQ", tmpDir);
         assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_SET).size());
