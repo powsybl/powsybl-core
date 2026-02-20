@@ -645,6 +645,25 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
         private final TIntObjectMap<TDoubleArrayList> fictitiousQ0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
 
+        private boolean hasFictitiousInjection(TIntObjectMap<TDoubleArrayList> fictitiousInjectionsByNode) {
+            if (fictitiousInjectionsByNode.isEmpty()) {
+                return false;
+            }
+            int variantIndex = getNetwork().getVariantIndex();
+            for (int node : fictitiousInjectionsByNode.keys()) {
+                TDoubleArrayList fictitiousInjectionByVariant = fictitiousInjectionsByNode.get(node);
+                if (fictitiousInjectionByVariant != null && fictitiousInjectionByVariant.get(variantIndex) != 0.0) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean hasFictitiousP0() {
+            return hasFictitiousInjection(fictitiousP0ByNode);
+        }
+
         @Override
         public double getFictitiousP0(int node) {
             TDoubleArrayList fictP0 = fictitiousP0ByNode.get(node);
@@ -682,6 +701,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 });
             }
             return this;
+        }
+
+        @Override
+        public boolean hasFictitiousQ0() {
+            return hasFictitiousInjection(fictitiousQ0ByNode);
         }
 
         @Override

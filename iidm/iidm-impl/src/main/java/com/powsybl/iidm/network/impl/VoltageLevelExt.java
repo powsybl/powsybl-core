@@ -19,6 +19,16 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject, Validable {
 
     interface NodeBreakerViewExt extends NodeBreakerView {
 
+        /**
+         * Returns true if any node has a non-zero fictitious active power injection.
+         */
+        boolean hasFictitiousP0();
+
+        /**
+         * Returns true if any node has a non-zero fictitious reactive power injection.
+         */
+        boolean hasFictitiousQ0();
+
     }
 
     interface BusBreakerViewExt extends BusBreakerView {

@@ -146,6 +146,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getFictitiousP0() {
         checkValidity();
+        if (!voltageLevel.getNodeBreakerView().hasFictitiousP0()) {
+            return 0.0;
+        }
         return Networks.getNodes(id, voltageLevel, getBusFromTerminal)
                 .mapToDouble(n -> voltageLevel.getNodeBreakerView().getFictitiousP0(n))
                 .reduce(0.0, Double::sum);
@@ -165,6 +168,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getFictitiousQ0() {
         checkValidity();
+        if (!voltageLevel.getNodeBreakerView().hasFictitiousQ0()) {
+            return 0.0;
+        }
         return Networks.getNodes(id, voltageLevel, getBusFromTerminal)
                 .mapToDouble(n -> voltageLevel.getNodeBreakerView().getFictitiousQ0(n))
                 .reduce(0.0, Double::sum);
