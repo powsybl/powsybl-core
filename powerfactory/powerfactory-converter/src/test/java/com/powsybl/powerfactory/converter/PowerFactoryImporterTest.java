@@ -509,7 +509,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     @Test
     void simpleAcDcCase() {
         Properties importParams = new Properties();
-        importParams.put(PowerFactoryImporter.HVDC_IMPORT_DETAILED, true);
+        importParams.put(PowerFactoryImporter.HVDC_IMPORT_MT, true);
         importAndCompareXml("hvdc-3-VSC-ACDC-links", ".dgs", importParams);
     }
 

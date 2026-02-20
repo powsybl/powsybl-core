@@ -51,10 +51,10 @@ public class PowerFactoryImporter implements Importer {
     private static final String FORMAT = "POWER-FACTORY";
 
     // Import parameters
-    public static final String HVDC_IMPORT_DETAILED = "iidm.import.dgs.HVDC-import-detailed";
+    public static final String HVDC_IMPORT_MT = "iidm.import.dgs.HVDC-import-multiterminal";
 
     public static final Parameter HVDC_IMPORT_DETAILED_PARAMETER = new Parameter(
-        HVDC_IMPORT_DETAILED,
+            HVDC_IMPORT_MT,
         ParameterType.BOOLEAN,
         "Convert HVDC model as detailed model",
         Boolean.FALSE
@@ -177,11 +177,11 @@ public class PowerFactoryImporter implements Importer {
         // detailed = possibly full multi-terminals DC subgrids
         if (Parameter.readBoolean(getFormat(), parameters, HVDC_IMPORT_DETAILED_PARAMETER, defaultValueConfig)) {
             hvdcConverter =
-                new HvdcDetailedConverter(importContext, network, elmNets);
+                new MultiTerminalHvdcConverter(importContext, network, elmNets);
         } else {
-            HvdcSimplifiedConverter simplifiedConverter = new HvdcSimplifiedConverter(importContext, network);
-            simplifiedConverter.computeConfigurations(gatherElmTerms(elmNets), gatherElmVscs(elmNets));
-            hvdcConverter = simplifiedConverter;
+            PointToPointHvdcConverter pointToPointHvdcConverter = new PointToPointHvdcConverter(importContext, network);
+            pointToPointHvdcConverter.computeConfigurations(gatherElmTerms(elmNets), gatherElmVscs(elmNets));
+            hvdcConverter = pointToPointHvdcConverter;
         }
 
         // process terminals

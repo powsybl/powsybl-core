@@ -11,7 +11,7 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class HvdcDetailedConverterTest {
+public class MultiTerminalHvdcConverterTest {
 
     // test tolerance for double values.
     // Only makes sense for values that are neither too big or too small.
@@ -111,7 +111,7 @@ public class HvdcDetailedConverterTest {
     private Network importDgs(String id) {
 
         Properties importParams = new Properties();
-        importParams.put(PowerFactoryImporter.HVDC_IMPORT_DETAILED, true);
+        importParams.put(PowerFactoryImporter.HVDC_IMPORT_MT, true);
         final String fileName = id + ".dgs";
         PowerFactoryImporter importer = new PowerFactoryImporter();
         ResourceSet resourceSet = new ResourceSet("/", fileName);

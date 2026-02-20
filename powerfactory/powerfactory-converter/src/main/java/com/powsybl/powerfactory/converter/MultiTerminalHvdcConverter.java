@@ -26,7 +26,7 @@ import java.util.*;
  * Importer from the DGS data model, for multi-terminal DC grids (a.k.a.
  * detailed HVDC).
  */
-public final class HvdcDetailedConverter extends AbstractHvdcConverter {
+public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractHvdcConverter.class);
 
@@ -80,7 +80,7 @@ public final class HvdcDetailedConverter extends AbstractHvdcConverter {
 
     } // private record DcGridData
 
-    public HvdcDetailedConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
+    public MultiTerminalHvdcConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
         super(importContext, network);
         gridData = DcGridData.createGridData(elmNets);
         final int nRead = gridData.acDcConverters.size()
