@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfTieLine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -50,7 +52,7 @@ class IeeeCdfReaderWriterTest {
     private void testIeeeFile(String fileName) throws IOException {
         IeeeCdfModel model;
         // read
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/" + fileName)))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/" + fileName))))) {
             model = new IeeeCdfReader().read(reader);
         }
 
@@ -108,10 +110,10 @@ class IeeeCdfReaderWriterTest {
 
     @Test
     void testTieLine() throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/tieline.txt")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/tieline.txt"))))) {
             IeeeCdfModel model = new IeeeCdfReader().read(reader);
             assertEquals(1, model.getTieLines().size());
-            IeeeCdfTieLine tieLine = model.getTieLines().get(0);
+            IeeeCdfTieLine tieLine = model.getTieLines().getFirst();
             assertEquals(1, tieLine.getMeteredBusNumber());
             assertEquals(2, tieLine.getMeteredAreaNumber());
             assertEquals(3, tieLine.getNonMeteredBusNumber());
