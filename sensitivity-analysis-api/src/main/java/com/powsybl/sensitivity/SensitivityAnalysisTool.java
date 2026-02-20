@@ -59,6 +59,7 @@ public class SensitivityAnalysisTool implements Tool {
     private static final String VARIABLE_SETS_FILE_OPTION = "variable-sets-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_CONTINGENCY_STATUS_FILE_OPTION = "output-contingency-file";
+
     private static final String SINGLE_OUTPUT = "single-output";
 
     @Override
@@ -150,13 +151,16 @@ public class SensitivityAnalysisTool implements Tool {
         return outputFile.replace(".csv", "_contingency_status.csv");
     }
 
+    private static String buildContingencyComponentsStatusPath(String outputFile) {
+        return outputFile.replace(".csv", "_contingency_components_status.csv");
+    }
+
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
         boolean csv = isCsv(outputFile);
         Path outputFileStatus = null;
-
         if (csv) {
             if (line.hasOption(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION)) {
                 outputFileStatus = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION));
@@ -243,10 +247,12 @@ public class SensitivityAnalysisTool implements Tool {
         } else {
             if (parametersRecord.csv) {
                 try (Writer writer = Files.newBufferedWriter(parametersRecord.outputFile, StandardCharsets.UTF_8);
-                     Writer writerStatuses = Files.newBufferedWriter(parametersRecord.outputFileStatus, StandardCharsets.UTF_8);
+                     Writer writerComponentsStatuses = Files.newBufferedWriter(parametersRecord.outputFileStatus, StandardCharsets.UTF_8);
+
                      TableFormatter formatter = SensitivityResultCsvWriter.createTableFormatter(writer);
-                     TableFormatter formatterStatus = SensitivityResultCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
-                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, parametersRecord.contingencies);
+                     TableFormatter formatterComponentsStatus = SensitivityResultCsvWriter.createContingencyStatusComponentsTableFormatter(writerComponentsStatuses)) {
+
+                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterComponentsStatus, parametersRecord.contingencies);
                     SensitivityAnalysis.run(parametersRecord.network, parametersRecord.network.getVariantManager().getWorkingVariantId(),
                         parametersRecord.factorsReader, valuesWriter, parametersRecord.contingencies, parametersRecord.variableSets, parametersRecord.params,
                         parametersRecord.computationManager, ReportNode.NO_OP);
