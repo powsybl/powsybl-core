@@ -132,25 +132,62 @@ class TapChangerConversionTest extends AbstractSerDeTest {
 
     @Test
     void tapChangerControlIdTest() throws IOException {
-        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        Network network = threeWindingsTransformerNetworkWithRatioAndPhaseTapChangers();
 
-        // The IIDM ThreeWindingTransformer has 2 RatioTapChanger, each regulating a different terminal.
+        // The IIDM ThreeWindingTransformer has 2 RatioTapChanger and 2 PhaseTapChanger
         ThreeWindingsTransformer tw3 = network.getThreeWindingsTransformer("3WT");
         assertFalse(tw3.getLeg1().hasRatioTapChanger());
         assertTrue(tw3.getLeg2().hasRatioTapChanger());
-        assertEquals("LOAD_33", tw3.getLeg2().getRatioTapChanger().getRegulationTerminal().getConnectable().getId());
         assertTrue(tw3.getLeg3().hasRatioTapChanger());
-        assertEquals("LOAD_11", tw3.getLeg3().getRatioTapChanger().getRegulationTerminal().getConnectable().getId());
 
-        // The CGMES (3-winding) PowerTransformer has 2 CGMES RatioTapChanger, each having its own TapChangerControl.
+        assertTrue(tw3.getLeg1().hasPhaseTapChanger());
+        assertTrue(tw3.getLeg2().hasPhaseTapChanger());
+        assertFalse(tw3.getLeg3().hasPhaseTapChanger());
+
+        // The CGMES (3-winding) PowerTransformer has 2 RatioTapChanger and 2 PhaseTapChanger, each having its own TapChangerControl.
         String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
-        assertEquals(2, getElementCount(eqFile, "TapChangerControl"));
+        assertEquals(4, getElementCount(eqFile, "TapChangerControl"));
         String sshFile = writeCgmesProfile(network, "SSH", tmpDir);
-        assertEquals(2, getElementCount(sshFile, "TapChangerControl"));
+        assertEquals(4, getElementCount(sshFile, "TapChangerControl"));
         String leg2RatioTapChanger = getElement(eqFile, "RatioTapChanger", "3WT_PT_RTC_2");
         assertEquals("3WT_RTC_2_RC", getResource(leg2RatioTapChanger, "TapChanger.TapChangerControl"));
         String leg3RatioTapChanger = getElement(eqFile, "RatioTapChanger", "3WT_PT_RTC_3");
         assertEquals("3WT_RTC_3_RC", getResource(leg3RatioTapChanger, "TapChanger.TapChangerControl"));
+        String leg1PhaseTapChanger = getElement(eqFile, "PhaseTapChangerTabular", "3WT_PT_PTC_1");
+        assertEquals("3WT_PTC_1_RC", getResource(leg1PhaseTapChanger, "TapChanger.TapChangerControl"));
+        String leg2PhaseTapChanger = getElement(eqFile, "PhaseTapChangerTabular", "3WT_PT_PTC_2");
+        assertEquals("3WT_PTC_2_RC", getResource(leg2PhaseTapChanger, "TapChanger.TapChangerControl"));
+    }
+
+    private Network threeWindingsTransformerNetworkWithRatioAndPhaseTapChangers() {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        ThreeWindingsTransformer tw3 = network.getThreeWindingsTransformer("3WT");
+        tw3.getLeg1().newPhaseTapChanger()
+            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+            .setRegulationValue(100)
+            .setTargetDeadband(10)
+            .setRegulationTerminal(tw3.getLeg1().getTerminal())
+            .setLowTapPosition(0)
+            .beginStep()
+                .setAlpha(0.0)
+                .setRho(1.0)
+            .endStep()
+            .setTapPosition(0)
+            .add();
+        tw3.getLeg2().newPhaseTapChanger()
+            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+            .setRegulationValue(400)
+            .setTargetDeadband(10)
+            .setRegulationTerminal(tw3.getLeg2().getTerminal())
+            .setLowTapPosition(0)
+            .beginStep()
+                .setAlpha(0.0)
+                .setRho(1.0)
+            .endStep()
+            .setTapPosition(0)
+            .add();
+
+        return network;
     }
 
     private void assertTapStep(PhaseTapChangerStep step, double alpha, double x) {
