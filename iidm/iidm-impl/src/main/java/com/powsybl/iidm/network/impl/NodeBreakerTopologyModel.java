@@ -41,6 +41,7 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -1168,11 +1169,12 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     /**
      * Check if a switch is open and cannot be operated (according to the given predicate)
-     * @param sw the switch to test
+     *
+     * @param sw               the switch to test
      * @param isSwitchOperable the predicate defining if a switch can be operated
      * @return <code>true</code> if the switch is open and cannot be operated
      */
-    private boolean checkNonClosableSwitch(SwitchImpl sw, Predicate<? super SwitchImpl> isSwitchOperable) {
+    private boolean checkNonClosableSwitch(SwitchImpl sw, Predicate<Switch> isSwitchOperable) {
         return SwitchPredicates.IS_OPEN.test(sw) && isSwitchOperable.negate().test(sw);
     }
 
@@ -1185,6 +1187,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     /**
      * Connect the terminal to a busbar section in its voltage level.
      * The switches that can be operated are the non-fictional breakers.
+     *
      * @param terminal Terminal to connect
      * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
      */
@@ -1195,12 +1198,13 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     /**
      * Connect the terminal to a busbar section in its voltage level.
-     * @param terminal Terminal to connect
+     *
+     * @param terminal         Terminal to connect
      * @param isSwitchOperable Predicate used to identify the switches that can be operated on. <b>Warning:</b> do not include a test to see if the switch is opened, it is already done in this method
      * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
      */
     @Override
-    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOperable) {
+    public boolean connect(TerminalExt terminal, Predicate<Switch> isSwitchOperable) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1209,46 +1213,143 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             return false;
         }
 
-        // Initialisation of a list to open in case some terminals are in node-breaker view
-        Set<SwitchImpl> switchForConnection = new HashSet<>();
+        // Initialize a list of switches to close and of bus-breaker terminals to connect
+        ConnectionElementsContainer connectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>());
 
         // Get the list of switches to close
-        if (getConnectingSwitches(terminal, isSwitchOperable, switchForConnection)) {
+        if (canTheTerminalBeConnected(terminal, isSwitchOperable, false, connectionElementsContainer)) {
             // Close the switches
-            switchForConnection.forEach(sw -> sw.setOpen(false));
+            connectionElementsContainer.switchesToOperate().forEach(sw -> sw.setOpen(false));
             return true;
         } else {
             return false;
         }
     }
 
-    boolean getConnectingSwitches(Terminal terminal, Predicate<? super SwitchImpl> isSwitchOperable, Set<SwitchImpl> switchForConnection) {
+    /**
+     * Find all paths starting from the current terminal to a busbar section that does not contain an open switch
+     * which is not of the type of switch the user wants to operate.
+     * <p>Paths are already sorted by the number of open switches and by the size of the paths.</p>
+     */
+    private List<TIntArrayList> getPathsToBusbarSection(int node, Predicate<Switch> isSwitchOperable) {
+        return graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
+            Comparator.comparing((TIntArrayList o) -> o.grep(idx -> SwitchPredicates.IS_OPEN.test(graph.getEdgeObject(idx))).size())
+                .thenComparing(TIntArrayList::size));
+    }
+
+    boolean canTheTerminalBeConnected(Terminal terminal, Predicate<Switch> isSwitchOperable,
+                                      boolean propagateConnectionIfNeeded,
+                                      ConnectionElementsContainer connectionElementsContainer) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
+        // Node of the terminal
         int node = ((NodeTerminal) terminal).getNode();
-        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
-        // that is not of the type of switch the user wants to operate
-        // Paths are already sorted by the number of open switches and by the size of the paths
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerTopologyModel::isBusbarSection, sw -> checkNonClosableSwitch(sw, isSwitchOperable),
-            Comparator.comparing((TIntArrayList o) -> o.grep(idx -> SwitchPredicates.IS_OPEN.test(graph.getEdgeObject(idx))).size())
-                .thenComparing(TIntArrayList::size));
+
+        // Find the paths
+        List<TIntArrayList> paths = getPathsToBusbarSection(node, isSwitchOperable);
+
         if (!paths.isEmpty()) {
-            // the shortest path is the best
+            // Get the shortest path
             TIntArrayList shortestPath = paths.get(0);
 
-            // close all open switches on the path
-            for (int i = 0; i < shortestPath.size(); i++) {
-                int e = shortestPath.get(i);
-                SwitchImpl sw = graph.getEdgeObject(e);
-                if (SwitchPredicates.IS_OPEN.test(sw)) {
-                    // Since the paths were constructed using the method checkNonClosableSwitches, only operable switches can be open
-                    switchForConnection.add(sw);
+            // Try to connect on this path, even by propagating if asked and needed
+            return addSwitchesToCloseForConnectToSet(shortestPath, isSwitchOperable, propagateConnectionIfNeeded, (NodeTerminal) terminal, connectionElementsContainer);
+
+        } else if (propagateConnectionIfNeeded) {
+            // If no path was found and propagation is asked, try to propagate the connection
+            return canPropagateConnection((NodeTerminal) terminal, isSwitchOperable, connectionElementsContainer);
+        }
+
+        return false;
+    }
+
+    private boolean addSwitchesToCloseForConnectToSet(TIntArrayList path, Predicate<Switch> isSwitchOperable,
+                                                      boolean propagateConnectionIfNeeded, NodeTerminal terminal,
+                                                      ConnectionElementsContainer connectionElementsContainer) {
+        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>(connectionElementsContainer.connectables()));
+        for (int i = 0; i < path.size(); i++) {
+            int e = path.get(i);
+            SwitchImpl sw = graph.getEdgeObject(e);
+            if (SwitchPredicates.IS_OPEN.test(sw)) {
+                localConnectionElementsContainer.switchesToOperate().add(sw);
+            }
+        }
+
+        if (localConnectionElementsContainer.switchesToOperate().isEmpty() &&
+            (!propagateConnectionIfNeeded || !canPropagateConnection(terminal, isSwitchOperable, localConnectionElementsContainer))) {
+            return false;
+        }
+        connectionElementsContainer.addAll(localConnectionElementsContainer);
+        return true;
+    }
+
+    private static boolean isConnectableBranch(Terminal t) {
+        return t != null && t.getConnectable() instanceof AbstractConnectableBranch;
+    }
+
+    private boolean canPropagateConnection(NodeTerminal previousTerminal, Predicate<Switch> isSwitchOperable,
+                                           ConnectionElementsContainer connectionElementsContainer) {
+        // Find the paths from the line to other lines
+        List<TIntArrayList> pathsFromLine = graph.findAllPaths(previousTerminal.getNode(),
+            NodeBreakerTopologyModel::isConnectableBranch,
+            sw -> checkNonClosableSwitch(sw, isSwitchOperable));
+        if (!pathsFromLine.isEmpty()) {
+
+            // Initialize a list of lines connected to the BusbarSection
+            Set<LineImpl> linesAndSidesConnectedToIncomingLine = addOppositeLines(pathsFromLine, previousTerminal);
+
+            // We check if the opposite side of each line can be connected
+            for (LineImpl line : linesAndSidesConnectedToIncomingLine) {
+                // If any line has already been seen or cannot be connected, we return false
+                if (!connectionElementsContainer.connectables().contains(line)
+                    && !line.connect(isSwitchOperable, null, true, false, connectionElementsContainer)) {
+                    return false;
                 }
             }
+            // If every line can be connected, we return true
             return true;
         }
         return false;
+    }
+
+    private Set<LineImpl> addOppositeLines(List<TIntArrayList> pathsFromLine, NodeTerminal previousTerminal) {
+        // Initialize the map
+        Set<LineImpl> linesConnectedToIncomingLine = new HashSet<>();
+
+        // Each path is visited, and we add to the list the line at the end
+        for (TIntArrayList pathFromLine : pathsFromLine) {
+            // Get the terminal at the end of the path
+            Terminal terminalEndOfPathFromLine = getEndOfPathTerminal(pathFromLine, previousTerminal);
+
+            // Connectables should only be lines by now, but in case...
+            if (terminalEndOfPathFromLine.getConnectable() instanceof LineImpl line) {
+                linesConnectedToIncomingLine.add(line);
+            } else {
+                throw new PowsyblException("Unexpected connectable type " + terminalEndOfPathFromLine.getConnectable().getClass().getName()
+                    + " for connectable " + terminalEndOfPathFromLine.getConnectable().getId());
+            }
+        }
+
+        return linesConnectedToIncomingLine;
+    }
+
+    private Terminal getEndOfPathTerminal(TIntArrayList path, NodeTerminal previousTerminal) {
+        return graph.getVertexObject(getEndOfPathVertex(path, previousTerminal));
+    }
+
+    private static boolean isConnectable(Terminal t) {
+        return t != null && t.getConnectable() instanceof AbstractConnectable<?>;
+    }
+
+    private int getEndOfPathVertex(TIntArrayList path, NodeTerminal previousTerminal) {
+        // Get the terminal at the end of the path
+        int e = path.get(path.size() - 1);
+        int v1 = graph.getEdgeVertex1(e);
+        int v2 = graph.getEdgeVertex2(e);
+        return graph.getVertexObject(v1) != null
+            && graph.getVertexObject(v1) != previousTerminal
+            && (isConnectableBranch(graph.getVertexObject(v1)) || isBusbarSection(graph.getVertexObject(v1))) || isConnectable(graph.getVertexObject(v1)) ? v1 : v2;
     }
 
     boolean disconnect(TerminalExt terminal) {
@@ -1257,7 +1358,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
+    public boolean disconnect(TerminalExt terminal, Predicate<Switch> isSwitchOpenable) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1266,35 +1367,134 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             return false;
         }
 
-        // Set of switches that are to be opened
-        Set<SwitchImpl> switchesToOpen = new HashSet<>();
+        // Initialize a list of switches to close and of bus-breaker terminals to connect
+        ConnectionElementsContainer connectionElementsContainer = new ConnectionElementsContainer(new HashSet<>(), new HashSet<>(), new HashSet<>());
 
         // Get the list of switches to open
-        if (getDisconnectingSwitches(terminal, isSwitchOpenable, switchesToOpen)) {
+        if (canTheTerminalBeDisconnected(terminal, isSwitchOpenable, false, connectionElementsContainer)) {
             // Open the switches
-            switchesToOpen.forEach(sw -> sw.setOpen(true));
+            connectionElementsContainer.switchesToOperate().forEach(sw -> sw.setOpen(true));
             return true;
         } else {
             return false;
         }
     }
 
-    boolean getDisconnectingSwitches(Terminal terminal, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchForDisconnection) {
+    boolean canTheTerminalBeDisconnected(Terminal terminal, Predicate<Switch> isSwitchOperable,
+                                         boolean propagateDisconnectionIfNeeded,
+                                         ConnectionElementsContainer connectionElementsContainer) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
+        // Node of the terminal
         int node = ((NodeTerminal) terminal).getNode();
-        // find all paths starting from the current terminal to a terminal that does not contain an open switch
+
+        // Find all paths starting from the current terminal to a terminal that does not contain an open switch
         List<TIntArrayList> paths = graph.findAllPaths(node, Objects::nonNull, SwitchPredicates.IS_OPEN);
         if (paths.isEmpty()) {
+            // Should not happen since the terminal is connected?
             return false;
         }
 
-        // Each path is visited and for each, the first openable switch found is added in the set of switches to open
+        // New container to collect the switches that would be opened to disconnect the terminal
+        ConnectionElementsContainer localConnectionElementsContainer = new ConnectionElementsContainer(
+            new HashSet<>(), new HashSet<>(), new HashSet<>(connectionElementsContainer.connectables()));
+
+        // Network elements connected to the incoming terminal
+        AtomicBoolean atLeastOneBranchWasConnected = new AtomicBoolean(false);
+        AtomicBoolean atLeastOneOtherFailedToDisconnect = new AtomicBoolean(false);
+
+        // Each path is visited, and for each, the first openable switch found is added in the set of switches to open
         for (TIntArrayList path : paths) {
             // Identify the first openable switch on the path
-            if (!identifySwitchToOpenPath(path, isSwitchOpenable, switchForDisconnection)) {
+            if (!identifySwitchToOpenPath(path, isSwitchOperable, localConnectionElementsContainer)
+                && (!propagateDisconnectionIfNeeded || cannotPropagateDisconnection(path, isSwitchOperable,
+                (NodeTerminal) terminal, localConnectionElementsContainer, atLeastOneBranchWasConnected, atLeastOneOtherFailedToDisconnect, new HashSet<>()))) {
                 // If no such switch was found, return false immediately
+                return false;
+            }
+        }
+
+        // If a connectable failed to disconnect and no branch was connected, return false
+        if (atLeastOneOtherFailedToDisconnect.get() && !atLeastOneBranchWasConnected.get()) {
+            return false;
+        }
+
+        // Add all the encountered elements to the global container only if every path can be opened
+        connectionElementsContainer.addAll(localConnectionElementsContainer);
+        return true;
+    }
+
+    private boolean cannotPropagateDisconnection(TIntArrayList path, Predicate<Switch> isSwitchOperable,
+                                                 NodeTerminal incomingTerminal,
+                                                 ConnectionElementsContainer connectionElementsContainer,
+                                                 AtomicBoolean atLeastOneBranchWasConnected,
+                                                 AtomicBoolean atLeastOneOtherFailedToDisconnect,
+                                                 Set<Terminal> terminalsToFilter) {
+        // Get the terminal at the end of the path
+        Terminal terminalEndOfPath = getEndOfPathTerminal(path, incomingTerminal);
+
+        //No need to propagate through some terminals
+        if (terminalsToFilter.contains(terminalEndOfPath)) {
+            return false;
+        }
+
+        if (terminalEndOfPath.getConnectable() instanceof AbstractConnectableBranch<?> branch) {
+            atLeastOneBranchWasConnected.set(true);
+            // If the connectable at the end of the path is a branch, we find the side and disconnect the branch
+            return !propagateDisconnectionToABranch(branch, terminalEndOfPath, isSwitchOperable,
+                connectionElementsContainer);
+        } else if (terminalEndOfPath.getConnectable() instanceof BusbarSection) {
+            // If the connectable at the end of the path is a BusbarSection, we try to find if there are other lines
+            // connected to it (and only lines)
+            return !propagateDisconnectionThroughBusbarSection(incomingTerminal, terminalEndOfPath,
+                isSwitchOperable, connectionElementsContainer, atLeastOneBranchWasConnected,
+                atLeastOneOtherFailedToDisconnect);
+        } else if (terminalEndOfPath.getConnectable() instanceof AbstractConnectable<?> connectable) {
+            // If the connectable is of another type, we just try to disconnect it
+            if (!propagateDisconnectionToAnotherConnectable(connectable, isSwitchOperable, connectionElementsContainer)) {
+                atLeastOneOtherFailedToDisconnect.set(true);
+            }
+            // In this case we always return true because the rest depends on whether at least a branch was connected to the incoming branch
+            return false;
+        }
+        return true;
+    }
+
+    private boolean propagateDisconnectionToAnotherConnectable(AbstractConnectable<?> connectable, Predicate<Switch> isSwitchOpenable,
+                                                               ConnectionElementsContainer connectionElementsContainer) {
+        return connectionElementsContainer.connectables().contains(connectable) ||
+            connectable.disconnect(isSwitchOpenable, null, connectionElementsContainer);
+    }
+
+    private boolean propagateDisconnectionToABranch(AbstractConnectableBranch<?> branch, Terminal terminalEndOfPath, Predicate<Switch> isSwitchOpenable,
+                                                    ConnectionElementsContainer connectionElementsContainer) {
+        // If the connectable at the end of the path is a line, we find the side and disconnect the line
+        TwoSides side = branch.getTerminal1() == terminalEndOfPath ? TwoSides.TWO : TwoSides.ONE;
+        return connectionElementsContainer.connectables().contains(branch) ||
+            branch.disconnect(isSwitchOpenable, side, true, false, connectionElementsContainer);
+    }
+
+    private boolean propagateDisconnectionThroughBusbarSection(Terminal incomingTerminal, Terminal terminalEndOfPath,
+                                                               Predicate<Switch> isSwitchOperable,
+                                                               ConnectionElementsContainer connectionElementsContainer,
+                                                               AtomicBoolean atLeastOneBranchWasConnected,
+                                                               AtomicBoolean atLeastOneOtherFailedToDisconnect) {
+        int nodeBusbarSection = ((NodeTerminal) terminalEndOfPath).getNode();
+
+        // Find the paths from the busbar section to other terminals
+        List<TIntArrayList> pathsFromBusbarSection = graph.findAllPaths(nodeBusbarSection, Objects::nonNull, SwitchPredicates.IS_OPEN);
+        // There will be at least one path since we used it before
+
+        // If there is only one path, propagation cannot be done
+        if (pathsFromBusbarSection.size() < 2) {
+            return false;
+        }
+
+        for (TIntArrayList pathFromBusbarSection : pathsFromBusbarSection) {
+            if (cannotPropagateDisconnection(pathFromBusbarSection, isSwitchOperable, (NodeTerminal) terminalEndOfPath,
+                connectionElementsContainer, atLeastOneBranchWasConnected, atLeastOneOtherFailedToDisconnect,
+                Set.of(incomingTerminal))) {
                 return false;
             }
         }
@@ -1303,17 +1503,19 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     /**
      * Add the first openable switch in the given path to the set of switches to open
-     * @param path the path to open
-     * @param isSwitchOpenable predicate used to know if a switch can be opened
-     * @param switchesToOpen set of switches to be opened
+     *
+     * @param path                        the path to open
+     * @param isSwitchOpenable            predicate used to know if a switch can be opened
+     * @param connectionElementsContainer Container for the elements that will be operated
      * @return true if the path can be opened, else false
      */
-    boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
+    boolean identifySwitchToOpenPath(TIntArrayList path, Predicate<Switch> isSwitchOpenable,
+                                     ConnectionElementsContainer connectionElementsContainer) {
         for (int i = 0; i < path.size(); i++) {
             int e = path.get(i);
             SwitchImpl sw = graph.getEdgeObject(e);
             if (isSwitchOpenable.test(sw)) {
-                switchesToOpen.add(sw);
+                connectionElementsContainer.switchesToOperate().add(sw);
                 // just one open breaker is enough to disconnect the terminal, so we can stop
                 return true;
             }
@@ -1335,6 +1537,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     /**
      * Traverse from given node terminal using the given topology traverser, using the fact that the terminals in the
      * given set have already been traversed.
+     *
      * @return false if the traverser has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
