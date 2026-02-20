@@ -13,10 +13,7 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.math.graph.TraversalType;
-import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.math.graph.UndirectedGraphImpl;
-import com.powsybl.math.graph.UndirectedGraphListener;
+import com.powsybl.math.graph.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -110,9 +107,9 @@ public class DcTopologyModel implements MultiVariantObject {
 
     protected static int loadDcNodeIndexLimit(PlatformConfig platformConfig) {
         return platformConfig
-                .getOptionalModuleConfig("iidm")
-                .map(moduleConfig -> moduleConfig.getIntProperty("dc-node-index-limit", DEFAULT_DC_NODE_INDEX_LIMIT))
-                .orElse(DEFAULT_DC_NODE_INDEX_LIMIT);
+            .getOptionalModuleConfig("iidm")
+            .map(moduleConfig -> moduleConfig.getIntProperty("dc-node-index-limit", DEFAULT_DC_NODE_INDEX_LIMIT))
+            .orElse(DEFAULT_DC_NODE_INDEX_LIMIT);
     }
 
     private Integer getVertex(String dcNodeId) {
@@ -213,19 +210,19 @@ public class DcTopologyModel implements MultiVariantObject {
      */
     class CalculatedDcBusTopology {
 
-        private static boolean isDcBusValid(Set<DcNodeImpl> dcNodeSet) {
+        private static boolean isDcBusValid(List<DcNodeImpl> dcNodes) {
             // DcBus is valid if at least one DcConnectable connected, i.e. there is at least one connected DcTerminal
-            return dcNodeSet.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent();
+            return dcNodes.stream().flatMap(DcNode::getConnectedDcTerminalStream).findAny().isPresent();
         }
 
-        private DcBusImpl createDcBus(Set<DcNodeImpl> dcNodeSet) {
-            if (dcNodeSet == null || dcNodeSet.isEmpty()) {
+        private DcBusImpl createDcBus(List<DcNodeImpl> dcNodes) {
+            if (dcNodes == null || dcNodes.isEmpty()) {
                 throw new PowsyblException("DC Node set is null or empty");
             }
-            var node = dcNodeSet.stream().min(Comparator.comparing(DcNodeImpl::getId)).orElseThrow();
+            var node = dcNodes.stream().min(Comparator.comparing(DcNodeImpl::getId)).orElseThrow();
             String dcBusId = Identifiables.getUniqueId(node.getId() + "_dcBus", getNetwork().getIndex()::contains);
             String dcBusName = node.getOptionalName().orElse(null);
-            return new DcBusImpl(networkRef, subnetworkRef, dcBusId, dcBusName, dcNodeSet);
+            return new DcBusImpl(networkRef, subnetworkRef, dcBusId, dcBusName, dcNodes);
         }
 
         private DcBusCache getCache() {
@@ -239,27 +236,33 @@ public class DcTopologyModel implements MultiVariantObject {
             // mapping between DC nodes ID and DC buses
             Map<String, DcBusImpl> dcNodeIdToDcBus = new HashMap<>();
 
-            boolean[] encountered = new boolean[graph.getVertexCapacity()];
-            Arrays.fill(encountered, false);
-            for (int v : graph.getVertices()) {
-                if (!encountered[v]) {
-                    final Set<DcNodeImpl> dcNodeSet = new LinkedHashSet<>(1);
-                    dcNodeSet.add(graph.getVertexObject(v));
-                    graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
-                        DcSwitchImpl dcSwitch = graph.getEdgeObject(e);
-                        if (dcSwitch.isOpen()) {
-                            return TraverseResult.TERMINATE_PATH;
-                        } else {
-                            dcNodeSet.add(graph.getVertexObject(v2));
-                            return TraverseResult.CONTINUE;
-                        }
-                    }, encountered);
-
-                    if (isDcBusValid(dcNodeSet)) {
-                        DcBusImpl dcBus = createDcBus(dcNodeSet);
-                        dcBuses.put(dcBus.getId(), dcBus);
-                        dcNodeSet.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
+            List<List<DcNodeImpl>> components = graph.getConnectedComponents(
+                (v1, e, v2) -> {
+                    DcSwitchImpl sw = graph.getEdgeObject(e);
+                    if (sw != null && sw.isOpen()) {
+                        return TraverseResult.TERMINATE_PATH;
                     }
+                    return TraverseResult.CONTINUE;
+                },
+                new UndirectedGraph.ConnectedComponentCollector<>() {
+                    @Override
+                    public List<DcNodeImpl> createComponent() {
+                        return new ArrayList<>();
+                    }
+
+                    @Override
+                    public void addVertex(List<DcNodeImpl> component, int vertexIndex) {
+                        DcNodeImpl dcNode = graph.getVertexObject(vertexIndex);
+                        component.add(dcNode);
+                    }
+                }
+            );
+
+            for (List<DcNodeImpl> component : components) {
+                if (isDcBusValid(component)) {
+                    DcBusImpl dcBus = createDcBus(component);
+                    dcBuses.put(dcBus.getId(), dcBus);
+                    component.forEach(dcNode -> dcNodeIdToDcBus.put(dcNode.getId(), dcBus));
                 }
             }
 
