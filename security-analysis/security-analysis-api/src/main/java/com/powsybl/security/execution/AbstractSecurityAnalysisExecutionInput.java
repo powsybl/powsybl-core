@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.results.SecurityAnalysisResultHandler;
 import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.*;
@@ -31,6 +32,7 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
     private final List<Action> actions = new ArrayList<>();
     private final List<StateMonitor> monitors = new ArrayList<>();
     private final List<LimitReduction> limitReductions = new ArrayList<>();
+    private final List<SecurityAnalysisResultHandler> resultHandlers = new ArrayList<>();
 
     public Optional<ByteSource> getContingenciesSource() {
         return Optional.ofNullable(contingenciesSource);
@@ -62,6 +64,10 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
 
     public List<LimitReduction> getLimitReductions() {
         return Collections.unmodifiableList(limitReductions);
+    }
+
+    public List<SecurityAnalysisResultHandler> getResultHandlers() {
+        return Collections.unmodifiableList(resultHandlers);
     }
 
     public boolean isWithLogs() {
@@ -103,6 +109,11 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
         return self();
     }
 
+    public T addHandlers(List<SecurityAnalysisResultHandler> handlers) {
+        this.resultHandlers.addAll(Objects.requireNonNull(handlers));
+        return self();
+    }
+
     public T setNetworkVariant(Network network, String variantId) {
         networkVariant = new NetworkVariant(network, variantId);
         return self();
@@ -133,6 +144,13 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
         Objects.requireNonNull(limitReductions);
         this.limitReductions.clear();
         this.limitReductions.addAll(limitReductions);
+        return self();
+    }
+
+    public T setResultHandlers(List<SecurityAnalysisResultHandler> handlers) {
+        Objects.requireNonNull(handlers);
+        this.resultHandlers.clear();
+        this.resultHandlers.addAll(handlers);
         return self();
     }
 
