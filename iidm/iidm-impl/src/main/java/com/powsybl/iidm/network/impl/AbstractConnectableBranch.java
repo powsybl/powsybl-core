@@ -53,6 +53,14 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return BranchUtil.getSide(terminal, getTerminal1(), getTerminal2());
     }
 
+    private FlowsLimitsHolder getOperationalLimitsHolder(TwoSides side) {
+        if (side == TwoSides.ONE) {
+            return operationalLimitsHolder1;
+        } else {
+            return operationalLimitsHolder2;
+        }
+    }
+
     private FlowsLimitsHolder getOperationalLimitsHolder1() {
         return operationalLimitsHolder1;
     }
@@ -79,36 +87,22 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     @Override
     public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
-        return switch (side) {
-            case ONE -> getOperationalLimitsHolder1().getAllSelectedOperationalLimitsGroups();
-            case TWO -> getOperationalLimitsHolder2().getAllSelectedOperationalLimitsGroups();
-        };
+        return getOperationalLimitsHolder(side).getAllSelectedOperationalLimitsGroups();
     }
 
     @Override
     public Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side) {
-        return switch (side) {
-            case ONE -> getOperationalLimitsHolder1().getAllSelectedOperationalLimitsGroupIds();
-            case TWO -> getOperationalLimitsHolder2().getAllSelectedOperationalLimitsGroupIds();
-        };
+        return getOperationalLimitsHolder(side).getAllSelectedOperationalLimitsGroupIds();
     }
 
     @Override
     public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
-        if (side == TwoSides.ONE) {
-            getOperationalLimitsHolder1().addSelectedOperationalLimitsGroups(ids);
-        } else {
-            getOperationalLimitsHolder2().addSelectedOperationalLimitsGroups(ids);
-        }
+        getOperationalLimitsHolder(side).addSelectedOperationalLimitsGroups(ids);
     }
 
     @Override
     public void deselectOperationalLimitsGroups(TwoSides side, String... ids) {
-        if (side == TwoSides.ONE) {
-            getOperationalLimitsHolder1().deselectOperationalLimitsGroups(ids);
-        } else {
-            getOperationalLimitsHolder2().deselectOperationalLimitsGroups(ids);
-        }
+        getOperationalLimitsHolder(side).deselectOperationalLimitsGroups(ids);
     }
 
     @Override
