@@ -17,10 +17,18 @@ import java.util.Objects;
 public abstract class AbstractContingencyResult {
     private final LimitViolationsResult limitViolationsResult;
     private final NetworkResult networkResult;
+    private final double distributedActivePower;
 
-    protected AbstractContingencyResult(LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
+    protected AbstractContingencyResult(LimitViolationsResult limitViolationsResult,
+                                        NetworkResult networkResult,
+                                        double distributedActivePower) {
         this.limitViolationsResult = limitViolationsResult;
         this.networkResult = Objects.requireNonNull(networkResult);
+        this.distributedActivePower = distributedActivePower;
+    }
+
+    protected AbstractContingencyResult(LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
+        this(limitViolationsResult, networkResult, Double.NaN);
     }
 
     public LimitViolationsResult getLimitViolationsResult() {
@@ -29,5 +37,9 @@ public abstract class AbstractContingencyResult {
 
     public NetworkResult getNetworkResult() {
         return networkResult;
+    }
+
+    public double getDistributedActivePower() {
+        return distributedActivePower;
     }
 }

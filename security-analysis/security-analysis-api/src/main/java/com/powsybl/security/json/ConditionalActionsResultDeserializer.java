@@ -35,6 +35,7 @@ public class ConditionalActionsResultDeserializer extends StdDeserializer<Operat
         LimitViolationsResult limitViolationsResult = null;
         NetworkResult networkResult = null;
         PostContingencyComputationStatus status = null;
+        double distributedActivePower = 0.;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "conditionalActionsId" -> {
@@ -53,9 +54,13 @@ public class ConditionalActionsResultDeserializer extends StdDeserializer<Operat
                     parser.nextToken();
                     status = JsonUtil.readValue(deserializationContext, parser, PostContingencyComputationStatus.class);
                 }
+                case "distributedActivePower" -> {
+                    parser.nextToken();
+                    distributedActivePower = parser.getValueAsDouble();
+                }
                 default -> throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());
             }
         }
-        return new OperatorStrategyResult.ConditionalActionsResult(conditionalActionsId, status, limitViolationsResult, networkResult);
+        return new OperatorStrategyResult.ConditionalActionsResult(conditionalActionsId, status, limitViolationsResult, networkResult, distributedActivePower);
     }
 }

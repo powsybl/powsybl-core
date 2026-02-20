@@ -29,6 +29,7 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
     protected static class ParsingContext {
         LimitViolationsResult limitViolationsResult = null;
         NetworkResult networkResult = null;
+        double distributedActivePower;
         List<BranchResult> branchResults = Collections.emptyList();
         List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
@@ -48,6 +49,12 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(contextName,
                         "Tag: networkResult", version, "1.2");
                 context.networkResult = JsonUtil.readValue(deserializationContext, parser, NetworkResult.class);
+                return true;
+            case "distributedActivePower":
+                parser.nextToken();
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(contextName,
+                        "Tag: distributedActivePower", version, "1.9");
+                context.distributedActivePower = parser.getValueAsDouble();
                 return true;
             case "busResults":
                 parser.nextToken();
