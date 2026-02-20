@@ -9,9 +9,15 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TerminalNumber;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.util.SwitchPredicates;
-import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -38,9 +44,9 @@ abstract class AbstractTerminal implements TerminalExt {
 
     // attributes depending on the variant
 
-    protected final TDoubleArrayList p;
+    protected final ExtendedDoubleArrayList p;
 
-    protected final TDoubleArrayList q;
+    protected final ExtendedDoubleArrayList q;
 
     protected boolean removed = false;
 
@@ -52,12 +58,8 @@ abstract class AbstractTerminal implements TerminalExt {
         this.terminalNumber = terminalNumber;
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        p = new TDoubleArrayList(variantArraySize);
-        q = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            p.add(Double.NaN);
-            q.add(Double.NaN);
-        }
+        p = new ExtendedDoubleArrayList(variantArraySize, Double.NaN);
+        q = new ExtendedDoubleArrayList(variantArraySize, Double.NaN);
     }
 
     @Override
@@ -109,7 +111,7 @@ abstract class AbstractTerminal implements TerminalExt {
         if (removed) {
             throw new PowsyblException("Cannot access p of removed equipment " + connectable.id);
         }
-        return p.get(network.get().getVariantIndex());
+        return p.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -132,7 +134,7 @@ abstract class AbstractTerminal implements TerminalExt {
         if (removed) {
             throw new PowsyblException("Cannot access q of removed equipment " + connectable.id);
         }
-        return q.get(network.get().getVariantIndex());
+        return q.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -161,7 +163,7 @@ abstract class AbstractTerminal implements TerminalExt {
             return 0;
         }
         int variantIndex = network.get().getVariantIndex();
-        return Math.hypot(p.get(variantIndex), q.get(variantIndex))
+        return Math.hypot(p.getDouble(variantIndex), q.getDouble(variantIndex))
                 / (Math.sqrt(3.) * getV() / 1000);
     }
 
@@ -221,18 +223,14 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        p.ensureCapacity(p.size() + number);
-        q.ensureCapacity(q.size() + number);
-        for (int i = 0; i < number; i++) {
-            p.add(p.get(sourceIndex));
-            q.add(q.get(sourceIndex));
-        }
+        p.growAndFill(number, p.getDouble(sourceIndex));
+        q.growAndFill(number, q.getDouble(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        p.remove(p.size() - number, number);
-        q.remove(q.size() - number, number);
+        p.removeElements(number);
+        q.removeElements(number);
     }
 
     @Override
@@ -243,8 +241,8 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            p.set(index, p.get(sourceIndex));
-            q.set(index, q.get(sourceIndex));
+            p.set(index, p.getDouble(sourceIndex));
+            q.set(index, q.getDouble(sourceIndex));
         }
     }
 

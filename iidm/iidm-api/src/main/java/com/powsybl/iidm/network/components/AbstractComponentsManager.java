@@ -9,14 +9,29 @@
 
 package com.powsybl.iidm.network.components;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.AcDcConverter;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Component;
+import com.powsybl.iidm.network.DcBus;
+import com.powsybl.iidm.network.DcLine;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.math.graph.GraphUtil;
 import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -71,9 +86,9 @@ abstract class AbstractComponentsManager<C extends Component> {
                 num++;
             }
         }
-        TIntArrayList[] adjacencyList = new TIntArrayList[num];
+        IntArrayList[] adjacencyList = new IntArrayList[num];
         for (int i = 0; i < adjacencyList.length; i++) {
-            adjacencyList[i] = new TIntArrayList(3);
+            adjacencyList[i] = new IntArrayList(3);
         }
         fillAdjacencyList(busId2num, adjacencyList);
 
@@ -109,7 +124,7 @@ abstract class AbstractComponentsManager<C extends Component> {
         return num != -1 ? components.get(num) : null;
     }
 
-    private void addToAdjacencyList(Identifiable<?> bus1, Identifiable<?> bus2, Map<String, Integer> busId2num, TIntArrayList[] adjacencyList) {
+    private void addToAdjacencyList(Identifiable<?> bus1, Identifiable<?> bus2, Map<String, Integer> busId2num, IntArrayList[] adjacencyList) {
         if (bus1 != null && bus2 != null) {
             int busNum1 = busId2num.get(bus1.getId());
             int busNum2 = busId2num.get(bus2.getId());
@@ -118,13 +133,13 @@ abstract class AbstractComponentsManager<C extends Component> {
         }
     }
 
-    private void fillAdjacencyList(Map<String, Integer> busId2num, TIntArrayList[] adjacencyList) {
+    private void fillAdjacencyList(Map<String, Integer> busId2num, IntArrayList[] adjacencyList) {
         fillAcAdjacencyList(busId2num, adjacencyList);
         fillDcAdjacencyList(busId2num, adjacencyList);
         fillAcDcAdjacencyList(busId2num, adjacencyList);
     }
 
-    private void fillAcAdjacencyList(Map<String, Integer> busId2num, TIntArrayList[] adjacencyList) {
+    private void fillAcAdjacencyList(Map<String, Integer> busId2num, IntArrayList[] adjacencyList) {
         if (ac) {
             for (Line line : getNetwork().getLines()) {
                 Bus bus1 = line.getTerminal1().getBusView().getBus();
@@ -156,7 +171,7 @@ abstract class AbstractComponentsManager<C extends Component> {
         }
     }
 
-    private void fillDcAdjacencyList(Map<String, Integer> busId2num, TIntArrayList[] adjacencyList) {
+    private void fillDcAdjacencyList(Map<String, Integer> busId2num, IntArrayList[] adjacencyList) {
         if (dc) {
             for (DcLine dcLine : getNetwork().getDcLines()) {
                 DcBus dcBus1 = dcLine.getDcTerminal1().getDcBus();
@@ -171,7 +186,7 @@ abstract class AbstractComponentsManager<C extends Component> {
         }
     }
 
-    private void fillAcDcAdjacencyList(Map<String, Integer> busId2num, TIntArrayList[] adjacencyList) {
+    private void fillAcDcAdjacencyList(Map<String, Integer> busId2num, IntArrayList[] adjacencyList) {
         if (ac && dc) {
             for (HvdcLine line : getNetwork().getHvdcLines()) {
                 Bus bus1 = line.getConverterStation1().getTerminal().getBusView().getBus();

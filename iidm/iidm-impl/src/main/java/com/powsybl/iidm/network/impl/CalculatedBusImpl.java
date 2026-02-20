@@ -10,9 +10,12 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -29,7 +32,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     private NodeTerminal terminalRef;
 
-    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals, Function<Terminal, Bus> getBusFromTerminal) {
+    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, IntArrayList nodes, List<NodeTerminal> terminals, Function<Terminal, Bus> getBusFromTerminal) {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
         this.getBusFromTerminal = Objects.requireNonNull(getBusFromTerminal);
@@ -47,11 +50,11 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
      * @param terminals The terminals belong to this bus
      * @return The first terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
      */
-    private static NodeTerminal findTerminal(VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
+    private static NodeTerminal findTerminal(VoltageLevelExt voltageLevel, IntArrayList nodes, List<NodeTerminal> terminals) {
         if (!terminals.isEmpty()) {
             return terminals.get(0);
         }
-        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0));
+        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getInt(0));
     }
 
     private void checkValidity() {

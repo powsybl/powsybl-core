@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadModel;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.commons.ref.Ref;
-import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Optional;
 
@@ -30,9 +30,9 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     // attributes depending on the variant
 
-    private final TDoubleArrayList p0;
+    private final ExtendedDoubleArrayList p0;
 
-    private final TDoubleArrayList q0;
+    private final ExtendedDoubleArrayList q0;
 
     LoadImpl(Ref<NetworkImpl> networkRef,
              String id, String name, boolean fictitious, LoadType loadType, LoadModel model,
@@ -42,12 +42,8 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
         this.loadType = loadType;
         this.model = model;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.p0 = new TDoubleArrayList(variantArraySize);
-        this.q0 = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.p0.add(p0);
-            this.q0.add(q0);
-        }
+        this.p0 = new ExtendedDoubleArrayList(variantArraySize, p0);
+        this.q0 = new ExtendedDoubleArrayList(variantArraySize, q0);
     }
 
     @Override
@@ -76,7 +72,7 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     @Override
     public double getP0() {
-        return p0.get(network.get().getVariantIndex());
+        return p0.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -93,7 +89,7 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     @Override
     public double getQ0() {
-        return q0.get(network.get().getVariantIndex());
+        return q0.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -116,19 +112,15 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        p0.ensureCapacity(p0.size() + number);
-        q0.ensureCapacity(q0.size() + number);
-        for (int i = 0; i < number; i++) {
-            p0.add(p0.get(sourceIndex));
-            q0.add(q0.get(sourceIndex));
-        }
+        p0.growAndFill(number, p0.getDouble(sourceIndex));
+        q0.growAndFill(number, q0.getDouble(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        p0.remove(p0.size() - number, number);
-        q0.remove(q0.size() - number, number);
+        p0.removeElements(number);
+        q0.removeElements(number);
     }
 
     @Override
@@ -141,8 +133,8 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            p0.set(index, p0.get(sourceIndex));
-            q0.set(index, q0.get(sourceIndex));
+            p0.set(index, p0.getDouble(sourceIndex));
+            q0.set(index, q0.getDouble(sourceIndex));
         }
     }
 

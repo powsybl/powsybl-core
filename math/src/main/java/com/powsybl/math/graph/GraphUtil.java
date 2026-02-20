@@ -7,9 +7,13 @@
  */
 package com.powsybl.math.graph;
 
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Queue;
 
 /**
  *
@@ -53,7 +57,7 @@ public final class GraphUtil {
 
     }
 
-    private static void computeConnectedComponents(int v1, List<Integer> componentSizes, TIntArrayList[] adjacencyList, int[] componentNumbers) {
+    private static void computeConnectedComponents(int v1, List<Integer> componentSizes, IntArrayList[] adjacencyList, int[] componentNumbers) {
         int c = componentSizes.size();
         int componentSize = 0;
         Queue<Integer> nodes = new ArrayDeque<>();
@@ -67,14 +71,13 @@ public final class GraphUtil {
                     if (componentNumbers[e] == -1) {
                         nodes.add(e);
                     }
-                    return true;
                 });
             }
         }
         componentSizes.add(componentSize);
     }
 
-    public static ConnectedComponentsComputationResult computeConnectedComponents(TIntArrayList[] adjacencyList) {
+    public static ConnectedComponentsComputationResult computeConnectedComponents(IntArrayList[] adjacencyList) {
         int[] componentNumber = new int[adjacencyList.length];
         Arrays.fill(componentNumber, -1);
         List<Integer> componentSizes = new ArrayList<>();
