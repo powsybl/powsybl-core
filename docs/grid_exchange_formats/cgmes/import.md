@@ -794,3 +794,14 @@ Removing properties and aliases invalidates all subsequent updates but reduces t
 thereby improving performance. This option is suitable when the user does not need to preserve CGMES data for persistency purposes
 or does not intend to perform further network updates.
 `false` by default.
+
+**iidm.import.cgmes.log-unassigned-operational-limits**  
+Optional property that defines whether a warning log should be issued for cim:OperationalLimit-s which could not be
+imported into IIDM.  
+If the option is set to `true`, a warning is issued for not imported limits.  
+If the option is set to `false`, no warning is issued for not imported limits.  
+cim:OperationalLimit-s of type CurrentLimit, ActivePowerLimit and ApparentPowerLimit can be imported in IIDM only
+if they relate to Branches (Lines, Tie-Lines, Two Windings Transformers), Dangling Lines (at network side,
+limits at boundary side can not be imported), and Three Windings Transformers. For all other equipment types,
+no convertion is done. This is the case for example for Switches, Generators, Loads, etc...  
+`false` by default.
