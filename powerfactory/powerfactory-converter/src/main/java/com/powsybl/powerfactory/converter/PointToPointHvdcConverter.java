@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * without details of the DC grid).
  */
 
-class HvdcSimplifiedConverter extends AbstractHvdcConverter {
+class PointToPointHvdcConverter extends AbstractHvdcConverter {
 
     private final List<Configuration> configurations = new ArrayList<>();
 
@@ -35,7 +35,7 @@ class HvdcSimplifiedConverter extends AbstractHvdcConverter {
     private final Set<DataObject> dcElmTerms = new HashSet<>();
     private final Set<DataObject> usedVscs = new HashSet<>();
 
-    HvdcSimplifiedConverter(ImportContext importContext, Network network) {
+    PointToPointHvdcConverter(ImportContext importContext, Network network) {
         super(importContext, network);
     }
 

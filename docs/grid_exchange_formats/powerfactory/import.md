@@ -52,6 +52,24 @@ Two and three winding transformer taps definition attributes need to be added to
     - e:ip_ctrl
 ```
 
+## Handling HVDC data
+By default, the DGS file importer tries to import HVDC components as point-to-point representations. Parameter `iidm.import.dgs.HVDC-import-multiterminal` must be set to `true` to activate import of multi-terminal DC subnetworks.
+
+For multi-terminal network import, the following additional attributes are also requested in the DGS file
+```
+- AC-DC converter (class ElmVsc)
+    - i_acdc
+    - usetpdc (for DC voltage control mode)
+    - swtLossFactor (otherwise default to zero)
+    - resLossFactor (otherwise default to zero)
+    - Unomdc
+- Terminals (class ElmTerm)
+
+- Lines (class ElmLne)
+
+- Line types (class TypLne) 
+```
+
 ## Import PowerFactory internal format
 
 A [powsybl-powerfactory-db-native](https://github.com/powsybl/powsybl-powerfactory-db-native) repository has been created to import a proprietary PowerFactory file (`.pfd`) directly via a C++ API but the import can be slower and is not maintained for now.
