@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
@@ -168,6 +169,16 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @param ids the IDs of one or more {@link OperationalLimitsGroup}
      */
     void addSelectedOperationalLimitsGroups(TwoSides side, String... ids);
+
+    /**
+     * <p>Set all the existing {@link OperationalLimitsGroup} whose id match the <code>predicate</code> as selected</p>
+     * @param side the side on which to select the groups based on the predicate
+     * @param operationalLimitsGroupIdPredicate a predicate dictating which groups must be activated.
+     *                                          All groups whose ID would return true given the predicate will be activated
+     *                                          All groups whose ID would return false will stay in the same state as before,
+     *                                          groups that do not match will not be unselected.
+     */
+    void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate);
 
     /**
      * <p>Deselect the {@link OperationalLimitsGroup} corresponding to all the <code>ids</code> on the given <code>side</code>.</p>

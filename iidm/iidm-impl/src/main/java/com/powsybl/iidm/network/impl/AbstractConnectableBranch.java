@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -98,6 +99,11 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     @Override
     public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
         getOperationalLimitsHolder(side).addSelectedOperationalLimitsGroups(ids);
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate) {
+        getOperationalLimitsHolder(side).addSelectedOperationalLimitsGroupByPredicate(operationalLimitsGroupIdPredicate);
     }
 
     @Override

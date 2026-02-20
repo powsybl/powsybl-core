@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
 
@@ -93,16 +94,21 @@ public interface FlowsLimitsHolder {
     void addSelectedOperationalLimitsGroups(String... ids);
 
     /**
-     * <p>Set all the existing {@link OperationalLimitsGroup} as selected</p>
+     * <p>Set all the existing {@link OperationalLimitsGroup} whose id match the <code>predicate</code> as selected</p>
      * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)}.
      * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
      * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup(String)}
+     * @param operationalLimitsGroupIdPredicate a predicate dictating which groups must be activated.
+     *                                          All groups whose ID would return true given the predicate will be activated
+     *                                          All groups whose ID would return false will stay in the same state as before,
+     *                                          groups that do not match will not be unselected.
      */
-    default void selectAllOperationalLimitsGroups() {
+    default void addSelectedOperationalLimitsGroupByPredicate(Predicate<String> operationalLimitsGroupIdPredicate) {
         addSelectedOperationalLimitsGroups(
             getOperationalLimitsGroups()
                 .stream()
                 .map(OperationalLimitsGroup::getId)
+                .filter(operationalLimitsGroupIdPredicate)
                 .toArray(String[]::new)
         );
     }
