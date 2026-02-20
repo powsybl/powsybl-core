@@ -255,6 +255,31 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+        return getDanglingLine(side).getAllSelectedOperationalLimitsGroups();
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side) {
+        return getDanglingLine(side).getAllSelectedOperationalLimitsGroupIds();
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
+        getDanglingLine(side).addSelectedOperationalLimitsGroups(ids);
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate) {
+        getDanglingLine(side).addSelectedOperationalLimitsGroupByPredicate(operationalLimitsGroupIdPredicate);
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups(TwoSides side, String... ids) {
+        getDanglingLine(side).deselectOperationalLimitsGroups(ids);
+    }
+
+    @Override
     public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
         return danglingLine1.newOperationalLimitsGroup(id);
     }
@@ -404,11 +429,6 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public int getOverloadDuration() {
-        return BranchUtil.getOverloadDuration(checkTemporaryLimits1(LimitType.CURRENT), checkTemporaryLimits2(LimitType.CURRENT));
-    }
-
-    @Override
     public boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type) {
         return BranchUtil.getFromSide(side,
             () -> checkPermanentLimit1(limitReductionValue, type),
@@ -470,6 +490,16 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Override
     public Overload checkTemporaryLimits2(LimitType type) {
         return checkTemporaryLimits2(1f, type);
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, LimitType type) {
+        return checkAllTemporaryLimits(side, 1, type);
     }
 
     public double getValueForLimit(Terminal t, LimitType type) {

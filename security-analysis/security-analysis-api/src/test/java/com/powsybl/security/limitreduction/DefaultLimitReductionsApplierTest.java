@@ -23,10 +23,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -96,12 +93,14 @@ class DefaultLimitReductionsApplierTest {
         // contingency1
         applier.setWorkingContingency("contingency1");
         // - Some reductions apply for "NHV1_NHV2_1", but only for permanent limits
-        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
-        assertTrue(optLimits.isPresent());
-        assertEquals(450, optLimits.get().getLimits().getPermanentLimit(), 0.01);
-        optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
-        assertTrue(optLimits.isPresent());
-        LoadingLimits reducedLimits = optLimits.get().getLimits();
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        assertEquals(450, container.getLimits().getPermanentLimit(), 0.01);
+        limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
+        assertFalse(limits.isEmpty());
+        container = limits.stream().findFirst().orElseThrow();
+        LoadingLimits reducedLimits = container.getLimits();
         assertEquals(990, reducedLimits.getPermanentLimit(), 0.01);
         assertEquals(1200, reducedLimits.getTemporaryLimitValue(10 * 60), 0.01);
         assertEquals(1500, reducedLimits.getTemporaryLimitValue(60), 0.01);
@@ -112,16 +111,18 @@ class DefaultLimitReductionsApplierTest {
     }
 
     private static void computeAndCheckLimitsOnLine1WithoutReductions() {
-        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
-        assertTrue(optLimits.isPresent());
-        assertEquals(500, optLimits.get().getLimits().getPermanentLimit(), 0.01);
-        assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        assertEquals(500, container.getLimits().getPermanentLimit(), 0.01);
+        assertEquals(500, container.getOriginalLimits().getPermanentLimit(), 0.01);
 
-        optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
-        assertTrue(optLimits.isPresent());
-        checkOriginalLimitsOnLine1(optLimits.get().getLimits());
-        checkOriginalLimitsOnLine1(optLimits.get().getOriginalLimits());
-        assertFalse(optLimits.get().isDistinct());
+        limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
+        assertFalse(limits.isEmpty());
+        container = limits.stream().findFirst().orElseThrow();
+        checkOriginalLimitsOnLine1(container.getLimits());
+        checkOriginalLimitsOnLine1(container.getOriginalLimits());
+        assertFalse(container.isDistinct());
     }
 
     private static void checkOriginalLimitsOnLine1(LoadingLimits limits) {
@@ -138,20 +139,22 @@ class DefaultLimitReductionsApplierTest {
     }
 
     private static void computeAndCheckLimitsOnLine2(double expectedReduction, boolean monitoringOnly) {
-        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.ONE, monitoringOnly);
-        assertTrue(optLimits.isPresent());
-        LoadingLimits reducedLimits = optLimits.get().getLimits();
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.ONE, monitoringOnly);
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        LoadingLimits reducedLimits = container.getLimits();
         assertEquals(1100 * expectedReduction, reducedLimits.getPermanentLimit(), 0.01);
         assertEquals(1200 * expectedReduction, reducedLimits.getTemporaryLimitValue(20 * 60), 0.01);
         assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(60), 0.01);
-        checkOriginalLimitsOnLine2(optLimits.get().getOriginalLimits());
-        assertTrue(optLimits.get().isDistinct());
+        checkOriginalLimitsOnLine2(container.getOriginalLimits());
+        assertTrue(container.isDistinct());
 
-        optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO, monitoringOnly);
-        assertTrue(optLimits.isPresent());
-        assertEquals(500 * expectedReduction, optLimits.get().getLimits().getPermanentLimit(), 0.01);
-        assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
-        assertTrue(optLimits.get().isDistinct());
+        limits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO, monitoringOnly);
+        assertFalse(limits.isEmpty());
+        container = limits.stream().findFirst().orElseThrow();
+        assertEquals(500 * expectedReduction, container.getLimits().getPermanentLimit(), 0.01);
+        assertEquals(500, container.getOriginalLimits().getPermanentLimit(), 0.01);
+        assertTrue(container.isDistinct());
     }
 
     @Test
@@ -164,23 +167,24 @@ class DefaultLimitReductionsApplierTest {
     @Test
     void temporaryLimitToRemoveTest() {
         applier.setWorkingContingency("contingency4");
-        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
-        assertTrue(optLimits.isPresent());
-        LoadingLimits reducedLimits = optLimits.get().getLimits();
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        LoadingLimits reducedLimits = container.getLimits();
         assertEquals(1100, reducedLimits.getPermanentLimit(), 0.01);
         assertTrue(Double.isNaN(reducedLimits.getTemporaryLimitValue(10 * 60))); // removed since the 1' limit's reduced value is < 1200
         assertEquals(1125, reducedLimits.getTemporaryLimitValue(60), 0.01);
         assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(0), 0.01);
-        checkOriginalLimitsOnLine1(optLimits.get().getOriginalLimits());
-        assertTrue(optLimits.get().isDistinct());
+        checkOriginalLimitsOnLine1(container.getOriginalLimits());
+        assertTrue(container.isDistinct());
     }
 
     @Test
     void noLimitsToReduceTest() {
-        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(network.getTwoWindingsTransformer("NGEN_NHV1"),
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getTwoWindingsTransformer("NGEN_NHV1"),
                 LimitType.CURRENT, ThreeSides.ONE, false);
         // There are no limits on "NGEN_NHV1" => no reduced limits.
-        assertTrue(optLimits.isEmpty());
+        assertTrue(limits.isEmpty());
     }
 
     @Test
@@ -204,21 +208,23 @@ class DefaultLimitReductionsApplierTest {
                 .endTemporaryLimit()
                 .add();
         // The reduction only applies on side 2 for NHV2_NLOAD
-        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(nhv2Nload,
+        Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(nhv2Nload,
                 LimitType.CURRENT, ThreeSides.ONE, false);
-        assertTrue(optLimits.isPresent());
-        assertEquals(1000., optLimits.get().getLimits().getPermanentLimit(), 0.01);
-        assertEquals(1200., optLimits.get().getLimits().getTemporaryLimitValue(60), 0.01);
-        assertFalse(optLimits.get().isDistinct());
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        assertEquals(1000., container.getLimits().getPermanentLimit(), 0.01);
+        assertEquals(1200., container.getLimits().getTemporaryLimitValue(60), 0.01);
+        assertFalse(container.isDistinct());
 
         // The reduction only applies on side 1 for NHV2_NLOAD
-        optLimits = applier.computeLimits(nhv2Nload, LimitType.CURRENT, ThreeSides.TWO, false);
-        assertTrue(optLimits.isPresent());
-        assertEquals(1000., optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
-        assertEquals(100., optLimits.get().getLimits().getPermanentLimit(), 0.01);
-        assertEquals(1200., optLimits.get().getOriginalLimits().getTemporaryLimitValue(60), 0.01);
-        assertEquals(120., optLimits.get().getLimits().getTemporaryLimitValue(60), 0.01);
-        assertTrue(optLimits.get().isDistinct());
+        limits = applier.computeLimits(nhv2Nload, LimitType.CURRENT, ThreeSides.TWO, false);
+        assertFalse(limits.isEmpty());
+        container = limits.stream().findFirst().orElseThrow();
+        assertEquals(1000., container.getOriginalLimits().getPermanentLimit(), 0.01);
+        assertEquals(100., container.getLimits().getPermanentLimit(), 0.01);
+        assertEquals(1200., container.getOriginalLimits().getTemporaryLimitValue(60), 0.01);
+        assertEquals(120., container.getLimits().getTemporaryLimitValue(60), 0.01);
+        assertTrue(container.isDistinct());
     }
 
     @ParameterizedTest(name = "{0}")
@@ -226,11 +232,12 @@ class DefaultLimitReductionsApplierTest {
     void noChangesTest(String desc, DefaultLimitReductionsApplier noChangesComputer) {
         // In this test, no effective reductions were defined (either no reductions were used in the computer or
         // their values are all equal to 1.0).
-        Optional<LimitsContainer<LoadingLimits>> optLimits = noChangesComputer.computeLimits(network.getLine("NHV1_NHV2_1"),
+        Collection<LimitsContainer<LoadingLimits>> limits = noChangesComputer.computeLimits(network.getLine("NHV1_NHV2_1"),
                 LimitType.CURRENT, ThreeSides.TWO, false);
-        assertTrue(optLimits.isPresent());
-        checkOriginalLimitsOnLine1(optLimits.get().getLimits());
-        checkOriginalLimitsOnLine1(optLimits.get().getOriginalLimits());
+        assertFalse(limits.isEmpty());
+        LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
+        checkOriginalLimitsOnLine1(container.getLimits());
+        checkOriginalLimitsOnLine1(container.getOriginalLimits());
     }
 
     static Stream<Arguments> getNoChangesComputers() {

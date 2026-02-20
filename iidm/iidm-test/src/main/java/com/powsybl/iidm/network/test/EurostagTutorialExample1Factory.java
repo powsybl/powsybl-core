@@ -454,6 +454,265 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    public static final String ACTIVATED_ONE_ONE = "activated_1_1";
+    public static final String ACTIVATED_ONE_TWO = "activated_1_2";
+    public static final String ACTIVATED_TWO_ONE = "activated_2_1";
+    public static final String ACTIVATED_TWO_TWO = "activated_2_2";
+    public static final String NOT_ACTIVATED = "not_activated";
+
+    /**
+     * Selected limits:
+     * On {@link #NHV1_NHV2_1}, side 1 (also has a {@link #NOT_ACTIVATED} group)
+     * <pre>
+     *      Default      activated_1_1       activated_1_2
+     *      |                                ---- IT0.5 1600 (30s)
+     *      |            ---- IT1 1500 (60s)
+     *      |            ---- IT10 1200 (600s)
+     *      |            ---- ITP 1100
+     *      |                                ---- IT40 700 (2400s)
+     *      | ---- ITP 500
+     *      |                                ---- ITP 300
+     * </pre>
+     * Side 2
+     * <pre>
+     *      Default             activated_2_1
+     *      |                   ---- IT10 1000 (600s)
+     *      | ---- ITP 600      ---- ITP 600
+     * </pre>
+     *
+     * On {@link #NHV1_NHV2_2}, side 1
+     * <pre>
+     *      Default
+     *      | ---- IT20 1200 (1200s)
+     *      | ---- ITP 1100
+     * </pre>
+     * Side 2 (also has a {@link #NOT_ACTIVATED} group)
+     * <pre>
+     *     Default              activated_2_1       activated_2_2
+     *     |                    ---- IT20 600 (1200s)
+     *     | ---- ITP 500
+     *     |                                        ---- ITP 300
+     *     |                    ---- ITP 200
+     * </pre>
+     */
+    public static Network createWithMultipleSelectedFixedCurrentLimits() {
+        return createWithMultipleSelectedFixedCurrentLimits(NetworkFactory.findDefault());
+    }
+
+    /**
+     * Selected limits:
+     * On {@link #NHV1_NHV2_1}, side 1 (also has a {@link #NOT_ACTIVATED} group)
+     * <pre>
+     *      Default      activated_1_1       activated_1_2
+     *      |                                ---- IT0.5 1600 (30s)
+     *      |            ---- IT1 1500 (60s)
+     *      |            ---- IT10 1200 (600s)
+     *      |            ---- ITP 1100
+     *      |                                ---- IT40 700 (2400s)
+     *      | ---- ITP 500
+     *      |                                ---- ITP 300
+     * </pre>
+     * Side 2
+     * <pre>
+     *      Default             activated_2_1
+     *      |                   ---- IT10 1000 (600s)
+     *      | ---- ITP 600      ---- ITP 600
+     * </pre>
+     *
+     * On {@link #NHV1_NHV2_2}, side 1
+     * <pre>
+     *      Default
+     *      | ---- IT20 1200 (1200s)
+     *      | ---- ITP 1100
+     * </pre>
+     * Side 2 (also has a {@link #NOT_ACTIVATED} group)
+     * <pre>
+     *     Default              activated_2_1       activated_2_2
+     *     |                    ---- IT20 600 (1200s)
+     *     | ---- ITP 500
+     *     |                                        ---- ITP 300
+     *     |                    ---- ITP 200
+     * </pre>
+     */
+    public static Network createWithMultipleSelectedFixedCurrentLimits(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
+
+        Line line = network.getLine(NHV1_NHV2_1);
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(500).add();
+        line.newOperationalLimitsGroup1(ACTIVATED_ONE_ONE).newCurrentLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(1500)
+                .endTemporaryLimit()
+                .add();
+
+        line.newOperationalLimitsGroup1(ACTIVATED_ONE_TWO).newCurrentLimits()
+                .setPermanentLimit(300)
+                .beginTemporaryLimit()
+                .setName("40'")
+                .setAcceptableDuration(40 * 60)
+                .setValue(700)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("0.5'")
+                .setAcceptableDuration(30)
+                .setValue(1600)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, ACTIVATED_ONE_ONE, ACTIVATED_ONE_TWO);
+
+        line.newOperationalLimitsGroup1(NOT_ACTIVATED).newCurrentLimits()
+            .setPermanentLimit(400)
+            .beginTemporaryLimit()
+            .setValue(600)
+            .setName("30'")
+            .setAcceptableDuration(30 * 60)
+            .endTemporaryLimit()
+            .add();
+
+        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(600);
+
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE).newCurrentLimits()
+                .setPermanentLimit(600)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(60 * 10)
+                .setValue(1000)
+                .endTemporaryLimit()
+                .add();
+
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE);
+
+        line = network.getLine(NHV1_NHV2_2);
+        line.getTerminal1().setP(560.0).setQ(550.0);
+        line.getTerminal2().setP(-560.0).setQ(-550.0);
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(60)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(500).add();
+
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE).newCurrentLimits()
+                .setPermanentLimit(200)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(600)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+
+        line.newOperationalLimitsGroup2(ACTIVATED_TWO_TWO).newCurrentLimits()
+                .setPermanentLimit(300)
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+
+        line.newOperationalLimitsGroup2(NOT_ACTIVATED).newCurrentLimits()
+                .setPermanentLimit(400)
+                .add();
+
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE, ACTIVATED_TWO_TWO);
+
+        return network;
+    }
+
+    public static Network createWithMultipleSelectedFixedActivePowerLimits() {
+        Network network = createWith3wTransformer();
+
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
+
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(NGEN_V2_NHV1);
+
+        ThreeWindingsTransformer.Leg legThree = threeWindingsTransformer.getLeg(ThreeSides.THREE);
+
+        legThree.getOrCreateSelectedOperationalLimitsGroup()
+                .newActivePowerLimits()
+                .setPermanentLimit(250)
+                .add();
+
+        legThree.newOperationalLimitsGroup(ACTIVATED_TWO_ONE)
+                .newActivePowerLimits()
+                .setPermanentLimit(350)
+                .beginTemporaryLimit()
+                .setValue(400)
+                .setName("45'")
+                .setAcceptableDuration(45 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        legThree.addSelectedOperationalLimitsGroups(ACTIVATED_TWO_ONE);
+
+        return network;
+    }
+
+    public static Network createWithMultipleSelectedFixedApparentPowerLimits() {
+        return createWithMultipleSelectedFixedApparentPowerLimits(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithMultipleSelectedFixedApparentPowerLimits(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+
+        network.setCaseDate(ZonedDateTime.parse(CASE_DATE));
+
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(NGEN_NHV1);
+
+        twoWindingsTransformer.newOperationalLimitsGroup2(ACTIVATED_TWO_ONE)
+                .newApparentPowerLimits()
+                .setPermanentLimit(230)
+                .beginTemporaryLimit()
+                .setValue(240)
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        twoWindingsTransformer.newOperationalLimitsGroup2(ACTIVATED_TWO_TWO)
+                .newApparentPowerLimits()
+                .setPermanentLimit(240)
+                .beginTemporaryLimit()
+                .setValue(250)
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        twoWindingsTransformer.addSelectedOperationalLimitsGroups(TwoSides.TWO, ACTIVATED_TWO_ONE, ACTIVATED_TWO_TWO);
+
+        return network;
+    }
+
     public static Network createWithFixedLimits() {
         return createWithFixedLimits(NetworkFactory.findDefault());
     }

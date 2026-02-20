@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
@@ -25,21 +26,21 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
     private final NetworkListenerList listeners;
     private final Validable validable;
     private final String attributeName;
-    private String selectedGroupId;
+    private final Predicate<String> isSelected;
 
-    OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, String selectedGroupId) {
+    OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, Predicate<String> isSelected) {
         this(id, Objects.requireNonNull(identifiable), identifiable.getNetwork().getListeners(),
-                identifiable, attributeName, selectedGroupId);
+                identifiable, attributeName, Objects.requireNonNull(isSelected));
     }
 
     public OperationalLimitsGroupImpl(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
-                                      Validable validable, String attributeName, String selectedGroupId) {
+                                      Validable validable, String attributeName, Predicate<String> isSelected) {
         this.id = Objects.requireNonNull(id);
         this.identifiable = Objects.requireNonNull(identifiable);
         this.listeners = listeners;
         this.validable = Objects.requireNonNull(validable);
         this.attributeName = Objects.requireNonNull(attributeName);
-        this.selectedGroupId = selectedGroupId;
+        this.isSelected = isSelected;
     }
 
     @Override
@@ -119,20 +120,20 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
     }
 
     public void notifyPermanentLimitUpdate(LimitType limitType, double oldValue, double newValue) {
-        PermanentLimitInfo oldPermanentLimitInfo = new PermanentLimitInfo(oldValue, id, id.equals(selectedGroupId));
-        PermanentLimitInfo newPermanentLimitInfo = new PermanentLimitInfo(newValue, id, id.equals(selectedGroupId));
+        PermanentLimitInfo oldPermanentLimitInfo = new PermanentLimitInfo(oldValue, id, isSelected.test(id));
+        PermanentLimitInfo newPermanentLimitInfo = new PermanentLimitInfo(newValue, id, isSelected.test(id));
         doNotify(attributeName + "_" + limitType + ".permanentLimit", oldPermanentLimitInfo, newPermanentLimitInfo);
     }
 
     private void notifyUpdate(LimitType limitType, OperationalLimits oldValue, OperationalLimits newValue) {
-        OperationalLimitsInfo oldOperationalLimitsInfo = new OperationalLimitsInfo(oldValue, id, id.equals(selectedGroupId));
-        OperationalLimitsInfo newOperationalLimitsInfo = new OperationalLimitsInfo(newValue, id, id.equals(selectedGroupId));
+        OperationalLimitsInfo oldOperationalLimitsInfo = new OperationalLimitsInfo(oldValue, id, isSelected.test(id));
+        OperationalLimitsInfo newOperationalLimitsInfo = new OperationalLimitsInfo(newValue, id, isSelected.test(id));
         doNotify(attributeName + "_" + limitType, oldOperationalLimitsInfo, newOperationalLimitsInfo);
     }
 
     public void notifyTemporaryLimitValueUpdate(LimitType limitType, double oldValue, double newValue, int acceptableDuration) {
-        TemporaryLimitInfo oldTemporaryLimitInfo = new TemporaryLimitInfo(oldValue, id, id.equals(selectedGroupId), acceptableDuration);
-        TemporaryLimitInfo newTemporaryLimitInfo = new TemporaryLimitInfo(newValue, id, id.equals(selectedGroupId), acceptableDuration);
+        TemporaryLimitInfo oldTemporaryLimitInfo = new TemporaryLimitInfo(oldValue, id, isSelected.test(id), acceptableDuration);
+        TemporaryLimitInfo newTemporaryLimitInfo = new TemporaryLimitInfo(newValue, id, isSelected.test(id), acceptableDuration);
         doNotify(attributeName + "_" + limitType + ".temporaryLimit.value", oldTemporaryLimitInfo, newTemporaryLimitInfo);
     }
 
@@ -150,10 +151,6 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
     @Override
     public boolean isEmpty() {
         return currentLimits == null && apparentPowerLimits == null && activePowerLimits == null;
-    }
-
-    public void setSelectedGroupId(String selectedGroupId) {
-        this.selectedGroupId = selectedGroupId;
     }
 
     public record PermanentLimitInfo(double value, String groupId, boolean inSelectedGroup) {

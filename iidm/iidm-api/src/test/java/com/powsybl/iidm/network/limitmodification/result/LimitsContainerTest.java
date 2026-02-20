@@ -54,7 +54,8 @@ class LimitsContainerTest {
 
     @Test
     void identicalLimitsContainerTest() {
-        LimitsContainer<LoadingLimits> container = new IdenticalLimitsContainer<>(originalLimits);
+        LimitsContainer<LoadingLimits> container = new IdenticalLimitsContainer<>(originalLimits, "ID");
+        assertEquals("ID", container.getOperationalLimitsGroupId());
         assertFalse(container.isDistinct());
         assertEquals(originalLimits, container.getLimits());
         assertEquals(originalLimits, container.getOriginalLimits());
@@ -62,7 +63,7 @@ class LimitsContainerTest {
 
     @Test
     void distinctLimitsContainerTest() {
-        AbstractDistinctLimitsContainer<LoadingLimits, LoadingLimits> container = new AbstractDistinctLimitsContainer<>(changedLimits, originalLimits) {
+        AbstractDistinctLimitsContainer<LoadingLimits, LoadingLimits> container = new AbstractDistinctLimitsContainer<>(changedLimits, originalLimits, "ID") {
             @Override
             public double getOriginalPermanentLimit() {
                 return originalLimits.getPermanentLimit();
@@ -84,6 +85,7 @@ class LimitsContainerTest {
             }
         };
         assertTrue(container.isDistinct());
+        assertEquals("ID", container.getOperationalLimitsGroupId());
         assertEquals(originalLimits, container.getOriginalLimits());
         assertEquals(changedLimits, container.getLimits());
         assertEquals(800., container.getLimits().getPermanentLimit(), 0.01);

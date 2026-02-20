@@ -8,9 +8,17 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -522,5 +530,150 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                 () -> assertFalse(group.hasProperty(property1)),
                 () -> assertEquals(Set.of(), group.getPropertyNames()),
                 () -> assertNull(group.getProperty(property1)));
+    }
+
+    @Test
+    void getAllSelectedCurrentLimits() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
+        Collection<CurrentLimits> currentLimits = line.getAllSelectedCurrentLimits(TwoSides.TWO);
+        Assertions.assertThat(currentLimits)
+            .hasSize(3)
+            .extracting(
+                LoadingLimits::getPermanentLimit,
+                this::extractTemporaryLimitsSet
+            ).containsExactlyInAnyOrder(
+                    new Tuple(500.0, Set.of()),
+                    new Tuple(200.0, Set.of(600.0, Double.MAX_VALUE)),
+                    new Tuple(300.0, Set.of(Double.MAX_VALUE))
+            );
+        line.deselectOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
+
+        currentLimits = (Collection<CurrentLimits>) line.getAllSelectedLimits(LimitType.CURRENT, TwoSides.TWO);
+
+        Assertions.assertThat(currentLimits)
+            .hasSize(2)
+            .extracting(
+                LoadingLimits::getPermanentLimit,
+                this::extractTemporaryLimitsSet
+            ).containsExactlyInAnyOrder(
+                new Tuple(500.0, Set.of()),
+                new Tuple(300.0, Set.of(Double.MAX_VALUE))
+            );
+    }
+
+    @Test
+    void getAllSelectedActivePowerLimits() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
+        ThreeWindingsTransformer.Leg legThree = n.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1).getLeg(ThreeSides.THREE);
+        Collection<ActivePowerLimits> activePowerLimits = legThree.getAllSelectedActivePowerLimits();
+        Assertions.assertThat(activePowerLimits)
+            .hasSize(2)
+            .extracting(
+                LoadingLimits::getPermanentLimit,
+                this::extractTemporaryLimitsSet
+            ).containsExactlyInAnyOrder(
+                    new Tuple(250.0, Set.of()),
+                    new Tuple(350.0, Set.of(400.0))
+            );
+
+        //check that deselecting a non-selected group does nothing
+        legThree.newOperationalLimitsGroup(EurostagTutorialExample1Factory.NOT_ACTIVATED);
+        legThree.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.NOT_ACTIVATED);
+
+        activePowerLimits = (Collection<ActivePowerLimits>) legThree.getAllSelectedLimits(LimitType.ACTIVE_POWER);
+        assertEquals(2, activePowerLimits.size());
+
+        legThree.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE, "DEFAULT");
+        activePowerLimits = (Collection<ActivePowerLimits>) legThree.getAllSelectedLimits(LimitType.ACTIVE_POWER);
+        assertEquals(0, activePowerLimits.size());
+    }
+
+    @Test
+    void getAllSelectedApparentPowerLimits() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedApparentPowerLimits();
+        TwoWindingsTransformer twoWindingsTransformer = n.getTwoWindingsTransformer(EurostagTutorialExample1Factory.NGEN_NHV1);
+        Collection<ApparentPowerLimits> apparentPowerLimits = twoWindingsTransformer.getAllSelectedApparentPowerLimits(TwoSides.TWO);
+        Assertions.assertThat(apparentPowerLimits)
+            .hasSize(2)
+            .extracting(
+                    LoadingLimits::getPermanentLimit,
+                    this::extractTemporaryLimitsSet
+            ).containsExactlyInAnyOrder(
+                    new Tuple(230.0, Set.of(240.0)),
+                    new Tuple(240.0, Set.of(250.0))
+            );
+
+        // Shouldn't affect the group 2
+        twoWindingsTransformer.cancelSelectedOperationalLimitsGroup1();
+        apparentPowerLimits = (Collection<ApparentPowerLimits>) twoWindingsTransformer.getAllSelectedLimits(LimitType.APPARENT_POWER, TwoSides.TWO);
+        assertEquals(2, apparentPowerLimits.size());
+
+        twoWindingsTransformer.cancelSelectedOperationalLimitsGroup2();
+        apparentPowerLimits = (Collection<ApparentPowerLimits>) twoWindingsTransformer.getAllSelectedLimits(LimitType.APPARENT_POWER, TwoSides.TWO);
+        assertEquals(0, apparentPowerLimits.size());
+    }
+
+    private Set<Double> extractTemporaryLimitsSet(LoadingLimits limits) {
+        return limits.getTemporaryLimits()
+            .stream()
+            .map(LoadingLimits.TemporaryLimit::getValue)
+            .collect(Collectors.toSet());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideOverloadDurationWithMultipleSelectedOperationalLimitsGroupArguments")
+    void overloadDurationWithMultipleSelectedOperationalLimitsGroup(Network n, String lineId, double p, double q, int expectedOverloadDuration) {
+        Line line = n.getLine(lineId);
+        line.getTerminal1().setP(p).setQ(q);
+        line.getTerminal2().setP(-p).setQ(-q);
+        n.getBusBreakerView().getBus(EurostagTutorialExample1Factory.NHV1).setV(400);
+        n.getBusBreakerView().getBus(EurostagTutorialExample1Factory.NHV2).setV(400);
+        System.out.println(line.getTerminal1().getI());
+        assertEquals(expectedOverloadDuration, line.getOverloadDuration());
+    }
+
+    private static Stream<Arguments> provideOverloadDurationWithMultipleSelectedOperationalLimitsGroupArguments() {
+        String line1 = EurostagTutorialExample1Factory.NHV1_NHV2_1;
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        return Stream.of(
+            Arguments.of(n, line1, 200, 10, Integer.MAX_VALUE), // current = 289 A
+            Arguments.of(n, line1, 200, 60, 40 * 60), // 301 A
+            Arguments.of(n, line1, 350, 60, 40 * 60), // 512 A
+            Arguments.of(n, line1, 450, 60, 10 * 60), // 655 A
+            Arguments.of(n, line1, 550, 100, 30), // 806 A
+            Arguments.of(n, line1, 700, 100, 0), // 1020 A
+            Arguments.of(n, line1, 800, 200, 0), // 1190 A
+            Arguments.of(n, line1, 800, 250, 0), // 1209 A
+            Arguments.of(n, line1, 1000, 300, 0), // 1506 A
+            Arguments.of(n, line1, 1100, 300, 0) // 1645 A
+        );
+    }
+
+    @Test
+    void checkAddWithPredicate() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.cancelSelectedOperationalLimitsGroup1();
+        assertEquals(4, line.getOperationalLimitsGroups1().size());
+        assertEquals(0, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+
+        // should have activated_1_1 and activated_1_2
+        line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> s.contains("activated_1"));
+        assertEquals(2, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+
+        // should also have not_activated now
+        line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> s.contains("activated"));
+        assertEquals(3, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+
+        // adding with a predicate should not remove activated groups that do not match the predicate
+        line.cancelSelectedOperationalLimitsGroup1();
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO);
+        line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, "DEFAULT"::equals);
+        assertEquals(2, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+
+        // check that all groups can be activated
+        line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> true);
+        assertEquals(4, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
     }
 }

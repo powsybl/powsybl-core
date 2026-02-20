@@ -198,6 +198,11 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
+        public void addSelectedOperationalLimitsGroups(String... ids) {
+            operationalLimitsHolder.addSelectedOperationalLimitsGroups(ids);
+        }
+
+        @Override
         public void removeOperationalLimitsGroup(String id) {
             operationalLimitsHolder.removeOperationalLimitsGroup(id);
         }
@@ -210,6 +215,21 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         @Override
         public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
             return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup();
+        }
+
+        @Override
+        public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+            return operationalLimitsHolder.getAllSelectedOperationalLimitsGroupIds();
+        }
+
+        @Override
+        public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+            return operationalLimitsHolder.getAllSelectedOperationalLimitsGroups();
+        }
+
+        @Override
+        public void deselectOperationalLimitsGroups(String... ids) {
+            operationalLimitsHolder.deselectOperationalLimitsGroups(ids);
         }
 
         /**
@@ -312,6 +332,17 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
                 case CURRENT -> getCurrentLimits();
                 case ACTIVE_POWER -> getActivePowerLimits();
                 case APPARENT_POWER -> getApparentPowerLimits();
+                default ->
+                        throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+            };
+        }
+
+        @Override
+        public Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type) {
+            return switch (type) {
+                case CURRENT -> getAllSelectedCurrentLimits();
+                case ACTIVE_POWER -> getAllSelectedActivePowerLimits();
+                case APPARENT_POWER -> getAllSelectedApparentPowerLimits();
                 default ->
                         throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
             };
