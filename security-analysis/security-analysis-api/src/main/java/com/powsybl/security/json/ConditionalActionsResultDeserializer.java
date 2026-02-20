@@ -20,6 +20,8 @@ import com.powsybl.security.results.OperatorStrategyResult;
 
 import java.io.IOException;
 
+import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
+
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
@@ -31,10 +33,15 @@ public class ConditionalActionsResultDeserializer extends StdDeserializer<Operat
 
     @Override
     public OperatorStrategyResult.ConditionalActionsResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
+        if (version == null) {  // assuming current version...
+            version = SecurityAnalysisResultSerializer.VERSION;
+        }
         String conditionalActionsId = null;
         LimitViolationsResult limitViolationsResult = null;
         NetworkResult networkResult = null;
         PostContingencyComputationStatus status = null;
+        double distributedActivePower = 0.;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "conditionalActionsId" -> {
@@ -53,9 +60,15 @@ public class ConditionalActionsResultDeserializer extends StdDeserializer<Operat
                     parser.nextToken();
                     status = JsonUtil.readValue(deserializationContext, parser, PostContingencyComputationStatus.class);
                 }
+                case "distributedActivePower" -> {
+                    parser.nextToken();
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion("ConditionalActionsResult",
+                            "Tag: distributedActivePower", version, "1.9");
+                    distributedActivePower = parser.getValueAsDouble();
+                }
                 default -> throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());
             }
         }
-        return new OperatorStrategyResult.ConditionalActionsResult(conditionalActionsId, status, limitViolationsResult, networkResult);
+        return new OperatorStrategyResult.ConditionalActionsResult(conditionalActionsId, status, limitViolationsResult, networkResult, distributedActivePower);
     }
 }

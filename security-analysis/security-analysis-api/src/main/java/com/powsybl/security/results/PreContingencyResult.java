@@ -30,7 +30,11 @@ public class PreContingencyResult extends AbstractContingencyResult {
     }
 
     public PreContingencyResult(LoadFlowResult.ComponentResult.Status status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
-        super(limitViolationsResult, networkResult);
+        this(status, limitViolationsResult, networkResult, 0.);
+    }
+
+    public PreContingencyResult(LoadFlowResult.ComponentResult.Status status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, double distributedActivePower) {
+        super(limitViolationsResult, networkResult, distributedActivePower);
         this.status = Objects.requireNonNull(status);
     }
 

@@ -71,8 +71,13 @@ class PostContingencyResultTest extends AbstractSerDeTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults,
-                new ConnectivityResult(1, 1, 5.0, 10.0, Collections.emptySet()));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(
+                contingency,
+                PostContingencyComputationStatus.CONVERGED,
+                result,
+                new NetworkResult(branchResults, busResults, threeWindingsTransformerResults),
+                new ConnectivityResult(1, 1, 5.0, 10.0, Collections.emptySet()),
+                1.23);
         roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
 

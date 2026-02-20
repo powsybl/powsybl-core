@@ -30,6 +30,7 @@ public class ConditionalActionsResultSerializer extends StdSerializer<OperatorSt
         serializerProvider.defaultSerializeField("status", result.getStatus(), jsonGenerator);
         serializerProvider.defaultSerializeField("limitViolationsResult", result.getLimitViolationsResult(), jsonGenerator);
         serializerProvider.defaultSerializeField("networkResult", result.getNetworkResult(), jsonGenerator);
+        jsonGenerator.writeNumberField("distributedActivePower", result.getDistributedActivePower());
         jsonGenerator.writeEndObject();
     }
 }
