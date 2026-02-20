@@ -27,10 +27,6 @@ public abstract class AbstractContingencyResult {
         this.distributedActivePower = distributedActivePower;
     }
 
-    protected AbstractContingencyResult(LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
-        this(limitViolationsResult, networkResult, Double.NaN);
-    }
-
     public LimitViolationsResult getLimitViolationsResult() {
         return limitViolationsResult;
     }
