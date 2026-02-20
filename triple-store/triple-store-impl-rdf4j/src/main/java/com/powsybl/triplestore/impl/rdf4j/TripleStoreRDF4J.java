@@ -63,6 +63,11 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
+    public void close() {
+        repo.shutDown();
+    }
+
+    @Override
     public String getImplementationName() {
         return NAME;
     }
