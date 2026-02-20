@@ -7,12 +7,16 @@
  */
 package com.powsybl.psse.model.pf;
 
-import java.lang.reflect.Field;
-
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
-import com.univocity.parsers.annotations.HeaderTransformer;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -29,23 +33,63 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         converter2.setModel(model);
     }
 
-    @Parsed
     private String name;
-
-    @Parsed
     private int mdc = 1;
-
-    @Parsed
     private double rdc;
-
-    @Nested
     private PsseOwnership ownership;
+    private PsseVoltageSourceConverter converter1 = new PsseVoltageSourceConverter();
+    private PsseVoltageSourceConverter converter2 = new PsseVoltageSourceConverter();
 
-    @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "1")
-    private PsseVoltageSourceConverter converter1;
+    public static PsseVoltageSourceConverterDcTransmissionLine fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverter = new PsseVoltageSourceConverterDcTransmissionLine();
+        psseVoltageSourceConverter.setName(parseStringFromRecord(rec, headers, "name"));
+        psseVoltageSourceConverter.setMdc(parseIntFromRecord(rec, headers, "mdc"));
+        psseVoltageSourceConverter.setRdc(parseDoubleFromRecord(rec, headers, "rdc"));
+        psseVoltageSourceConverter.setOwnership(PsseOwnership.fromRecord(rec, headers));
+        try {
+            psseVoltageSourceConverter.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "1"));
+        } catch (PsseException e) {
+            // Converter is optional
+        }
+        try {
+            psseVoltageSourceConverter.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, version, headers, "2"));
+        } catch (PsseException e) {
+            // Converter is optional
+        }
+        return psseVoltageSourceConverter;
+    }
 
-    @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "2")
-    private PsseVoltageSourceConverter converter2;
+    public static String[] toRecord(PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverterDcTransmissionLine, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "name" -> psseVoltageSourceConverterDcTransmissionLine.getName();
+                case "mdc" -> String.valueOf(psseVoltageSourceConverterDcTransmissionLine.getMdc());
+                case "rdc" -> String.valueOf(psseVoltageSourceConverterDcTransmissionLine.getRdc());
+                default -> {
+                    Optional<String> optionalValue = psseVoltageSourceConverterDcTransmissionLine.getOwnership().headerToString(headers[i]);
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    optionalValue = converterHeaderToString(psseVoltageSourceConverterDcTransmissionLine, headers[i]);
+                    if (optionalValue.isPresent()) {
+                        yield optionalValue.get();
+                    }
+                    throw new PsseException("Unsupported header: " + headers[i]);
+                }
+            };
+        }
+        return row;
+    }
+
+    private static Optional<String> converterHeaderToString(PsseVoltageSourceConverterDcTransmissionLine psseVoltageSourceConverterDcTransmissionLine, String header) {
+        String shortHeader = header.substring(0, header.length() - 1);
+        return switch (header.substring(header.length() - 1)) {
+            case "1" -> psseVoltageSourceConverterDcTransmissionLine.getConverter1().headerToString(shortHeader);
+            case "2" -> psseVoltageSourceConverterDcTransmissionLine.getConverter2().headerToString(shortHeader);
+            default -> Optional.empty();
+        };
+    }
 
     public String getName() {
         return name;
@@ -104,18 +148,5 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         copy.converter1 = this.converter1.copy();
         copy.converter2 = this.converter2.copy();
         return copy;
-    }
-
-    public static class ConverterHeaderTransformer extends HeaderTransformer {
-        private final String converterChar;
-
-        public ConverterHeaderTransformer(String... args) {
-            converterChar = args[0];
-        }
-
-        @Override
-        public String transformName(Field field, String name) {
-            return name + converterChar;
-        }
     }
 }

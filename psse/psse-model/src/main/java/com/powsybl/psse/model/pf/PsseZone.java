@@ -7,7 +7,11 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -15,11 +19,27 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseZone {
 
-    @Parsed(field = {"i", "izone"})
     private int i;
-
-    @Parsed(defaultNullRead = "            ")
     private String zoname;
+
+    public static PsseZone fromRecord(CsvRecord rec, String[] headers) {
+        PsseZone psseZone = new PsseZone();
+        psseZone.setI(parseIntFromRecord(rec, headers, "i", "izone"));
+        psseZone.setZoname(parseStringFromRecord(rec, "            ", headers, "zoname"));
+        return psseZone;
+    }
+
+    public static String[] toRecord(PsseZone psseZone, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "izone" -> String.valueOf(psseZone.getI());
+                case "zoname" -> psseZone.getZoname();
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;

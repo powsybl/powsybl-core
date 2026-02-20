@@ -7,44 +7,68 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersioned;
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PsseOwnership extends PsseVersioned {
-    @Parsed
+
     private int o1 = -1;
-
-    @Parsed
     private double f1 = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int o2 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double f2 = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int o3 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double f3 = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private int o4 = 0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
     private double f4 = 1;
+
+    public static PsseOwnership fromRecord(CsvRecord rec, String[] headers) {
+        PsseOwnership psseOwnership = new PsseOwnership();
+        psseOwnership.setO1(parseIntFromRecord(rec, -1, headers, "o1"));
+        psseOwnership.setF1(parseDoubleFromRecord(rec, 1d, headers, "f1"));
+        psseOwnership.setO2(parseIntFromRecord(rec, 0, headers, "o2"));
+        psseOwnership.setF2(parseDoubleFromRecord(rec, 1d, headers, "f2"));
+        psseOwnership.setO3(parseIntFromRecord(rec, 0, headers, "o3"));
+        psseOwnership.setF3(parseDoubleFromRecord(rec, 1d, headers, "f3"));
+        psseOwnership.setO4(parseIntFromRecord(rec, 0, headers, "o4"));
+        psseOwnership.setF4(parseDoubleFromRecord(rec, 1d, headers, "f4"));
+        return psseOwnership;
+    }
+
+    public static String[] toRecord(PsseOwnership psseOwnership, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            Optional<String> optionalValue = psseOwnership.headerToString(headers[i]);
+            if (optionalValue.isEmpty()) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = optionalValue.get();
+        }
+        return row;
+    }
+
+    public Optional<String> headerToString(String header) {
+        return switch (header) {
+            case "o1" -> Optional.of(String.valueOf(getO1()));
+            case "f1" -> Optional.of(String.valueOf(getF1()));
+            case "o2" -> Optional.of(String.valueOf(getO2()));
+            case "f2" -> Optional.of(String.valueOf(getF2()));
+            case "o3" -> Optional.of(String.valueOf(getO3()));
+            case "f3" -> Optional.of(String.valueOf(getF3()));
+            case "o4" -> Optional.of(String.valueOf(getO4()));
+            case "f4" -> Optional.of(String.valueOf(getF4()));
+            default -> Optional.empty();
+        };
+    }
 
     public int getO1() {
         return o1;

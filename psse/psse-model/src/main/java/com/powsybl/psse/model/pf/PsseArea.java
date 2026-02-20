@@ -7,7 +7,12 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -15,20 +20,36 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseArea {
 
-    @Parsed(field = {"i", "iarea"})
     private int i;
-
-    @Parsed
     private int isw = 0;
-
-    @Parsed
     private double pdes = 0;
-
-    @Parsed
     private double ptol = 10;
-
-    @Parsed(defaultNullRead = "            ")
     private String arname;
+
+    public static PsseArea fromRecord(CsvRecord rec, String[] headers) {
+        PsseArea psseArea = new PsseArea();
+        psseArea.setI(parseIntFromRecord(rec, headers, "i", "iarea"));
+        psseArea.setIsw(parseIntFromRecord(rec, 0, headers, "isw"));
+        psseArea.setPdes(parseDoubleFromRecord(rec, 0d, headers, "pdes"));
+        psseArea.setPtol(parseDoubleFromRecord(rec, 10d, headers, "ptol"));
+        psseArea.setArname(parseStringFromRecord(rec, "            ", headers, "arname"));
+        return psseArea;
+    }
+
+    public static String[] toRecord(PsseArea psseArea, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "iarea" -> String.valueOf(psseArea.getI());
+                case "arname" -> "            ".equals(psseArea.getArname()) ? "" : psseArea.getArname();
+                case "isw" -> String.valueOf(psseArea.getIsw());
+                case "pdes" -> String.valueOf(psseArea.getPdes());
+                case "ptol" -> String.valueOf(psseArea.getPtol());
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;

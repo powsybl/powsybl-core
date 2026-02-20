@@ -10,6 +10,14 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.io.*;
 import com.powsybl.psse.model.pf.PsseSubstation;
+import com.powsybl.psse.model.pf.internal.PsseSubstationEquipmentTerminal;
+import com.powsybl.psse.model.pf.internal.PsseSubstationEquipmentTerminalCommonStart;
+import com.powsybl.psse.model.pf.internal.PsseSubstationEquipmentTerminalx;
+import com.powsybl.psse.model.pf.internal.PsseSubstationNode;
+import com.powsybl.psse.model.pf.internal.PsseSubstationNodex;
+import com.powsybl.psse.model.pf.internal.PsseSubstationRecord;
+import com.powsybl.psse.model.pf.internal.PsseSubstationSwitchingDevice;
+import com.powsybl.psse.model.pf.internal.PsseSubstationSwitchingDevicex;
 
 import java.io.IOException;
 import java.io.OutputStream;

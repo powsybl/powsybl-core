@@ -7,9 +7,17 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -18,61 +26,93 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseTwoTerminalDcConverter extends PsseVersioned {
 
-    @Parsed
     private int ip;
-
-    @Parsed
     private int nb;
-
-    @Parsed
     private double anmx;
-
-    @Parsed
     private double anmn;
-
-    @Parsed
     private double rc;
-
-    @Parsed
     private double xc;
-
-    @Parsed
     private double ebas;
-
-    @Parsed
     private double tr = 1.0;
-
-    @Parsed
     private double tap = 1.0;
-
-    @Parsed
     private double tmx = 1.5;
-
-    @Parsed
     private double tmn = 0.51;
-
-    @Parsed
     private double stp = 0.00625;
-
-    @Parsed
     private int ic = 0;
 
-    // Originally the field name is "if" that is not allowed
-    @Parsed(field = {"if"})
+    // Originally the field name is "if", but that is not allowed
     private int ifx = 0;
-
-    @Parsed
     private int it = 0;
-
-    @Parsed(defaultNullRead = "1")
     private String id;
-
-    @Parsed
     private double xcap = 0.0;
 
-    @Parsed
     @Revision(since = 35)
     private int nd = 0;
+
+    public static PsseTwoTerminalDcConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        return fromRecord(rec, version, headers, "");
+    }
+
+    public static PsseTwoTerminalDcConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers, String headerSuffix) {
+        PsseTwoTerminalDcConverter psseTwoTerminalDcConverter = new PsseTwoTerminalDcConverter();
+        psseTwoTerminalDcConverter.setIp(parseIntFromRecord(rec, headers, "ip" + headerSuffix));
+        psseTwoTerminalDcConverter.setNb(parseIntFromRecord(rec, headers, "nb" + headerSuffix));
+        psseTwoTerminalDcConverter.setAnmx(parseDoubleFromRecord(rec, headers, "anmx" + headerSuffix));
+        psseTwoTerminalDcConverter.setAnmn(parseDoubleFromRecord(rec, headers, "anmn" + headerSuffix));
+        psseTwoTerminalDcConverter.setRc(parseDoubleFromRecord(rec, headers, "rc" + headerSuffix));
+        psseTwoTerminalDcConverter.setXc(parseDoubleFromRecord(rec, headers, "xc" + headerSuffix));
+        psseTwoTerminalDcConverter.setEbas(parseDoubleFromRecord(rec, headers, "ebas" + headerSuffix));
+        psseTwoTerminalDcConverter.setTr(parseDoubleFromRecord(rec, 1.0, headers, "tr" + headerSuffix));
+        psseTwoTerminalDcConverter.setTap(parseDoubleFromRecord(rec, 1.0, headers, "tap" + headerSuffix));
+        psseTwoTerminalDcConverter.setTmx(parseDoubleFromRecord(rec, 1.5, headers, "tmx" + headerSuffix));
+        psseTwoTerminalDcConverter.setTmn(parseDoubleFromRecord(rec, 0.51, headers, "tmn" + headerSuffix));
+        psseTwoTerminalDcConverter.setStp(parseDoubleFromRecord(rec, 0.00625, headers, "stp" + headerSuffix));
+        psseTwoTerminalDcConverter.setIc(parseIntFromRecord(rec, 0, headers, "ic" + headerSuffix));
+        psseTwoTerminalDcConverter.setIf(parseIntFromRecord(rec, 0, headers, "if" + headerSuffix));
+        psseTwoTerminalDcConverter.setIt(parseIntFromRecord(rec, 0, headers, "it" + headerSuffix));
+        psseTwoTerminalDcConverter.setId(parseStringFromRecord(rec, "1", headers, "id" + headerSuffix));
+        psseTwoTerminalDcConverter.setXcap(parseDoubleFromRecord(rec, 0.0, headers, "xcap" + headerSuffix));
+        if (version.getMajorNumber() >= 35) {
+            psseTwoTerminalDcConverter.setNd(parseIntFromRecord(rec, 0, headers, "nd" + headerSuffix));
+        }
+        return psseTwoTerminalDcConverter;
+    }
+
+    public static String[] toRecord(PsseTwoTerminalDcConverter psseTwoTerminalDcConverter, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            Optional<String> optionalValue = psseTwoTerminalDcConverter.headerToString(headers[i]);
+            if (optionalValue.isEmpty()) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = optionalValue.get();
+        }
+        return row;
+    }
+
+    public Optional<String> headerToString(String header) {
+        return switch (header) {
+            case "ip" -> Optional.of(String.valueOf(getIp()));
+            case "nb" -> Optional.of(String.valueOf(getNb()));
+            case "anmx" -> Optional.of(String.valueOf(getAnmx()));
+            case "anmn" -> Optional.of(String.valueOf(getAnmn()));
+            case "rc" -> Optional.of(String.valueOf(getRc()));
+            case "xc" -> Optional.of(String.valueOf(getXc()));
+            case "ebas" -> Optional.of(String.valueOf(getEbas()));
+            case "tr" -> Optional.of(String.valueOf(getTr()));
+            case "tap" -> Optional.of(String.valueOf(getTap()));
+            case "tmx" -> Optional.of(String.valueOf(getTmx()));
+            case "tmn" -> Optional.of(String.valueOf(getTmn()));
+            case "stp" -> Optional.of(String.valueOf(getStp()));
+            case "ic" -> Optional.of(String.valueOf(getIc()));
+            case "if" -> Optional.of(String.valueOf(getIf()));
+            case "it" -> Optional.of(String.valueOf(getIt()));
+            case "id" -> Optional.of(String.valueOf(getId()));
+            case "xcap" -> Optional.of(String.valueOf(getXcap()));
+            case "nd" -> Optional.of(String.valueOf(getNd()));
+            default -> Optional.empty();
+        };
+    }
 
     public int getIp() {
         return ip;
