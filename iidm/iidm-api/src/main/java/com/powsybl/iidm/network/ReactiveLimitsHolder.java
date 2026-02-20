@@ -20,6 +20,12 @@ public interface ReactiveLimitsHolder {
     <L extends ReactiveLimits> L getReactiveLimits(Class<L> type);
 
     /**
+     * Get a builder to create and associate a new reactive capability shape
+     * to this generator.
+     */
+    ReactiveCapabilityShapeAdder newReactiveCapabilityShape();
+
+    /**
      * Get a builder to create and associate a new reactive capability curve
      * to this generator.
      */
@@ -45,4 +51,13 @@ public interface ReactiveLimitsHolder {
                     .endPoint());
         return adder;
     }
+
+    default double getMinP() {
+        return Double.NaN;
+    }
+
+    default double getMaxP() {
+        return Double.NaN;
+    }
+
 }

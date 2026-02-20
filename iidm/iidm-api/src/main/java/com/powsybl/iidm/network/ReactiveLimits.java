@@ -29,5 +29,4 @@ public interface ReactiveLimits {
      * @param p the active power
      */
     double getMaxQ(double p);
-
 }
