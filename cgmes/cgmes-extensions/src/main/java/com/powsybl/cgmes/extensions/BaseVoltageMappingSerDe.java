@@ -15,6 +15,8 @@ import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.NetworkDeserializerContext;
+import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,7 +43,8 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
 
     @Override
     public void write(BaseVoltageMapping extension, SerializerContext context) {
-        TreeDataWriter writer = context.getWriter();
+        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
+        TreeDataWriter writer = networkContext.getWriter();
         Map<Double, BaseVoltageMapping.BaseVoltageSource> sortedBaseVoltages = extension.getBaseVoltages().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
@@ -50,7 +53,7 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
             writer.writeStartNode(getNamespaceUri(), BASE_VOLTAGE_ROOT_ELEMENT);
             writer.writeDoubleAttribute("nominalVoltage", nominalV);
             writer.writeEnumAttribute("source", baseVoltageSource.getSource());
-            writer.writeStringAttribute("id", baseVoltageSource.getId());
+            writer.writeStringAttribute("id", networkContext.getAnonymizer().anonymizeString(baseVoltageSource.getId()));
             writer.writeEndNode();
         });
         writer.writeEndNodes();
@@ -58,6 +61,7 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
 
     @Override
     public BaseVoltageMapping read(Network extendable, DeserializerContext context) {
+        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         BaseVoltageMappingAdder mappingAdder = extendable.newExtension(BaseVoltageMappingAdder.class);
         mappingAdder.add();
         BaseVoltageMapping mapping = extendable.getExtension(BaseVoltageMapping.class);
@@ -65,7 +69,7 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
             if (elementName.equals(BASE_VOLTAGE_ROOT_ELEMENT)) {
                 double nominalV = context.getReader().readDoubleAttribute("nominalVoltage");
                 Source sourceBV = context.getReader().readEnumAttribute("source", Source.class);
-                String baseVoltageId = context.getReader().readStringAttribute("id");
+                String baseVoltageId = networkContext.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
                 context.getReader().readEndNode();
                 mapping.addBaseVoltage(nominalV, baseVoltageId, sourceBV);
             } else {
