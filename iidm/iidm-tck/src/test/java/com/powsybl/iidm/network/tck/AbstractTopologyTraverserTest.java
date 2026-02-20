@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
@@ -249,6 +250,40 @@ public abstract class AbstractTopologyTraverserTest {
         assertEquals(Set.of(Pair.of("GEN", 0), Pair.of("NGEN_NHV1", 0), Pair.of("duplicate", 0), Pair.of("NGEN_NHV1", 1),
                         Pair.of("NHV1_NHV2_1", 0), Pair.of("NHV1_NHV2_2", 0), Pair.of("duplicate", 1), Pair.of("NHV1_NHV2_1", 1),
                         Pair.of("NHV1_NHV2_2", 1), Pair.of("NHV2_NLOAD", 0), Pair.of("NHV2_NLOAD", 1), Pair.of("LOAD", 0)),
+                visited);
+    }
+
+    @Test
+    void testTerminateTraverser() {
+        Network network = createMixedNodeBreakerBusBreakerNetwork();
+        Terminal startGNbv = network.getGenerator("G").getTerminal();
+        List<Pair<String, Integer>> visited1 = getVisitedList(startGNbv, s -> s != null && s.getId().equals("BR2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("G", 0), Pair.of("BBS1", 0)), visited1);
+
+        List<Pair<String, Integer>>visited2 = getVisitedList(startGNbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        assertEquals(List.of(Pair.of("G", 0)), visited2);
+
+        List<Pair<String, Integer>>visited3 = getVisitedList(startGNbv, s -> TraverseResult.CONTINUE,
+                t -> t.getConnectable() instanceof BusbarSection ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("G", 0), Pair.of("BBS1", 0)), visited3);
+
+        Terminal startLBbv = network.getLoad("LD2").getTerminal();
+        List<Pair<String, Integer>>visited4 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        assertEquals(List.of(Pair.of("LD2", 0)), visited4);
+
+        List<Pair<String, Integer>>visited5 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE,
+                t -> t.getConnectable().getId().equals("L2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("LD2", 0), Pair.of("L2", 1)), visited5);
+    }
+
+    @Test
+    void testTraversalOrder() {
+        Network network = FictitiousSwitchFactory.create();
+        List<Pair<String, Integer>> visited = getVisitedList(network.getGenerator("CB").getTerminal(), s -> TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("CB", 0), Pair.of("O", 0), Pair.of("P", 0), Pair.of("CF", 0),
+                        Pair.of("CH", 0), Pair.of("CC", 0), Pair.of("CD", 0), Pair.of("CE", 0),
+                        Pair.of("CJ", 1), Pair.of("CI", 1), Pair.of("CG", 0), Pair.of("CJ", 0),
+                        Pair.of("D", 0), Pair.of("CI", 0)),
                 visited);
     }
 
