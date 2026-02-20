@@ -3,7 +3,6 @@
 ```{toctree}
 :hidden:
 configuration.md
-implementations.md
 contingency-dsl.md
 action-dsl.md
 limit-reductions.md
@@ -50,12 +49,27 @@ contingencies are:
 - Battery contingency
 - Shunt Compensator contingency
 - Switch contingency
+- DC line contingency
+- Voltage source converter contingency
+- DC ground contingency
+- DC node contingency
 
 A contingency is made of contingency elements. A contingency can trigger one element at a time (N-1) or several elements
 at a time (N-K). Bus bar and bus contingencies are special N-K contingencies as they trigger all the equipments
 connected to a given bus bar section.
 
-### Remedial actions
+### Operator strategies
+
+An operator strategy is applied in pre-contingency or after a contingency, depending on the contingency context
+provided. A contingency context can be:
+- `NONE` a pre-contingency state only
+- `SPECIFIC` a post-contingency state on a specific contingency
+- `ONLY_CONTINGENCIES` a post-contingency state on every contingency
+- `ALL` both pre-contingency and post-contingency states
+
+An operator strategy groups a condition and a list of remedial actions.
+
+#### Remedial actions
 
 Remedial actions are actions that are applied when limit violations occur. Supported actions are:
 
@@ -85,7 +99,7 @@ Remedial actions can be *preventive* or *curative*:
 
 Note: you can find the current list of remedial actions implemented in the PowSyBl Open Load Flow security analysis provider in the [PowSyBl Open Load Flow documentation](inv:powsyblopenloadflow:*:*#security/inputs).
 
-### Conditions
+#### Conditions
 
 Actions are applied if a condition is met. The conditions can be diversified and extended in the future:
 
@@ -96,15 +110,12 @@ Actions are applied if a condition is met. The conditions can be diversified and
   network.
 - Any violation condition on a list of elements: meaning that the list of actions is applied if one or more elements
   provided are overloaded.
+- Threshold condition: condition triggered when a threshold violation is detected on the network. The threshold can
+  refer to an active power, reactive power, current or target P value on a specific point of the network.
+  Four condition types are available depending on the equipment to target: branch threshold condition, three-winding
+  transformer threshold condition, injection threshold condition and AC/DC converter threshold condition.
 
-### Operator strategies
 
-An operator strategy is applied in pre-contingency or after a contingency, depending on the contingency context
-provided. A contingency context can be a pre-contingency state only (`NONE`), a post-contingency state (on a specific
-contingency (`SPECIFIC`) or on every contingency (`ONLY_CONTINGENCIES`)) or both pre-contingency and post-contingency
-states (`ALL`).
-
-An operator strategy groups a condition and a list of remedial actions.
 
 ### State monitors
 
@@ -355,7 +366,12 @@ The following example is a result of a security analysis with remedial action, e
 }
 ```
 
+## Implementations
+
+The following power flow implementations are supported:
+- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#security/security)
+- [Dynaflow](inv:powsybldynawo:*:*#security_analysis/index)
+
 ## Going further
 
-- Different implementations are available to run security analyses on [page](implementations.md).
-- [Run a security analysis through an iTools command](../../user/itools/security-analysis.md): Learn how to perform a security analysis from the command line. 
+- [Run a security analysis through an iTools command](../../user/itools/security-analysis.md): Learn how to perform a security analysis from the command line.

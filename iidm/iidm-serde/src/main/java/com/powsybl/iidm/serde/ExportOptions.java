@@ -30,6 +30,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         LOG_ERROR
     }
 
+    public enum BusBranchVoltageLevelIncompatibilityBehavior {
+        THROW_EXCEPTION,
+        KEEP_ORIGINAL_TOPOLOGY
+    }
+
     private boolean withBranchSV = true;
 
     private boolean indent = true;
@@ -42,9 +47,13 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
+    private BusBranchVoltageLevelIncompatibilityBehavior busBranchVoltageLevelIncompatibilityBehavior = BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION;
+
+    private boolean flatten = false;
+
     private String version;
 
-    private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = THROW_EXCEPTION;
+    private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
 
     private final Map<String, String> extensionsVersions = new HashMap<>();
 
@@ -86,6 +95,12 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
                          IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, version, iidmVersionIncompatibilityBehavior, false);
+
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
+                         IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior, boolean flatten) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
@@ -94,6 +109,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.sorted = sorted;
         this.version = version;
         this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
+        this.flatten = flatten;
     }
 
     public boolean isWithBranchSV() {
@@ -179,6 +195,16 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
+    public ExportOptions setBusBranchVoltageLevelIncompatibilityBehavior(
+            BusBranchVoltageLevelIncompatibilityBehavior busBranchVoltageLevelIncompatibilityBehavior) {
+        this.busBranchVoltageLevelIncompatibilityBehavior = busBranchVoltageLevelIncompatibilityBehavior;
+        return this;
+    }
+
+    public BusBranchVoltageLevelIncompatibilityBehavior getBusBranchVoltageLevelIncompatibilityBehavior() {
+        return busBranchVoltageLevelIncompatibilityBehavior;
+    }
+
     /**
      * <p>Add a given version in which the extension with the given name will be exported if
      * this version is supported by the extension's XML serializer and if it is compatible
@@ -239,6 +265,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setWithAutomationSystems(boolean withAutomationSystems) {
         this.withAutomationSystems = withAutomationSystems;
+        return this;
+    }
+
+    public boolean isFlatten() {
+        return flatten;
+    }
+
+    public ExportOptions setFlatten(boolean flatten) {
+        this.flatten = flatten;
         return this;
     }
 }

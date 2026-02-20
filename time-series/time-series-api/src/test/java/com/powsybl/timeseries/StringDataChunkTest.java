@@ -108,7 +108,7 @@ class StringDataChunkTest {
             List.of(new StringPoint(1, Instant.parse("2015-01-01T00:15:00Z"), "aaa"),
                 new StringPoint(2, Instant.parse("2015-01-01T00:30:00Z"), "bbb"),
                 new StringPoint(6, Instant.parse("2015-01-01T01:30:00Z"), "ccc")),
-            compressedChunk.stream(index).toList());
+            compressedChunk.compressedStream(index).toList());
     }
 
     @Test

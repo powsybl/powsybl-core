@@ -100,6 +100,13 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static void noInputsForUpdateReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.cgmes.conversion.noInputsForUpdate")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
+
     // WARN
     public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
         reportNode.newReportNode()
@@ -282,6 +289,22 @@ public final class CgmesReports {
                 .withUntypedValue(CONVERTER_IDS, converterIds)
                 .withUntypedValue("numberOfLines", numberOfLines)
                 .withUntypedValue("numberOfConverterPairs", numberOfConverterPairs)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void invalidPccTerminalReport(ReportNode reportNode, String converterId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.invalidPccTerminal")
+                .withUntypedValue("converterId", converterId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void phaseTapChangerCurrentLimiterModeNotSupportedReport(ReportNode reportNode, String phaseTapChangerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.phaseTapChangerCurrentLimiterModeNotSupported")
+                .withUntypedValue("phaseTapChangerId", phaseTapChangerId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }

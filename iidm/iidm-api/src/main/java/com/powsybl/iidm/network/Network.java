@@ -603,6 +603,10 @@ public interface Network extends Container<Network> {
      */
     int getForecastDistance();
 
+    /**
+     * Set the forecast distance in minutes.
+     * <p>Example: 0 for a snapshot, 6*60 to 30*60 for a DACF.
+     */
     Network setForecastDistance(int forecastDistance);
 
     /**
@@ -1769,8 +1773,16 @@ public interface Network extends Container<Network> {
         return this;
     }
 
+    /**
+     *
+     * @param identifiableType The type of the Identifiable you want the steam of inside the network.
+     * @see com.powsybl.iidm.network.IdentifiableType
+     * @return a Stream of elements of the network that are of the type {@code identifiableType}.
+     * In the case of {@link com.powsybl.iidm.network.IdentifiableType#NETWORK}, the stream starts with the Network itself, followed by its subnetworks, if any exist.
+     */
     default Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
         return switch (identifiableType) {
+            case NETWORK -> Stream.concat(Stream.of(getNetwork()), getSubnetworks().stream()).map(Function.identity());
             case SWITCH -> getSwitchStream().map(Function.identity());
             case TWO_WINDINGS_TRANSFORMER -> getTwoWindingsTransformerStream().map(Function.identity());
             case THREE_WINDINGS_TRANSFORMER -> getThreeWindingsTransformerStream().map(Function.identity());
@@ -1796,7 +1808,7 @@ public interface Network extends Container<Network> {
             case DC_SWITCH -> getDcSwitchStream().map(Function.identity());
             case LINE_COMMUTATED_CONVERTER -> getLineCommutatedConverterStream().map(Function.identity());
             case VOLTAGE_SOURCE_CONVERTER -> getVoltageSourceConverterStream().map(Function.identity());
-            default -> throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
+            default -> throw new PowsyblException("can't get a stream of " + identifiableType + " from a network.");
         };
     }
 

@@ -16,17 +16,18 @@ import java.util.ResourceBundle;
  * Bundle message template provider based on a {@link ResourceBundle}.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class BundleMessageTemplateProvider implements MessageTemplateProvider {
+public class BundleMessageTemplateProvider extends AbstractMessageTemplateProvider {
 
     private final String bundleBaseName;
     private final boolean throwIfUnknownKey;
     private final Map<Locale, ResourceBundle> resourceBundlesMap = new HashMap<>();
 
     public BundleMessageTemplateProvider(String bundleBaseName) {
-        this(bundleBaseName, false);
+        this(bundleBaseName, false, true);
     }
 
-    public BundleMessageTemplateProvider(String bundleBaseName, boolean throwIfUnknownKey) {
+    public BundleMessageTemplateProvider(String bundleBaseName, boolean throwIfUnknownKey, boolean strictMode) {
+        super(strictMode);
         this.bundleBaseName = bundleBaseName;
         this.throwIfUnknownKey = throwIfUnknownKey;
     }
@@ -35,7 +36,7 @@ public class BundleMessageTemplateProvider implements MessageTemplateProvider {
     public String getTemplate(String key, Locale locale) {
         ResourceBundle resourceBundle = resourceBundlesMap.computeIfAbsent(locale, l -> ResourceBundle.getBundle(bundleBaseName, l, NO_FALLBACK_CONTROL));
         if (!throwIfUnknownKey && !resourceBundle.containsKey(key)) {
-            return MessageTemplateProvider.getMissingKeyMessage(key, locale);
+            return MessageTemplateProvider.getMissingKeyMessage(key, locale, isStrictMode());
         }
         return resourceBundle.getString(key);
     }

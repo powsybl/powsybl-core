@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="IEEE_30_bus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="IEEE_30_bus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="132.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -81,9 +81,9 @@
                 <iidm:bus id="B10" name="Roanoke     " v="34.48929" angle="82.732"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B10-L1 " loadType="UNDEFINED" p0="5.8" q0="2.0" bus="B10" connectableBus="B10"/>
-            <iidm:shunt id="B10-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B10" connectableBus="B10">
+            <iidm:shuntCompensator id="B10-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B10" connectableBus="B10">
                 <iidm:shuntLinearModel bPerSection="0.017447199265381085" gPerSection="0.0" maximumSectionCount="1"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-6-9-1 " r="0.0" x="0.00208" g="0.0" b="0.0" ratedU1="132.0" ratedU2="1.0" voltageLevelId1="VL6" bus1="B6" connectableBus1="B6" voltageLevelId2="VL9" bus2="B9" connectableBus2="B9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
@@ -232,9 +232,9 @@
                 <iidm:bus id="B24" name="Bus 24      " v="33.71214" angle="81.937"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B24-L1 " loadType="UNDEFINED" p0="8.7" q0="6.7" bus="B24" connectableBus="B24"/>
-            <iidm:shunt id="B24-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B24" connectableBus="B24">
+            <iidm:shuntCompensator id="B24-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B24" connectableBus="B24">
                 <iidm:shuntLinearModel bPerSection="0.003948576675849403" gPerSection="0.0" maximumSectionCount="1"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S25">

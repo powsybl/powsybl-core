@@ -11,11 +11,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-
 import static com.powsybl.iidm.serde.PropertiesSerDe.NAME;
 import static com.powsybl.iidm.serde.PropertiesSerDe.VALUE;
 
@@ -28,6 +28,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     static final String ROOT_ELEMENT_NAME = "voltageLevel";
     static final String ARRAY_ELEMENT_NAME = "voltageLevels";
+    private static final String TOPOLOGY_KIND_NAME = "topologyKind";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VoltageLevelSerDe.class);
 
@@ -48,14 +49,14 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeDoubleAttribute("lowVoltageLimit", vl.getLowVoltageLimit());
         context.getWriter().writeDoubleAttribute("highVoltageLimit", vl.getHighVoltageLimit());
 
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        context.getWriter().writeEnumAttribute("topologyKind", topologyLevel.getTopologyKind());
+        TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(vl, context);
+        context.getWriter().writeEnumAttribute(TOPOLOGY_KIND_NAME, topologyLevel.getTopologyKind());
     }
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkSerializerContext context) {
-        TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel);
+        TopologyLevel topologyLevel = TopologyLevelUtil.determineTopologyLevel(vl, context);
+
         switch (topologyLevel) {
             case NODE_BREAKER -> writeNodeBreakerTopology(vl, context);
             case BUS_BREAKER -> writeBusBreakerTopology(vl, context);
@@ -71,6 +72,8 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         writeStaticVarCompensators(vl, context);
         writeVscConverterStations(vl, context);
         writeLccConverterStations(vl, context);
+        writeVoltageSourceConverters(vl, context);
+        writeLineCommutatedConverters(vl, context);
         writeGrounds(vl, context);
     }
 
@@ -220,7 +223,11 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
             if (!context.getFilter().test(sc)) {
                 continue;
             }
-            ShuntSerDe.INSTANCE.write(sc, vl, context);
+            if (context.getVersion().compareTo(IidmVersion.V_1_16) >= 0) {
+                ShuntCompensatorSerDe.INSTANCE.write(sc, vl, context);
+            } else {
+                ShuntSerDe.INSTANCE.write(sc, vl, context);
+            }
         }
         context.getWriter().writeEndNodes();
     }
@@ -269,6 +276,32 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeEndNodes();
     }
 
+    private void writeVoltageSourceConverters(VoltageLevel vl, NetworkSerializerContext context) {
+        context.getWriter().writeStartNodes();
+        for (VoltageSourceConverter vsc : IidmSerDeUtil.sorted(vl.getVoltageSourceConverters(), context.getOptions())) {
+            if (!context.getFilter().test(vsc)) {
+                continue;
+            }
+            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME,
+                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
+            VoltageSourceConverterSerDe.INSTANCE.write(vsc, vl, context);
+        }
+        context.getWriter().writeEndNodes();
+    }
+
+    private void writeLineCommutatedConverters(VoltageLevel vl, NetworkSerializerContext context) {
+        context.getWriter().writeStartNodes();
+        for (LineCommutatedConverter lcc : IidmSerDeUtil.sorted(vl.getLineCommutatedConverters(), context.getOptions())) {
+            if (!context.getFilter().test(lcc)) {
+                continue;
+            }
+            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME,
+                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
+            LineCommutatedConverterSerDe.INSTANCE.write(lcc, vl, context);
+        }
+        context.getWriter().writeEndNodes();
+    }
+
     private void writeGrounds(VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
         for (Ground g : IidmSerDeUtil.sorted(vl.getGrounds(), context.getOptions())) {
@@ -296,7 +329,7 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         double nominalV = context.getReader().readDoubleAttribute("nominalV");
         double lowVoltageLimit = context.getReader().readDoubleAttribute("lowVoltageLimit");
         double highVoltageLimit = context.getReader().readDoubleAttribute("highVoltageLimit");
-        TopologyKind topologyKind = context.getReader().readEnumAttribute("topologyKind", TopologyKind.class);
+        TopologyKind topologyKind = context.getReader().readEnumAttribute(TOPOLOGY_KIND_NAME, TopologyKind.class);
         return adder
                 .setNominalV(nominalV)
                 .setLowVoltageLimit(lowVoltageLimit)
@@ -314,12 +347,15 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 case GeneratorSerDe.ROOT_ELEMENT_NAME -> GeneratorSerDe.INSTANCE.read(vl, context);
                 case BatterySerDe.ROOT_ELEMENT_NAME -> BatterySerDe.INSTANCE.read(vl, context);
                 case LoadSerDe.ROOT_ELEMENT_NAME -> LoadSerDe.INSTANCE.read(vl, context);
-                case ShuntSerDe.ROOT_ELEMENT_NAME -> ShuntSerDe.INSTANCE.read(vl, context);
+                case ShuntSerDe.ROOT_ELEMENT_NAME -> ShuntSerDe.INSTANCE.read(vl, context); // For backward compatibility with IIDM versions < 1.16
+                case ShuntCompensatorSerDe.ROOT_ELEMENT_NAME -> ShuntCompensatorSerDe.INSTANCE.read(vl, context);
                 case DanglingLineSerDe.ROOT_ELEMENT_NAME -> DanglingLineSerDe.INSTANCE.read(vl, context);
                 case StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME -> StaticVarCompensatorSerDe.INSTANCE.read(vl, context);
                 case VscConverterStationSerDe.ROOT_ELEMENT_NAME -> VscConverterStationSerDe.INSTANCE.read(vl, context);
                 case LccConverterStationSerDe.ROOT_ELEMENT_NAME -> LccConverterStationSerDe.INSTANCE.read(vl, context);
                 case GroundSerDe.ROOT_ELEMENT_NAME -> GroundSerDe.INSTANCE.read(vl, context);
+                case LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME -> LineCommutatedConverterSerDe.INSTANCE.read(vl, context);
+                case VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME -> VoltageSourceConverterSerDe.INSTANCE.read(vl, context);
                 default -> readSubElement(elementName, vl, context);
             }
         });

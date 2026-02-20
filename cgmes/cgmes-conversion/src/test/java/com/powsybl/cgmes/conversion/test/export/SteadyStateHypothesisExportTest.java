@@ -383,7 +383,8 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringFullModelModelingAuthoritySet,
                 ExportXmlCompare::ignoringRdfChildNodeListLength,
                 ExportXmlCompare::ignoringConformLoad,
-                ExportXmlCompare::ignoringChildLookupNull);
+                ExportXmlCompare::ignoringChildLookupNull,
+                ExportXmlCompare::ignoringSshOperatingMode);
         assertTrue(ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh));
     }
 
@@ -401,10 +402,10 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // PST with no regulation mode but regulating true => set to CURRENT_LIMITER mode
             network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "0", "0", "none");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "0", "0", "none");
 
             // PST local with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
@@ -417,18 +418,18 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // PST local with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "0", "0", "none");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "0", "0", "none");
 
             // PST remote with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "0", "0", "none");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "0", "0", "none");
 
             // PST remote with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
@@ -799,5 +800,25 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 Files.copy(is, outputFolder.resolve(baseName + "_EQ_BD.xml"));
             }
         }
+    }
+
+    @Test
+    void exportIidmWithoutPropertiesToCgmesTest() throws IOException {
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
+        assertEquals(2, network.getAreaStream().count());
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridCgmesExportPreservingOriginalClassesOfLoads";
+        Properties exportParams = new Properties();
+        new CgmesExport().export(network, exportParams, new DirectoryDataSource(outputPath, baseName));
+
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        assertEquals(2, actual.getAreaStream().count());
     }
 }

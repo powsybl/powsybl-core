@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="five_bus_nodeBreaker_rev35" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="five_bus_nodeBreaker_rev35" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="Sub1-3-4" name="STATION 1">
         <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -81,9 +81,9 @@
                 <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" node="4"/>
-            <iidm:shunt id="B2-SH1 " sectionCount="1" voltageRegulatorOn="false" node="5">
+            <iidm:shuntCompensator id="B2-SH1 " sectionCount="1" voltageRegulatorOn="false" node="5">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="Sub5" name="STATION 5">
@@ -98,12 +98,12 @@
                 <iidm:bus v="138.0" angle="0.0" nodes="1,2,3,4,5"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="7.6" q0="1.6" node="4"/>
-            <iidm:shunt id="B5-SwSH1 " sectionCount="2" voltageRegulatorOn="false" node="5">
+            <iidm:shuntCompensator id="B5-SwSH1 " sectionCount="2" voltageRegulatorOn="false" node="5">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.005250997689561016" g="0.0"/>
                 </iidm:shuntNonLinearModel>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
             <iidm:lccConverterStation id="LccConverter-5-EATL P1     " name="EATL P1     " lossFactor="0.0" powerFactor="0.7183361" node="3"/>
         </iidm:voltageLevel>
     </iidm:substation>
