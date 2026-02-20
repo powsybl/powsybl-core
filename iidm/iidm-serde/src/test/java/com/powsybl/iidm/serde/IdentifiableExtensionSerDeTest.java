@@ -24,10 +24,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -188,5 +192,51 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         // should fail while trying to import a file in IIDM-XML network version 1.1 (not supported by loadQux extension)
         PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-bad-loadQuxExt.xml", IidmVersion.V_1_1)));
         assertTrue(e.getMessage().contains("IIDM version of network (1.1) is not supported by the loadQux extension's XML serializer."));
+    }
+
+    @Test
+    void testAnonymizedNetworkIdWithExtension() throws IOException {
+        //Export with anonymized data a network which contains an extension on the network
+        //Network
+        Network network = EurostagTutorialExample1Factory.create();
+        //Extension
+        String sourceData = "source";
+        network.addExtension(NetworkSourceExtension.class, new NetworkSourceExtensionImpl(sourceData));
+        System.out.println("ext id= " + network.getExtensions()
+                .stream()
+                .findFirst()
+                .get().getName());
+        String originalNetworkId = network.getId();
+        System.out.println("originalNetworkId = " + originalNetworkId);
+
+        //on export with Anonymized true
+        byte[] anonymizedXml;
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+//            NetworkSerDe.write(network, new ExportOptions(), os);
+            NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
+            anonymizedXml = os.toByteArray();
+        }
+
+        String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
+        Matcher networkIdMatcher = Pattern.compile("<iidm:network\\b[^>]*\\bid=\"([^\"]+)\"").matcher(xmlContent);
+        Matcher extensionIdMatcher = Pattern.compile("<iidm:extension\\b[^>]*\\bid=\"([^\"]+)\"").matcher(xmlContent);
+        assertTrue(networkIdMatcher.find());
+        assertTrue(extensionIdMatcher.find());
+        String networkIdInXml = networkIdMatcher.group(1);
+        String extensionIdInXml = extensionIdMatcher.group(1);
+        assertThat(networkIdInXml).isEqualTo(extensionIdInXml).isEqualTo("A");
+        //originalNetworkId = cim1
+        //prove that Network id is anonymized
+        assertThat(networkIdInXml).isNotEqualTo(originalNetworkId);
+
+        // on import network
+        try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
+            Network importedNetwork = NetworkSerDe.read(is);
+            assertThat(importedNetwork.getId()).isNotEqualTo(originalNetworkId);  //prove that Network id is anonymized
+            assertThat(importedNetwork.getId()).isEqualTo(networkIdInXml);
+            NetworkSourceExtension importedSource = importedNetwork.getExtension(NetworkSourceExtension.class);
+            assertThat(importedSource).isNotNull();
+            assertThat(importedSource.getSourceData()).isEqualTo(sourceData);
+        }
     }
 }
