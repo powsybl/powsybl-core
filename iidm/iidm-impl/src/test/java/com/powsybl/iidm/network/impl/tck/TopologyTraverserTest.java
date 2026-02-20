@@ -7,6 +7,27 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractTopologyTraverserTest;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.math.graph.TraverseResult;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.Test;
 
-class TopologyTraverserTest extends AbstractTopologyTraverserTest { }
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TopologyTraverserTest extends AbstractTopologyTraverserTest {
+
+    @Test
+    void testTraversalOrder() {
+        Network network = FictitiousSwitchFactory.create();
+        List<Pair<String, Integer>> visited = getVisitedList(network.getGenerator("CB").getTerminal(), s -> TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("CB", 0), Pair.of("O", 0), Pair.of("P", 0), Pair.of("CF", 0),
+                        Pair.of("CH", 0), Pair.of("CC", 0), Pair.of("CD", 0), Pair.of("CE", 0),
+                        Pair.of("CJ", 1), Pair.of("CI", 1), Pair.of("CG", 0), Pair.of("CJ", 0),
+                        Pair.of("D", 0), Pair.of("CI", 0)),
+                visited);
+    }
+}
