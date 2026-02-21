@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.conversion.gl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
@@ -58,7 +58,11 @@ public class LinePositionImporter {
                     .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x")));
                     // y <=> lat, x <=> lon
         } else {
-            LOG.warn("Cannot find line/dangling {}, name {} in network {}: skipping line position", lineId, linePositionData.get("name"), network.getId());
+            if (LOG.isWarnEnabled()) {
+                String name = linePositionData.get("name");
+                String netId = network.getId();
+                LOG.warn("Cannot find line/dangling {}, name {} in network {}: skipping line position", lineId, name, netId);
+            }
         }
     }
 

@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.gl;
+package com.powsybl.cgmes.conversion.gl;
 
-import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.model.CgmesNamespace.Cim;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.DanglingLineFilter;
@@ -36,6 +36,7 @@ public class CgmesGLExporter {
 
     private Network network;
     private TripleStore tripleStore;
+    private Cim cimModel;
 
     private static final String MODEL_SCENARIO_TIME = "Model.scenarioTime";
     private static final String MODEL_CREATED = "Model.created";
@@ -45,13 +46,14 @@ public class CgmesGLExporter {
     private static final String MODEL_DEPENDENT_ON = "Model.DependentOn";
     private static final String IDENTIFIED_OBJECT_NAME = "IdentifiedObject.name";
 
-    public CgmesGLExporter(Network network, TripleStore tripleStore) {
+    public CgmesGLExporter(Network network, Cim cimModel, TripleStore tripleStore) {
         this.network = Objects.requireNonNull(network);
         this.tripleStore = Objects.requireNonNull(tripleStore);
+        this.cimModel = Objects.requireNonNull(cimModel);
     }
 
-    public CgmesGLExporter(Network network) {
-        this(network, TripleStoreFactory.create());
+    public CgmesGLExporter(Network network, Cim cimModel) {
+        this(network, cimModel, TripleStoreFactory.create());
     }
 
     public void exportData(DataSource dataSource) {
@@ -72,7 +74,7 @@ public class CgmesGLExporter {
             tripleStore.addNamespace("data", "http://" + context.getBasename().toLowerCase() + "/#");
         }
         if (isMissedNamespace("cim")) {
-            tripleStore.addNamespace("cim", CgmesNamespace.CIM_16_NAMESPACE);
+            tripleStore.addNamespace("cim", cimModel.getNamespace());
         }
         if (isMissedNamespace("md")) {
             tripleStore.addNamespace("md", MD_NAMESPACE);
@@ -90,8 +92,8 @@ public class CgmesGLExporter {
         modelProperties.put(MODEL_SCENARIO_TIME, network.getCaseDate().toString());
         modelProperties.put(MODEL_CREATED, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date()));
         modelProperties.put(MODEL_DESCRIPTION, network.getNameOrId());
-        modelProperties.put(MODEL_VERSION, "4");
-        modelProperties.put(MODEL_PROFILE, "http://entsoe.eu/CIM/GeographicalLocation/2/1");
+        modelProperties.put(MODEL_VERSION, "1");
+        modelProperties.put(MODEL_PROFILE, cimModel.getProfileUri("GL"));
         modelProperties.put(MODEL_DEPENDENT_ON, network.getId());
         tripleStore.add(context.getGlContext(), MD_NAMESPACE, "FullModel", modelProperties);
     }
@@ -100,17 +102,18 @@ public class CgmesGLExporter {
         PropertyBag coordinateSystemProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, "crsUrn"), true);
         coordinateSystemProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
         coordinateSystemProperties.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);
-        context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, "CoordinateSystem", coordinateSystemProperties));
+        coordinateSystemProperties.put(IDENTIFIED_OBJECT_NAME, "WGS84");
+        context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), cimModel.getNamespace(), "CoordinateSystem", coordinateSystemProperties));
     }
 
     private void exportSubstationsPosition(ExportContext context) {
-        SubstationPositionExporter positionExporter = new SubstationPositionExporter(tripleStore, context);
+        SubstationPositionExporter positionExporter = new SubstationPositionExporter(tripleStore, context, cimModel);
         LOG.info("Exporting Substations Position");
         network.getSubstationStream().forEach(positionExporter::exportPosition);
     }
 
     private void exportLinesPosition(ExportContext context) {
-        LinePositionExporter positionExporter = new LinePositionExporter(tripleStore, context);
+        LinePositionExporter positionExporter = new LinePositionExporter(tripleStore, context, cimModel);
         LOG.info("Exporting Lines Position");
         network.getLineStream().forEach(positionExporter::exportPosition);
         LOG.info("Exporting Dangling Lines Position");
