@@ -43,6 +43,10 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLine, Dangling
 
     DanglingLineAdder setPairingKey(String pairingKey);
 
+    DanglingLineAdder setCountryFrom(String countryFrom);
+
+    DanglingLineAdder setCountryTo(String countryTo);
+
     default GenerationAdder newGeneration() {
         throw new UnsupportedOperationException();
     }
