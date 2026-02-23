@@ -283,6 +283,7 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
         assertEquals("valueApparentPowerLimits", dl2.getApparentPowerLimits().orElseThrow().getProperty(TEST_PROPERTY));
         assertEquals("valueCurrentLimits", dl2.getCurrentLimits().orElseThrow().getProperty(TEST_PROPERTY));
         assertEquals("valueVoltageAngleLimit", network2.getVoltageAngleLimit("voltageAngleLimit").getProperty(TEST_PROPERTY));
+        assertEquals("testTemporaryLimit", activePowerLimit.getTemporaryLimits().iterator().next().getProperty(TEST_PROPERTY));
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> L createLoadingLimits(Supplier<A> limitsAdderSupplier) {
@@ -292,6 +293,7 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
                 .setValue(370)
                 .setAcceptableDuration(20 * 60)
                 .setName("20'")
+                .addProperty(TEST_PROPERTY, "testTemporaryLimit")
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                 .setValue(380)

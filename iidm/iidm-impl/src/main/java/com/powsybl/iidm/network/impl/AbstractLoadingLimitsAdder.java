@@ -30,7 +30,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
     protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
-    public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> implements TemporaryLimitAdder<B> {
+    public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> extends AbstractPropertiesHolder implements TemporaryLimitAdder<B> {
 
         private String name;
 
@@ -73,6 +73,12 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
 
         @Override
+        public TemporaryLimitAdder<B> addProperty(String property, String value) {
+            setProperty(property, value);
+            return this;
+        }
+
+        @Override
         public B endTemporaryLimit() {
             if (Double.isNaN(value)) {
                 throw new ValidationException(validable, "temporary limit value is not set");
@@ -90,7 +96,9 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
                 throw new ValidationException(validable, "acceptable duration must be >= 0");
             }
             checkAndGetUniqueName();
-            temporaryLimits.put(acceptableDuration, new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
+            AbstractLoadingLimits.TemporaryLimitImpl temporaryLimit = new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, fictitious);
+            copyPropertiesTo(temporaryLimit);
+            temporaryLimits.put(acceptableDuration, temporaryLimit);
             return (B) AbstractLoadingLimitsAdder.this;
         }
 

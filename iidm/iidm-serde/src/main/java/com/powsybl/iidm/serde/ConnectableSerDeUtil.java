@@ -23,6 +23,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 
+import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -259,8 +261,9 @@ public final class ConnectableSerDeUtil {
                 int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
                 boolean fictitious = reader.readBooleanAttribute("fictitious", false);
-                reader.readEndNode();
-                adder.beginTemporaryLimit()
+                LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
+                readProperties(context, tempLimitAdder);
+                tempLimitAdder
                         .setName(name)
                         .setAcceptableDuration(acceptableDuration)
                         .setValue(value)
