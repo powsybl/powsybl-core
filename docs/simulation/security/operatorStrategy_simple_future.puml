@@ -1,5 +1,7 @@
 @startuml
 
+namespace existant {
+
 class OperatorStrategy {
   - String id
   - ContingencyContext contingencyContext
@@ -9,25 +11,6 @@ OperatorStrategy --* "1" ContingencyContext
 OperatorStrategy --* "*" ConditionalActions
 
 interface Condition
-Condition <|-- AndCondition
-Condition <|-- OrCondition
-Condition <|-- AnyViolationInCountryCondition
-
-class AndCondition {
-  + Set<Condition> conditions
-}
-
-class OrCondition {
-  + Set<Condition> conditions
-}
-
-class AnyViolationInCountryCondition {
- + Country country
- + Set<LimitViolationType> conditionFilters
-}
-
-note bottom: condition filter ou branch threshold ?
-
 
 class ConditionalActions {
   - List<String> actionIds
@@ -54,6 +37,29 @@ interface Action {
   + getType()
   + NetworkModification toModification()
 }
+
+}
+
+Condition <|-- AndCondition
+Condition <|-- OrCondition
+Condition <|-- AnyViolationInCountryCondition
+
+class AndCondition {
+  + Set<Condition> conditions
+}
+
+class OrCondition {
+  + Set<Condition> conditions
+}
+
+class AnyViolationInCountryCondition {
+ + Country country
+ + Set<LimitViolationType> conditionFilters
+}
+
+note bottom: condition filter ou branch threshold ?
+
+
 
 class OptimizableRemedialAction {
   - String id
