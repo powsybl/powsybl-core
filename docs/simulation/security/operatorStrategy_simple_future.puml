@@ -1,6 +1,6 @@
 @startuml
 
-namespace existant {
+namespace existing {
 
 class OperatorStrategy {
   - String id
@@ -26,7 +26,7 @@ class ContingencyContext {
 ContingencyContext --* "1" ContingencyContextType
 
 note left of ContingencyContext::applicationDelay
-  nouveauté
+  new field
 end note
 
 enum ContingencyContextType {
@@ -61,7 +61,7 @@ class AnyViolationInCountryCondition {
  + Set<LimitViolationType> conditionFilters
 }
 
-note bottom: condition filter ou branch threshold ?
+note bottom: condition filter or branch threshold ?
 
 
 
@@ -99,7 +99,7 @@ enum RangeType {
 interface RangeAction {
   + Action toAction(double setPoint)
 }
-note bottom: Clone des actions mais sans "set point"
+note bottom: Clone of actions but without "set point"
 
 class ExclusiveOptimizableRemedialActionGroup {
   - List<String> exclusiveRemedialActionIds
