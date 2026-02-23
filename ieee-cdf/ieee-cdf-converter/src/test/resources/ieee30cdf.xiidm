@@ -71,9 +71,9 @@
                 <iidm:bus id="B10" name="Roanoke   33" v="34.485" angle="-15.97"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B10-L" loadType="UNDEFINED" p0="5.8" q0="2.0" bus="B10" connectableBus="B10"/>
-            <iidm:shunt id="B10-SH" sectionCount="1" voltageRegulatorOn="false" bus="B10" connectableBus="B10">
+            <iidm:shuntCompensator id="B10-SH" sectionCount="1" voltageRegulatorOn="false" bus="B10" connectableBus="B10">
                 <iidm:shuntLinearModel bPerSection="0.01744719926538108" maximumSectionCount="1"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T6-9-1" r="0.0" x="0.00208" g="0.0" b="0.0" ratedU1="129.096" ratedU2="1.0" bus1="B6" connectableBus1="B6" voltageLevelId1="VL6" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9"/>
         <iidm:twoWindingsTransformer id="T6-10-1" r="0.0" x="6.05484" g="0.0" b="0.0" ratedU1="127.908" ratedU2="33.0" bus1="B6" connectableBus1="B6" voltageLevelId1="VL6" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10"/>
@@ -202,9 +202,9 @@
                 <iidm:bus id="B24" name="Bus 24    33" v="33.693" angle="-16.78"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B24-L" loadType="UNDEFINED" p0="8.7" q0="6.7" bus="B24" connectableBus="B24"/>
-            <iidm:shunt id="B24-SH" sectionCount="1" voltageRegulatorOn="false" bus="B24" connectableBus="B24">
+            <iidm:shuntCompensator id="B24-SH" sectionCount="1" voltageRegulatorOn="false" bus="B24" connectableBus="B24">
                 <iidm:shuntLinearModel bPerSection="0.003948576675849403" maximumSectionCount="1"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S25">
