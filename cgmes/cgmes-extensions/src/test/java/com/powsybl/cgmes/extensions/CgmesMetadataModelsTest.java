@@ -12,8 +12,15 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -83,5 +90,61 @@ class CgmesMetadataModelsTest {
         CgmesMetadataModelsAdder adder = network.newExtension(CgmesMetadataModelsAdder.class);
         // Expected an exception because the list of models is empty
         assertThrows(PowsyblException.class, adder::add);
+    }
+
+    @Test
+    void testAnonymizedCgmesMetadataModels() throws IOException {
+        //Given
+        // Id, ModelingAuthoritySet, DependentOn, Supersedes
+        Network network = NetworkTest1Factory.create();
+        network.newExtension(CgmesMetadataModelsAdder.class)
+                .newModel()
+                .setSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS)
+                .setId("sshId")
+                .setDescription("SSH description")
+                .setModelingAuthoritySet("RTE")
+                .setVersion(1)
+                .addProfile("http://steady-state-hypothesis")
+                .addDependentOn("ssh-dependency1")
+                .addDependentOn("ssh-dependency2")
+                .addSupersedes("AA SSH previous ID")
+                .add()
+                .add();
+        CgmesMetadataModels extension = network.getExtension(CgmesMetadataModels.class);
+        assertNotNull(extension);
+        byte[] anonymizedXml;
+        Anonymizer anonymizer;
+        // When Export (with anonymized option)
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
+            anonymizedXml = os.toByteArray();
+        }
+        String anonymizedSSHId = anonymizer.anonymizeString("sshId");
+        String anonymizedModelingAuthoritySet = anonymizer.anonymizeString("RTE");
+        String anonymizedDependentOn1 = anonymizer.anonymizeString("ssh-dependency1");
+        String anonymizedDependentOn2 = anonymizer.anonymizeString("ssh-dependency2");
+        String anonymizedSupersedes = anonymizer.anonymizeString("AA SSH previous ID");
+        // Then check xml content (contain only anonymized values)
+        String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
+        assertTrue(xmlContent.contains("id=\"" + anonymizedSSHId + "\""));
+        assertFalse(xmlContent.contains("id=\"sshId\""));
+        assertTrue(xmlContent.contains("modelingAuthoritySet=\"" + anonymizedModelingAuthoritySet + "\""));
+        assertFalse(xmlContent.contains("modelingAuthoritySet=\"RTE\""));
+        assertTrue(xmlContent.contains("dependentOnModel>" + anonymizedDependentOn1 + "<"));
+        assertFalse(xmlContent.contains("dependentOnModel>ssh-dependency1<"));
+        assertTrue(xmlContent.contains("dependentOnModel>" + anonymizedDependentOn2 + "<"));
+        assertFalse(xmlContent.contains("dependentOnModel>ssh-dependency2<"));
+        assertTrue(xmlContent.contains("supersedesModel>" + anonymizedSupersedes + "<"));
+        assertFalse(xmlContent.contains("AA SSH previous ID"));
+        //Then import to check that is still anonymized
+        try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
+            Network importedNetwork = NetworkSerDe.read(is);
+            CgmesMetadataModels importedCgmesMetadataModels = importedNetwork.getExtension(CgmesMetadataModels.class);
+            assertEquals(anonymizedSSHId, importedCgmesMetadataModels.getModels().iterator().next().getId());
+            assertEquals(anonymizedModelingAuthoritySet, importedCgmesMetadataModels.getModels().iterator().next().getModelingAuthoritySet());
+            assertEquals(Set.of(anonymizedDependentOn1, anonymizedDependentOn2),
+                    importedCgmesMetadataModels.getModels().iterator().next().getDependentOn());
+            assertEquals(Set.of(anonymizedSupersedes), importedCgmesMetadataModels.getModels().iterator().next().getSupersedes());
+        }
     }
 }
