@@ -43,18 +43,17 @@ class BaseVoltageMappingSerDeTest extends AbstractCgmesExtensionTest {
     void testAnonymizedBaseVoltageIds() throws IOException {
         //Given
         Network network = NoEquipmentNetworkFactory.create();
-        ExportOptions exportOptions = new ExportOptions().setAnonymized(true);
-        ImportOptions importOptions = new ImportOptions();
-
+        network.setCaseDate(ZonedDateTime.parse("2024-09-17T13:36:37.831Z"));
         network.newExtension(BaseVoltageMappingAdder.class)
                 .addBaseVoltage("id_400", 400, Source.IGM)
                 .addBaseVoltage("id_380", 380, Source.BOUNDARY)
                 .add();
+
         byte[] anonymizedXml;
         Anonymizer anonymizer;
         // When Export (with anonymized option)
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            anonymizer = NetworkSerDe.write(network, exportOptions, os);
+            anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
             anonymizedXml = os.toByteArray();
         }
         // Then check anonymized id != original ids
@@ -71,10 +70,11 @@ class BaseVoltageMappingSerDeTest extends AbstractCgmesExtensionTest {
 
         //Then import with anonymizer to restores original ids
         try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
-            Network importedNetwork = NetworkSerDe.read(is, importOptions, anonymizer);
+            Network importedNetwork = NetworkSerDe.read(is, new ImportOptions(), anonymizer);
             BaseVoltageMapping importedBaseVoltageMapping = importedNetwork.getExtension(BaseVoltageMapping.class);
             assertEquals("id_400", importedBaseVoltageMapping.getBaseVoltage(400).getId());
             assertEquals("id_380", importedBaseVoltageMapping.getBaseVoltage(380).getId());
+            allFormatsRoundTripTest(importedNetwork, "/no_equipment_base_voltage_mapping.xml");
         }
 
         //Then import without anonymizer to check that is still anonymized

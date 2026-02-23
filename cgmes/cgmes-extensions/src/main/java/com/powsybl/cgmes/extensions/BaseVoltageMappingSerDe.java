@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
@@ -62,15 +63,16 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
     @Override
     public BaseVoltageMapping read(Network extendable, DeserializerContext context) {
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
+        TreeDataReader reader = networkContext.getReader();
         BaseVoltageMappingAdder mappingAdder = extendable.newExtension(BaseVoltageMappingAdder.class);
         mappingAdder.add();
         BaseVoltageMapping mapping = extendable.getExtension(BaseVoltageMapping.class);
-        context.getReader().readChildNodes(elementName -> {
+        reader.readChildNodes(elementName -> {
             if (elementName.equals(BASE_VOLTAGE_ROOT_ELEMENT)) {
-                double nominalV = context.getReader().readDoubleAttribute("nominalVoltage");
-                Source sourceBV = context.getReader().readEnumAttribute("source", Source.class);
-                String baseVoltageId = networkContext.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
-                context.getReader().readEndNode();
+                double nominalV = reader.readDoubleAttribute("nominalVoltage");
+                Source sourceBV = reader.readEnumAttribute("source", Source.class);
+                String baseVoltageId = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
+                reader.readEndNode();
                 mapping.addBaseVoltage(nominalV, baseVoltageId, sourceBV);
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in 'baseVoltageMapping'");
