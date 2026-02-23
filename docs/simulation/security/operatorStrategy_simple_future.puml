@@ -25,6 +25,10 @@ class ContingencyContext {
 }
 ContingencyContext --* "1" ContingencyContextType
 
+note left of ContingencyContext::applicationDelay
+  nouveauté
+end note
+
 enum ContingencyContextType {
   ALL
   NONE
