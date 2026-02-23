@@ -214,7 +214,8 @@ class CgmesExportTest {
         String exportFolder = "/test-ptc-type";
         String baseName = "testPtcType";
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(transformerId);
-        String typeOriginal = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
+        String typeOriginal = "PhaseTapChangerAsymmetrical";
+        assertEquals(typeOriginal, CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new));
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
 
@@ -223,15 +224,17 @@ class CgmesExportTest {
             paramsOnlySsh.put(CgmesExport.PROFILES, List.of("SSH"));
             paramsOnlySsh.put(CgmesExport.CIM_VERSION, "" + cimVersion);
             network.write("CGMES", paramsOnlySsh, tmpDir.resolve(baseName));
-            String typeOnlySsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
-            assertEquals(typeOriginal, typeOnlySsh);
+            String sshFile = Files.readString(tmpDir.resolve(baseName + "_SSH.xml"));
+            assertNotNull(getElement(sshFile, typeOriginal, phaseTapChangerId));
 
-            // If we export EQ and SSH (or all instance fiels), type of tap changer should be changed to tabular
+            // If we export EQ and SSH (or all instance files), type of tap changer should be changed to tabular
             Properties paramsEqAndSsh = new Properties();
             paramsEqAndSsh.put(CgmesExport.CIM_VERSION, "" + cimVersion);
             network.write("CGMES", paramsEqAndSsh, tmpDir.resolve(baseName));
-            String typeEqAndSsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
-            assertEquals(CgmesNames.PHASE_TAP_CHANGER_TABULAR, typeEqAndSsh);
+            String eqFile = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            sshFile = Files.readString(tmpDir.resolve(baseName + "_SSH.xml"));
+            assertNotNull(getElement(eqFile, CgmesNames.PHASE_TAP_CHANGER_TABULAR, phaseTapChangerId));
+            assertNotNull(getElement(sshFile, CgmesNames.PHASE_TAP_CHANGER_TABULAR, phaseTapChangerId));
         }
     }
 

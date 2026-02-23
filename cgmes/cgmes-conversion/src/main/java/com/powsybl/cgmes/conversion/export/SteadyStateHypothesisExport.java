@@ -218,7 +218,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static <C extends Connectable<C>> void writeTapChanger(C eq, String tcId, String tcCtrlId, TapChanger<?, ?, ?, ?> tc, String defaultType, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String type = CgmesExportUtil.cgmesTapChangerType(eq, tcId).orElse(defaultType);
+        String type = context.isExportEquipment() ? CgmesNames.PHASE_TAP_CHANGER_TABULAR : CgmesExportUtil.cgmesTapChangerType(eq, tcId).orElse(defaultType);
         writeTapChanger(type, tcId, tc, cimNamespace, writer, context);
         addRegulatingControlView(tc, tcCtrlId, regulatingControlViews);
 
