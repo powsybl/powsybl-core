@@ -1,8 +1,7 @@
 {
   "version" : "1.0",
   "load-flow-parameters" : {
-    "version" : "1.4",
-    "dc": false,
+    "version" : "1.0",
     "voltageInitMode" : "PREVIOUS_VALUES"
   }
 }
