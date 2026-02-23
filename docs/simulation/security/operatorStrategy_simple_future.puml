@@ -1,10 +1,11 @@
 @startuml
 
 class OperatorStrategy {
+  - String id
   - ContingencyContext contingencyContext
   - List<ConditionalActions> conditionalActions
 }
-OperatorStrategy --* ContingencyContext
+OperatorStrategy --* "1" ContingencyContext
 OperatorStrategy --* "*" ConditionalActions
 
 interface Condition
@@ -22,18 +23,21 @@ class OrCondition {
 
 class AnyViolationInCountryCondition {
  + Country country
- + Set<LimitViolationType> conditionFilters (ou branch threshold ?)
+ + Set<LimitViolationType> conditionFilters
 }
+
+note bottom: condition filter ou branch threshold ?
 
 
 class ConditionalActions {
   - List<String> actionIds
   - Condition condition
 }
-ConditionalActions ..* Action
-
+ConditionalActions ..* "*" Action
+ConditionalActions --* "1" Condition
 
 class ContingencyContext {
+  - ContingencyContextType contextType
   - Optional<Integer> applicationDelay
 }
 ContingencyContext --* "1" ContingencyContextType
@@ -46,14 +50,17 @@ enum ContingencyContextType {
 }
 
 interface Action {
- + NetworkModification toModification()
+  + getId()
+  + getType()
+  + NetworkModification toModification()
 }
 
 class OptimizableRemedialAction {
+  - String id
   - Condition condition
   - ContingencyContext contingencyContext
 }
-OptimizableRemedialAction --* Condition
+OptimizableRemedialAction --* "1" Condition
 OptimizableRemedialAction --* "1" ContingencyContext
 OptimizableRemedialAction <|-- BinaryRemedialAction
 OptimizableRemedialAction <|-- RangeRemedialAction
@@ -84,7 +91,11 @@ interface RangeAction {
 }
 note bottom: Clone des actions mais sans "set point"
 
-
+class ExclusiveOptimizableRemedialActionGroup {
+  - List<String> exclusiveRemedialActionIds
+  - int limitOfSelectedRemedialActions
+}
+ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
 
 
 @enduml
