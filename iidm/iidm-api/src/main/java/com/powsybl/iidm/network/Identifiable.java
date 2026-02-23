@@ -39,9 +39,9 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I>, 
     /**
      * Get the sort index of the object.
      */
-    int getSortIndex();
+    long getSortIndex();
 
-    void setSortIndex(int index);
+    void setSortIndex(long index);
 
     /**
      * Get the aliases of the object.

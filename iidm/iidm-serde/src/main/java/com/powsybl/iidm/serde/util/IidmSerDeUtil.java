@@ -351,7 +351,9 @@ public final class IidmSerDeUtil {
         return exportOptions.isSorted() ? StreamSupport.stream(identifiables.spliterator(), false)
                 .sorted(Comparator.comparing(Identifiable::getId))
                 .collect(Collectors.toList())
-                : identifiables;
+                : StreamSupport.stream(identifiables.spliterator(), false)
+                .sorted(Comparator.comparing(Identifiable::getSortIndex))
+                .collect(Collectors.toList());
     }
 
     /**

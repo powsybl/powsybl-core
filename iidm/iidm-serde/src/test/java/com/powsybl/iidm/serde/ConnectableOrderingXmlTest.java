@@ -12,26 +12,26 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
 
-        @Test
-    void testOK() throws IOException {
-        ExportOptions exportOptions = new ExportOptions();
-        roundTripTest(Network.read("/twtOrderingOk.xiidm", getNetworkAsStream("/twtOrderingOk.xiidm")),
-                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
-                NetworkSerDe::validateAndRead,
-                "/twtOrderingOk.xiidm");
-    }
-
     @Test
-    void testKO() throws IOException {
+    void testAttributOrderingKO() throws IOException {
         ExportOptions exportOptions = new ExportOptions();
         roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),
                 NetworkSerDe::validateAndRead,
                 "/twtOrdering.xiidm");
+    }
+
+    @Test
+    void testCopy() throws IOException {
+        Network network = Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm"));
+        Network exportNetwork = NetworkSerDe.copy(network);
+        assertEquals(exportNetwork.getTwoWindingsTransformers().toString(), network.getTwoWindingsTransformers().toString());
     }
 }

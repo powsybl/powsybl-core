@@ -43,6 +43,8 @@ class VariantManagerImplTest {
 
         private int reducedCount = 0;
 
+        private long sortIndex;
+
         private IdentifiableMock(String id) {
             this.id = id;
         }
@@ -140,6 +142,16 @@ class VariantManagerImplTest {
         @Override
         public IdentifiableType getType() {
             return null;
+        }
+
+        @Override
+        public long getSortIndex() {
+            return sortIndex;
+        }
+
+        @Override
+        public void setSortIndex(long index) {
+            this.sortIndex = index;
         }
     }
 
