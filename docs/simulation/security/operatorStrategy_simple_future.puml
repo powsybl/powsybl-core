@@ -1,58 +1,90 @@
 @startuml
 
-class OperatorStrategy
-OperatorStrategy --> ContingencyContext : getContingencyContext()
-OperatorStrategy --> "*" ConditionalActions : getConditionalActions()
+class OperatorStrategy {
+  - ContingencyContext contingencyContext
+  - List<ConditionalActions> conditionalActions
+}
+OperatorStrategy --* ContingencyContext
+OperatorStrategy --* "*" ConditionalActions
 
 interface Condition
+Condition <|-- AndCondition
+Condition <|-- OrCondition
+Condition <|-- AnyViolationInCountryCondition
 
-class ConditionalActions
-ConditionalActions --> Condition : getCondition()
-ConditionalActions ..> "*" Action : getActionIds()
+class AndCondition {
+  + Set<Condition> conditions
+}
 
-class ContingencyContext
-ContingencyContext --> ContingencyContextType: getContextType()
+class OrCondition {
+  + Set<Condition> conditions
+}
+
+class AnyViolationInCountryCondition {
+ + Country country
+ + Set<LimitViolationType> conditionFilters (ou branch threshold ?)
+}
+
+
+class ConditionalActions {
+  - List<String> actionIds
+  - Condition condition
+}
+ConditionalActions ..* Action
+
+
+class ContingencyContext {
+  - Optional<Integer> applicationDelay
+}
+ContingencyContext --* "1" ContingencyContextType
 
 enum ContingencyContextType {
   ALL
   NONE
   SPECIFIC
   ONLY_CONTINGENCIES
-  **SPECIFIC_AFTER_DURATION**
 }
 
-interface Action
-Action --> NetworkModification : toModification()
+interface Action {
+ + NetworkModification toModification()
+}
 
-interface NetworkModification
+class OptimizableRemedialAction {
+  - Condition condition
+  - ContingencyContext contingencyContext
+}
+OptimizableRemedialAction --* Condition
+OptimizableRemedialAction --* "1" ContingencyContext
+OptimizableRemedialAction <|-- BinaryRemedialAction
+OptimizableRemedialAction <|-- RangeRemedialAction
 
-class OptimizableRemedialAction
-OptimizableRemedialAction --> OperatorStrategy : toOptionalOperatorStrategy(setPoint) ' Type de setPoint ?
-OptimizableRemedialAction --> Condition : getCondition()
-OptimizableRemedialAction --> ContingencyContext : getContingencyContext()
-OptimizableRemedialAction <|-- BinaryOperatorStrategy
-OptimizableRemedialAction <|-- RangeOperatorStrategy
+class BinaryRemedialAction {
+  - Set<Action> actions
+  + Set<Action> toActions()
+  + OperatorStrategy toOperatorStrategy()
+}
+BinaryRemedialAction --* "*" Action
 
-class BinaryOperatorStrategy
-BinaryOperatorStrategy ..> "*" Action : getActionIds()
-
-class RangeOperatorStrategy
-RangeOperatorStrategy --> RangeAction : getRangeAction()
-RangeOperatorStrategy --> RangeType
+class RangeRemedialAction {
+  - Set<RangeAction> rangeActions
+  + RangeType rangeType
+  + Set<Action> toActions(double setPoint)
+  + OperatorStrategy toOperatorStrategy(double setPoint)
+}
+RangeRemedialAction --* "*" RangeAction
+RangeRemedialAction --* "1" RangeType
 
 enum RangeType {
   DISCRETE
   CONTINUOUS
 }
 
-interface RangeAction
-RangeAction <|-- CompositeRangeAction
-RangeAction --> "*" Action : toActions(setPoint)
-
-interface CompositeRangeAction {
-  - rangeActions : List<RangeAction>
+interface RangeAction {
+  + Action toAction(double setPoint)
 }
-CompositeRangeAction --> "*" Action : convertSetPoint(setPoint, id)
+note bottom: Clone des actions mais sans "set point"
+
+
 
 
 @enduml
