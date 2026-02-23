@@ -48,13 +48,13 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
         writer.writeStartNodes();
         for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
             writer.writeStartNode(getNamespaceUri(), TAP_CHANGER_ROOT_ELEMENT);
-            writer.writeStringAttribute("id", tapChanger.getId());
+            writer.writeStringAttribute("id", networkContext.getAnonymizer().anonymizeString(tapChanger.getId()));
             writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
             writer.writeStringAttribute("type", tapChanger.getType());
             writer.writeBooleanAttribute("hidden", tapChanger.isHidden(), false);
             Integer step = tapChanger.getStep().isPresent() ? tapChanger.getStep().getAsInt() : null;
             writer.writeOptionalIntAttribute("step", step);
-            writer.writeStringAttribute("controlId", tapChanger.getControlId());
+            writer.writeStringAttribute("controlId", networkContext.getAnonymizer().anonymizeString(tapChanger.getControlId()));
             writer.writeEndNode();
         }
         writer.writeEndNodes();
@@ -69,12 +69,12 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
         reader.readChildNodes(elementName -> {
             if (elementName.equals(TAP_CHANGER_ROOT_ELEMENT)) {
                 CgmesTapChangerAdder adder = tapChangers.newTapChanger()
-                        .setId(reader.readStringAttribute("id"))
+                        .setId(networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id")))
                         .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))
                         .setType(reader.readStringAttribute("type"))
                         .setHiddenStatus(reader.readBooleanAttribute("hidden", false));
                 reader.readOptionalIntAttribute("step").ifPresent(adder::setStep);
-                adder.setControlId(reader.readStringAttribute("controlId"));
+                adder.setControlId(networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("controlId")));
                 context.getReader().readEndNode();
                 adder.add();
             } else {
