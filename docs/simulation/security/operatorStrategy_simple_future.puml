@@ -60,10 +60,7 @@ class AnyViolationInCountryCondition {
  + Country country
  + Set<LimitViolationType> conditionFilters
 }
-
 note bottom: condition filter or branch threshold ?
-
-
 
 class OptimizableRemedialAction {
   - String id
@@ -106,6 +103,17 @@ class ExclusiveOptimizableRemedialActionGroup {
   - int limitOfSelectedRemedialActions
 }
 ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
+
+class TemporalRangeRemedialAction {
+  - Map<ZonedDateTime, RangeRemedialAction> rangeRemedialActionsPerCaseDate
+  + Set<Action> toActions(ZonedDateTime caseDate, double setPoint)
+  + OperatorStrategy toOperatorStrategy(ZonedDateTime caseDate, double setPoint)
+  + Map<ZonedDateTime, Set<Action>> toActions(Map<ZonedDateTime, Double> setPoints)
+  + Map<ZonedDateTime, OperatorStrategy> toOperatorStrategy(Map<ZonedDateTime, Double> setPoint)
+}
+TemporalRangeRemedialAction --* "*" RangeRemedialAction
+TemporalRangeRemedialAction -|> OptimizableRemedialAction
+
 
 
 @enduml
