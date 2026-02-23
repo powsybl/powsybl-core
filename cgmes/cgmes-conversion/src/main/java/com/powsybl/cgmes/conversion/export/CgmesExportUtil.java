@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.REGULATING_CONTROL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
@@ -363,15 +364,15 @@ public final class CgmesExportUtil {
                 && ptc.getRegulationTerminal() != null;
     }
 
-    static <C extends Connectable<C>> Optional<String> getCgmesTapChangerControlId(C eq, String tcId) {
-        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+    static <C extends Connectable<C>> String getTapChangerControlId(C transformer, Part part, String cgmesTapChangerId, CgmesExportContext context) {
+        CgmesTapChangers<C> cgmesTcs = transformer.getExtension(CgmesTapChangers.class);
         if (cgmesTcs != null) {
-            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tcId);
-            if (cgmesTc != null) {
-                return Optional.ofNullable(cgmesTc.getControlId());
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(cgmesTapChangerId);
+            if (cgmesTc != null && cgmesTc.getControlId() != null) {
+                return context.getNamingStrategy().getCgmesId(cgmesTc.getControlId());
             }
         }
-        return Optional.empty();
+        return context.getNamingStrategy().getCgmesId(ref(transformer), part, REGULATING_CONTROL);
     }
 
     static boolean targetDeadbandIsDefined(double targetDeadband) {

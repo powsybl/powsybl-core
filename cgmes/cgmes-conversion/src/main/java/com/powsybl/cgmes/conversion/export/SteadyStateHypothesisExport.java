@@ -181,16 +181,18 @@ public final class SteadyStateHypothesisExport {
             if (twt.hasPhaseTapChanger()) {
                 String aliasType = twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty() ?
                     ALIAS_PHASE_TAP_CHANGER2 : ALIAS_PHASE_TAP_CHANGER1;
-                String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
-                String tcCtrlId = getCgmesTapChangerControlId(twt, ptcId).orElseGet(() -> context.getNamingStrategy().getCgmesId(ref(twt), PHASE_TAP_CHANGER, REGULATING_CONTROL));
-                writeTapChanger(twt, ptcId, tcCtrlId, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer, context);
+                String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
+                String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(tapChangerId);
+                String tapChangerControlId = getTapChangerControlId(twt, PHASE_TAP_CHANGER, cgmesTapChangerId, context);
+                writeTapChanger(twt, tapChangerId, tapChangerControlId, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer, context);
             }
             if (twt.hasRatioTapChanger()) {
                 String aliasType = twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER1).isEmpty() ?
                     ALIAS_RATIO_TAP_CHANGER2 : ALIAS_RATIO_TAP_CHANGER1;
-                String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
-                String tcCtrlId = getCgmesTapChangerControlId(twt, rtcId).orElseGet(() -> context.getNamingStrategy().getCgmesId(ref(twt), RATIO_TAP_CHANGER, REGULATING_CONTROL));
-                writeTapChanger(twt, rtcId, tcCtrlId, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer, context);
+                String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
+                String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(tapChangerId);
+                String tapChangerControlId = getTapChangerControlId(twt, RATIO_TAP_CHANGER, cgmesTapChangerId, context);
+                writeTapChanger(twt, tapChangerId, tapChangerControlId, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer, context);
             }
         }
 
@@ -198,14 +200,18 @@ public final class SteadyStateHypothesisExport {
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 String endNumber = Integer.toString(leg.getSide().getNum());
                 if (leg.hasPhaseTapChanger()) {
-                    String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, getPhaseTapChangerAliasType(endNumber));
-                    String tcCtrlId = getCgmesTapChangerControlId(twt, ptcId).orElseGet(() -> context.getNamingStrategy().getCgmesId(ref(twt), PHASE_TAP_CHANGER, REGULATING_CONTROL));
-                    writeTapChanger(twt, ptcId, tcCtrlId, leg.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer, context);
+                    String aliasType = getPhaseTapChangerAliasType(endNumber);
+                    String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
+                    String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(tapChangerId);
+                    String tapChangerControlId = getTapChangerControlId(twt, PHASE_TAP_CHANGER, cgmesTapChangerId, context);
+                    writeTapChanger(twt, tapChangerId, tapChangerControlId, leg.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer, context);
                 }
                 if (leg.hasRatioTapChanger()) {
-                    String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, getRatioTapChangerAliasType(endNumber));
-                    String tcCtrlId = getCgmesTapChangerControlId(twt, rtcId).orElseGet(() -> context.getNamingStrategy().getCgmesId(ref(twt), RATIO_TAP_CHANGER, REGULATING_CONTROL));
-                    writeTapChanger(twt, rtcId, tcCtrlId, leg.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer, context);
+                    String aliasType = getRatioTapChangerAliasType(endNumber);
+                    String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
+                    String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(tapChangerId);
+                    String tapChangerControlId = getTapChangerControlId(twt, RATIO_TAP_CHANGER, cgmesTapChangerId, context);
+                    writeTapChanger(twt, tapChangerId, tapChangerControlId, leg.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer, context);
                 }
             }
         }
