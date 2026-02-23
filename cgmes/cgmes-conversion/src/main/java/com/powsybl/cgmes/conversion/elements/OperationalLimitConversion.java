@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -416,13 +415,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void addTemporaryOperationalLimitProperties(OperationalLimitsGroup operationalLimitsGroup, int duration, String operationalLimitId, double value) {
-        operationalLimitsGroup.setProperty(getPropertyName(limitSubclass, false, duration, CgmesNames.OPERATIONAL_LIMIT), operationalLimitId);
-        operationalLimitsGroup.setProperty(getPropertyName(limitSubclass, false, duration, CgmesNames.NORMAL_VALUE), String.valueOf(value));
+        operationalLimitsGroup.setProperty(getOperationalLimitPropertyName(limitSubclass, false, duration, CgmesNames.OPERATIONAL_LIMIT), operationalLimitId);
+        operationalLimitsGroup.setProperty(getOperationalLimitPropertyName(limitSubclass, false, duration, CgmesNames.NORMAL_VALUE), String.valueOf(value));
     }
 
     private void addPermanentOperationalLimitProperties(OperationalLimitsGroup operationalLimitsGroup, String operationalLimitId, double value) {
-        operationalLimitsGroup.setProperty(getPropertyName(limitSubclass, true, 0, CgmesNames.OPERATIONAL_LIMIT), operationalLimitId);
-        operationalLimitsGroup.setProperty(getPropertyName(limitSubclass, true, 0, CgmesNames.NORMAL_VALUE), String.valueOf(value));
+        operationalLimitsGroup.setProperty(getOperationalLimitPropertyName(limitSubclass, true, 0, CgmesNames.OPERATIONAL_LIMIT), operationalLimitId);
+        operationalLimitsGroup.setProperty(getOperationalLimitPropertyName(limitSubclass, true, 0, CgmesNames.NORMAL_VALUE), String.valueOf(value));
     }
 
     private static void addVoltageLimitIdProperty(VoltageLevel voltageLevel, String propertyName, String operationalLimitId) {
@@ -485,8 +484,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private static double getValue(String limitSubclass, boolean isInfiniteDuration, int duration, OperationalLimitsGroup operationalLimitsGroup, double previousValue, Context context) {
-        String operationalLimitId = getOperationalLimitId(getPropertyName(limitSubclass, isInfiniteDuration, duration, CgmesNames.OPERATIONAL_LIMIT), operationalLimitsGroup);
-        double defaultLimitValue = getDefaultValue(getNormalValue(getPropertyName(limitSubclass, isInfiniteDuration, duration, CgmesNames.NORMAL_VALUE), operationalLimitsGroup), previousValue, context);
+        String operationalLimitId = getOperationalLimitId(getOperationalLimitPropertyName(limitSubclass, isInfiniteDuration, duration, CgmesNames.OPERATIONAL_LIMIT), operationalLimitsGroup);
+        double defaultLimitValue = getDefaultValue(getNormalValue(getOperationalLimitPropertyName(limitSubclass, isInfiniteDuration, duration, CgmesNames.NORMAL_VALUE), operationalLimitsGroup), previousValue, context);
         return updatedValue(operationalLimitId, context).orElse(defaultLimitValue);
     }
 
@@ -509,14 +508,6 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private static Double getNormalValue(String propertyName, OperationalLimitsGroup operationalLimitsGroup) {
         return operationalLimitsGroup.getProperty(propertyName) != null ? Double.parseDouble(operationalLimitsGroup.getProperty(propertyName)) : null;
-    }
-
-    private static String getPropertyName(String limitSubclass, boolean isInfiniteDuration, int duration, String tagProperty) {
-        if (isInfiniteDuration) {
-            return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_" + limitSubclass + "_patl";
-        } else {
-            return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_" + limitSubclass + "_tatl_" + duration;
-        }
     }
 
     private static double getDefaultValue(Double normalValue, double previousValue, Context context) {

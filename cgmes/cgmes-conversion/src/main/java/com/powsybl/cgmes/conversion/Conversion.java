@@ -1202,4 +1202,16 @@ public class Conversion {
     public static final String PROPERTY_TOPOLOGICAL_NODE_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + TOPOLOGICAL_NODE_BOUNDARY;
     public static final String PROPERTY_TP_BD_ID = CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
     public static final String PROPERTY_WIND_GEN_UNIT_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "windGenUnitType";
+
+    public static String getOperationalLimitPropertyName(String limitSubclass, boolean isInfiniteDuration, int duration, String tagProperty) {
+        if (isInfiniteDuration) {
+            return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_" + limitSubclass + "_patl";
+        } else {
+            return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_" + limitSubclass + "_tatl_" + duration;
+        }
+    }
+
+    public static String getOperationalLimitPropertyName(String measurementType) {
+        return CGMES_PREFIX_ALIAS_PROPERTIES + "Analog_" + measurementType;
+    }
 }
