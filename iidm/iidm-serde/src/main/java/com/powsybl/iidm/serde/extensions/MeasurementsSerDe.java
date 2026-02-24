@@ -17,6 +17,9 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.NetworkDeserializerContext;
+import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.Map;
 
@@ -46,10 +49,11 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
     @Override
     public void write(Measurements<C> extension, SerializerContext context) {
         TreeDataWriter writer = context.getWriter();
+        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         writer.writeStartNodes();
         for (Measurement measurement : extension.getMeasurements()) {
             writer.writeStartNode(getNamespaceUri(), MEASUREMENT_ROOT_ELEMENT);
-            writer.writeStringAttribute("id", measurement.getId());
+            writer.writeStringAttribute("id", networkContext.getAnonymizer().anonymizeString(measurement.getId()));
             writer.writeEnumAttribute("type", measurement.getType());
             writer.writeEnumAttribute("side", measurement.getSide());
             writer.writeDoubleAttribute(VALUE, measurement.getValue());
@@ -74,12 +78,13 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
 
     @Override
     public Measurements<C> read(C extendable, DeserializerContext context) {
+        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         MeasurementsAdder<C> measurementsAdder = extendable.newExtension(MeasurementsAdder.class);
         Measurements<C> measurements = measurementsAdder.add();
         var reader = context.getReader();
         reader.readChildNodes(elementName -> {
             MeasurementAdder adder = measurements.newMeasurement()
-                    .setId(reader.readStringAttribute("id"))
+                    .setId(networkContext.deanonymizeStringOrDefault("id", IidmVersion.V_1_15))
                     .setType(reader.readEnumAttribute("type", Measurement.Type.class))
                     .setSide(reader.readEnumAttribute("side", ThreeSides.class))
                     .setValue(reader.readDoubleAttribute(VALUE))
