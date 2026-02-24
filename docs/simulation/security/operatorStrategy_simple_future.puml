@@ -96,7 +96,7 @@ enum RangeType {
 interface RangeAction {
   + Action toAction(double setPoint)
 }
-note bottom: Clone of actions but without "set point"
+note bottom: Clone of some actions but without "set point"
 
 class ExclusiveOptimizableRemedialActionGroup {
   - List<String> exclusiveRemedialActionIds
@@ -112,21 +112,21 @@ ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
 '  + Map<ZonedDateTime, OperatorStrategy> toOperatorStrategy(Map<ZonedDateTime, Double> setPoint)
 '}
 'TemporalRangeRemedialActionV1 --* "*" RangeRemedialAction
+'note top: I don't know where to put the condition and contingencyContext in this object.\nIs it ok to have a condition and contingencyContext per TS ?
 
-note top: I don't know where to put the condition and contingencyContext in this object.\nIs it ok to have a condition and contingencyContext per TS ?
-
-class TemporalRangeRemedialActionV2 {
+class TemporalRangeRemedialAction {
   - Set<TemporalRangeAction> temporalRangeActions
   + RangeType rangeType
   + Set<Action> toActions(ZonedDateTime caseDate, double setPoint)
   + OperatorStrategy toOperatorStrategy(ZonedDateTime caseDate, double setPoint)
 }
-TemporalRangeRemedialActionV2 --* "*" TemporalRangeAction
-TemporalRangeRemedialActionV2 --* "1" RangeType
-TemporalRangeRemedialActionV2 --|> OptimizableRemedialAction
+TemporalRangeRemedialAction --* "*" TemporalRangeAction
+TemporalRangeRemedialAction --* "1" RangeType
+TemporalRangeRemedialAction --|> OptimizableRemedialAction
 
 interface TemporalRangeAction {
     + Action toAction(ZonedDateTime caseDate, double setPoint)
 }
+note bottom: Clone of some range actions but with a case date
 
 @enduml
