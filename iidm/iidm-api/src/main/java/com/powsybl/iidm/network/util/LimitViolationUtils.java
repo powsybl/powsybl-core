@@ -32,7 +32,7 @@ public final class LimitViolationUtils {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
         return getLimits(branch, side.toThreeSides(), type, LimitsComputer.NO_MODIFICATIONS)
-            .map(limits -> getOverload(limits.getLimits(), i, limitReductionValue))
+            .map(limits -> getOverload(limits, i, limitReductionValue))
             .orElse(null);
     }
 
@@ -40,7 +40,7 @@ public final class LimitViolationUtils {
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
         return getLimits(transformer, side, type, LimitsComputer.NO_MODIFICATIONS)
-            .map(limits -> getOverload(limits.getLimits(), i, limitReductionValue))
+            .map(limits -> getOverload(limits, i, limitReductionValue))
             .orElse(null);
     }
 
@@ -113,13 +113,14 @@ public final class LimitViolationUtils {
      * @param i the value at the given side of the branch that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
      * @param type the type we are checking the limit of
      * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
     public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, double limitReductionValue, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
         return getAllLimits(branch, side.toThreeSides(), type, LimitsComputer.NO_MODIFICATIONS)
             .stream()
-            .map(limits -> getOverload(limits.getLimits(), i, limitReductionValue))
+            .map(limits -> getOverload(limits, i, limitReductionValue))
             .filter(Objects::nonNull)
             .map(o -> (Overload) o)
             .toList();
@@ -127,20 +128,21 @@ public final class LimitViolationUtils {
 
     /**
      * Checks temporary limits on all selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
-     * on the given <code>side</code> of the <code>transformer</code>, for the <code>limitType</code>
+     * on the given <code>side</code> of the <code>transformer</code>, for the <code>limitType</code>.
      * @param transformer the transformer on which to check the limits
      * @param side the side of the transformer to check
      * @param limitReductionValue value between 0 and 1 to reduce the limit below its original value
      * @param i the value at the given side of the transformer that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
      * @param type the type we are checking the limit of
      * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
     public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double i, LimitType type) {
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
         return getAllLimits(transformer, side, type, LimitsComputer.NO_MODIFICATIONS)
             .stream()
-            .map(limits -> getOverload(limits.getLimits(), i, limitReductionValue))
+            .map(limits -> getOverload(limits, i, limitReductionValue))
             .filter(Objects::nonNull)
             .map(o -> (Overload) o)
             .toList();
@@ -174,33 +176,10 @@ public final class LimitViolationUtils {
             new OverloadImpl(previousLimitName, limit, reduction, operationalLimitsGroupId);
     }
 
-    private static OverloadImpl getOverload(LoadingLimits limits, double i, double limitReductionValue) {
-        double permanentLimit = limits.getPermanentLimit();
-        if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
-            return null;
-        }
-        Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limits.getTemporaryLimits();
-        String previousLimitName = PERMANENT_LIMIT_NAME;
-        double previousLimit = permanentLimit;
-        LoadingLimits.TemporaryLimit lastTemporaryLimit = null;
-        for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
-            if (i >= previousLimit * limitReductionValue && i < tl.getValue() * limitReductionValue) {
-                return createOverload(tl, previousLimit, previousLimitName, null, false, -1, limitReductionValue);
-            }
-            previousLimitName = tl.getName();
-            previousLimit = tl.getValue();
-            lastTemporaryLimit = tl;
-        }
-        if (lastTemporaryLimit != null && i >= limitReductionValue * lastTemporaryLimit.getValue()) {
-            return createOverload(null, previousLimit, previousLimitName, null, temporaryLimits.size() == 1, -1, limitReductionValue);
-        }
-        return null;
-    }
-
-    public static Optional<Overload> getOverload(LimitsContainer<LoadingLimits> limitsContainer, double i) {
+    private static OverloadImpl getOverload(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
         double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
-            return Optional.empty();
+            return null;
         }
         Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
         String previousLimitName = PERMANENT_LIMIT_NAME;
@@ -209,8 +188,8 @@ public final class LimitViolationUtils {
         boolean isFirstTemporaryLimit = true;
         LoadingLimits.TemporaryLimit lastTemporaryLimit = null;
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
-            if (i >= previousLimit && i < tl.getValue()) {
-                return Optional.of(createOverload(tl, previousLimit, previousLimitName, limitsContainer, isFirstTemporaryLimit, previousAcceptableDuration, 1));
+            if (i >= previousLimit * limitReductionValue && i < tl.getValue() * limitReductionValue) {
+                return createOverload(tl, previousLimit, previousLimitName, limitsContainer, isFirstTemporaryLimit, previousAcceptableDuration, limitReductionValue);
             }
             isFirstTemporaryLimit = false;
             previousLimitName = tl.getName();
@@ -218,10 +197,27 @@ public final class LimitViolationUtils {
             previousAcceptableDuration = tl.getAcceptableDuration();
             lastTemporaryLimit = tl;
         }
-        if (lastTemporaryLimit != null && i >= lastTemporaryLimit.getValue()) {
-            return Optional.of(createOverload(null, previousLimit, previousLimitName, limitsContainer, temporaryLimits.size() == 1, previousAcceptableDuration, 1));
+        if (lastTemporaryLimit != null && i >= limitReductionValue * lastTemporaryLimit.getValue()) {
+            return createOverload(null, previousLimit, previousLimitName, limitsContainer, temporaryLimits.size() == 1, previousAcceptableDuration, limitReductionValue);
         }
-        return Optional.empty();
+        return null;
+    }
+
+    /**
+     * Gets the overload corresponding to the temporary limit that is directly above the value of <code>i</code> in the limits contained in <code>limitsContainer</code>
+     * @param limitsContainer a container with the limits (permanent and temporary)
+     * @param i the value we need to check against the limits
+     * @return <p>an empty {@link Optional} if <code>i</code> is below all limits, or if the limits only contain a permanent limit without any temporary (even if <code>i</code> is above said permanent limit)</p>
+     * An {@link Overload} in the following cases:
+     * <ul>
+     *     <li><code>i</code> is above a permanent limit with at least a temporary limit above</li>
+     *     <li><code>i</code> is above a temporary limit</li>
+     * </ul>
+     * Note that in the second case, if we crossed the last temporary (ie there is no temporary limit above this one), then the TemporaryLimit contained in the overload will be the last
+     * temporary limit that was crossed. Otherwise, it will be the temporary limit just above <code>i</code>.
+     */
+    public static Optional<Overload> getOverload(LimitsContainer<LoadingLimits> limitsContainer, double i) {
+        return Optional.ofNullable(getOverload(limitsContainer, i, 1));
     }
 
     public static PermanentLimitCheckResult checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i) {
