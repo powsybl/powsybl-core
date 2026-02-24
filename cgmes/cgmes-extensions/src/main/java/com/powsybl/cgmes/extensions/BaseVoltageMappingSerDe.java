@@ -16,6 +16,7 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
@@ -71,7 +72,7 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
             if (elementName.equals(BASE_VOLTAGE_ROOT_ELEMENT)) {
                 double nominalV = reader.readDoubleAttribute("nominalVoltage");
                 Source sourceBV = reader.readEnumAttribute("source", Source.class);
-                String baseVoltageId = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
+                String baseVoltageId = networkContext.deanonymizeStringOrDefault("id", IidmVersion.V_1_15);
                 reader.readEndNode();
                 mapping.addBaseVoltage(nominalV, baseVoltageId, sourceBV);
             } else {
