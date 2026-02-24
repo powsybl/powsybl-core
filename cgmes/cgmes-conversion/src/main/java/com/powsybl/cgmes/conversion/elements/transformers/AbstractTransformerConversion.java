@@ -186,8 +186,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     private static <C extends Connectable<C>> void updateRatioTapChanger(Connectable<C> tw, RatioTapChanger rtc, String end, Context context, boolean isRegulatingAllowed) {
-        String propertyTag = "".equals(end) ? CgmesNames.RATIO_TAP_CHANGER : getRatioTapChangerAliasType(end);
-        String ratioTapChangerId = findTapChangerId(tw, propertyTag);
+        String ratioTapChangerId = findTapChangerId(tw, getRatioTapChangerAliasType(end));
 
         int defaultTapPosition = getDefaultTapPosition(tw, rtc, ratioTapChangerId, getClosestNeutralStep(rtc), context);
         rtc.setTapPosition(findValidTapPosition(rtc, ratioTapChangerId, defaultTapPosition, context));
@@ -253,8 +252,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     private static <C extends Connectable<C>> void updatePhaseTapChanger(Connectable<C> tw, PhaseTapChanger ptc, String end, Context context, boolean isRegulatingAllowed) {
-        String propertyTag = "".equals(end) ? CgmesNames.PHASE_TAP_CHANGER : getPhaseTapChangerAliasType(end);
-        String phaseTapChangerId = findTapChangerId(tw, propertyTag);
+        String phaseTapChangerId = findTapChangerId(tw, getPhaseTapChangerAliasType(end));
 
         int defaultTapPosition = getDefaultTapPosition(tw, ptc, phaseTapChangerId, getClosestNeutralStep(ptc), context);
         ptc.setTapPosition(findValidTapPosition(ptc, phaseTapChangerId, defaultTapPosition, context));
@@ -394,10 +392,10 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     private static <C extends Connectable<C>> String findTapChangerId(Connectable<C> tw, String propertyTag) {
         List<String> tcIds = tw.getAliases()
             .stream()
-            .filter(alias -> isValidTapChangerIdAlias(tw, alias, tw.getAliasType(alias).orElse(null), propertyTag))
+            .filter(alias -> isValidTapChangerIdAlias(tw, alias, tw.getAliasType(alias).orElseThrow(), propertyTag))
             .toList();
         if (tcIds.size() == 1) {
-            return tcIds.get(0);
+            return tcIds.getFirst();
         } else {
             throw new ConversionException("unexpected tapChangerId for transformer " + tw.getId());
         }

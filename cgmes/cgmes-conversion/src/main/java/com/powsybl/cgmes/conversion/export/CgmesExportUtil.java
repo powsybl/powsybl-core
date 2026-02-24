@@ -373,6 +373,7 @@ public final class CgmesExportUtil {
 
     public static String getPhaseTapChangerAliasType(String endNumber) {
         return switch (endNumber) {
+            case "" -> ALIAS_PHASE_TAP_CHANGER;
             case "1" -> ALIAS_PHASE_TAP_CHANGER1;
             case "2" -> ALIAS_PHASE_TAP_CHANGER2;
             case "3" -> ALIAS_PHASE_TAP_CHANGER3;
@@ -382,6 +383,7 @@ public final class CgmesExportUtil {
 
     public static String getRatioTapChangerAliasType(String endNumber) {
         return switch (endNumber) {
+            case "" -> ALIAS_RATIO_TAP_CHANGER;
             case "1" -> ALIAS_RATIO_TAP_CHANGER1;
             case "2" -> ALIAS_RATIO_TAP_CHANGER2;
             case "3" -> ALIAS_RATIO_TAP_CHANGER3;
