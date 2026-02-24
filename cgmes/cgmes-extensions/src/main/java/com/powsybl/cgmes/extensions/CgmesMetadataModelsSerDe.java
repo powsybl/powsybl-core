@@ -80,13 +80,13 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         writer.writeStringAttribute("id", anonymizer.anonymizeString(model.getId()));
         writer.writeIntAttribute("version", model.getVersion());
         writer.writeStringAttribute("description", model.getDescription());
-        writeReferences(sorted(model.getProfiles(), context), writer);
+        writeProfileReferences(sorted(model.getProfiles(), context), writer);
         writeReferences(sorted(model.getDependentOn(), context), DEPENDENT_ON_MODEL, writer, anonymizer);
         writeReferences(sorted(model.getSupersedes(), context), SUPERSEDES_MODEL, writer, anonymizer);
         writer.writeEndNode();
     }
 
-    private void writeReferences(Collection<String> refs, TreeDataWriter writer) {
+    private void writeProfileReferences(Collection<String> refs, TreeDataWriter writer) {
         writer.writeStartNodes();
         for (String ref : refs) {
             writer.writeStartNode(getNamespaceUri(), CgmesMetadataModelsSerDe.PROFILE);
