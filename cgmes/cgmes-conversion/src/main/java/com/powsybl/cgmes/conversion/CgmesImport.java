@@ -191,7 +191,10 @@ public class CgmesImport implements Importer {
         CgmesModel cgmes = readCgmes(ds, p, reportNode);
         ReportNode conversionReportNode = CgmesReports.importingCgmesFileReport(reportNode, ds.getBaseName());
         Network network = new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
-        cgmes.close();
+        if (!Parameter.readBoolean(getFormat(), p, STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER, defaultValueConfig)) {
+            // not configured to store CgmesModel as an extension, we can close the CgmesModel (and its underlying triplestore)
+            cgmes.close();
+        }
         return network;
     }
 
