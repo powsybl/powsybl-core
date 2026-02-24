@@ -13,6 +13,8 @@ import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.serde.NetworkDeserializerContext;
+import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -28,15 +30,17 @@ public class CgmesLineBoundaryNodeSerDe extends AbstractExtensionSerDe<TieLine, 
 
     @Override
     public void write(CgmesLineBoundaryNode extension, SerializerContext context) {
+        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         context.getWriter().writeBooleanAttribute("isHvdc", extension.isHvdc());
-        context.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", extension.getLineEnergyIdentificationCodeEic().orElse(null));
+        networkContext.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", extension.getLineEnergyIdentificationCodeEic().map(networkContext.getAnonymizer()::anonymizeString).orElse(null));
     }
 
     @Override
     public CgmesLineBoundaryNode read(TieLine extendable, DeserializerContext context) {
+        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         boolean isHvdc = context.getReader().readBooleanAttribute("isHvdc");
-        String lineEnergyIdentificationCodeEic = context.getReader().readStringAttribute("lineEnergyIdentificationCodeEic");
-        context.getReader().readEndNode();
+        String lineEnergyIdentificationCodeEic = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().readStringAttribute("lineEnergyIdentificationCodeEic"));
+        networkContext.getReader().readEndNode();
         extendable.newExtension(CgmesLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();
         return extendable.getExtension(CgmesLineBoundaryNode.class);
     }
