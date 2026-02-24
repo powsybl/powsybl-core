@@ -49,23 +49,23 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
         values.add(new SensitivityValue(factorIndex, contingencyIndex, value, functionReference));
     }
 
-//    @Override
-//    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
-//        contingencyStatuses.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status));
-//    }
-
     @Override
-    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCs) {
+    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status,
+                                       SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCs) {
         if (contingencyStatuses.get(contingencyIndex) == null) {
-            SensitivityAnalysisResult.SensitivityContingencyStatus element = new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status);
-            contingencyStatuses.set(contingencyIndex, element);
+            contingencyStatuses.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(
+                    contingencies.get(contingencyIndex).getId(), status));
         }
         contingencyStatuses.get(contingencyIndex).addComponentLoadFlowStatus(loadFlowStatus, numCC, numCs);
     }
 
     @Override
+    public void writeSynchronousComponentStatus(int numCC, int numCS, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
+        // TODO
+    }
+
+    @Override
     public void computationComplete() {
         computationComplete = true;
-
     }
 }

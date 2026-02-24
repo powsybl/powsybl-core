@@ -33,12 +33,17 @@ public interface SensitivityResultWriter {
      * @param status the sensitivity analysis status
      * @param loadFlowStatus the load flow status for this component
      * @param numCC index of connected component
-     * @param numCs index of synchronous component
+     * @param numCS index of synchronous component
      */
-    void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCs);
+    void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCS);
 
-    // Why this new method ???
-    // void writeSynchronousComponentStatus(int numCC, int numCS, SensitivityAnalysisResult.LoadFlowStatus  loadFlowStatus);
+    /**
+     * Report the convergence status of the component without any contingency.
+     * @param numCC index of connected component
+     * @param numCS index of synchronous component
+     * @param loadFlowStatus the load flow status for this component
+     */
+    void writeSynchronousComponentStatus(int numCC, int numCS, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus);
 
     /**
      * Called at the end of the computation if the computation has not been interrupted

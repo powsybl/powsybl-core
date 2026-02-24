@@ -89,6 +89,11 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
     }
 
     @Override
+    public void writeSynchronousComponentStatus(int numCC, int numCS, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
+        // TODO
+    }
+
+    @Override
     public void computationComplete() {
 
     }
