@@ -18,6 +18,7 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
@@ -125,17 +126,16 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
     private static void read(CgmesMetadataModelsAdder.ModelAdder adder, DeserializerContext context) {
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         TreeDataReader reader = networkContext.getReader();
-        Anonymizer anonymizer = networkContext.getAnonymizer();
         adder.setSubset(reader.readEnumAttribute("subset", CgmesSubset.class))
-                .setModelingAuthoritySet(anonymizer.deanonymizeString(reader.readStringAttribute("modelingAuthoritySet")))
-                .setId(anonymizer.deanonymizeString(reader.readStringAttribute("id")))
+                .setModelingAuthoritySet(networkContext.deanonymizeStringOrDefault("modelingAuthoritySet", IidmVersion.V_1_15))
+                .setId(networkContext.deanonymizeStringOrDefault("id", IidmVersion.V_1_15))
                 .setVersion(reader.readIntAttribute("version"))
                 .setDescription(reader.readStringAttribute("description"));
         reader.readChildNodes(elementName -> {
             switch (elementName) {
                 case PROFILE -> adder.addProfile(reader.readContent());
-                case DEPENDENT_ON_MODEL -> adder.addDependentOn(anonymizer.deanonymizeString(reader.readContent()));
-                case SUPERSEDES_MODEL -> adder.addSupersedes(anonymizer.deanonymizeString(reader.readContent()));
+                case DEPENDENT_ON_MODEL -> adder.addDependentOn(networkContext.deanonymizeContentOrDefault(IidmVersion.V_1_15));
+                case SUPERSEDES_MODEL -> adder.addSupersedes(networkContext.deanonymizeContentOrDefault(IidmVersion.V_1_15));
                 default -> throw new PowsyblException("Unknown element name '" + elementName + "' in '" + CgmesMetadataModels.NAME + "'");
             }
         });

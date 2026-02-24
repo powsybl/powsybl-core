@@ -74,7 +74,7 @@ public class CgmesBoundaryLineBoundaryNodeSerDe extends AbstractVersionableNetwo
     public CgmesBoundaryLineBoundaryNode read(BoundaryLine extendable, DeserializerContext context) {
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         boolean isHvdc = context.getReader().readBooleanAttribute("isHvdc");
-        String lineEnergyIdentificationCodeEic = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().readStringAttribute("lineEnergyIdentificationCodeEic"));
+        String lineEnergyIdentificationCodeEic = networkContext.deanonymizeStringOrDefault("lineEnergyIdentificationCodeEic", IidmVersion.V_1_15);
         context.getReader().readEndNode();
         extendable.newExtension(CgmesBoundaryLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();
         return extendable.getExtension(CgmesBoundaryLineBoundaryNode.class);

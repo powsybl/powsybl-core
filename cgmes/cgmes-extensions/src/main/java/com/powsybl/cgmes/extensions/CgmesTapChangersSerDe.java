@@ -16,6 +16,7 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
@@ -69,12 +70,12 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
         reader.readChildNodes(elementName -> {
             if (elementName.equals(TAP_CHANGER_ROOT_ELEMENT)) {
                 CgmesTapChangerAdder adder = tapChangers.newTapChanger()
-                        .setId(networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id")))
+                        .setId(networkContext.deanonymizeStringOrDefault("id", IidmVersion.V_1_15))
                         .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))
                         .setType(reader.readStringAttribute("type"))
                         .setHiddenStatus(reader.readBooleanAttribute("hidden", false));
                 reader.readOptionalIntAttribute("step").ifPresent(adder::setStep);
-                adder.setControlId(networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("controlId")));
+                adder.setControlId(networkContext.deanonymizeStringOrDefault("controlId", IidmVersion.V_1_15));
                 context.getReader().readEndNode();
                 adder.add();
             } else {
