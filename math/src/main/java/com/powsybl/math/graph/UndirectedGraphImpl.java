@@ -13,14 +13,14 @@ import com.powsybl.commons.PowsyblException;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.linked.TIntLinkedList;
 import gnu.trove.set.hash.TIntHashSet;
+import org.jspecify.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -508,11 +508,15 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     private void traverseVertex(int vToTraverse, boolean[] vEncountered, Deque<DirectedEdge> edgesToTraverse,
-                                TIntArrayList[] adjacencyList, TraversalType traversalType) {
+                                TIntArrayList[] adjacencyList, TraversalType traversalType, @Nullable IntConsumer vertexVisitor) {
         if (vEncountered[vToTraverse]) {
             return;
         }
         vEncountered[vToTraverse] = true;
+        if (vertexVisitor != null) {
+            vertexVisitor.accept(vToTraverse);
+        }
+
         TIntArrayList adjacentEdges = adjacencyList[vToTraverse];
         for (int i = 0; i < adjacentEdges.size(); i++) {
             // For depth-first traversal, we're going to poll the last element added in the deque. Hence, edges have to
@@ -552,13 +556,17 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     private boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices, boolean[] encounteredEdges) {
+        return traverse(v, traversalType, traverser, encounteredVertices, encounteredEdges, null);
+    }
+
+    private boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices, boolean[] encounteredEdges, @Nullable IntConsumer vertexVisitor) {
         Objects.requireNonNull(traverser);
 
         TIntArrayList[] adjacencyList = getAdjacencyList();
         boolean keepGoing = true;
 
         Deque<DirectedEdge> edgesToTraverse = new ArrayDeque<>();
-        traverseVertex(v, encounteredVertices, edgesToTraverse, adjacencyList, traversalType);
+        traverseVertex(v, encounteredVertices, edgesToTraverse, adjacencyList, traversalType, vertexVisitor);
         while (!edgesToTraverse.isEmpty() && keepGoing) {
             DirectedEdge directedEdge = switch (traversalType) {
                 case DEPTH_FIRST -> edgesToTraverse.pollLast();
@@ -574,7 +582,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
                 TraverseResult traverserResult = traverser.traverse(vOrigin, directedEdge.index, vDest);
                 switch (traverserResult) {
-                    case CONTINUE -> traverseVertex(vDest, encounteredVertices, edgesToTraverse, adjacencyList, traversalType);
+                    case CONTINUE -> traverseVertex(vDest, encounteredVertices, edgesToTraverse, adjacencyList, traversalType, vertexVisitor);
                     case TERMINATE_TRAVERSER -> keepGoing = false; // the whole traversing needs to stop
                     case TERMINATE_PATH -> {
                         // Path ends on edge e before reaching vDest, continuing with next edge in the deque
@@ -586,29 +594,23 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public <C> List<C> getConnectedComponents(Traverser traverser, UndirectedGraph.ConnectedComponentCollector<C> collector) {
+    public <C> List<C> computeTraversalPartitions(Traverser traverser, Supplier<C> partitionFactory, ObjIntConsumer<C> vertexConsumer) {
         Objects.requireNonNull(traverser);
-        Objects.requireNonNull(collector);
+        Objects.requireNonNull(partitionFactory);
+        Objects.requireNonNull(vertexConsumer);
 
         boolean[] encounteredVertices = new boolean[vertices.size()];
         boolean[] encounteredEdges = new boolean[edges.size()];
         List<C> components = new ArrayList<>();
 
         for (int v = 0; v < vertices.size(); v++) {
-            Vertex<V> vertex = vertices.get(v);
-
-            if (vertex != null && !encounteredVertices[v]) {
-                C component = collector.createComponent();
-                collector.addVertex(component, v);
-
-                traverse(v, TraversalType.BREADTH_FIRST, (v1, e, v2) -> {
-                    TraverseResult result = traverser.traverse(v1, e, v2);
-                    if (result == TraverseResult.CONTINUE && !encounteredVertices[v2]) {
-                        collector.addVertex(component, v2);
-                    }
-                    return result;
-                }, encounteredVertices, encounteredEdges);
+            if (vertices.get(v) != null && !encounteredVertices[v]) {
+                C component = partitionFactory.get();
+                boolean keepGoing = traverse(v, TraversalType.BREADTH_FIRST, traverser, encounteredVertices, encounteredEdges, visitedV -> vertexConsumer.accept(component, visitedV));
                 components.add(component);
+                if (!keepGoing) {
+                    break;
+                }
             }
         }
         return components;

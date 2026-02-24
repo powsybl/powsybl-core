@@ -229,7 +229,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
             Map<ConfiguredBus, MergedBus> mapping = new IdentityHashMap<>();
             int busNum = 0;
 
-            List<List<ConfiguredBus>> connectedComponents = graph.getConnectedComponents(
+            List<List<ConfiguredBus>> connectedComponents = graph.computeTraversalPartitions(
                 (v1, e, v2) -> {
                     SwitchImpl sw = graph.getEdgeObject(e);
                     if (sw != null && sw.isOpen()) {
@@ -237,18 +237,8 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
                     }
                     return TraverseResult.CONTINUE;
                 },
-                new UndirectedGraph.ConnectedComponentCollector<>() {
-                    @Override
-                    public List<ConfiguredBus> createComponent() {
-                        return new ArrayList<>();
-                    }
-
-                    @Override
-                    public void addVertex(List<ConfiguredBus> component, int vertexIndex) {
-                        ConfiguredBus bus = graph.getVertexObject(vertexIndex);
-                        component.add(bus);
-                    }
-                }
+                ArrayList::new,
+                (component, vertexIndex) -> component.add(graph.getVertexObject(vertexIndex))
             );
 
             for (List<ConfiguredBus> component : connectedComponents) {

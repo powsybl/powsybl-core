@@ -285,7 +285,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             Map<String, CalculatedBus> id2bus = new LinkedHashMap<>();
             CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
 
-            List<TIntArrayList> components = graph.getConnectedComponents((v1, e, v2) -> {
+            List<TIntArrayList> components = graph.computeTraversalPartitions((v1, e, v2) -> {
                 SwitchImpl sw = graph.getEdgeObject(e);
                 if (sw != null && terminate.test(sw)) {
                     return TraverseResult.TERMINATE_PATH;

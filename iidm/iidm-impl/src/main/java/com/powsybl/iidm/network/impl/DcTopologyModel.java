@@ -107,9 +107,9 @@ public class DcTopologyModel implements MultiVariantObject {
 
     protected static int loadDcNodeIndexLimit(PlatformConfig platformConfig) {
         return platformConfig
-            .getOptionalModuleConfig("iidm")
-            .map(moduleConfig -> moduleConfig.getIntProperty("dc-node-index-limit", DEFAULT_DC_NODE_INDEX_LIMIT))
-            .orElse(DEFAULT_DC_NODE_INDEX_LIMIT);
+                .getOptionalModuleConfig("iidm")
+                .map(moduleConfig -> moduleConfig.getIntProperty("dc-node-index-limit", DEFAULT_DC_NODE_INDEX_LIMIT))
+                .orElse(DEFAULT_DC_NODE_INDEX_LIMIT);
     }
 
     private Integer getVertex(String dcNodeId) {
@@ -236,7 +236,7 @@ public class DcTopologyModel implements MultiVariantObject {
             // mapping between DC nodes ID and DC buses
             Map<String, DcBusImpl> dcNodeIdToDcBus = new HashMap<>();
 
-            List<List<DcNodeImpl>> components = graph.getConnectedComponents(
+            List<List<DcNodeImpl>> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> {
                     DcSwitchImpl sw = graph.getEdgeObject(e);
                     if (sw != null && sw.isOpen()) {
@@ -244,18 +244,8 @@ public class DcTopologyModel implements MultiVariantObject {
                     }
                     return TraverseResult.CONTINUE;
                 },
-                new UndirectedGraph.ConnectedComponentCollector<>() {
-                    @Override
-                    public List<DcNodeImpl> createComponent() {
-                        return new ArrayList<>();
-                    }
-
-                    @Override
-                    public void addVertex(List<DcNodeImpl> component, int vertexIndex) {
-                        DcNodeImpl dcNode = graph.getVertexObject(vertexIndex);
-                        component.add(dcNode);
-                    }
-                }
+                ArrayList::new,
+                (component, vertexIndex) -> component.add(graph.getVertexObject(vertexIndex))
             );
 
             for (List<DcNodeImpl> component : components) {

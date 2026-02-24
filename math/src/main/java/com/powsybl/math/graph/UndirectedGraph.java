@@ -13,7 +13,9 @@ import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -328,32 +330,16 @@ public interface UndirectedGraph<V, E> {
      *                           </ul>
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
-     * @deprecated Use {@link #getConnectedComponents(Traverser)} or {@link #traverse(int, TraversalType, Traverser)} instead.
+     * @deprecated Use {@link #computeTraversalPartitions(Traverser)} or {@link #traverse(int, TraversalType, Traverser)} instead.
      */
     @Deprecated(since = "7.2.0")
     boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] verticesEncountered);
 
-    default List<TIntArrayList> getConnectedComponents(Traverser traverser) {
-        return getConnectedComponents(traverser, new ConnectedComponentCollector<TIntArrayList>() {
-            @Override
-            public TIntArrayList createComponent() {
-                return new TIntArrayList();
-            }
-
-            @Override
-            public void addVertex(TIntArrayList component, int vertexIndex) {
-                component.add(vertexIndex);
-            }
-        });
+    default List<TIntArrayList> computeTraversalPartitions(Traverser traverser) {
+        return computeTraversalPartitions(traverser, TIntArrayList::new, TIntArrayList::add);
     }
 
-    <C> List<C> getConnectedComponents(Traverser traverser, ConnectedComponentCollector<C> collector);
-
-    interface ConnectedComponentCollector<C> {
-        C createComponent();
-
-        void addVertex(C component, int vertexIndex);
-    }
+    <C> List<C> computeTraversalPartitions(Traverser traverser, Supplier<C> partitionFactory, ObjIntConsumer<C> vertexConsumer);
 
     /**
      * Traverse the entire graph, starting at the specified vertex v.

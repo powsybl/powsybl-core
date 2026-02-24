@@ -674,7 +674,7 @@ class UndirectedGraphImplTest {
      * </pre>
      */
     @Test
-    void testGetConnectedComponentsMultipleComponents() {
+    void testComputeTraversalPartitions() {
         graph.addVertex(); // 0
         graph.addVertex(); // 1
         graph.addVertex(); // 2
@@ -684,7 +684,7 @@ class UndirectedGraphImplTest {
         graph.addEdge(1, 2, null); // 1
         graph.addEdge(3, 4, null); // 2
 
-        List<TIntArrayList> components = graph.getConnectedComponents(
+        List<TIntArrayList> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> TraverseResult.CONTINUE);
 
         assertEquals(2, components.size());
@@ -701,7 +701,7 @@ class UndirectedGraphImplTest {
      * </pre>
      */
     @Test
-    void testGetConnectedComponentsWithTerminatePath() {
+    void testComputeTraversalPartitionsWithTerminatePath() {
         graph.addVertex(); // 0
         graph.addVertex(); // 1
         graph.addVertex(); // 2
@@ -710,7 +710,7 @@ class UndirectedGraphImplTest {
         graph.addEdge(1, 2, "closed"); // 1
         graph.addEdge(2, 3, "open");   // 2
 
-        List<TIntArrayList> components = graph.getConnectedComponents(
+        List<TIntArrayList> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> "closed".equals(graph.getEdgeObject(e))
                         ? TraverseResult.TERMINATE_PATH
                         : TraverseResult.CONTINUE);
@@ -728,13 +728,13 @@ class UndirectedGraphImplTest {
      * </pre>
      */
     @Test
-    void testGetConnectedComponentsNoDuplicatesWithParallelEdges() {
+    void testComputeTraversalPartitionsNoDuplicatesWithParallelEdges() {
         graph.addVertex(); // 0
         graph.addVertex(); // 1
         graph.addEdge(0, 1, null); // 0
         graph.addEdge(0, 1, null); // 1
 
-        List<TIntArrayList> components = graph.getConnectedComponents(
+        List<TIntArrayList> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> TraverseResult.CONTINUE);
 
         assertEquals(1, components.size());
@@ -748,7 +748,7 @@ class UndirectedGraphImplTest {
      * that collects vertex objects into Sets.
      */
     @Test
-    void testGetConnectedComponentsWithCustomCollector() {
+    void testComputeTraversalPartitionsWithCustomCollector() {
         graph.addVertex(); // 0
         graph.addVertex(); // 1
         graph.addVertex(); // 2
@@ -760,20 +760,13 @@ class UndirectedGraphImplTest {
         graph.setVertexObject(2, v2);
         graph.addEdge(0, 1, null); // 0
 
-        List<Set<Vertex>> components = graph.getConnectedComponents(
+        List<Set<Vertex>> components = graph.computeTraversalPartitions(
                 (vv1, e, vv2) -> TraverseResult.CONTINUE,
-                new UndirectedGraph.ConnectedComponentCollector<>() {
-                    @Override
-                    public Set<Vertex> createComponent() {
-                        return new HashSet<>();
-                    }
-
-                    @Override
-                    public void addVertex(Set<Vertex> component, int vertexIndex) {
-                        Vertex obj = graph.getVertexObject(vertexIndex);
-                        if (obj != null) {
-                            component.add(obj);
-                        }
+                HashSet::new,
+                (component, vertexIndex) -> {
+                    Vertex obj = graph.getVertexObject(vertexIndex);
+                    if (obj != null) {
+                        component.add(obj);
                     }
                 });
 
