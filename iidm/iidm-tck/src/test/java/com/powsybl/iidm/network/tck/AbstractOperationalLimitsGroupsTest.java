@@ -8,7 +8,9 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -675,5 +678,101 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         // check that all groups can be activated
         line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> true);
         assertEquals(4, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideUtilCheckCurrentArguments")
+    void violationUtilCheckCurrent(Network network, String branchId, TwoSides side, double currentValue, Collection<ExpectedOverload> expected) {
+        Line l = network.getLine(branchId);
+        Collection<Overload> overloads = LimitViolationUtils.checkAllTemporaryLimits(l, side, new LimitsComputer.NoModificationsImpl(), currentValue, LimitType.CURRENT);
+
+        Assertions.assertThat(overloads)
+            .extracting(
+                Overload::getPreviousLimitName,
+                Overload::getOperationalLimitsGroupId,
+                Overload::getPreviousLimit,
+                o -> o.getTemporaryLimit().getAcceptableDuration()
+            )
+            .containsExactlyInAnyOrderElementsOf(expected.stream()
+                .map(r -> tuple(r.previousLimitName, r.operationalLimitsGroupId, r.limit, r.acceptableDuration))
+                .toList());
+    }
+
+    private record ExpectedOverload(String previousLimitName, String operationalLimitsGroupId, double limit, int acceptableDuration) { }
+
+    private static Stream<Arguments> provideUtilCheckCurrentArguments() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        String branchId = EurostagTutorialExample1Factory.NHV1_NHV2_1;
+        TwoSides side = TwoSides.ONE;
+
+        return Stream.of(
+            Arguments.of(n, branchId, side, 299, List.of()), // below any permanent limit
+            Arguments.of(n, branchId, side, 310, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    300,
+                    60 * 40
+                )
+            )), // above permanent of activated_1_2
+            Arguments.of(n, branchId, side, 510, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    300,
+                    60 * 40
+                )
+            )), // above the permanent of default, but no temporary above so we don't detect anything (note : this result is strange, need to change getOverload in LimitViolationUtils)
+            Arguments.of(n, branchId, side, 701, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                )
+            )),
+            Arguments.of(n, branchId, side, 1122, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                ),
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1100,
+                    60 * 10
+                )
+            )),
+            Arguments.of(n, branchId, side, 1450, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                ),
+                new ExpectedOverload(
+                    "10'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1200,
+                    60
+                )
+            )),
+            Arguments.of(n, branchId, side, 1500, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                ),
+                new ExpectedOverload(
+                    "1'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1500,
+                    0
+                )
+            ))
+        );
     }
 }

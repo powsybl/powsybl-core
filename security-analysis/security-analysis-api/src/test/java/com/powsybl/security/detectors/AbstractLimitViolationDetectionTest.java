@@ -473,7 +473,7 @@ public abstract class AbstractLimitViolationDetectionTest {
         }
     }
 
-    public record ExpectedResults(String limitName, double limit, int acceptableDuration) { }
+    private record ExpectedResults(String limitName, double limit, int acceptableDuration) { }
 
     private static Stream<Arguments> provideDetectCurrentLimitArguments() {
         String case1 = "CASE1";

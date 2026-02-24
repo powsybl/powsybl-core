@@ -116,6 +116,7 @@ public final class LimitViolationUtils {
      * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
     public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, double limitReductionValue, double i, LimitType type) {
+        //TODO the return of this function is strange due to getOverload, need to change so its consistent in all cases
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
         return getAllLimits(branch, side.toThreeSides(), type, LimitsComputer.NO_MODIFICATIONS)
@@ -138,6 +139,7 @@ public final class LimitViolationUtils {
      * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
     public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double i, LimitType type) {
+        //TODO the return of this function is strange due to getOverload, need to change so its consistent in all cases
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
         return getAllLimits(transformer, side, type, LimitsComputer.NO_MODIFICATIONS)
@@ -176,6 +178,19 @@ public final class LimitViolationUtils {
             new OverloadImpl(previousLimitName, limit, reduction, operationalLimitsGroupId);
     }
 
+    /**
+     * Gets the overload corresponding to the temporary limit that is directly above the value of <code>i</code> in the limits contained in <code>limitsContainer</code>
+     * @param limitsContainer a container with the limits (permanent and temporary)
+     * @param i the value we need to check against the limits
+     * @param limitReductionValue a coefficient between 0 and 1 to compare <code>i</code> to a new set of limit that is originalLimit * reduction
+     * @return <p>an empty {@link Optional} if <code>i</code> is below all limits, or if the limits only contain a permanent limit without any temporary (even if <code>i</code> is above said permanent limit)</p>
+     * An {@link Overload} in the following cases:
+     * <ul>
+     *     <li><code>i</code> is above a permanent limit with at least a temporary limit above</li>
+     *     <li><code>i</code> is above a temporary limit</li>
+     * </ul>
+     * Note that in the second case, if we crossed all temporary limits defined by the user, then this will consider another limit above, at the maximum <code>i</code> possible, with an acceptable duration of 0.
+     */
     private static OverloadImpl getOverload(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
         double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
@@ -213,8 +228,7 @@ public final class LimitViolationUtils {
      *     <li><code>i</code> is above a permanent limit with at least a temporary limit above</li>
      *     <li><code>i</code> is above a temporary limit</li>
      * </ul>
-     * Note that in the second case, if we crossed the last temporary (ie there is no temporary limit above this one), then the TemporaryLimit contained in the overload will be the last
-     * temporary limit that was crossed. Otherwise, it will be the temporary limit just above <code>i</code>.
+     * Note that in the second case, if we crossed all temporary limits defined by the user, then this will consider another limit above, at the maximum <code>i</code> possible, with an acceptable duration of 0.
      */
     public static Optional<Overload> getOverload(LimitsContainer<LoadingLimits> limitsContainer, double i) {
         return Optional.ofNullable(getOverload(limitsContainer, i, 1));
