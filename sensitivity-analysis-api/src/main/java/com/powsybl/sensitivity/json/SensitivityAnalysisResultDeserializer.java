@@ -62,6 +62,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                     parser.nextToken();
                     preContingencyStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityPreContingencyStatus.class);
                     break;
+
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
