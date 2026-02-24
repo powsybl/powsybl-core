@@ -68,6 +68,7 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
                     .add();
             }
         });
+        resultWriter.writeSynchronousComponentStatus(0, 1, new SensitivityAnalysisResult.LoadFlowStatus(LoadFlowResult.ComponentResult.Status.CONVERGED, "testStatusText"));
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
             int resultCase = contingencyIndex % 5;
             switch (resultCase) {

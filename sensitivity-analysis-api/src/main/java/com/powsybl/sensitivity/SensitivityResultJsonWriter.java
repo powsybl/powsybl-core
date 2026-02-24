@@ -25,12 +25,15 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
 
     private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatusBuffer;
 
+    private final List<SensitivityAnalysisResult.SensitivityPreContingencyStatus> precontingencyStatusBuffer;
+
     private boolean computationComplete = false;
 
     public SensitivityResultJsonWriter(JsonGenerator jsonGenerator, List<Contingency> contingencies) {
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
         this.contingencies = Objects.requireNonNull(contingencies);
         this.contingencyStatusBuffer = new ArrayList<>(Collections.nCopies(contingencies.size(), null));
+        this.precontingencyStatusBuffer = new ArrayList<>();
         try {
             jsonGenerator.writeStartArray();
             jsonGenerator.writeStartArray();
@@ -44,20 +47,17 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
         SensitivityValue.writeJson(jsonGenerator, factorIndex, contingencyIndex, value, functionReference);
     }
 
-
-    // 3 new parameters
-    // Called for every contigency and every numCC/numCS where the contingency has an impact
-    // For contingencies that are never run, called once in the end with no IMPACT and numCC and numCs set to -1
     @Override
     public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCs) {
-        SensitivityAnalysisResult.SensitivityContingencyStatus sensitivityContingencyStatus = new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status);
-        contingencyStatusBuffer.set(contingencyIndex, sensitivityContingencyStatus);
+        contingencyStatusBuffer.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status));
         contingencyStatusBuffer.get(contingencyIndex).addComponentLoadFlowStatus(loadFlowStatus, numCC, numCs);
     }
 
     @Override
     public void writeSynchronousComponentStatus(int numCC, int numCS, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
-        // TODO
+        SensitivityAnalysisResult.SensitivityPreContingencyStatus e = new SensitivityAnalysisResult.SensitivityPreContingencyStatus(loadFlowStatus, numCC, numCS);
+        precontingencyStatusBuffer.add(e);
+
     }
 
     @Override
@@ -73,6 +73,11 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
             jsonGenerator.writeStartArray();
             for (SensitivityAnalysisResult.SensitivityContingencyStatus status : contingencyStatusBuffer) {
                 SensitivityAnalysisResult.SensitivityContingencyStatus.writeJson(jsonGenerator, status);
+            }
+            jsonGenerator.writeEndArray();
+            jsonGenerator.writeStartArray();
+            for (SensitivityAnalysisResult.SensitivityPreContingencyStatus status : precontingencyStatusBuffer) {
+                SensitivityAnalysisResult.SensitivityPreContingencyStatus.writeJson(jsonGenerator, status);
             }
             jsonGenerator.writeEndArray();
             // Write computation completion information

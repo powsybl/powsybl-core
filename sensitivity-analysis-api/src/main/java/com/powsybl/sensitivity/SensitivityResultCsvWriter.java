@@ -25,12 +25,15 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
     private final TableFormatter formatterContingencyComponentsStatuses;
 
+    private final TableFormatter formatterPreContingency;
+
     private final List<Contingency> contingencies;
 
     public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterContingencyComponentsStatuses,
-                                      List<Contingency> contingencies) {
+                                      TableFormatter formatterPreContingency, List<Contingency> contingencies) {
         this.formatter = Objects.requireNonNull(formatter);
         this.formatterContingencyComponentsStatuses = Objects.requireNonNull(formatterContingencyComponentsStatuses);
+        this.formatterPreContingency = Objects.requireNonNull(formatterPreContingency);
         this.contingencies = Objects.requireNonNull(contingencies);
     }
 
@@ -58,6 +61,18 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
                 new Column("Synchronous component"));
     }
 
+    public static TableFormatter createPreContingencyStatusTableFormatter(Writer writer) {
+        Objects.requireNonNull(writer);
+        TableFormatterFactory factory = new CsvTableFormatterFactory();
+        var tfc = TableFormatterConfig.load();
+        return factory.create(writer, "Sensitivity analysis pre contingency status result", tfc,
+                new Column("Connected component"),
+                new Column("Synchronous component"),
+                new Column("Loadflow Status"),
+                new Column("Loadflow Status Description")
+                );
+    }
+
     @Override
     public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
         Contingency contingency = contingencyIndex != -1 ? contingencies.get(contingencyIndex) : null;
@@ -71,18 +86,15 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
         }
     }
 
-    // 3 new parameters
-    // Called for every contingency and every numCC/numCS where the contingency has an impact
-    // For contingencies that are never run, called once in the end with no IMPACT and numCC and numCs set to -1
     @Override
-    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCs) {
+    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCS) {
         try {
             formatterContingencyComponentsStatuses.writeCell(contingencies.get(contingencyIndex).getId());
             formatterContingencyComponentsStatuses.writeCell(status.toString());
             formatterContingencyComponentsStatuses.writeCell(loadFlowStatus.status().toString());
             formatterContingencyComponentsStatuses.writeCell(loadFlowStatus.statusText());
             formatterContingencyComponentsStatuses.writeCell(numCC);
-            formatterContingencyComponentsStatuses.writeCell(numCs);
+            formatterContingencyComponentsStatuses.writeCell(numCS);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -90,11 +102,18 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
     @Override
     public void writeSynchronousComponentStatus(int numCC, int numCS, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
-        // TODO
+        try {
+            formatterPreContingency.writeCell(numCC);
+            formatterPreContingency.writeCell(numCS);
+            formatterPreContingency.writeCell(loadFlowStatus.status().toString());
+            formatterPreContingency.writeCell(loadFlowStatus.statusText());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void computationComplete() {
-
+        // WHAT TO DO HERE ??
     }
 }

@@ -17,6 +17,7 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityValue;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +34,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         String version = null;
         List<SensitivityValue> sensitivityValues = null;
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = null;
+        List<SensitivityAnalysisResult.SensitivityPreContingencyStatus> preContingencyStatus = new ArrayList<>();
         List<SensitivityFactor> factors = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
@@ -55,6 +57,11 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                     parser.nextToken();
                     contingencyStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityContingencyStatus.class);
                     break;
+
+                case "preContingencyStatus":
+                    parser.nextToken();
+                    preContingencyStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityPreContingencyStatus.class);
+                    break;
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
@@ -64,6 +71,6 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
             //Only 1.0 version is supported for now
             throw new IllegalStateException("Version different than 1.0 not supported.");
         }
-        return new SensitivityAnalysisResult(factors, contingencyStatus, sensitivityValues);
+        return new SensitivityAnalysisResult(factors, contingencyStatus, preContingencyStatus, sensitivityValues);
     }
 }

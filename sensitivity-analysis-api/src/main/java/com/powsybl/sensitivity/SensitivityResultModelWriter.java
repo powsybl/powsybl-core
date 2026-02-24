@@ -25,11 +25,14 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatuses;
 
+    private final List<SensitivityAnalysisResult.SensitivityPreContingencyStatus> preContingencyStatuses;
+
     private boolean computationComplete;
 
     public SensitivityResultModelWriter(List<Contingency> contingencies) {
         this.contingencies = Objects.requireNonNull(contingencies);
         contingencyStatuses = new ArrayList<>(Collections.nCopies(contingencies.size(), null));
+        preContingencyStatuses = new ArrayList<>();
     }
 
     public List<SensitivityValue> getValues() {
@@ -38,6 +41,10 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     public List<SensitivityAnalysisResult.SensitivityContingencyStatus> getContingencyStatuses() {
         return contingencyStatuses;
+    }
+
+    public List<SensitivityAnalysisResult.SensitivityPreContingencyStatus> getPreContingencyStatuses() {
+        return preContingencyStatuses;
     }
 
     public boolean isComputationComplete() {
@@ -61,7 +68,7 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     @Override
     public void writeSynchronousComponentStatus(int numCC, int numCS, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus) {
-        // TODO
+        preContingencyStatuses.add(new SensitivityAnalysisResult.SensitivityPreContingencyStatus(loadFlowStatus, numCS, numCS));
     }
 
     @Override

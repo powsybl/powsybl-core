@@ -32,6 +32,9 @@ public class SensitivityAnalysisResultSerializer extends StdSerializer<Sensitivi
         serializerProvider.defaultSerializeField("sensitivityFactors", result.getFactors(), jsonGenerator);
         serializerProvider.defaultSerializeField("sensitivityValues", result.getValues(), jsonGenerator);
         serializerProvider.defaultSerializeField("contingencyStatus", result.getContingencyStatuses(), jsonGenerator);
+        if (!result.getPreContingencyStatuses().isEmpty()) {
+            serializerProvider.defaultSerializeField("preContingencyStatus", result.getPreContingencyStatuses(), jsonGenerator);
+        }
         jsonGenerator.writeEndObject();
     }
 }
