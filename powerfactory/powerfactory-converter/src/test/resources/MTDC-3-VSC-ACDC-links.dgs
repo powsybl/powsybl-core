@@ -1,5 +1,5 @@
 $$General;ID(a:40);Descr(a:40);Val(a:40)
-0;Version;5.0
+1;Version;5.0
 
 $$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
 100;1 aux_1;;;60;
@@ -20,10 +20,10 @@ $$ElmLne;ID(a:40);loc_name(a:40);fold_id(p);typ_id(p);dline(r)
 22;DC line - 32-33;100;41;50
 23;DC line + 31-33;100;41;50
 
-$$ElmVsc;ID(a:40);loc_name(a:40);fold_id(p);Unom(r);usetp(r);psetp(r);qsetp(r);Pnold(r);P_max(r)
-31;HVDC Converter 1;100;500;1;600;0;10000;900
-32;HVDC Converter 2;100;500;1;0;100;10000;900
-33;HVDC Converter 3;100;500;1;0;100;10000;900
+$$ElmVsc;ID(a:40);loc_name(a:40);fold_id(p);Unom(r);usetp(r);psetp(r);qsetp(r);Pnold(r);P_max(r);i_acdc(i);usetpdc(r);Unomdc(r)
+31;HVDC Converter 1;100;425;1.0;600;0;10000;900;4;;500
+32;HVDC Converter 2;100;425;0.8;0;100;10000;900;6;1.2;500
+33;HVDC Converter 3;100;425;;600;100;10000;900;5;;500
 
 $$StaCubic;ID(a:40);loc_name(a:40);fold_id(p);obj_bus(i);obj_id(p)
 101;AC node 1 VSC 31;1;0;31
