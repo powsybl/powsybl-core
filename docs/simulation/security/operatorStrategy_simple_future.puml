@@ -104,16 +104,29 @@ class ExclusiveOptimizableRemedialActionGroup {
 }
 ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
 
-class TemporalRangeRemedialAction {
-  - Map<ZonedDateTime, RangeRemedialAction> rangeRemedialActionsPerCaseDate
+'class TemporalRangeRemedialActionV1 {
+'  - Map<ZonedDateTime, RangeRemedialAction> rangeRemedialActionsPerCaseDate
+'  + Set<Action> toActions(ZonedDateTime caseDate, double setPoint)
+'  + OperatorStrategy toOperatorStrategy(ZonedDateTime caseDate, double setPoint)
+'  + Map<ZonedDateTime, Set<Action>> toActions(Map<ZonedDateTime, Double> setPoints)
+'  + Map<ZonedDateTime, OperatorStrategy> toOperatorStrategy(Map<ZonedDateTime, Double> setPoint)
+'}
+'TemporalRangeRemedialActionV1 --* "*" RangeRemedialAction
+
+note top: I don't know where to put the condition and contingencyContext in this object.\nIs it ok to have a condition and contingencyContext per TS ?
+
+class TemporalRangeRemedialActionV2 {
+  - Set<TemporalRangeAction> temporalRangeActions
+  + RangeType rangeType
   + Set<Action> toActions(ZonedDateTime caseDate, double setPoint)
   + OperatorStrategy toOperatorStrategy(ZonedDateTime caseDate, double setPoint)
-  + Map<ZonedDateTime, Set<Action>> toActions(Map<ZonedDateTime, Double> setPoints)
-  + Map<ZonedDateTime, OperatorStrategy> toOperatorStrategy(Map<ZonedDateTime, Double> setPoint)
 }
-TemporalRangeRemedialAction --* "*" RangeRemedialAction
-TemporalRangeRemedialAction -|> OptimizableRemedialAction
+TemporalRangeRemedialActionV2 --* "*" TemporalRangeAction
+TemporalRangeRemedialActionV2 --* "1" RangeType
+TemporalRangeRemedialActionV2 --|> OptimizableRemedialAction
 
-
+interface TemporalRangeAction {
+    + Action toAction(ZonedDateTime caseDate, double setPoint)
+}
 
 @enduml
