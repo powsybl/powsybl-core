@@ -350,8 +350,9 @@ public class PowerFactoryImporter implements Importer {
                 case "ElmSite":
                 case "ElmStactrl":
                 case "ElmValve":
-                case "ElmVsc":
+                case "ElmVsc": // Managed in DC part
                 case "ElmZone":
+                case "ElmGndswt": // Only for MTDC
 
                 case "IntCalcres":
                 case "IntCondition":

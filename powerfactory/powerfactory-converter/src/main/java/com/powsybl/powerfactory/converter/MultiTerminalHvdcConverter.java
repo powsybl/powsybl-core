@@ -8,8 +8,8 @@
 
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.AcDcConverter.ControlMode;
+import com.powsybl.iidm.network.*;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectIndex;
@@ -34,7 +34,8 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
 
     // Small record that directly transcribes the DC data from the PowerFactory data
     // model for a connected subgrid
-    private record DcGridData(List<DataObject> dcElmLnes, List<DataObject> dcElmTerms, List<DataObject> acDcConverters) {
+    private record DcGridData(List<DataObject> dcElmLnes, List<DataObject> dcElmTerms,
+                              List<DataObject> acDcConverters, List<DataObject> elmGndswt) {
 
         /**
          * Create the data model by reading from the PowerFactory data models.
@@ -75,7 +76,10 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
                 }
             }
 
-            return new DcGridData(dcElmLnes, dcElmTerms, usedVscs);
+            // Add grounds
+            List<DataObject> elmGndswt = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmGndswt").stream()).toList();
+
+            return new DcGridData(dcElmLnes, dcElmTerms, usedVscs, elmGndswt);
         }
 
     } // private record DcGridData
@@ -124,11 +128,61 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
             addLine(line, network);
         }
 
-        // add a DC ground if not present (necessary for load flow computation)
-        LOGGER.debug("Add ground if not present in the DC subnetworks.");
-        addGroundWhereNeeded(network, gridData);
+        // create and connect grounds
+        LOGGER.debug("Creating {} DC grounds.", 0);
+        for (DataObject gnd : gridData.elmGndswt) {
+            addGround(gnd, network);
+        }
 
         LOGGER.debug("DC subnetworks created.");
+    }
+
+    /**
+     * Add a ground object to the network
+     * @param elmGndswt PowerFactory data object.
+     * @param network network to amend.
+     */
+    private static void addGround(DataObject elmGndswt, Network network) {
+
+        int onOff = elmGndswt.findIntAttributeValue("on_off").orElse(1);
+        int ciEarthed = elmGndswt.findIntAttributeValue("ciEarthed").orElse(1);
+
+        if (onOff == 0 || ciEarthed == 0) {
+            return;
+        }
+
+        String gndId = idInNetworkString(elmGndswt);
+
+        // Find terminal connected to ground
+        String elmId = getGroundNodeId(elmGndswt);
+
+        assert gndId != null;
+        assert elmId != null;
+
+        network.newDcGround().setId(gndId)
+                .setDcNode(elmId)
+                .add();
+    }
+
+    /**
+     * Fetch the node id corresponding to the ground element in ElmGndswt.
+     * @param elmGndswt ground element in PowerFactory data model.
+     * @return node name in the PowSyBl data model.
+     */
+    private static String getGroundNodeId(DataObject elmGndswt) {
+        DataObjectIndex indexDataObjects = elmGndswt.getIndex();
+        for (DataObject cubicle : indexDataObjects.getDataObjectsByClass("StaCubic")) {
+            Optional<DataObjectRef> elmGndswtRef = cubicle.findObjectAttributeValue(DataAttributeNames.OBJ_ID);
+            if (elmGndswtRef.isPresent() && elmGndswtRef.get().getId() == elmGndswt.getId()) {
+                DataObjectRef elmTermRef = cubicle.getObjectAttributeValue("fold_id");
+                DataObject elmTerm = elmTermRef.resolve()
+                        .orElseThrow(() -> new PowerFactoryException("Cannot find terminal " + elmTermRef.getId()
+                                + " corresponding to ElmGndswt " + elmGndswt.getId()));
+                return idInNetworkString(elmTerm);
+            }
+        }
+
+        throw new PowerFactoryException("No cubicle corresponding to ElmGndswt " + elmGndswt.getId());
     }
 
     /**
@@ -147,95 +201,6 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
         double unknom = terminal.getFloatAttributeValue("unknom");
         if (uknom != unknom) {
             throw new PowerFactoryException("ElmTerm " + terminal.getId() + " is part of a DC subgrid but its uknom and unknom are different.");
-        }
-    }
-
-    /**
-     * Check each DC subgrid related to the conversion underway. If it has no
-     * ground,
-     * artificially add one to DC node 2 (minus by convention) of an arbitrary
-     * converter.
-     *
-     * @param network AC-DC network
-     */
-    private static void addGroundWhereNeeded(Network network, DcGridData gridData) {
-        // We must make sure that all converters have been considered, but we want to
-        // avoid
-        // going through them twice.
-
-        // TODO see if possible to split.
-        // Start with all converters in the network that correspond to a PowerFactory converter.
-        Set<VoltageSourceConverter> remainingConverters = new LinkedHashSet<>();
-        for (DataObject converterPowerFactory : gridData.acDcConverters) {
-            VoltageSourceConverter converter = network.getVoltageSourceConverter(idInNetworkString(converterPowerFactory));
-            remainingConverters.add(converter);
-        }
-
-        while (!remainingConverters.isEmpty()) {
-            // Tackle subgrids one by one
-            // Discover new nodes and keep going while discovering
-            HashSet<DcTopologyVisitable> visitedSubGridNodes = new HashSet<>(); // nodes already visited
-            Deque<DcTopologyVisitable> toProcess = new ArrayDeque<>(); // nodes yet to be processed
-            // pick an arbitrary converter. We will follow the subgrid from there
-            VoltageSourceConverter converter = remainingConverters.iterator().next();
-            remainingConverters.remove(converter);
-            toProcess.add(converter.getDcTerminal1().getDcNode());
-            toProcess.add(converter.getDcTerminal2().getDcNode());
-
-            boolean hasGround = false;
-            while (!toProcess.isEmpty()) {
-                DcTopologyVisitable currentNode = toProcess.pop();
-                if (visitedSubGridNodes.add(currentNode)) { // only consider yet unvisited nodes
-                    ProcessNodeForAddGroundVisitor processor = new ProcessNodeForAddGroundVisitor(toProcess, remainingConverters);
-                    // Check if ground is present, remove connected converter from remaining list
-                    // and add connected nodes (through lines and converters)
-                    currentNode.visitConnectedEquipments(processor);
-                    hasGround |= processor.connectedToGround;
-                }
-            } // while (!toProcess.isEmpty())
-
-            if (!hasGround) { // add arbitrary ground
-                final String groundIdString = converter.getId() + "Gnd";
-                network.newDcGround().setId(groundIdString).setDcNode(converter.getDcTerminal2().getDcNode().getId()).add();
-            }
-
-        } // while(!remainingConverters.isEmpty())
-
-    }
-
-    private static class ProcessNodeForAddGroundVisitor implements DcTopologyVisitor {
-        boolean connectedToGround;
-        Deque<DcTopologyVisitable> toProcess;
-        Set<VoltageSourceConverter> remainingConverters;
-
-        public ProcessNodeForAddGroundVisitor(Deque<DcTopologyVisitable> toProcess, Set<VoltageSourceConverter> remainingConverters) {
-            this.connectedToGround = false;
-            this.toProcess = toProcess;
-            this.remainingConverters = remainingConverters;
-        }
-
-        @Override
-        public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
-            // Remove connected converters from the list of related converters
-            VoltageSourceConverter vsc = (VoltageSourceConverter) converter;
-            if (remainingConverters.remove(vsc)) { // only need to process other DC node if not already visited
-                TerminalNumber otherSide = terminalNumber == TerminalNumber.ONE ? TerminalNumber.TWO : TerminalNumber.ONE;
-                toProcess.add(vsc.getDcTerminal(otherSide).getDcNode()); // TODO check if getDcNode is the right method
-            }
-        }
-
-        @Override
-        public void visitDcGround(DcGround dcGround) {
-            // Hooray, we have a ground ! But we must still consume all nodes and converters
-            // in the subgrid
-            connectedToGround = true;
-        }
-
-        @Override
-        public void visitDcLine(DcLine dcLine, TwoSides side) {
-            // add node on the other side
-            TwoSides otherSide = side == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
-            toProcess.add(dcLine.getDcTerminal(otherSide).getDcNode());
         }
     }
 
@@ -365,6 +330,7 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
      * @param importContext Import context with mapping object id -> corresponding nodes
      */
     private static void addConverter(DataObject elmVsc, Network network, ImportContext importContext) {
+        // TODO refactor to break down.
 
         assert "ElmVsc".equals(elmVsc.getDataClassName());
         assert network.getDcNodeCount() > 0;
@@ -378,30 +344,107 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
 
         assert dcNode1 != null && dcNode2 != null : "DC nodes should be initialized first";
 
+        int iAcdc = elmVsc.getIntAttributeValue("i_acdc");
+        double uSetPowerDcPu = elmVsc.findFloatAttributeValue("usetpdc").orElse(Float.NaN);
+        double unomDc = elmVsc.getFloatAttributeValue("Unomdc"); // Nominal DC voltage in kV.
+
         // From the list of terminals related to the elmVsc in the importContext
         List<NodeRef> acNodeRefList = importContext.objIdToNode.get(elmVsc.getId());
         NodeRef acNodeRef = acNodeRefList.stream().filter(noderef -> noderef.busIndexIn == 0).findFirst().orElseThrow(() -> new PowerFactoryException("Missing AC terminal for Vsc " + elmVsc.getId() + "."));
 
+        double usetpPu = elmVsc.findFloatAttributeValue("usetp").orElse(Float.NaN); // AC Voltage setpoint in pu.
+        double uNom = elmVsc.findFloatAttributeValue("Unom").orElse(Float.NaN);
+
+        double qsetp = elmVsc.findFloatAttributeValue("qsetp").orElse(Float.NaN); // Reactive power in Mvar
+        double psetp = elmVsc.findFloatAttributeValue("psetp").orElse(Float.NaN);
+
+        // Loss model
+        double pnold = elmVsc.findFloatAttributeValue("Pnold").orElse(0.0F); // No-load losses in kW
+        double swtLossFactor = elmVsc.findFloatAttributeValue("swtLossFactor").orElse(0.0F); // Switching loss factor in kW/A
+        double resLossFactor = elmVsc.findFloatAttributeValue("resLossFactor").orElse(0.0F);
+
         VoltageLevel voltageLevel = network.getVoltageLevel(acNodeRef.voltageLevelId);
         VoltageSourceConverterAdder converterAdder = voltageLevel.newVoltageSourceConverter().setId(idInNetworkString(elmVsc));
 
+        // Connect
         converterAdder.setNode1(acNodeRef.node);
-        converterAdder.setIdleLoss(elmVsc.getFloatAttributeValue("Pnold"));
-        converterAdder.setSwitchingLoss(0.0);
-        converterAdder.setResistiveLoss(0.0);
-        converterAdder.setControlMode(ControlMode.P_PCC); // TODO be smarter there.
         checkSameNominalVoltage(dcNode1, dcNode2);
-        double targetV = vscConnections.dcNode1IsPlus ? dcNode1.getNominalV() : -dcNode1.getNominalV();
-        converterAdder.setTargetVdc(targetV);
         converterAdder.setDcNode1(dcNode1.getId());
         converterAdder.setDcNode2(dcNode2.getId());
-        converterAdder.setVoltageRegulatorOn(false); // TODO figure out which VSC controls the voltage
-        converterAdder.setReactivePowerSetpoint(elmVsc.getFloatAttributeValue("qsetp")); // TODO check sign convention
-        converterAdder.setTargetP(elmVsc.getFloatAttributeValue("psetp")); // TODO check sign convention
-        final double voltageSetPoint = elmVsc.getFloatAttributeValue("usetp") * elmVsc.getFloatAttributeValue("Unom");
-        converterAdder.setVoltageSetpoint(voltageSetPoint);
-        converterAdder.add();
 
+        // Control logic
+        ControlMode controlMode;
+        boolean acVoltageRegulation;
+        switch (iAcdc) {
+            case 3:
+                controlMode = ControlMode.V_DC;
+                acVoltageRegulation = false;
+                break;
+            case 4:
+                controlMode = ControlMode.P_PCC;
+                acVoltageRegulation = true;
+                break;
+            case 5:
+                controlMode = ControlMode.P_PCC;
+                acVoltageRegulation = false;
+                break;
+            case 6:
+                controlMode = ControlMode.V_DC;
+                acVoltageRegulation = true;
+                break;
+            case 0: // 0, 1, 2, 7 and 8 are supported in PowerFactory but not yet in PowSyBl
+            case 1:
+            case 2:
+            case 7:
+            case 8:
+            default:
+                throw new PowerFactoryException("Unsupported value " + iAcdc + " for VSC " + elmVsc.getId() + ".");
+        }
+        converterAdder.setControlMode(controlMode);
+        converterAdder.setVoltageRegulatorOn(acVoltageRegulation);
+
+        double targetVdc = uSetPowerDcPu * unomDc;
+        if (!Double.isFinite(targetVdc) && controlMode == ControlMode.V_DC) {
+            throw new PowerFactoryException("VSC " + elmVsc.getId() + " has control mode V_DC but unspecified target V_DC.");
+        }
+        converterAdder.setTargetVdc(targetVdc);
+
+        double voltageSetPointAc = usetpPu * uNom;
+        if (!Double.isFinite(voltageSetPointAc) && acVoltageRegulation) {
+            throw new PowerFactoryException("VSC " + elmVsc.getId() + " has V_AC control but unspecified target V_AC.");
+        }
+        converterAdder.setVoltageSetpoint(voltageSetPointAc);
+
+        // Loss model
+        double idleLoss = getIdleLoss(controlMode, pnold, uSetPowerDcPu);
+        converterAdder.setIdleLoss(idleLoss);
+        converterAdder.setSwitchingLoss(swtLossFactor);
+        converterAdder.setResistiveLoss(resLossFactor);
+
+        // AC Power and voltage regulation
+        if (!Double.isFinite(qsetp) && !acVoltageRegulation) {
+            throw new PowerFactoryException("VSC " + elmVsc.getId() + " has Q control but undefined Q.");
+        }
+        converterAdder.setReactivePowerSetpoint(qsetp); // TODO check sign convention
+        if (!Double.isFinite(psetp) && controlMode == ControlMode.P_PCC) {
+            throw new PowerFactoryException("VSC " + elmVsc.getId() + " has P control but undefined P.");
+        }
+        converterAdder.setTargetP(psetp); // TODO check sign convention
+
+        converterAdder.add();
+    }
+
+    private static double getIdleLoss(ControlMode controlMode, double pnold, double usetpDcPu) {
+        double idleLoss = 0.0; // MW
+        // The PowerFactory model considers the idle loss to be equal to Ud^2, while it is constant in Open Load Flow.
+        // approximation: if there is a set DC voltage, then we consider it is always met.
+        // Otherwise, we consider that the DC voltage is equal to the nominal voltage.
+        if (controlMode == ControlMode.V_DC) {
+            idleLoss = pnold / 1000 * usetpDcPu * usetpDcPu; // MW
+        } else {
+            idleLoss = pnold / 1000; // MW
+        }
+        return idleLoss;
     }
 
     /**

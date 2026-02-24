@@ -507,10 +507,22 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void simpleAcDcCase() {
+    void simpleAcDcCases() {
         Properties importParams = new Properties();
         importParams.put(PowerFactoryImporter.HVDC_IMPORT_MT, true);
-        importAndCompareXml("hvdc-3-VSC-ACDC-links", ".dgs", importParams);
+
+        importAndCompareXml("MTDC-3-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants1", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants2", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants3", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants4", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss1", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss2", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss3", ".dgs", importParams);
+        importAndCompareXml("MTDC-3-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDC-2-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDC-2-VSC", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmGndswt", ".dgs", importParams);
     }
 
     private boolean threeWindingPhaseImportCompareXmlAndNetworkBalance(String caseFile, double targetQ, double tol) {
