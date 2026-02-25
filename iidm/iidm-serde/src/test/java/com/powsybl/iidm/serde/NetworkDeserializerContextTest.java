@@ -10,7 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -21,5 +21,4 @@ class NetworkDeserializerContextTest extends AbstractSerDeTest {
     void xmlReaderContextExceptionTest() {
         NullPointerException e = assertThrows(NullPointerException.class, () -> new NetworkDeserializerContext(null, null));
     }
-
 }

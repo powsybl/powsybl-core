@@ -87,23 +87,21 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
                 .add();
         CgmesLineBoundaryNode lineBoundaryNode = tieLine.getExtension(CgmesLineBoundaryNode.class);
         assertNotNull(lineBoundaryNode);
-        byte[] anonymizedXml;
-        Anonymizer anonymizer;
+
         // When Export (with anonymized option)
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-            anonymizedXml = os.toByteArray();
-        }
-        // Then check anonymized id != original ids
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
+        // Then check anonymized code != original code
         String anonymizedLineEnergyIdentificationCodeEic = anonymizer.anonymizeString("EIC_CODE");
         assertNotEquals("EIC_CODE", anonymizedLineEnergyIdentificationCodeEic);
-        // Then check xml content (contain only anonymized id)
+        // Then check xml content (contain only anonymized code)
+        byte[] anonymizedXml = os.toByteArray();
         String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
         assertTrue(xmlContent.contains("lineEnergyIdentificationCodeEic=\"" + anonymizedLineEnergyIdentificationCodeEic + "\""));
-        // Then import to check that is anonymized
+        // Then import without anonymizer
         try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
             Network importedNetwork = NetworkSerDe.read(is);
-            // get TieLine using her anonymized ID.
+            // get TieLine using anonymized ID.
             TieLine importedTieLine = importedNetwork.getTieLine(anonymizer.anonymizeString("NHV1_NHV2_1"));
             assertNotNull(importedTieLine);
             CgmesLineBoundaryNode importedCgmesLineBoundaryNode = importedTieLine.getExtension(CgmesLineBoundaryNode.class);
@@ -124,17 +122,14 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
                 .add();
         CgmesBoundaryLineBoundaryNode danglingLineBoundaryNode = tieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
         assertNotNull(danglingLineBoundaryNode);
-        byte[] anonymizedXml;
-        Anonymizer anonymizer;
         // When Export (with anonymized option)
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-            anonymizedXml = os.toByteArray();
-        }
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
         // Then check anonymized id != original ids
         String anonymizedLineEnergyIdentificationCodeEic = anonymizer.anonymizeString("EIC_CODE");
         assertNotEquals("EIC_CODE", anonymizedLineEnergyIdentificationCodeEic);
-        // Then check xml content (contain only anonymized id)
+        // Then check xml content (contain only anonymized code)
+        byte[] anonymizedXml = os.toByteArray();
         String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
         assertTrue(xmlContent.contains("lineEnergyIdentificationCodeEic=\"" + anonymizedLineEnergyIdentificationCodeEic + "\""));
         // Then import to check that is anonymized

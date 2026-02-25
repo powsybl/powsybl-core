@@ -72,23 +72,20 @@ class CgmesTapChangersSerDeTest extends AbstractCgmesExtensionTest {
                 .add();
         CgmesTapChangers cgmesTapChangers = twoWT.getExtension(CgmesTapChangers.class);
         assertNotNull(cgmesTapChangers);
-        byte[] anonymizedXml;
-        Anonymizer anonymizer;
         // When Export (with anonymized option)
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-            anonymizedXml = os.toByteArray();
-        }
-        // Then check anonymized id != original ids
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
+        // Then check anonymized id, controlId != original values
         String anonymizedId = anonymizer.anonymizeString("tc1");
         String anonymizedControlId = anonymizer.anonymizeString("control1");
         assertNotEquals("tc1", anonymizedId);
         assertNotEquals("control1", anonymizedControlId);
-        // Then check xml content (contain only anonymized id)
+        // Then check xml content (contain only anonymized id and controlId)
+        byte[] anonymizedXml = os.toByteArray();
         String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
         assertTrue(xmlContent.contains("id=\"" + anonymizedId + "\""));
         assertTrue(xmlContent.contains("controlId=\"" + anonymizedControlId + "\""));
-        // Then import to check that is anonymized
+        // Then import without anonymizer
         try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
             Network importedNetwork = NetworkSerDe.read(is);
             // Get TwoWT using her anonymized ID.
