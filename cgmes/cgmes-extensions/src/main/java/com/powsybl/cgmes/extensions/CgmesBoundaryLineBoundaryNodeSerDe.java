@@ -18,6 +18,8 @@ import com.powsybl.iidm.serde.NetworkSerializerContext;
 import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
 import com.powsybl.iidm.serde.extensions.SerDeVersion;
 
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.fromMinimumVersionOrElse;
+
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -67,16 +69,25 @@ public class CgmesBoundaryLineBoundaryNodeSerDe extends AbstractVersionableNetwo
     public void write(CgmesBoundaryLineBoundaryNode extension, SerializerContext context) {
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         context.getWriter().writeBooleanAttribute("isHvdc", extension.isHvdc());
-        networkContext.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", extension.getLineEnergyIdentificationCodeEic().map(networkContext.getAnonymizer()::anonymizeString).orElse(null));
+        String lineEnergyIdentificationCodeEic = extension.getLineEnergyIdentificationCodeEic().orElse(null);
+        String lineEnergyIdentificationCodeEicToWrite = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                () -> networkContext.getAnonymizer().anonymizeString(lineEnergyIdentificationCodeEic),
+                () -> lineEnergyIdentificationCodeEic
+        );
+        networkContext.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEicToWrite);
     }
 
     @Override
     public CgmesBoundaryLineBoundaryNode read(BoundaryLine extendable, DeserializerContext context) {
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         boolean isHvdc = context.getReader().readBooleanAttribute("isHvdc");
-        String lineEnergyIdentificationCodeEic = networkContext.deanonymizeStringOrDefault("lineEnergyIdentificationCodeEic", IidmVersion.V_1_15);
+        String lineEnergyIdentificationCodeEic = networkContext.getReader().readStringAttribute("lineEnergyIdentificationCodeEic");
+        String lineEnergyIdentificationCodeEicToRead = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                () -> networkContext.getAnonymizer().deanonymizeString(lineEnergyIdentificationCodeEic),
+                () -> lineEnergyIdentificationCodeEic
+        );
         context.getReader().readEndNode();
-        extendable.newExtension(CgmesBoundaryLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();
+        extendable.newExtension(CgmesBoundaryLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEicToRead).add();
         return extendable.getExtension(CgmesBoundaryLineBoundaryNode.class);
     }
 }
