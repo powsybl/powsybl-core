@@ -228,10 +228,12 @@ public final class EquipmentExport {
     }
 
     private static void writeBaseVoltages(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (CgmesExportContext.BaseVoltageSource baseVoltageSource : context.getBaseVoltageSources()) {
-            if (baseVoltageSource.source() == Source.IGM) {
-                BaseVoltageEq.write(baseVoltageSource.id(), baseVoltageSource.nominalV(), cimNamespace, writer, context);
-            }
+        List<CgmesExportContext.BaseVoltageSource> igmBaseVoltageSources = context.getBaseVoltageSources().stream()
+            .filter(bvs -> bvs.source() == Source.IGM)
+            .sorted(Comparator.comparing(CgmesExportContext.BaseVoltageSource::id))
+            .toList();
+        for (CgmesExportContext.BaseVoltageSource igmBaseVoltageSource : igmBaseVoltageSources) {
+            BaseVoltageEq.write(igmBaseVoltageSource.id(), igmBaseVoltageSource.nominalV(), cimNamespace, writer, context);
         }
     }
 
