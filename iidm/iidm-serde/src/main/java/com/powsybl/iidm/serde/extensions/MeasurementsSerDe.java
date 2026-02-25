@@ -55,11 +55,9 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
         writer.writeStartNodes();
         for (Measurement measurement : extension.getMeasurements()) {
             writer.writeStartNode(getNamespaceUri(), MEASUREMENT_ROOT_ELEMENT);
-            String id = measurement.getId();
-            String idToRead = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                    () -> networkContext.getAnonymizer().anonymizeString(id),
-                    () -> id);
-            writer.writeStringAttribute("id", idToRead);
+            writer.writeStringAttribute("id", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                    () -> networkContext.getAnonymizer().anonymizeString(measurement.getId()),
+                    measurement::getId));
             writer.writeEnumAttribute("type", measurement.getType());
             writer.writeEnumAttribute("side", measurement.getSide());
             writer.writeDoubleAttribute(VALUE, measurement.getValue());
@@ -89,12 +87,10 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
         Measurements<C> measurements = measurementsAdder.add();
         var reader = context.getReader();
         reader.readChildNodes(elementName -> {
-            String id = reader.readStringAttribute("id");
-            String idToWrite = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                    () -> networkContext.getAnonymizer().deanonymizeString(id),
-                    () -> id);
             MeasurementAdder adder = measurements.newMeasurement()
-                    .setId(idToWrite)
+                    .setId(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                            () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id")),
+                            () -> reader.readStringAttribute("id")))
                     .setType(reader.readEnumAttribute("type", Measurement.Type.class))
                     .setSide(reader.readEnumAttribute("side", ThreeSides.class))
                     .setValue(reader.readDoubleAttribute(VALUE))

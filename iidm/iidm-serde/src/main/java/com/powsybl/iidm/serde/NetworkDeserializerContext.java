@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.TreeDataReader;
@@ -102,39 +101,6 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     public boolean isIgnoredEquipment(String equipment) {
         return ignoredEquipments.contains(equipment);
-    }
-
-    /**
-     * Backward compatibility:
-     * deanonymize from recent versions, or keep origin values from older version
-     * anonymize is always true (no depend on version)
-     *
-     * @param value value to deanonymize
-     * @param maxVersion max version
-     * @return Deanonymized value
-     */
-    public String deanonymizeStringOrDefault(String value, IidmVersion maxVersion) {
-        try {
-            return getAnonymizer().deanonymizeString(getReader().readStringAttribute(value));
-        } catch (PowsyblException e) {
-            boolean mappingMissing = e.getMessage() != null && e.getMessage().startsWith("Mapping not found for anonymized string");
-            if (mappingMissing && getVersion().compareTo(maxVersion) <= 0) {
-                return getReader().readStringAttribute(value);
-            }
-            throw e;
-        }
-    }
-
-    public String deanonymizeContentOrDefault(IidmVersion maxVersion) {
-        try {
-            return getAnonymizer().deanonymizeString(getReader().readContent());
-        } catch (PowsyblException e) {
-            boolean mappingMissing = e.getMessage() != null && e.getMessage().startsWith("Mapping not found for anonymized string");
-            if (mappingMissing && getVersion().compareTo(maxVersion) <= 0) {
-                return getReader().readContent();
-            }
-            throw e;
-        }
     }
 
 }

@@ -51,21 +51,17 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
         writer.writeStartNodes();
         for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
             writer.writeStartNode(getNamespaceUri(), TAP_CHANGER_ROOT_ELEMENT);
-            String id = tapChanger.getId();
-            String idToRead = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                    () -> networkContext.getAnonymizer().anonymizeString(id),
-                    () -> id);
-            writer.writeStringAttribute("id", idToRead);
+            writer.writeStringAttribute("id", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                    () -> networkContext.getAnonymizer().anonymizeString(tapChanger.getId()),
+                    tapChanger::getId));
             writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
             writer.writeStringAttribute("type", tapChanger.getType());
             writer.writeBooleanAttribute("hidden", tapChanger.isHidden(), false);
             Integer step = tapChanger.getStep().isPresent() ? tapChanger.getStep().getAsInt() : null;
             writer.writeOptionalIntAttribute("step", step);
-            String controlId = tapChanger.getControlId();
-            String controlIdToRead = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                    () -> networkContext.getAnonymizer().anonymizeString(controlId),
-                    () -> controlId);
-            writer.writeStringAttribute("controlId", controlIdToRead);
+            writer.writeStringAttribute("controlId", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                    () -> networkContext.getAnonymizer().anonymizeString(tapChanger.getControlId()),
+                    tapChanger::getControlId));
             writer.writeEndNode();
         }
         writer.writeEndNodes();
@@ -79,21 +75,17 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
         CgmesTapChangers<C> tapChangers = extendable.getExtension(CgmesTapChangers.class);
         reader.readChildNodes(elementName -> {
             if (elementName.equals(TAP_CHANGER_ROOT_ELEMENT)) {
-                String id = reader.readStringAttribute("id");
-                String idToWrite = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                        () -> networkContext.getAnonymizer().anonymizeString(id),
-                        () -> id);
                 CgmesTapChangerAdder adder = tapChangers.newTapChanger()
-                        .setId(idToWrite)
+                        .setId(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                                () -> networkContext.getAnonymizer().anonymizeString(reader.readStringAttribute("id")),
+                                () -> reader.readStringAttribute("id")))
                         .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))
                         .setType(reader.readStringAttribute("type"))
                         .setHiddenStatus(reader.readBooleanAttribute("hidden", false));
                 reader.readOptionalIntAttribute("step").ifPresent(adder::setStep);
-                String controlId = reader.readStringAttribute("controlId");
-                String controlIdToWrite = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                        () -> networkContext.getAnonymizer().deanonymizeString(controlId),
-                        () -> controlId);
-                adder.setControlId(controlIdToWrite);
+                adder.setControlId(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                        () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("controlId")),
+                        () -> reader.readStringAttribute("controlId")));
                 context.getReader().readEndNode();
                 adder.add();
             } else {

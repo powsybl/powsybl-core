@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
-import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
 import java.util.Collection;
 import java.util.Map;
@@ -75,17 +74,15 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
 
     private void writeModel(CgmesMetadataModel model, SerializerContext context) {
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
-        Anonymizer anonymizer = networkContext.getAnonymizer();
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNode(getNamespaceUri(), MODEL);
         writer.writeEnumAttribute("subset", model.getSubset());
-        String modelingAuthoritySet = model.getModelingAuthoritySet();
-        String modelingAuthoritySetToWrite = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                () -> networkContext.getAnonymizer().anonymizeString(modelingAuthoritySet),
-                () -> modelingAuthoritySet
-        );
-        writer.writeStringAttribute("modelingAuthoritySet", modelingAuthoritySetToWrite);
-        writer.writeStringAttribute("id", anonymizer.anonymizeString(model.getId()));
+        writer.writeStringAttribute("modelingAuthoritySet", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                () -> networkContext.getAnonymizer().anonymizeString(model.getModelingAuthoritySet()),
+                model::getModelingAuthoritySet));
+        writer.writeStringAttribute("id", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                () -> networkContext.getAnonymizer().anonymizeString(model.getId()),
+                model::getId));
         writer.writeIntAttribute("version", model.getVersion());
         writer.writeStringAttribute("description", model.getDescription());
         writeReferences(sorted(model.getProfiles(), context), PROFILE, writer, networkContext, false);
@@ -127,8 +124,12 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         TreeDataReader reader = networkContext.getReader();
         adder.setSubset(reader.readEnumAttribute("subset", CgmesSubset.class))
-                .setModelingAuthoritySet(networkContext.deanonymizeStringOrDefault("modelingAuthoritySet", IidmVersion.V_1_15))
-                .setId(networkContext.deanonymizeStringOrDefault("id", IidmVersion.V_1_15))
+                .setModelingAuthoritySet(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                        () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("modelingAuthoritySet")),
+                        () -> reader.readStringAttribute("modelingAuthoritySet")))
+                .setId(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                        () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id")),
+                        () -> reader.readStringAttribute("id")))
                 .setVersion(reader.readIntAttribute("version"))
                 .setDescription(reader.readStringAttribute("description"));
         reader.readChildNodes(elementName -> {
