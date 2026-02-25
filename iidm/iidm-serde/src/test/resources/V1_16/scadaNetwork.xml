@@ -25,10 +25,10 @@
                 <iidm:bus id="bus2"/>
             </iidm:busBreakerTopology>
             <iidm:load id="load" loadType="UNDEFINED" bus="bus2" connectableBus="bus2"/>
-            <iidm:shunt id="shunt" bus="bus2" connectableBus="bus2">
+            <iidm:shuntCompensator id="shunt" bus="bus2" connectableBus="bus2">
                 <iidm:shuntLinearModel bPerSection="10.0" maximumSectionCount="1"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
             <iidm:staticVarCompensator id="svc" bMin="1.1" bMax="3.2" bus="bus2" connectableBus="bus2">
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="false"/>
             </iidm:staticVarCompensator>

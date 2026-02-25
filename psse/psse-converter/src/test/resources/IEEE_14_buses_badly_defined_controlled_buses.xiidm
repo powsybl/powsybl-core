@@ -21,7 +21,7 @@
                 <iidm:voltageRegulation targetValue="144.20999999999998" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" bus="B2" connectableBus="B2"/>
-            <iidm:shunt id="B2-SwSH1" sectionCount="3" bus="B2" connectableBus="B2">
+            <iidm:shuntCompensator id="B2-SwSH1" sectionCount="3" bus="B2" connectableBus="B2">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="-0.0010501995379122034" g="0.0"/>
                     <iidm:section b="-7.876496534341525E-4" g="0.0"/>
@@ -30,7 +30,7 @@
                     <iidm:section b="0.0" g="0.0"/>
                 </iidm:shuntNonLinearModel>
                 <iidm:voltageRegulation targetValue="137.31" targetDeadband="1.3799999999999955" mode="VOLTAGE" regulating="true"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
             <iidm:vscConverterStation id="VscConverter-2-VSC-1" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="138.0" reactivePowerSetpoint="0.0" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-9999.0" maxQ="9999.0"/>
             </iidm:vscConverterStation>
@@ -60,9 +60,9 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B4-L1 " loadType="UNDEFINED" p0="47.8" q0="-3.9" bus="B4" connectableBus="B4"/>
             <iidm:load id="B9-L1 " loadType="UNDEFINED" p0="29.5" q0="16.6" bus="B9" connectableBus="B9"/>
-            <iidm:shunt id="B9-SH 1" sectionCount="1" bus="B9" connectableBus="B9">
+            <iidm:shuntCompensator id="B9-SH 1" sectionCount="1" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
             <iidm:staticVarCompensator id="FactsDevice-StaticVar" name="StaticVar" bMin="-0.3281873555975635" bMax="0.3281873555975635" targetQ="0.0" bus="B7" connectableBus="B7">
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="140.76"/>
             </iidm:staticVarCompensator>
