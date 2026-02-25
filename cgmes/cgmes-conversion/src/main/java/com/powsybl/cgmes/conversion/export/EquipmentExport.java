@@ -992,13 +992,6 @@ public final class EquipmentExport {
                     context.getBaseVoltageByNominalVoltage(danglingLine.getTerminal().getVoltageLevel().getNominalV()).getId(),
                     danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer, context);
             writeFlowsLimits(danglingLine, exportedTerminalId(mapTerminal2Id, danglingLine.getTerminal()), cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-            danglingLine.getAliasFromType("CGMES." + TERMINAL_BOUNDARY).ifPresent(terminalBdId -> {
-                try {
-                    writeFlowsLimits(danglingLine, terminalBdId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
         }
     }
 
@@ -1572,7 +1565,7 @@ public final class EquipmentExport {
         // Original control area identifiers may not respect mRID rules, so we pass it through naming strategy
         // to obtain always valid mRID identifiers
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(controlArea.getId());
-        String energyIdentCodeEic = controlArea.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).orElse("");
+        String energyIdentCodeEic = controlArea.getAliasFromType(CgmesNames.ENERGY_IDENT_CODE_EIC).orElse(null);
         ControlAreaEq.write(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentCodeEic, energyAreaId, cimNamespace, euNamespace, writer, context);
         for (AreaBoundary areaBoundary : controlArea.getAreaBoundaries()) {
             Optional<TieFlow> tieFlow = TieFlow.from(areaBoundary, context);

@@ -369,7 +369,9 @@ public final class NetworkSerDe {
         AliasesSerDe.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesSerDe.write(n, context);
 
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> writeSubnetworks(n, context, extensionsSupplier));
+        if (supportSubnetworksExport(context)) {
+            writeSubnetworks(n, context, extensionsSupplier);
+        }
 
         writeDcDetailed(n, context);
         writeVoltageLevels(n, context);
@@ -569,7 +571,7 @@ public final class NetworkSerDe {
     }
 
     private static boolean supportSubnetworksExport(NetworkSerializerContext context) {
-        return context.getVersion().compareTo(IidmVersion.V_1_11) >= 0;
+        return context.getVersion().compareTo(IidmVersion.V_1_11) >= 0 && !context.getOptions().isFlatten();
     }
 
     private static NetworkSerializerContext createContext(Network n, ExportOptions options, TreeDataWriter writer) {
@@ -687,8 +689,9 @@ public final class NetworkSerDe {
                 Map.entry(OverloadManagementSystemSerDe.ARRAY_ELEMENT_NAME, OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(PropertiesSerDe.ARRAY_ELEMENT_NAME, PropertiesSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ReactiveLimitsSerDe.POINT_ARRAY_ELEMENT_NAME, ReactiveLimitsSerDe.POINT_ROOT_ELEMENT_NAME),
-                Map.entry(ShuntSerDe.ARRAY_ELEMENT_NAME, ShuntSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(ShuntSerDe.SECTION_ARRAY_ELEMENT_NAME, ShuntSerDe.SECTION_ROOT_ELEMENT_NAME),
+                Map.entry(ShuntSerDe.ARRAY_ELEMENT_NAME, ShuntSerDe.ROOT_ELEMENT_NAME), //For backward compatibility with IIDM versions < 1.16
+                Map.entry(AbstractShuntCompensatorSerDe.SECTION_ARRAY_ELEMENT_NAME, AbstractShuntCompensatorSerDe.SECTION_ROOT_ELEMENT_NAME),
+                Map.entry(ShuntCompensatorSerDe.ARRAY_ELEMENT_NAME, ShuntCompensatorSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(StaticVarCompensatorSerDe.ARRAY_ELEMENT_NAME, StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(SubstationSerDe.ARRAY_ELEMENT_NAME, SubstationSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ThreeWindingsTransformerSerDe.ARRAY_ELEMENT_NAME, ThreeWindingsTransformerSerDe.ROOT_ELEMENT_NAME),

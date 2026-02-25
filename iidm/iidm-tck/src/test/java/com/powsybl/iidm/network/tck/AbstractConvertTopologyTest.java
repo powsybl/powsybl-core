@@ -220,4 +220,59 @@ public abstract class AbstractConvertTopologyTest {
         vl.convertToTopology(TopologyKind.BUS_BREAKER);
         assertEquals(gh2.getTerminal(), slackTerminal.getTerminal());
     }
+
+    @Test
+    public void testNodeBreakerToBusBreakerIssue() {
+        var vl = network.newVoltageLevel()
+                .setId("vl_issue")
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .setNominalV(400)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection()
+                .setId("bbs")
+                .setNode(0)
+                .add();
+        var line = network.newLine()
+                .setId("line")
+                .setVoltageLevel1("S1VL2")
+                .setNode1(999)
+                .setVoltageLevel2("vl_issue")
+                .setNode2(1)
+                .setR(0.1)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .add();
+        network.getVoltageLevel("S1VL2").getNodeBreakerView().newDisconnector()
+                .setId("disconnector")
+                .setNode1(0)
+                .setNode2(999)
+                .setOpen(false)
+                .add();
+        vl.getNodeBreakerView().newDisconnector()
+                .setId("disconnector2")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(false)
+                .add();
+        vl.newLoad()
+                .setId("load")
+                .setNode(2)
+                .setP0(1.0)
+                .setQ0(2.0)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("breaker")
+                .setNode1(0)
+                .setNode2(2)
+                .setOpen(true)
+                .add();
+        assertTrue(line.getTerminal1().isConnected());
+        assertTrue(line.getTerminal2().isConnected());
+        vl.convertToTopology(TopologyKind.BUS_BREAKER);
+        assertTrue(line.getTerminal1().isConnected());
+        assertTrue(line.getTerminal2().isConnected());
+    }
 }
