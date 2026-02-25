@@ -587,7 +587,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         activePowerLimits = (Collection<ActivePowerLimits>) legThree.getAllSelectedLimits(LimitType.ACTIVE_POWER);
         assertEquals(2, activePowerLimits.size());
 
-        legThree.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE, "DEFAULT");
+        legThree.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, "DEFAULT");
         activePowerLimits = (Collection<ActivePowerLimits>) legThree.getAllSelectedLimits(LimitType.ACTIVE_POWER);
         assertEquals(0, activePowerLimits.size());
     }
@@ -682,9 +682,12 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     @ParameterizedTest
     @MethodSource("provideUtilCheckCurrentArguments")
-    void violationUtilCheckCurrent(Network network, String branchId, TwoSides side, double currentValue, Collection<ExpectedOverload> expected) {
-        Line l = network.getLine(branchId);
-        Collection<Overload> overloads = LimitViolationUtils.checkAllTemporaryLimits(l, side, new LimitsComputer.NoModificationsImpl(), currentValue, LimitType.CURRENT);
+    void violationUtilCheckCurrent(Identifiable<?> identifiable, ThreeSides side, LimitType type, double value, Collection<ExpectedOverload> expected) {
+        Collection<Overload> overloads = switch (identifiable) {
+            case Branch<?> b -> LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), new LimitsComputer.NoModificationsImpl(), value, type);
+            case ThreeWindingsTransformer t -> LimitViolationUtils.checkAllTemporaryLimits(t, side, new LimitsComputer.NoModificationsImpl(), value, type);
+            default -> throw new UnsupportedOperationException(String.format("The class %s cannot be used to check temporary limits", identifiable.getClass()));
+        };
 
         Assertions.assertThat(overloads)
             .extracting(
@@ -701,13 +704,15 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     private record ExpectedOverload(String previousLimitName, String operationalLimitsGroupId, double limit, int acceptableDuration) { }
 
     private static Stream<Arguments> provideUtilCheckCurrentArguments() {
-        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
-        String branchId = EurostagTutorialExample1Factory.NHV1_NHV2_1;
-        TwoSides side = TwoSides.ONE;
+        Network networkLine = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line l = networkLine.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+
+        Network network3wt = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
+        ThreeWindingsTransformer transformer = network3wt.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1);
 
         return Stream.of(
-            Arguments.of(n, branchId, side, 299, List.of()), // below any permanent limit
-            Arguments.of(n, branchId, side, 310, List.of(
+            Arguments.of(l, ThreeSides.ONE, LimitType.CURRENT, 299, List.of()), // below any permanent limit
+            Arguments.of(l, ThreeSides.ONE, LimitType.CURRENT, 310, List.of(
                 new ExpectedOverload(
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -715,7 +720,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     60 * 40
                 )
             )), // above permanent of activated_1_2
-            Arguments.of(n, branchId, side, 510, List.of(
+            Arguments.of(l, ThreeSides.ONE, LimitType.CURRENT, 510, List.of(
                 new ExpectedOverload(
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -723,15 +728,15 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     60 * 40
                 )
             )), // above the permanent of default, but no temporary above so we don't detect anything (note : this result is strange, need to change getOverload in LimitViolationUtils)
-            Arguments.of(n, branchId, side, 701, List.of(
+            Arguments.of(l, ThreeSides.ONE, LimitType.CURRENT, 701, List.of(
                 new ExpectedOverload(
                     "40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
                     700,
                     30
                 )
-            )),
-            Arguments.of(n, branchId, side, 1122, List.of(
+            )), // above first temporary of 1_2
+            Arguments.of(l, ThreeSides.ONE, LimitType.CURRENT, 1122, List.of(
                 new ExpectedOverload(
                     "40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -744,8 +749,8 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     1100,
                     60 * 10
                 )
-            )),
-            Arguments.of(n, branchId, side, 1450, List.of(
+            )), // above permanent of 1_1
+            Arguments.of(l, ThreeSides.ONE, LimitType.CURRENT, 1450, List.of(
                 new ExpectedOverload(
                     "40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -758,8 +763,8 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     1200,
                     60
                 )
-            )),
-            Arguments.of(n, branchId, side, 1500, List.of(
+            )), // above first temporary of 1_1
+            Arguments.of(l, ThreeSides.ONE, LimitType.CURRENT, 1500, List.of(
                 new ExpectedOverload(
                     "40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -772,7 +777,39 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     1500,
                     0
                 )
-            ))
+            )), // above last temporary of 1_1
+            Arguments.of(l, ThreeSides.ONE, LimitType.CURRENT, 1601, List.of(
+                new ExpectedOverload(
+                    "0.5'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    1600,
+                    0
+                ),
+                new ExpectedOverload(
+                    "1'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1500,
+                    0
+                )
+            )), // above last temporary of 1_2
+            Arguments.of(transformer, ThreeSides.THREE, LimitType.ACTIVE_POWER, 200, List.of()), //under all limits
+            Arguments.of(transformer, ThreeSides.THREE, LimitType.ACTIVE_POWER, 275, List.of()), // above permanent of Default, but no temporary above, don't detect anything. Note: this behavior is strange, needs to be changed
+            Arguments.of(transformer, ThreeSides.THREE, LimitType.ACTIVE_POWER, 375, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
+                    350,
+                    45 * 60
+                )
+            )), // above permanent of activated_3_1
+            Arguments.of(transformer, ThreeSides.THREE, LimitType.ACTIVE_POWER, 405, List.of(
+                new ExpectedOverload(
+                    "45'",
+                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
+                    400,
+                    0
+                )
+            )) // above last temporary of activated_3_1
         );
     }
 }

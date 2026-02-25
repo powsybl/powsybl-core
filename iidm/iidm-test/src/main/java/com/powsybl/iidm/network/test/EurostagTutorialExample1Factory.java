@@ -458,6 +458,7 @@ public final class EurostagTutorialExample1Factory {
     public static final String ACTIVATED_ONE_TWO = "activated_1_2";
     public static final String ACTIVATED_TWO_ONE = "activated_2_1";
     public static final String ACTIVATED_TWO_TWO = "activated_2_2";
+    public static final String ACTIVATED_THREE_ONE = "activated_3_1";
     public static final String NOT_ACTIVATED = "not_activated";
 
     /**
@@ -648,6 +649,16 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    /**
+     * Selected limits:
+     * On {@link #NGEN_V2_NHV1}, side 3 (also has a {@link #NOT_ACTIVATED} group)
+     * <pre>
+     *      Default      activated_3_1
+     *      |            ---- IT45 400 (2700s)
+     *      |            ---- ITP 350
+     *      | ---- ITP 250
+     * </pre>
+     */
     public static Network createWithMultipleSelectedFixedActivePowerLimits() {
         Network network = createWith3wTransformer();
 
@@ -662,7 +673,7 @@ public final class EurostagTutorialExample1Factory {
                 .setPermanentLimit(250)
                 .add();
 
-        legThree.newOperationalLimitsGroup(ACTIVATED_TWO_ONE)
+        legThree.newOperationalLimitsGroup(ACTIVATED_THREE_ONE)
                 .newActivePowerLimits()
                 .setPermanentLimit(350)
                 .beginTemporaryLimit()
@@ -672,7 +683,12 @@ public final class EurostagTutorialExample1Factory {
                 .endTemporaryLimit()
                 .add();
 
-        legThree.addSelectedOperationalLimitsGroups(ACTIVATED_TWO_ONE);
+        legThree.addSelectedOperationalLimitsGroups(ACTIVATED_THREE_ONE);
+
+        legThree.newOperationalLimitsGroup(NOT_ACTIVATED)
+            .newActivePowerLimits()
+            .setPermanentLimit(10)
+            .add();
 
         return network;
     }
