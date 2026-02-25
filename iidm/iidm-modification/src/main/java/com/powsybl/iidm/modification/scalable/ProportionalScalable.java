@@ -102,6 +102,20 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         // Create the scalable for each injection
         List<Scalable> injectionScalables = injections.stream().map(scalableMapping).collect(Collectors.toList());
 
+        List<Double> percentages = computePercentages(injections, distributionMode);
+        checkPercentages(percentages, injectionScalables);
+
+        // Create the list of ScalablePercentage
+        this.scalablePercentageList = new ArrayList<>();
+        for (int i = 0; i < injectionScalables.size(); i++) {
+            this.scalablePercentageList.add(new ScalablePercentage(injectionScalables.get(i), percentages.get(i)));
+        }
+
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+    }
+
+    public static List<Double> computePercentages(List<? extends Injection> injections, DistributionMode distributionMode) {
         // Compute the sum of every individual power
         double totalDistribution = computeTotalDistribution(injections, distributionMode);
 
@@ -125,24 +139,14 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
 
         // Compute the percentages for each injection
-        List<Double> percentages = injections.stream().map(injection -> getIndividualDistribution(injection, finalDistributionMode) * 100.0 / finalTotalDistribution).toList();
-        checkPercentages(percentages, injectionScalables);
-
-        // Create the list of ScalablePercentage
-        this.scalablePercentageList = new ArrayList<>();
-        for (int i = 0; i < injectionScalables.size(); i++) {
-            this.scalablePercentageList.add(new ScalablePercentage(injectionScalables.get(i), percentages.get(i)));
-        }
-
-        this.minValue = minValue;
-        this.maxValue = maxValue;
+        return injections.stream().map(injection -> getIndividualDistribution(injection, finalDistributionMode) * 100.0 / finalTotalDistribution).toList();
     }
 
-    private double computeTotalDistribution(List<? extends Injection> injections, DistributionMode distributionMode) {
+    private static double computeTotalDistribution(List<? extends Injection> injections, DistributionMode distributionMode) {
         return injections.stream().mapToDouble(injection -> getIndividualDistribution(injection, distributionMode)).sum();
     }
 
-    private double getIndividualDistribution(Injection<?> injection, DistributionMode distributionMode) {
+    private static double getIndividualDistribution(Injection<?> injection, DistributionMode distributionMode) {
         // Check the injection type
         checkInjectionClass(injection);
 
@@ -157,7 +161,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         };
     }
 
-    private void checkInjectionClass(Injection<?> injection) {
+    private static void checkInjectionClass(Injection<?> injection) {
         if (!(injection instanceof Generator
             || injection instanceof Load
             || injection instanceof DanglingLine)) {
@@ -165,7 +169,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    private double getTargetP(Injection<?> injection) {
+    private static double getTargetP(Injection<?> injection) {
         if (injection instanceof Generator generator) {
             return generator.getTargetP();
         } else {
@@ -174,7 +178,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    private double getP0(Injection<?> injection) {
+    private static double getP0(Injection<?> injection) {
         if (injection instanceof Load load) {
             return load.getP0();
         } else if (injection instanceof DanglingLine danglingLine) {
@@ -185,7 +189,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    private double getMaxP(Injection<?> injection) {
+    private static double getMaxP(Injection<?> injection) {
         if (injection instanceof Generator generator) {
             return generator.getMaxP();
         } else {
@@ -194,7 +198,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    private double getMinP(Injection<?> injection) {
+    private static double getMinP(Injection<?> injection) {
         if (injection instanceof Generator generator) {
             return generator.getMinP();
         } else {

@@ -13,7 +13,7 @@ Every extension is considered as serializable unless explicitly specified as non
 
 (active-power-control-extension)=
 ## Active power control
-This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#generic-parameters) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
+This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#optional-properties) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
 
 | Attribute            | Type    | Unit                   | Required | Default value | Description                                                                           |
 |----------------------|---------|------------------------|----------|---------------|---------------------------------------------------------------------------------------|
@@ -213,6 +213,7 @@ generator.newExtension(GeneratorStartupAdder.class)
 This extension models the generator data used for short-circuit calculations. Depending on the type of short-circuit study to be
 performed, either the transient or the sub-transient reactance should be filled. The reactance of the step-up transformer should be
 filled if the generator has a transformer that is not directly modeled in the network.
+This extension should be used in addition to the [GeneratorFortescue extension](#generator-fortescue) for asymmetrical short-circuit calculations.
 
 | Attribute              | Type   | Unit | Required | Default value | Description                                     |
 |------------------------|--------|------|----------|---------------|-------------------------------------------------|
@@ -276,6 +277,85 @@ bus.newExtension(IdentifiableShortCircuitAdder.class)
     .add();
 ```
 The code is similar for every identifiable.
+
+(generator-fortescue)=
+## Generator Fortescue
+
+This extension models the homopolar generator data to be used for asymmetrical short-circuit calculations.
+
+| Attribute  | Type    | Unit | Required | Default value | Description                                                                     |
+|------------|---------|------|----------|---------------|---------------------------------------------------------------------------------|
+| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the generator                                   |
+| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the generator                                    |
+| rn         | double  | Ω    | no       | -             | The negative-sequence resistance of the generator                               |
+| xn         | double  | Ω    | no       | -             | The negative-sequence reactance of the generator                                |
+| grounded   | boolean | -    | no       | false         | Indicates if the generator is earthed                                           |
+| groundingR | double  | Ω    | no       | 0             | If the generator is earthed, the resistance part of the impedance to the ground |
+| groundingX | double  | Ω    | no       | 0             | If the generator is earthed, the reactance part of the impedance to the ground  |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(line-fortescue)=
+## Line Fortescue
+
+This extension models the homopolar line data to be used for asymmetrical short-circuit calculations.
+
+| Attribute  | Type    | Unit | Required | Default value | Description                                  |
+|------------|---------|------|----------|---------------|----------------------------------------------|
+| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line     |
+| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line      |
+| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open |
+| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open |
+| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(two-winding-transformer-fortescue)=
+## Two-winding Transformer Fortescue
+
+This extension models the homopolar two-winding transformer data to be used for asymmetrical short-circuit calculations.
+
+| Attribute       | Type                  | Unit | Required | Default value                    | Description                                                                                            |
+|-----------------|-----------------------|------|----------|----------------------------------|--------------------------------------------------------------------------------------------------------|
+| rz              | double                | Ω    | no       | -                                | The zero-sequence resistance of the two-winding transformer                                            |
+| xz              | double                | Ω    | no       | -                                | The zero-sequence reactance of the two-winding transformer                                             |
+| freeFluxes      | boolean               | -    | no       | true                             | If set to true, then the magnetizing impedance is considered as infinite                               | 
+| connectionType1 | WindingConnectionType | -    | no       | WindingConnectionType.DELTA      | The connection type of the winding 1                                                                   | 
+| connectionType2 | WindingConnectionType | -    | no       | WindingConnectionType.Y_GROUNDED | The connection type of the winding 2                                                                   | 
+| groundingR1     | double                | Ω    | no       | 0                                | If the winding on side 1 is connected to the earth, the resistance part of the impedance to the ground | 
+| groundingX1     | double                | Ω    | no       | 0                                | If the winding on side 1 is connected to the earth, the reactance part of the impedance to the ground  | 
+| groundingR2     | double                | Ω    | no       | 0                                | If the winding on side 2 is connected to the earth, the resistance part of the impedance to the ground | 
+| groundingX2     | double                | Ω    | no       | 0                                | If the winding on side 2 is connected to the earth, the reactance part of the impedance to the ground  | 
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+
+(three-winding-transformer-fortescue)=
+## Three-winding Transformer Fortescue
+
+This extension models the homopolar three-winding transformer data to be used for asymmetrical short-circuit calculations.
+The data is described by leg.
+
+The attributes of the extension are structured as follows:
+
+| Attribute     | Type         | Unit | Required | Default value | Description                                             |
+|---------------|--------------|------|----------|---------------|---------------------------------------------------------|
+| leg1 | LegFortescue | -    | no       | -             | The data on the leg 1 of the three-winding transformer  |
+| leg2 | LegFortescue | -    | no       | -             | The data on the leg 2 of the three-winding transformer  |
+| leg3 | LegFortescue | -    | no       | -             | The data on the leg 3 of the three-winding transformer  | 
+
+With LegFortescue being defined as follows:
+
+| Attribute      | Type                  | Unit | Required | Default value                                                                                                | Description                                                                              |
+|----------------|-----------------------|------|----------|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| rz             | double                | Ω    | no       | -                                                                                                            | The zero-sequence resistance of the leg                                                  |
+| xz             | double                | Ω    | no       | -                                                                                                            | The zero-sequence reactance of the leg                                                   |
+| freeFluxes     | boolean               | -    | no       | true                                                                                                         | If set to true, then the magnetizing impedance is considered as infinite                 | 
+| connectionType | WindingConnectionType | -    | no       | WindingConnectionType.DELTA for the first and the third leg, WindingConnectionType.Y_GROUNDED for the second | The connection type of the leg                                                           |
+| groundingR     | double                | Ω    | no       | 0                                                                                                            | If the leg is connected to the earth, the resistance part of the impedance to the ground | 
+| groundingX     | double                | Ω    | no       | 0                                                                                                            | If the leg is connected to the earth, the reactance part of the impedance to the ground  | 
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
 (injection-observability-extension)=
 ## Injection observability
@@ -530,9 +610,9 @@ This extension is used for generators with a remote reactive control.
 This extension is attached to a [voltage level](network_subnetwork.md#voltage-level) and is used to define the slack bus
 of a power flow calculation i.e. which bus will be used to balance the active and reactive power in load flow analysis.
 Use this extension before a computation to force the slack bus selection. You should enable default load flow parameter
-[`isReadSlackBus`](../simulation/loadflow/configuration.md#generic-parameters). Use this extension after a computation to attach
+[`readSlackBus`](../simulation/loadflow/configuration.md#optional-properties). Use this extension after a computation to attach
 to the network the slack bus that has been selected by the load flow engine (one by connected component). You should enable
-default load flow parameter [`isWriteSlackBus`](../simulation/loadflow/configuration.md#generic-parameters).
+default load flow parameter [`writeSlackBus`](../simulation/loadflow/configuration.md#optional-properties).
 
 The slack bus is defined through the terminal of a connectable that belongs to the bus. It is totally allowed to define a disconnected terminal as slack as the connectable could be reconnected during a grid study.
 
