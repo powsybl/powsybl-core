@@ -54,24 +54,55 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testValidJsonVersionSupported() throws Exception {
+    void testExistValidJsonVersion() throws Exception {
         String json = String.format("{ \"version\": \"%s\" }", CURRENT_IIDM_VERSION.toString("."));
         String basename = "supportedVersion";
         createTempJson(json, basename);
         importer = new JsonImporter();
         DataSource dataSource = new DirectoryDataSource(tmpDir, basename, "json", null);
         assertDoesNotThrow(() -> importer.exists(dataSource));
+        assertTrue(importer.exists(dataSource));
     }
 
     @Test
-    void testInvalidVersion() throws Exception {
+    void testExistUnsupportedVersion() throws Exception {
         String json = String.format("{ \"version\": \"%s\" }", unsupportedIidmVersion());
         String basename = "unsupportedVersion";
         createTempJson(json, basename);
         importer = new JsonImporter();
         DataSource dataSource = new DirectoryDataSource(tmpDir, basename, "json", null);
         assertDoesNotThrow(() -> importer.exists(dataSource));
-        assertTrue(importer.exists(dataSource));
+        assertFalse(importer.exists(dataSource));
+    }
+
+    @Test
+    void testExistEmptyVersion() throws Exception {
+        String json = String.format("{ \"version\": \"%s\" }", "");
+        String basename = "unsupportedVersion";
+        createTempJson(json, basename);
+        importer = new JsonImporter();
+        DataSource dataSource = new DirectoryDataSource(tmpDir, basename, "json", null);
+        assertDoesNotThrow(() -> importer.exists(dataSource));
+        assertFalse(importer.exists(dataSource));
+    }
+
+    @Test
+    void testImportDataValidIidmVersion() throws IOException {
+        writeNetwork("/test1.json", CURRENT_IIDM_VERSION.toString("."));
+        importer = new JsonImporter();
+        ReadOnlyDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test1");
+        assertDoesNotThrow(() -> importer.importData(dataSource, NetworkFactory.findDefault(), null));
+    }
+
+    @Test
+    void testImportDataUnsupportedIidmVersion() throws IOException {
+        writeNetwork("/test1.json", unsupportedIidmVersion());
+        importer = new JsonImporter();
+        ReadOnlyDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test1");
+        String expectedError = String.format("IIDM Version %s is not supported. Max supported version: %s", unsupportedIidmVersion(), CURRENT_IIDM_VERSION.toString("."));
+        assertThatCode(() -> importer.importData(dataSource, NetworkFactory.findDefault(), null))
+                .isInstanceOf(PowsyblException.class)
+                .hasMessage(expectedError);
     }
 
     @Test
@@ -81,17 +112,6 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
         assertEquals("IIDM JSON v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
         assertEquals(List.of("jiidm", "json"), importer.getSupportedExtensions());
         assertEquals(6, importer.getParameters().size());
-    }
-
-    @Test
-    void testUnsupportedIidmVersion() throws IOException {
-        writeNetwork("/test1.json", unsupportedIidmVersion());
-        importer = new JsonImporter();
-        ReadOnlyDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test1");
-        String expectedError = String.format("IIDM Version %s is not supported. Max supported version: %s", unsupportedIidmVersion(), CURRENT_IIDM_VERSION.toString("."));
-        assertThatCode(() -> importer.importData(dataSource, NetworkFactory.findDefault(), null))
-                .isInstanceOf(PowsyblException.class)
-                .hasMessage(expectedError);
     }
 
     private void writeNetwork(String fileName, String version) throws IOException {

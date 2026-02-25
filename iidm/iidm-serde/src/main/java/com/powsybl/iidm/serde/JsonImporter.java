@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.json.JsonReader;
@@ -68,6 +69,11 @@ public class JsonImporter extends AbstractTreeDataImporter {
                 parser.nextToken();
                 String version = parser.getValueAsString();
                 if (version == null || version.isEmpty()) {
+                    return false;
+                }
+                try {
+                    IidmVersion.of(version);
+                } catch (PowsyblException e) {
                     return false;
                 }
                 return true;

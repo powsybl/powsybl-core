@@ -18,10 +18,7 @@ import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -96,6 +93,10 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         writeNetwork(fileName, unsupportedIidmVersionNamespaceURI(), false);
     }
 
+    private void writeNetworkValidIidmVersion(String fileName) throws IOException {
+        writeNetwork(fileName, CURRENT_IIDM_VERSION.getNamespaceURI(), false);
+    }
+
     private static String unsupportedIidmVersion() {
         String[] currentIidmVersionSplit = CURRENT_IIDM_VERSION.toString().split("_");
         int unsupportedIidmVersionMajor = Integer.parseInt(currentIidmVersionSplit[1]);
@@ -135,6 +136,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         writeNetworkWithComment("/test7.xiidm");
         writeNetworkWithExtension("/test8.xiidm", CURRENT_IIDM_VERSION.getNamespaceURI());
         writeNetworkUnsupportedIidmVersion("/test9.xiidm");
+        writeNetworkValidIidmVersion("/test10.xiidm");
 
         importer = new XMLImporter();
     }
@@ -174,7 +176,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testUnsupportedIidmVersion() {
+    void testExistUnsupportedIidmVersion() {
         Path dir = fileSystem.getPath("/");
         ReadOnlyDataSource dataSource = new DirectoryDataSource(dir, "test9");
         assertDoesNotThrow(() -> importer.exists(dataSource));
@@ -182,7 +184,15 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testUnsupportedIidmVersion2() {
+    void testExistValidIidmVersion() {
+        Path dir = fileSystem.getPath("/");
+        ReadOnlyDataSource dataSource = new DirectoryDataSource(dir, "test10");
+        assertDoesNotThrow(() -> importer.exists(dataSource));
+        assertTrue(importer.exists(dataSource));
+    }
+
+    @Test
+    void testImportDataUnsupportedIidmVersion() {
         ReadOnlyDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test9");
         String expectedError = String.format("IIDM Version %s is not supported. Max supported version: %s", unsupportedIidmVersion(), CURRENT_IIDM_VERSION.toString("."));
         PowsyblException exception = assertThrows(PowsyblException.class, () -> importer.importData(dataSource, NetworkFactory.findDefault(), null));
