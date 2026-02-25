@@ -852,7 +852,7 @@ public final class EquipmentExport {
                 aliasType = ALIAS_PHASE_TAP_CHANGER2;
             }
             String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
-            String cgmesTapChangerId = eq.getAliasFromType(aliasType).orElse(tapChangerId);
+            String cgmesTapChangerId = eq.getAliasFromType(aliasType).orElse(null);
             int neutralStep = getClosestNeutralStep(ptc);
             int normalStep = getNormalStep(eq, cgmesTapChangerId).orElse(neutralStep);
             String tapChangerControlId = null;
@@ -918,7 +918,7 @@ public final class EquipmentExport {
                 aliasType = ALIAS_RATIO_TAP_CHANGER2;
             }
             String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
-            String cgmesTapChangerId = eq.getAliasFromType(aliasType).orElse(tapChangerId);
+            String cgmesTapChangerId = eq.getAliasFromType(aliasType).orElse(null);
 
             int neutralStep = getClosestNeutralStep(rtc);
             int normalStep = getNormalStep(eq, cgmesTapChangerId).orElse(neutralStep);

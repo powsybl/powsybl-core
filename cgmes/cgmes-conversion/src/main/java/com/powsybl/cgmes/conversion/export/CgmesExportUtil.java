@@ -355,11 +355,13 @@ public final class CgmesExportUtil {
     }
 
     static <C extends Connectable<C>> String getTapChangerControlId(C transformer, Part part, String cgmesTapChangerId, CgmesExportContext context) {
-        CgmesTapChangers<C> cgmesTcs = transformer.getExtension(CgmesTapChangers.class);
-        if (cgmesTcs != null) {
-            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(cgmesTapChangerId);
-            if (cgmesTc != null && cgmesTc.getControlId() != null) {
-                return context.getNamingStrategy().getCgmesId(cgmesTc.getControlId());
+        if (cgmesTapChangerId != null) {
+            CgmesTapChangers<C> cgmesTcs = transformer.getExtension(CgmesTapChangers.class);
+            if (cgmesTcs != null) {
+                CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(cgmesTapChangerId);
+                if (cgmesTc != null && cgmesTc.getControlId() != null) {
+                    return context.getNamingStrategy().getCgmesId(cgmesTc.getControlId());
+                }
             }
         }
         return context.getNamingStrategy().getCgmesId(ref(transformer), part, REGULATING_CONTROL);

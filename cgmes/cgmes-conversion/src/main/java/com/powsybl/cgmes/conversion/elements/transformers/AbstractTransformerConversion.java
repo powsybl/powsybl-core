@@ -438,11 +438,13 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     public static <C extends Connectable<C>> OptionalInt getNormalStep(Connectable<C> tw, String tapChangerId) {
-        CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
-        if (cgmesTcs != null) {
-            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
-            if (cgmesTc != null) {
-                return cgmesTc.getStep();
+        if (tapChangerId != null) {
+            CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
+            if (cgmesTcs != null) {
+                CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
+                if (cgmesTc != null) {
+                    return cgmesTc.getStep();
+                }
             }
         }
         return OptionalInt.empty();
