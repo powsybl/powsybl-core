@@ -75,6 +75,7 @@ public final class LimitViolationUtils {
      * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      */
     public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
+        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
         return limitsComputer.computeLimits(branch, type, side.toThreeSides(), false)
@@ -95,6 +96,7 @@ public final class LimitViolationUtils {
      * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      */
     public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
+        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
         return limitsComputer.computeLimits(transformer, type, side, false)
@@ -116,7 +118,7 @@ public final class LimitViolationUtils {
      * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
     public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, double limitReductionValue, double i, LimitType type) {
-        //TODO the return of this function is strange due to getOverload, need to change so its consistent in all cases
+        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
         return getAllLimits(branch, side.toThreeSides(), type, LimitsComputer.NO_MODIFICATIONS)
@@ -139,7 +141,7 @@ public final class LimitViolationUtils {
      * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
     public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double i, LimitType type) {
-        //TODO the return of this function is strange due to getOverload, need to change so its consistent in all cases
+        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
         return getAllLimits(transformer, side, type, LimitsComputer.NO_MODIFICATIONS)
