@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class CgmesTapChangersSerDeTest extends AbstractCgmesExtensionTest {
     }
 
     @Test
-    void testAnonymizedCgmesTapChangersIdAndControlId() throws IOException {
+    void testAnonymizedCgmesTapChangersIdAndControlIdWhenExported() {
         //Given
         Network network = EurostagTutorialExample1Factory.createWith3wTransformer();
         network.setCaseDate(ZonedDateTime.parse("2024-09-17T12:01:34.831Z"));
@@ -72,23 +73,24 @@ class CgmesTapChangersSerDeTest extends AbstractCgmesExtensionTest {
                 .add();
         CgmesTapChangers cgmesTapChangers = twoWT.getExtension(CgmesTapChangers.class);
         assertNotNull(cgmesTapChangers);
-        // When Export (with anonymized option)
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-        // Then check anonymized id, controlId != original values
-        String anonymizedId = anonymizer.anonymizeString("tc1");
-        String anonymizedControlId = anonymizer.anonymizeString("control1");
-        assertNotEquals("tc1", anonymizedId);
-        assertNotEquals("control1", anonymizedControlId);
-        // Then check xml content (contain only anonymized id and controlId)
-        byte[] anonymizedXml = os.toByteArray();
-        String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
-        assertTrue(xmlContent.contains("id=\"" + anonymizedId + "\""));
-        assertTrue(xmlContent.contains("controlId=\"" + anonymizedControlId + "\""));
-        // Then import without anonymizer
-        try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
-            Network importedNetwork = NetworkSerDe.read(is);
-            // Get TwoWT using her anonymized ID.
+
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+            // Then check anonymized id, controlId != original values
+            String anonymizedId = anonymizer.anonymizeString("tc1");
+            String anonymizedControlId = anonymizer.anonymizeString("control1");
+            assertNotEquals("tc1", anonymizedId);
+            assertNotEquals("control1", anonymizedControlId);
+            // Then check xml content (contain only anonymized id and controlId)
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("id=\"" + anonymizedId + "\""));
+            assertTrue(xmlContent.contains("controlId=\"" + anonymizedControlId + "\""));
+            // Then import without anonymizer
+            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            // Get TwoWT using anonymized ID.
             TwoWindingsTransformer importedTwoWT = importedNetwork.getTwoWindingsTransformer(anonymizer.anonymizeString("NGEN_NHV1"));
             assertNotNull(importedTwoWT);
             CgmesTapChangers importedCgmesTapChangers = importedTwoWT.getExtension(CgmesTapChangers.class);
@@ -96,6 +98,6 @@ class CgmesTapChangersSerDeTest extends AbstractCgmesExtensionTest {
             CgmesTapChanger importedCgmesTapChanger = (CgmesTapChanger) importedCgmesTapChangers.getTapChangers().iterator().next();
             assertEquals(anonymizedId, importedCgmesTapChanger.getId());
             assertEquals(anonymizedControlId, importedCgmesTapChanger.getControlId());
-        }
+        });
     }
 }

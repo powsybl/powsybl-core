@@ -10,6 +10,7 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.ImportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
@@ -44,43 +45,63 @@ class BaseVoltageMappingSerDeTest extends AbstractCgmesExtensionTest {
     }
 
     @Test
-    void testAnonymizedBaseVoltageIds() throws IOException {
+    void testAnonymizedBaseVoltageIdsWhenExported() {
         //Given
         Network network = NoEquipmentNetworkFactory.create();
-        network.setCaseDate(ZonedDateTime.parse("2024-09-17T13:36:37.831Z"));
         network.newExtension(BaseVoltageMappingAdder.class)
                 .addBaseVoltage("id_400", 400, Source.IGM)
                 .addBaseVoltage("id_380", 380, Source.BOUNDARY)
                 .add();
-        // When Export (with anonymized option)
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-        // Then check anonymized id != original ids
-        String anonymizedId400 = anonymizer.anonymizeString("id_400");
-        String anonymizedId380 = anonymizer.anonymizeString("id_380");
-        assertNotEquals("id_400", anonymizedId400);
-        assertNotEquals("id_380", anonymizedId380);
-        // Then check xml content (contain only anonymized id)
-        byte[] anonymizedXml = os.toByteArray();
-        String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
-        assertTrue(xmlContent.contains("id=\"" + anonymizedId400 + "\""));
-        assertTrue(xmlContent.contains("id=\"" + anonymizedId380 + "\""));
-        assertFalse(xmlContent.contains("id=\"id_400\""));
-        assertFalse(xmlContent.contains("id=\"id_380\""));
-        //Then import without anonymizer
-        try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
-            Network importedNetwork = NetworkSerDe.read(is);
+
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+            // Then check anonymized id != original ids
+            String anonymizedId400 = anonymizer.anonymizeString("id_400");
+            String anonymizedId380 = anonymizer.anonymizeString("id_380");
+            assertNotEquals("id_400", anonymizedId400);
+            assertNotEquals("id_380", anonymizedId380);
+            // Then check xml content (contain only anonymized id)
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("id=\"" + anonymizedId400 + "\""));
+            assertTrue(xmlContent.contains("id=\"" + anonymizedId380 + "\""));
+            assertFalse(xmlContent.contains("id=\"id_400\""));
+            assertFalse(xmlContent.contains("id=\"id_380\""));
+            // Then import without anonymizer
+            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
             BaseVoltageMapping importedBaseVoltageMapping = importedNetwork.getExtension(BaseVoltageMapping.class);
             assertEquals(anonymizedId400, importedBaseVoltageMapping.getBaseVoltage(400).getId());
             assertEquals(anonymizedId380, importedBaseVoltageMapping.getBaseVoltage(380).getId());
-        }
+        });
+    }
+
+    @Test
+    void testOldIIdmNoAnonymizedBaseVoltageMappingWhenExported() {
+        //Given
+        Network network = NoEquipmentNetworkFactory.create();
+        network.newExtension(BaseVoltageMappingAdder.class)
+                .addBaseVoltage("id_400", 400, Source.IGM)
+                .addBaseVoltage("id_380", 380, Source.BOUNDARY)
+                .add();
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        testForAllPreviousVersions(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            NetworkSerDe.write(network, exportOptions, os);
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("id=\"id_400\""));
+            assertTrue(xmlContent.contains("id=\"id_380\""));
+        });
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "/base_voltage_mapping_anonymize_not_supported.xml",
-            "/base_voltage_mapping_anonymize_supported.xml"})
-    void testNetworkWithBaseVoltageMappingIdsWhenImported(String resourcePath) throws IOException {
+        "/base_voltage_mapping_anonymize_not_supported.xml",
+        "/base_voltage_mapping_anonymize_supported.xml"
+    })
+    void testNetworkWithExtensionBaseVoltageMappingIdsWhenImported(String resourcePath) throws IOException {
         // Given: old format (plain extension ids) and new format (anonymized extension ids)
         SimpleAnonymizer anonymizer = createBaseVoltageAnonymizerMapping();
         Network network;

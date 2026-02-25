@@ -13,10 +13,7 @@ import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
-import com.powsybl.iidm.serde.ExportOptions;
-import com.powsybl.iidm.serde.IidmSerDeConstants;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.*;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import org.junit.jupiter.api.Test;
 
@@ -79,10 +76,9 @@ class MeasurementsXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testAnonymizedMeasurementsIds() throws IOException {
+    void testAnonymizedMeasurementsIdsWhenExported() {
         //Given
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Load load = network.getLoad("LOAD");
         load.newExtension(MeasurementsAdder.class).add();
         load.getExtension(Measurements.class)
@@ -95,27 +91,55 @@ class MeasurementsXmlTest extends AbstractIidmSerDeTest {
                 .add();
         Measurements measurements = load.getExtension(Measurements.class);
         assertNotNull(measurements);
-        // When Export (with anonymized option)
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-        // Then check anonymized id != original id
-        String anonymizedMeasurementId = anonymizer.anonymizeString("Measurement_ID");
-        assertNotEquals("Measurement_ID", anonymizedMeasurementId);
-        // Then check xml content (contain only anonymized id)
-        byte[] anonymizedXml = os.toByteArray();
-        String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
-        assertTrue(xmlContent.contains("id=\"" + anonymizedMeasurementId + "\""));
-        assertFalse(xmlContent.contains("id=\"Measurement_ID\""));
-        //Then import without anonymizer
-        try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
-            Network importedNetwork = NetworkSerDe.read(is);
+
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+            // Then check anonymized id != original id
+            String anonymizedMeasurementId = anonymizer.anonymizeString("Measurement_ID");
+            assertNotEquals("Measurement_ID", anonymizedMeasurementId);
+            // Then check xml content (contain only anonymized id)
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("id=\"" + anonymizedMeasurementId + "\""));
+            assertFalse(xmlContent.contains("id=\"Measurement_ID\""));
+            //Then import without anonymizer
+            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
             Load importedLoad = importedNetwork.getLoad(anonymizer.anonymizeString("LOAD"));
             Measurements importedMeasurements = importedLoad.getExtension(Measurements.class);
             assertNotNull(importedMeasurements);
             assertEquals(1, importedMeasurements.getMeasurements().size());
             Measurement importedDiscreteMeasurement = (Measurement) importedMeasurements.getMeasurements().stream().findFirst().get();
             assertEquals(anonymizedMeasurementId, importedDiscreteMeasurement.getId());
-        }
+        });
+    }
+
+    @Test
+    void testOldIIdmNoAnonymizedMeasurementsWhenExported() {
+        //Given
+        Network network = EurostagTutorialExample1Factory.create();
+        Load load = network.getLoad("LOAD");
+        load.newExtension(MeasurementsAdder.class).add();
+        load.getExtension(Measurements.class)
+                .newMeasurement()
+                .setId("Measurement_ID")
+                .setType(Measurement.Type.OTHER)
+                .setValue(0)
+                .setValid(false)
+                .putProperty("source", "test")
+                .add();
+        Measurements measurements = load.getExtension(Measurements.class);
+        assertNotNull(measurements);
+
+        testForAllPreviousVersions(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            NetworkSerDe.write(network, exportOptions, os);
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("id=\"Measurement_ID\""));
+        });
     }
 
 }
