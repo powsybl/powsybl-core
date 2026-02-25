@@ -44,6 +44,7 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
     }
 
     @BeforeEach
+    @Override
     public void setUp() throws IOException {
         super.setUp();  // initialise fileSystem
     }
@@ -107,7 +108,7 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void testMetaInfos() {
-        var importer = new JsonImporter();
+        importer = new JsonImporter();
         assertEquals("JIIDM", importer.getFormat());
         assertEquals("IIDM JSON v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
         assertEquals(List.of("jiidm", "json"), importer.getSupportedExtensions());

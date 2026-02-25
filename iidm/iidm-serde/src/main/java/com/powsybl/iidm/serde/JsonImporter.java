@@ -71,12 +71,7 @@ public class JsonImporter extends AbstractTreeDataImporter {
                 if (version == null || version.isEmpty()) {
                     return false;
                 }
-                try {
-                    IidmVersion.of(version);
-                } catch (PowsyblException e) {
-                    return false;
-                }
-                return true;
+                return isSupportedVersion(version);
             }
         } catch (IOException e) {
             return false;
@@ -100,6 +95,15 @@ public class JsonImporter extends AbstractTreeDataImporter {
         try (InputStream is = ds.newInputStream(null, ext)) {
             JsonReader reader = new JsonReader(is, "network", new HashMap<>());
             return reader.readRootVersion();
+        }
+    }
+
+    private boolean isSupportedVersion(String version) {
+        try {
+            IidmVersion.of(version);
+            return true;
+        } catch (PowsyblException e) {
+            return false;
         }
     }
 
