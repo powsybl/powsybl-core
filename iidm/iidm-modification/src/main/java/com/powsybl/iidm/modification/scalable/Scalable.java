@@ -185,6 +185,10 @@ public interface Scalable {
         return new ScalableAdapter(id);
     }
 
+    static Scalable scalable(String id, double minValue, double maxValue) {
+        return new ScalableAdapter(id, minValue, maxValue);
+    }
+
     static List<Scalable> scalables(String... ids) {
         return Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
     }
