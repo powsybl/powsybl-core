@@ -28,11 +28,25 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
     private final String attributeName;
     private final Predicate<String> isSelected;
 
+    /**
+     * @param id the ID of the group we want to create
+     * @param identifiable on what to create the group
+     * @param attributeName prefix used for referencing the limits (used when notifying listeners)
+     * @param isSelected a predicate telling this group if it is part of the selected groups
+     */
     OperationalLimitsGroupImpl(String id, AbstractIdentifiable<?> identifiable, String attributeName, Predicate<String> isSelected) {
         this(id, Objects.requireNonNull(identifiable), identifiable.getNetwork().getListeners(),
                 identifiable, attributeName, Objects.requireNonNull(isSelected));
     }
 
+    /**
+     * @param id the ID of the group we want to create
+     * @param identifiable on what to create the group
+     * @param listeners the listeners on the changes of this group
+     * @param validable used for exception mechanism when validating the network, provides a label for the error
+     * @param attributeName prefix used for referencing the limits (used when notifying listeners)
+     * @param isSelected a predicate telling this group if it is selected or not
+     */
     public OperationalLimitsGroupImpl(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
                                       Validable validable, String attributeName, Predicate<String> isSelected) {
         this.id = Objects.requireNonNull(id);
