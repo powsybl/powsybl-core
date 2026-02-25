@@ -101,14 +101,15 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
     }
 
     private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, TreeDataReader reader, NetworkDeserializerContext context) {
+        String id = reader.readStringAttribute("id");
         DiscreteMeasurement.Type type = reader.readEnumAttribute("type", DiscreteMeasurement.Type.class);
         DiscreteMeasurement.TapChanger tapChanger = reader.readEnumAttribute("tapChanger", DiscreteMeasurement.TapChanger.class);
         DiscreteMeasurement.ValueType valueType = reader.readEnumAttribute("valueType", DiscreteMeasurement.ValueType.class);
 
         DiscreteMeasurementAdder adder = discreteMeasurements.newDiscreteMeasurement()
                 .setId(fromMinimumVersionOrElse(IidmVersion.V_1_16, context,
-                        () -> context.getAnonymizer().deanonymizeString(reader.readStringAttribute("id")),
-                        () -> reader.readStringAttribute("id")))
+                        () -> context.getAnonymizer().deanonymizeString(id),
+                        () -> id))
                 .setType(type)
                 .setTapChanger(tapChanger);
         switch (valueType) {
