@@ -83,7 +83,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
 
     @Test
     void compatibilityWithOldCriterion() throws IOException {
-        LimitReductionList reductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductions_criteriaV1.0.json"));
+        LimitReductionList reductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductions_V1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             LimitReductionListSerDeUtil.write(reductionList, bos);
             ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions.json"), new ByteArrayInputStream(bos.toByteArray()));
