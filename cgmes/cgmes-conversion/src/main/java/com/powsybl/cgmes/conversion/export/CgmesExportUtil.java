@@ -441,6 +441,7 @@ public final class CgmesExportUtil {
     }
 
     public static String getDanglingLineBoundaryTerminalId(DanglingLine danglingLine, CgmesExportContext context) {
+        // Legacy: in previous versions, boundary terminal id was stored in the tie line.
         if (danglingLine.getAliasFromType(ALIAS_TERMINAL_BOUNDARY).isEmpty()
             && danglingLine.getTieLine().flatMap(tl -> tl.getAliasFromType(ALIAS_TERMINAL_BOUNDARY)).isPresent()) {
             return context.getNamingStrategy().getCgmesIdFromAlias(danglingLine.getTieLine().orElseThrow(), ALIAS_TERMINAL_BOUNDARY);
