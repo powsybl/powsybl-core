@@ -616,7 +616,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setVoltageRegulatorOn(true).setTargetV(400)
                 .setTargetP(0).setMinP(0).setMaxP(10)
                 .add();
-        g.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "EquivalentInjection");
+        g.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
 
         // Export to CGMES only the EQ instance file
         Properties exportParams = new Properties();
