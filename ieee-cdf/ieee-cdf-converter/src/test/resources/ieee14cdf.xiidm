@@ -49,9 +49,9 @@
                 <iidm:bus id="B9" name="Bus 9     LV" v="12.672" angle="-14.94"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B9-L" loadType="UNDEFINED" p0="29.5" q0="16.6" bus="B9" connectableBus="B9"/>
-            <iidm:shunt id="B9-SH" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
+            <iidm:shuntCompensator id="B9-SH" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="0.13194444444444445" maximumSectionCount="1"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T4-7-1" r="0.0" x="0.4098752" g="0.0" b="0.0" ratedU1="132.03" ratedU2="14.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B7" connectableBus2="B7" voltageLevelId2="VL7"/>
         <iidm:twoWindingsTransformer id="T4-9-1" r="0.0" x="0.8008992" g="0.0" b="0.0" ratedU1="130.815" ratedU2="12.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9"/>
