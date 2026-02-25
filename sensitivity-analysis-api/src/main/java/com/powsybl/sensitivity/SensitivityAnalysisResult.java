@@ -163,7 +163,7 @@ public class SensitivityAnalysisResult {
     /**
      * Sensitivity analysis result
      * @param factors the list of sensitivity factors that have been computed.
-     * @param stateStatuses the list of contingencies and their associated computation status.
+     * @param stateStatuses the list of states and their associated computation status.
      * @param contingencyIds the list of contingency IDs that have been considered during the sensitivity analysis.
      * @param operatorStrategyIds the list of operator strategy IDs that have been considered during the sensitivity analysis.
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
@@ -201,9 +201,9 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get a list of all the contingency statuses.
+     * Get a list of all the state statuses.
      *
-     * @return a list of all the contingency statuses.
+     * @return a list of all the state statuses.
      */
     public List<SensitivityStateStatus> getStateStatuses() {
         return stateStatuses;
@@ -239,10 +239,11 @@ public class SensitivityAnalysisResult {
     /**
      * Get a list of sensitivity value associated to a given contingency id
      *
-     * @param state the considered state. Use null to get pre-contingency sensitivity values.
+     * @param state the considered state.
      * @return the sensitivity value associated to a given contingency ID.
      */
     public List<SensitivityValue> getValues(SensitivityState state) {
+        Objects.requireNonNull(state);
         return valuesByState.getOrDefault(state, Collections.emptyList());
     }
 
@@ -258,7 +259,7 @@ public class SensitivityAnalysisResult {
     /**
      * Get the sensitivity value associated to a given function id and type and a given variable and for a specific contingency.
      *
-     * @param state the considered state. Use null to get a pre-contingency sensitivity value.
+     * @param state the considered state.
      * @param variableId the sensitivity variable id.
      * @param functionId the sensitivity function id.
      * @param functionType the sensitivity function type.

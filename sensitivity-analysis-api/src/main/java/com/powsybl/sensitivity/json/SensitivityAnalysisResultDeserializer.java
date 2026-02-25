@@ -90,9 +90,10 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
             throw new IllegalStateException("Only version 1.0 and 1.1 are supported.");
         }
         if ("1.0".equals(version)) {
-            // in 1.0 the contingency IDs and the mapping contingency index -> ID was taken from 'contingencyStatus' list
-            // not possible anymore when >= 1.1 because the new 'stateStatus' can contain also some post operator strategy
-            // statuses and are not indexed in contingencies
+            // In 1.0 the contingency IDs and the mapping contingency index -> ID were directly taken from 'contingencyStatus' list.
+            // Therefore for this version, the "contingencyIds" tag was not encountered.
+            // Note that these elements cannot be computed from the state statuses (for versions >= 1.1) because
+            // they also contain some post operator strategy statuses and are not indexed by contingency
             contingencyIds = stateStatus.stream().map(s -> s.getState().contingencyId()).toList();
         }
         return new SensitivityAnalysisResult(factors, stateStatus, contingencyIds, operatorStrategyIds, sensitivityValues);

@@ -12,6 +12,6 @@ package com.powsybl.sensitivity;
  */
 public enum SensitivityOperatorStrategiesCalculationMode {
     NONE, // deactivate calculation of operator strategies sensitivities and only calculate N and N-K sensitivities
-    ALL_CONTINGENCIES, // calculate operator strategies for all contingencies in addition to N, N-K sensitivities
+    CONTINGENCIES_AND_OPERATOR_STRATEGIES, // calculate operator strategies for all contingencies in addition to N, N-K sensitivities
     ONLY_OPERATOR_STRATEGIES // only calculate operator strategies sensitivities and skip N and N-K sensitivities
 }

@@ -7,6 +7,8 @@
  */
 package com.powsybl.sensitivity;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -15,6 +17,6 @@ public record SensitivityState(String contingencyId, String operatorStrategyId) 
     public static final SensitivityState PRE_CONTINGENCY = new SensitivityState(null, null);
 
     public static SensitivityState postContingency(String contingencyId) {
-        return new SensitivityState(contingencyId, null);
+        return new SensitivityState(Objects.requireNonNull(contingencyId), null);
     }
 }
