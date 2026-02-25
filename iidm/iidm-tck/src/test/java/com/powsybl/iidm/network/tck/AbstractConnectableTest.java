@@ -387,6 +387,18 @@ public abstract class AbstractConnectableTest {
     }
 
     @Test
+    public void connectionRoundTripFictionalBreaker() {
+        Network network = createNetwork();
+        Line l2 = network.getLine("L2");
+        assertTrue(l2.connect(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR));
+        assertTrue(l2.getTerminal1().isConnected());
+        l2.disconnect();
+        // check that when we disconnect then connect, it leads to the same state
+        l2.connect();
+        assertTrue(l2.getTerminal1().isConnected());
+    }
+
+    @Test
     public void oneTerminalConnectedTest() {
         // Network creation
         Network network = createNetwork();
