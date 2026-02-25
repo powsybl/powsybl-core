@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -424,6 +425,23 @@ public final class IidmSerDeUtil {
                 .sorted()
                 .collect(Collectors.toList())
                 : names;
+    }
+
+    /**
+     * Runs one of two actions depending on the IIDM version available in the given context.
+     * <ul>
+     *   <li>Runs {@code fromMinVersion} when {@code context.getVersion() >= minVersion}.</li>
+     *   <li>Otherwise runs {@code beforeMinVersion}.</li>
+     * </ul>
+     *
+     * @param minVersion the version used to choose which action to run
+     * @param context the SerDe context providing the current IIDM version
+     * @param fromMinVersion action to run for {@code minVersion} and newer versions
+     * @param beforeMinVersion action to run for versions older than {@code minVersion}
+     * @param <C> a Network SerDe context type
+     */
+    public static <C extends AbstractNetworkSerDeContext, T> T fromMinimumVersionOrElse(IidmVersion minVersion, C context, Supplier<T> fromMinVersion, Supplier<T> beforeMinVersion) {
+        return context.getVersion().compareTo(minVersion) >= 0 ? fromMinVersion.get() : beforeMinVersion.get();
     }
 
     private IidmSerDeUtil() {
