@@ -111,11 +111,28 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
 
     @Override
     protected BoundaryLine readRootElementAttributes(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
-        IidmSerDeUtil.assertMinimumVersion(getRootElementName(), IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_16, context);
-        return readRootElementAttributesInternal(adder, voltageLevel, context);
+        checkVersion(context);
+        readRootElementAttributesInternal(adder, voltageLevel, context);
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context, () -> {
+            String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
+            adder.setPairingKey(pairingKey);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> {
+            String pairingKey = context.getReader().readStringAttribute("pairingKey");
+            adder.setPairingKey(pairingKey);
+        });
+        BoundaryLine dl = adder.add();
+        readPQ(null, dl.getTerminal(), context.getReader());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                readSelectedGroupId(null, dl::setSelectedOperationalLimitsGroup, context));
+        return dl;
     }
 
-    public static BoundaryLine readRootElementAttributesInternal(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+    protected void checkVersion(NetworkDeserializerContext context) {
+        IidmSerDeUtil.assertMinimumVersion(getRootElementName(), IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_16, context);
+    }
+
+    public static void readRootElementAttributesInternal(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
         double r = context.getReader().readDoubleAttribute("r");
@@ -147,19 +164,6 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
                 .setX(x)
                 .setG(g)
                 .setB(b);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context, () -> {
-            String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
-            adder.setPairingKey(pairingKey);
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> {
-            String pairingKey = context.getReader().readStringAttribute("pairingKey");
-            adder.setPairingKey(pairingKey);
-        });
-        BoundaryLine dl = adder.add();
-        readPQ(null, dl.getTerminal(), context.getReader());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
-                readSelectedGroupId(null, dl::setSelectedOperationalLimitsGroup, context));
-        return dl;
     }
 
     @Override

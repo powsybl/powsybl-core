@@ -19,7 +19,7 @@ import java.util.List;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
-import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkWithDanglingLine;
+import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkWithBoundaryLine;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -589,11 +589,11 @@ class ScalableTest {
         done = loadAdapter.scale(network, 50.0);
         assertEquals(50.0, done, 0.0);
 
-        Network network2 = createNetworkWithDanglingLine();
+        Network network2 = createNetworkWithBoundaryLine();
         Scalable boundaryLineAdapter = Scalable.scalable("dl2", 0, 100);
         assertEquals(-100.0, boundaryLineAdapter.minimumValue(network2), 0.0);
         assertEquals(0.0, boundaryLineAdapter.maximumValue(network2), 0.0);
-        network2.getDanglingLine("dl2").setP0(50);
+        network2.getBoundaryLine("dl2").setP0(50);
 
         done = boundaryLineAdapter.scale(network2, 50.0);
         assertEquals(50.0, done, 0.0);

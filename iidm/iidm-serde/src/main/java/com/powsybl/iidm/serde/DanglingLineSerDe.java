@@ -8,7 +8,6 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.BoundaryLine;
-import com.powsybl.iidm.network.BoundaryLineAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
@@ -36,8 +35,7 @@ class DanglingLineSerDe extends BoundaryLineSerDe {
     }
 
     @Override
-    protected BoundaryLine readRootElementAttributes(BoundaryLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+    protected void checkVersion(NetworkDeserializerContext context) {
         IidmSerDeUtil.assertMaximumVersion(getRootElementName(), IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
-        return readRootElementAttributesInternal(adder, voltageLevel, context);
     }
 }
