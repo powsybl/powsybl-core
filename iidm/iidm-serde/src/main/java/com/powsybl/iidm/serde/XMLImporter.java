@@ -84,6 +84,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
     }
 
     private boolean isValidNetworkRoot(XMLStreamReader xmlsr) throws XMLStreamException {
+        // check the first root element is network and namespace is IIDM
         while (xmlsr.hasNext()) {
             if (xmlsr.next() == XMLStreamConstants.START_ELEMENT) {
                 String name = xmlsr.getLocalName();
