@@ -58,11 +58,9 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
         writer.writeStartNodes();
         for (DiscreteMeasurement discreteMeasurement : extension.getDiscreteMeasurements()) {
             writer.writeStartNode(getNamespaceUri(), DISCRETE_MEASUREMENT_ROOT);
-            String id = discreteMeasurement.getId();
-            String idToRead = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                    () -> networkContext.getAnonymizer().anonymizeString(id),
-                    () -> id);
-            writer.writeStringAttribute("id", idToRead);
+            writer.writeStringAttribute("id", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+                    () -> networkContext.getAnonymizer().anonymizeString(discreteMeasurement.getId()),
+                    discreteMeasurement::getId));
             writer.writeEnumAttribute("type", discreteMeasurement.getType());
             writer.writeEnumAttribute("tapChanger", discreteMeasurement.getTapChanger());
             writer.writeEnumAttribute("valueType", discreteMeasurement.getValueType());
@@ -103,16 +101,14 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
     }
 
     private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, TreeDataReader reader, NetworkDeserializerContext context) {
-        String id = reader.readStringAttribute("id");
-        String idToRead = fromMinimumVersionOrElse(IidmVersion.V_1_16, context,
-                () -> context.getAnonymizer().deanonymizeString(id),
-                () -> id);
         DiscreteMeasurement.Type type = reader.readEnumAttribute("type", DiscreteMeasurement.Type.class);
         DiscreteMeasurement.TapChanger tapChanger = reader.readEnumAttribute("tapChanger", DiscreteMeasurement.TapChanger.class);
         DiscreteMeasurement.ValueType valueType = reader.readEnumAttribute("valueType", DiscreteMeasurement.ValueType.class);
 
         DiscreteMeasurementAdder adder = discreteMeasurements.newDiscreteMeasurement()
-                .setId(idToRead)
+                .setId(fromMinimumVersionOrElse(IidmVersion.V_1_16, context,
+                        () -> context.getAnonymizer().deanonymizeString(reader.readStringAttribute("id")),
+                        () -> reader.readStringAttribute("id")))
                 .setType(type)
                 .setTapChanger(tapChanger);
         switch (valueType) {

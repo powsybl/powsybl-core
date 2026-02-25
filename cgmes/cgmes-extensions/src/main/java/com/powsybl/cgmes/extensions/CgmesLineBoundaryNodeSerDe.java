@@ -38,8 +38,7 @@ public class CgmesLineBoundaryNodeSerDe extends AbstractExtensionSerDe<TieLine, 
         String lineEnergyIdentificationCodeEic = extension.getLineEnergyIdentificationCodeEic().orElse(null);
         String lineEnergyIdentificationCodeEicToWrite = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
                 () -> networkContext.getAnonymizer().anonymizeString(lineEnergyIdentificationCodeEic),
-                () -> lineEnergyIdentificationCodeEic
-        );
+                () -> lineEnergyIdentificationCodeEic);
         networkContext.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEicToWrite);
     }
 
@@ -50,8 +49,7 @@ public class CgmesLineBoundaryNodeSerDe extends AbstractExtensionSerDe<TieLine, 
         String lineEnergyIdentificationCodeEic = networkContext.getReader().readStringAttribute("lineEnergyIdentificationCodeEic");
         String lineEnergyIdentificationCodeEicToRead = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
                 () -> networkContext.getAnonymizer().deanonymizeString(lineEnergyIdentificationCodeEic),
-                () -> lineEnergyIdentificationCodeEic
-        );
+                () -> lineEnergyIdentificationCodeEic);
         networkContext.getReader().readEndNode();
         extendable.newExtension(CgmesLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEicToRead).add();
         return extendable.getExtension(CgmesLineBoundaryNode.class);

@@ -57,11 +57,9 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
             writer.writeStartNode(getNamespaceUri(), BASE_VOLTAGE_ROOT_ELEMENT);
             writer.writeDoubleAttribute("nominalVoltage", nominalV);
             writer.writeEnumAttribute("source", baseVoltageSource.getSource());
-            String baseVoltageIdToWrite = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+            writer.writeStringAttribute("id", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
                     () -> networkContext.getAnonymizer().anonymizeString(baseVoltageSource.getId()),
-                    baseVoltageSource::getId
-            );
-            writer.writeStringAttribute("id", baseVoltageIdToWrite);
+                    baseVoltageSource::getId));
             writer.writeEndNode();
         });
         writer.writeEndNodes();
@@ -78,11 +76,9 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
             if (elementName.equals(BASE_VOLTAGE_ROOT_ELEMENT)) {
                 double nominalV = reader.readDoubleAttribute("nominalVoltage");
                 Source sourceBV = reader.readEnumAttribute("source", Source.class);
-                String id = reader.readStringAttribute("id");
                 String baseVoltageId = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                        () -> networkContext.getAnonymizer().deanonymizeString(id),
-                        () -> id
-                );
+                        () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id")),
+                        () -> reader.readStringAttribute("id"));
                 reader.readEndNode();
                 mapping.addBaseVoltage(nominalV, baseVoltageId, sourceBV);
             } else {
