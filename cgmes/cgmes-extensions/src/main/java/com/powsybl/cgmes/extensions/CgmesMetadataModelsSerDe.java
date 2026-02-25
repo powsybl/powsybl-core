@@ -41,6 +41,7 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
     private static final String PROFILES = "profiles";
     private static final String DEPENDENT_ON_MODELS = "dependentOnModels";
     private static final String SUPERSEDES_MODELS = "supersedesModels";
+    private static final String MODELING_AUTHORITY_SET = "modelingAuthoritySet";
 
     public CgmesMetadataModelsSerDe() {
         super(CgmesMetadataModels.NAME, "network", CgmesMetadataModels.class,
@@ -77,7 +78,7 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNode(getNamespaceUri(), MODEL);
         writer.writeEnumAttribute("subset", model.getSubset());
-        writer.writeStringAttribute("modelingAuthoritySet", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
+        writer.writeStringAttribute(MODELING_AUTHORITY_SET, fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
                 () -> networkContext.getAnonymizer().anonymizeString(model.getModelingAuthoritySet()),
                 model::getModelingAuthoritySet));
         writer.writeStringAttribute("id", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
@@ -125,8 +126,8 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         TreeDataReader reader = networkContext.getReader();
         adder.setSubset(reader.readEnumAttribute("subset", CgmesSubset.class))
                 .setModelingAuthoritySet(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                        () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("modelingAuthoritySet")),
-                        () -> reader.readStringAttribute("modelingAuthoritySet")))
+                        () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute(MODELING_AUTHORITY_SET)),
+                        () -> reader.readStringAttribute(MODELING_AUTHORITY_SET)))
                 .setId(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
                         () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id")),
                         () -> reader.readStringAttribute("id")))

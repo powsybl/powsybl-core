@@ -75,17 +75,19 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
         CgmesTapChangers<C> tapChangers = extendable.getExtension(CgmesTapChangers.class);
         reader.readChildNodes(elementName -> {
             if (elementName.equals(TAP_CHANGER_ROOT_ELEMENT)) {
+                String idValue = reader.readStringAttribute("id");
                 CgmesTapChangerAdder adder = tapChangers.newTapChanger()
                         .setId(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                                () -> networkContext.getAnonymizer().anonymizeString(reader.readStringAttribute("id")),
-                                () -> reader.readStringAttribute("id")))
+                                () -> networkContext.getAnonymizer().anonymizeString(idValue),
+                                () -> idValue))
                         .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))
                         .setType(reader.readStringAttribute("type"))
                         .setHiddenStatus(reader.readBooleanAttribute("hidden", false));
                 reader.readOptionalIntAttribute("step").ifPresent(adder::setStep);
+                String controlIdValue = reader.readStringAttribute("controlId");
                 adder.setControlId(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                        () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("controlId")),
-                        () -> reader.readStringAttribute("controlId")));
+                        () -> networkContext.getAnonymizer().deanonymizeString(controlIdValue),
+                        () -> controlIdValue));
                 context.getReader().readEndNode();
                 adder.add();
             } else {
