@@ -10,9 +10,7 @@ package com.powsybl.iidm.serde.extensions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
-import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
-import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.serde.*;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
@@ -66,7 +64,7 @@ class DiscreteMeasurementsXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testAnonymizedDiscreteMeasurementsIds() throws IOException {
+    void testAnonymizedDiscreteMeasurementsIdsWhenExported() {
         //Given
         Network network = Network.create("test", "test");
         network.newExtension(DiscreteMeasurementsAdder.class).add();
@@ -80,25 +78,53 @@ class DiscreteMeasurementsXmlTest extends AbstractIidmSerDeTest {
                 .add();
         DiscreteMeasurements discreteMeasurements = network.getExtension(DiscreteMeasurements.class);
         assertNotNull(discreteMeasurements);
-        // When Export (with anonymized option)
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-        // Then check anonymized id != original ids
-        String anonymizedDiscreteMeasurementId = anonymizer.anonymizeString("discreteMeasurementId");
-        assertNotEquals("discreteMeasurementId", anonymizedDiscreteMeasurementId);
-        // Then check xml content (contain only anonymized id)
-        byte[] anonymizedXml = os.toByteArray();
-        String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
-        assertTrue(xmlContent.contains("id=\"" + anonymizedDiscreteMeasurementId + "\""));
-        assertFalse(xmlContent.contains("id=\"discreteMeasurementId\""));
-        //Then import without anonymizer
-        try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
-            Network importedNetwork = NetworkSerDe.read(is);
+
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+            // Then check anonymized id != original ids
+            String anonymizedDiscreteMeasurementId = anonymizer.anonymizeString("discreteMeasurementId");
+            assertNotEquals("discreteMeasurementId", anonymizedDiscreteMeasurementId);
+            // Then check xml content (contain only anonymized id)
+            byte[] anonymizedXml = os.toByteArray();
+            String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("id=\"" + anonymizedDiscreteMeasurementId + "\""));
+            assertFalse(xmlContent.contains("id=\"discreteMeasurementId\""));
+            //Then import without anonymizer
+            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
             DiscreteMeasurements importedDiscreteMeasurements = importedNetwork.getExtension(DiscreteMeasurements.class);
             assertNotNull(importedDiscreteMeasurements);
             assertEquals(1, discreteMeasurements.getDiscreteMeasurements().size());
             DiscreteMeasurement importedDiscreteMeasurement = (DiscreteMeasurement) importedDiscreteMeasurements.getDiscreteMeasurements().stream().findFirst().get();
             assertEquals(anonymizedDiscreteMeasurementId, importedDiscreteMeasurement.getId());
-        }
+        });
+    }
+
+    @Test
+    void testOldIIdmNoAnonymizedDiscreteMeasurementsWhenExported() {
+        //Given
+        Network network = Network.create("test", "test");
+        network.newExtension(DiscreteMeasurementsAdder.class).add();
+        network.getExtension(DiscreteMeasurements.class)
+                .newDiscreteMeasurement()
+                .setId("discreteMeasurementId")
+                .setType(DiscreteMeasurement.Type.OTHER)
+                .setValue("Test")
+                .setValid(false)
+                .putProperty("source", "test")
+                .add();
+        DiscreteMeasurements discreteMeasurements = network.getExtension(DiscreteMeasurements.class);
+        assertNotNull(discreteMeasurements);
+
+        testForAllPreviousVersions(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            NetworkSerDe.write(network, exportOptions, os);
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("id=\"discreteMeasurementId\""));
+        });
     }
 }
