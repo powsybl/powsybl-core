@@ -215,7 +215,7 @@ class CgmesExportTest {
         String baseName = "testPtcType";
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(transformerId);
         String typeOriginal = "PhaseTapChangerAsymmetrical";
-        assertEquals(typeOriginal, CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new));
+        assertEquals(typeOriginal, CgmesExportUtil.getPhaseTapChangerType(transformer, phaseTapChangerId));
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
 

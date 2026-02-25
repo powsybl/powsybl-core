@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
-import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -181,18 +180,12 @@ public final class SteadyStateHypothesisExport {
             if (twt.hasPhaseTapChanger()) {
                 String aliasType = twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty() ?
                     ALIAS_PHASE_TAP_CHANGER2 : ALIAS_PHASE_TAP_CHANGER1;
-                String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
-                String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(null);
-                String tapChangerControlId = getTapChangerControlId(twt, PHASE_TAP_CHANGER, cgmesTapChangerId, context);
-                writeTapChanger(twt, tapChangerId, tapChangerControlId, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer, context);
+                writeTapChanger(twt, aliasType, PHASE_TAP_CHANGER, CgmesNames.PHASE_TAP_CHANGER_TABULAR, twt.getPhaseTapChanger(), regulatingControlViews, cimNamespace, writer, context);
             }
             if (twt.hasRatioTapChanger()) {
                 String aliasType = twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER1).isEmpty() ?
                     ALIAS_RATIO_TAP_CHANGER2 : ALIAS_RATIO_TAP_CHANGER1;
-                String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
-                String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(null);
-                String tapChangerControlId = getTapChangerControlId(twt, RATIO_TAP_CHANGER, cgmesTapChangerId, context);
-                writeTapChanger(twt, tapChangerId, tapChangerControlId, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer, context);
+                writeTapChanger(twt, aliasType, RATIO_TAP_CHANGER, CgmesNames.RATIO_TAP_CHANGER, twt.getRatioTapChanger(), regulatingControlViews, cimNamespace, writer, context);
             }
         }
 
@@ -201,36 +194,35 @@ public final class SteadyStateHypothesisExport {
                 String endNumber = Integer.toString(leg.getSide().getNum());
                 if (leg.hasPhaseTapChanger()) {
                     String aliasType = getPhaseTapChangerAliasType(endNumber);
-                    String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
-                    String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(null);
-                    String tapChangerControlId = getTapChangerControlId(twt, PHASE_TAP_CHANGER, cgmesTapChangerId, context);
-                    writeTapChanger(twt, tapChangerId, tapChangerControlId, leg.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer, context);
+                    writeTapChanger(twt, aliasType, PHASE_TAP_CHANGER, CgmesNames.PHASE_TAP_CHANGER_TABULAR, leg.getPhaseTapChanger(), regulatingControlViews, cimNamespace, writer, context);
                 }
                 if (leg.hasRatioTapChanger()) {
                     String aliasType = getRatioTapChangerAliasType(endNumber);
-                    String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
-                    String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(null);
-                    String tapChangerControlId = getTapChangerControlId(twt, RATIO_TAP_CHANGER, cgmesTapChangerId, context);
-                    writeTapChanger(twt, tapChangerId, tapChangerControlId, leg.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer, context);
+                    writeTapChanger(twt, aliasType, RATIO_TAP_CHANGER, CgmesNames.RATIO_TAP_CHANGER, leg.getRatioTapChanger(), regulatingControlViews, cimNamespace, writer, context);
                 }
             }
         }
     }
 
-    private static <C extends Connectable<C>> void writeTapChanger(C eq, String tcId, String tcCtrlId, TapChanger<?, ?, ?, ?> tc, String defaultType, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String type = context.isExportEquipment() ? CgmesNames.PHASE_TAP_CHANGER_TABULAR : CgmesExportUtil.cgmesTapChangerType(eq, tcId).orElse(defaultType);
-        writeTapChanger(type, tcId, tc, cimNamespace, writer, context);
-        addRegulatingControlView(tc, tcCtrlId, regulatingControlViews);
+    private static <C extends Connectable<C>> void writeTapChanger(C twt, String aliasType, Part part, String defaultType, TapChanger<?, ?, ?, ?> tc, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
+        String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(null);
+        String tapChangerControlId = getTapChangerControlId(twt, part, cgmesTapChangerId, context);
+        String type = defaultType;
+        if (tc instanceof PhaseTapChanger && !context.isExportEquipment()) {
+            type = getPhaseTapChangerType(twt, cgmesTapChangerId);
+        }
+
+        writeTapChanger(type, tapChangerId, tc, cimNamespace, writer, context);
+        addRegulatingControlView(tc, tapChangerControlId, regulatingControlViews);
 
         // If we are exporting equipment definitions the hidden tap changer will not be exported
         // because it has been included in the model for the only tap changer left in IIDM
         // If we are exporting only SSH, SV, ... we have to write the step we have saved for it
-        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
-        if (cgmesTcs != null && !context.isExportEquipment()) {
-            for (CgmesTapChanger tapChanger : cgmesTcs.getTapChangers()) {
-                if (tapChanger.isHidden() && tapChanger.getCombinedTapChangerId().equals(tcId)) {
-                    writeHiddenTapChanger(tapChanger, defaultType, cimNamespace, writer, context);
-                }
+        if (!context.isExportEquipment()) {
+            Optional<CgmesTapChanger> hiddenCombinedTapChanger = getHiddenCombinedTapChanger(twt, cgmesTapChangerId);
+            if (hiddenCombinedTapChanger.isPresent()) {
+                writeHiddenTapChanger(hiddenCombinedTapChanger.get(), defaultType, cimNamespace, writer, context);
             }
         }
     }

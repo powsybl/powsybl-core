@@ -452,16 +452,16 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     private static String buildNetworkSvTapStepsString(Network network) {
         SvTapSteps svTapSteps = new SvTapSteps();
         network.getTwoWindingsTransformers().forEach(twt -> {
-            twt.getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER1, ALIAS_RATIO_TAP_CHANGER2), rtc.getTapPosition()));
-            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER1, ALIAS_PHASE_TAP_CHANGER2), ptc.getTapPosition()));
+            twt.getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER1, ALIAS_RATIO_TAP_CHANGER2), rtc.findSolvedTapPosition().orElse(rtc.getTapPosition())));
+            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER1, ALIAS_PHASE_TAP_CHANGER2), ptc.findSolvedTapPosition().orElse(ptc.getTapPosition())));
         });
         network.getThreeWindingsTransformers().forEach(twt -> {
-            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER1), rtc.getTapPosition()));
-            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER1), ptc.getTapPosition()));
-            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER2), rtc.getTapPosition()));
-            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER2), ptc.getTapPosition()));
-            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER3), rtc.getTapPosition()));
-            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER3), ptc.getTapPosition()));
+            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER1), rtc.findSolvedTapPosition().orElse(rtc.getTapPosition())));
+            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER1), ptc.findSolvedTapPosition().orElse(ptc.getTapPosition())));
+            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER2), rtc.findSolvedTapPosition().orElse(rtc.getTapPosition())));
+            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER2), ptc.findSolvedTapPosition().orElse(ptc.getTapPosition())));
+            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, ALIAS_RATIO_TAP_CHANGER3), rtc.findSolvedTapPosition().orElse(rtc.getTapPosition())));
+            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, ALIAS_PHASE_TAP_CHANGER3), ptc.findSolvedTapPosition().orElse(ptc.getTapPosition())));
         });
         return svTapSteps.toSortedString();
     }

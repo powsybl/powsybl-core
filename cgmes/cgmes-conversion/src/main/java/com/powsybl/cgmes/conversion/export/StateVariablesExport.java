@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
-import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -31,8 +30,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
-import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerAliasType;
-import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getRatioTapChangerAliasType;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TOPOLOGICAL_ISLAND;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 
@@ -543,16 +541,12 @@ public final class StateVariablesExport {
         if (twt.hasPhaseTapChanger()) {
             String aliasType = twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty() ?
                 ALIAS_PHASE_TAP_CHANGER2 : ALIAS_PHASE_TAP_CHANGER1;
-            String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
-            writeSvTapStep(ptcId, twt.getPhaseTapChanger().findSolvedTapPosition().orElse(twt.getPhaseTapChanger().getTapPosition()), cimNamespace, writer, context);
-            writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
+            writeTapSteps(twt, aliasType, twt.getPhaseTapChanger(), cimNamespace, writer, context);
         }
         if (twt.hasRatioTapChanger()) {
             String aliasType = twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER1).isEmpty() ?
                 ALIAS_RATIO_TAP_CHANGER2 : ALIAS_RATIO_TAP_CHANGER1;
-            String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
-            writeSvTapStep(rtcId, twt.getRatioTapChanger().findSolvedTapPosition().orElse(twt.getRatioTapChanger().getTapPosition()), cimNamespace, writer, context);
-            writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
+            writeTapSteps(twt, aliasType, twt.getRatioTapChanger(), cimNamespace, writer, context);
         }
     }
 
@@ -560,31 +554,34 @@ public final class StateVariablesExport {
         for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
             String endNumber = Integer.toString(leg.getSide().getNum());
             if (leg.hasPhaseTapChanger()) {
-                String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, getPhaseTapChangerAliasType(endNumber));
-                PhaseTapChanger phaseTapChanger = leg.getPhaseTapChanger();
-                writeSvTapStep(ptcId, phaseTapChanger.findSolvedTapPosition().orElse(phaseTapChanger.getTapPosition()), cimNamespace, writer, context);
-                writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
+                String aliasType = getPhaseTapChangerAliasType(endNumber);
+                writeTapSteps(twt, aliasType, leg.getPhaseTapChanger(), cimNamespace, writer, context);
             }
             if (leg.hasRatioTapChanger()) {
-                String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, getRatioTapChangerAliasType(endNumber));
-                RatioTapChanger ratioTapChanger = leg.getRatioTapChanger();
-                writeSvTapStep(rtcId, ratioTapChanger.findTapPosition().orElse(ratioTapChanger.getTapPosition()), cimNamespace, writer, context);
-                writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
+                String aliasType = getRatioTapChangerAliasType(endNumber);
+                writeTapSteps(twt, aliasType, leg.getRatioTapChanger(), cimNamespace, writer, context);
             }
         }
     }
 
-    private static <C extends Connectable<C>> void writeSvTapStepHidden(Connectable<C> eq, String tcId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+    private static <C extends Connectable<C>> void writeTapSteps(C twt, String aliasType, TapChanger<?, ?, ?, ?> tapChanger, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
+        String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(null);
+
+        writeSvTapStep(tapChangerId, tapChanger.findSolvedTapPosition().orElse(tapChanger.getTapPosition()), cimNamespace, writer, context);
+        writeSvTapStepHidden(twt, cgmesTapChangerId, cimNamespace, writer, context);
+    }
+
+    private static <C extends Connectable<C>> void writeSvTapStepHidden(C twt, String cgmesTapChangerId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // If we are exporting equipment definitions the hidden tap changer will not be exported
         // because it has been included in the model for the only tap changer left in IIDM
         // If we are exporting only SSH, SV, ... we have to write the step we have saved for it
-        if (cgmesTcs != null && !context.isExportEquipment()) {
-            for (CgmesTapChanger cgmesTc : cgmesTcs.getTapChangers()) {
-                if (cgmesTc.isHidden() && cgmesTc.getCombinedTapChangerId().equals(tcId)) {
-                    int step = cgmesTc.getStep().orElseThrow(() -> new PowsyblException("Non null step expected for tap changer " + cgmesTc.getId()));
-                    writeSvTapStep(cgmesTc.getId(), step, cimNamespace, writer, context);
-                }
+        if (!context.isExportEquipment()) {
+            Optional<CgmesTapChanger> hiddenCombinedTapChanger = getHiddenCombinedTapChanger(twt, cgmesTapChangerId);
+            if (hiddenCombinedTapChanger.isPresent()) {
+                int step = hiddenCombinedTapChanger.get().getStep()
+                    .orElseThrow(() -> new PowsyblException("Non null step expected for tap changer " + hiddenCombinedTapChanger.get().getId()));
+                writeSvTapStep(hiddenCombinedTapChanger.get().getId(), step, cimNamespace, writer, context);
             }
         }
     }

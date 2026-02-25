@@ -169,23 +169,23 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         }
     }
 
-    static <C extends Connectable<C>> void updateRatioTapChanger(Connectable<C> tw, RatioTapChanger rtc, Context context, boolean isRegulatingAllowed) {
+    static <C extends Connectable<C>> void updateRatioTapChanger(C tw, RatioTapChanger rtc, Context context, boolean isRegulatingAllowed) {
         updateRatioTapChanger(tw, rtc, "", context, isRegulatingAllowed);
     }
 
-    static <C extends Connectable<C>> void updateRatioTapChanger(Connectable<C> tw, RatioTapChanger rtc, ThreeSides side, Context context, boolean isRegulatingAllowed) {
+    static <C extends Connectable<C>> void updateRatioTapChanger(C tw, RatioTapChanger rtc, ThreeSides side, Context context, boolean isRegulatingAllowed) {
         updateRatioTapChanger(tw, rtc, String.valueOf(side.getNum()), context, isRegulatingAllowed);
     }
 
-    static <C extends Connectable<C>> void updatePhaseTapChanger(Connectable<C> tw, PhaseTapChanger ptc, Context context, boolean isRegulatingAllowed) {
+    static <C extends Connectable<C>> void updatePhaseTapChanger(C tw, PhaseTapChanger ptc, Context context, boolean isRegulatingAllowed) {
         updatePhaseTapChanger(tw, ptc, "", context, isRegulatingAllowed);
     }
 
-    static <C extends Connectable<C>> void updatePhaseTapChanger(Connectable<C> tw, PhaseTapChanger ptc, ThreeSides side, Context context, boolean isRegulatingAllowed) {
+    static <C extends Connectable<C>> void updatePhaseTapChanger(C tw, PhaseTapChanger ptc, ThreeSides side, Context context, boolean isRegulatingAllowed) {
         updatePhaseTapChanger(tw, ptc, String.valueOf(side.getNum()), context, isRegulatingAllowed);
     }
 
-    private static <C extends Connectable<C>> void updateRatioTapChanger(Connectable<C> tw, RatioTapChanger rtc, String end, Context context, boolean isRegulatingAllowed) {
+    private static <C extends Connectable<C>> void updateRatioTapChanger(C tw, RatioTapChanger rtc, String end, Context context, boolean isRegulatingAllowed) {
         String ratioTapChangerId = findTapChangerId(tw, getRatioTapChangerAliasType(end));
 
         int defaultTapPosition = getDefaultTapPosition(tw, rtc, ratioTapChangerId, getClosestNeutralStep(rtc), context);
@@ -251,7 +251,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         }
     }
 
-    private static <C extends Connectable<C>> void updatePhaseTapChanger(Connectable<C> tw, PhaseTapChanger ptc, String end, Context context, boolean isRegulatingAllowed) {
+    private static <C extends Connectable<C>> void updatePhaseTapChanger(C tw, PhaseTapChanger ptc, String end, Context context, boolean isRegulatingAllowed) {
         String phaseTapChangerId = findTapChangerId(tw, getPhaseTapChangerAliasType(end));
 
         int defaultTapPosition = getDefaultTapPosition(tw, ptc, phaseTapChangerId, getClosestNeutralStep(ptc), context);
@@ -339,7 +339,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         return tapPosition.isPresent() ? tapPosition.getAsInt() : defaultTapPosition;
     }
 
-    private static <C extends Connectable<C>> int getDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, int closestNeutralTapPosition, Context context) {
+    private static <C extends Connectable<C>> int getDefaultTapPosition(C tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, int closestNeutralTapPosition, Context context) {
         Integer validNormalStep = null;
         OptionalInt normalStep = getNormalStep(tw, tapChangerId);
         if (normalStep.isPresent() && isValidTapPosition(tapChanger, normalStep.getAsInt())) {
@@ -389,7 +389,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         return Double.isFinite(tapPosition) ? OptionalInt.of(AbstractObjectConversion.fromContinuous(tapPosition)) : OptionalInt.empty();
     }
 
-    private static <C extends Connectable<C>> String findTapChangerId(Connectable<C> tw, String propertyTag) {
+    private static <C extends Connectable<C>> String findTapChangerId(C tw, String propertyTag) {
         List<String> tcIds = tw.getAliases()
             .stream()
             .filter(alias -> isValidTapChangerIdAlias(tw, alias, tw.getAliasType(alias).orElseThrow(), propertyTag))
@@ -401,19 +401,12 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         }
     }
 
-    private static boolean isValidTapChangerIdAlias(Connectable<?> connectable, String alias, String aliasType, String propertyTag) {
-        return alias != null && aliasType != null && aliasType.contains(propertyTag) && !isHiddenTapChanger(connectable, alias);
+    private static <C extends Connectable<C>> boolean isValidTapChangerIdAlias(C tw, String alias, String aliasType, String propertyTag) {
+        return alias != null && aliasType != null && aliasType.contains(propertyTag) && !isHiddenTapChanger(tw, alias);
     }
 
-    private static <C extends Connectable<C>> boolean isHiddenTapChanger(Connectable<C> tw, String tapChangerId) {
-        CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
-        if (cgmesTcs != null) {
-            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
-            if (cgmesTc != null) {
-                return cgmesTc.isHidden();
-            }
-        }
-        return false;
+    private static <C extends Connectable<C>> boolean isHiddenTapChanger(C tw, String tapChangerId) {
+        return getCgmesTapChanger(tw, tapChangerId).map(CgmesTapChanger::isHidden).orElse(false);
     }
 
     private static double getDefaultTargetV(com.powsybl.iidm.network.RatioTapChanger ratioTapChanger, Context context) {
@@ -437,17 +430,8 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         return isAllowedToRegulate && !previousTapChangerIsRegulatingOn;
     }
 
-    public static <C extends Connectable<C>> OptionalInt getNormalStep(Connectable<C> tw, String tapChangerId) {
-        if (tapChangerId != null) {
-            CgmesTapChangers<C> cgmesTcs = tw.getExtension(CgmesTapChangers.class);
-            if (cgmesTcs != null) {
-                CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
-                if (cgmesTc != null) {
-                    return cgmesTc.getStep();
-                }
-            }
-        }
-        return OptionalInt.empty();
+    public static <C extends Connectable<C>> OptionalInt getNormalStep(C tw, String tapChangerId) {
+        return getCgmesTapChanger(tw, tapChangerId).map(CgmesTapChanger::getStep).orElse(OptionalInt.empty());
     }
 
     public static int getClosestNeutralStep(com.powsybl.iidm.network.RatioTapChanger rtc) {
@@ -462,5 +446,18 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
                 .min(Comparator.comparingDouble(entry -> Math.abs(entry.getValue().getAlpha())))
                 .map(Map.Entry::getKey)
                 .orElse(ptc.getLowTapPosition());
+    }
+
+    public static <C extends Connectable<C>> Optional<CgmesTapChanger> getCgmesTapChanger(C transformer, String cgmesTapChangerId) {
+        if (cgmesTapChangerId != null) {
+            CgmesTapChangers<C> cgmesTapChangers = transformer.getExtension(CgmesTapChangers.class);
+            if (cgmesTapChangers != null) {
+                CgmesTapChanger cgmesTapChanger = cgmesTapChangers.getTapChanger(cgmesTapChangerId);
+                if (cgmesTapChanger != null) {
+                    return Optional.of(cgmesTapChanger);
+                }
+            }
+        }
+        return Optional.empty();
     }
 }

@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
+import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getCgmesTapChanger;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.REGULATING_CONTROL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -332,15 +333,8 @@ public final class CgmesExportUtil {
         }
     }
 
-    public static <C extends Connectable<C>> Optional<String> cgmesTapChangerType(C eq, String tcId) {
-        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
-        if (cgmesTcs != null) {
-            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tcId);
-            if (cgmesTc != null) {
-                return Optional.ofNullable(cgmesTc.getType());
-            }
-        }
-        return Optional.empty();
+    public static <C extends Connectable<C>> String getPhaseTapChangerType(C transformer, String cgmesTapChangerId) {
+        return getCgmesTapChanger(transformer, cgmesTapChangerId).map(CgmesTapChanger::getType).orElse(CgmesNames.PHASE_TAP_CHANGER_TABULAR);
     }
 
     static boolean tapChangerControlIsDefined(RatioTapChanger rtc) {
@@ -355,16 +349,25 @@ public final class CgmesExportUtil {
     }
 
     static <C extends Connectable<C>> String getTapChangerControlId(C transformer, Part part, String cgmesTapChangerId, CgmesExportContext context) {
+        String cgmesTapChangerControlId = getCgmesTapChanger(transformer, cgmesTapChangerId).map(CgmesTapChanger::getControlId).orElse(null);
+        if (cgmesTapChangerControlId != null) {
+            return context.getNamingStrategy().getCgmesId(cgmesTapChangerControlId);
+        }
+        return context.getNamingStrategy().getCgmesId(ref(transformer), part, REGULATING_CONTROL);
+    }
+
+    static <C extends Connectable<C>> Optional<CgmesTapChanger> getHiddenCombinedTapChanger(C transformer, String cgmesTapChangerId) {
         if (cgmesTapChangerId != null) {
-            CgmesTapChangers<C> cgmesTcs = transformer.getExtension(CgmesTapChangers.class);
-            if (cgmesTcs != null) {
-                CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(cgmesTapChangerId);
-                if (cgmesTc != null && cgmesTc.getControlId() != null) {
-                    return context.getNamingStrategy().getCgmesId(cgmesTc.getControlId());
+            CgmesTapChangers<C> cgmesTapChangers = transformer.getExtension(CgmesTapChangers.class);
+            if (cgmesTapChangers != null) {
+                for (CgmesTapChanger tapChanger : cgmesTapChangers.getTapChangers()) {
+                    if (tapChanger.isHidden() && tapChanger.getCombinedTapChangerId().equals(cgmesTapChangerId)) {
+                        return Optional.of(tapChanger);
+                    }
                 }
             }
         }
-        return context.getNamingStrategy().getCgmesId(ref(transformer), part, REGULATING_CONTROL);
+        return Optional.empty();
     }
 
     static boolean targetDeadbandIsDefined(double targetDeadband) {
