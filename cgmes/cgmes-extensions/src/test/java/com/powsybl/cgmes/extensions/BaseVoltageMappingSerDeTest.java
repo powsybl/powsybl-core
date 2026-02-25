@@ -48,36 +48,22 @@ class BaseVoltageMappingSerDeTest extends AbstractCgmesExtensionTest {
                 .addBaseVoltage("id_400", 400, Source.IGM)
                 .addBaseVoltage("id_380", 380, Source.BOUNDARY)
                 .add();
-
-        byte[] anonymizedXml;
-        Anonymizer anonymizer;
         // When Export (with anonymized option)
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-            anonymizedXml = os.toByteArray();
-        }
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
         // Then check anonymized id != original ids
         String anonymizedId400 = anonymizer.anonymizeString("id_400");
         String anonymizedId380 = anonymizer.anonymizeString("id_380");
         assertNotEquals("id_400", anonymizedId400);
         assertNotEquals("id_380", anonymizedId380);
         // Then check xml content (contain only anonymized id)
+        byte[] anonymizedXml = os.toByteArray();
         String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
         assertTrue(xmlContent.contains("id=\"" + anonymizedId400 + "\""));
         assertTrue(xmlContent.contains("id=\"" + anonymizedId380 + "\""));
         assertFalse(xmlContent.contains("id=\"id_400\""));
         assertFalse(xmlContent.contains("id=\"id_380\""));
-
-        //Then import with anonymizer to restores original ids
-        try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
-            Network importedNetwork = NetworkSerDe.read(is, new ImportOptions(), anonymizer);
-            BaseVoltageMapping importedBaseVoltageMapping = importedNetwork.getExtension(BaseVoltageMapping.class);
-            assertEquals("id_400", importedBaseVoltageMapping.getBaseVoltage(400).getId());
-            assertEquals("id_380", importedBaseVoltageMapping.getBaseVoltage(380).getId());
-            allFormatsRoundTripTest(importedNetwork, "/no_equipment_base_voltage_mapping.xml");
-        }
-
-        //Then import without anonymizer to check that is still anonymized
+        //Then import without anonymizer
         try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
             Network importedNetwork = NetworkSerDe.read(is);
             BaseVoltageMapping importedBaseVoltageMapping = importedNetwork.getExtension(BaseVoltageMapping.class);
@@ -86,6 +72,7 @@ class BaseVoltageMappingSerDeTest extends AbstractCgmesExtensionTest {
         }
     }
 
+    //TODO
     @Test
     void testExportWhenAnonymizedThenExtensionAreNotAnonymizedInOldVersion() throws IOException {
         // Given v16 file

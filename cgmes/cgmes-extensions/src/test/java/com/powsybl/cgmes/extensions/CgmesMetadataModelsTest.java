@@ -112,19 +112,16 @@ class CgmesMetadataModelsTest {
                 .add();
         CgmesMetadataModels extension = network.getExtension(CgmesMetadataModels.class);
         assertNotNull(extension);
-        byte[] anonymizedXml;
-        Anonymizer anonymizer;
         // When Export (with anonymized option)
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-            anonymizedXml = os.toByteArray();
-        }
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
         String anonymizedSSHId = anonymizer.anonymizeString("sshId");
         String anonymizedModelingAuthoritySet = anonymizer.anonymizeString("RTE");
         String anonymizedDependentOn1 = anonymizer.anonymizeString("ssh-dependency1");
         String anonymizedDependentOn2 = anonymizer.anonymizeString("ssh-dependency2");
         String anonymizedSupersedes = anonymizer.anonymizeString("AA SSH previous ID");
         // Then check xml content (contain only anonymized values)
+        byte[] anonymizedXml = os.toByteArray();
         String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
         assertTrue(xmlContent.contains("id=\"" + anonymizedSSHId + "\""));
         assertFalse(xmlContent.contains("id=\"sshId\""));
@@ -136,7 +133,7 @@ class CgmesMetadataModelsTest {
         assertFalse(xmlContent.contains("dependentOnModel>ssh-dependency2<"));
         assertTrue(xmlContent.contains("supersedesModel>" + anonymizedSupersedes + "<"));
         assertFalse(xmlContent.contains("AA SSH previous ID"));
-        //Then import to check that is still anonymized
+        //Then import without anonymizer
         try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
             Network importedNetwork = NetworkSerDe.read(is);
             CgmesMetadataModels importedCgmesMetadataModels = importedNetwork.getExtension(CgmesMetadataModels.class);

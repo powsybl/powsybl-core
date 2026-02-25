@@ -14,13 +14,19 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
-import com.powsybl.iidm.serde.IidmSerDeConstants;
-import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.*;
+import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -57,5 +63,42 @@ class DiscreteMeasurementsXmlTest extends AbstractIidmSerDeTest {
 
         allFormatsRoundTripTest(network, "disMeasRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("disMeasRef.xiidm", IidmVersion.V_1_5);
+    }
+
+    @Test
+    void testAnonymizedDiscreteMeasurementsIds() throws IOException {
+        //Given
+        Network network = Network.create("test", "test");
+        network.newExtension(DiscreteMeasurementsAdder.class).add();
+        network.getExtension(DiscreteMeasurements.class)
+                .newDiscreteMeasurement()
+                .setId("discreteMeasurementId")
+                .setType(DiscreteMeasurement.Type.OTHER)
+                .setValue("Test")
+                .setValid(false)
+                .putProperty("source", "test")
+                .add();
+        DiscreteMeasurements discreteMeasurements = network.getExtension(DiscreteMeasurements.class);
+        assertNotNull(discreteMeasurements);
+        // When Export (with anonymized option)
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
+        // Then check anonymized id != original ids
+        String anonymizedDiscreteMeasurementId = anonymizer.anonymizeString("discreteMeasurementId");
+        assertNotEquals("discreteMeasurementId", anonymizedDiscreteMeasurementId);
+        // Then check xml content (contain only anonymized id)
+        byte[] anonymizedXml = os.toByteArray();
+        String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
+        assertTrue(xmlContent.contains("id=\"" + anonymizedDiscreteMeasurementId + "\""));
+        assertFalse(xmlContent.contains("id=\"discreteMeasurementId\""));
+        //Then import without anonymizer
+        try (ByteArrayInputStream is = new ByteArrayInputStream(anonymizedXml)) {
+            Network importedNetwork = NetworkSerDe.read(is);
+            DiscreteMeasurements importedDiscreteMeasurements = importedNetwork.getExtension(DiscreteMeasurements.class);
+            assertNotNull(importedDiscreteMeasurements);
+            assertEquals(1, discreteMeasurements.getDiscreteMeasurements().size());
+            DiscreteMeasurement importedDiscreteMeasurement = (DiscreteMeasurement) importedDiscreteMeasurements.getDiscreteMeasurements().stream().findFirst().get();
+            assertEquals(anonymizedDiscreteMeasurementId, importedDiscreteMeasurement.getId());
+        }
     }
 }
