@@ -13,11 +13,15 @@ import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.ImportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
+import com.powsybl.iidm.serde.anonymizer.SimpleAnonymizer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 
@@ -72,32 +76,28 @@ class BaseVoltageMappingSerDeTest extends AbstractCgmesExtensionTest {
         }
     }
 
-    //TODO
-    @Test
-    void testExportWhenAnonymizedThenExtensionAreNotAnonymizedInOldVersion() throws IOException {
-        // Given v16 file
-        Network network = Network.read("base_voltage_mapping_1_16.xml", getClass().getResourceAsStream("/base_voltage_mapping_1_16.xml"));
-        byte[] anonymizedV16Xml;
-        Anonymizer anonymizer;
-        // When Export
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-            anonymizedV16Xml = os.toByteArray();
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/base_voltage_mapping_anonymize_not_supported.xml",
+            "/base_voltage_mapping_anonymize_supported.xml"})
+    void testNetworkWithBaseVoltageMappingIdsWhenImported(String resourcePath) throws IOException {
+        // Given: old format (plain extension ids) and new format (anonymized extension ids)
+        SimpleAnonymizer anonymizer = createBaseVoltageAnonymizerMapping();
+        Network network;
+        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+            network = assertDoesNotThrow(() -> NetworkSerDe.read(is, new ImportOptions(), anonymizer));
         }
-        // Then id are anonymized
-        String xmlContent = new String(anonymizedV16Xml, StandardCharsets.UTF_8);
-        String anonymizedId400 = anonymizer.anonymizeString("id_400");
-        String anonymizedId380 = anonymizer.anonymizeString("id_380");
-        assertTrue(xmlContent.contains("id=\"" + anonymizedId400 + "\""));
-        assertTrue(xmlContent.contains("id=\"" + anonymizedId380 + "\""));
-        assertFalse(xmlContent.contains("id=\"id_400\""));
-        assertFalse(xmlContent.contains("id=\"id_380\""));
+        BaseVoltageMapping baseVoltageMapping = network.getExtension(BaseVoltageMapping.class);
+        assertNotNull(baseVoltageMapping);
+        assertEquals("id_380", baseVoltageMapping.getBaseVoltage(380.0).getId());
+        assertEquals("id_400", baseVoltageMapping.getBaseVoltage(400.0).getId());
+    }
 
-        // Then import the same file exported in v15 with anonymize. The ids are still the original values.
-        Network importedNetwork = NetworkSerDe.read(getClass().getResourceAsStream("/base_voltage_mapping_1_15.xml"),
-                new ImportOptions(), anonymizer);
-        BaseVoltageMapping importedBaseVoltageMapping = importedNetwork.getExtension(BaseVoltageMapping.class);
-        assertEquals("id_400", importedBaseVoltageMapping.getBaseVoltage(400).getId());
-        assertEquals("id_380", importedBaseVoltageMapping.getBaseVoltage(380).getId());
+    private SimpleAnonymizer createBaseVoltageAnonymizerMapping() {
+        SimpleAnonymizer anonymizer = new SimpleAnonymizer();
+        assertEquals("A", anonymizer.anonymizeString("network")); // network -> A
+        assertEquals("B", anonymizer.anonymizeString("id_380")); // id_380 -> B
+        assertEquals("C", anonymizer.anonymizeString("id_400")); // id_400 -> C
+        return anonymizer;
     }
 }
