@@ -279,10 +279,12 @@ class CreateFeederBayTest extends AbstractModificationTest {
                         .setId("newStaticVarCompensator")
                         .setBmin(0.0002)
                         .setBmax(0.0008)
-                        .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                        .setRegulating(true)
-                        .setVoltageSetpoint(390.0)
-                        .setReactivePowerSetpoint(1.0)
+                        .newVoltageRegulation()
+                            .withMode(RegulationMode.VOLTAGE)
+                            .withRegulating(true)
+                            .withTargetValue(390.0)
+                            .add()
+                        .setTargetQ(1.0)
                         .setEnsureIdUnicity(false);
         Optional<Range<Integer>> unusedOrderPositionsAfter2 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter2.isPresent());

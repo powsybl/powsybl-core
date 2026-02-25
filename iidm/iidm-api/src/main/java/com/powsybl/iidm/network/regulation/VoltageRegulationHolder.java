@@ -68,8 +68,17 @@ public interface VoltageRegulationHolder {
     /**
      * TODO MSA JAVADOC
      */
+    default boolean isWithMode(RegulationMode mode) {
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        return voltageRegulation != null
+            && (mode == null || mode.equals(voltageRegulation.getMode()));
+    }
+
+    /**
+     * TODO MSA JAVADOC
+     */
     default double getRegulatingTargetV() {
-        if (isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+        if (isWithMode(RegulationMode.VOLTAGE)) {
             return getVoltageRegulation().getTargetValue();
         }
         return getTargetV();
@@ -90,7 +99,7 @@ public interface VoltageRegulationHolder {
      * TODO MSA Other possible names : getEffectiveTargetQ / getApplicableTargetQ / resolveTargetQ / determineTargetQ
      */
     default double getRegulatingTargetQ() {
-        if (isRegulatingWithMode(RegulationMode.REACTIVE_POWER)) {
+        if (isWithMode(RegulationMode.REACTIVE_POWER)) {
             return getVoltageRegulation().getTargetValue();
         }
         return getTargetQ();

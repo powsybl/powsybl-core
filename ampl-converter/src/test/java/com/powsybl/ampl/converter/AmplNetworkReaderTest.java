@@ -12,7 +12,7 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 
@@ -486,14 +486,14 @@ class AmplNetworkReaderTest {
     private void testSvc(Network network, AmplNetworkReader reader) throws IOException {
         StaticVarCompensator sv = network.getStaticVarCompensator("SVC2");
 
-        assertEquals(RegulationMode.VOLTAGE, sv.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, sv.getVoltageRegulation().getMode());
         assertEquals(390.0, sv.getVoltageSetpoint(), 0.0);
         assertTrue(Double.isNaN(sv.getTerminal().getQ()));
 
         reader.readStaticVarcompensator();
 
         StaticVarCompensator sv2 = network.getStaticVarCompensator("SVC2");
-        assertEquals(RegulationMode.REACTIVE_POWER, sv2.getRegulationMode());
+        assertEquals(RegulationMode.REACTIVE_POWER, sv2.getVoltageRegulation().getMode());
         assertEquals(1.080000 * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getVoltageSetpoint(), 0.0);
         assertEquals(-30.0, sv2.getReactivePowerSetpoint(), 0.0);
         assertEquals(30.0, sv2.getTerminal().getQ(), 0.0);

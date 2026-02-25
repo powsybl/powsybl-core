@@ -1151,7 +1151,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Remote
             network = SvcTestCaseFactory.createRemoteVoltageControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "voltage");
 
             // SVC REACTIVE_POWER
             // Local
@@ -1162,7 +1162,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Remote
             network = SvcTestCaseFactory.createRemoteReactiveControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "reactivePower");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "reactivePower");
 
             // SVC OFF
             // Local
@@ -1182,16 +1182,16 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Remote
             network = SvcTestCaseFactory.createRemoteOffNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "voltage");
             network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "reactivePower");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "reactivePower");
             network = SvcTestCaseFactory.createRemoteOffVoltageTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "voltage");
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "voltage");
         }
     }
 
@@ -1779,8 +1779,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 generator.setTargetQ(Double.NaN);
                 generator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof StaticVarCompensator staticVarCompensator) {
-                staticVarCompensator.setRegulating(false).setVoltageSetpoint(0.0)
-                        .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+                staticVarCompensator.removeVoltageRegulation();
                 staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof VscConverterStation converter) {
                 converter.setVoltageRegulatorOn(false);

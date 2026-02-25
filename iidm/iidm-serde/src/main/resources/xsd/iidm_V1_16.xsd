@@ -402,14 +402,12 @@
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
-                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                 </xs:sequence>
                 <xs:attribute name="bMin" use="required" type="xs:double"/>
                 <xs:attribute name="bMax" use="required" type="xs:double"/>
-                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
-                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
-                <xs:attribute name="regulationMode" use="required" type="iidm:StaticVarCompensatorRegulationMode"/>
-                <xs:attribute name="regulating" use="required" type="xs:boolean"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
+                <xs:attribute name="targetQ" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -654,7 +652,7 @@
         <xs:sequence>
             <xs:element name="terminal" minOccurs="0" type="iidm:TerminalRef"/>
         </xs:sequence>
-        <xs:attribute name="targetValue" use="required" type="xs:double"/>
+        <xs:attribute name="targetValue" use="optional" type="xs:double"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="slope" use="optional" type="xs:double"/>
         <xs:attribute name="mode" use="required" type="iidm:RegulationMode"/>

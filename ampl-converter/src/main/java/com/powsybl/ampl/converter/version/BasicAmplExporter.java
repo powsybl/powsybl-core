@@ -1400,7 +1400,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
         int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
 
-        double vlSet = svc.getVoltageSetpoint();
+        double vlSet = svc.getRegulatingTargetV();
         double vb = t.getVoltageLevel().getNominalV();
         double zb = vb * vb / AmplConstants.SB; // Base impedance
 
@@ -1414,9 +1414,9 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell(vlNum)
             .addCell(svc.getBmin() * zb)
             .addCell(svc.getBmax() * zb)
-            .addCell(svc.isRegulating() && svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE))
+            .addCell(svc.isRegulatingWithMode(RegulationMode.VOLTAGE))
             .addCell(vlSet / vb)
-            .addCell(svc.getReactivePowerSetpoint())
+            .addCell(svc.getRegulatingTargetQ())
             .addCell(faultNum)
             .addCell(actionNum)
             .addCell(id)

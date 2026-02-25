@@ -29,7 +29,7 @@ public enum RegulationMode {
             case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
             case Class<?> c when c == VscConverterStation.class -> Set.of(VOLTAGE, REACTIVE_POWER);
             case Class<?> c when c == VoltageSourceConverter.class -> Set.of(VOLTAGE, REACTIVE_POWER);
-            default -> throw new IllegalArgumentException(voltageRegulationHolder.getSimpleName() + " class is not valid for use with VoltageRegulation");
+            default -> throw new IllegalArgumentException(voltageRegulationHolder.getSimpleName() + " class cannot be used with VoltageRegulation");
         };
     }
 }

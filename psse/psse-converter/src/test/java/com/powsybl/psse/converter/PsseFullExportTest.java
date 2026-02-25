@@ -206,7 +206,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setNode(4)
                 .setBmin(0.0)
                 .setBmax(10.0)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setRegulatingTerminal(shunt.getTerminal())
                 .setVoltageSetpoint(vl1S4.getNominalV() * 1.02)
                 .setReactivePowerSetpoint(0.0)

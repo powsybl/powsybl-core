@@ -160,7 +160,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         // VOLTAGE REGULATION
         // version < V_1_16
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () ->
-            createVoltageRegulationBackwardCompatibility(adder, targetV, targetQ, voltageRegulatorOn));
+            createVoltageRegulationBackwardCompatibility(adder.newVoltageRegulation(), targetV, targetQ, voltageRegulatorOn, null));
         // version >= V_1_16 -> voltageRegulation is read with VoltageRegulationSerDe
         // Nothing to do
     }

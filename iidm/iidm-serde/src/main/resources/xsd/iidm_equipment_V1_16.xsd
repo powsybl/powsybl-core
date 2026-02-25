@@ -402,14 +402,12 @@
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
-                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                 </xs:sequence>
                 <xs:attribute name="bMin" use="required" type="xs:double"/>
                 <xs:attribute name="bMax" use="required" type="xs:double"/>
-                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
-                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
-                <xs:attribute name="regulationMode" use="optional" type="iidm:StaticVarCompensatorRegulationMode"/>
-                <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
+                <xs:attribute name="targetQ" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

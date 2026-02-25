@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.ComponentConstants.MAX_RATE;
 import static com.powsybl.iidm.network.ComponentConstants.MIN_RATE;
-import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.REACTIVE_POWER;
-import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.VOLTAGE;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -448,12 +446,12 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkSvcRegulator(Validable validable, Boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
-                                                    StaticVarCompensator.RegulationMode regulationMode, ValidationLevel validationLevel, ReportNode reportNode) {
+                                                    RegulationMode regulationMode, ValidationLevel validationLevel, ReportNode reportNode) {
         return checkSvcRegulator(validable, regulating, voltageSetpoint, reactivePowerSetpoint, regulationMode, checkValidationActionOnError(validationLevel), reportNode);
     }
 
     private static ValidationLevel checkSvcRegulator(Validable validable, Boolean regulating, double voltageSetpoint, double reactivePowerSetpoint,
-                                                     StaticVarCompensator.RegulationMode regulationMode, ActionOnError actionOnError, ReportNode reportNode) {
+                                                     RegulationMode regulationMode, ActionOnError actionOnError, ReportNode reportNode) {
         if (regulating == null) {
             throw new ValidationException(validable, "regulating is not set");
         }
@@ -463,11 +461,11 @@ public final class ValidationUtil {
             return ValidationLevel.EQUIPMENT;
         }
         if (regulating) {
-            if (regulationMode == VOLTAGE && Double.isNaN(voltageSetpoint)) {
+            if (regulationMode == RegulationMode.VOLTAGE && Double.isNaN(voltageSetpoint)) {
                 throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, actionOnError,
                         id -> NetworkReports.svcVoltageSetpointInvalid(reportNode, id, voltageSetpoint));
                 return ValidationLevel.EQUIPMENT;
-            } else if (regulationMode == REACTIVE_POWER && Double.isNaN(reactivePowerSetpoint)) {
+            } else if (regulationMode == RegulationMode.REACTIVE_POWER && Double.isNaN(reactivePowerSetpoint)) {
                 throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", actionOnError,
                         id -> NetworkReports.svcReactivePowerSetpointInvalid(reportNode, id, reactivePowerSetpoint));
                 return ValidationLevel.EQUIPMENT;
@@ -930,9 +928,9 @@ public final class ValidationUtil {
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
-        /**
-         * TODO MSA JAVADOC
-         */
+    /**
+     * TODO MSA JAVADOC
+     */
     private static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, Network network, Class<? extends VoltageRegulationHolder> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         // TODO MSA change NetworkReports for each checkVoltageRegulation

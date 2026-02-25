@@ -815,7 +815,7 @@ public class MatpowerExporter implements Exporter {
                 int busNumber = context.mBusesNumbersByIds.get(bus.getId());
                 String id = svc.getId();
                 double targetQ;
-                if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svc.getRegulationMode())) {
+                if (RegulationMode.REACTIVE_POWER.equals(svc.getRegulationMode())) {
                     targetQ = -svc.getReactivePowerSetpoint();
                 } else { // OFF or VOLTAGE regulation
                     targetQ = 0;
@@ -825,7 +825,7 @@ public class MatpowerExporter implements Exporter {
                 double maxQ = svc.getBmax() * vSquared;
                 double targetVpu = checkAndFixTargetVpu(findTargetVpu(svc));
                 Bus regulatedBus = svc.getRegulatingTerminal().getBusView().getBus();
-                boolean isValidVoltageRegulation = isValidVoltageRegulation(StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()), regulatedBus);
+                boolean isValidVoltageRegulation = isValidVoltageRegulation(RegulationMode.VOLTAGE.equals(svc.getRegulationMode()), regulatedBus);
                 boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
                 addMgen(context, busNumber, id, targetVpu, 0, 0, 0, targetQ, minQ, maxQ, isValidVoltageRegulation, isRemoteRegulation, Double.NaN);
             }

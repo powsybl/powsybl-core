@@ -23,6 +23,7 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -552,9 +553,9 @@ public final class CgmesExportUtil {
     }
 
     public static String getSvcMode(StaticVarCompensator svc) {
-        if (svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE)) {
+        if (svc.getRegulationMode().equals(RegulationMode.VOLTAGE)) {
             return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        } else if (svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.REACTIVE_POWER)) {
+        } else if (svc.getRegulationMode().equals(RegulationMode.REACTIVE_POWER)) {
             return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
         } else {
             boolean validVoltageSetpoint = isValidVoltageSetpoint(svc.getVoltageSetpoint());

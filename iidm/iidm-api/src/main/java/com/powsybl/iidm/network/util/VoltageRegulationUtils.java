@@ -8,9 +8,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
-import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,18 +23,18 @@ public final class VoltageRegulationUtils {
         /* This utility class should not be instantiated */
     }
 
-    public static void createVoltageRegulationBackwardCompatibility(GeneratorAdder adder, double targetV, double targetQ, Boolean voltageRegulatorOn) {
-        // Common attributes
-        VoltageRegulationAdder<GeneratorAdder> vrAdder = adder.newVoltageRegulation();
+    public static void createVoltageRegulationBackwardCompatibility(VoltageRegulationAdder<?> adder, double targetV, double targetQ, Boolean voltageRegulatorOn, Terminal terminal) {
         // VOLTAGE case
         if (Boolean.TRUE.equals(voltageRegulatorOn)) {
-            vrAdder.withMode(RegulationMode.VOLTAGE)
+            adder.withMode(RegulationMode.VOLTAGE)
                 .withTargetValue(targetV)
+                .withTerminal(terminal)
                 .add();
             // REACTIVE Power case
         } else if (Boolean.FALSE.equals(voltageRegulatorOn) && !Double.isNaN(targetQ)) {
-            vrAdder.withMode(RegulationMode.REACTIVE_POWER)
+            adder.withMode(RegulationMode.REACTIVE_POWER)
                 .withTargetValue(targetQ)
+                .withTerminal(terminal)
                 .add();
         }
     }
@@ -60,7 +58,8 @@ public final class VoltageRegulationUtils {
      */
     public static Stream<ShuntCompensator> getRegulatingShuntCompensators(Network network, Bus controlledBus) {
         if (controlledBus != null) {
-            return network.getShuntCompensatorStream().filter(ShuntCompensator::isVoltageRegulatorOn)
+            return network.getShuntCompensatorStream()
+                    .filter(shuntCompensator -> shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE))
                     .filter(sh -> sh.getRegulatingTerminal().getBusView().getBus() != null)
                     .filter(sh -> controlledBus.equals(sh.getRegulatingTerminal().getBusView().getBus()));
         } else {

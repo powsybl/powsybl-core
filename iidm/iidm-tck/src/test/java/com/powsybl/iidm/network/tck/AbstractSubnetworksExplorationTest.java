@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.BeforeAll;
@@ -81,7 +82,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode(12)
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setRegulating(true)
                 .setVoltageSetpoint(400)
                 .add();

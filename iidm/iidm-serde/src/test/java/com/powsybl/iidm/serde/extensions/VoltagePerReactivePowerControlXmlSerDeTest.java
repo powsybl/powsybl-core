@@ -10,9 +10,9 @@ package com.powsybl.iidm.serde.extensions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
+import com.powsybl.iidm.serde.IidmVersion;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
@@ -34,17 +35,20 @@ class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractIidmSerDeTest {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertNotNull(svc);
 
-        svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(0.5).add();
+        svc.getVoltageRegulation().setSlope(0.5);
 
         Network network2 = allFormatsRoundTripTest(network, "/voltagePerReactivePowerControl.xml", CURRENT_IIDM_VERSION);
 
         StaticVarCompensator svc2 = network2.getStaticVarCompensator("SVC2");
         assertNotNull(svc2);
         VoltagePerReactivePowerControl control2 = svc2.getExtension(VoltagePerReactivePowerControl.class);
-        assertNotNull(control2);
+        assertNull(control2);
 
-        assertEquals(0.5, control2.getSlope(), 0.0);
-        assertEquals("voltagePerReactivePowerControl", control2.getName());
+        assertEquals(0.5, svc2.getVoltageRegulation().getSlope(), 0.0);
+
+        // backward compatibility checks from version 1.5
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("voltagePerReactivePowerControl.xml", IidmVersion.V_1_5, CURRENT_IIDM_VERSION);
+
     }
 
 }

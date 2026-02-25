@@ -9,7 +9,7 @@ package com.powsybl.loadflow.validation.io;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.util.TwtTestData;
 import org.junit.jupiter.api.Test;

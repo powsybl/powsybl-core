@@ -15,13 +15,13 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 

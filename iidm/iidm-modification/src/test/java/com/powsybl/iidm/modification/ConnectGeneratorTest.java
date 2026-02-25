@@ -91,9 +91,11 @@ class ConnectGeneratorTest {
         // heterogeneous controls not taken into account yet.
         double shuntTargetV = 123;
         network.getShuntCompensatorStream().forEach(sc -> {
-            sc.setTargetV(shuntTargetV);
-            sc.setTargetDeadband(1);
-            sc.setVoltageRegulatorOn(true);
+            sc.newVoltageRegulation()
+                .withTargetValue(shuntTargetV)
+                .withTargetDeadband(1)
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true);
         });
         g2.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         g2.getVoltageRegulation().setTerminal(g3.getTerminal());

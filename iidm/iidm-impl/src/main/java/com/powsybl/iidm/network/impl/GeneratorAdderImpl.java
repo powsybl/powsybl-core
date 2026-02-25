@@ -135,7 +135,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         // Backward compatibility : If a generator with old setters is added and voltageRegulation does not exist,
         // the new voltageRegulation will be created from the old attributes.
         if (this.voltageRegulation == null) {
-            createVoltageRegulationBackwardCompatibility(this, targetV, targetQ, voltageRegulatorOn);
+            createVoltageRegulationBackwardCompatibility(this.newVoltageRegulation(), targetV, targetQ, voltageRegulatorOn, regulatingTerminal);
         }
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),

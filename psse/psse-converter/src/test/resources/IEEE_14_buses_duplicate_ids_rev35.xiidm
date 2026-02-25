@@ -53,8 +53,8 @@
             <iidm:shunt id="B9-SH 1" sectionCount="1" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:staticVarCompensator id="FactsDevice-FACTS_DVCE_1" name="FACTS_DVCE_1" bMin="-0.001312749422390254" bMax="0.001312749422390254" voltageSetpoint="140.07" reactivePowerSetpoint="40.0" regulationMode="VOLTAGE" regulating="true" bus="B7" connectableBus="B7">
-                <iidm:regulatingTerminal id="L-7-8-1 " side="ONE"/>
+            <iidm:staticVarCompensator id="FactsDevice-FACTS_DVCE_1" name="FACTS_DVCE_1" bMin="-0.001312749422390254" bMax="0.001312749422390254" targetQ="40.0" bus="B7" connectableBus="B7">
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="140.07"/>
             </iidm:staticVarCompensator>
             <iidm:vscConverterStation id="VscConverter-7-VDCLINE1" voltageRegulatorOn="false" lossFactor="0.047824007" voltageSetpoint="138.0" reactivePowerSetpoint="68.6949779823824" bus="B7" connectableBus="B7">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
