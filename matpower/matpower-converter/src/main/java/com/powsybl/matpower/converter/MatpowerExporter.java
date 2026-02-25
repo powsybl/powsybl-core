@@ -815,8 +815,8 @@ public class MatpowerExporter implements Exporter {
                 int busNumber = context.mBusesNumbersByIds.get(bus.getId());
                 String id = svc.getId();
                 double targetQ;
-                if (RegulationMode.REACTIVE_POWER.equals(svc.getRegulationMode())) {
-                    targetQ = -svc.getReactivePowerSetpoint();
+                if (svc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER)) {
+                    targetQ = -svc.getRegulatingTargetQ();
                 } else { // OFF or VOLTAGE regulation
                     targetQ = 0;
                 }
@@ -825,7 +825,7 @@ public class MatpowerExporter implements Exporter {
                 double maxQ = svc.getBmax() * vSquared;
                 double targetVpu = checkAndFixTargetVpu(findTargetVpu(svc));
                 Bus regulatedBus = svc.getRegulatingTerminal().getBusView().getBus();
-                boolean isValidVoltageRegulation = isValidVoltageRegulation(RegulationMode.VOLTAGE.equals(svc.getRegulationMode()), regulatedBus);
+                boolean isValidVoltageRegulation = isValidVoltageRegulation(svc.isRegulatingWithMode(RegulationMode.VOLTAGE), regulatedBus);
                 boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
                 addMgen(context, busNumber, id, targetVpu, 0, 0, 0, targetQ, minQ, maxQ, isValidVoltageRegulation, isRemoteRegulation, Double.NaN);
             }
@@ -834,7 +834,7 @@ public class MatpowerExporter implements Exporter {
 
     // matpower only supports local control, all remote control will be localized with the defined targetVpu
     private static double findTargetVpu(StaticVarCompensator staticVarCompensator) {
-        return staticVarCompensator.getVoltageSetpoint() / staticVarCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV();
+        return staticVarCompensator.getRegulatingTargetV() / staticVarCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV();
     }
 
     private void createDcLines(Network network, MatpowerModel model, Context context) {

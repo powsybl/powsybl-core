@@ -878,7 +878,7 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationIfRegulating(validable, shunt.getVoltageRegulation(), shunt.getNetwork(), ShuntCompensator.class, actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, getSectionCount(shunt), shunt.getMaximumSectionCount(), actionOnError, reportNode));
             } else if (identifiable instanceof StaticVarCompensator svc) {
-                validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.isRegulating(), svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationIfRegulating(validable, svc.getVoltageRegulation(), svc.getNetwork(), StaticVarCompensator.class, actionOnError, reportNode));
             } else if (identifiable instanceof ThreeWindingsTransformer twt) {
                 validationLevel = ValidationLevel.min(validationLevel, checkThreeWindingsTransformer(validable, twt, actionOnError, reportNode));
             } else if (identifiable instanceof TwoWindingsTransformer twt) {

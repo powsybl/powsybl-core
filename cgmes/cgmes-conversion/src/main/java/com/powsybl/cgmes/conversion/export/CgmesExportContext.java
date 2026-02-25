@@ -534,8 +534,8 @@ public class CgmesExportContext {
     private void addIidmMappingsStaticVarCompensators(Network network) {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             String regulatingControlId = svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            boolean validVoltageSetpoint = CgmesExportUtil.isValidVoltageSetpoint(svc.getVoltageSetpoint());
-            boolean validReactiveSetpoint = CgmesExportUtil.isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
+            boolean validVoltageSetpoint = CgmesExportUtil.isValidVoltageSetpoint(svc.getRegulatingTargetV());
+            boolean validReactiveSetpoint = CgmesExportUtil.isValidReactivePowerSetpoint(svc.getRegulatingTargetQ());
             if (regulatingControlId == null && (validReactiveSetpoint
                                                 || validVoltageSetpoint
                                                 || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {

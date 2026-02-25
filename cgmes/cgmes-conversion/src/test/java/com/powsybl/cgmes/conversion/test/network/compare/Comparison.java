@@ -417,15 +417,21 @@ public class Comparison {
         compare("Bmax",
                 expected.getBmax(),
                 actual.getBmax());
+        compare("targetV",
+                expected.getTargetV(),
+                actual.getTargetV());
+        compare("targetQ",
+                expected.getTargetQ(),
+                actual.getTargetQ());
         compare("voltageSetpoint",
-                expected.getVoltageSetpoint(),
-                actual.getVoltageSetpoint());
+                expected.getRegulatingTargetV(),
+                actual.getRegulatingTargetV());
         compare("reactivePowerSetpoint",
-                expected.getReactivePowerSetpoint(),
-                actual.getReactivePowerSetpoint());
+                expected.getRegulatingTargetQ(),
+                actual.getRegulatingTargetQ());
         compare("regulationMode",
-                expected.getRegulationMode(),
-                actual.getRegulationMode());
+                expected.getVoltageRegulation().getMode(),
+                actual.getVoltageRegulation().getMode());
         sameIdentifier("regulationTerminal",
                 expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                 actual.getRegulatingTerminal().getBusBreakerView().getBus());

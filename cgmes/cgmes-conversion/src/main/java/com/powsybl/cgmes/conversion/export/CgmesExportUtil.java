@@ -553,13 +553,13 @@ public final class CgmesExportUtil {
     }
 
     public static String getSvcMode(StaticVarCompensator svc) {
-        if (svc.getRegulationMode().equals(RegulationMode.VOLTAGE)) {
+        if (svc.isWithMode(RegulationMode.VOLTAGE)) {
             return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        } else if (svc.getRegulationMode().equals(RegulationMode.REACTIVE_POWER)) {
+        } else if (svc.isWithMode(RegulationMode.REACTIVE_POWER)) {
             return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
         } else {
-            boolean validVoltageSetpoint = isValidVoltageSetpoint(svc.getVoltageSetpoint());
-            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
+            boolean validVoltageSetpoint = isValidVoltageSetpoint(svc.getRegulatingTargetV());
+            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(svc.getRegulatingTargetQ());
             if (validReactiveSetpoint && !validVoltageSetpoint) {
                 return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
             }

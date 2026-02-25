@@ -63,8 +63,8 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
             }
         });
         IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_14, IidmVersion.V_1_15, context, () -> {
-            context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getRegulationMode());
-            context.getWriter().writeBooleanAttribute(REGULATING, svc.isRegulating());
+            context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getVoltageRegulation().getMode());
+            context.getWriter().writeBooleanAttribute(REGULATING, svc.getVoltageRegulation().isRegulating());
         });
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());
@@ -203,7 +203,7 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals(REGULATING_TERMINAL)) {
                 IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
-                TerminalRefSerDe.readTerminalRef(context, svc.getNetwork(), svc::setRegulatingTerminal);
+                TerminalRefSerDe.readTerminalRef(context, svc.getNetwork(), svc.getVoltageRegulation()::setTerminal);
             } else if (elementName.equals(VoltageRegulationSerDe.ELEMENT_NAME)) {
                 VoltageRegulationSerDe.readVoltageRegulation(svc, context, svc.getNetwork());
             } else {
