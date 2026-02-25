@@ -97,9 +97,6 @@ public class XMLImporter extends AbstractTreeDataImporter {
                 if (isValidPrefix(currentPrefix)) {
                     String version = extractVersion(ns);
                     if (!version.isEmpty()) {
-                        // If it is not supported, this will throw an exception giving details on the encountered version
-                        // and the maximum supported version.
-//                        IidmVersion.of(version);
                         return isValidNamespace(ns);
                     }
                 }

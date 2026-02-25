@@ -61,15 +61,10 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
         String json = "{ \"version\": \"99.0\" }";
         String basename = "unsupportedVersion";
         createTempJson(json, basename);
-
         importer = new JsonImporter();
         DataSource dataSource = new DirectoryDataSource(tmpDir, basename, "json", null);
-
-        String expectedError = "IIDM Version 99.0 is not supported. Max supported version: "
-                + CURRENT_IIDM_VERSION.toString(".");
-
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> importer.exists(dataSource));
-        assertEquals(expectedError, exception.getMessage());
+        assertDoesNotThrow(() -> importer.exists(dataSource));
+        assertTrue(importer.exists(dataSource));
     }
 
     @Test
