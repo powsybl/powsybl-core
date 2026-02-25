@@ -36,6 +36,13 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
 
     private JsonImporter importer;
 
+    private static String unsupportedIidmVersion() {
+        String[] currentIidmVersionSplit = CURRENT_IIDM_VERSION.toString().split("_");
+        int unsupportedIidmVersionMajor = Integer.parseInt(currentIidmVersionSplit[1]);
+        int unsupportedIidmVersionMinor = Integer.parseInt(currentIidmVersionSplit[2]) + 1;
+        return String.format("%d.%d", unsupportedIidmVersionMajor, unsupportedIidmVersionMinor);
+    }
+
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();  // initialise fileSystem
@@ -48,7 +55,7 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void testValidJsonVersionSupported() throws Exception {
-        String json = "{ \"version\": \"1.15\" }";
+        String json = String.format("{ \"version\": \"%s\" }", CURRENT_IIDM_VERSION.toString("."));
         String basename = "supportedVersion";
         createTempJson(json, basename);
         importer = new JsonImporter();
@@ -58,7 +65,7 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void testInvalidVersion() throws Exception {
-        String json = "{ \"version\": \"99.0\" }";
+        String json = String.format("{ \"version\": \"%s\" }", unsupportedIidmVersion());
         String basename = "unsupportedVersion";
         createTempJson(json, basename);
         importer = new JsonImporter();
@@ -78,12 +85,13 @@ class JsonImporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void testUnsupportedIidmVersion() throws IOException {
-        writeNetwork("/test1.json", "1.16");
+        writeNetwork("/test1.json", unsupportedIidmVersion());
         importer = new JsonImporter();
         ReadOnlyDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test1");
+        String expectedError = String.format("IIDM Version %s is not supported. Max supported version: %s", unsupportedIidmVersion(), CURRENT_IIDM_VERSION.toString("."));
         assertThatCode(() -> importer.importData(dataSource, NetworkFactory.findDefault(), null))
                 .isInstanceOf(PowsyblException.class)
-                .hasMessage("IIDM Version 1.16 is not supported. Max supported version: 1.15");
+                .hasMessage(expectedError);
     }
 
     private void writeNetwork(String fileName, String version) throws IOException {
