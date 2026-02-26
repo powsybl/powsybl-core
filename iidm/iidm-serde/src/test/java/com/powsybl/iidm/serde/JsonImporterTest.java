@@ -32,6 +32,9 @@ import java.nio.charset.StandardCharsets;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ */
 class JsonImporterTest extends AbstractIidmSerDeTest {
 
     private JsonImporter importer;

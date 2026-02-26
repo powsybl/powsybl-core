@@ -110,11 +110,9 @@ public class XMLImporter extends AbstractTreeDataImporter {
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory,
                               Properties parameters, ReportNode reportNode) {
         try {
-            String ext = findExtension(dataSource);
-            String ns = readNamespaceURI(dataSource, ext);
+            String ns = readNamespaceURI(dataSource);
             if (ns != null) {
-                String version = extractVersion(ns);
-                IidmVersion.of(version);
+                IidmVersion.of(extractVersion(ns));
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -122,8 +120,9 @@ public class XMLImporter extends AbstractTreeDataImporter {
         return super.importData(dataSource, networkFactory, parameters, reportNode);
     }
 
-    private String readNamespaceURI(ReadOnlyDataSource ds, String ext) throws IOException {
-        try (InputStream is = ds.newInputStream(null, ext)) {
+    private String readNamespaceURI(ReadOnlyDataSource dataSource) throws IOException {
+        String ext = findExtension(dataSource);
+        try (InputStream is = dataSource.newInputStream(null, ext)) {
             XmlReader reader = new XmlReader(is, namespaceVersionMap(), List.of());
             return reader.getNamespaceURI();
         } catch (XMLStreamException e) {

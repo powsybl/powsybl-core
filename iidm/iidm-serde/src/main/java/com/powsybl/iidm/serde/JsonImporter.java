@@ -82,17 +82,16 @@ public class JsonImporter extends AbstractTreeDataImporter {
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory,
                               Properties parameters, ReportNode reportNode) {
         try {
-            String ext = findExtension(dataSource);
-            String version = readRootVersion(dataSource, ext);
-            IidmVersion.of(version);
+            IidmVersion.of(readRootVersion(dataSource));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return super.importData(dataSource, networkFactory, parameters, reportNode);
     }
 
-    private String readRootVersion(ReadOnlyDataSource ds, String ext) throws IOException {
-        try (InputStream is = ds.newInputStream(null, ext)) {
+    private String readRootVersion(ReadOnlyDataSource dataSource) throws IOException {
+        String ext = findExtension(dataSource);
+        try (InputStream is = dataSource.newInputStream(null, ext)) {
             JsonReader reader = new JsonReader(is, "network", new HashMap<>());
             return reader.readRootVersion();
         }
