@@ -31,6 +31,7 @@ public interface RatioTapChanger extends TapChanger<
      * Supported modes are {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE} and {@link com.powsybl.iidm.network.regulation.RegulationMode#REACTIVE_POWER}.
      * @return the regulation mode.
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     RegulationMode getRegulationMode();
 
     /**
@@ -39,8 +40,10 @@ public interface RatioTapChanger extends TapChanger<
      * @param regulationMode the regulation mode.
      * @return itself for method chaining
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     RatioTapChanger setRegulationMode(RegulationMode regulationMode);
 
+    @Deprecated(forRemoval = true, since = "7.2.0")
     double getRegulationValue();
 
     /**
@@ -51,6 +54,7 @@ public interface RatioTapChanger extends TapChanger<
      * @param regulationValue the regulation value.
      * @return itself for method chaining.
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     RatioTapChanger setRegulationValue(double regulationValue);
 
     /**

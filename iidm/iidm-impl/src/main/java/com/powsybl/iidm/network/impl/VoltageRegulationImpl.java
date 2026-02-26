@@ -65,6 +65,10 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return targetValue.get(getCurrentIndex());
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate the new value before to setting it
+     */
     @Override
     public double setTargetValue(double targetValue) {
         ValidationUtil.checkVoltageRegulationTargetValue(validable, targetValue, mode, isRegulating(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
@@ -76,6 +80,10 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return targetDeadband.get(getCurrentIndex());
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate the new value before to setting it
+     */
     @Override
     public double setTargetDeadband(double targetDeadband) {
         ValidationUtil.checkVoltageRegulationDeadband(validable, targetDeadband, isRegulating(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
@@ -87,6 +95,10 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return slope.get(getCurrentIndex());
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate the new value before to setting it
+     */
     @Override
     public double setSlope(double slope) {
         ValidationUtil.checkVoltageRegulationSlope(validable, slope, mode, isRegulating(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
@@ -98,6 +110,10 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return terminal;
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate the new value before to setting it
+     */
     @Override
     public void setTerminal(Terminal terminal) {
         ValidationUtil.checkVoltageRegulationTerminal(validable, terminal, isRegulating(), network.get(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
@@ -109,6 +125,10 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return mode;
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate the new value before to setting it
+     */
     @Override
     public void setMode(RegulationMode mode) {
         ValidationUtil.checkVoltageRegulationMode(validable, mode, isRegulating(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
@@ -120,6 +140,10 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return regulating.get(getCurrentIndex());
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate all the attributes before setting regulating to true
+     */
     @Override
     public boolean setRegulating(boolean regulating) {
         ValidationUtil.checkVoltageRegulation(validable, this, regulating, network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());

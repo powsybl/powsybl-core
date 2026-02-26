@@ -79,7 +79,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     }
 
     /**
-     * TODO MSA JAVADOC
+     * Validates and creates a new instance of VoltageRegulation
      */
     protected @NonNull VoltageRegulationImpl createVoltageRegulation() {
         // VALIDATION

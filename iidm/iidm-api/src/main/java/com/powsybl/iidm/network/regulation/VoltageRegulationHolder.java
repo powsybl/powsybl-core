@@ -12,51 +12,62 @@ import com.powsybl.iidm.network.Terminal;
 import java.util.Objects;
 
 /**
+ * This interface defines methods for managing voltageRegulation
+ *
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public interface VoltageRegulationHolder {
 
     /**
-     * TODO MSA JAVADOC
+     * Creates a new VoltageRegulationBuilder instance
      */
     VoltageRegulationBuilder newVoltageRegulation();
 
     /**
-     * TODO MSA JAVADOC
+     * Creates a new VoltageRegulation instance based on the provided VoltageRegulation
      */
     VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation);
 
     /**
-     * TODO MSA JAVADOC
+     * Gets the current VoltageRegulation instance
      */
     VoltageRegulation getVoltageRegulation();
 
     /**
-     * TODO MSA JAVADOC
+     * Removes the current VoltageRegulation instance
      */
     void removeVoltageRegulation();
 
     /**
-     * TODO MSA JAVADOC
+     * Gets the terminal associated
+     *
+     * @return the terminal
      */
     Terminal getTerminal();
 
     /**
-     * TODO MSA JAVADOC
+     * Gets the target voltage value
+     *
+     * @return the target voltage value, or Double.NaN if not applicable
      */
     default double getTargetV() {
         return Double.NaN;
     }
 
     /**
-     * TODO MSA JAVADOC
+     * Gets the target reactive power value
+     *
+     * @return the target reactive power value, or Double.NaN if not applicable
      */
     default double getTargetQ() {
         return Double.NaN;
     }
 
     /**
-     * TODO MSA JAVADOC
+     * Checks if the object is associated with the specified regulation mode.
+     *
+     * @param mode the regulation mode to check
+     * @return true if associated with the specified mode, false otherwise
      */
     default boolean isRegulatingWithMode(RegulationMode mode) {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
@@ -66,7 +77,10 @@ public interface VoltageRegulationHolder {
     }
 
     /**
-     * TODO MSA JAVADOC
+     * Checks if the object is regulating with the specified mode
+     *
+     * @param mode the regulation mode to check
+     * @return true if regulating with the specified mode, false otherwise
      */
     default boolean isWithMode(RegulationMode mode) {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
@@ -75,7 +89,7 @@ public interface VoltageRegulationHolder {
     }
 
     /**
-     * TODO MSA JAVADOC
+     * Gets the regulating target voltage value using the targetValue if the RegulatingMode is equals to {@link RegulationMode#VOLTAGE}
      */
     default double getRegulatingTargetV() {
         if (isWithMode(RegulationMode.VOLTAGE)) {
@@ -85,17 +99,7 @@ public interface VoltageRegulationHolder {
     }
 
     /**
-     * TODO MSA JAVADOC
-     */
-    default double getLocalRegulatingTargetV() {
-        if (isRegulatingWithMode(RegulationMode.VOLTAGE) && !isRemoteRegulating()) {
-            return getVoltageRegulation().getTargetValue();
-        }
-        return getTargetV();
-    }
-
-    /**
-     * TODO MSA JAVADOC
+     * Gets the regulating target reactive power value using the targetValue if the RegulatingMode is equals to {@link RegulationMode#REACTIVE_POWER}
      * TODO MSA Other possible names : getEffectiveTargetQ / getApplicableTargetQ / resolveTargetQ / determineTargetQ
      */
     default double getRegulatingTargetQ() {
@@ -106,17 +110,8 @@ public interface VoltageRegulationHolder {
     }
 
     /**
-     * TODO MSA JAVADOC
-     */
-    default double getLocalRegulatingTargetQ() {
-        if (isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && !isRemoteRegulating()) {
-            return getVoltageRegulation().getTargetValue();
-        }
-        return getTargetQ();
-    }
-
-    /**
-     * Get the terminal used for regulation.
+     * Gets the terminal used for regulation
+     *
      * @return the terminal used for regulation
      */
     default Terminal getRegulatingTerminal() {
@@ -128,7 +123,9 @@ public interface VoltageRegulationHolder {
     }
 
     /**
-     * TODO MSA JAVADOC
+     * Checks if the regulation is performed remotely
+     *
+     * @return true if regulating remotely, false otherwise
      */
     default boolean isRemoteRegulating() {
         return !Objects.equals(getRegulatingTerminal().getBusBreakerView().getConnectableBus(), getTerminal().getBusBreakerView().getConnectableBus());
