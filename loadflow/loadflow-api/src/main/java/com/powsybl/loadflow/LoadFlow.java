@@ -152,6 +152,14 @@ public final class LoadFlow {
             return run(network, LoadFlowRunParameters.getDefault());
         }
 
+        public boolean checkParameters(LoadFlowRunParameters runParameters) {
+            return provider.checkParameters(runParameters);
+        }
+
+        public boolean checkDefaultParameters(ReportNode reportNode) {
+            return checkParameters(LoadFlowRunParameters.getDefault().setReportNode(reportNode));
+        }
+
         @Override
         public String getName() {
             return provider.getName();
@@ -271,5 +279,13 @@ public final class LoadFlow {
 
     public static LoadFlowResult run(Network network) {
         return find().run(network);
+    }
+
+    public boolean checkParameters(LoadFlowRunParameters runParameters) {
+        return find().checkParameters(runParameters);
+    }
+
+    public boolean checkDefaultParameters(ReportNode reportNode) {
+        return find().checkDefaultParameters(reportNode);
     }
 }
