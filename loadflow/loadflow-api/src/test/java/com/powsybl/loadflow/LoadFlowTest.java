@@ -12,9 +12,7 @@ import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -22,10 +20,13 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -40,11 +41,11 @@ class LoadFlowTest {
 
     @BeforeEach
     void setUp() {
-        network = Mockito.mock(Network.class);
-        VariantManager variantManager = Mockito.mock(VariantManager.class);
-        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
-        Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
-        computationManager = Mockito.mock(ComputationManager.class);
+        network = mock(Network.class);
+        VariantManager variantManager = mock(VariantManager.class);
+        when(network.getVariantManager()).thenReturn(variantManager);
+        when(variantManager.getWorkingVariantId()).thenReturn("v");
+        computationManager = mock(ComputationManager.class);
     }
 
     @Test
@@ -169,4 +170,33 @@ class LoadFlowTest {
         assertTrue(result.get().getLogs().indexOf("countriesToBalance=[IT]") > 0);
     }
 
+    @Test
+    void shouldReportNodeWhenLineConnectVeryDifferentNominalVoltages() {
+        // Given
+        LoadFlow.Runner defaultLoadFlow = LoadFlow.find();
+        // Line  220 / 400 kV
+        Line line = mock(Line.class);
+        Terminal terminal1 = mock(Terminal.class);
+        Terminal terminal2 = mock(Terminal.class);
+        VoltageLevel vl1 = mock(VoltageLevel.class);
+        VoltageLevel vl2 = mock(VoltageLevel.class);
+
+        when(network.getLineStream()).thenReturn(Stream.of(line));
+        when(line.getId()).thenReturn("line_400_220");
+
+        when(line.getTerminal1()).thenReturn(terminal1);
+        when(line.getTerminal2()).thenReturn(terminal2);
+
+        when(terminal1.getVoltageLevel()).thenReturn(vl1);
+        when(terminal2.getVoltageLevel()).thenReturn(vl2);
+
+        when(vl1.getId()).thenReturn("VL_400");
+        when(vl2.getId()).thenReturn("VL_220");
+
+        when(vl1.getNominalV()).thenReturn(400.0);
+        when(vl2.getNominalV()).thenReturn(220.0);
+
+        // When run LoadFlow
+        defaultLoadFlow.run(network);
+    }
 }
