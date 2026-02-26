@@ -15,6 +15,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.util.VoltageRegulationSerdeUtil.writeReactivePowerSetpointByVersion;
+import static com.powsybl.iidm.serde.util.VoltageRegulationSerdeUtil.writeVoltageSetpointByVersion;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -85,6 +87,16 @@ class VscConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<VscConver
             adder.setTargetQ(context.getReader().readDoubleAttribute(TARGET_Q, Double.NaN));
         });
 
+        readVoltageRegulationPrevious116(adder, context, voltageRegulatorOnRef, voltageSetpoint, reactivePowerSetpoint);
+
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
+        adder.setLossFactor(lossFactor);
+        VscConverterStation cs = adder.add();
+        readPQ(null, cs.getTerminal(), context.getReader());
+        return cs;
+    }
+
+    private static void readVoltageRegulationPrevious116(VscConverterStationAdder adder, NetworkDeserializerContext context, AtomicReference<Boolean> voltageRegulatorOnRef, AtomicReference<Double> voltageSetpoint, AtomicReference<Double> reactivePowerSetpoint) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
             Boolean voltageRegulatorOn = voltageRegulatorOnRef.get();
             RegulationMode regulationMode;
@@ -112,12 +124,6 @@ class VscConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<VscConver
                 .withMode(regulationMode)
                 .add();
         });
-
-        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
-        adder.setLossFactor(lossFactor);
-        VscConverterStation cs = adder.add();
-        readPQ(null, cs.getTerminal(), context.getReader());
-        return cs;
     }
 
     @Override
@@ -134,25 +140,5 @@ class VscConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<VscConver
                 default -> readSubElement(elementName, cs, context);
             }
         });
-    }
-
-    private static void writeVoltageSetpointByVersion(VscConverterStation cs, NetworkSerializerContext context) {
-        double voltageSetpoint;
-        if (cs.isWithMode(RegulationMode.REACTIVE_POWER)) {
-            voltageSetpoint = cs.getTargetV();
-        } else {
-            voltageSetpoint = cs.getVoltageRegulation() != null ? cs.getVoltageRegulation().getTargetValue() : Double.NaN;
-        }
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> context.getWriter().writeDoubleAttribute("voltageSetpoint", voltageSetpoint));
-    }
-
-    private static void writeReactivePowerSetpointByVersion(VscConverterStation cs, NetworkSerializerContext context) {
-        double reactivePowerSetpoint;
-        if (cs.isWithMode(RegulationMode.VOLTAGE)) {
-            reactivePowerSetpoint = cs.getTargetQ();
-        } else {
-            reactivePowerSetpoint = cs.getVoltageRegulation() != null ? cs.getVoltageRegulation().getTargetValue() : Double.NaN;
-        }
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> context.getWriter().writeDoubleAttribute("reactivePowerSetpoint", reactivePowerSetpoint));
     }
 }
