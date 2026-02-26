@@ -110,8 +110,9 @@
             <iidm:staticVarCompensator id="newStaticVarCompensator" bMin="2.0E-4" bMax="8.0E-4" targetQ="1.0" node="26">
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="390.0"/>
             </iidm:staticVarCompensator>
-            <iidm:vscConverterStation id="newVscConverterStation" voltageRegulatorOn="true" lossFactor="1.1" voltageSetpoint="405.0" node="30">
+            <iidm:vscConverterStation id="newVscConverterStation" lossFactor="1.1" node="30">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="405.0"/>
             </iidm:vscConverterStation>
             <iidm:lccConverterStation id="newLccConverterStation" lossFactor="0.011" powerFactor="0.5" node="28"/>
         </iidm:voltageLevel>

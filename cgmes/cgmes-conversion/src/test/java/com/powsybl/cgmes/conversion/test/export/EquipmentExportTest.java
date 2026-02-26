@@ -1782,9 +1782,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 staticVarCompensator.removeVoltageRegulation();
                 staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof VscConverterStation converter) {
-                converter.setVoltageRegulatorOn(false);
+                converter.newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).withRegulating(false).build();
                 converter.setLossFactor(0.8f);
-                converter.setVoltageSetpoint(Double.NaN);
+                converter.setTargetV(Double.NaN);
+                converter.setTargetQ(Double.NaN);
                 converter.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof LccConverterStation converter) {
                 converter.setPowerFactor(0.8f);

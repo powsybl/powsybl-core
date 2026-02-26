@@ -761,10 +761,10 @@ public final class SteadyStateHypothesisExport {
         } else if (converterStation instanceof VscConverterStation vscConverterStation) {
             p = vscConverterStation.getRegulatingTerminal().getP();
             q = vscConverterStation.getRegulatingTerminal().getQ();
-            double targetQpcc = vscConverterStation.getReactivePowerSetpoint();
-            double targetUpcc = vscConverterStation.getVoltageSetpoint();
+            double targetQpcc = vscConverterStation.getRegulatingTargetQ();
+            double targetUpcc = vscConverterStation.getRegulatingTargetV();
             String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "pPcc" : "udc";
-            String qPccControl = vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
+            String qPccControl = vscConverterStation.isRegulatingWithMode(RegulationMode.VOLTAGE) ? "voltagePcc" : "reactivePcc";
             writeVsConverter(converterId, targetPpcc, targetUdc, targetQpcc, targetUpcc, p, q, pPccControl, qPccControl, cimNamespace, writer, context);
         }
     }

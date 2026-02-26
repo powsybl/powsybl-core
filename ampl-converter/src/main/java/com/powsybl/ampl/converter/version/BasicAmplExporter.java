@@ -524,7 +524,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double maxP = lineMap.get(id) != null ? lineMap.get(id).getMaxP() : Double.NaN;
 
         int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-        double vlSet = vscStation.getVoltageSetpoint();
+        double vlSet = vscStation.getRegulatingTargetV();
         double vb = t.getVoltageLevel().getNominalV();
         double minP = -maxP;
 
@@ -542,9 +542,9 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .writeCell(vscStation.getReactiveLimits().getMaxQ(maxP))
             .writeCell(vscStation.getReactiveLimits().getMaxQ(0))
             .writeCell(vscStation.getReactiveLimits().getMaxQ(minP))
-            .writeCell(vscStation.isVoltageRegulatorOn())
+            .writeCell(vscStation.isRegulatingWithMode(RegulationMode.VOLTAGE))
             .writeCell(vlSet / vb)
-            .writeCell(vscStation.getReactivePowerSetpoint())
+            .writeCell(vscStation.getRegulatingTargetQ())
             .writeCell(vscStation.getLossFactor())
             .writeCell(faultNum)
             .writeCell(actionNum)

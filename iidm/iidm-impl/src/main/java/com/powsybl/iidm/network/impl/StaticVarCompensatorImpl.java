@@ -109,7 +109,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     @Override
     public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint) {
         getOptionalVoltageRegulation().ifPresent(regulation -> {
-            if (isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+            if (isWithMode(RegulationMode.VOLTAGE)) {
                 double oldValue = regulation.getTargetValue();
                 regulation.setTargetValue(voltageSetpoint);
                 String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
@@ -151,7 +151,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     @Override
     public StaticVarCompensatorImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         getOptionalVoltageRegulation().ifPresent(regulation -> {
-            if (isRegulatingWithMode(RegulationMode.REACTIVE_POWER)) {
+            if (isWithMode(RegulationMode.REACTIVE_POWER)) {
                 double oldValue = regulation.getTargetValue();
                 regulation.setTargetValue(reactivePowerSetpoint);
                 String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());

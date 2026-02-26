@@ -278,7 +278,7 @@ class DefaultNetworkReducerTest {
         NetworkReducerObserverImpl observerVsc = new NetworkReducerObserverImpl();
         Network networkVsc = HvdcTestNetwork.createVsc();
         VscConverterStation station = networkVsc.getVscConverterStation("C1");
-        double targetV = station.getVoltageSetpoint();
+        double targetV = station.getRegulatingTargetV();
         station.newMinMaxReactiveLimits().setMaxQ(200).setMinQ(-200).add();
         double p = station.getTerminal().getP();
         assertEquals(0, networkVsc.getGeneratorCount());
@@ -298,7 +298,7 @@ class DefaultNetworkReducerTest {
         assertEquals(-p, gen.getTargetP());
         assertTrue(gen.getVoltageRegulation().isRegulating());
         assertEquals(RegulationMode.VOLTAGE, gen.getVoltageRegulation().getMode());
-        assertEquals(targetV, gen.getTargetV());
+        assertEquals(targetV, gen.getRegulatingTargetV());
         assertEquals(200, gen.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ());
         assertFalse(gen.getExtension(ActivePowerControl.class).isParticipate());
     }
@@ -333,13 +333,13 @@ class DefaultNetworkReducerTest {
     void testHvdcVoltageRegulatorOffReplacement() {
         Network network = HvdcTestNetwork.createVsc();
 
-        // Set voltageRegulatorOn to false
+        // Set regulationMode to REACTIVE_POWER
         HvdcLine hvdcLine = network.getHvdcLine("L");
-        HvdcConverterStation hvdcConverterStation = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> hvdcConverterStation = hvdcLine.getConverterStation1();
         assertEquals("VSC", hvdcConverterStation.getHvdcType().name());
         VscConverterStation vscConverterStation = (VscConverterStation) hvdcConverterStation;
-        vscConverterStation.setReactivePowerSetpoint(45.0);
-        vscConverterStation.setVoltageRegulatorOn(false);
+        vscConverterStation.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+        vscConverterStation.getVoltageRegulation().setTargetValue(45.0);
 
         assertEquals(1, network.getHvdcLineCount());
         assertEquals(0, network.getLoadCount());

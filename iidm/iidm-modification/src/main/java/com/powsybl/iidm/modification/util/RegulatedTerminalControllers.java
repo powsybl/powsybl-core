@@ -146,7 +146,7 @@ public class RegulatedTerminalControllers {
             case SHUNT_COMPENSATOR ->
                 replaceRegulatedTerminalVoltageRegulationHolder((ShuntCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case STATIC_VAR_COMPENSATOR ->
-                replaceRegulatedTerminalStaticVarCompensator((StaticVarCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalVoltageRegulationHolder((StaticVarCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case HVDC_CONVERTER_STATION ->
                 replaceRegulatedTerminalHvdcConverterStation((HvdcConverterStation<?>) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case BATTERY ->
@@ -179,18 +179,9 @@ public class RegulatedTerminalControllers {
         }
     }
 
-    private static void replaceRegulatedTerminalStaticVarCompensator(StaticVarCompensator staticVarCompensator, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
-        if (staticVarCompensator.getRegulatingTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(staticVarCompensator.getRegulatingTerminal()))) {
-            staticVarCompensator.setRegulatingTerminal(newRegulatedTerminal);
-        }
-    }
-
     private static void replaceRegulatedTerminalHvdcConverterStation(HvdcConverterStation<?> hvdcConverterStation, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
         if (hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
-            VscConverterStation vscConverterStation = (VscConverterStation) hvdcConverterStation;
-            if (vscConverterStation.getRegulatingTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(vscConverterStation.getRegulatingTerminal()))) {
-                vscConverterStation.setRegulatingTerminal(newRegulatedTerminal);
-            }
+            replaceRegulatedTerminalVoltageRegulationHolder((VscConverterStation) hvdcConverterStation, currentRegulatedTerminal, newRegulatedTerminal);
         }
     }
 

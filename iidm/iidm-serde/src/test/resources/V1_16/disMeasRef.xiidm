@@ -78,11 +78,12 @@
             <iidm:shuntCompensator id="SHUNT" sectionCount="1" node="19" q="1920.0">
                 <iidm:shuntLinearModel bPerSection="-0.012" maximumSectionCount="1"/>
             </iidm:shuntCompensator>
-            <iidm:vscConverterStation id="VSC1" name="VSC1" voltageRegulatorOn="true" lossFactor="1.1" voltageSetpoint="400.0" reactivePowerSetpoint="500.0" node="5" p="10.11" q="-512.0814">
+            <iidm:vscConverterStation id="VSC1" name="VSC1" lossFactor="1.1" targetQ="500.0" node="5" p="10.11" q="-512.0814">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="-100.0" minQ="-550.0" maxQ="570.0"/>
                     <iidm:point p="100.0" minQ="-550.0" maxQ="570.0"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="400.0"/>
             </iidm:vscConverterStation>
             <iidm:lccConverterStation id="LCC1" name="LCC1" lossFactor="1.1" powerFactor="0.6" node="21" p="80.88"/>
         </iidm:voltageLevel>
@@ -156,8 +157,9 @@
                 </iidm:reactiveCapabilityCurve>
                 <iidm:voltageRegulation targetValue="70.0" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
-            <iidm:vscConverterStation id="VSC2" name="VSC2" voltageRegulatorOn="false" lossFactor="1.1" voltageSetpoint="0.0" reactivePowerSetpoint="120.0" node="4" p="-9.89" q="-120.0">
+            <iidm:vscConverterStation id="VSC2" name="VSC2" lossFactor="1.1" targetV="0.0" node="4" p="-9.89" q="-120.0">
                 <iidm:minMaxReactiveLimits minQ="-400.0" maxQ="500.0"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetValue="120.0"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>

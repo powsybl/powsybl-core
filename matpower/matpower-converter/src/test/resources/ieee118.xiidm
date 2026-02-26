@@ -53,6 +53,7 @@
             <iidm:load id="LOAD-8" loadType="UNDEFINED" p0="28.0" q0="0.0" bus="BUS-8" connectableBus="BUS-8"/>
             <iidm:shuntCompensator id="SHUNT-5" sectionCount="1" bus="BUS-5" connectableBus="BUS-5">
                 <iidm:shuntLinearModel bPerSection="-40.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-8-5" r="0.0" x="2.6700000000000004E-4" g="0.0" b="0.0" ratedU1="0.985" ratedU2="1.0" voltageLevelId1="VL-5" bus1="BUS-8" connectableBus1="BUS-8" voltageLevelId2="VL-5" bus2="BUS-5" connectableBus2="BUS-5"/>
@@ -318,6 +319,7 @@
             <iidm:load id="LOAD-34" loadType="UNDEFINED" p0="59.0" q0="26.0" bus="BUS-34" connectableBus="BUS-34"/>
             <iidm:shuntCompensator id="SHUNT-34" sectionCount="1" bus="BUS-34" connectableBus="BUS-34">
                 <iidm:shuntLinearModel bPerSection="14.000000000000002" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -349,6 +351,7 @@
             </iidm:busBreakerTopology>
             <iidm:shuntCompensator id="SHUNT-37" sectionCount="1" bus="BUS-37" connectableBus="BUS-37">
                 <iidm:shuntLinearModel bPerSection="-25.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-38-37" r="0.0" x="3.75E-4" g="0.0" b="0.0" ratedU1="0.935" ratedU2="1.0" voltageLevelId1="VL-37" bus1="BUS-38" connectableBus1="BUS-38" voltageLevelId2="VL-37" bus2="BUS-37" connectableBus2="BUS-37"/>
@@ -409,6 +412,7 @@
             <iidm:load id="LOAD-44" loadType="UNDEFINED" p0="16.0" q0="8.0" bus="BUS-44" connectableBus="BUS-44"/>
             <iidm:shuntCompensator id="SHUNT-44" sectionCount="1" bus="BUS-44" connectableBus="BUS-44">
                 <iidm:shuntLinearModel bPerSection="10.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -420,6 +424,7 @@
             <iidm:load id="LOAD-45" loadType="UNDEFINED" p0="53.0" q0="22.0" bus="BUS-45" connectableBus="BUS-45"/>
             <iidm:shuntCompensator id="SHUNT-45" sectionCount="1" bus="BUS-45" connectableBus="BUS-45">
                 <iidm:shuntLinearModel bPerSection="10.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -435,6 +440,7 @@
             <iidm:load id="LOAD-46" loadType="UNDEFINED" p0="28.0" q0="10.0" bus="BUS-46" connectableBus="BUS-46"/>
             <iidm:shuntCompensator id="SHUNT-46" sectionCount="1" bus="BUS-46" connectableBus="BUS-46">
                 <iidm:shuntLinearModel bPerSection="10.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -454,6 +460,7 @@
             <iidm:load id="LOAD-48" loadType="UNDEFINED" p0="20.0" q0="11.0" bus="BUS-48" connectableBus="BUS-48"/>
             <iidm:shuntCompensator id="SHUNT-48" sectionCount="1" bus="BUS-48" connectableBus="BUS-48">
                 <iidm:shuntLinearModel bPerSection="15.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -694,6 +701,7 @@
             <iidm:load id="LOAD-74" loadType="UNDEFINED" p0="68.0" q0="27.0" bus="BUS-74" connectableBus="BUS-74"/>
             <iidm:shuntCompensator id="SHUNT-74" sectionCount="1" bus="BUS-74" connectableBus="BUS-74">
                 <iidm:shuntLinearModel bPerSection="12.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -745,6 +753,7 @@
             <iidm:load id="LOAD-79" loadType="UNDEFINED" p0="39.0" q0="32.0" bus="BUS-79" connectableBus="BUS-79"/>
             <iidm:shuntCompensator id="SHUNT-79" sectionCount="1" bus="BUS-79" connectableBus="BUS-79">
                 <iidm:shuntLinearModel bPerSection="20.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -770,6 +779,7 @@
             <iidm:load id="LOAD-82" loadType="UNDEFINED" p0="54.0" q0="27.0" bus="BUS-82" connectableBus="BUS-82"/>
             <iidm:shuntCompensator id="SHUNT-82" sectionCount="1" bus="BUS-82" connectableBus="BUS-82">
                 <iidm:shuntLinearModel bPerSection="20.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -781,6 +791,7 @@
             <iidm:load id="LOAD-83" loadType="UNDEFINED" p0="20.0" q0="10.0" bus="BUS-83" connectableBus="BUS-83"/>
             <iidm:shuntCompensator id="SHUNT-83" sectionCount="1" bus="BUS-83" connectableBus="BUS-83">
                 <iidm:shuntLinearModel bPerSection="10.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -1002,6 +1013,7 @@
             <iidm:load id="LOAD-105" loadType="UNDEFINED" p0="31.0" q0="26.0" bus="BUS-105" connectableBus="BUS-105"/>
             <iidm:shuntCompensator id="SHUNT-105" sectionCount="1" bus="BUS-105" connectableBus="BUS-105">
                 <iidm:shuntLinearModel bPerSection="20.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -1025,6 +1037,7 @@
             <iidm:load id="LOAD-107" loadType="UNDEFINED" p0="50.0" q0="12.0" bus="BUS-107" connectableBus="BUS-107"/>
             <iidm:shuntCompensator id="SHUNT-107" sectionCount="1" bus="BUS-107" connectableBus="BUS-107">
                 <iidm:shuntLinearModel bPerSection="6.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -1056,6 +1069,7 @@
             <iidm:load id="LOAD-110" loadType="UNDEFINED" p0="39.0" q0="30.0" bus="BUS-110" connectableBus="BUS-110"/>
             <iidm:shuntCompensator id="SHUNT-110" sectionCount="1" bus="BUS-110" connectableBus="BUS-110">
                 <iidm:shuntLinearModel bPerSection="6.0" gPerSection="0.0" maximumSectionCount="1"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="false"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>

@@ -229,7 +229,9 @@ public final class ScadaNetworkFactory {
                 .setId("vcs")
                 .setBus(bus2Id)
                 .setLossFactor(80f)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
         network.newHvdcLine()
                 .setNominalV(400.0)

@@ -23,6 +23,7 @@ import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
@@ -79,16 +80,20 @@ class CgmesExportTest {
                 .setId("C1")
                 .setNode(5)
                 .setLossFactor(1.1f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(405.0)
+                    .add()
                 .add();
         vl.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(5).add();
         vl.newVscConverterStation()
                 .setId("C2")
                 .setNode(6)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(123)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(123)
+                    .add()
                 .add();
         network.newHvdcLine()
                 .setId("hvdc_line")

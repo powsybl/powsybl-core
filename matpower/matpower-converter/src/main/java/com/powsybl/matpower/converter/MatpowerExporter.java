@@ -815,7 +815,7 @@ public class MatpowerExporter implements Exporter {
                 int busNumber = context.mBusesNumbersByIds.get(bus.getId());
                 String id = svc.getId();
                 double targetQ;
-                if (svc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER)) {
+                if (svc.isWithMode(RegulationMode.REACTIVE_POWER)) {
                     targetQ = -svc.getRegulatingTargetQ();
                 } else { // OFF or VOLTAGE regulation
                     targetQ = 0;
@@ -855,7 +855,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static boolean isExportedAsDcLine(VscConverterStation vscConverterStation1, VscConverterStation vscConverterStation2) {
-        return vscConverterStation1.isVoltageRegulatorOn() && vscConverterStation2.isVoltageRegulatorOn();
+        return vscConverterStation1.isWithMode(RegulationMode.VOLTAGE) && vscConverterStation2.isWithMode(RegulationMode.VOLTAGE);
     }
 
     private static void exportVscHvdcLine(VscConverterStation rectifierVscConverterStation, VscConverterStation inverterVscConverterStation, HvdcLine hvdcLine, MatpowerModel model, Context context) {
@@ -889,7 +889,7 @@ public class MatpowerExporter implements Exporter {
 
             // equal to the negative of the injection of corresponding dummy generator
             mdcLine.setPf(rectifierTargetP);
-            mdcLine.setQf(checkAndFixTargetQ(rectifierVscConverterStation.getReactivePowerSetpoint()));
+            mdcLine.setQf(checkAndFixTargetQ(rectifierVscConverterStation.getRegulatingTargetQ()));
             mdcLine.setVf(checkAndFixTargetVpu(findTargetVpu(rectifierVscConverterStation)));
             double rectifierMinQ = checkAndFixMinQ(rectifierVscConverterStation.getReactiveLimits().getMinQ(rectifierTargetP));
             double rectifierMaxQ = checkAndFixMaxQ(rectifierVscConverterStation.getReactiveLimits().getMaxQ(rectifierTargetP));
@@ -898,7 +898,7 @@ public class MatpowerExporter implements Exporter {
 
             // equal to the injection of the corresponding generator
             mdcLine.setPt(inverterTargetP);
-            mdcLine.setQt(checkAndFixTargetQ(inverterVscConverterStation.getReactivePowerSetpoint()));
+            mdcLine.setQt(checkAndFixTargetQ(inverterVscConverterStation.getRegulatingTargetQ()));
             mdcLine.setVt(checkAndFixTargetVpu(findTargetVpu(inverterVscConverterStation)));
             double inverterMinQ = checkAndFixMinQ(inverterVscConverterStation.getReactiveLimits().getMinQ(inverterTargetP));
             double inverterMaxQ = checkAndFixMaxQ(inverterVscConverterStation.getReactiveLimits().getMaxQ(inverterTargetP));
@@ -945,7 +945,7 @@ public class MatpowerExporter implements Exporter {
         if (vscConverterStation.getRegulatingTerminal() != null) {
             nominalV = vscConverterStation.getRegulatingTerminal().getVoltageLevel().getNominalV();
         }
-        return vscConverterStation.getVoltageSetpoint() / nominalV;
+        return vscConverterStation.getRegulatingTargetV() / nominalV;
     }
 
     // According to the import process, to guarantee round-trip
@@ -964,13 +964,13 @@ public class MatpowerExporter implements Exporter {
         if (isExported(bus, context)) {
             int busNumber = context.mBusesNumbersByIds.get(bus.getId());
             String id = vscConverterStation.getId();
-            double targetQ = checkAndFixTargetQ(vscConverterStation.getReactivePowerSetpoint());
+            double targetQ = checkAndFixTargetQ(vscConverterStation.getRegulatingTargetQ());
             double targetVpu = checkAndFixTargetVpu(findTargetVpu(vscConverterStation));
             Bus regulatedBus = vscConverterStation.getRegulatingTerminal().getBusView().getBus();
             double targetP = HvdcUtils.getConverterStationTargetP(vscConverterStation);
             double minQ = checkAndFixMinQ(vscConverterStation.getReactiveLimits().getMinQ(targetP)); // approximation
             double maxQ = checkAndFixMaxQ(vscConverterStation.getReactiveLimits().getMaxQ(targetP)); // approximation
-            boolean isValidVoltageRegulation = isValidVoltageRegulation(vscConverterStation.isVoltageRegulatorOn(), regulatedBus);
+            boolean isValidVoltageRegulation = isValidVoltageRegulation(vscConverterStation.isWithMode(RegulationMode.VOLTAGE), regulatedBus);
             double maxP = vscConverterStation.getHvdcLine().getMaxP();
             boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
             addMgen(context, busNumber, id, targetVpu, targetP, -maxP, maxP, targetQ, minQ, maxQ, isValidVoltageRegulation, isRemoteRegulation, Double.NaN);
@@ -1088,7 +1088,7 @@ public class MatpowerExporter implements Exporter {
             @Override
             public void visitHvdcConverterStation(HvdcConverterStation<?> hvdcConverterStation) {
                 if (hvdcConverterStation instanceof VscConverterStation vscConverterStation
-                        && vscConverterStation.isVoltageRegulatorOn()) {
+                        && vscConverterStation.isWithMode(RegulationMode.VOLTAGE)) {
                         vscConverterCount[0]++;
                     }
                 }

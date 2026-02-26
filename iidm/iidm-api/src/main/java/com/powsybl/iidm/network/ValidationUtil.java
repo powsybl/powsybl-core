@@ -884,7 +884,7 @@ public final class ValidationUtil {
             } else if (identifiable instanceof TwoWindingsTransformer twt) {
                 validationLevel = ValidationLevel.min(validationLevel, checkTwoWindingsTransformer(validable, twt, actionOnError, reportNode));
             } else if (identifiable instanceof VscConverterStation converterStation) {
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, converterStation.isVoltageRegulatorOn(), converterStation.getVoltageSetpoint(), converterStation.getReactivePowerSetpoint(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationIfRegulating(validable, converterStation.getVoltageRegulation(), converterStation.getNetwork(), VscConverterStation.class, actionOnError, reportNode));
             } else if (identifiable instanceof Branch<?> branch) {
                 validationLevel = checkOperationalLimitsGroups(validable, branch.getOperationalLimitsGroups1(), validationLevel, actionOnError, reportNode);
                 validationLevel = checkOperationalLimitsGroups(validable, branch.getOperationalLimitsGroups2(), validationLevel, actionOnError, reportNode);

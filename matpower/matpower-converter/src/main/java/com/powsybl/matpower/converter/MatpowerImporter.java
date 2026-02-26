@@ -312,7 +312,7 @@ public class MatpowerImporter implements Importer {
                     .setId(shuntId)
                     .setConnectableBus(busId)
                     .setBus(busId)
-                    .setVoltageRegulatorOn(false)
+                    .newVoltageRegulation().withRegulating(false).withMode(RegulationMode.REACTIVE_POWER).add()
                     .setSectionCount(1);
             adder.newLinearModel()
                     .setGPerSection(mBus.getShuntConductance() / context.getBaseMva() / zb)
@@ -505,16 +505,20 @@ public class MatpowerImporter implements Importer {
                     .setId(csId1)
                     .setBus(connectedBus1Id)
                     .setConnectableBus(bus1Id)
-                    .setVoltageRegulatorOn(true)
-                    .setVoltageSetpoint(mDcLine.getVf() * voltageLevel1.getNominalV())
+                    .newVoltageRegulation()
+                        .withMode(RegulationMode.VOLTAGE)
+                        .withTargetValue(mDcLine.getVf() * voltageLevel1.getNominalV())
+                        .add()
                     .setLossFactor((float) computeLossFactor1(mDcLine.getPf(), mDcLine.getLoss0())) // To guarantee the round-trip
                     .add();
             VscConverterStation vsc2 = voltageLevel2.newVscConverterStation()
                     .setId(csId2)
                     .setBus(connectedBus2Id)
                     .setConnectableBus(bus2Id)
-                    .setVoltageRegulatorOn(true)
-                    .setVoltageSetpoint(mDcLine.getVt() * voltageLevel2.getNominalV())
+                    .newVoltageRegulation()
+                        .withMode(RegulationMode.VOLTAGE)
+                        .withTargetValue(mDcLine.getVt() * voltageLevel2.getNominalV())
+                        .add()
                     .setLossFactor((float) computeLossFactor2(mDcLine.getPf(), mDcLine.getLoss0(), losses - mDcLine.getLoss0()))
                     .add();
             network.newHvdcLine()

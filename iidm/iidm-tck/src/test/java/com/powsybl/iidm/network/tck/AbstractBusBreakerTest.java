@@ -153,8 +153,10 @@ public abstract class AbstractBusBreakerTest {
                                                     .setName("vsc")
                                                     .setBus("bus1")
                                                     .setLossFactor(0.011f)
-                                                    .setVoltageRegulatorOn(false)
-                                                    .setReactivePowerSetpoint(1.0)
+                                                    .newVoltageRegulation()
+                                                        .withMode(RegulationMode.REACTIVE_POWER)
+                                                        .withTargetValue(1.0)
+                                                        .add()
                                                     .setConnectableBus("bus1")
                                                 .add();
         assertEquals(HvdcConverterStation.HvdcType.LCC, lccConverterStation.getHvdcType());

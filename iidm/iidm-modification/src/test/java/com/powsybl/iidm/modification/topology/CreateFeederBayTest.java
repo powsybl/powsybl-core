@@ -320,8 +320,10 @@ class CreateFeederBayTest extends AbstractModificationTest {
         VscConverterStationAdder vscConverterStationAdder = network.getVoltageLevel("vl2").newVscConverterStation()
                 .setId("newVscConverterStation")
                 .setLossFactor(1.1f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withTargetValue(405.0)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setEnsureIdUnicity(false);
         Optional<Range<Integer>> unusedOrderPositionsAfter4 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter4.isPresent());

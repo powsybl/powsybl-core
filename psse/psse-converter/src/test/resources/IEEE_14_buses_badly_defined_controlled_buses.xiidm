@@ -31,11 +31,13 @@
                 </iidm:shuntNonLinearModel>
                 <iidm:voltageRegulation targetValue="137.31" targetDeadband="1.3799999999999955" mode="VOLTAGE" regulating="true"/>
             </iidm:shuntCompensator>
-            <iidm:vscConverterStation id="VscConverter-2-VSC-1" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="138.0" reactivePowerSetpoint="0.0" bus="B2" connectableBus="B2">
+            <iidm:vscConverterStation id="VscConverter-2-VSC-1" lossFactor="0.0" targetQ="0.0" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-9999.0" maxQ="9999.0"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="138.0"/>
             </iidm:vscConverterStation>
-            <iidm:vscConverterStation id="VscConverter-2-VSC-2" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="138.0" reactivePowerSetpoint="0.0" bus="B2" connectableBus="B2">
+            <iidm:vscConverterStation id="VscConverter-2-VSC-2" lossFactor="0.0" targetQ="0.0" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-9999.0" maxQ="9999.0"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="138.0"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -112,11 +114,13 @@
             </iidm:generator>
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="7.6" q0="1.6" bus="B5" connectableBus="B5"/>
             <iidm:load id="B6-L1 " loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B6" connectableBus="B6"/>
-            <iidm:vscConverterStation id="VscConverter-5-VSC-1" voltageRegulatorOn="false" lossFactor="0.0" voltageSetpoint="138.0" reactivePowerSetpoint="0.11180423740823946" bus="B5" connectableBus="B5">
+            <iidm:vscConverterStation id="VscConverter-5-VSC-1" lossFactor="0.0" targetV="138.0" bus="B5" connectableBus="B5">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetValue="0.11180423740823946"/>
             </iidm:vscConverterStation>
-            <iidm:vscConverterStation id="VscConverter-5-VSC-2" voltageRegulatorOn="false" lossFactor="0.0" voltageSetpoint="138.0" reactivePowerSetpoint="0.11180423740823946" bus="B5" connectableBus="B5">
+            <iidm:vscConverterStation id="VscConverter-5-VSC-2" lossFactor="0.0" targetV="138.0" bus="B5" connectableBus="B5">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetValue="0.11180423740823946"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-5-6-1 " r="0.0" x="47.994688800000006" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" voltageLevelId1="VL5-6" bus1="B5" connectableBus1="B5" voltageLevelId2="VL5-6" bus2="B6" connectableBus2="B6">

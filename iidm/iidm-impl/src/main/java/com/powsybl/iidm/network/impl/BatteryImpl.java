@@ -270,7 +270,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         this.voltageRegulation = null;
     }
 
-    public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
         this.removeVoltageRegulation();
         this.voltageRegulation = voltageRegulation;
     }

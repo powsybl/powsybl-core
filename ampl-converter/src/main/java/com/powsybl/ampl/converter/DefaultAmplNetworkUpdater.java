@@ -49,11 +49,19 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         Terminal t = vsc.getTerminal();
         t.setP(p).setQ(q);
 
-        vsc.setReactivePowerSetpoint(targetQ);
-        vsc.setVoltageRegulatorOn(vregul);
-
         double nominalV = vsc.getRegulatingTerminal().getVoltageLevel().getNominalV();
-        vsc.setVoltageSetpoint(targetV * nominalV);
+        double voltageSetpoint = targetV * nominalV;
+
+        if (vregul) {
+            vsc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+            vsc.getVoltageRegulation().setTargetValue(voltageSetpoint);
+            vsc.setTargetQ(targetQ);
+        } else {
+            vsc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+            vsc.getVoltageRegulation().setTargetValue(targetQ);
+            vsc.setTargetV(voltageSetpoint);
+        }
+
         busConnection(t, busNum, networkMapper);
     }
 
