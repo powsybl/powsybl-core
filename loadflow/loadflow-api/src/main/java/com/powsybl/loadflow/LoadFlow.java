@@ -32,8 +32,11 @@ public final class LoadFlow {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlow.class);
 
     /**
-     * We suppose until 10% of gap no warning message
-     * Connections between 380 kV and 400 KV (5%) no warning
+     * Threshold for nominal voltage mismatch warning.
+     * <p>
+     * No warning is emitted if the difference is less than or equal to 10%.
+     * For example, a connection between 380 kV and 400 kV (~5% difference) does not trigger a warning.
+     * </p>
      */
     private static final double NOMINAL_VOLTAGE_MISMATCH_WARNING_THRESHOLD = 0.10;
 
