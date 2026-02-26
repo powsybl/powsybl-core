@@ -7,15 +7,26 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public interface VoltageSourceConverterAdder extends AcDcConverterAdder<VoltageSourceConverter, VoltageSourceConverterAdder> {
 
+    VoltageRegulationAdder<VoltageSourceConverterAdder> newVoltageRegulation();
+
+    VoltageSourceConverterAdder setTargetQ(double targetQ);
+
+    VoltageSourceConverterAdder setTargetV(double targetV);
+
+    @Deprecated(forRemoval = true, since = "7.2.0")
     VoltageSourceConverterAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
+    @Deprecated(forRemoval = true, since = "7.2.0")
     VoltageSourceConverterAdder setVoltageSetpoint(double voltageSetpoint);
 
+    @Deprecated(forRemoval = true, since = "7.2.0")
     VoltageSourceConverterAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
 }

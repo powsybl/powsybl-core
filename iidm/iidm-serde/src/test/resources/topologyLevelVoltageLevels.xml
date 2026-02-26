@@ -119,9 +119,10 @@
                 <iidm:bus id="VL_DC_Converter_0" v="402.0" angle="12.3"/>
                 <iidm:bus id="VL_DC_Converter_1"/>
             </iidm:busBreakerTopology>
-            <iidm:voltageSourceConverter id="vsc" name="VSC" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="3.0" switchingLoss="0.3" resistiveLoss="3.0E-6" controlMode="P_PCC" targetP="302.0" targetVdc="503.0" bus1="VL_DC_Converter_0" connectableBus1="VL_DC_Converter_0" bus2="VL_DC_Converter_1" connectableBus2="VL_DC_Converter_1" voltageRegulatorOn="true" voltageSetpoint="397.0">
+            <iidm:voltageSourceConverter id="vsc" name="VSC" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="3.0" switchingLoss="0.3" resistiveLoss="3.0E-6" controlMode="P_PCC" targetP="302.0" targetVdc="503.0" bus1="VL_DC_Converter_0" connectableBus1="VL_DC_Converter_0" bus2="VL_DC_Converter_1" connectableBus2="VL_DC_Converter_1">
                 <iidm:pccTerminal id="line2" side="TWO"/>
                 <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="210.0"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="397.0"/>
             </iidm:voltageSourceConverter>
         </iidm:voltageLevel>
     </iidm:substation>

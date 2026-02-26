@@ -786,9 +786,8 @@ public final class DcDetailedNetworkFactory {
                 .setPccTerminal(frPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(200.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.0)
-                .setVoltageSetpoint(400.)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
+                .setTargetV(400.)
                 .add();
         Terminal gbPccTerminal = dcNetwork.getTwoWindingsTransformer(getTransformerId(Country.GB, X_NODE_DC_1_GB, SUFFIX_NONE)).getTerminal1();
         dcNetwork.getVoltageLevel(getVoltageLevelId(Country.GB, X_NODE_DC_1_GB, SUFFIX_150)).newVoltageSourceConverter()
@@ -800,9 +799,8 @@ public final class DcDetailedNetworkFactory {
                 .setPccTerminal(gbPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(-200.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.0)
-                .setVoltageSetpoint(400.)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
+                .setTargetV(400.)
                 .add();
         return Network.merge(dcNetwork, fr, gb);
     }

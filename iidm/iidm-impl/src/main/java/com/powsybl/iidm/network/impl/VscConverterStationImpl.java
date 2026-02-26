@@ -59,7 +59,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return isRegulatingWithMode(RegulationMode.VOLTAGE);
+        return isWithMode(RegulationMode.VOLTAGE);
     }
 
     @Override

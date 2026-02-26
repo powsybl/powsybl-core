@@ -291,8 +291,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setDcNode2(dcNode2.getId())
                 .setTargetP(0.)
                 .setTargetVdc(500.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
                 .add();
 
         return n;
