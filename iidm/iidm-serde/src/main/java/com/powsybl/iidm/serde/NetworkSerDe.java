@@ -85,6 +85,7 @@ public final class NetworkSerDe {
     static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4d};
 
     private static final Supplier<Schema> DEFAULT_SCHEMA_SUPPLIER = Suppliers.memoize(() -> NetworkSerDe.createSchema(DefaultExtensionsSupplier.getInstance()));
+    private static final Supplier<Map<IidmVersion, Schema>> DEFAULT_SCHEMAS_SUPPLIER = Suppliers.memoize(() -> NetworkSerDe.createDefaultSchemas(DefaultExtensionsSupplier.getInstance()));
     private static final int MAX_NAMESPACE_PREFIX_NUM = 100;
 
     private NetworkSerDe() {
@@ -92,6 +93,10 @@ public final class NetworkSerDe {
 
     public static void validate(InputStream is) {
         validate(is, DefaultExtensionsSupplier.getInstance());
+    }
+
+    public static void validate(InputStream is, IidmVersion version) {
+        validate(is, version, DefaultExtensionsSupplier.getInstance());
     }
 
     public static void validate(InputStream is, ExtensionsSupplier extensionsSupplier) {
@@ -146,6 +151,65 @@ public final class NetworkSerDe {
                 sources[k + length] = additionalSchemas.get(k);
             }
             return factory.newSchema(sources);
+        } catch (SAXException e) {
+            throw new UncheckedSaxException(e);
+        }
+    }
+
+    private static void validate(InputStream is, IidmVersion version, ExtensionsSupplier extensionsSupplier) {
+        Objects.requireNonNull(is);
+        Objects.requireNonNull(version);
+        Objects.requireNonNull(extensionsSupplier);
+        Schema schema;
+        if (extensionsSupplier == DefaultExtensionsSupplier.getInstance()) {
+            schema = DEFAULT_SCHEMAS_SUPPLIER.get().get(version);
+            if(schema == null) {
+               throw new PowsyblException("Schema not found: version=" + version);
+            }
+        } else {
+            schema = createSchema(extensionsSupplier, version);
+        }
+        try {
+            schema.newValidator().validate(new StreamSource(is));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (SAXException e) {
+            throw new UncheckedSaxException(e);
+        }
+    }
+
+    private static Map<IidmVersion, Schema> createDefaultSchemas(ExtensionsSupplier extensionsSupplier) {
+        Map<IidmVersion, Schema> schemasByIIdmVersion = new HashMap<>();
+        for (IidmVersion version : IidmVersion.values()) {
+            Schema schema = createSchema(extensionsSupplier, version);
+            schemasByIIdmVersion.put(version, schema);
+        }
+        return schemasByIIdmVersion;
+    }
+
+    private static Schema createSchema(ExtensionsSupplier extensionsSupplier, IidmVersion version) {
+        Objects.requireNonNull(extensionsSupplier);
+        Objects.requireNonNull(version);
+        List<Source> additionalSchemas = new ArrayList<>();
+        // extensions XSD
+        for (ExtensionSerDe<?, ?> extensionSerDe : extensionsSupplier.get().getProviders()) {
+            extensionSerDe.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
+        }
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        try {
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            List<Source> sources = new ArrayList<>();
+            // iidm: validation
+            sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd())));
+            // equipement: validation
+            if (version.supportEquipmentValidationLevel()) {
+                sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd(false))));
+            }
+            // extensions: validation, namespaces are supported in specific iidm version !
+            //FIXME extensions XSD
+             sources.addAll(additionalSchemas);
+            return factory.newSchema(sources.toArray(Source[]::new));
         } catch (SAXException e) {
             throw new UncheckedSaxException(e);
         }
