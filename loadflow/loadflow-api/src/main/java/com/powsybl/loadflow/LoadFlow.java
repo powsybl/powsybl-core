@@ -14,7 +14,9 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ReportNodeContext;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,8 @@ public final class LoadFlow {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlow.class);
 
     /**
-     * Threshold for nominal voltage mismatch warning.
+     * TODO to remove this is specific for an implementation should be done in open load flow
+     * Threshold for nominal voltage mismatch warning within {@code Line}.
      * <p>
      * No warning is emitted if the difference is less than or equal to 10%.
      * For example, a connection between 380 kV and 400 kV (~5% difference) does not trigger a warning.
@@ -289,6 +292,7 @@ public final class LoadFlow {
     }
 
     private static void logIfLineNominalVoltagesDifferent(Network network) {
+        ReportNode reportNode = getNetworkReportNode(network);
         network.getLineStream().forEach(line -> {
             VoltageLevel vl1 = line.getTerminal1().getVoltageLevel();
             VoltageLevel vl2 = line.getTerminal2().getVoltageLevel();
@@ -299,7 +303,17 @@ public final class LoadFlow {
             if (gap > NOMINAL_VOLTAGE_MISMATCH_WARNING_THRESHOLD) {
                 double gapPercent = Math.round(gap * 1000.0) / 10.0;
                 LOGGER.warn("Line '{}' connect voltage level '{}' ({} KV) and '{}' ({} KV): nominal voltage gap={}%", line.getId(), vl1.getId(), nominalV1, vl2.getId(), nominalV2, gapPercent);
+                NetworkReports.lineNominalVoltageDifferent(reportNode, line.getId(), vl1.getId(), nominalV1, vl2.getId(), nominalV2, gapPercent);
             }
         });
+    }
+
+    private static ReportNode getNetworkReportNode(Network network) {
+        ReportNodeContext reportNodeContext = network.getReportNodeContext();
+        if (reportNodeContext == null) {
+            return ReportNode.NO_OP;
+        }
+        ReportNode reportNode = reportNodeContext.getReportNode();
+        return reportNode != null ? reportNode : ReportNode.NO_OP;
     }
 }

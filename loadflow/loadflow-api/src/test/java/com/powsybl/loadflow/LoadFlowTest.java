@@ -174,6 +174,16 @@ class LoadFlowTest {
     void shouldReportNodeWhenLineConnectVeryDifferentNominalVoltages() {
         // Given
         LoadFlow.Runner defaultLoadFlow = LoadFlow.find();
+        // ReportNode
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testLoadflow")
+                .build();
+
+        ReportNodeContext reportNodeContext = mock(ReportNodeContext.class);
+        when(network.getReportNodeContext()).thenReturn(reportNodeContext);
+        when(reportNodeContext.getReportNode()).thenReturn(reportRoot);
+
         // Line  220 / 400 kV
         Line line = mock(Line.class);
         Terminal terminal1 = mock(Terminal.class);
@@ -196,7 +206,16 @@ class LoadFlowTest {
         when(vl1.getNominalV()).thenReturn(400.0);
         when(vl2.getNominalV()).thenReturn(220.0);
 
+        LoadFlowRunParameters runParameters = new LoadFlowRunParameters();
+        runParameters.setReportNode(reportRoot);
         // When run LoadFlow
-        defaultLoadFlow.run(network);
+        defaultLoadFlow.run(network, runParameters);
+        // Then report message lineNominalVoltageDifferent
+//        ReportNode reportNodeResult = runParameters.getReportNode();
+        assertTrue(reportRoot.getChildren()
+                .stream()
+                .map(ReportNode::getMessageKey)
+                .toList()
+                .contains("core.iidm.network.lineNominalVoltageDifferent"));
     }
 }
