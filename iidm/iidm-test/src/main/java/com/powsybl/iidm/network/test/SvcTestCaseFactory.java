@@ -129,8 +129,6 @@ public final class SvcTestCaseFactory {
                     .withMode(RegulationMode.VOLTAGE)
                     .withTargetValue(390)
                     .add()
-            // TODO MSA add targetV / targetQ in StaticVarCompensator
-//                .setVoltageSetpoint(390)
                 .setTargetQ(350)
                 .add();
 
