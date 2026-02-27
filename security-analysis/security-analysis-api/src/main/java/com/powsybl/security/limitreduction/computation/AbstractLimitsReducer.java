@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.limitmodification.result.IdenticalLimitsContaine
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 /**
@@ -26,8 +27,8 @@ public abstract class AbstractLimitsReducer<L> {
     protected final Map<Integer, Double> temporaryLimitReductionByAcceptableDuration = new HashMap<>();
 
     protected AbstractLimitsReducer(L originalLimits, String limitsGroupId) {
-        this.originalLimits = originalLimits;
-        this.limitsGroupId = limitsGroupId;
+        this.originalLimits = Objects.requireNonNull(originalLimits);
+        this.limitsGroupId = Objects.requireNonNull(limitsGroupId);
     }
 
     /**
