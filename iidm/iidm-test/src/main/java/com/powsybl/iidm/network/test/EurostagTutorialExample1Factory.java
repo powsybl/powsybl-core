@@ -502,7 +502,7 @@ public final class EurostagTutorialExample1Factory {
 
     /**
      * Selected limits:
-     * On {@link #NHV1_NHV2_1}, side 1 (also has a {@link #NOT_ACTIVATED} group)
+     * On {@link #NHV1_NHV2_1} a line, side 1 (also has a {@link #NOT_ACTIVATED} group)
      * <pre>
      *      Default      activated_1_1       activated_1_2
      *      |                                ---- IT0.5 1600 (30s)
@@ -520,7 +520,7 @@ public final class EurostagTutorialExample1Factory {
      *      | ---- ITP 600      ---- ITP 600
      * </pre>
      *
-     * On {@link #NHV1_NHV2_2}, side 1
+     * On {@link #NHV1_NHV2_2}, a line, side 1
      * <pre>
      *      Default
      *      | ---- IT20 1200 (1200s)
@@ -651,7 +651,7 @@ public final class EurostagTutorialExample1Factory {
 
     /**
      * Selected limits:
-     * On {@link #NGEN_V2_NHV1}, side 3 (also has a {@link #NOT_ACTIVATED} group)
+     * On {@link #NGEN_V2_NHV1}, a three-winding transformer, side 3 (also has a {@link #NOT_ACTIVATED} group)
      * <pre>
      *      Default      activated_3_1
      *      |            ---- IT45 400 (2700s)
@@ -693,10 +693,30 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    /**
+     * Selected limits:
+     * On {@link #NGEN_NHV1}, a two-winding transformer, side 2
+     * <pre>
+     *      activated_2_1             activated_2_2
+     *                                ---- IT20 250 (1200s)
+     *      ---- IT10 240 (600s)      ---- ITP 240
+     *      ---- ITP 230
+     * </pre>
+     */
     public static Network createWithMultipleSelectedFixedApparentPowerLimits() {
         return createWithMultipleSelectedFixedApparentPowerLimits(NetworkFactory.findDefault());
     }
 
+    /**
+     * Selected limits:
+     * On {@link #NGEN_NHV1}, a two-winding transformer, side 2
+     * <pre>
+     *      activated_2_1             activated_2_2
+     *                                ---- IT20 250 (1200s)
+     *      ---- IT10 240 (600s)      ---- ITP 240
+     *      ---- ITP 230
+     * </pre>
+     */
     public static Network createWithMultipleSelectedFixedApparentPowerLimits(NetworkFactory networkFactory) {
         Network network = create(networkFactory);
 

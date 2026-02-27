@@ -104,6 +104,17 @@ public final class LimitViolationDetection {
                 : terminal.getI();
     }
 
+    /**
+     * Checks all the selected {@link OperationalLimitsGroup} of the <code>side</code> of the <code>branch</code>.
+     * It will check for the limits of the given <code>type</code>, using the <code>value</code> as the value to check against the limits.
+     * @param branch the branch on which to check the limits
+     * @param side the side of the branch to check
+     * @param value what to check against the limits (value in A for intensity, in MW for active power, in MVar for reactive power)
+     * @param type the type of the limit to check
+     * @param currentLimitTypes check for permanent, temporary or both
+     * @param limitsComputer how to calculate the limits
+     * @param consumer what to do with the violations that are detected (log, store, etc...)
+     */
     public static void checkLimitViolation(Branch<?> branch, TwoSides side, double value, LimitType type,
                                     Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
                                     Consumer<LimitViolation> consumer) {
@@ -189,6 +200,17 @@ public final class LimitViolationDetection {
         checkLimitViolation(transformer, side, i, LimitType.CURRENT, currentLimitTypes, limitsComputer, consumer);
     }
 
+    /**
+     * Checks all the selected {@link OperationalLimitsGroup} of the <code>side</code> of the <code>transformer</code>.
+     * It will check for the limits of the given <code>type</code>, using the <code>value</code> as the value to check against the limits.
+     * @param transformer the three-winding transformer on which to check the limits
+     * @param side the side of the transformer to check
+     * @param value what to check against the limits (value in A for intensity, in MW for active power, in MVar for reactive power)
+     * @param type the type of the limit to check
+     * @param currentLimitTypes check for permanent, temporary or both
+     * @param limitsComputer how to calculate the limits
+     * @param consumer what to do with the violations that are detected (log, store, etc...)
+     */
     public static void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value,
                                     LimitType type, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
                                     Consumer<LimitViolation> consumer) {

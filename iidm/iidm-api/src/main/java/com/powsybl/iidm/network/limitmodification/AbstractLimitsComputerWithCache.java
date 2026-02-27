@@ -55,7 +55,7 @@ public abstract class AbstractLimitsComputerWithCache<P, L> implements LimitsCom
 
     /**
      * <p>Retrieve the limits on <code>processable</code> then apply modifications on them.</p>
-     * <p>If no modification applies on the resulting {@link LimitsContainer} must contains the same object for
+     * <p>If no modification applies, then the resulting {@link LimitsContainer} must contain the same object for
      * the original and the reduced limits.</p>
      * <p>This function is called when the corresponding limits were not found in the cache.</p>
      * <p>This function is responsible for the addition of the computed limit in the cache

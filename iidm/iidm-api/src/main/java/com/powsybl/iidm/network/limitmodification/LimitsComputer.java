@@ -29,8 +29,8 @@ public interface LimitsComputer<P, L> {
     LimitsComputer<Identifiable<?>, LoadingLimits> NO_MODIFICATIONS = new NoModificationsImpl();
 
     /**
-     * <p>Retrieve the limits of <code>processable</code> corresponding to the given limits type and side for all the selected limits (can be more than one),
-     * then apply on them the modifications configured in the current {@link LimitsComputer}.</p>
+     * <p>Retrieve the limits of <code>processable</code> corresponding to the given limits type and side for all the selected {@link OperationalLimitsGroup}
+     * (can be more than one), then apply on them the modifications configured in the current {@link LimitsComputer}.</p>
      * <p>The result of this method contains both originals and altered limits.</p>
      * @param processable The network element for which the altered limits must be computed
      * @param limitType The type of the limits to process

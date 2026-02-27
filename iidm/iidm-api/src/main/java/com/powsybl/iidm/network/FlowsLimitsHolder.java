@@ -84,7 +84,7 @@ public interface FlowsLimitsHolder {
 
     /**
      * <p>Set the {@link OperationalLimitsGroup} corresponding to the given IDs as selected. If other groups were also selected, they are still selected</p>
-     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if the ID doesn't correspond to any existing group.</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if any of the IDs don't correspond to an existing group.</p>
      * <p>Throw an {@link NullPointerException} if any ID is <code>null</code>.</p>
      * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)}.
      * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
@@ -114,7 +114,8 @@ public interface FlowsLimitsHolder {
     }
 
     /**
-     * <p>Remove the {@link OperationalLimitsGroup} corresponding to the given ID.</p>
+     * <p>Remove the {@link OperationalLimitsGroup} corresponding to the given ID.
+     * This does not fail if the group corresponding to this ID doesn't exist</p>
      * <p>Throw an {@link NullPointerException} if the ID is <code>null</code>.
      * @param id an ID of {@link OperationalLimitsGroup}
      */
@@ -173,14 +174,14 @@ public interface FlowsLimitsHolder {
 
     /**
      * <p>Get the {@link OperationalLimitsGroup} corresponding to the default ID or create a new one if it does not exist.
-     * Set the {@link OperationalLimitsGroup} as a selected one.</p>
+     * Set the {@link OperationalLimitsGroup} as the only selected one.</p>
      * @return the selected {@link OperationalLimitsGroup}.
      */
     OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup();
 
     /**
      * <p>Get the {@link OperationalLimitsGroup} corresponding to the given ID or create a new one if it does not exist.
-     * Set the {@link OperationalLimitsGroup} as a selected one .</p>
+     * Set the {@link OperationalLimitsGroup} as the selected one .</p>
      * @param limitsGroupId an ID of {@link OperationalLimitsGroup}
      * @return the selected {@link OperationalLimitsGroup}.
      */

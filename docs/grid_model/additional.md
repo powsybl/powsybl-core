@@ -98,7 +98,7 @@ In network development studies or in an operational context (CGMES), we can have
 In PowSyBl, users can store a collection of limits:
 - Active power limits, apparent power limits and current limits are gathered into an `OperationalLimitsGroup` object.
 - Lines, transformers (and other mentioned above in [Loading limits](#loading-limits)) are associated with a collection of `OperationalLimitsGroup` (one collection per side/leg).
-  Users can then choose the active one or more `OperationalLimitsGroup` according to their needs.
+  Users can then choose one or more `OperationalLimitsGroup` to activate according to their needs.
 
 `OperationalLimitsGroup` objects have an `id`, and may have properties — which allow associating additional arbitrary data items under the general schema of pairs <Key, Value>.
 Note that unlike the properties on the network components, no notification is emitted when a property is added, changed or removed.

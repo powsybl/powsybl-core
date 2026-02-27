@@ -351,13 +351,13 @@ public final class LimitViolationUtils {
     }
 
     /**
-     * Return the limit associated with the <code>side</code> of the <code>identifiable</code> of the <code>type</code>,
+     * Return the limits associated with the <code>side</code> of the <code>identifiable</code> of the <code>type</code>,
      * only for the last selected {@link OperationalLimitsGroup}, as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()}
      * @param identifiable on what we want to check the limit of the last selected group
      * @param side the side of the <code>identifiable</code> we want the limit of
      * @param type the type of the limit, refer to {@link LimitType}
      * @param computer how the limit is calculated (could be a reduced limit for example)
-     * @return an {@link LimitsContainer} with the limit corresponding to the last selected {@link OperationalLimitsGroup},
+     * @return an {@link LimitsContainer} with the limits corresponding to the last selected {@link OperationalLimitsGroup},
      * of the <code>type</code> on the <code>side</code> of the <code>identifiable</code>, calculated using <code>computer</code>,
      * if any {@link OperationalLimitsGroup} was selected.
      * An empty {@link Optional} otherwise.
@@ -409,7 +409,7 @@ public final class LimitViolationUtils {
     }
 
     /**
-     * Get the limit associated to the last selected {@link OperationalLimitsGroup} ( as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()})
+     * Get the limits associated to the last selected {@link OperationalLimitsGroup} (as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()})
      * of the <code>side</code> of <code>identifiable</code>, that is of the given <code>type</code>
      * @param identifiable on what we want to check the limit of the last selected group
      * @param side the side of the <code>identifiable</code> we want the limit of
