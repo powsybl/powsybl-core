@@ -22,15 +22,17 @@ import java.util.Objects;
  * <p>This class represents a reduction that should be applied to operational limits of a certain type.</p>
  * <p>A reduced limit is computed as <code>original limit * limitReduction.value</code>.</p>
  * <p>It may also contain restrictions indicating in which conditions it should be applied. If no restriction is defined
- * the limit reduction is applied to all limits of the defined type.</p>
+ * the limit reduction is applied to all limits of the defined type.
+ * Note that restrictions are cumulative between themselves (but the Builder's methods to define those lists are not cumulative).</p>
  * <p>The possible restrictions are:
  *     <ul>
  *         <li><code>monitoringOnly</code>: use <code>true</code> if the limit reduction is applied when reporting the limit violations only.
  *              Use <code>false</code> if it is applied also inside the conditions of operator strategies. The default value is <code>false</code>.</li>
  *         <li><code>contingencyContext</code>: the contingency context in which the limit reduction is applied (in pre-contingency only, after every contingency, etc.);</li>
  *         <li><code>networkElementCriteria</code>: criteria a network element should respect for the limit reduction to be applied on its limits;</li>
- *         <li><code>limitDurationCriteria</code>: criteria based on limit overload acceptable durations. Through these criteria, we can defined if
- *         the reduction is applied on the permanent limit and/or on a temporary limit if it acceptable duration is within a specific range.</li>
+ *         <li><code>limitDurationCriteria</code>: criteria based on limit overload acceptable durations. Through these criteria, we can define if
+ *         the reduction is applied on the permanent limit and/or on a temporary limit and if its acceptable duration is within a specific range.</li>
+ *         <li><code>operationalLimitsGroupIdCriteria</code>: define which groups the reduction should be applied to by specifying their ID</li>
  *     </ul>
  * </p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -42,6 +44,7 @@ public class LimitReduction {
     private final ContingencyContext contingencyContext;
     private final List<NetworkElementCriterion> networkElementCriteria;
     private final List<LimitDurationCriterion> durationCriteria;
+    private final List<String> operationalLimitsGroupIdCriteria;
 
     private boolean isSupportedLimitType(LimitType limitType) {
         return limitType == LimitType.CURRENT
@@ -70,7 +73,7 @@ public class LimitReduction {
      * @param monitoringOnly <code>true</code> if the reduction is applied only for monitoring only, <code>false</code> otherwise.
      */
     public LimitReduction(LimitType limitType, double value, boolean monitoringOnly) {
-        this(limitType, value, monitoringOnly, ContingencyContext.all(), Collections.emptyList(), Collections.emptyList());
+        this(limitType, value, monitoringOnly, ContingencyContext.all(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     /**
@@ -93,6 +96,7 @@ public class LimitReduction {
      *         <li><code>contingencyContext</code>: {@link ContingencyContext#all()}. The limit reduction is used on pre-contingency state and after each contingency state.</li>
      *         <li><code>networkElementCriteria</code>: {@link Collections#emptyList()}. The limit reduction is applied on each network element (that holds a limit on this type).</li>
      *         <li><code>limitDurationCriteria</code>: {@link Collections#emptyList()}. The limit reduction is applied for all permanent and temporary limits.</li>
+     *         <li><code>operationalLimitsGroupIdCriteria</code>: {@link Collections#emptyList()}. The limit reduction is applied to all selected groups.</li>
      *     </ul>
      * </p>
      */
@@ -103,6 +107,7 @@ public class LimitReduction {
         private ContingencyContext contingencyContext = ContingencyContext.all();
         private List<NetworkElementCriterion> networkElementCriteria = Collections.emptyList();
         private List<LimitDurationCriterion> limitDurationCriteria = Collections.emptyList();
+        private List<String> operationalLimitsGroupIdCriteria = Collections.emptyList();
 
         protected Builder(LimitType limitType, double value) {
             this.limitType = limitType;
@@ -184,19 +189,32 @@ public class LimitReduction {
         }
 
         /**
+         * <p>Define criteria on the ID of the {@link com.powsybl.iidm.network.OperationalLimitsGroup}</p>
+         * <p>By default, the limit reduction is applied to all selected groups.</p>
+         * <p>This method is not cumulative and clean previous definitions.</p>
+         * @param operationalLimitsGroupIdCriteria criteria to restrict the limit reduction to specified IDs
+         * @return the current {@link Builder}
+         */
+        public Builder withOperationalLimitsGroupIdCriteria(String... operationalLimitsGroupIdCriteria) {
+            this.operationalLimitsGroupIdCriteria = List.of(operationalLimitsGroupIdCriteria);
+            return this;
+        }
+
+        /**
          * <p>Build the {@link LimitReduction} with the defined parameters.</p>
          * @return a new {@link LimitReduction}
          */
         public LimitReduction build() {
             return new LimitReduction(limitType, value, monitoringOnly, contingencyContext,
-                    networkElementCriteria, limitDurationCriteria);
+                    networkElementCriteria, limitDurationCriteria, operationalLimitsGroupIdCriteria);
         }
     }
 
     private LimitReduction(LimitType limitType, double value, boolean monitoringOnly,
                           ContingencyContext contingencyContext,
                           List<NetworkElementCriterion> networkElementCriteria,
-                          List<LimitDurationCriterion> limitDurationCriteria) {
+                          List<LimitDurationCriterion> limitDurationCriteria,
+                          List<String> operationalLimitsGroupIdCriteria) {
         if (isSupportedLimitType(limitType)) {
             this.limitType = limitType;
         } else {
@@ -210,6 +228,7 @@ public class LimitReduction {
         this.contingencyContext = contingencyContext;
         this.networkElementCriteria = networkElementCriteria;
         this.durationCriteria = limitDurationCriteria;
+        this.operationalLimitsGroupIdCriteria = operationalLimitsGroupIdCriteria;
     }
 
     public LimitType getLimitType() {
@@ -255,5 +274,13 @@ public class LimitReduction {
      */
     public List<LimitDurationCriterion> getDurationCriteria() {
         return durationCriteria;
+    }
+
+    /**
+     * <p>Indicate the criteria on operational limits group ids than we want to reduce</p>
+     * @return the list of {@link String} corresponding to the ID of each group that this limit reduction should be applied to.
+     */
+    public List<String> getOperationalLimitsGroupIdCriteria() {
+        return operationalLimitsGroupIdCriteria;
     }
 }
