@@ -15,8 +15,8 @@
                 <iidm:bus id="NHV1"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.2" x="11.1" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="NGEN1" connectableBus1="NGEN1" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"/>
-        <iidm:twoWindingsTransformer id="NGEN_NHV2" r="0.2" x="11.1" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="NGEN2" connectableBus1="NGEN2" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"/>
-        <iidm:twoWindingsTransformer id="twtTest" r="1.0" x="1.0" g="0.0" b="0.0" ratedU1="220.0" ratedU2="400.0" bus1="NGEN1" connectableBus1="NGEN1" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"/>
+        <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.2" x="11.1" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" voltageLevelId1="VLGEN" bus1="NGEN1" connectableBus1="NGEN1" voltageLevelId2="VLHV1" bus2="NHV1" connectableBus2="NHV1"/>
+        <iidm:twoWindingsTransformer id="NGEN_NHV2" r="0.2" x="11.1" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" voltageLevelId1="VLGEN" bus1="NGEN2" connectableBus1="NGEN2" voltageLevelId2="VLHV1" bus2="NHV1" connectableBus2="NHV1"/>
+        <iidm:twoWindingsTransformer id="twtTest" r="1.0" x="1.0" g="0.0" b="0.0" ratedU1="220.0" ratedU2="400.0" voltageLevelId1="VLGEN" bus1="NGEN1" connectableBus1="NGEN1" voltageLevelId2="VLHV1" bus2="NHV1" connectableBus2="NHV1"/>
     </iidm:substation>
 </iidm:network>

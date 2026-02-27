@@ -158,8 +158,20 @@
             </iidm:currentLimits>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:extension id="BBS_TEST_2_4">
-        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="4"/>
+    <iidm:extension id="BBS_TEST_1_1">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="BBS_TEST_1_2">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="BBS_TEST_1_3">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="3"/>
+    </iidm:extension>
+    <iidm:extension id="BBS_TEST_1_4">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="4"/>
+    </iidm:extension>
+    <iidm:extension id="BBS_TEST_2_1">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
     </iidm:extension>
     <iidm:extension id="BBS_TEST_2_2">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
@@ -167,31 +179,19 @@
     <iidm:extension id="BBS_TEST_2_3">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="3"/>
     </iidm:extension>
-    <iidm:extension id="BBS_TEST_2_1">
-        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
+    <iidm:extension id="BBS_TEST_2_4">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="4"/>
+    </iidm:extension>
+    <iidm:extension id="BBS_TEST_3_1">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="BBS_TEST_3_2">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="2"/>
     </iidm:extension>
     <iidm:extension id="BBS_TEST_3_3">
         <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="3"/>
     </iidm:extension>
     <iidm:extension id="BBS_TEST_3_4">
         <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="4"/>
-    </iidm:extension>
-    <iidm:extension id="BBS_TEST_3_1">
-        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="BBS_TEST_1_3">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="3"/>
-    </iidm:extension>
-    <iidm:extension id="BBS_TEST_3_2">
-        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="2"/>
-    </iidm:extension>
-    <iidm:extension id="BBS_TEST_1_4">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="4"/>
-    </iidm:extension>
-    <iidm:extension id="BBS_TEST_1_1">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="BBS_TEST_1_2">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
     </iidm:extension>
 </iidm:network>
