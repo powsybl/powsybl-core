@@ -55,7 +55,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param operationalLimitsGroupId The {@link OperationalLimitsGroup} due to which this violation occurred.
      * @param limitType          The type of limit which has been violated.
      * @param limitName          An optional name for the limit which has been violated.
-     * @param acceptableDuration The acceptable duration, in seconds, associated to the current violation value. Only relevant for current limits.
+     * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
@@ -85,7 +85,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param subjectName        An optional name of the network equipment on which the violation occurred.
      * @param limitType          The type of limit which has been violated.
      * @param limitName          An optional name for the limit which has been violated.
-     * @param acceptableDuration The acceptable duration, in seconds, associated to the current violation value. Only relevant for current limits.
+     * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
@@ -105,7 +105,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param subjectName        An optional name of the network equipment on which the violation occurred.
      * @param limitType          The type of limit which has been violated.
      * @param limitName          An optional name for the limit which has been violated.
-     * @param acceptableDuration The acceptable duration, in seconds, associated to the current violation value. Only relevant for current limits.
+     * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
@@ -125,7 +125,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param subjectName        An optional name of the network equipment on which the violation occurred.
      * @param limitType          The type of limit which has been violated.
      * @param limitName          An optional name for the limit which has been violated.
-     * @param acceptableDuration The acceptable duration, in seconds, associated to the current violation value. Only relevant for current limits.
+     * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
@@ -145,7 +145,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param subjectName        An optional name of the network equipment on which the violation occurred.
      * @param limitType          The type of limit which has been violated.
      * @param limitName          An optional name for the limit which has been violated.
-     * @param acceptableDuration The acceptable duration, in seconds, associated to the current violation value. Only relevant for current limits.
+     * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
@@ -164,7 +164,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param subjectId          The identifier of the network equipment on which the violation occurred.
      * @param limitType          The type of limit which has been violated.
      * @param limitName          An optional name for the limit which has been violated.
-     * @param acceptableDuration The acceptable duration, in seconds, associated to the current violation value. Only relevant for current limits.
+     * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
@@ -183,7 +183,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param subjectId          The identifier of the network equipment on which the violation occurred.
      * @param limitType          The type of limit which has been violated.
      * @param limitName          An optional name for the limit which has been violated.
-     * @param acceptableDuration The acceptable duration, in seconds, associated to the current violation value. Only relevant for current limits.
+     * @param acceptableDuration The acceptable duration, in seconds, associated to the violation value.
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
