@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2025, SuperGrid Institute (https://www.supergrid-institute.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
 package com.powsybl.powerfactory.converter;
 
 // import static org.mockito.Mockito.when;
@@ -12,6 +20,9 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
+ */
 public class MultiTerminalHvdcConverterTest {
 
     // test tolerance for double values.
@@ -35,10 +46,10 @@ public class MultiTerminalHvdcConverterTest {
         final double vDcSetPointPu = 1.01;
         final double targetDcV2 = nominalDcV * vDcSetPointPu;
         assertEquals(targetDcV2, vsc2.getTargetVdc(), RELATIVE_DELTA * targetDcV2);
-        assertEquals(600.0, vsc1.getTargetP());
-        assertEquals(0.0, vsc2.getTargetP());
-        assertEquals(0.0, vsc1.getReactivePowerSetpoint());
-        assertEquals(100.0, vsc2.getReactivePowerSetpoint());
+        assertEquals(-600.0, vsc1.getTargetP());
+        assertEquals(-0.0, vsc2.getTargetP());
+        assertEquals(-0.0, vsc1.getReactivePowerSetpoint());
+        assertEquals(-100.0, vsc2.getReactivePowerSetpoint());
         assertEquals(10.0, vsc1.getIdleLoss()); // unit change from kW to MW
         final double idleLoss2 = 10.0 * vDcSetPointPu * vDcSetPointPu;
         assertEquals(idleLoss2, vsc2.getIdleLoss(), RELATIVE_DELTA * idleLoss2); // unit change from kW to MW
@@ -69,10 +80,10 @@ public class MultiTerminalHvdcConverterTest {
         final double vDcSetPointPu = 1.01;
         final double targetDcV2 = nominalDcV * vDcSetPointPu;
         assertEquals(targetDcV2, vsc2.getTargetVdc(), RELATIVE_DELTA * targetDcV2);
-        assertEquals(600.0, vsc1.getTargetP(), ABSOLUTE_DELTA);
-        assertEquals(0.0, vsc2.getTargetP());
-        assertEquals(0.0, vsc1.getReactivePowerSetpoint());
-        assertEquals(100.0, vsc2.getReactivePowerSetpoint(), ABSOLUTE_DELTA);
+        assertEquals(-600.0, vsc1.getTargetP(), ABSOLUTE_DELTA);
+        assertEquals(-0.0, vsc2.getTargetP());
+        assertEquals(-0.0, vsc1.getReactivePowerSetpoint());
+        assertEquals(-100.0, vsc2.getReactivePowerSetpoint(), ABSOLUTE_DELTA);
         assertEquals(10.0, vsc1.getIdleLoss()); // unit change from kW to MW
         final double idleLoss2 = 10.0 * vDcSetPointPu * vDcSetPointPu;
         assertEquals(idleLoss2, vsc2.getIdleLoss(), RELATIVE_DELTA * idleLoss2); // unit change from kW to MW
@@ -140,7 +151,7 @@ public class MultiTerminalHvdcConverterTest {
 
         assertEquals(AcDcConverter.ControlMode.P_PCC, vsc.getControlMode());
         assertTrue(vsc.isVoltageRegulatorOn());
-        assertEquals(1234., vsc.getTargetP(), RELATIVE_DELTA * 1234.);
+        assertEquals(-1234., vsc.getTargetP(), RELATIVE_DELTA * 1234.);
         double acVoltageSetPoint = 0.8 * 300.;
         assertEquals(acVoltageSetPoint, vsc.getVoltageSetpoint(), RELATIVE_DELTA * acVoltageSetPoint);
 
@@ -160,8 +171,8 @@ public class MultiTerminalHvdcConverterTest {
 
         assertEquals(AcDcConverter.ControlMode.P_PCC, vsc.getControlMode());
         assertFalse(vsc.isVoltageRegulatorOn());
-        assertEquals(1234., vsc.getTargetP(), RELATIVE_DELTA * 1234.);
-        assertEquals(4321., vsc.getReactivePowerSetpoint(), RELATIVE_DELTA * 4321.);
+        assertEquals(-1234., vsc.getTargetP(), RELATIVE_DELTA * 1234.);
+        assertEquals(-4321., vsc.getReactivePowerSetpoint(), RELATIVE_DELTA * 4321.);
 
         // while we are there, check that some values are indeed unspecified
         assertTrue(Double.isNaN(vsc.getVoltageSetpoint()));

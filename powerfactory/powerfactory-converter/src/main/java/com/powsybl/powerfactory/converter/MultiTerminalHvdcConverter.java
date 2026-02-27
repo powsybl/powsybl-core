@@ -345,7 +345,7 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
         assert dcNode1 != null && dcNode2 != null : "DC nodes should be initialized first";
 
         int iAcdc = elmVsc.getIntAttributeValue("i_acdc");
-        double uSetPowerDcPu = elmVsc.findFloatAttributeValue("usetpdc").orElse(Float.NaN);
+        double uSetVoltageDcPu = elmVsc.findFloatAttributeValue("usetpdc").orElse(Float.NaN);
         double unomDc = elmVsc.getFloatAttributeValue("Unomdc"); // Nominal DC voltage in kV.
 
         // From the list of terminals related to the elmVsc in the importContext
@@ -403,7 +403,7 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
         converterAdder.setControlMode(controlMode);
         converterAdder.setVoltageRegulatorOn(acVoltageRegulation);
 
-        double targetVdc = uSetPowerDcPu * unomDc;
+        double targetVdc = uSetVoltageDcPu * unomDc;
         if (!Double.isFinite(targetVdc) && controlMode == ControlMode.V_DC) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has control mode V_DC but unspecified target V_DC.");
         }
@@ -416,25 +416,28 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
         converterAdder.setVoltageSetpoint(voltageSetPointAc);
 
         // Loss model
-        double idleLoss = getIdleLoss(controlMode, pnold, uSetPowerDcPu);
+        double idleLoss = computeIdleLoss(controlMode, pnold, uSetVoltageDcPu);
         converterAdder.setIdleLoss(idleLoss);
         converterAdder.setSwitchingLoss(swtLossFactor);
         converterAdder.setResistiveLoss(resLossFactor);
 
         // AC Power and voltage regulation
+        // WARNING There is a different sign convention between PowerFactory and PowSyBl:
+        // In PowerFactory, power flows from the DC network to the AC network,
+        // while in PowSyBl power flows towards the converter
         if (!Double.isFinite(qsetp) && !acVoltageRegulation) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has Q control but undefined Q.");
         }
-        converterAdder.setReactivePowerSetpoint(qsetp); // TODO check sign convention
+        converterAdder.setReactivePowerSetpoint(-qsetp);
         if (!Double.isFinite(psetp) && controlMode == ControlMode.P_PCC) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has P control but undefined P.");
         }
-        converterAdder.setTargetP(psetp); // TODO check sign convention
+        converterAdder.setTargetP(-psetp);
 
         converterAdder.add();
     }
 
-    private static double getIdleLoss(ControlMode controlMode, double pnold, double usetpDcPu) {
+    private static double computeIdleLoss(ControlMode controlMode, double pnold, double usetpDcPu) {
         double idleLoss = 0.0; // MW
         // The PowerFactory model considers the idle loss to be equal to Ud^2, while it is constant in Open Load Flow.
         // approximation: if there is a set DC voltage, then we consider it is always met.
