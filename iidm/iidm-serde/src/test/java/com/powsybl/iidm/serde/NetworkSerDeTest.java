@@ -35,6 +35,7 @@ import java.time.ZonedDateTime;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -388,4 +389,32 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         assertEquals(2, merged.getSubnetworks().size());
         assertEquals(2, readNetwork.getSubnetworks().size());
     }
+
+    @Test
+    void validateShouldSucceedV0() throws IOException {
+        try (InputStream is = getVersionedNetworkAsStream("shuntRoundTripRef.xml", IidmVersion.V_1_16)) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is));
+        }
+    }
+
+    @Test
+    void validateShouldSucceed() throws IOException {
+        try (InputStream is = getVersionedNetworkAsStream("shuntRoundTripRef.xml", IidmVersion.V_1_16)) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void validateShouldFail() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntOldTagName.xml")) {
+           assertThatCode(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                   .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                   .hasMessageContaining("Invalid content was found starting with element" +
+                           " '{\"http://www.powsybl.org/schema/iidm/1_16\":shunt}'");
+        }
+    }
+
 }
