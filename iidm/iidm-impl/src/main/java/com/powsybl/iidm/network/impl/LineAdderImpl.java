@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
@@ -17,6 +19,16 @@ import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLim
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAdder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LineAdderImpl.class);
+    /**
+     * Threshold for nominal voltage mismatch warning within {@code Line}.
+     * <p>
+     * No warning is emitted if the difference is less than or equal to 10%.
+     * For example, a connection between 380 kV and 400 kV (~5% difference) does not trigger a warning.
+     * </p>
+     */
+    private static final double NOMINAL_VOLTAGE_MISMATCH_THRESHOLD = 0.10;
 
     private final NetworkImpl network;
     private final String subnetwork;
@@ -99,6 +111,8 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
+        ValidationUtil.checkLineNominalVoltages(id, voltageLevel1, voltageLevel2, NOMINAL_VOLTAGE_MISMATCH_THRESHOLD, network.getReportNodeContext().getReportNode());
+
         if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetworkId()) || !subnetwork.equals(voltageLevel2.getSubnetworkId()))) {
             throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
                     subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");

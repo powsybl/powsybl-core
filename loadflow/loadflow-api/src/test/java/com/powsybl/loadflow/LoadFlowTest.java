@@ -20,7 +20,6 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -170,52 +169,4 @@ class LoadFlowTest {
         assertTrue(result.get().getLogs().indexOf("countriesToBalance=[IT]") > 0);
     }
 
-    @Test
-    void shouldReportNodeWhenLineConnectVeryDifferentNominalVoltages() {
-        // Given
-        LoadFlow.Runner defaultLoadFlow = LoadFlow.find();
-        // ReportNode
-        ReportNode reportRoot = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("testLoadflow")
-                .build();
-
-        ReportNodeContext reportNodeContext = mock(ReportNodeContext.class);
-        when(network.getReportNodeContext()).thenReturn(reportNodeContext);
-        when(reportNodeContext.getReportNode()).thenReturn(reportRoot);
-
-        // Line  220 / 400 kV
-        Line line = mock(Line.class);
-        Terminal terminal1 = mock(Terminal.class);
-        Terminal terminal2 = mock(Terminal.class);
-        VoltageLevel vl1 = mock(VoltageLevel.class);
-        VoltageLevel vl2 = mock(VoltageLevel.class);
-
-        when(network.getLineStream()).thenReturn(Stream.of(line));
-        when(line.getId()).thenReturn("line_400_220");
-
-        when(line.getTerminal1()).thenReturn(terminal1);
-        when(line.getTerminal2()).thenReturn(terminal2);
-
-        when(terminal1.getVoltageLevel()).thenReturn(vl1);
-        when(terminal2.getVoltageLevel()).thenReturn(vl2);
-
-        when(vl1.getId()).thenReturn("VL_400");
-        when(vl2.getId()).thenReturn("VL_220");
-
-        when(vl1.getNominalV()).thenReturn(400.0);
-        when(vl2.getNominalV()).thenReturn(220.0);
-
-        LoadFlowRunParameters runParameters = new LoadFlowRunParameters();
-        runParameters.setReportNode(reportRoot);
-        // When run LoadFlow
-        defaultLoadFlow.run(network, runParameters);
-        // Then report message lineNominalVoltageDifferent
-//        ReportNode reportNodeResult = runParameters.getReportNode();
-        assertTrue(reportRoot.getChildren()
-                .stream()
-                .map(ReportNode::getMessageKey)
-                .toList()
-                .contains("core.iidm.network.lineNominalVoltageDifferent"));
-    }
 }

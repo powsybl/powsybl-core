@@ -14,9 +14,6 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ReportNodeContext;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,16 +29,6 @@ import java.util.concurrent.CompletableFuture;
 public final class LoadFlow {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlow.class);
-
-    /**
-     * TODO to remove this is specific for an implementation should be done in open load flow
-     * Threshold for nominal voltage mismatch warning within {@code Line}.
-     * <p>
-     * No warning is emitted if the difference is less than or equal to 10%.
-     * For example, a connection between 380 kV and 400 kV (~5% difference) does not trigger a warning.
-     * </p>
-     */
-    private static final double NOMINAL_VOLTAGE_MISMATCH_WARNING_THRESHOLD = 0.10;
 
     private LoadFlow() {
     }
@@ -101,7 +88,6 @@ public final class LoadFlow {
             Objects.requireNonNull(network, "Network should not be null");
             Objects.requireNonNull(workingStateId, "WorkingVariantId should not be null");
             Objects.requireNonNull(runParameters, "LoadFlowRunParameters should not be null");
-            logIfLineNominalVoltagesDifferent(network);
             return provider.run(network, workingStateId, runParameters);
         }
 
@@ -291,29 +277,4 @@ public final class LoadFlow {
         return find().run(network);
     }
 
-    private static void logIfLineNominalVoltagesDifferent(Network network) {
-        ReportNode reportNode = getNetworkReportNode(network);
-        network.getLineStream().forEach(line -> {
-            VoltageLevel vl1 = line.getTerminal1().getVoltageLevel();
-            VoltageLevel vl2 = line.getTerminal2().getVoltageLevel();
-            double nominalV1 = vl1.getNominalV();
-            double nominalV2 = vl2.getNominalV();
-            double maxNominalV = Math.max(nominalV1, nominalV2);
-            double gap = Math.abs(nominalV1 - nominalV2) / maxNominalV;
-            if (gap > NOMINAL_VOLTAGE_MISMATCH_WARNING_THRESHOLD) {
-                double gapPercent = Math.round(gap * 1000.0) / 10.0;
-                LOGGER.warn("Line '{}' connect voltage level '{}' ({} KV) and '{}' ({} KV): nominal voltage gap={}%", line.getId(), vl1.getId(), nominalV1, vl2.getId(), nominalV2, gapPercent);
-                NetworkReports.lineNominalVoltageDifferent(reportNode, line.getId(), vl1.getId(), nominalV1, vl2.getId(), nominalV2, gapPercent);
-            }
-        });
-    }
-
-    private static ReportNode getNetworkReportNode(Network network) {
-        ReportNodeContext reportNodeContext = network.getReportNodeContext();
-        if (reportNodeContext == null) {
-            return ReportNode.NO_OP;
-        }
-        ReportNode reportNode = reportNodeContext.getReportNode();
-        return reportNode != null ? reportNode : ReportNode.NO_OP;
-    }
 }

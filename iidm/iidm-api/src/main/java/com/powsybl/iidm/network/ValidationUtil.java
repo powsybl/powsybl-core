@@ -944,6 +944,23 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
+    public static void checkLineNominalVoltages(String lineId, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, double threshold, ReportNode reportNode) {
+        Objects.requireNonNull(lineId);
+        Objects.requireNonNull(voltageLevel1);
+        Objects.requireNonNull(voltageLevel2);
+        Objects.requireNonNull(reportNode);
+        double nominalV1 = voltageLevel1.getNominalV();
+        double nominalV2 = voltageLevel2.getNominalV();
+        double maxNominalV = Math.max(nominalV1, nominalV2);
+        double gap = Math.abs(nominalV1 - nominalV2) / maxNominalV;
+        if (gap > threshold) {
+            double gapPercent = Math.round(gap * 1000.0) / 10.0;
+            LOGGER.warn("Line '{}' connects '{}' ({} kV) and '{}' ({} kV): nominal voltage gap={}%",
+                    lineId, voltageLevel1.getId(), nominalV1, voltageLevel2.getId(), nominalV2, gapPercent);
+            NetworkReports.lineNominalVoltageDifferent(reportNode, lineId, voltageLevel1.getId(), nominalV1, voltageLevel2.getId(), nominalV2, gapPercent);
+        }
+    }
+
     private static boolean checkValidationLevel(ValidationLevel validationLevel) {
         return validationLevel.compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0;
     }

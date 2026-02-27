@@ -403,7 +403,6 @@ public final class NetworkReports {
                 .add();
     }
 
-    // TODO this may not be a generic log
     public static void lineNominalVoltageDifferent(ReportNode reportNode,
                                                   String lineId,
                                                   String voltageLevelId1, double nominalV1,
