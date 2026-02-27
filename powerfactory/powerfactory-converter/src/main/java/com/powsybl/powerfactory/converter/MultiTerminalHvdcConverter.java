@@ -322,35 +322,22 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
         return result;
     }
 
-    /**
-     * Add converter to the PowSyBl network
-     *
-     * @param elmVsc        Converter to add (PowerFactory data model)
-     * @param network       PowSyBl network with all DC nodes already added.
-     * @param importContext Import context with mapping object id -> corresponding nodes
-     */
-    private static void addConverter(DataObject elmVsc, Network network, ImportContext importContext) {
-        // TODO refactor to break down.
+    private static record PowerFactoryAcDcConverterParameters(int iAcdc,
+                                                              double uSetVoltageDcPu,
+                                                              double unomDc,
+                                                              double usetpPu,
+                                                              double uNom,
+                                                              double qsetp,
+                                                              double psetp,
+                                                              double pnold,
+                                                              double swtLossFactor,
+                                                              double resLossFactor) {
+    }
 
-        assert "ElmVsc".equals(elmVsc.getDataClassName());
-        assert network.getDcNodeCount() > 0;
-
-        // Get the terminals on the PowerFactory side (DataObjects)
-        VscConnections vscConnections = VscConnections.findVscConnectionsPowerFactory(elmVsc);
-
-        // Get corresponding DC and AC nodes in the PowSyBl network
-        DcNode dcNode1 = getSafeNodeForLine(vscConnections.dcTerminal1, network, "converter " + elmVsc.getId());
-        DcNode dcNode2 = getSafeNodeForLine(vscConnections.dcTerminal2, network, "converter " + elmVsc.getId());
-
-        assert dcNode1 != null && dcNode2 != null : "DC nodes should be initialized first";
-
+    private static PowerFactoryAcDcConverterParameters fetchPowerFactoryAcDcConverterParameters(DataObject elmVsc) {
         int iAcdc = elmVsc.getIntAttributeValue("i_acdc");
         double uSetVoltageDcPu = elmVsc.findFloatAttributeValue("usetpdc").orElse(Float.NaN);
         double unomDc = elmVsc.getFloatAttributeValue("Unomdc"); // Nominal DC voltage in kV.
-
-        // From the list of terminals related to the elmVsc in the importContext
-        List<NodeRef> acNodeRefList = importContext.objIdToNode.get(elmVsc.getId());
-        NodeRef acNodeRef = acNodeRefList.stream().filter(noderef -> noderef.busIndexIn == 0).findFirst().orElseThrow(() -> new PowerFactoryException("Missing AC terminal for Vsc " + elmVsc.getId() + "."));
 
         double usetpPu = elmVsc.findFloatAttributeValue("usetp").orElse(Float.NaN); // AC Voltage setpoint in pu.
         double uNom = elmVsc.findFloatAttributeValue("Unom").orElse(Float.NaN);
@@ -363,19 +350,37 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
         double swtLossFactor = elmVsc.findFloatAttributeValue("swtLossFactor").orElse(0.0F); // Switching loss factor in kW/A
         double resLossFactor = elmVsc.findFloatAttributeValue("resLossFactor").orElse(0.0F);
 
-        VoltageLevel voltageLevel = network.getVoltageLevel(acNodeRef.voltageLevelId);
-        VoltageSourceConverterAdder converterAdder = voltageLevel.newVoltageSourceConverter().setId(idInNetworkString(elmVsc));
+        return new PowerFactoryAcDcConverterParameters(iAcdc,
+                uSetVoltageDcPu,
+                unomDc,
+                usetpPu,
+                uNom,
+                qsetp,
+                psetp,
+                pnold,
+                swtLossFactor,
+                resLossFactor);
+    }
 
-        // Connect
-        converterAdder.setNode1(acNodeRef.node);
-        checkSameNominalVoltage(dcNode1, dcNode2);
-        converterAdder.setDcNode1(dcNode1.getId());
-        converterAdder.setDcNode2(dcNode2.getId());
+    /**
+     * Add converter to the PowSyBl network
+     *
+     * @param elmVsc        Converter to add (PowerFactory data model)
+     * @param network       PowSyBl network with all DC nodes already added.
+     * @param importContext Import context with mapping object id -> corresponding nodes
+     */
+    private static void addConverter(DataObject elmVsc, Network network, ImportContext importContext) {
 
-        // Control logic
+        assert "ElmVsc".equals(elmVsc.getDataClassName());
+        assert network.getDcNodeCount() > 0;
+
+        // Fetch data from the ElmVsc DataObject
+        PowerFactoryAcDcConverterParameters pfParams = fetchPowerFactoryAcDcConverterParameters(elmVsc);
+
+        // Manage the control logic
         ControlMode controlMode;
         boolean acVoltageRegulation;
-        switch (iAcdc) {
+        switch (pfParams.iAcdc) {
             case 3:
                 controlMode = ControlMode.V_DC;
                 acVoltageRegulation = false;
@@ -398,41 +403,64 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
             case 7:
             case 8:
             default:
-                throw new PowerFactoryException("Unsupported value " + iAcdc + " for VSC " + elmVsc.getId() + ".");
+                throw new PowerFactoryException("Unsupported value " + pfParams.iAcdc + " for VSC " + elmVsc.getId() + ".");
         }
+
+        // Get the terminals on the PowerFactory side (DataObjects)
+        VscConnections vscConnections = VscConnections.findVscConnectionsPowerFactory(elmVsc);
+
+        // Get corresponding DC and AC nodes in the PowSyBl network
+        DcNode dcNode1 = getSafeNodeForLine(vscConnections.dcTerminal1, network, "converter " + elmVsc.getId());
+        DcNode dcNode2 = getSafeNodeForLine(vscConnections.dcTerminal2, network, "converter " + elmVsc.getId());
+
+        assert dcNode1 != null && dcNode2 != null : "DC nodes should be initialized first";
+
+        // From the list of terminals related to the elmVsc in the importContext
+        List<NodeRef> acNodeRefList = importContext.objIdToNode.get(elmVsc.getId());
+        NodeRef acNodeRef = acNodeRefList.stream().filter(noderef -> noderef.busIndexIn == 0).findFirst().orElseThrow(() -> new PowerFactoryException("Missing AC terminal for Vsc " + elmVsc.getId() + "."));
+
+        VoltageLevel voltageLevel = network.getVoltageLevel(acNodeRef.voltageLevelId);
+        VoltageSourceConverterAdder converterAdder = voltageLevel.newVoltageSourceConverter().setId(idInNetworkString(elmVsc));
+
+        // Connect
+        converterAdder.setNode1(acNodeRef.node);
+        checkSameNominalVoltage(dcNode1, dcNode2);
+        converterAdder.setDcNode1(dcNode1.getId());
+        converterAdder.setDcNode2(dcNode2.getId());
+
         converterAdder.setControlMode(controlMode);
         converterAdder.setVoltageRegulatorOn(acVoltageRegulation);
 
-        double targetVdc = uSetVoltageDcPu * unomDc;
+        double targetVdc = pfParams.uSetVoltageDcPu * pfParams.unomDc;
         if (!Double.isFinite(targetVdc) && controlMode == ControlMode.V_DC) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has control mode V_DC but unspecified target V_DC.");
         }
-        converterAdder.setTargetVdc(targetVdc);
+        converterAdder.setTargetVdc(targetVdc); // TODO manage the sign convention for DC voltage (and current)
 
-        double voltageSetPointAc = usetpPu * uNom;
+        double voltageSetPointAc = pfParams.usetpPu * pfParams.uNom;
         if (!Double.isFinite(voltageSetPointAc) && acVoltageRegulation) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has V_AC control but unspecified target V_AC.");
         }
         converterAdder.setVoltageSetpoint(voltageSetPointAc);
 
         // Loss model
-        double idleLoss = computeIdleLoss(controlMode, pnold, uSetVoltageDcPu);
+        double idleLoss = computeIdleLoss(controlMode, pfParams.pnold, pfParams.uSetVoltageDcPu);
         converterAdder.setIdleLoss(idleLoss);
-        converterAdder.setSwitchingLoss(swtLossFactor);
-        converterAdder.setResistiveLoss(resLossFactor);
+        converterAdder.setSwitchingLoss(pfParams.swtLossFactor);
+        converterAdder.setResistiveLoss(pfParams.resLossFactor);
 
         // AC Power and voltage regulation
         // WARNING There is a different sign convention between PowerFactory and PowSyBl:
         // In PowerFactory, power flows from the DC network to the AC network,
         // while in PowSyBl power flows towards the converter
-        if (!Double.isFinite(qsetp) && !acVoltageRegulation) {
+        if (!Double.isFinite(pfParams.qsetp) && !acVoltageRegulation) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has Q control but undefined Q.");
         }
-        converterAdder.setReactivePowerSetpoint(-qsetp);
-        if (!Double.isFinite(psetp) && controlMode == ControlMode.P_PCC) {
+        converterAdder.setReactivePowerSetpoint(-pfParams.qsetp);
+        if (!Double.isFinite(pfParams.psetp) && controlMode == ControlMode.P_PCC) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has P control but undefined P.");
         }
-        converterAdder.setTargetP(-psetp);
+        converterAdder.setTargetP(-pfParams.psetp);
 
         converterAdder.add();
     }
