@@ -281,11 +281,11 @@ public final class LoadFlow {
         return find().run(network);
     }
 
-    public boolean checkParameters(LoadFlowRunParameters runParameters) {
+    public static boolean checkParameters(LoadFlowRunParameters runParameters) {
         return find().checkParameters(runParameters);
     }
 
-    public boolean checkDefaultParameters(ReportNode reportNode) {
+    public static boolean checkDefaultParameters(ReportNode reportNode) {
         return find().checkDefaultParameters(reportNode);
     }
 }
