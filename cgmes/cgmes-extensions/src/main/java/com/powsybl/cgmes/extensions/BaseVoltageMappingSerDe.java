@@ -24,8 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.serde.util.IidmSerDeUtil.fromMinimumVersionOrElse;
-
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -57,9 +55,7 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
             writer.writeStartNode(getNamespaceUri(), BASE_VOLTAGE_ROOT_ELEMENT);
             writer.writeDoubleAttribute("nominalVoltage", nominalV);
             writer.writeEnumAttribute("source", baseVoltageSource.getSource());
-            writer.writeStringAttribute("id", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                    () -> networkContext.getAnonymizer().anonymizeString(baseVoltageSource.getId()),
-                    baseVoltageSource::getId));
+            writer.writeStringAttribute("id", networkContext.anonymizeFromMinimumVersion(baseVoltageSource.getId(), IidmVersion.V_1_16));
             writer.writeEndNode();
         });
         writer.writeEndNodes();
@@ -76,10 +72,7 @@ public class BaseVoltageMappingSerDe extends AbstractExtensionSerDe<Network, Bas
             if (elementName.equals(BASE_VOLTAGE_ROOT_ELEMENT)) {
                 double nominalV = reader.readDoubleAttribute("nominalVoltage");
                 Source sourceBV = reader.readEnumAttribute("source", Source.class);
-                String id = reader.readStringAttribute("id");
-                String baseVoltageId = fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                        () -> networkContext.getAnonymizer().deanonymizeString(id),
-                        () -> id);
+                String baseVoltageId = networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("id"), IidmVersion.V_1_16);
                 reader.readEndNode();
                 mapping.addBaseVoltage(nominalV, baseVoltageId, sourceBV);
             } else {
