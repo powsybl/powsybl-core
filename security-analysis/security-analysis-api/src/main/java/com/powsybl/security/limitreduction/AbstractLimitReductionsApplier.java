@@ -170,8 +170,8 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     }
 
     protected static boolean isOperationalLimitsGroupAffectedByLimitReduction(String operationalLimitsGroupId, LimitReduction limitReduction) {
-        return limitReduction.getOperationalLimitsGroupIdCriteria().isEmpty()
-            || limitReduction.getOperationalLimitsGroupIdCriteria().stream()
+        return limitReduction.getOperationalLimitsGroupIdsSelection().isEmpty()
+            || limitReduction.getOperationalLimitsGroupIdsSelection().stream()
             .anyMatch(operationalLimitsGroupId::equals);
     }
 
