@@ -23,8 +23,6 @@ import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.util.Map;
 
-import static com.powsybl.iidm.serde.util.IidmSerDeUtil.fromMinimumVersionOrElse;
-
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -55,9 +53,7 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
         writer.writeStartNodes();
         for (Measurement measurement : extension.getMeasurements()) {
             writer.writeStartNode(getNamespaceUri(), MEASUREMENT_ROOT_ELEMENT);
-            writer.writeStringAttribute("id", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                    () -> networkContext.getAnonymizer().anonymizeString(measurement.getId()),
-                    measurement::getId));
+            writer.writeStringAttribute("id", networkContext.anonymizeFromMinimumVersion(measurement.getId(), IidmVersion.V_1_16));
             writer.writeEnumAttribute("type", measurement.getType());
             writer.writeEnumAttribute("side", measurement.getSide());
             writer.writeDoubleAttribute(VALUE, measurement.getValue());
@@ -88,9 +84,7 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
         var reader = context.getReader();
         reader.readChildNodes(elementName -> {
             MeasurementAdder adder = measurements.newMeasurement()
-                    .setId(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                            () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id")),
-                            () -> reader.readStringAttribute("id")))
+                    .setId(networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("id"), IidmVersion.V_1_16))
                     .setType(reader.readEnumAttribute("type", Measurement.Type.class))
                     .setSide(reader.readEnumAttribute("side", ThreeSides.class))
                     .setValue(reader.readDoubleAttribute(VALUE))

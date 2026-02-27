@@ -135,7 +135,7 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
     }
 
     @Test
-    void testAnonymizedCgmesDanglingLineBoundaryNodeWhenExported() {
+    void testAnonymizedCgmesBoundaryLineBoundaryNodeWhenExported() {
         //Given
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         TieLine tieLine = network.getTieLine("NHV1_NHV2_1");
@@ -143,8 +143,8 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
                 .setHvdc(false)
                 .setLineEnergyIdentificationCodeEic("EIC_CODE")
                 .add();
-        CgmesBoundaryLineBoundaryNode danglingLineBoundaryNode = tieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
-        assertNotNull(danglingLineBoundaryNode);
+        CgmesBoundaryLineBoundaryNode boundaryLineBoundaryNode = tieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
+        assertNotNull(boundaryLineBoundaryNode);
 
         testForAllVersionsSince(IidmVersion.V_1_16, version -> {
             ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
@@ -160,10 +160,10 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
             Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
             TieLine importedTieLine = importedNetwork.getTieLine(anonymizer.anonymizeString("NHV1_NHV2_1"));
             assertNotNull(importedTieLine);
-            CgmesBoundaryLineBoundaryNode importedDanglingLineBoundaryNode = importedTieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
-            assertNotNull(importedDanglingLineBoundaryNode);
-            assertTrue(importedDanglingLineBoundaryNode.getLineEnergyIdentificationCodeEic().isPresent());
-            assertEquals(anonymizedLineEnergyIdentificationCodeEic, importedDanglingLineBoundaryNode.getLineEnergyIdentificationCodeEic().get());
+            CgmesBoundaryLineBoundaryNode importedBoundaryLineBoundaryNode = importedTieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
+            assertNotNull(importedBoundaryLineBoundaryNode);
+            assertTrue(importedBoundaryLineBoundaryNode.getLineEnergyIdentificationCodeEic().isPresent());
+            assertEquals(anonymizedLineEnergyIdentificationCodeEic, importedBoundaryLineBoundaryNode.getLineEnergyIdentificationCodeEic().get());
         });
     }
 
@@ -179,7 +179,6 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
                 .add();
         CgmesBoundaryLineBoundaryNode boundaryLineBoundaryNode = tieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
         assertNotNull(boundaryLineBoundaryNode);
-        //danglingLineIds added since v1.10.
         testForAllVersionsBetween(IidmVersion.V_1_10, IidmVersion.V_1_15, version -> {
             ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
             // When Export (with anonymized option)

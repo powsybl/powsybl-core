@@ -25,8 +25,6 @@ import com.powsybl.iidm.serde.NetworkSerializerContext;
 import java.util.Collection;
 import java.util.Map;
 
-import static com.powsybl.iidm.serde.util.IidmSerDeUtil.fromMinimumVersionOrElse;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -41,7 +39,6 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
     private static final String PROFILES = "profiles";
     private static final String DEPENDENT_ON_MODELS = "dependentOnModels";
     private static final String SUPERSEDES_MODELS = "supersedesModels";
-    private static final String MODELING_AUTHORITY_SET = "modelingAuthoritySet";
 
     public CgmesMetadataModelsSerDe() {
         super(CgmesMetadataModels.NAME, "network", CgmesMetadataModels.class,
@@ -78,12 +75,8 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNode(getNamespaceUri(), MODEL);
         writer.writeEnumAttribute("subset", model.getSubset());
-        writer.writeStringAttribute(MODELING_AUTHORITY_SET, fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                () -> networkContext.getAnonymizer().anonymizeString(model.getModelingAuthoritySet()),
-                model::getModelingAuthoritySet));
-        writer.writeStringAttribute("id", fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                () -> networkContext.getAnonymizer().anonymizeString(model.getId()),
-                model::getId));
+        writer.writeStringAttribute("modelingAuthoritySet", networkContext.anonymizeFromMinimumVersion(model.getModelingAuthoritySet(), IidmVersion.V_1_16));
+        writer.writeStringAttribute("id", networkContext.anonymizeFromMinimumVersion(model.getId(), IidmVersion.V_1_16));
         writer.writeIntAttribute("version", model.getVersion());
         writer.writeStringAttribute("description", model.getDescription());
         writeReferences(sorted(model.getProfiles(), context), PROFILE, writer, networkContext, false);
@@ -96,9 +89,7 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         writer.writeStartNodes();
         for (String ref : refs) {
             writer.writeStartNode(getNamespaceUri(), refElementName);
-            String value = anonymize ? fromMinimumVersionOrElse(IidmVersion.V_1_16, context,
-                    () -> context.getAnonymizer().anonymizeString(ref),
-                    () -> ref) : ref;
+            String value = anonymize ? context.anonymizeFromMinimumVersion(ref, IidmVersion.V_1_16) : ref;
             writer.writeNodeContent(value);
             writer.writeEndNode();
         }
@@ -125,25 +116,15 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         TreeDataReader reader = networkContext.getReader();
         adder.setSubset(reader.readEnumAttribute("subset", CgmesSubset.class))
-                .setModelingAuthoritySet(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                        () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute(MODELING_AUTHORITY_SET)),
-                        () -> reader.readStringAttribute(MODELING_AUTHORITY_SET)))
-                .setId(fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                        () -> networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id")),
-                        () -> reader.readStringAttribute("id")))
+                .setModelingAuthoritySet(networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("modelingAuthoritySet"), IidmVersion.V_1_16))
+                .setId(networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("id"), IidmVersion.V_1_16))
                 .setVersion(reader.readIntAttribute("version"))
                 .setDescription(reader.readStringAttribute("description"));
         reader.readChildNodes(elementName -> {
             switch (elementName) {
                 case PROFILE -> adder.addProfile(reader.readContent());
-                case DEPENDENT_ON_MODEL -> adder.addDependentOn(
-                        fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                                () -> networkContext.getAnonymizer().deanonymizeString(reader.readContent()),
-                                reader::readContent));
-                case SUPERSEDES_MODEL -> adder.addSupersedes(
-                        fromMinimumVersionOrElse(IidmVersion.V_1_16, networkContext,
-                                () -> networkContext.getAnonymizer().deanonymizeString(reader.readContent()),
-                                reader::readContent));
+                case DEPENDENT_ON_MODEL -> adder.addDependentOn(networkContext.deanonymizeFromMinimumVersion(reader.readContent(), IidmVersion.V_1_16));
+                case SUPERSEDES_MODEL -> adder.addSupersedes(networkContext.deanonymizeFromMinimumVersion(reader.readContent(), IidmVersion.V_1_16));
                 default -> throw new PowsyblException("Unknown element name '" + elementName + "' in '" + CgmesMetadataModels.NAME + "'");
             }
         });
