@@ -103,4 +103,8 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
         return ignoredEquipments.contains(equipment);
     }
 
+    public String deanonymizeFromMinimumVersion(String val, IidmVersion version) {
+        return getVersion().compareTo(version) >= 0 ? getAnonymizer().deanonymizeString(val) : val;
+    }
+
 }
