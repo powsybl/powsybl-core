@@ -1,7 +1,7 @@
 # Network modifications
 
-The `powsybl-iidm-modification` module gathers classes and methods used to modify the network easily.  
-Each modification must first be created with the right attributes or parameters and then applied on the network.  
+The `powsybl-iidm-modification` module gathers classes and methods used to modify the network easily.
+Each modification must first be created with the right attributes or parameters and then applied on the network.
 A `NetworkModification` offers a method to check whether or not its application would have an impact on the given network.
 
 ## Scaling
@@ -16,21 +16,21 @@ All these classes rely on a builder to create the modification and then apply it
 
 ### Naming strategy
 The naming strategy aims at clarifying and facilitating the naming of the different network elements created via the different
-`com.powsybl.iidm.modification.NetworkModification` classes. Based on the name of the network element the user wishes to create 
-(a VoltageLevel, a BranchFeederBay, etc.), all the other elements created during the NetworkModification will be given a name 
-using this name as baseline and prefixes/suffixes according to the naming strategy chosen by the user. 
-The naming strategy can be either the default one `com.powsybl.iidm.modification.topology.DefaultNamingStrategy` 
+`com.powsybl.iidm.modification.NetworkModification` classes. Based on the name of the network element the user wishes to create
+(a VoltageLevel, a BranchFeederBay, etc.), all the other elements created during the NetworkModification will be given a name
+using this name as baseline and prefixes/suffixes according to the naming strategy chosen by the user.
+The naming strategy can be either the default one `com.powsybl.iidm.modification.topology.DefaultNamingStrategy`
 or a new implementation of the `NamingStrategy` interface.
 
 #### Default naming strategy
 Default naming strategy is used if no other naming strategy is specified.
-The `DefaultNamingStrategy` implements a simple naming convention following the pattern: 
+The `DefaultNamingStrategy` implements a simple naming convention following the pattern:
 base name + separator + element type + optional index.
-The default implementation uses underscores as separators and appends element types and indices when necessary 
+The default implementation uses underscores as separators and appends element types and indices when necessary
 to ensure unique naming.
 
 #### Custom strategies
-Other Naming strategies can be implemented based on the `NamingStrategy` interface. 
+Other Naming strategies can be implemented based on the `NamingStrategy` interface.
 This allows for organization-specific naming conventions, different separator characters, or specialized formatting rules.
 
 #### Naming strategies service loader
@@ -46,22 +46,22 @@ It takes as input:
 - The ID of the bus or busbar section (in `BUS_BREAKER` or `NODE_BREAKER` voltage levels respectively) to which the
   injection should be connected.
 - The position order of the injection: when adding an injection to a `NODE_BREAKER` voltage level, this integer will be
-  used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) that is
+  used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) that is
   used for visualization. It is optional for `BUS_BREAKER` voltage levels and will be ignored if specified.
-- Optionally, a name for the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension).
+- Optionally, a name for the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position).
   By default, the ID of the injection will be used.
-- Optionally, the direction of the injection. It is also used to fill the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension).
+- Optionally, the direction of the injection. It is also used to fill the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position).
   It indicates if the injection should be displayed at the top or at the bottom of the busbar section. By default, it is
   `BOTTOM`.
-- Optionally, a boolean `logOrThrowIfIncorrectPositionOrder`, that indicates what should happen if the position order is 
-incorrect. This is mainly useful for voltage levels with `NODE_BREAKER` topology, since the `ConnectablePosition` extension 
-is not created otherwise. The order position may be incorrect if 
-  - it has already been taken on the busbar section, 
-  - if it is higher or lower than the maximum or minimum available order positions for the busbar section, 
-  - or if the order positions of other adjacent busbar sections do not allow any possible order positions. 
+- Optionally, a boolean `logOrThrowIfIncorrectPositionOrder`, that indicates what should happen if the position order is
+incorrect. This is mainly useful for voltage levels with `NODE_BREAKER` topology, since the `ConnectablePosition` extension
+is not created otherwise. The order position may be incorrect if
+  - it has already been taken on the busbar section,
+  - if it is higher or lower than the maximum or minimum available order positions for the busbar section,
+  - or if the order positions of other adjacent busbar sections do not allow any possible order positions.
 If the boolean is set to false, then the order position will be ignored and the `ConnectablePostion` extension will not be
 created, but the `Injection` will be created. If the boolean is set to true, the `Injection` will not be created, and
-either an exception will be thrown or a log will be returned, depending on the `throwException` boolean given when applying 
+either an exception will be thrown or a log will be returned, depending on the `throwException` boolean given when applying
 the modification.
 
 
@@ -71,8 +71,8 @@ If the voltage level topology kind is `BUS_BREAKER`, then the injection is added
 bus without any extension or switches.
 If the voltage level topology kind is `NODE_BREAKER`, then the injection is added to the voltage level and connected to
 the busbar section with a closed disconnector and a breaker. Additionally, open disconnectors will be created on every
-parallel busbar section. To know which busbar sections are parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position-extension)
-is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) will also be
+parallel busbar section. To know which busbar sections are parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position)
+is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the injection with the given data, unless there are no extensions yet in the voltage level.
 
 #### Create Branch Feeder bays
@@ -84,19 +84,19 @@ It takes as input:
 - The ID of the bus or busbar section (in `BUS_BREAKER` or `NODE_BREAKER` voltage levels respectively) to which the side
   2 of the branch should be connected.
 - The position order of the branch on side 1. If the voltage level on side 1 of the branch is `NODE_BREAKER`, then
-  this integer is used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension)
-  for the branch that is used for visualization and for positioning connectables relative to each other.  
+  this integer is used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position)
+  for the branch that is used for visualization and for positioning connectables relative to each other.
   It is optional for `BUS_BREAKER` voltage levels and will be ignored if specified.
 - The position order of the branch on side 2. It is the same but on the other side.
-- Optionally, a name for the feeder that will be added in the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension)
+- Optionally, a name for the feeder that will be added in the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position)
   for side 1. This name is used for visualization. By default, it is the ID of the connectable.
 - Optionally, a name for the feeder for side 2.
 - Optionally, the direction of the feeder on side 1. This information will be used to fill the field in the
-  [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) and indicates the relative
+  [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) and indicates the relative
   position of the branch with its busbar section on side 1. The default value is `TOP`.
 - Optionally, the direction on side 2.
 - Optionally, a boolean `logOrThrowIfIncorrectPositionOrder1`, that indicates what should happen if the position order is
-incorrect on side 1 of the branch. This is mainly useful for voltage levels with `NODE_BREAKER` topology, since the 
+incorrect on side 1 of the branch. This is mainly useful for voltage levels with `NODE_BREAKER` topology, since the
 `ConnectablePosition` extension is not created otherwise. The order position may be incorrect if
   - it has already been taken on the busbar section,
   - if it is higher or lower than the maximum or minimum available order positions for the busbar section,
@@ -114,8 +114,8 @@ For each side, if the voltage level topology kind is `BUS_BREAKER`, then the bra
 connected to the bus without any extension or switches. If the voltage level topology kind is `NODE_BREAKER`, then the
 branch is added to the voltage level and connected to the busbar section with a closed disconnector and a breaker.
 Additionally, open disconnectors will be created on every parallel busbar section. To know which busbar sections are
-parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position-extension)
-is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) will also be
+parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position)
+is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the branch with the given data, unless no extensions are already available in the voltage level.
 
 #### Create Coupling Device
@@ -133,7 +133,7 @@ busbar sections as such:
 A closed disconnector will be created on both busbar sections.
 A closed breaker will be created between the two closed disconnectors.
 An open disconnector will be created on every parallel busbar section. To find the parallel busbar sections, the
-[`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position-extension) is used.
+[`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position) is used.
 The coupling device can be created between busbar sections that are parallel or not. If the two busbar sections are
 parallel and there are exactly two parallel busbar sections, then no open disconnectors are created.
 
@@ -199,19 +199,19 @@ It takes as input:
 
 ### Connect feeders to busbar sections
 This class allows the connection of feeders to busbar sections in `NODE_BREAKER` topology.
-The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) must be available for each busbar section in the voltage level.
+The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) must be available for each busbar section in the voltage level.
 
 It takes as input:
-- A list of connectables that should be connected. None of them should be a `BusbarSection`. 
-- A list of busbar sections. The connectables will be connected to these busbar sections if they are not already. 
+- A list of connectables that should be connected. None of them should be a `BusbarSection`.
+- A list of busbar sections. The connectables will be connected to these busbar sections if they are not already.
 - A boolean `connectCouplingDevices` indicating if the coupling devices of the voltage level should be connected to the busbar sections.
 If the busbar sections are not already connected on each side of the coupling device breaker, an open switch will be created.
 - A string `couplingDeviceSwitchPrefixId` that will be used, if the boolean `connectCouplingDevices` is true, in the naming strategy
 to determine the IDs of the new disconnectors.
 
-When applied to a network, the network modification will loop through all the parallel busbar sections of each input busbar section to gather the 
+When applied to a network, the network modification will loop through all the parallel busbar sections of each input busbar section to gather the
 switches that are connecting the feeders. Then, the feeders and coupling devices will be connected by a switch of the same kind
-as the first switch that connects the feeder to the other busbar sections. If all the feeders are already connected to the busbar sections, 
+as the first switch that connects the feeder to the other busbar sections. If all the feeders are already connected to the busbar sections,
 then the network modification will do nothing.
 
 Let's take an example. This is the voltage level before applying the modification:
@@ -261,7 +261,7 @@ The builder takes the ID of the substation as input.
 ### Moving a network element
 
 #### MoveFeederBay
-This class is used to move feeder bays of connectables 
+This class is used to move feeder bays of connectables
 (except `BusOrBusBarSection` connectables) from one place to another within a network.
 
 This class allows to move a feeder bay from one busbar section to another within the network.
@@ -272,8 +272,8 @@ The builder should be used to create any instance of this class. It takes as inp
 - The ID of the target voltage level (`targetVoltageLevelId`) where the feeder bay will be moved to.
 - The terminal object that specifies which terminal of the connectable should be moved.
 
-When the modification is applied on the network, the system identifies and updates all relevant switches and connections 
-to move the feeder bay from its current position to the specified target place. This includes disconnecting 
+When the modification is applied on the network, the system identifies and updates all relevant switches and connections
+to move the feeder bay from its current position to the specified target place. This includes disconnecting
 from the original busbar section and reconnecting to the target busbar section.
 If the target voltage level topology kind is `BUS_BREAKER`, the connectable is connected to the target bus without additional switches.
 If the target voltage level topology kind is `NODE_BREAKER`, the appropriate disconnectors and breakers are created to connect
@@ -354,7 +354,7 @@ Class: `NetworkModificationList`
 ### Area interchange
 This modification is used to update the target of an area interchange.
 
-The target is in MW in load sign convention (negative for export, positive for import).  
+The target is in MW in load sign convention (negative for export, positive for import).
 Providing `Double.NaN` removes the target.
 
 Class: `AreaInterchangeTargetModification`
@@ -379,7 +379,7 @@ Class: `ConnectableConnection`
 ### Dangling line
 This modification is used to update the active and reactive powers of the load part of a dangling line.
 
-If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.  
+If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.
 If `relativeValue` is set to false, then the new constant active power (`P0`) and reactive power (`Q0`) are updated to the new given values.
 
 Class: `DanglingLineModification`
@@ -463,7 +463,7 @@ Class: `HvdcLineModification`
 #### Modification
 This modification updates the `P` and `Q` values of the load.
 
-If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.  
+If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.
 If `relativeValue` is set to false, then the new constant active power (`P0`) and reactive power (`Q0`) are updated to the new given values.
 
 Class: `LoadModification`
@@ -609,7 +609,7 @@ Class: `Replace3TwoWindingsTransformersByThreeWindingsTransformers`
 #### Phase tap changer position
 This modification is used to modify a phase tap changers tap position of a given `PhaseTapChangerHolder` (for two or three-winding transformer).
 
-The new tap position can be either the one given in parameter or a relative position added to the existing one.  
+The new tap position can be either the one given in parameter or a relative position added to the existing one.
 The `PhaseTapChangerHolder` can be from:
 - A two-winding transformers
 - A three-winding transformer with a single phase tap changer

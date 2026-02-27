@@ -98,7 +98,7 @@ In PowSyBl, users can store a collection of limits:
 - Lines and transformers are associated with a collection of `OperationalLimitsGroup` (one collection per side/leg).
   Users can then choose the active set according to their needs.
 
-`OperationalLimitsGroup` objects have an `id`, and may have properties — which allow associating additional arbitrary data items under the general schema of pairs <Key, Value>.  
+`OperationalLimitsGroup` objects have an `id`, and may have properties — which allow associating additional arbitrary data items under the general schema of pairs <Key, Value>.
 Note that unlike the properties on the network components, no notification is emitted when a property is added, changed or removed.
 
 #### Examples
