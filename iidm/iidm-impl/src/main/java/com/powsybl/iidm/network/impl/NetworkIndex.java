@@ -44,7 +44,7 @@ class NetworkIndex {
                     + ") '" + obj.getId() + "' already exists");
         }
         objectsById.put(obj.getId(), obj);
-        obj.setSortIndex(sortIndex++);
+        ((AbstractIdentifiable<?>) obj).setSortIndex(sortIndex++);
         obj.getAliases().forEach(alias -> addAlias(obj, alias));
 
         Set<Identifiable<?>> all = objectsByClass.computeIfAbsent(obj.getClass(), k -> new LinkedHashSet<>());

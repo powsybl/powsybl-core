@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
 
     @Test
-    void testAttributOrderingKO() throws IOException {
+    void testRoundTrip() throws IOException {
         ExportOptions exportOptions = new ExportOptions();
         roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),

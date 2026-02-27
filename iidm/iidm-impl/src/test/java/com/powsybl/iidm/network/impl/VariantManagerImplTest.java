@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -31,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class VariantManagerImplTest {
 
-    private static final class IdentifiableMock extends AbstractExtendable<IdentifiableMock> implements Identifiable<IdentifiableMock>, MultiVariantObject {
+    private static final class IdentifiableMock extends AbstractIdentifiable<IdentifiableMock> implements Identifiable<IdentifiableMock>, MultiVariantObject {
 
         private final String id;
 
@@ -46,6 +45,7 @@ class VariantManagerImplTest {
         private long sortIndex;
 
         private IdentifiableMock(String id) {
+            super(id, "");
             this.id = id;
         }
 
@@ -70,7 +70,7 @@ class VariantManagerImplTest {
         }
 
         @Override
-        public Network getNetwork() {
+        public NetworkImpl getNetwork() {
             return null;
         }
 
@@ -150,8 +150,9 @@ class VariantManagerImplTest {
         }
 
         @Override
-        public void setSortIndex(long index) {
-            this.sortIndex = index;
+        protected String getTypeDescription() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getTypeDescription'");
         }
     }
 
