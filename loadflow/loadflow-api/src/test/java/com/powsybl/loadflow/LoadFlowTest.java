@@ -12,7 +12,9 @@ import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,8 +26,6 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -40,11 +40,11 @@ class LoadFlowTest {
 
     @BeforeEach
     void setUp() {
-        network = mock(Network.class);
-        VariantManager variantManager = mock(VariantManager.class);
-        when(network.getVariantManager()).thenReturn(variantManager);
-        when(variantManager.getWorkingVariantId()).thenReturn("v");
-        computationManager = mock(ComputationManager.class);
+        network = Mockito.mock(Network.class);
+        VariantManager variantManager = Mockito.mock(VariantManager.class);
+        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
+        Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
+        computationManager = Mockito.mock(ComputationManager.class);
     }
 
     @Test

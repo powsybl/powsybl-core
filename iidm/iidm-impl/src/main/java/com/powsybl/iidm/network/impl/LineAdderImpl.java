@@ -9,8 +9,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
@@ -20,7 +18,6 @@ import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLim
  */
 class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAdder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LineAdderImpl.class);
     /**
      * Threshold for nominal voltage mismatch warning within {@code Line}.
      * <p>

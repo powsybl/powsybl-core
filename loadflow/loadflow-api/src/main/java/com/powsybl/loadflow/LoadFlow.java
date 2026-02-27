@@ -14,8 +14,6 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -27,8 +25,6 @@ import java.util.concurrent.CompletableFuture;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class LoadFlow {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlow.class);
 
     private LoadFlow() {
     }
@@ -276,5 +272,4 @@ public final class LoadFlow {
     public static LoadFlowResult run(Network network) {
         return find().run(network);
     }
-
 }
