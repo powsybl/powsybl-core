@@ -74,7 +74,12 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                 .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.between(300, 600, true, false))
                 .build();
 
-        LimitReductionList limitReductionList = new LimitReductionList(List.of(limitReduction1, limitReduction2, limitReduction3, limitReduction4));
+        LimitReduction limitReduction5 = LimitReduction.builder(LimitType.ACTIVE_POWER, 0.88)
+            .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1", "NHV1_NHV2_2")))
+            .withOperationalLimitsGroupIdCriteria("DEFAULT", "activated_1_3", "activated_2_1")
+            .build();
+
+        LimitReductionList limitReductionList = new LimitReductionList(List.of(limitReduction1, limitReduction2, limitReduction3, limitReduction4, limitReduction5));
 
         roundTripTest(limitReductionList, LimitReductionListSerDeUtil::write,
                 LimitReductionListSerDeUtil::read,
