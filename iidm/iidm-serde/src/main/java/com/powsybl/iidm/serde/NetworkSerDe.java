@@ -191,26 +191,36 @@ public final class NetworkSerDe {
         Objects.requireNonNull(extensionsSupplier);
         Objects.requireNonNull(version);
 
-        List<Source> sources = new ArrayList<>();
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
+            System.out.println("version = " + version.toString());
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            List<Source> sources = new ArrayList<>();
             // iidm: validation
             sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd())));
             // equipement: validation
             if (version.supportEquipmentValidationLevel()) {
                 sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd(false))));
             }
-
             //FIXME validate within extensions for given iidm version
-//            for (ExtensionSerDe<?, ?> extensionSerDe : extensionsSupplier.get().getProviders()) {
-//                extensionSerDe.getXsdAsStreamList().forEach(xsd -> sources.add(new StreamSource(xsd)));
-//            }
+//            getExtensionsByVersion(version).forEach(extensionSerDe -> sources.add(new StreamSource(extensionSerDe.getXsdAsStream())));
             return factory.newSchema(sources.toArray(Source[]::new));
         } catch (SAXException e) {
             throw new UncheckedSaxException(e);
         }
+    }
+
+    private static List<ExtensionSerDe> getExtensionsByVersion(IidmVersion version) {
+        List<ExtensionSerDe> extensions = new ArrayList<>();
+        for (ExtensionSerDe extensionSerDe : DefaultExtensionsSupplier.getInstance().get().getProviders()) {
+            if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe ab) {
+                if (ab.versionExists(version)) {
+                    extensions.add(extensionSerDe);
+                }
+            }
+        }
+        return extensions;
     }
 
     private static void throwExceptionIfOption(AbstractOptions<?> options, String message) {

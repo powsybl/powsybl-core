@@ -395,6 +395,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         try (InputStream is = getVersionedNetworkAsStream("shuntRoundTripRef.xml", IidmVersion.V_1_16)) {
             assertDoesNotThrow(() -> NetworkSerDe.validate(is));
         }
+        try (InputStream is = getClass().getResourceAsStream("/network-with-extensions.xiidm")) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is));
+        }
     }
 
     @Test
