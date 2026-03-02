@@ -391,29 +391,36 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void validateShouldSucceedV0() throws IOException {
+    void validateAllShouldSucceed() throws IOException {
         try (InputStream is = getVersionedNetworkAsStream("shuntRoundTripRef.xml", IidmVersion.V_1_16)) {
             assertDoesNotThrow(() -> NetworkSerDe.validate(is));
         }
     }
 
     @Test
-    void validateShouldSucceed() throws IOException {
-        try (InputStream is = getVersionedNetworkAsStream("shuntRoundTripRef.xml", IidmVersion.V_1_16)) {
-            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
-        }
+    void validateByVersionShouldSucceed() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
             assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
         }
     }
 
     @Test
-    void validateShouldFail() throws IOException {
+    void validateByVersionShouldFail() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntOldTagName.xml")) {
-           assertThatCode(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
-                   .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
-                   .hasMessageContaining("Invalid content was found starting with element" +
-                           " '{\"http://www.powsybl.org/schema/iidm/1_16\":shunt}'");
+            assertThatCode(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Invalid content was found starting with element '{\"http://www.powsybl.org/schema/iidm/1_16\":shunt}'");
+        }
+    }
+
+    // TODO
+    @Test
+    void validateByVersionWhenExtensionExistShouldSucceed() throws IOException {
+        // TEST NS http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0
+        try (InputStream is = getClass().getResourceAsStream("/network-with-extensions.xiidm")) {
+            assertThatCode(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("no declaration can be found for element 'bbsp:busbarSectionPosition'");
         }
     }
 

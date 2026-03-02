@@ -163,8 +163,8 @@ public final class NetworkSerDe {
         Schema schema;
         if (extensionsSupplier == DefaultExtensionsSupplier.getInstance()) {
             schema = DEFAULT_SCHEMAS_SUPPLIER.get().get(version);
-            if(schema == null) {
-               throw new PowsyblException("Schema not found: version=" + version);
+            if (schema == null) {
+                throw new PowsyblException("Schema not found: version=" + version);
             }
         } else {
             schema = createSchema(extensionsSupplier, version);
@@ -190,25 +190,23 @@ public final class NetworkSerDe {
     private static Schema createSchema(ExtensionsSupplier extensionsSupplier, IidmVersion version) {
         Objects.requireNonNull(extensionsSupplier);
         Objects.requireNonNull(version);
-        List<Source> additionalSchemas = new ArrayList<>();
-        // extensions XSD
-        for (ExtensionSerDe<?, ?> extensionSerDe : extensionsSupplier.get().getProviders()) {
-            extensionSerDe.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
-        }
+
+        List<Source> sources = new ArrayList<>();
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            List<Source> sources = new ArrayList<>();
             // iidm: validation
             sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd())));
             // equipement: validation
             if (version.supportEquipmentValidationLevel()) {
                 sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd(false))));
             }
-            // extensions: validation, namespaces are supported in specific iidm version !
-            //FIXME extensions XSD
-             sources.addAll(additionalSchemas);
+
+            //FIXME validate within extensions for given iidm version
+//            for (ExtensionSerDe<?, ?> extensionSerDe : extensionsSupplier.get().getProviders()) {
+//                extensionSerDe.getXsdAsStreamList().forEach(xsd -> sources.add(new StreamSource(xsd)));
+//            }
             return factory.newSchema(sources.toArray(Source[]::new));
         } catch (SAXException e) {
             throw new UncheckedSaxException(e);
