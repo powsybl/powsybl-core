@@ -17,14 +17,14 @@ import java.util.stream.Stream;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
-public class LoadingLimitsMapping {
+public class LimitsMapping {
 
     private final Context context;
     private final Map<OperationalLimitsGroup, CurrentLimitsAdder> currentLimitsAdders;
     private final Map<OperationalLimitsGroup, ActivePowerLimitsAdder> activePowerLimitsAdders;
     private final Map<OperationalLimitsGroup, ApparentPowerLimitsAdder> apparentPowerLimitsAdders;
 
-    LoadingLimitsMapping(Context context) {
+    LimitsMapping(Context context) {
         this.context = Objects.requireNonNull(context);
         this.currentLimitsAdders = new HashMap<>();
         this.activePowerLimitsAdders = new HashMap<>();

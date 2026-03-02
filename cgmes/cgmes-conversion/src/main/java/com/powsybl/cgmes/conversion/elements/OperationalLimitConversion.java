@@ -109,7 +109,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 }
                 return newLimitsGroup;
             });
-            olga1 = new OLGA(limitsGroup, context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
+            olga1 = new OLGA(limitsGroup, context.limitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup2(limitSetId).orElseGet(() -> {
                 OperationalLimitsGroup newLimitsGroup = b.newOperationalLimitsGroup2(limitSetId);
@@ -118,7 +118,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 }
                 return newLimitsGroup;
             });
-            olga2 = new OLGA(limitsGroup, context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
+            olga2 = new OLGA(limitsGroup, context.limitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
         } else {
             throw new IllegalArgumentException();
         }
@@ -137,7 +137,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             addProperties(newLimitsGroup, limitSetId, limitSetName);
             return newLimitsGroup;
         });
-        olga = new OLGA(limitsGroup, context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
+        olga = new OLGA(limitsGroup, context.limitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
     }
 
     /**
@@ -155,21 +155,21 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 addProperties(newLimitsGroup, limitSetId, limitSetName);
                 return newLimitsGroup;
             });
-            olga1 = new OLGA(limitsGroup, context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
+            olga1 = new OLGA(limitsGroup, context.limitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = twt.getLeg2().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 OperationalLimitsGroup newLimitsGroup = twt.getLeg2().newOperationalLimitsGroup(limitSetId);
                 addProperties(newLimitsGroup, limitSetId, limitSetName);
                 return newLimitsGroup;
             });
-            olga2 = new OLGA(limitsGroup, context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
+            olga2 = new OLGA(limitsGroup, context.limitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
         } else if (terminalNumber == 3) {
             OperationalLimitsGroup limitsGroup = twt.getLeg3().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 OperationalLimitsGroup newLimitsGroup = twt.getLeg3().newOperationalLimitsGroup(limitSetId);
                 addProperties(newLimitsGroup, limitSetId, limitSetName);
                 return newLimitsGroup;
             });
-            olga3 = new OLGA(limitsGroup, context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
+            olga3 = new OLGA(limitsGroup, context.limitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubclass));
         } else {
             throw new IllegalArgumentException();
         }

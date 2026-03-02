@@ -230,7 +230,7 @@ public class Conversion {
         context.popReportNode();
 
         convert(cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT, context);
-        context.loadingLimitsMapping().addAll();
+        context.limitsMapping().addAll();
         setSelectedOperationalLimitsGroup(context);
 
         if (config.importControlAreas()) {
