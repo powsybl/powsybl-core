@@ -196,7 +196,18 @@ public class LimitReduction {
          * @return the current {@link Builder}
          */
         public Builder withOperationalLimitsGroupIdCriteria(String... operationalLimitsGroupIdsSelection) {
-            this.operationalLimitsGroupIdsSelection = List.of(operationalLimitsGroupIdsSelection);
+            return withOperationalLimitsGroupIdCriteria(List.of(operationalLimitsGroupIdsSelection));
+        }
+
+        /**
+         * <p>Define criteria on the ID of the {@link com.powsybl.iidm.network.OperationalLimitsGroup}</p>
+         * <p>By default, the limit reduction is applied to all selected groups.</p>
+         * <p>This method is not cumulative and clean previous definitions.</p>
+         * @param operationalLimitsGroupIdsSelection criteria to restrict the limit reduction to specified IDs
+         * @return the current {@link Builder}
+         */
+        public Builder withOperationalLimitsGroupIdCriteria(List<String> operationalLimitsGroupIdsSelection) {
+            this.operationalLimitsGroupIdsSelection = operationalLimitsGroupIdsSelection;
             return this;
         }
 
