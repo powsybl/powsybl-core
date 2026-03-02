@@ -25,9 +25,9 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     void remove();
 
     /**
-     * Connects the connectable by operating real breakers and disconnectors
-     * By default, connect does not change the state of fictitious breaker. If you wish to do that, please use
-     * {@link #connect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}
+     * Connects the connectable by operating real breakers and disconnectors.<br>
+     * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
+     * {@link #connect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}.
      */
     boolean connect();
 
@@ -36,9 +36,9 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side);
 
     /**
-     * Disconnects the connectable by operating real breakers
-     * By default, disconnect does not change the state of fictitious breaker. If you wish to do that, please use
-     * {@link #disconnect(Predicate)} {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * Disconnects the connectable by operating real breakers.<br>
+     * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
+     * {@link #disconnect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}.
      */
     boolean disconnect();
 
