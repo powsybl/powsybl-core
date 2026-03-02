@@ -25,7 +25,7 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     void remove();
 
     /**
-     * Connects the connectable by operating real breakers and disconnectors.<br>
+     * Connects the connectable by operating real breakers.<br>
      * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
      * {@link #connect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}.
      */
