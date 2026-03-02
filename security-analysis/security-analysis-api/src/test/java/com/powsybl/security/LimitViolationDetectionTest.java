@@ -22,6 +22,7 @@ import com.powsybl.security.limitreduction.DefaultLimitReductionsApplier;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.limitreduction.SimpleLimitsComputer;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -465,4 +466,35 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
             )) // above last temporary of activated_3_1
         );
     }
+    @Test
+    void testLimitsComputerMultipleSelectedGroups() {
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        double reductionValue = 0.75;
+        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, reductionValue)
+            .withMonitoringOnly(false)
+            .withContingencyContext(ContingencyContext.none())
+            .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of(EurostagTutorialExample1Factory.NHV1_NHV2_1)))
+            .withOperationalLimitsGroupIdCriteria("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO)
+            .build();
+        List<LimitReduction> limitReductionList = new ArrayList<>();
+        limitReductionList.add(reduction1);
+        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        checkCurrent(network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1), TwoSides.ONE, 1000, violationsCollector::add, computer);
+        Assertions.assertThat(violationsCollector)
+            .hasSize(2)
+            .extracting(
+                LimitViolation::getValue,
+                LimitViolation::getLimit,
+                LimitViolation::getLimitReduction,
+                LimitViolation::getAcceptableDuration,
+                LimitViolation::getOperationalLimitsGroupId
+            )
+            .containsExactlyInAnyOrderElementsOf(
+                List.of(
+                    new Tuple(1000., 500., reductionValue, Integer.MAX_VALUE, "DEFAULT"),
+                    new Tuple(1000., 700., reductionValue, 30, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO)
+                )
+            );
+    }
+
 }
