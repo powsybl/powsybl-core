@@ -56,7 +56,6 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         writeXmlTest(network, "/fictitious-line-split-l-with-limits.xml");
     }
 
-
     @Test
     void createLineOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
