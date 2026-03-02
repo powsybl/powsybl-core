@@ -32,6 +32,32 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 class CreateLineOnLineTest extends AbstractModificationTest {
 
     @Test
+    void testWithLimits() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        Line line = network.getLine("CJ");
+        line.newOperationalLimitsGroup1("group1").newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line.newOperationalLimitsGroup1("group2").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line.setSelectedOperationalLimitsGroup1("group1");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        modification.apply(network);
+        writeXmlTest(network, "/fictitious-line-split-l-with-limits.xml");
+    }
+
+
+    @Test
     void createLineOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");

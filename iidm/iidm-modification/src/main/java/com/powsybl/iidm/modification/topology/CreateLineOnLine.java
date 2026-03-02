@@ -15,13 +15,16 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionPositionExtensionReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFictitiousSubstationId;
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
 /**
  * Connect an existing voltage level (in practice a voltage level where we have some loads or generations) to an
@@ -161,8 +164,10 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         LineAdder adder2 = createLineAdder(100 - positionPercent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
-        LoadingLimitsBags limits1 = new LoadingLimitsBags(line::getActivePowerLimits1, line::getApparentPowerLimits1, line::getCurrentLimits1);
-        LoadingLimitsBags limits2 = new LoadingLimitsBags(line::getActivePowerLimits2, line::getApparentPowerLimits2, line::getCurrentLimits2);
+        Optional<String> selectedOperationalLimitsGroup1 = line.getSelectedOperationalLimitsGroupId1();
+        Optional<String> selectedOperationalLimitsGroup2 = line.getSelectedOperationalLimitsGroupId2();
+        Collection<OperationalLimitsGroup> operationalLimitsGroups1 = line.getOperationalLimitsGroups1();
+        Collection<OperationalLimitsGroup> operationalLimitsGroups2 = line.getOperationalLimitsGroups2();
 
         // Remove the existing line
         String originalLineId = line.getId();
@@ -170,8 +175,14 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
-        addLoadingLimits(line1, limits1, TwoSides.ONE);
-        addLoadingLimits(line2, limits2, TwoSides.TWO);
+        copyOperationalLimits(operationalLimitsGroups1, line1::newOperationalLimitsGroup1);
+        copyOperationalLimits(operationalLimitsGroups2, line1::newOperationalLimitsGroup2);
+        copyOperationalLimits(operationalLimitsGroups1, line2::newOperationalLimitsGroup1);
+        copyOperationalLimits(operationalLimitsGroups2, line2::newOperationalLimitsGroup2);
+        selectedOperationalLimitsGroup1.ifPresent(line1::setSelectedOperationalLimitsGroup1);
+        selectedOperationalLimitsGroup2.ifPresent(line1::setSelectedOperationalLimitsGroup2);
+        selectedOperationalLimitsGroup1.ifPresent(line2::setSelectedOperationalLimitsGroup1);
+        selectedOperationalLimitsGroup2.ifPresent(line2::setSelectedOperationalLimitsGroup2);
 
         // Create the topology inside the fictitious voltage level
         fictitiousVl.getNodeBreakerView()
