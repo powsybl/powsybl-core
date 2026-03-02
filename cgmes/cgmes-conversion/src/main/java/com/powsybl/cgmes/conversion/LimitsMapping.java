@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 
@@ -53,6 +54,7 @@ public class LimitsMapping {
      * This method shall be called after all the CGMES OperationalLimit have been converted.
      */
     void addAll() {
+        // Add all loading limits.
         Stream.of(currentLimitsAdders, activePowerLimitsAdders, apparentPowerLimitsAdders)
                 .flatMap(m -> m.values().stream())
                 .filter(adder -> !Double.isNaN(adder.getPermanentLimit()) || adder.hasTemporaryLimits())
@@ -60,5 +62,8 @@ public class LimitsMapping {
                         .add());
 
         Stream.of(currentLimitsAdders, activePowerLimitsAdders, apparentPowerLimitsAdders).forEach(Map::clear);
+
+        // Add all voltage limits.
+        context.network().getVoltageLevelStream().forEach(vl -> OperationalLimitConversion.setNormalVoltageLimit(vl, context));
     }
 }

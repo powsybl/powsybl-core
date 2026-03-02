@@ -41,6 +41,17 @@ class VoltageLevelUpdateTest {
     }
 
     @Test
+    void importInvalidLimitOrder() {
+        Network network = readCgmesResources(DIR, "voltageLevel_EQ.xml", "voltageLevel_SSH.xml");
+        assertEquals(1, network.getVoltageLevelCount());
+        assertSsh(network.getVoltageLevel("VoltageLevel"), 405.0, 435.0);
+
+        // Values in SSH_2 are not consistent (order isn't respected), use default values from EQ instead.
+        readCgmesResources(network, DIR, "voltageLevel_SSH_2.xml");
+        assertEq(network.getVoltageLevel("VoltageLevel"));
+    }
+
+    @Test
     void importEqAndTwoSshsTest() {
         Network network = readCgmesResources(DIR, "voltageLevel_EQ.xml");
         assertEquals(1, network.getVoltageLevelCount());
