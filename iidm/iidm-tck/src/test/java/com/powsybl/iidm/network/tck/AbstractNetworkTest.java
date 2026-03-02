@@ -101,9 +101,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(2.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousQ0(), 0.0);
         topology1.getTerminal(0).getBusView().getBus().setFictitiousP0(3.0);
         topology1.getTerminal(0).getBusView().getBus().setFictitiousQ0(4.0);
-        // here we only test that the bus has the correct fictitious.
-        // Do we want to enforce the current behavior of the in memory implementation
-        // on how to distribute it on the different nodes of the bus ?
+        // here we only test that the bus has the correct total fictitious. We
+        // decided not to enforce how it is distributed on the different nodes
+        // of the bus to allow different behaviors.
         assertEquals(3.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousP0(), 0.0);
         assertEquals(4.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousQ0(), 0.0);
 
