@@ -7,18 +7,14 @@
  */
 package com.powsybl.commons.binary;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.*;
 
-import static com.powsybl.commons.binary.BinUtil.END_NODE;
-import static com.powsybl.commons.binary.BinUtil.NULL_ENUM;
+import static com.powsybl.commons.binary.BinUtil.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -29,9 +25,16 @@ public class BinWriter implements TreeDataWriter {
     private final DataOutputStream dos;
     private final DataOutputStream tmpDos;
     private final ByteArrayOutputStream buffer;
-    private final Map<String, Integer> nodeNamesIndex = new LinkedHashMap<>();
-    private Map<String, String> extensionVersions;
     private final byte[] binaryMagicNumber;
+    private Map<String, String> extensionVersions = Collections.emptyMap();
+
+    private final Map<String, Integer> nodeNamesIndex = new LinkedHashMap<>();
+    private final Map<String, Integer> attrNamesIndex = new LinkedHashMap<>();
+
+    private final ByteArrayOutputStream attrBuffer = new ByteArrayOutputStream();
+    private final DataOutputStream attrDos = new DataOutputStream(attrBuffer);
+
+    private boolean attrsFlushed = false;
 
     public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
@@ -63,41 +66,6 @@ public class BinWriter implements TreeDataWriter {
         }
     }
 
-    private void writeDouble(double value) {
-        try {
-            tmpDos.writeDouble(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void writeInt(int value) {
-        try {
-            tmpDos.writeInt(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private <T> void writeArray(Collection<T> values, Consumer<T> valueWriter) {
-        try {
-            tmpDos.writeShort(values.size());
-            for (T value : values) {
-                valueWriter.accept(value);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void writeBoolean(boolean value) {
-        try {
-            tmpDos.writeBoolean(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     @Override
     public void writeStartNodes() {
         // nothing to do
@@ -111,16 +79,46 @@ public class BinWriter implements TreeDataWriter {
     @Override
     public void writeStartNode(String namespace, String name) {
         if (nodeNamesIndex.isEmpty()) {
-            nodeNamesIndex.put(name, 1); // root element is not a child of another node, hence index is not expected
+            nodeNamesIndex.put(name, 1);
         } else {
+            flushCurrentNodeAttrsIfNeeded();
             int index = nodeNamesIndex.computeIfAbsent(name, n -> 1 + nodeNamesIndex.size());
             writeIndex(index, tmpDos);
         }
+        attrsFlushed = false;
     }
 
     @Override
     public void writeEndNode() {
+        flushCurrentNodeAttrsIfNeeded();
         writeIndex(END_NODE, tmpDos);
+    }
+
+    private void flushCurrentNodeAttrsIfNeeded() {
+        if (!attrsFlushed) {
+            try {
+                attrDos.flush();
+                tmpDos.write(attrBuffer.toByteArray());
+                tmpDos.writeByte(END_ATTRS);
+                attrBuffer.reset();
+                attrsFlushed = true;
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+    }
+
+    private void writeAttrIndex(String name, byte type) {
+        int index = attrNamesIndex.computeIfAbsent(name, n -> 1 + attrNamesIndex.size());
+        if (index > 255) {
+            throw new PowsyblException("Binary format: too many distinct attribute names (max 255), got index: " + index);
+        }
+        try {
+            attrDos.writeByte(index);
+            attrDos.writeByte(type);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
@@ -130,40 +128,64 @@ public class BinWriter implements TreeDataWriter {
 
     @Override
     public void writeNodeContent(String value) {
-        writeString(value, tmpDos);
+        writeAttrIndex(BinUtil.CONTENT_ATTR_NAME, TYPE_STRING);
+        writeString(value, attrDos);
     }
 
     @Override
     public void writeStringAttribute(String name, String value) {
-        writeString(value, tmpDos);
+        writeAttrIndex(name, TYPE_STRING);
+        writeString(value, attrDos);
     }
 
     @Override
-    public void writeFloatAttribute(String name, float value) {
+    public void writeDoubleAttribute(String name, double value) {
+        if (Double.isNaN(value)) {
+            return;
+        }
+        writeAttrIndex(name, TYPE_DOUBLE);
         try {
-            tmpDos.writeFloat(value);
+            attrDos.writeDouble(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public void writeDoubleAttribute(String name, double value) {
-        writeDouble(value);
-    }
-
-    @Override
     public void writeDoubleAttribute(String name, double value, double absentValue) {
-        writeDouble(value);
+        boolean isAbsent = Double.isNaN(absentValue) ? Double.isNaN(value) : value == absentValue;
+        if (isAbsent) {
+            return;
+        }
+        writeAttrIndex(name, TYPE_DOUBLE);
+        try {
+            attrDos.writeDouble(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void writeOptionalDoubleAttribute(String name, Double value) {
+        if (value == null) {
+            return;
+        }
+        writeAttrIndex(name, TYPE_DOUBLE);
         try {
-            tmpDos.writeBoolean(value != null);
-            if (value != null) {
-                writeDouble(value);
-            }
+            attrDos.writeDouble(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void writeFloatAttribute(String name, float value) {
+        if (Float.isNaN(value)) {
+            return;
+        }
+        writeAttrIndex(name, TYPE_FLOAT);
+        try {
+            attrDos.writeFloat(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -171,21 +193,84 @@ public class BinWriter implements TreeDataWriter {
 
     @Override
     public void writeIntAttribute(String name, int value) {
-        writeInt(value);
+        writeAttrIndex(name, TYPE_INT);
+        try {
+            attrDos.writeInt(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void writeIntAttribute(String name, int value, int absentValue) {
-        writeInt(value);
+        if (value == absentValue) {
+            return;
+        }
+        writeAttrIndex(name, TYPE_INT);
+        try {
+            attrDos.writeInt(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void writeOptionalIntAttribute(String name, Integer value) {
+        if (value == null) {
+            return;
+        }
+        writeAttrIndex(name, TYPE_INT);
         try {
-            tmpDos.writeBoolean(value != null);
-            if (value != null) {
-                writeInt(value);
-            }
+            attrDos.writeInt(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void writeBooleanAttribute(String name, boolean value) {
+        writeAttrIndex(name, TYPE_BOOLEAN);
+        try {
+            attrDos.writeBoolean(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void writeBooleanAttribute(String name, boolean value, boolean absentValue) {
+        if (value == absentValue) {
+            return;
+        }
+        writeAttrIndex(name, TYPE_BOOLEAN);
+        try {
+            attrDos.writeBoolean(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void writeOptionalBooleanAttribute(String name, Boolean value) {
+        if (value == null) {
+            return;
+        }
+        writeAttrIndex(name, TYPE_BOOLEAN);
+        try {
+            attrDos.writeBoolean(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public <E extends Enum<E>> void writeEnumAttribute(String name, E value) {
+        if (value == null) {
+            return;
+        }
+        writeAttrIndex(name, TYPE_ENUM);
+        try {
+            attrDos.writeShort(value.ordinal());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -193,35 +278,24 @@ public class BinWriter implements TreeDataWriter {
 
     @Override
     public void writeIntArrayAttribute(String name, Collection<Integer> values) {
-        writeArray(values, this::writeInt);
+        writeAttrIndex(name, TYPE_INT_ARRAY);
+        try {
+            attrDos.writeShort(values.size());
+            for (int v : values) {
+                attrDos.writeInt(v);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void writeStringArrayAttribute(String name, Collection<String> values) {
-        writeArray(values, s -> writeString(s, tmpDos));
-    }
-
-    @Override
-    public <E extends Enum<E>> void writeEnumAttribute(String name, E value) {
-        writeIndex(value != null ? value.ordinal() : NULL_ENUM, tmpDos);
-    }
-
-    @Override
-    public void writeBooleanAttribute(String name, boolean value) {
-        writeBoolean(value);
-    }
-
-    @Override
-    public void writeBooleanAttribute(String name, boolean value, boolean absentValue) {
-        writeBoolean(value);
-    }
-
-    @Override
-    public void writeOptionalBooleanAttribute(String name, Boolean value) {
+        writeAttrIndex(name, TYPE_STRING_ARRAY);
         try {
-            tmpDos.writeBoolean(value != null);
-            if (value != null) {
-                writeBoolean(value);
+            attrDos.writeShort(values.size());
+            for (String s : values) {
+                writeString(s, attrDos);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -231,6 +305,7 @@ public class BinWriter implements TreeDataWriter {
     @Override
     public void close() {
         try {
+            flushCurrentNodeAttrsIfNeeded();
             tmpDos.flush();
             writeHeader();
             dos.write(buffer.toByteArray());
@@ -241,22 +316,23 @@ public class BinWriter implements TreeDataWriter {
     }
 
     private void writeHeader() throws IOException {
-        // magic number ("Binary IIDM" in ASCII)
         dos.write(binaryMagicNumber);
-
-        // iidm version
         writeString(rootVersion, dos);
 
-        // extensions versions
+        // Extension versions
         writeIndex(extensionVersions.size(), dos);
-        extensionVersions.forEach((extensionName, extensionVersion) -> {
-            writeString(extensionName, dos);
-            writeString(extensionVersion, dos);
+        extensionVersions.forEach((extName, extVersion) -> {
+            writeString(extName, dos);
+            writeString(extVersion, dos);
         });
 
-        // dictionary
         writeIndex(nodeNamesIndex.size(), dos);
         nodeNamesIndex.forEach((name, index) -> writeString(name, dos));
+
+        writeIndex(attrNamesIndex.size(), dos);
+        for (String name : attrNamesIndex.keySet()) {
+            writeString(name, dos);
+        }
     }
 
     @Override
