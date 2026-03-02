@@ -119,6 +119,7 @@
         <groovy.version>4.0.26</groovy.version>
         <guava.version>33.4.8-jre</guava.version>
         <jackson.version>2.21.1</jackson.version>
+        <jackson-annotations.version>2.21</jackson-annotations.version>
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.2</jgrapht.version>
         <jimfs.version>1.3.0</jimfs.version>
@@ -678,7 +679,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson-annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
