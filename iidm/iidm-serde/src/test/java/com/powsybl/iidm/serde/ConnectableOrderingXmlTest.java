@@ -29,7 +29,7 @@ class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testCopy() throws IOException {
+    void testCopy() {
         Network network = Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm"));
         Network exportNetwork = NetworkSerDe.copy(network);
         assertEquals(exportNetwork.getTwoWindingsTransformers().toString(), network.getTwoWindingsTransformers().toString());
