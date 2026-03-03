@@ -119,7 +119,6 @@ public final class LimitViolationDetection {
                                     Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
                                     Consumer<LimitViolation> consumer) {
         Objects.requireNonNull(side);
-        //TODO monitoring at false ?
         Collection<LimitsContainer<LoadingLimits>> allLoadingLimits = limitsComputer.computeLimits(branch, type, side.toThreeSides(), false);
         Set<String> temporaryOverloadIds;
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
@@ -214,7 +213,6 @@ public final class LimitViolationDetection {
     public static void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value,
                                     LimitType type, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
                                     Consumer<LimitViolation> consumer) {
-        //TODO monitoring at false ?
         Collection<LimitsContainer<LoadingLimits>> allLoadingLimits = limitsComputer.computeLimits(transformer, type, side, false);
         Set<String> temporaryOverloadIds;
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
