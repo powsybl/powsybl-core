@@ -223,6 +223,11 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
+        public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered() {
+            return operationalLimitsHolder.getAllSelectedOperationalLimitsGroupIdsOrdered();
+        }
+
+        @Override
         public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
             return operationalLimitsHolder.getAllSelectedOperationalLimitsGroups();
         }

@@ -536,6 +536,29 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @Test
+    void operationalLimitsGroupOrdering() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.cancelSelectedOperationalLimitsGroup1();
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE,
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+            EurostagTutorialExample1Factory.NOT_ACTIVATED,
+            "DEFAULT"
+        );
+        line.deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.NOT_ACTIVATED);
+        List<String> orderedGroupIds = line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE);
+        List<String> expectedOrderedIds = List.of(
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+            "DEFAULT"
+        );
+        assertEquals(expectedOrderedIds.size(), orderedGroupIds.size());
+    }
+
+    @Test
     void getAllSelectedCurrentLimits() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);

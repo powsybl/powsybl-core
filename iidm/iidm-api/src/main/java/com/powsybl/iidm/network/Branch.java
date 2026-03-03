@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -157,6 +158,18 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @return all the ids of the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
      */
     Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side);
+
+    /**
+     * Get the IDs of all the selected {@link OperationalLimitsGroup}, on the given <code>side</code>, in the order in which they were selected.<br>
+     * If an element that was previously selected is selected again, it will be considered as if it was just selected with the last selection.
+     * Meaning if two groups A and B are selected as such: select A, select B, select A, the order will be B, A.
+     *
+     * @param side the side to get the id of each of the group limits on
+     * @return an ordered collection of the IDs of all the selected {@link OperationalLimitsGroup} on the <code>side</code>,
+     * the ordering relation being the order of the selection, from
+     * the oldest selected group to the most recently selected group.
+     */
+    List<String> getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides side);
 
     /**
      * <p>Set the {@link OperationalLimitsGroup} corresponding to the given IDs as selected on the given <code>side</code>.

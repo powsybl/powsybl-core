@@ -354,7 +354,7 @@ public final class ConnectableSerDeUtil {
     static void writeAllSelectedGroupIds(Branch<?> branch, TwoSides side, TreeDataWriter writer) {
         Objects.requireNonNull(side);
         String suffix = String.valueOf(side.getNum());
-        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, branch.getAllSelectedOperationalLimitsGroupIds(side));
+        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, branch.getAllSelectedOperationalLimitsGroupIdsOrdered(side));
     }
 
     /**
@@ -367,7 +367,7 @@ public final class ConnectableSerDeUtil {
     static void writeAllSelectedGroupIds(ThreeWindingsTransformer transformer, ThreeSides side, TreeDataWriter writer) {
         Objects.requireNonNull(side);
         String suffix = String.valueOf(side.getNum());
-        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, transformer.getLeg(side).getAllSelectedOperationalLimitsGroupIds());
+        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, transformer.getLeg(side).getAllSelectedOperationalLimitsGroupIdsOrdered());
     }
 
     /**
@@ -376,7 +376,7 @@ public final class ConnectableSerDeUtil {
      * @param writer to serialize the data
      */
     static void writeAllSelectedGroupIds(DanglingLine danglingLine, TreeDataWriter writer) {
-        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS, danglingLine.getAllSelectedOperationalLimitsGroupIds());
+        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS, danglingLine.getAllSelectedOperationalLimitsGroupIdsOrdered());
     }
 
     static void readSelectedGroupId(Integer index, Consumer<String> selectedGroupIdSetter, NetworkDeserializerContext context) {

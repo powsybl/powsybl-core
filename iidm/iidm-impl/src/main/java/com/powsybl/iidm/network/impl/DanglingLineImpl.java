@@ -13,6 +13,7 @@ import com.powsybl.commons.ref.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -488,6 +489,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
         return operationalLimitsGroups.getAllSelectedOperationalLimitsGroupIds();
+    }
+
+    @Override
+    public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered() {
+        return operationalLimitsGroups.getAllSelectedOperationalLimitsGroupIdsOrdered();
     }
 
     @Override

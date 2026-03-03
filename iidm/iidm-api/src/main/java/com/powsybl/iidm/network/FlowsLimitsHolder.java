@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -41,6 +42,16 @@ public interface FlowsLimitsHolder {
      * @return a collection containing one ID per selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
      */
     Collection<String> getAllSelectedOperationalLimitsGroupIds();
+
+    /**
+     * Get the IDs of all the selected {@link OperationalLimitsGroup}, in the order in which they were selected.<br>
+     * If an element that was previously selected is selected again, it will be considered as if it was just selected with the last selection.
+     * Meaning if two groups A and B are selected as such: select A, select B, select A, the order will be B, A.
+     *
+     * @return an ordered collection of the IDs of all the selected {@link OperationalLimitsGroup}, the ordering relation being the order of the selection, from
+     * the oldest selected group to the most recently selected group.
+     */
+    List<String> getAllSelectedOperationalLimitsGroupIdsOrdered();
 
     /**
      * Get the {@link OperationalLimitsGroup} corresponding to an ID.

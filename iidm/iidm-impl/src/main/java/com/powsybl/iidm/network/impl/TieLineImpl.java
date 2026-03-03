@@ -265,6 +265,11 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides side) {
+        return getDanglingLine(side).getAllSelectedOperationalLimitsGroupIdsOrdered();
+    }
+
+    @Override
     public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
         getDanglingLine(side).addSelectedOperationalLimitsGroups(ids);
     }

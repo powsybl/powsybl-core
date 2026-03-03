@@ -215,7 +215,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     }
 
     private static void copySelectedOperationLimitsGroup(ThreeWindingsTransformer.Leg leg, TwoWindingsTransformer t2w) {
-        t2w.addSelectedOperationalLimitsGroups(TwoSides.ONE, leg.getAllSelectedOperationalLimitsGroupIds().toArray(String[]::new));
+        t2w.addSelectedOperationalLimitsGroups(TwoSides.ONE, leg.getAllSelectedOperationalLimitsGroupIdsOrdered().toArray(String[]::new));
     }
 
     private static void connect(TwoWindingsTransformerAdder t2wAdder, ConnectivityR connectivityEnd1, ConnectivityR connectivityEnd2) {
