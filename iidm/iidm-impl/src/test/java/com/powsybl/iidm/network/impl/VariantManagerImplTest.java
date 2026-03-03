@@ -43,8 +43,6 @@ class VariantManagerImplTest {
 
         private int reducedCount = 0;
 
-        private long sortIndex;
-
         private IdentifiableMock(String id) {
             super(id, "");
             this.id = id;
@@ -146,13 +144,7 @@ class VariantManagerImplTest {
         }
 
         @Override
-        public long getSortIndex() {
-            return sortIndex;
-        }
-
-        @Override
         protected String getTypeDescription() {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'getTypeDescription'");
         }
     }
