@@ -179,8 +179,8 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     }
 
     /**
-     * Verifies if the LoadFlowParameters values are supported by the provider
-     * Reports the unsupported parameters with the run parameters report node
+     * Verifies if the LoadFlowParameters' values are supported by the provider.<br>
+     * Reports the unsupported parameters with the run parameters' report node.
      * @param runParameters runner parameters
      * @return <code>true</code> if the parameters are supported, <code>false</code> otherwise
      */

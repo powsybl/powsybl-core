@@ -34,7 +34,6 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I>, 
     /**
      * Get the unique identifier of the object.
      */
-
     String getId();
 
     /**

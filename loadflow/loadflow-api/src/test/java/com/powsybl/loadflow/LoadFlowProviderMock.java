@@ -179,7 +179,7 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
                     .add();
             return false;
         }
-        if (runParameters.getLoadFlowParameters().getBalanceType() == LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX) {
+        if (parameters.getBalanceType() == LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX) {
             runParameters.getReportNode().newReportNode()
                     .withMessageTemplate("testParameters")
                     .withUntypedValue("parameterName", "BalanceType")
