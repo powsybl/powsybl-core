@@ -300,7 +300,15 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * @return a collection of all the <code>type</code> limits on this leg,
          * one for each {@link OperationalLimitsGroup} that is selected. Might be empty if none is selected.
          */
-        Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type);
+        default Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type) {
+            return switch (type) {
+                case CURRENT -> getAllSelectedCurrentLimits();
+                case ACTIVE_POWER -> getAllSelectedActivePowerLimits();
+                case APPARENT_POWER -> getAllSelectedApparentPowerLimits();
+                default ->
+                    throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+            };
+        }
 
         /**
          * Get the associated three-winding transformer.
