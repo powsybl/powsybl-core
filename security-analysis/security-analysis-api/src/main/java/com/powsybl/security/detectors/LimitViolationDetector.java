@@ -15,8 +15,6 @@ import com.powsybl.security.LimitViolationDetection;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.limitreduction.SimpleLimitsComputer;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
