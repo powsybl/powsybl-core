@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.regulation;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This interface defines methods for managing voltageRegulation
@@ -29,9 +30,16 @@ public interface VoltageRegulationHolder {
     VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation);
 
     /**
+     * Return an object allowing to update the VoltageRegulation or to create it if it is missing
+     * @param regulationActiveOnCreation indicate if the regulation should be active when no VoltageRegulation was found,
+     *                                  and therefore will be created.
+     */
+    VoltageRegulationConfigurer createOrUpdateVoltageRegulation(boolean regulationActiveOnCreation);
+
+    /**
      * Gets the current VoltageRegulation instance
      */
-    VoltageRegulation getVoltageRegulation();
+    Optional<VoltageRegulation> getVoltageRegulation();
 
     /**
      * Removes the current VoltageRegulation instance
@@ -70,10 +78,9 @@ public interface VoltageRegulationHolder {
      * @return true if associated with the specified mode, false otherwise
      */
     default boolean isRegulatingWithMode(RegulationMode mode) {
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        return voltageRegulation != null
-            && voltageRegulation.isRegulating()
-            && (mode == null || mode.equals(voltageRegulation.getMode()));
+        return getVoltageRegulation().filter(vr ->
+            vr.isRegulating() && (mode == null || mode.equals(vr.getMode())))
+                .isPresent();
     }
 
     /**
@@ -82,20 +89,22 @@ public interface VoltageRegulationHolder {
      * @param mode the regulation mode to check
      * @return true if regulating with the specified mode, false otherwise
      */
-    default boolean isWithMode(RegulationMode mode) {
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        return voltageRegulation != null
-            && (mode == null || mode.equals(voltageRegulation.getMode()));
+    default boolean isWithMode(RegulationMode mode) { //TODO OPE: rename
+        return getVoltageRegulationWithMode(mode).isPresent();
+    }
+
+    private Optional<VoltageRegulation> getVoltageRegulationWithMode(RegulationMode mode) {
+        return getVoltageRegulation()
+                .filter(vr -> mode == null || mode.equals(vr.getMode()));
     }
 
     /**
      * Gets the regulating target voltage value using the targetValue if the RegulatingMode is equals to {@link RegulationMode#VOLTAGE}
      */
     default double getRegulatingTargetV() {
-        if (isWithMode(RegulationMode.VOLTAGE)) {
-            return getVoltageRegulation().getTargetValue();
-        }
-        return getTargetV();
+        return getVoltageRegulationWithMode(RegulationMode.VOLTAGE)
+                .map(VoltageRegulation::getTargetValue)
+                .orElse(getTargetV());
     }
 
     /**
@@ -103,10 +112,9 @@ public interface VoltageRegulationHolder {
      * TODO MSA Other possible names : getEffectiveTargetQ / getApplicableTargetQ / resolveTargetQ / determineTargetQ
      */
     default double getRegulatingTargetQ() {
-        if (isWithMode(RegulationMode.REACTIVE_POWER)) {
-            return getVoltageRegulation().getTargetValue();
-        }
-        return getTargetQ();
+        return getVoltageRegulationWithMode(RegulationMode.REACTIVE_POWER)
+                .map(VoltageRegulation::getTargetValue)
+                .orElse(getTargetQ());
     }
 
     /**
@@ -115,11 +123,9 @@ public interface VoltageRegulationHolder {
      * @return the terminal used for regulation
      */
     default Terminal getRegulatingTerminal() {
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null && voltageRegulation.getTerminal() != null) {
-            return voltageRegulation.getTerminal();
-        }
-        return getTerminal();
+        return getVoltageRegulation()
+                .map(VoltageRegulation::getTerminal)
+                .orElse(getTerminal());
     }
 
     /**

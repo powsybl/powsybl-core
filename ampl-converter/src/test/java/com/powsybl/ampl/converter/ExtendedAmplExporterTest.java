@@ -228,7 +228,7 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     @Test
     void testRegulatingBusIdExportSvc() throws IOException {
         Network network = SvcTestCaseFactory.createWithMoreSVCs();
-        network.getStaticVarCompensator("SVC2").getVoltageRegulation().setRegulating(false);
+        network.getStaticVarCompensator("SVC2").getVoltageRegulation().orElseThrow().setRegulating(false);
         network.getVoltageLevel("VL1").newStaticVarCompensator()
                 .setId("SVC1")
                 .setConnectableBus("B1")

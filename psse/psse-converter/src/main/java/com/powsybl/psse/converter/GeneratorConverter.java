@@ -11,6 +11,7 @@ import java.util.*;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,13 +102,13 @@ class GeneratorConverter extends AbstractConverter {
             generator.setTargetV(targetV);
             generator.setTargetQ(Double.NaN); // was set previously
         }
-        generator.newVoltageRegulation()
-            .withMode(mode)
-            .withTargetValue(targetValue)
-            .build();
+        VoltageRegulationBuilder voltageRegulationBuilder = generator.newVoltageRegulation()
+                .withMode(mode)
+                .withTargetValue(targetValue);
         if (generator.getTerminal().getBusBreakerView().getConnectableBus() != regulatingTerminal.getBusBreakerView().getConnectableBus()) {
-            generator.getVoltageRegulation().setTerminal(regulatingTerminal);
+            voltageRegulationBuilder.withTerminal(regulatingTerminal);
         }
+        voltageRegulationBuilder.build();
     }
 
     private static boolean defineVoltageRegulatorOn(PsseBus psseBus) {

@@ -250,7 +250,7 @@ class CgmesConformity1ModifiedConversionTest {
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidRegulatingControl().dataSource(), NetworkFactory.findDefault(), importParams);
 
         Generator generator1 = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
-        assertNull(generator1.getVoltageRegulation());
+        assertFalse(generator1.getVoltageRegulation().isPresent());
         assertTrue(Double.isNaN(generator1.getTargetV()));
         assertSame(generator1.getTerminal(), generator1.getRegulatingTerminal());
 
@@ -269,8 +269,10 @@ class CgmesConformity1ModifiedConversionTest {
         assertNull(ptc.getRegulationTerminal());
 
         Generator generator2 = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
-        assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getVoltageRegulation().getTargetValue(), 0.0);
-        assertEquals(VOLTAGE, generator2.getVoltageRegulation().getMode());
+        assertTrue(generator2.getVoltageRegulation().isPresent());
+        var regulation = generator2.getVoltageRegulation().orElseThrow();
+        assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), regulation.getTargetValue(), 0.0);
+        assertEquals(VOLTAGE, regulation.getMode());
     }
 
     @Test
@@ -279,7 +281,7 @@ class CgmesConformity1ModifiedConversionTest {
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingRegulatingControl().dataSource(), NetworkFactory.findDefault(), importParams);
 
         Generator generator = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
-        assertNull(generator.getVoltageRegulation());
+        assertFalse(generator.getVoltageRegulation().isPresent());
         assertTrue(Double.isNaN(generator.getTargetV()));
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
@@ -367,7 +369,7 @@ class CgmesConformity1ModifiedConversionTest {
         assertTrue(shunt.isRegulatingWithMode(VOLTAGE));
         assertEquals(shunt.getTerminal().getVoltageLevel().getNominalV(), shunt.getRegulatingTargetV(), 0.0d);
         assertEquals(Double.NaN, shunt.getTargetV());
-        assertEquals(0.0d, shunt.getVoltageRegulation().getTargetDeadband(), 0.0d);
+        assertEquals(0.0d, shunt.getVoltageRegulation().orElseThrow().getTargetDeadband(), 0.0d);
         assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
     }
 
@@ -479,8 +481,8 @@ class CgmesConformity1ModifiedConversionTest {
     void microBEReactivePowerGen() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactivePowerGen().dataSource(), NetworkFactory.findDefault(), importParams);
         Generator g = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
-        VoltageRegulation voltageRegulation = g.getVoltageRegulation();
-        assertNotNull(voltageRegulation);
+        assertTrue(g.getVoltageRegulation().isPresent());
+        VoltageRegulation voltageRegulation = g.getVoltageRegulation().orElseThrow();
         assertEquals(115.5, voltageRegulation.getTargetValue(), 0.0);
         assertEquals(REACTIVE_POWER, voltageRegulation.getMode());
         assertTrue(voltageRegulation.isRegulating());
@@ -559,14 +561,16 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
-        assertTrue(svc.getVoltageRegulation().isRegulating());
-        assertEquals(VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertTrue(svc.getVoltageRegulation().isPresent());
+        assertTrue(svc.getVoltageRegulation().orElseThrow().isRegulating());
+        assertEquals(VOLTAGE, svc.getVoltageRegulation().orElseThrow().getMode());
 
         Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbInvalidSvcMode().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator offSvc = modified.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(offSvc);
-        assertTrue(offSvc.getVoltageRegulation().isRegulating());
-        assertEquals(VOLTAGE, offSvc.getVoltageRegulation().getMode());
+        assertTrue(offSvc.getVoltageRegulation().isPresent());
+        assertTrue(offSvc.getVoltageRegulation().orElseThrow().isRegulating());
+        assertEquals(VOLTAGE, offSvc.getVoltageRegulation().orElseThrow().getMode());
     }
 
     @Test
@@ -574,14 +578,16 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
-        assertEquals(VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertTrue(svc.getVoltageRegulation().isPresent());
+        assertEquals(VOLTAGE, svc.getVoltageRegulation().orElseThrow().getMode());
         assertEquals(229.5, svc.getRegulatingTargetV(), 0.0);
         assertTrue(Double.isNaN(svc.getRegulatingTargetQ()));
 
         Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbReactivePowerSvc().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator reactivePowerSvc = modified.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(reactivePowerSvc);
-        assertEquals(REACTIVE_POWER, reactivePowerSvc.getVoltageRegulation().getMode());
+        assertTrue(reactivePowerSvc.getVoltageRegulation().isPresent());
+        assertEquals(REACTIVE_POWER, reactivePowerSvc.getVoltageRegulation().orElseThrow().getMode());
         assertEquals(229.5, reactivePowerSvc.getRegulatingTargetQ(), 0.0);
         assertTrue(Double.isNaN(reactivePowerSvc.getRegulatingTargetV()));
     }
@@ -591,27 +597,31 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
-        assertEquals(VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertTrue(svc.getVoltageRegulation().isPresent());
+        assertEquals(VOLTAGE, svc.getVoltageRegulation().orElseThrow().getMode());
 
         Network modified1 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvc().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator off1 = modified1.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off1);
-        assertFalse(off1.getVoltageRegulation().isRegulating());
-        assertEquals(VOLTAGE, off1.getVoltageRegulation().getMode());
+        assertTrue(off1.getVoltageRegulation().isPresent());
+        assertFalse(off1.getVoltageRegulation().orElseThrow().isRegulating());
+        assertEquals(VOLTAGE, off1.getVoltageRegulation().orElseThrow().getMode());
 
         Network modified2 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControl().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator off2 = modified2.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off2);
-        assertEquals(VOLTAGE, off2.getVoltageRegulation().getMode());
+        assertTrue(off2.getVoltageRegulation().isPresent());
+        assertEquals(VOLTAGE, off2.getVoltageRegulation().orElseThrow().getMode());
         assertTrue(Double.isNaN(off2.getRegulatingTargetQ()));
         assertEquals(229.5, off2.getRegulatingTargetV(), 0.0d);
-        assertFalse(off2.getVoltageRegulation().isRegulating());
+        assertFalse(off2.getVoltageRegulation().orElseThrow().isRegulating());
 
         Network modified3 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator off3 = modified3.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off3);
-        assertFalse(off3.getVoltageRegulation().isRegulating());
-        assertEquals(VOLTAGE, off3.getVoltageRegulation().getMode());
+        assertTrue(off3.getVoltageRegulation().isPresent());
+        assertFalse(off3.getVoltageRegulation().orElseThrow().isRegulating());
+        assertEquals(VOLTAGE, off3.getVoltageRegulation().orElseThrow().getMode());
         assertEquals(231.123, off3.getRegulatingTargetV(), 0.0);
     }
 
@@ -620,13 +630,15 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
-        assertEquals(VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertTrue(svc.getVoltageRegulation().isPresent());
+        assertEquals(VOLTAGE, svc.getVoltageRegulation().orElseThrow().getMode());
         assertEquals(229.5, svc.getRegulatingTargetV(), 0.0);
 
         Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbSvcNoRegulatingControl().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator modifiedSvc = modified.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(modifiedSvc);
-        assertEquals(VOLTAGE, modifiedSvc.getVoltageRegulation().getMode());
+        assertTrue(modifiedSvc.getVoltageRegulation().isPresent());
+        assertEquals(VOLTAGE, modifiedSvc.getVoltageRegulation().orElseThrow().getMode());
         assertEquals(159.5, modifiedSvc.getRegulatingTargetV(), 0.0);
     }
 
@@ -635,13 +647,13 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
-        assertEquals(VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertEquals(VOLTAGE, svc.getVoltageRegulation().orElseThrow().getMode());
         assertEquals(229.5, svc.getRegulatingTargetV(), 0.0);
 
         Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbMissingRegControlReactivePowerSvc().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator modifiedSvc = modified.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(modifiedSvc);
-        assertEquals(REACTIVE_POWER, modifiedSvc.getVoltageRegulation().getMode());
+        assertEquals(REACTIVE_POWER, modifiedSvc.getVoltageRegulation().orElseThrow().getMode());
         assertEquals(0.0, modifiedSvc.getRegulatingTargetQ(), 0.0);
     }
 
@@ -691,17 +703,17 @@ class CgmesConformity1ModifiedConversionTest {
         // The other one has it disabled
         Generator generatorDisabledRegulation = network.getGenerator("089c1945-4101-487f-a557-66c013b748f6");
         Generator generatorWithRegulation = network.getGenerator("3de9e1ad-4562-44df-b268-70ed0517e9e7");
-        assertFalse(generatorDisabledRegulation.getVoltageRegulation().isRegulating());
-        assertEquals(VOLTAGE, generatorDisabledRegulation.getVoltageRegulation().getMode());
-        assertTrue(generatorWithRegulation.getVoltageRegulation().isRegulating());
-        assertEquals(VOLTAGE, generatorWithRegulation.getVoltageRegulation().getMode());
-        assertFalse(generatorDisabledRegulation.getVoltageRegulation().isRegulating());
-        assertTrue(generatorWithRegulation.getVoltageRegulation().isRegulating());
-        assertEquals(10.0, generatorDisabledRegulation.getVoltageRegulation().getTargetValue(), 1e-10);
-        assertEquals(VOLTAGE, generatorDisabledRegulation.getVoltageRegulation().getMode());
+        assertTrue(generatorDisabledRegulation.getVoltageRegulation().isPresent());
+        assertTrue(generatorWithRegulation.getVoltageRegulation().isPresent());
+        VoltageRegulation vrGeneratorDisabledRegulation = generatorDisabledRegulation.getVoltageRegulation().orElseThrow();
+        VoltageRegulation vrGeneratorWithRegulation = generatorWithRegulation.getVoltageRegulation().orElseThrow();
+        assertFalse(vrGeneratorDisabledRegulation.isRegulating());
+        assertTrue(vrGeneratorWithRegulation.isRegulating());
+        assertEquals(VOLTAGE, vrGeneratorDisabledRegulation.getMode());
+        assertEquals(VOLTAGE, vrGeneratorWithRegulation.getMode());
         // Even if the control is disabled, the target voltage must be set
-        assertEquals(10.0, generatorWithRegulation.getVoltageRegulation().getTargetValue(), 1e-10);
-        assertEquals(VOLTAGE, generatorWithRegulation.getVoltageRegulation().getMode());
+        assertEquals(10.0, vrGeneratorDisabledRegulation.getTargetValue(), 1e-10);
+        assertEquals(10.0, vrGeneratorWithRegulation.getTargetValue(), 1e-10);
     }
 
     @Test

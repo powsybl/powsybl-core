@@ -169,7 +169,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * <p>
      * Depends on the working variant.
      * @see VariantManager
-     * please use {@link Generator#getVoltageRegulation()}
+     * Deprecated: use {@link Generator#getVoltageRegulation()} instead
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     boolean isVoltageRegulatorOn();

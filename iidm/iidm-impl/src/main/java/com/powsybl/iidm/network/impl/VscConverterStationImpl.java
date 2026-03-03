@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.regulation.VoltageRegulationConfigurer;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
@@ -66,7 +67,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             boolean oldValue = regulation.setRegulating(voltageRegulatorOn);
             String variantId = n.getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
@@ -82,7 +83,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             if (isWithMode(RegulationMode.VOLTAGE)) {
                 double oldValue = regulation.getTargetValue();
                 regulation.setTargetValue(voltageSetpoint);
@@ -110,7 +111,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             if (isWithMode(RegulationMode.REACTIVE_POWER)) {
                 double oldValue = regulation.getTargetValue();
                 regulation.setTargetValue(reactivePowerSetpoint);
@@ -154,7 +155,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         targetQ.fill(initVariantArraySize, initVariantArraySize + number, targetQ.get(sourceIndex));
         targetV.ensureCapacity(targetV.size() + number);
         targetV.fill(initVariantArraySize, initVariantArraySize + number, targetV.get(sourceIndex));
-        getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
+        getTypedVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
     }
 
     @Override
@@ -162,7 +163,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         super.reduceVariantArraySize(number);
         targetQ.remove(targetQ.size() - number, number);
         targetV.remove(targetV.size() - number, number);
-        getOptionalVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
+        getTypedVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
     }
 
     @Override
@@ -172,12 +173,17 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
             targetQ.set(index, targetQ.get(sourceIndex));
             targetV.set(index, targetV.get(sourceIndex));
         }
-        getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
+        getTypedVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
     }
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
         return new VoltageRegulationBuilderImpl<>(VscConverterStation.class, this, getNetwork().getRef(), this::setVoltageRegulation);
+    }
+
+    @Override
+    public VoltageRegulationConfigurer createOrUpdateVoltageRegulation(boolean regulationActiveOnCreation) {
+        return VoltageRegulationConfigurer.create(this, regulationActiveOnCreation);
     }
 
     @Override
@@ -187,23 +193,23 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     }
 
     @Override
-    public VoltageRegulation getVoltageRegulation() {
-        return this.voltageRegulation;
+    public Optional<VoltageRegulation> getVoltageRegulation() {
+        return Optional.ofNullable(this.voltageRegulation);
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationImpl> getTypedVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getTypedVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
         this.voltageRegulation = null;
     }
 
     @Override
     public VscConverterStationImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             Terminal oldValue = regulation.getTerminal();
             regulation.setTerminal(regulatingTerminal);
             String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());

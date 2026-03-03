@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -374,7 +375,7 @@ public final class EquipmentExport {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator, cimNamespace, writer, context);
                     String baseVoltageId = context.getBaseVoltageByNominalVoltage(generator.getTerminal().getVoltageLevel().getNominalV()).getId();
-                    boolean controlEnabled = generator.getVoltageRegulation() != null && generator.getVoltageRegulation().isRegulating();
+                    boolean controlEnabled = generator.getVoltageRegulation().map(VoltageRegulation::isRegulating).orElse(false);
                     EquivalentInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
                         controlEnabled, generator.getMinP(), generator.getMaxP(), getNullableMinQ(generator), getNullableMaxQ(generator),
                             reactiveCapabilityCurveId, baseVoltageId,
@@ -625,7 +626,10 @@ public final class EquipmentExport {
             String regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(svc, exportedTerminalId(mapTerminal2Id, svc.getRegulatingTerminal()), regulatingControlsWritten, mode, cimNamespace, writer, context);
             double inductiveRating = svc.getBmin() != 0 ? 1 / svc.getBmin() : 0;
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
-            StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc), svc.getNameOrId(), context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()), regulatingControlId, inductiveRating, capacitiveRating, svc.getExtension(VoltagePerReactivePowerControl.class), svc.getVoltageRegulation().getMode(), svc.getRegulatingTargetV(), cimNamespace, writer, context);
+            StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc), svc.getNameOrId(),
+                    context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()), regulatingControlId,
+                    inductiveRating, capacitiveRating, svc.getExtension(VoltagePerReactivePowerControl.class),
+                    svc.getVoltageRegulation().map(VoltageRegulation::getMode).orElse(null), svc.getRegulatingTargetV(), cimNamespace, writer, context);
         }
     }
 

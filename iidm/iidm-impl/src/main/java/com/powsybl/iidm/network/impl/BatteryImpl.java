@@ -211,7 +211,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
             targetP.add(targetP.get(sourceIndex));
             targetQ.add(targetQ.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
     }
 
     /**
@@ -222,7 +222,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         super.reduceVariantArraySize(number);
         targetP.remove(targetP.size() - number, number);
         targetQ.remove(targetQ.size() - number, number);
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
     }
 
     /**
@@ -235,7 +235,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
             targetP.set(index, targetP.get(sourceIndex));
             targetQ.set(index, targetQ.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
     }
 
     @Override
@@ -245,17 +245,22 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     @Override
-    public VoltageRegulation getVoltageRegulation() {
-        return this.voltageRegulation;
+    public Optional<VoltageRegulation> getVoltageRegulation() {
+        return Optional.ofNullable(this.voltageRegulation);
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationImpl> getTypedVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
         return new VoltageRegulationBuilderImpl<>(Battery.class, this, getNetwork().getRef(), this::setVoltageRegulation);
+    }
+
+    @Override
+    public VoltageRegulationConfigurer createOrUpdateVoltageRegulation(boolean regulationActiveOnCreation) {
+        return VoltageRegulationConfigurer.create(this, regulationActiveOnCreation);
     }
 
     @Override
@@ -266,7 +271,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getTypedVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
         this.voltageRegulation = null;
     }
 

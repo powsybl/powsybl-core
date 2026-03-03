@@ -284,8 +284,15 @@ public final class SteadyStateHypothesisExport {
             // PowSyBl has considered the control as discrete, with a certain targetDeadband
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
             String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, Conversion.PROPERTY_REGULATING_CONTROL);
+            double targetDeadband = Double.NaN;
+            double targetValue = Double.NaN;
+            if (s.getVoltageRegulation().isPresent()) {
+                VoltageRegulation voltageRegulation = s.getVoltageRegulation().get();
+                targetDeadband = voltageRegulation.getTargetDeadband();
+                targetValue = voltageRegulation.getTargetValue();
+            }
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
-                s.isRegulatingWithMode(RegulationMode.VOLTAGE), s.getVoltageRegulation().getTargetDeadband(), s.getVoltageRegulation().getTargetValue(), "k");
+                s.isRegulatingWithMode(RegulationMode.VOLTAGE), targetDeadband, targetValue, "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }
@@ -295,7 +302,7 @@ public final class SteadyStateHypothesisExport {
         for (Generator g : network.getGenerators()) {
             String cgmesOriginalClass = g.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
 
-            boolean controlEnabled = g.getVoltageRegulation() != null && g.getVoltageRegulation().isRegulating();
+            boolean controlEnabled = g.getVoltageRegulation().map(VoltageRegulation::isRegulating).orElse(false);
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getRegulatingTargetQ(),
@@ -358,7 +365,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeBatteries(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Battery b : network.getBatteries()) {
-            boolean controlEnabled = b.getVoltageRegulation() != null && b.getVoltageRegulation().isRegulating();
+            boolean controlEnabled = b.getVoltageRegulation().map(VoltageRegulation::isRegulating).orElse(false);
             writeSynchronousMachine(context.getNamingStrategy().getCgmesId(b), controlEnabled,
                     -b.getTargetP(), -b.getRegulatingTargetQ(), ReferencePriority.get(b), obtainOperatingMode(b, b.getMinP(), b.getMaxP(), b.getTargetP()),
                     cimNamespace, writer, context);
@@ -393,12 +400,11 @@ public final class SteadyStateHypothesisExport {
     private static boolean isOperatingAsACondenser(Injection<?> injection) {
         switch (injection) {
             case Generator generator -> {
-                return generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(generator.getTargetV())
+                return generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(generator.getRegulatingTargetV())
                     || !Double.isNaN(generator.getRegulatingTargetQ()) && generator.getRegulatingTargetQ() != 0;
             }
             case Battery battery -> {
-                VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
-                return battery.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(voltageRegulation.getTargetValue())
+                return battery.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(battery.getRegulatingTargetV())
                     || !Double.isNaN(battery.getRegulatingTargetQ()) && battery.getRegulatingTargetQ() != 0;
             }
             default -> throw new IllegalStateException("Unexpected value: " + injection);
@@ -412,16 +418,14 @@ public final class SteadyStateHypothesisExport {
             String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, Conversion.PROPERTY_REGULATING_CONTROL);
 
             double targetDeadband = 0;
-            double target;
+            double target = g.getVoltageRegulation().map(VoltageRegulation::getTargetValue).orElse(Double.NaN);
             String targetValueUnitMultiplier;
             boolean enabled;
             String generatorMode = CgmesExportUtil.getGeneratorRegulatingControlMode(g);
             if (generatorMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                target = g.getVoltageRegulation().getTargetValue();
                 targetValueUnitMultiplier = "M";
-                enabled = g.getVoltageRegulation().isRegulating();
+                enabled = g.getVoltageRegulation().map(VoltageRegulation::isRegulating).orElse(false);
             } else {
-                target = g.getVoltageRegulation().getTargetValue();
                 if (context.isExportGeneratorsInLocalRegulationMode()) {
                     double remoteNominalV = g.getRegulatingTerminal().getVoltageLevel().getNominalV();
                     double localNominalV = g.getTerminal().getVoltageLevel().getNominalV();
@@ -443,7 +447,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeStaticVarCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            boolean controlEnabled = svc.getVoltageRegulation().isRegulating();
+            boolean controlEnabled = svc.getVoltageRegulation().map(VoltageRegulation::isRegulating).orElse(false);
 
             CgmesExportUtil.writeStartAbout("StaticVarCompensator", context.getNamingStrategy().getCgmesId(svc), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);

@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulationConfigurer;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -234,22 +235,27 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
+    public VoltageRegulationConfigurer createOrUpdateVoltageRegulation(boolean regulationActiveOnCreation) {
+        return VoltageRegulationConfigurer.create(this, regulationActiveOnCreation);
+    }
+
+    @Override
     public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
         return null;
     }
 
     @Override
-    public VoltageRegulation getVoltageRegulation() {
-        return this.voltageRegulation;
+    public Optional<VoltageRegulation> getVoltageRegulation() {
+        return Optional.ofNullable(this.voltageRegulation);
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationImpl> getTypedVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getTypedVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
         this.voltageRegulation = null;
 
     }

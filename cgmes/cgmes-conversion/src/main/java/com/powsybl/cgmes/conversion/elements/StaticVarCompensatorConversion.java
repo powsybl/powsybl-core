@@ -80,13 +80,16 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     }
 
     private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, double defaultQ, Boolean controlEnabled, Context context) {
+        if (staticVarCompensator.getVoltageRegulation().isEmpty()) {
+            return;
+        }
+        VoltageRegulation voltageRegulation = staticVarCompensator.getVoltageRegulation().orElseThrow();
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(staticVarCompensator, context);
 
         boolean defaultRegulatingOn = getDefaultRegulatingOn(staticVarCompensator, context);
         boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
-        VoltageRegulation voltageRegulation = staticVarCompensator.getVoltageRegulation();
         if (staticVarCompensator.isWithMode(RegulationMode.VOLTAGE)) {
             double defaultTargetV = getDefaultTargetV(staticVarCompensator, context);
             double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
@@ -120,7 +123,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
 
     private static boolean getDefaultRegulatingOn(StaticVarCompensator staticVarCompensator, Context context) {
         return getDefaultValue(null,
-                staticVarCompensator.getVoltageRegulation().isRegulating(),
+                staticVarCompensator.getVoltageRegulation().map(VoltageRegulation::isRegulating).orElse(false),
                 false, false, context);
     }
 }

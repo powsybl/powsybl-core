@@ -48,7 +48,7 @@ public class RegulatingControlMappingForVscConverters {
         RegulatingTerminalMapper.TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
                 .mapForFlowControl(pccTerminal, context)
                 .orElseGet(() -> new RegulatingTerminalMapper.TerminalAndSign(vscConverter.getTerminal(), 1));
-        vscConverter.getVoltageRegulation().setTerminal(mappedRegulatingTerminal.getTerminal());
+        vscConverter.getVoltageRegulation().orElseThrow().setTerminal(mappedRegulatingTerminal.getTerminal());
         vscConverter.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
     }
 

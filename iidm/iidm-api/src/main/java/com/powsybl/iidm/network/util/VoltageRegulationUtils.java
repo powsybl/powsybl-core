@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.regulation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.stream.Stream;
 
@@ -81,6 +82,7 @@ public final class VoltageRegulationUtils {
             case GENERATOR -> getRegulatingGenerators(network, controlledBus)
                 .filter(g -> !g.getId().equals(regulatingElementId))
                 .map(Generator::getVoltageRegulation)
+                .flatMap(Optional::stream)
                 .map(VoltageRegulation::getTargetValue).distinct().toList();
             case SHUNT_COMPENSATOR -> getRegulatingShuntCompensators(network, controlledBus)
                 .filter(g -> !g.getId().equals(regulatingElementId))

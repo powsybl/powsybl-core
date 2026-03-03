@@ -198,12 +198,12 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         double targetV = findTargetVpu(converter) * regulatingTerminal.getVoltageLevel().getNominalV();
         boolean isRegulatingOn = findIsRegulatingOn(converter);
         if (isRegulatingOn) {
-            c.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
-            c.getVoltageRegulation().setTargetValue(targetV);
+            voltageRegulation.setMode(RegulationMode.VOLTAGE);
+            voltageRegulation.setTargetValue(targetV);
             c.setTargetQ(targetQ);
         } else {
-            c.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
-            c.getVoltageRegulation().setTargetValue(targetQ);
+            voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
+            voltageRegulation.setTargetValue(targetQ);
             c.setTargetV(targetV);
         }
     }

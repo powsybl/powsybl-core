@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversi
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -239,9 +238,11 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             double validVoltageSetpoint = isValidTargetV(voltageSetpoint) ? voltageSetpoint : defaultVoltageSetpoint;
 
             // VoltageSetpoint must be valid before enabling regulation
-            VoltageRegulation voltageRegulation = vsc.getVoltageRegulation();
-            voltageRegulation.setTargetValue(validVoltageSetpoint);
-            voltageRegulation.setMode(RegulationMode.VOLTAGE);
+            vsc.createOrUpdateVoltageRegulation(true)
+                    .withTargetValue(validVoltageSetpoint)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(true)
+                    .end();
             vsc.setTargetQ(Double.NaN);
         } else if (qPccControl != null && qPccControl.endsWith("reactivePcc")) {
             double defaultReactivePowerSetpoint = getDefaultValue(null, vsc.getRegulatingTargetQ(), 0.0, Double.NaN, context);
@@ -249,9 +250,11 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             double validReactivePowerSetpoint = isValidTargetValue(reactivePowerSetpoint) ? reactivePowerSetpoint : defaultReactivePowerSetpoint;
 
             // ReactivePowerSetpoint must be valid before enabling regulation
-            VoltageRegulation voltageRegulation = vsc.getVoltageRegulation();
-            voltageRegulation.setTargetValue(validReactivePowerSetpoint);
-            voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
+            vsc.createOrUpdateVoltageRegulation(true)
+                .withTargetValue(validReactivePowerSetpoint)
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withRegulating(true)
+                .end();
             vsc.setTargetV(Double.NaN);
         }
     }

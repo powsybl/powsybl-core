@@ -477,7 +477,7 @@ public class CgmesExportContext {
     }
 
     private static boolean hasRegulatingControlCapability(Generator generator) {
-        return generator.getVoltageRegulation() != null && hasReactiveCapability(generator);
+        return generator.getVoltageRegulation().isPresent() && hasReactiveCapability(generator);
     }
 
     private static boolean hasReactiveCapability(Generator generator) {
@@ -522,9 +522,9 @@ public class CgmesExportContext {
                 continue;
             }
             String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            if (regulatingControlId == null && shuntCompensator.getVoltageRegulation() != null
-                && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getVoltageRegulation().getTargetValue())
-                || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && shuntCompensator.getVoltageRegulation().isPresent()
+                    && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getVoltageRegulation().orElseThrow().getTargetValue())
+                    || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(shuntCompensator), Part.REGULATING_CONTROL);
                 shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
             }

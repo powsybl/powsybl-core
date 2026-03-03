@@ -9,6 +9,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulationConfigurer;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.Objects;
@@ -31,7 +32,10 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
 
     public void updateNetworkGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP,
                                         double targetQ, double p, double q) {
-        g.getVoltageRegulation().setMode(vregul ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER);
+        g.createOrUpdateVoltageRegulation(true)
+                .withMode(vregul ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER)
+                .withRegulating(true)
+                .end();
 
         g.setTargetP(targetP);
         g.setTargetQ(targetQ);
@@ -52,13 +56,17 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         double nominalV = vsc.getRegulatingTerminal().getVoltageLevel().getNominalV();
         double voltageSetpoint = targetV * nominalV;
 
+        VoltageRegulationConfigurer configurer = vsc.createOrUpdateVoltageRegulation(vregul);
         if (vregul) {
-            vsc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
-            vsc.getVoltageRegulation().setTargetValue(voltageSetpoint);
+            configurer.withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(voltageSetpoint)
+                    .withRegulating(true)
+                    .end();
             vsc.setTargetQ(targetQ);
         } else {
-            vsc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
-            vsc.getVoltageRegulation().setTargetValue(targetQ);
+            configurer.withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(targetQ)
+                    .end();
             vsc.setTargetV(voltageSetpoint);
         }
 
@@ -75,19 +83,21 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
     }
 
     public void updateNetworkSvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
+        VoltageRegulationConfigurer configurer = svc.createOrUpdateVoltageRegulation(true);
         if (vregul) {
-            svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
-            svc.getVoltageRegulation().setRegulating(true);
+            configurer.withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(true);
         } else {
             if (q == 0) {
-                svc.getVoltageRegulation().setRegulating(false);
-                svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+                configurer.withRegulating(false)
+                        .withMode(RegulationMode.REACTIVE_POWER);
             } else {
-                svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
-                svc.getVoltageRegulation().setTargetValue(-q);
-                svc.getVoltageRegulation().setRegulating(true);
+                configurer.withMode(RegulationMode.REACTIVE_POWER)
+                        .withTargetValue(-q)
+                        .withRegulating(true);
             }
         }
+        configurer.end();
 
         Terminal t = svc.getTerminal();
         t.setQ(q);

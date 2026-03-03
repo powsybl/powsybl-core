@@ -486,14 +486,14 @@ class AmplNetworkReaderTest {
     private void testSvc(Network network, AmplNetworkReader reader) throws IOException {
         StaticVarCompensator sv = network.getStaticVarCompensator("SVC2");
 
-        assertEquals(RegulationMode.VOLTAGE, sv.getVoltageRegulation().getMode());
+        assertEquals(RegulationMode.VOLTAGE, sv.getVoltageRegulation().orElseThrow().getMode());
         assertEquals(390.0, sv.getRegulatingTargetV(), 0.0);
         assertTrue(Double.isNaN(sv.getTerminal().getQ()));
 
         reader.readStaticVarcompensator();
 
         StaticVarCompensator sv2 = network.getStaticVarCompensator("SVC2");
-        assertEquals(RegulationMode.REACTIVE_POWER, sv2.getVoltageRegulation().getMode());
+        assertEquals(RegulationMode.REACTIVE_POWER, sv2.getVoltageRegulation().orElseThrow().getMode());
         assertEquals(1.080000 * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getRegulatingTargetV(), 0.0);
         assertEquals(-30.0, sv2.getRegulatingTargetQ(), 0.0);
         assertEquals(30.0, sv2.getTerminal().getQ(), 0.0);

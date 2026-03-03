@@ -280,7 +280,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             targetQ.add(targetQ.get(sourceIndex));
             targetV.add(targetV.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
     }
 
     @Override
@@ -289,13 +289,13 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         targetP.remove(targetP.size() - number, number);
         targetQ.remove(targetQ.size() - number, number);
         targetV.remove(targetV.size() - number, number);
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.reduceVariantArraySize(number));
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(index));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(index));
     }
 
     @Override
@@ -306,7 +306,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             targetQ.set(index, targetQ.get(sourceIndex));
             targetV.set(index, targetV.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
     }
 
     @Override
@@ -315,17 +315,22 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public VoltageRegulationImpl getVoltageRegulation() {
-        return this.voltageRegulation;
+    public Optional<VoltageRegulation> getVoltageRegulation() {
+        return Optional.ofNullable(this.voltageRegulation);
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationImpl> getTypedVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
         return new VoltageRegulationBuilderImpl<>(Generator.class, this, getNetwork().getRef(), this::setVoltageRegulation);
+    }
+
+    @Override
+    public VoltageRegulationConfigurer createOrUpdateVoltageRegulation(boolean regulationActiveOnCreation) {
+        return VoltageRegulationConfigurer.create(this, regulationActiveOnCreation);
     }
 
     @Override
@@ -336,7 +341,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getTypedVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
         this.voltageRegulation = null;
     }
 

@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversi
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 
@@ -108,15 +107,16 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         vscConverter.setLossFactor((float) lossFactor);
 
         RegulationMode vscRegulation = getVscRegulation(cgmesDataConverter, vscConverter, context);
-        VoltageRegulation voltageRegulation = vscConverter.getVoltageRegulation();
         if (vscRegulation == RegulationMode.VOLTAGE) {
             double defaultTargetV = getDefaultTargetV(vscConverter, context);
             double targetV = findTargetV(cgmesDataConverter, TARGET_UPCC, defaultTargetV, DefaultValueUse.NOT_DEFINED);
             if (isValidTargetV(targetV)) {
                 // TargetV must be valid before enabling regulation,
-                voltageRegulation.setMode(RegulationMode.VOLTAGE);
-                voltageRegulation.setTargetValue(targetV);
-                voltageRegulation.setRegulating(true);
+                vscConverter.createOrUpdateVoltageRegulation(true)
+                        .withMode(RegulationMode.VOLTAGE)
+                        .withTargetValue(targetV)
+                        .withRegulating(true)
+                        .end();
                 vscConverter.setTargetQ(0.0);
                 return;
             }
@@ -125,9 +125,11 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         // Regulation must be turned off before assigning potentially invalid values,
         // to ensure consistency with the applied checks
         double targetQ = getValidTargetQ(cgmesDataConverter, vscConverter, context);
-        voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
-        voltageRegulation.setTargetValue(targetQ);
-        voltageRegulation.setRegulating(true);
+        vscConverter.createOrUpdateVoltageRegulation(true)
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(targetQ)
+                .withRegulating(true)
+                .end();
         vscConverter.setTargetV(0.0);
     }
 

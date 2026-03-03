@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -315,13 +316,15 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static double getVswhi(ShuntCompensator shuntCompensator) {
-        double targetV = shuntCompensator.getRegulatingTargetV() + shuntCompensator.getVoltageRegulation().getTargetDeadband() * 0.5;
+        double targetV = shuntCompensator.getRegulatingTargetV()
+                + shuntCompensator.getVoltageRegulation().map(VoltageRegulation::getTargetDeadband).orElse(Double.NaN) * 0.5;
         double nominalV = getRegulatingTerminalNominalV(shuntCompensator);
         return Double.isFinite(targetV) && Double.isFinite(nominalV) && targetV > 0 && nominalV > 0 ? targetV / nominalV : 1.0;
     }
 
     private static double getVswlo(ShuntCompensator shuntCompensator) {
-        double targetV = shuntCompensator.getRegulatingTargetV() - shuntCompensator.getVoltageRegulation().getTargetDeadband() * 0.5;
+        double targetV = shuntCompensator.getRegulatingTargetV()
+                - shuntCompensator.getVoltageRegulation().map(VoltageRegulation::getTargetDeadband).orElse(Double.NaN) * 0.5;
         double nominalV = getRegulatingTerminalNominalV(shuntCompensator);
 
         return Double.isFinite(targetV) && Double.isFinite(nominalV) && targetV > 0 && nominalV > 0 ? targetV / nominalV : 1.0;

@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulationConfigurer;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
@@ -59,7 +60,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public VoltageSourceConverter setPccTerminal(Terminal pccTerminal) {
         super.setPccTerminal(pccTerminal);
-        getOptionalVoltageRegulation().ifPresent(regulation -> regulation.setTerminal(pccTerminal));
+        getTypedVoltageRegulation().ifPresent(regulation -> regulation.setTerminal(pccTerminal));
         return this;
     }
 
@@ -72,7 +73,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     public VoltageSourceConverterImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             boolean oldValue = regulation.setRegulating(voltageRegulatorOn);
             String variantId = n.getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
@@ -88,7 +89,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public VoltageSourceConverterImpl setVoltageSetpoint(double voltageSetpoint) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             if (isWithMode(RegulationMode.VOLTAGE)) {
                 double oldValue = regulation.getTargetValue();
                 regulation.setTargetValue(voltageSetpoint);
@@ -106,7 +107,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public VoltageSourceConverterImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             if (isWithMode(RegulationMode.REACTIVE_POWER)) {
                 double oldValue = regulation.getTargetValue();
                 regulation.setTargetValue(reactivePowerSetpoint);
@@ -149,7 +150,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         targetQ.fill(initVariantArraySize, initVariantArraySize + number, targetQ.get(sourceIndex));
         targetV.ensureCapacity(targetV.size() + number);
         targetV.fill(initVariantArraySize, initVariantArraySize + number, targetV.get(sourceIndex));
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
     }
 
     @Override
@@ -157,7 +158,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         super.reduceVariantArraySize(number);
         targetQ.remove(targetQ.size() - number, number);
         targetV.remove(targetV.size() - number, number);
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(number));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(number));
     }
 
     @Override
@@ -167,7 +168,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
             targetQ.set(index, targetQ.get(sourceIndex));
             targetV.set(index, targetV.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
     }
 
     @Override
@@ -187,23 +188,28 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     @Override
+    public VoltageRegulationConfigurer createOrUpdateVoltageRegulation(boolean regulationActiveOnCreation) {
+        return VoltageRegulationConfigurer.create(this, regulationActiveOnCreation);
+    }
+
+    @Override
     public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
         this.setVoltageRegulation((VoltageRegulationImpl) voltageRegulation);
         return this.voltageRegulation;
     }
 
     @Override
-    public VoltageRegulation getVoltageRegulation() {
-        return this.voltageRegulation;
+    public Optional<VoltageRegulation> getVoltageRegulation() {
+        return Optional.ofNullable(this.voltageRegulation);
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationImpl> getTypedVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getTypedVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
         this.voltageRegulation = null;
     }
 

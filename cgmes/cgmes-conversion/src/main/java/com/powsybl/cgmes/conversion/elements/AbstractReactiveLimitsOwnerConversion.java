@@ -191,19 +191,26 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     // to ensure consistency with the applied checks
     private static void setVoltageRegulation(Generator generator, double targetV, boolean regulatingOn) {
         if (regulatingOn) {
-            VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-            voltageRegulation.setTargetValue(targetV);
-            voltageRegulation.setRegulating(true);
+            generator.createOrUpdateVoltageRegulation(true)
+                    .withTargetValue(targetV)
+                    .withRegulating(true)
+                    .end();
         } else {
-            VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-            voltageRegulation.setTargetValue(targetV);
-            voltageRegulation.setRegulating(false);
+            if (generator.getVoltageRegulation().isPresent()) {
+                generator.getVoltageRegulation().orElseThrow().setRegulating(false);
+                generator.getVoltageRegulation().orElseThrow().setTargetValue(targetV);
+            } else {
+                generator.setTargetV(targetV);
+            }
         }
     }
 
     private static void updateRegulatingControlReactivePower(Generator generator, Boolean controlEnabled, Context context) {
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-        if (voltageRegulation == null || voltageRegulation.getMode() != RegulationMode.REACTIVE_POWER) {
+        if (generator.getVoltageRegulation().isEmpty()) {
+            return;
+        }
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation().orElseThrow();
+        if (voltageRegulation.getMode() != RegulationMode.REACTIVE_POWER) {
             return;
         }
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
@@ -226,8 +233,8 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
             voltageRegulation.setTargetValue(targetQ);
             voltageRegulation.setRegulating(true);
         } else {
-            voltageRegulation.setTargetValue(targetQ);
             voltageRegulation.setRegulating(false);
+            voltageRegulation.setTargetValue(targetQ);
         }
     }
 
@@ -235,9 +242,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         double defaultTargetV = Optional.ofNullable(generator.getRegulatingTerminal())
                 .orElse(generator.getTerminal())
                 .getVoltageLevel().getNominalV();
-        double targetVGenerator = generator.getVoltageRegulation() != null && generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE ?
-            generator.getVoltageRegulation().getTargetValue() : generator.getTargetV();
-        return getDefaultValue(null, targetVGenerator, defaultTargetV, Double.NaN, context);
+        return getDefaultValue(null, generator.getRegulatingTargetV(), defaultTargetV, Double.NaN, context);
     }
 
     private static boolean getDefaultRegulatingOn(Generator generator, Context context) {

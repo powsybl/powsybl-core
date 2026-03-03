@@ -186,11 +186,11 @@ class UcteExporterTest extends AbstractSerDeTest {
             bus.setV(bus.getVoltageLevel().getNominalV() * 1.4);
         }
         for (Generator gen : network.getGenerators()) {
-            if (gen.getVoltageRegulation() != null
-                && gen.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE
-                && gen.getVoltageRegulation().isRegulating()) {
-                gen.setTargetV(gen.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4);
-            }
+            gen.getVoltageRegulation().ifPresent(r -> {
+                if (r.getMode() == RegulationMode.VOLTAGE && r.isRegulating()) {
+                    gen.setTargetV(gen.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4);
+                }
+            });
         }
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             RatioTapChanger rtc = twt.getRatioTapChanger();

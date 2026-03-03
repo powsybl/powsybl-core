@@ -63,7 +63,7 @@ class GeneratorModificationActionTest {
         assertEquals(50., g.getTargetP(), 0.1);
         assertEquals(10, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
-        assertEquals(RegulationMode.REACTIVE_POWER, g.getVoltageRegulation().getMode());
+        assertEquals(RegulationMode.REACTIVE_POWER, g.getVoltageRegulation().orElseThrow().getMode());
     }
 
     @Test
@@ -73,7 +73,7 @@ class GeneratorModificationActionTest {
         action.run(network);
         assertEquals(10, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
-        assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().getMode());
+        assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().orElseThrow().getMode());
     }
 
     static Stream<Arguments> getArguments() {
@@ -145,13 +145,13 @@ class GeneratorModificationActionTest {
         Action action = actionDb.getAction("disconnect");
         action.run(network);
         assertFalse(g.getTerminal().isConnected());
-        assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().getMode());
-        assertEquals(24.5, g.getVoltageRegulation().getTargetValue(), 0.01);
+        assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().orElseThrow().getMode());
+        assertEquals(24.5, g.getVoltageRegulation().orElseThrow().getTargetValue(), 0.01);
         assertEquals(Double.NaN, g.getTargetV());
         action = actionDb.getAction("connect with targetV change");
         action.run(network);
         assertTrue(g.getTerminal().isConnected());
-        assertEquals(65.4321, g.getVoltageRegulation().getTargetValue(), 0.01);
+        assertEquals(65.4321, g.getVoltageRegulation().orElseThrow().getTargetValue(), 0.01);
         assertEquals(1234.56, g.getTargetV(), 0.01);
     }
 }

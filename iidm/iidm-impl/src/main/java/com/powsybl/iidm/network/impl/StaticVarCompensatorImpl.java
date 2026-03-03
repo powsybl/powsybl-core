@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.regulation.VoltageRegulationConfigurer;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
@@ -108,7 +109,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             if (isWithMode(RegulationMode.VOLTAGE)) {
                 double oldValue = regulation.getTargetValue();
                 regulation.setTargetValue(voltageSetpoint);
@@ -150,7 +151,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensatorImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             if (isWithMode(RegulationMode.REACTIVE_POWER)) {
                 double oldValue = regulation.getTargetValue();
                 regulation.setTargetValue(reactivePowerSetpoint);
@@ -163,12 +164,12 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public RegulationMode getRegulationMode() {
-        return getOptionalVoltageRegulation().map(VoltageRegulation::getMode).orElse(null);
+        return getTypedVoltageRegulation().map(VoltageRegulation::getMode).orElse(null);
     }
 
     @Override
     public StaticVarCompensatorImpl setRegulationMode(RegulationMode regulationMode) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             RegulationMode oldValue = regulation.getMode();
             regulation.setMode(regulationMode);
             String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
@@ -179,7 +180,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             Terminal oldValue = regulation.getTerminal();
             regulation.setTerminal(regulatingTerminal);
             String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
@@ -201,7 +202,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
             targetQ.add(targetQ.get(sourceIndex));
             targetV.add(targetV.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
     }
 
     @Override
@@ -209,13 +210,13 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         super.reduceVariantArraySize(number);
         targetQ.remove(targetQ.size() - number, number);
         targetV.remove(targetV.size() - number, number);
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(number));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(number));
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(index));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(index));
     }
 
     @Override
@@ -225,17 +226,17 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
             targetQ.set(index, targetQ.get(sourceIndex));
             targetV.set(index, targetV.get(sourceIndex));
         }
-        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
+        this.getTypedVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
     }
 
     @Override
     public boolean isRegulating() {
-        return getOptionalVoltageRegulation().map(VoltageRegulation::isRegulating).orElse(false);
+        return getTypedVoltageRegulation().map(VoltageRegulation::isRegulating).orElse(false);
     }
 
     @Override
     public StaticVarCompensator setRegulating(boolean regulating) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
+        getTypedVoltageRegulation().ifPresent(regulation -> {
             boolean oldValue = regulation.isRegulating();
             regulation.setRegulating(regulating);
             String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
@@ -250,23 +251,28 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     }
 
     @Override
+    public VoltageRegulationConfigurer createOrUpdateVoltageRegulation(boolean regulationActiveOnCreation) {
+        return VoltageRegulationConfigurer.create(this, regulationActiveOnCreation);
+    }
+
+    @Override
     public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
         this.setVoltageRegulation((VoltageRegulationImpl) voltageRegulation);
         return this.voltageRegulation;
     }
 
     @Override
-    public VoltageRegulation getVoltageRegulation() {
-        return this.voltageRegulation;
+    public Optional<VoltageRegulation> getVoltageRegulation() {
+        return Optional.ofNullable(this.voltageRegulation);
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationImpl> getTypedVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getTypedVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
         this.voltageRegulation = null;
     }
 

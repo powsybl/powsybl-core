@@ -541,8 +541,8 @@ public final class CgmesExportUtil {
     }
 
     public static String getGeneratorRegulatingControlMode(Generator generator) {
-        if (generator.getVoltageRegulation() != null) {
-            return switch (generator.getVoltageRegulation().getMode()) {
+        if (generator.getVoltageRegulation().isPresent()) {
+            return switch (generator.getVoltageRegulation().orElseThrow().getMode()) {
                 case REACTIVE_POWER ->
                     RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
                 case VOLTAGE, REACTIVE_POWER_PER_ACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER ->

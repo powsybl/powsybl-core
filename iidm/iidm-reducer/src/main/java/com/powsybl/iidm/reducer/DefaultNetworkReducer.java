@@ -268,7 +268,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setEnergySource(EnergySource.OTHER)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(station.getVoltageRegulation().getTargetValue())
+                    .withTargetValue(station.getRegulatingTargetV())
                     .add()
                 .setMaxP(maxP)
                 .setMinP(-maxP)
