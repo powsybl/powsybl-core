@@ -193,7 +193,6 @@ public final class NetworkSerDe {
 
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
-            System.out.println("version = " + version.toString());
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             List<Source> sources = new ArrayList<>();
@@ -203,24 +202,61 @@ public final class NetworkSerDe {
             if (version.supportEquipmentValidationLevel()) {
                 sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd(false))));
             }
-            //FIXME validate within extensions for given iidm version
-//            getExtensionsByVersion(version).forEach(extensionSerDe -> sources.add(new StreamSource(extensionSerDe.getXsdAsStream())));
+            // extension: validation
+            /**
+             * TODO docs to complete
+             * In some xsd extension there is the mention of other iidm version,
+             * try to resolve those iidm version first then resolve extension xsd,
+             *
+             * Extension XSD look like (the extension v 1_0 needs iidm v 1_10)
+             * <xs:schema version="1.0"
+             *            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             *            xmlns:iidm="http://www.powsybl.org/schema/iidm/1_10"
+             *            targetNamespace="http://www.powsybl.org/schema/iidm/ext/remote_reactive_power_control/1_0"
+             *            elementFormDefault="qualified">
+             *     <xs:import namespace="http://www.powsybl.org/schema/iidm/1_10" schemaLocation="iidm_V1_10.xsd"/>
+             *     ...
+             */
+            List<Source> extensionsSchemas = new ArrayList<>();
+            for (ExtensionSerDe<?, ?> extension : getExtensionsByVersion(extensionsSupplier.get().getProviders(), version)) {
+                byte[] extensionXsd = extension.getXsdAsStream().readAllBytes();
+                extractReferencedIidmVersions(extensionXsd)
+                        .forEach(requiredIidmVersion -> sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + requiredIidmVersion.getXsd()))));
+                extensionsSchemas.add(new StreamSource(new ByteArrayInputStream(extensionXsd)));
+            }
+            sources.addAll(extensionsSchemas);
             return factory.newSchema(sources.toArray(Source[]::new));
         } catch (SAXException e) {
             throw new UncheckedSaxException(e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    private static List<ExtensionSerDe> getExtensionsByVersion(IidmVersion version) {
-        List<ExtensionSerDe> extensions = new ArrayList<>();
-        for (ExtensionSerDe extensionSerDe : DefaultExtensionsSupplier.getInstance().get().getProviders()) {
-            if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe ab) {
+    private static List<ExtensionSerDe<?, ?>> getExtensionsByVersion(Collection<ExtensionSerDe> extensionList, IidmVersion version) {
+        List<ExtensionSerDe<?, ?>> extensions = new ArrayList<>();
+        for (ExtensionSerDe<?, ?> extension : extensionList) {
+            if (extension instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> ab) {
                 if (ab.versionExists(version)) {
-                    extensions.add(extensionSerDe);
+                    extensions.add(extension);
                 }
+            } else {
+                // keep non versionable extensions
+                extensions.add(extension);
             }
         }
         return extensions;
+    }
+
+    private static Set<IidmVersion> extractReferencedIidmVersions(byte[] xsdBytes) {
+        String xsdContent = new String(xsdBytes, StandardCharsets.UTF_8);
+        Set<IidmVersion> versions = new HashSet<>();
+        for (IidmVersion v : IidmVersion.values()) {
+            if (xsdContent.contains(v.getXsd()) || v.supportEquipmentValidationLevel() && xsdContent.contains(v.getXsd(false))) {
+                versions.add(v);
+            }
+        }
+        return versions;
     }
 
     private static void throwExceptionIfOption(AbstractOptions<?> options, String message) {

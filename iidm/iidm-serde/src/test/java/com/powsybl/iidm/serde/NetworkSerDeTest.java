@@ -395,6 +395,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         try (InputStream is = getVersionedNetworkAsStream("shuntRoundTripRef.xml", IidmVersion.V_1_16)) {
             assertDoesNotThrow(() -> NetworkSerDe.validate(is));
         }
+        //validate network contain extension: initial version of validate (TODO to remove)
         try (InputStream is = getClass().getResourceAsStream("/network-with-extensions.xiidm")) {
             assertDoesNotThrow(() -> NetworkSerDe.validate(is));
         }
@@ -416,14 +417,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         }
     }
 
-    // TODO
     @Test
     void validateByVersionWhenExtensionExistShouldSucceed() throws IOException {
-        // TEST NS http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0
         try (InputStream is = getClass().getResourceAsStream("/network-with-extensions.xiidm")) {
-            assertThatCode(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
-                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
-                    .hasMessageContaining("no declaration can be found for element 'bbsp:busbarSectionPosition'");
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
         }
     }
 
