@@ -152,9 +152,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side);
 
     /**
-     * Get the ids of all the selected {@link OperationalLimitsGroup} on the given <code>side</code>
+     * Get the ids of all the selected {@link OperationalLimitsGroup} on the given <code>side</code>.
      * @param side the side to get the id of each of the group limits on
-     * @return all the identifies of the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
+     * @return all the ids of the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
      */
     Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side);
 
@@ -173,21 +173,20 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     //TODO regarding exceptions, should this fail if any ID is incorrect, or should it just log an error and continue with the other IDs ? same for other similar methods
 
     /**
-     * <p>Set all the existing {@link OperationalLimitsGroup} whose id match the <code>predicate</code> as selected</p>
+     * <p>Set all the existing {@link OperationalLimitsGroup} whose id match the <code>predicate</code> as selected.</p>
      * @param side the side on which to select the groups based on the predicate
      * @param operationalLimitsGroupIdPredicate a predicate dictating which groups must be activated.
-     *                                          All groups whose ID would return true given the predicate will be activated
-     *                                          All groups whose ID would return false will stay in the same state as before,
-     *                                          groups that do not match will not be unselected.
+     *                                          All groups whose ID would return true given the predicate will be activated.
+     *                                          All groups whose ID would return false will stay in the same state as before.
      */
     void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate);
 
     /**
      * <p>Deselect the {@link OperationalLimitsGroup} corresponding to all the <code>ids</code> on the given <code>side</code>.</p>
-     * <p>If the {@link OperationalLimitsGroup} exists but is not selected, this method will do nothing</p>
-     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if any ID doesn't correspond to an existing group</p>
+     * <p>If the {@link OperationalLimitsGroup} exists but is not selected, this method will do nothing.</p>
+     * <p>Throw a {@link com.powsybl.commons.PowsyblException} if any ID doesn't correspond to an existing group.</p>
      * <p>Throw a {@link NullPointerException} if the ID is <code>null</code>.</p>
-     * To deselect all {@link OperationalLimitsGroup}, use {@link #cancelSelectedOperationalLimitsGroup1()}
+     * To deselect all {@link OperationalLimitsGroup}, use {@link #cancelSelectedOperationalLimitsGroup1()}.
      * @param side the side on which to deselect some selected groups
      * @param ids the ID of the groups to remove from the selected
      */

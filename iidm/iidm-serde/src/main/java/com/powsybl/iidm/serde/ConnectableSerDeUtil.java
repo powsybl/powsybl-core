@@ -412,7 +412,7 @@ public final class ConnectableSerDeUtil {
     }
 
     /**
-     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added using to the <code>side</code> of the <code>transformer</code>
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on the dangling line
      * @param danglingLine the {@link DanglingLine} on which to add the selected groups
      * @param context to deserialize the data
      */
