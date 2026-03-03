@@ -462,7 +462,7 @@ public interface LimitViolationDetector {
         LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitReductionValue);
         LimitViolationConsumerWrapper wrapper = new LimitViolationConsumerWrapper(consumer);
         LimitViolationDetection.checkLimitViolation(branch, side, value, type, Set.of(LoadingLimitType.TATL), limitsComputer, wrapper);
-        return wrapper.wasUsed;
+        return wrapper.noOverload;
     }
 
     /**
@@ -473,22 +473,22 @@ public interface LimitViolationDetector {
         LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitReductionValue);
         LimitViolationConsumerWrapper wrapper = new LimitViolationConsumerWrapper(consumer);
         LimitViolationDetection.checkLimitViolation(transformer, side, value, type, Set.of(LoadingLimitType.TATL), limitsComputer, wrapper);
-        return wrapper.wasUsed;
+        return wrapper.noOverload;
     }
 
     class LimitViolationConsumerWrapper implements Consumer<LimitViolation> {
-        private boolean wasUsed;
+        private boolean noOverload;
         private final Consumer<LimitViolation> consumer;
 
         LimitViolationConsumerWrapper(Consumer<LimitViolation> consumer) {
-            this.wasUsed = false;
+            this.noOverload = true;
             this.consumer = consumer;
         }
 
         @Override
         public void accept(LimitViolation limitViolation) {
             this.consumer.accept(limitViolation);
-            wasUsed = true;
+            noOverload = false;
         }
     }
 }
