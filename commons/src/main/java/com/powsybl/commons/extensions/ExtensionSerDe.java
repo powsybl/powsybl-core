@@ -111,13 +111,13 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     }
 
     /**
-     * Check if an extension is valid for serialization in the given context.
+     * Check if an extension can be serialized or not.
      * @param extension the extension to check
      * @param context the serialization context
-     * @return true if the extension is valid for serialization in the given context, false otherwise
+     * @return true if the extension can be serialized, false otherwise
      */
-    default boolean isValid(E extension, SerializerContext context) {
-        return true;
+    default boolean isSerializable(E extension, SerializerContext context) {
+        return isSerializable(extension);
     }
 
     /**

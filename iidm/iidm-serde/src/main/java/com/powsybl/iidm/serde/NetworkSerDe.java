@@ -216,7 +216,7 @@ public final class NetworkSerDe {
                         ExtensionSerDe extensionSerDe = getExtensionSerializer(context.getOptions(), e, extensionsSupplier);
                         return isExtensionIncluded(extensionSerDe, context.getOptions())
                             && canTheExtensionBeWritten(extensionSerDe, context.getVersion(), context.getOptions())
-                            && extensionSerDe.isValid(e, context);
+                            && extensionSerDe.isSerializable(e, context);
                     })
                     .toList();
 

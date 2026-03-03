@@ -50,7 +50,7 @@ public class GeneratorEntsoeCategorySerDe extends AbstractVersionableNetworkExte
     }
 
     @Override
-    public boolean isValid(GeneratorEntsoeCategory entsoeCategory, SerializerContext context) {
+    public boolean isSerializable(GeneratorEntsoeCategory entsoeCategory, SerializerContext context) {
         if (entsoeCategory.getCode() == 0 && getExtensionVersionToExport(context) == Version.V_1_0) {
             LOGGER.warn("Extension entsoeCategory not valid for Generator: {}. Reason: code = 0 not allowed in version 1.0.",
                 entsoeCategory.getExtendable().getId());
