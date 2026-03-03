@@ -522,8 +522,9 @@ public class CgmesExportContext {
                 continue;
             }
             String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            if (regulatingControlId == null && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getTargetV())
-                                            || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && shuntCompensator.getVoltageRegulation() != null
+                && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getVoltageRegulation().getTargetValue())
+                || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(shuntCompensator), Part.REGULATING_CONTROL);
                 shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
             }
@@ -533,8 +534,8 @@ public class CgmesExportContext {
     private void addIidmMappingsStaticVarCompensators(Network network) {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             String regulatingControlId = svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            boolean validVoltageSetpoint = CgmesExportUtil.isValidVoltageSetpoint(svc.getVoltageSetpoint());
-            boolean validReactiveSetpoint = CgmesExportUtil.isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
+            boolean validVoltageSetpoint = CgmesExportUtil.isValidVoltageSetpoint(svc.getRegulatingTargetV());
+            boolean validReactiveSetpoint = CgmesExportUtil.isValidReactivePowerSetpoint(svc.getRegulatingTargetQ());
             if (regulatingControlId == null && (validReactiveSetpoint
                                                 || validVoltageSetpoint
                                                 || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {

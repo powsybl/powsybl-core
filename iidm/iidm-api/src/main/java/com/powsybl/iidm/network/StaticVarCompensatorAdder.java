@@ -7,6 +7,9 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -16,14 +19,25 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
 
     StaticVarCompensatorAdder setBmax(double bMax);
 
+    StaticVarCompensatorAdder setTargetQ(double targetQ);
+
+    StaticVarCompensatorAdder setTargetV(double targetV);
+
+    @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint);
 
+    @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
-    StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode);
+    @Deprecated(forRemoval = true, since = "7.2.0")
+    StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode);
 
+    @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensatorAdder setRegulating(boolean regulating);
 
+    VoltageRegulationAdder<StaticVarCompensatorAdder> newVoltageRegulation();
+
+    @Deprecated(forRemoval = true, since = "7.2.0")
     default StaticVarCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException("Not yet implemented");
     }

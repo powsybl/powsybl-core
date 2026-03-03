@@ -226,7 +226,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation<?> station) {
         if (station.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
             VscConverterStation vscStation = (VscConverterStation) station;
-            if (vscStation.isVoltageRegulatorOn()) {
+            if (vscStation.isWithMode(RegulationMode.VOLTAGE)) {
                 replaceHvdcLineByGenerator(hvdcLine, vl, terminal, vscStation);
             } else {
                 replaceHvdcLineByLoad(hvdcLine, vl, terminal);
@@ -268,12 +268,13 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setEnergySource(EnergySource.OTHER)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(station.getVoltageSetpoint())
+                    .withTargetValue(station.getVoltageRegulation().getTargetValue())
                     .add()
                 .setMaxP(maxP)
                 .setMinP(-maxP)
                 .setTargetP(-checkP(terminal))
-                .setTargetV(station.getVoltageSetpoint());
+                .setTargetV(station.getTargetV())
+                .setTargetQ(station.getTargetQ());
         fillNodeOrBus(genAdder, terminal);
 
         double p = terminal.getP();

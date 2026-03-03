@@ -8,6 +8,9 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+
 import java.time.ZonedDateTime;
 
 import java.util.Objects;
@@ -43,10 +46,12 @@ public final class ShuntTestCaseFactory {
                 .setBus("B1")
                 .setConnectableBus("B1")
                 .setSectionCount(1)
-                .setVoltageRegulatorOn(true)
-                .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
-                .setTargetV(200)
-                .setTargetDeadband(5.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(200)
+                    .withTargetDeadband(5.0)
+                    .withTerminal(network.getLoad("LOAD").getTerminal())
+                    .add()
                 .newLinearModel()
                 .setMaximumSectionCount(1)
                 .setBPerSection(bPerSection)
@@ -81,10 +86,12 @@ public final class ShuntTestCaseFactory {
                     .setBus("B1")
                     .setConnectableBus("B1")
                     .setSectionCount(1)
-                    .setVoltageRegulatorOn(true)
-                    .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
-                    .setTargetV(200)
-                    .setTargetDeadband(5.0)
+                    .newVoltageRegulation()
+                        .withTargetValue(200)
+                        .withMode(RegulationMode.VOLTAGE)
+                        .withTerminal(network.getLoad("LOAD").getTerminal())
+                        .withTargetDeadband(5.0)
+                        .add()
                     .newNonLinearModel()
                         .beginSection()
                             .setB(1e-5)
@@ -147,8 +154,7 @@ public final class ShuntTestCaseFactory {
     }
 
     public static Network createLocalShunt(Network network) {
-        network.getShuntCompensator(SHUNT)
-                .setRegulatingTerminal(network.getShuntCompensator(SHUNT).getTerminal());
+        network.getShuntCompensator(SHUNT).getVoltageRegulation().removeTerminal();
         return network;
     }
 
@@ -169,15 +175,14 @@ public final class ShuntTestCaseFactory {
     }
 
     public static Network createDisabledShunt(Network network) {
-        network.getShuntCompensator(SHUNT)
-                .setVoltageRegulatorOn(false);
+        network.getShuntCompensator(SHUNT).getVoltageRegulation().setRegulating(false);
         return network;
     }
 
     private static Network createShuntWithNoTarget(Network network) {
-        network.getShuntCompensator(SHUNT)
-                .setVoltageRegulatorOn(false)
-                .setTargetV(Double.NaN);
+        VoltageRegulation voltageRegulation = network.getShuntCompensator(SHUNT).getVoltageRegulation();
+        voltageRegulation.setRegulating(false);
+        voltageRegulation.setTargetValue(Double.NaN);
         return network;
     }
 

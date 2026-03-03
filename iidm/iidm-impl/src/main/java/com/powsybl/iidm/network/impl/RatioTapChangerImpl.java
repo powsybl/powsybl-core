@@ -23,6 +23,8 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     private RegulationMode regulationMode;
 
+    private VoltageRegulationImpl voltageRegulation;
+
     // attributes depending on the variant
 
     private final TDoubleArrayList regulationValue;
@@ -228,7 +230,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
-        return null;
+        return new VoltageRegulationBuilderImpl<>(RatioTapChanger.class, this, getNetwork().getRef(), this::setVoltageRegulation);
     }
 
     @Override
@@ -238,16 +240,27 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public VoltageRegulation getVoltageRegulation() {
-        return null;
+        return this.voltageRegulation;
+    }
+
+    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+        return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
     public void removeVoltageRegulation() {
+        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.voltageRegulation = null;
 
     }
 
     @Override
-    public Terminal getFirstTerminal() {
+    public Terminal getTerminal() {
         return null;
+    }
+
+    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+        this.removeVoltageRegulation();
+        this.voltageRegulation = voltageRegulation;
     }
 }

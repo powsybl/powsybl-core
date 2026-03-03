@@ -220,8 +220,8 @@ public abstract class AbstractConverter {
             return false;
         } else {
             return shunt.getMaximumSectionCount() == 1
-                    && !shunt.isVoltageRegulatorOn()
-                    && Double.isNaN(shunt.getTargetV());
+                    && !shunt.isRegulatingWithMode(RegulationMode.VOLTAGE)
+                    && Double.isNaN(shunt.getRegulatingTargetV());
         }
     }
 

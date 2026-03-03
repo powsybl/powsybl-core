@@ -112,6 +112,11 @@ class ControlledRegulatingTerminalsTest {
         RegulatedTerminalControllers controlledRegulatingTerminals = new RegulatedTerminalControllers(network);
 
         ShuntCompensator shuntCompensator = network.getShuntCompensator("SHUNT");
+        shuntCompensator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(200)
+            .withTargetDeadband(2)
+            .build();
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("TWT");
 
         assertNotEquals(shuntCompensator.getRegulatingTerminal(), t2w.getTerminal1());

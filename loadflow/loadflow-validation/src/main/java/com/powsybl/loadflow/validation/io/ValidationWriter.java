@@ -11,7 +11,7 @@ import java.io.IOException;
 
 import com.powsybl.iidm.network.TwoSides;
 
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 
 /**

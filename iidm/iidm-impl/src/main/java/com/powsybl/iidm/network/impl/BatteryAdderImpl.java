@@ -29,7 +29,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double maxP = Double.NaN;
 
-    private VoltageRegulation voltageRegulation = null;
+    private VoltageRegulationImpl voltageRegulation = null;
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
@@ -93,8 +93,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
 
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageRegulation(this, voltageRegulation, Battery.class, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, targetQ, (VoltageRegulationImpl) voltageRegulation, minP, maxP);
+        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, targetQ, voltageRegulation, minP, maxP);
         battery.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(battery);
@@ -108,7 +107,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         return new VoltageRegulationAdderImpl<>(Battery.class, this, getNetworkRef(), this::setVoltageRegulations);
     }
 
-    public void setVoltageRegulations(VoltageRegulation voltageRegulation) {
+    private void setVoltageRegulations(VoltageRegulationImpl voltageRegulation) {
         this.voltageRegulation = voltageRegulation;
     }
 }

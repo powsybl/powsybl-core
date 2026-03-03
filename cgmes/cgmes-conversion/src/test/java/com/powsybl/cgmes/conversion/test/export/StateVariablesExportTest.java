@@ -99,7 +99,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         vl1.getNodeBreakerView().newBreaker().setId("BK12").setNode1(1).setNode2(2).add();
         VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(100).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl2.newGenerator().setId("GEN").setNode(0)
-                .setTargetP(10.01).setTargetQ(1.10)
+                .setTargetP(10.01)
                 .setMinP(0).setMaxP(20)
                 .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(1.10).add()
                 .add();

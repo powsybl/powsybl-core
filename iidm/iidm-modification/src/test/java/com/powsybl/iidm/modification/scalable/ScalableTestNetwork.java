@@ -45,7 +45,6 @@ final class ScalableTestNetwork {
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(0.0)
                     .add()
-                .setTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g2")
@@ -58,7 +57,6 @@ final class ScalableTestNetwork {
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(0.0)
                     .add()
-                .setTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g3")
@@ -135,7 +133,6 @@ final class ScalableTestNetwork {
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(0.0)
                     .add()
-                .setTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g2")
@@ -148,7 +145,6 @@ final class ScalableTestNetwork {
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(0.0)
                     .add()
-                .setTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g3")
@@ -241,7 +237,6 @@ final class ScalableTestNetwork {
                 .withMode(RegulationMode.REACTIVE_POWER)
                 .withTargetValue(0.0)
                 .add()
-            .setTargetQ(0.0)
             .add();
         vl.newGenerator()
             .setId("g2")
@@ -254,7 +249,6 @@ final class ScalableTestNetwork {
                 .withMode(RegulationMode.REACTIVE_POWER)
                 .withTargetValue(0.0)
                 .add()
-            .setTargetQ(0.0)
             .add();
         vl.newGenerator()
             .setId("g3")

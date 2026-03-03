@@ -9,9 +9,12 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -19,25 +22,30 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObject, Referrer<Terminal> {
 
+    private Validable validable;
+    private final Class<? extends VoltageRegulationHolder> classHolder;
     private TerminalExt terminal;
     private RegulationMode mode;
-    private final Ref<? extends VariantManagerHolder> network;
+    private final Ref<NetworkImpl> network;
     // attributes depending on the variant
     private final TDoubleArrayList targetValue;
     private final TDoubleArrayList targetDeadband;
     private final TDoubleArrayList slope;
     private final TBooleanArrayList regulating;
 
-    public VoltageRegulationImpl(Ref<NetworkImpl> network,
+    public VoltageRegulationImpl(Validable validable,
+                                 Class<? extends VoltageRegulationHolder> classHolder,
+                                 Ref<NetworkImpl> network,
                                  double targetValue,
                                  double targetDeadband,
                                  double slope,
                                  Terminal terminal,
                                  RegulationMode mode,
                                  boolean regulating) {
+        this.validable = validable;
+        this.classHolder = classHolder;
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.setTerminal(terminal);
         this.mode = mode;
         this.targetValue = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
@@ -49,6 +57,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
             this.slope.add(slope);
             this.regulating.add(regulating);
         }
+        this.setTerminal(terminal);
     }
 
     @Override
@@ -56,9 +65,13 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return targetValue.get(getCurrentIndex());
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate the new value before to setting it
+     */
     @Override
     public double setTargetValue(double targetValue) {
-        // TODO MSA validation : use old validation methods
+        ValidationUtil.checkVoltageRegulationTargetValue(validable, targetValue, mode, isRegulating(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.targetValue.set(getCurrentIndex(), targetValue);
     }
 
@@ -67,9 +80,13 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return targetDeadband.get(getCurrentIndex());
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate the new value before to setting it
+     */
     @Override
     public double setTargetDeadband(double targetDeadband) {
-        // TODO MSA validation : use old validation methods
+        ValidationUtil.checkVoltageRegulationDeadband(validable, targetDeadband, isRegulating(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.targetDeadband.set(getCurrentIndex(), targetDeadband);
     }
 
@@ -78,9 +95,13 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return slope.get(getCurrentIndex());
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate the new value before to setting it
+     */
     @Override
     public double setSlope(double slope) {
-        // TODO MSA validation : use old validation methods
+        ValidationUtil.checkVoltageRegulationSlope(validable, slope, mode, isRegulating(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.slope.set(getCurrentIndex(), slope);
     }
 
@@ -89,18 +110,14 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return terminal;
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate the new value before to setting it
+     */
     @Override
     public void setTerminal(Terminal terminal) {
-        // TODO MSA validation : use old validation methods
-        // TODO MSA add check terminal != localTerminal
-        if (this.terminal != null) {
-            this.terminal.getReferrerManager().unregister(this);
-            this.terminal = null;
-        }
-        if (terminal != null) {
-            this.terminal = (TerminalExt) terminal;
-            this.terminal.getReferrerManager().register(this);
-        }
+        ValidationUtil.checkVoltageRegulationTerminal(validable, terminal, isRegulating(), network.get(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        updateTerminal(terminal);
     }
 
     @Override
@@ -108,8 +125,13 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return mode;
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate the new value before to setting it
+     */
     @Override
     public void setMode(RegulationMode mode) {
+        ValidationUtil.checkVoltageRegulationMode(validable, mode, isRegulating(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         this.mode = mode;
     }
 
@@ -118,8 +140,13 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
         return regulating.get(getCurrentIndex());
     }
 
+    /**
+     * {@inheritDoc}
+     * If regulating is true then we validate all the attributes before setting regulating to true
+     */
     @Override
     public boolean setRegulating(boolean regulating) {
+        ValidationUtil.checkVoltageRegulation(validable, this, regulating, network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.regulating.set(getCurrentIndex(), regulating);
     }
 
@@ -175,11 +202,26 @@ public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObj
     @Override
     public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
         if (this.terminal == oldReferenced) {
-            this.setTerminal(newReferenced);
+            this.updateTerminal(newReferenced);
         }
+    }
+
+    public void updateValidable(Validable validable) {
+        this.validable = validable;
     }
 
     private int getCurrentIndex() {
         return network.get().getVariantIndex();
+    }
+
+    private void updateTerminal(Terminal terminal) {
+        if (this.terminal != null) {
+            this.terminal.getReferrerManager().unregister(this);
+            this.terminal = null;
+        }
+        if (terminal != null) {
+            this.terminal = (TerminalExt) terminal;
+            this.terminal.getReferrerManager().register(this);
+        }
     }
 }

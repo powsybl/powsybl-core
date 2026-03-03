@@ -10,11 +10,11 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 
 import java.util.Objects;
 
@@ -80,7 +80,7 @@ public class GeneratorModification extends AbstractNetworkModification {
                         targetValue = g.getTargetQ();
                     }
                 }
-                default -> throw new IllegalStateException("TODO MSA Unexpected value: " + modifs.getVoltageRegulationMode());
+                default -> throw new IllegalStateException("Unexpected value: " + modifs.getVoltageRegulationMode() + " not yet implemented");
             }
             g.newVoltageRegulation()
                 .withTargetValue(targetValue)

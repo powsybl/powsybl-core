@@ -279,10 +279,12 @@ class CreateFeederBayTest extends AbstractModificationTest {
                         .setId("newStaticVarCompensator")
                         .setBmin(0.0002)
                         .setBmax(0.0008)
-                        .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                        .setRegulating(true)
-                        .setVoltageSetpoint(390.0)
-                        .setReactivePowerSetpoint(1.0)
+                        .newVoltageRegulation()
+                            .withMode(RegulationMode.VOLTAGE)
+                            .withRegulating(true)
+                            .withTargetValue(390.0)
+                            .add()
+                        .setTargetQ(1.0)
                         .setEnsureIdUnicity(false);
         Optional<Range<Integer>> unusedOrderPositionsAfter2 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter2.isPresent());
@@ -318,8 +320,10 @@ class CreateFeederBayTest extends AbstractModificationTest {
         VscConverterStationAdder vscConverterStationAdder = network.getVoltageLevel("vl2").newVscConverterStation()
                 .setId("newVscConverterStation")
                 .setLossFactor(1.1f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withTargetValue(405.0)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setEnsureIdUnicity(false);
         Optional<Range<Integer>> unusedOrderPositionsAfter4 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter4.isPresent());

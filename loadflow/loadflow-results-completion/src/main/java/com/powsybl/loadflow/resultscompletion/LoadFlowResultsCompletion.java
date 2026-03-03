@@ -10,6 +10,7 @@ package com.powsybl.loadflow.resultscompletion;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,8 +168,14 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                 terminal.setP(-generator.getTargetP());
             }
             if (Double.isNaN(terminal.getQ())) {
-                LOGGER.debug("Generator {}, setting q = {}", generator.getId(), -generator.getTargetQ());
-                terminal.setQ(-generator.getTargetQ());
+                double q;
+                if (generator.isRegulatingWithMode(RegulationMode.REACTIVE_POWER)) {
+                    q = -generator.getVoltageRegulation().getTargetValue();
+                } else {
+                    q = -generator.getTargetQ();
+                }
+                LOGGER.debug("Generator {}, setting q = {}", generator.getId(), q);
+                terminal.setQ(q);
             }
         }
     }

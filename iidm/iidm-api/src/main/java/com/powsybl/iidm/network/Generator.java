@@ -192,6 +192,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * Depends on the working variant.
      * @see VariantManager
      */
+    @Override
     double getTargetV();
 
     /**
@@ -256,6 +257,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * Depends on the working variant.
      * @see VariantManager
      */
+    @Override
     double getTargetQ();
 
     /**

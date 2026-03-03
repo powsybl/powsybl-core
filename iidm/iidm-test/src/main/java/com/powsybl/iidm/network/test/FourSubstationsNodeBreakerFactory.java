@@ -234,9 +234,11 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("VSC1")
                 .setNode(5)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(500)
-                .setVoltageSetpoint(400)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withTargetValue(400)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
+                .setTargetQ(500)
                 .add();
         vsc1.newReactiveCapabilityCurve()
                 .beginPoint()
@@ -415,7 +417,6 @@ public final class FourSubstationsNodeBreakerFactory {
                 .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(70).add()
                 .setTargetP(100.0)
                 .setTargetV(400)
-                .setTargetQ(70)
                 .setNode(2)
                 .add();
         generatorThermal1.newReactiveCapabilityCurve()
@@ -440,9 +441,11 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("VSC2")
                 .setNode(4)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(120)
-                .setVoltageSetpoint(0)
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation()
+                    .withTargetValue(120)
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .add()
+                .setTargetV(0)
                 .add();
         vsc2.newMinMaxReactiveLimits()
                 .setMinQ(-400.0)
@@ -606,9 +609,10 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode(4)
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setRegulating(true)
-                .setVoltageSetpoint(400)
+                .newVoltageRegulation()
+                    .withTargetValue(400)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
         svc.getTerminal().setQ(-12.5415);
 

@@ -130,9 +130,10 @@
                 <iidm:internalConnection node1="3" node2="5"/>
                 <iidm:bus v="402.0" angle="12.3" nodes="0,2,4"/>
             </iidm:nodeBreakerTopology>
-            <iidm:voltageSourceConverter id="vsc" name="VSC" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="3.0" switchingLoss="0.3" resistiveLoss="3.0E-6" controlMode="P_PCC" targetP="302.0" targetVdc="503.0" node1="4" node2="5" voltageRegulatorOn="true" voltageSetpoint="397.0">
+            <iidm:voltageSourceConverter id="vsc" name="VSC" dcNode1="dcNode1" dcConnected1="true" dcNode2="dcNode2" dcConnected2="true" idleLoss="3.0" switchingLoss="0.3" resistiveLoss="3.0E-6" controlMode="P_PCC" targetP="302.0" targetVdc="503.0" node1="4" node2="5">
                 <iidm:pccTerminal id="line2" side="TWO"/>
                 <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="210.0"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="397.0"/>
             </iidm:voltageSourceConverter>
         </iidm:voltageLevel>
     </iidm:substation>

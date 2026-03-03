@@ -110,7 +110,6 @@ public final class FictitiousSwitchFactory {
                 .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
                 .setTargetP(0.0)
                 .setTargetV(0.0)
-                .setTargetQ(0.0)
                 .setNode(12)
                 .add();
         generatorCB.newReactiveCapabilityCurve()
@@ -134,7 +133,6 @@ public final class FictitiousSwitchFactory {
                 .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
                 .setTargetP(0.0)
                 .setTargetV(0.0)
-                .setTargetQ(0.0)
                 .setNode(14)
                 .add();
         generatorCC.newReactiveCapabilityCurve()

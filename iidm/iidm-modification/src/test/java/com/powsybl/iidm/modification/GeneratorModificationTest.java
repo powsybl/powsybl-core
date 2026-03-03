@@ -72,7 +72,7 @@ class GeneratorModificationTest {
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification8.hasImpactOnNetwork(network));
 
         generator.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
-        generator.getVoltageRegulation().setTargetValue(Double.NaN);
+        generator.getVoltageRegulation().setTargetValue(54.32);
         generator.setTargetV(Double.NaN);
         modifs = new GeneratorModification.Modifs();
         modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE);

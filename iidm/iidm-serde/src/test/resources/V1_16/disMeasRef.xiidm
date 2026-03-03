@@ -75,14 +75,15 @@
             <iidm:load id="LD2" loadType="UNDEFINED" p0="60.0" q0="5.0" node="13" p="60.0" q="5.0"/>
             <iidm:load id="LD3" loadType="UNDEFINED" p0="60.0" q0="5.0" node="15" p="60.0" q="5.0"/>
             <iidm:load id="LD4" loadType="UNDEFINED" p0="40.0" q0="5.0" node="17" p="40.0" q="5.0"/>
-            <iidm:shunt id="SHUNT" sectionCount="1" voltageRegulatorOn="false" node="19" q="1920.0">
+            <iidm:shuntCompensator id="SHUNT" sectionCount="1" node="19" q="1920.0">
                 <iidm:shuntLinearModel bPerSection="-0.012" maximumSectionCount="1"/>
-            </iidm:shunt>
-            <iidm:vscConverterStation id="VSC1" name="VSC1" voltageRegulatorOn="true" lossFactor="1.1" voltageSetpoint="400.0" reactivePowerSetpoint="500.0" node="5" p="10.11" q="-512.0814">
+            </iidm:shuntCompensator>
+            <iidm:vscConverterStation id="VSC1" name="VSC1" lossFactor="1.1" targetQ="500.0" node="5" p="10.11" q="-512.0814">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="-100.0" minQ="-550.0" maxQ="570.0"/>
                     <iidm:point p="100.0" minQ="-550.0" maxQ="570.0"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="400.0"/>
             </iidm:vscConverterStation>
             <iidm:lccConverterStation id="LCC1" name="LCC1" lossFactor="1.1" powerFactor="0.6" node="21" p="80.88"/>
         </iidm:voltageLevel>
@@ -149,15 +150,16 @@
                 <iidm:switch id="S2VL1_LINES2S3_BREAKER" name="S2VL1_LINES2S3_BREAKER" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
                 <iidm:bus v="408.847" angle="0.7347" nodes="0,1,2,3,4,5,6"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="GTH1" energySource="THERMAL" minP="0.0" maxP="100.0" targetP="100.0" targetV="400.0" targetQ="70.0" node="2" p="-100.0" q="-70.0">
+            <iidm:generator id="GTH1" energySource="THERMAL" minP="0.0" maxP="100.0" targetP="100.0" targetV="400.0" node="2" p="-100.0" q="-70.0">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-76.8" maxQ="77.4"/>
                     <iidm:point p="100.0" minQ="-73.514" maxQ="76.4"/>
                 </iidm:reactiveCapabilityCurve>
                 <iidm:voltageRegulation targetValue="70.0" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
-            <iidm:vscConverterStation id="VSC2" name="VSC2" voltageRegulatorOn="false" lossFactor="1.1" voltageSetpoint="0.0" reactivePowerSetpoint="120.0" node="4" p="-9.89" q="-120.0">
+            <iidm:vscConverterStation id="VSC2" name="VSC2" lossFactor="1.1" targetV="0.0" node="4" p="-9.89" q="-120.0">
                 <iidm:minMaxReactiveLimits minQ="-400.0" maxQ="500.0"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetValue="120.0"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -201,7 +203,9 @@
                 <iidm:bus v="400.0" angle="-1.1259" nodes="0,1,2,3,4,5,6"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="LD6" loadType="UNDEFINED" p0="240.0" q0="10.0" node="2" p="240.0" q="10.0"/>
-            <iidm:staticVarCompensator id="SVC" bMin="-0.05" bMax="0.05" voltageSetpoint="400.0" regulationMode="VOLTAGE" regulating="true" node="4" q="-12.5415"/>
+            <iidm:staticVarCompensator id="SVC" bMin="-0.05" bMax="0.05" node="4" q="-12.5415">
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="400.0"/>
+            </iidm:staticVarCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="LINE_S2S3" r="0.009999999" x="19.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="6" voltageLevelId1="S2VL1" node2="2" voltageLevelId2="S3VL1" p1="109.8893" q1="190.0229" p2="-109.8864" q2="-184.5171"/>

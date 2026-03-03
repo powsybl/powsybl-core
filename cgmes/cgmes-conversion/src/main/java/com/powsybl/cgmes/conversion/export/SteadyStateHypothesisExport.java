@@ -265,7 +265,7 @@ public final class SteadyStateHypothesisExport {
                 case LINEAR -> "Linear";
                 case NON_LINEAR -> "Nonlinear";
             };
-            boolean controlEnabled = s.isVoltageRegulatorOn();
+            boolean controlEnabled = s.isRegulatingWithMode(RegulationMode.VOLTAGE);
 
             CgmesExportUtil.writeStartAbout(shuntType + "ShuntCompensator", context.getNamingStrategy().getCgmesId(s), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
@@ -285,7 +285,7 @@ public final class SteadyStateHypothesisExport {
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
             String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, Conversion.PROPERTY_REGULATING_CONTROL);
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
-                s.isVoltageRegulatorOn(), s.getTargetDeadband(), s.getTargetV(), "k");
+                s.isRegulatingWithMode(RegulationMode.VOLTAGE), s.getVoltageRegulation().getTargetDeadband(), s.getVoltageRegulation().getTargetValue(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }
@@ -298,18 +298,18 @@ public final class SteadyStateHypothesisExport {
             boolean controlEnabled = g.getVoltageRegulation() != null && g.getVoltageRegulation().isRegulating();
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
-                    writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getTargetQ(),
+                    writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getRegulatingTargetQ(),
                             controlEnabled, g.getTargetV(), cimNamespace, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
                     writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), controlEnabled,
-                            -g.getTargetP(), -g.getTargetQ(), ReferencePriority.get(g),
+                            -g.getTargetP(), -g.getRegulatingTargetQ(), ReferencePriority.get(g),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
                     writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), controlEnabled,
-                            -g.getTargetP(), -g.getTargetQ(), ReferencePriority.get(g), obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
+                            -g.getTargetP(), -g.getRegulatingTargetQ(), ReferencePriority.get(g), obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
@@ -360,7 +360,7 @@ public final class SteadyStateHypothesisExport {
         for (Battery b : network.getBatteries()) {
             boolean controlEnabled = b.getVoltageRegulation() != null && b.getVoltageRegulation().isRegulating();
             writeSynchronousMachine(context.getNamingStrategy().getCgmesId(b), controlEnabled,
-                    -b.getTargetP(), -b.getTargetQ(), ReferencePriority.get(b), obtainOperatingMode(b, b.getMinP(), b.getMaxP(), b.getTargetP()),
+                    -b.getTargetP(), -b.getRegulatingTargetQ(), ReferencePriority.get(b), obtainOperatingMode(b, b.getMinP(), b.getMaxP(), b.getTargetP()),
                     cimNamespace, writer, context);
         }
     }
@@ -394,12 +394,12 @@ public final class SteadyStateHypothesisExport {
         switch (injection) {
             case Generator generator -> {
                 return generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(generator.getTargetV())
-                    || !Double.isNaN(generator.getTargetQ()) && generator.getTargetQ() != 0;
+                    || !Double.isNaN(generator.getRegulatingTargetQ()) && generator.getRegulatingTargetQ() != 0;
             }
             case Battery battery -> {
                 VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
                 return battery.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(voltageRegulation.getTargetValue())
-                    || !Double.isNaN(battery.getTargetQ()) && battery.getTargetQ() != 0;
+                    || !Double.isNaN(battery.getRegulatingTargetQ()) && battery.getRegulatingTargetQ() != 0;
             }
             default -> throw new IllegalStateException("Unexpected value: " + injection);
         }
@@ -443,7 +443,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeStaticVarCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            boolean controlEnabled = svc.isRegulating();
+            boolean controlEnabled = svc.getVoltageRegulation().isRegulating();
 
             CgmesExportUtil.writeStartAbout("StaticVarCompensator", context.getNamingStrategy().getCgmesId(svc), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
@@ -462,10 +462,10 @@ public final class SteadyStateHypothesisExport {
                 String multiplier;
                 String svcMode = CgmesExportUtil.getSvcMode(svc);
                 if (svcMode.equals(RegulatingControlEq.REGULATING_CONTROL_VOLTAGE)) {
-                    targetValue = svc.getVoltageSetpoint();
+                    targetValue = svc.getRegulatingTargetV();
                     multiplier = "k";
                 } else if (svcMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                    targetValue = svc.getReactivePowerSetpoint();
+                    targetValue = svc.getRegulatingTargetQ();
                     multiplier = "M";
                 } else {
                     targetValue = 0;
@@ -761,10 +761,10 @@ public final class SteadyStateHypothesisExport {
         } else if (converterStation instanceof VscConverterStation vscConverterStation) {
             p = vscConverterStation.getRegulatingTerminal().getP();
             q = vscConverterStation.getRegulatingTerminal().getQ();
-            double targetQpcc = vscConverterStation.getReactivePowerSetpoint();
-            double targetUpcc = vscConverterStation.getVoltageSetpoint();
+            double targetQpcc = vscConverterStation.getRegulatingTargetQ();
+            double targetUpcc = vscConverterStation.getRegulatingTargetV();
             String pPccControl = CgmesExportUtil.isConverterStationRectifier(converterStation) ? "pPcc" : "udc";
-            String qPccControl = vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
+            String qPccControl = vscConverterStation.isRegulatingWithMode(RegulationMode.VOLTAGE) ? "voltagePcc" : "reactivePcc";
             writeVsConverter(converterId, targetPpcc, targetUdc, targetQpcc, targetUpcc, p, q, pPccControl, qPccControl, cimNamespace, writer, context);
         }
     }
@@ -932,10 +932,10 @@ public final class SteadyStateHypothesisExport {
             String pPccControl = converter.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "activePower" : "dcVoltage";
             writeCsConverter(converterId, targetPpcc, targetUdc, p, q, operatingMode, pPccControl, cimNamespace, writer, context);
         } else if (converter instanceof VoltageSourceConverter vsc) {
-            double targetQpcc = vsc.getReactivePowerSetpoint();
-            double targetUpcc = vsc.getVoltageSetpoint();
+            double targetQpcc = vsc.getRegulatingTargetQ();
+            double targetUpcc = vsc.getRegulatingTargetV();
             String pPccControl = vsc.getControlMode() == AcDcConverter.ControlMode.P_PCC ? "pPcc" : "udc";
-            String qPccControl = vsc.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc";
+            String qPccControl = vsc.isWithMode(RegulationMode.VOLTAGE) ? "voltagePcc" : "reactivePcc";
             writeVsConverter(converterId, targetPpcc, targetUdc, targetQpcc, targetUpcc, p, q, pPccControl, qPccControl, cimNamespace, writer, context);
         }
     }

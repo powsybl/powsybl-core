@@ -1151,7 +1151,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Remote
             network = SvcTestCaseFactory.createRemoteVoltageControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "voltage");
 
             // SVC REACTIVE_POWER
             // Local
@@ -1162,7 +1162,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Remote
             network = SvcTestCaseFactory.createRemoteReactiveControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "reactivePower");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "reactivePower");
 
             // SVC OFF
             // Local
@@ -1182,16 +1182,16 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Remote
             network = SvcTestCaseFactory.createRemoteOffNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "voltage");
             network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "reactivePower");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "reactivePower");
             network = SvcTestCaseFactory.createRemoteOffVoltageTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "voltage");
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_G1_SM_T_1", "voltage");
         }
     }
 
@@ -1422,7 +1422,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(10.0)
@@ -1768,51 +1767,40 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 // Nothing to do
             } else if (identifiable instanceof BusbarSection) {
                 // Nothing to do
-            } else if (identifiable instanceof ShuntCompensator) {
-                ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
-                shuntCompensator.setVoltageRegulatorOn(false);
-                shuntCompensator.setTargetV(Double.NaN);
-                shuntCompensator.setTargetDeadband(Double.NaN);
+            } else if (identifiable instanceof ShuntCompensator shuntCompensator) {
+                shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
                 shuntCompensator.getTerminal().setQ(0.0);
                 shuntCompensator.getTerminal().setP(0.0);
                 shuntCompensator.setSectionCount(0);
-            } else if (identifiable instanceof Generator) {
-                Generator generator = (Generator) identifiable;
+            } else if (identifiable instanceof Generator generator) {
                 generator.removeVoltageRegulation();
                 generator.setTargetV(Double.NaN);
                 generator.setTargetP(Double.NaN);
                 generator.setTargetQ(Double.NaN);
                 generator.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof StaticVarCompensator) {
-                StaticVarCompensator staticVarCompensator = (StaticVarCompensator) identifiable;
-                staticVarCompensator.setRegulating(false).setVoltageSetpoint(0.0)
-                        .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+            } else if (identifiable instanceof StaticVarCompensator staticVarCompensator) {
+                staticVarCompensator.removeVoltageRegulation();
                 staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof VscConverterStation) {
-                VscConverterStation converter = (VscConverterStation) identifiable;
-                converter.setVoltageRegulatorOn(false);
+            } else if (identifiable instanceof VscConverterStation converter) {
+                converter.newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).withRegulating(false).build();
                 converter.setLossFactor(0.8f);
-                converter.setVoltageSetpoint(Double.NaN);
+                converter.setTargetV(Double.NaN);
+                converter.setTargetQ(Double.NaN);
                 converter.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof LccConverterStation) {
-                LccConverterStation converter = (LccConverterStation) identifiable;
+            } else if (identifiable instanceof LccConverterStation converter) {
                 converter.setPowerFactor(0.8f);
                 converter.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof Injection) {
-                Injection injection = (Injection) identifiable;
+            } else if (identifiable instanceof Injection<?> injection) {
                 injection.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof HvdcLine) {
-                HvdcLine hvdcLine = (HvdcLine) identifiable;
+            } else if (identifiable instanceof HvdcLine hvdcLine) {
                 hvdcLine.setActivePowerSetpoint(0.0);
                 hvdcLine.setMaxP(0.0);
                 hvdcLine.getConverterStation1().getTerminal().setP(0.0).setQ(0.0);
                 hvdcLine.getConverterStation2().getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof Branch) {
-                Branch branch = (Branch) identifiable;
+            } else if (identifiable instanceof Branch<?> branch) {
                 branch.getTerminal1().setP(0.0).setQ(0.0);
                 branch.getTerminal2().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer threeWindingsTransformer = (ThreeWindingsTransformer) identifiable;
+            } else if (identifiable instanceof ThreeWindingsTransformer threeWindingsTransformer) {
                 threeWindingsTransformer.getLeg1().getTerminal().setP(0.0).setQ(0.0);
                 threeWindingsTransformer.getLeg2().getTerminal().setP(0.0).setQ(0.0);
                 threeWindingsTransformer.getLeg3().getTerminal().setP(0.0).setQ(0.0);
@@ -1856,7 +1844,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(10.0)
@@ -1868,7 +1855,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(10.0)
@@ -1881,7 +1867,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(10.0)
@@ -1894,7 +1879,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(10.0)
@@ -1907,7 +1891,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(10.0)
@@ -1920,7 +1903,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(10.0)
@@ -1933,7 +1915,6 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.REACTIVE_POWER)
                     .withTargetValue(10.0)

@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -197,10 +196,10 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     }
 
     @Test
-    @Disabled("TODO MSA fix me")
     void testRegulatingBusIdExportGenerators() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
         Generator gen = network.getGenerator("GEN");
+        gen.setTargetV(gen.getRegulatingTargetV());
         gen.newVoltageRegulation()
             .withTargetValue(gen.getTargetQ())
             .withMode(RegulationMode.REACTIVE_POWER)
@@ -229,17 +228,19 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     @Test
     void testRegulatingBusIdExportSvc() throws IOException {
         Network network = SvcTestCaseFactory.createWithMoreSVCs();
-        network.getStaticVarCompensator("SVC2").setRegulating(false);
+        network.getStaticVarCompensator("SVC2").getVoltageRegulation().setRegulating(false);
         network.getVoltageLevel("VL1").newStaticVarCompensator()
                 .setId("SVC1")
                 .setConnectableBus("B1")
                 .setBus("B1")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setRegulating(true)
-                .setVoltageSetpoint(390)
-                .setRegulatingTerminal(network.getLoad("L2").getTerminal())
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(true)
+                    .withTargetValue(390)
+                    .withTerminal(network.getLoad("L2").getTerminal())
+                    .add()
                 .add();
 
         exporter.export(network, properties, dataSource);

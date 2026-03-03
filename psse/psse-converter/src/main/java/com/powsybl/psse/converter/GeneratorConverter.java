@@ -43,8 +43,7 @@ class GeneratorConverter extends AbstractConverter {
                 .setTargetP(psseGenerator.getPg())
                 .setMaxP(psseGenerator.getPt())
                 .setMinP(psseGenerator.getPb())
-                .setTargetQ(psseGenerator.getQg())
-                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(psseGenerator.getQg()).add();
+                .setTargetQ(psseGenerator.getQg());
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_GENERATOR, psseGenerator.getI(), psseGenerator.getId());
         OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseGenerator.getI(), 0, 0, psseGenerator.getI(), "I"));
@@ -91,7 +90,6 @@ class GeneratorConverter extends AbstractConverter {
             voltageRegulatorOn = psseVoltageRegulatorOn;
         }
 
-        generator.setTargetV(targetV);
         RegulationMode mode;
         double targetValue;
         if (voltageRegulatorOn) {
@@ -100,12 +98,14 @@ class GeneratorConverter extends AbstractConverter {
         } else {
             mode = RegulationMode.REACTIVE_POWER;
             targetValue = generator.getTargetQ();
+            generator.setTargetV(targetV);
+            generator.setTargetQ(Double.NaN); // was set previously
         }
         generator.newVoltageRegulation()
             .withMode(mode)
             .withTargetValue(targetValue)
             .build();
-        if (generator != regulatingTerminal.getConnectable()) {
+        if (generator.getTerminal().getBusBreakerView().getConnectableBus() != regulatingTerminal.getBusBreakerView().getConnectableBus()) {
             generator.getVoltageRegulation().setTerminal(regulatingTerminal);
         }
     }
@@ -216,7 +216,7 @@ class GeneratorConverter extends AbstractConverter {
 
     private static double getQ(Generator gen) {
         if (Double.isNaN(gen.getTerminal().getQ())) {
-            return gen.getTargetQ();
+            return gen.getRegulatingTargetQ();
         } else {
             return -gen.getTerminal().getQ();
         }

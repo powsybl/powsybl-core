@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,11 +69,27 @@ public abstract class AbstractGeneratorTest {
         assertEquals(voltageSetpoint, generator.getTargetV(), 0.0);
         assertEquals(ratedS, generator.getRatedS(), 0.0);
 
+        // RegulationMode
         generator.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
         assertEquals(RegulationMode.REACTIVE_POWER, generator.getVoltageRegulation().getMode());
         generator.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         assertEquals(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
         assertFalse(generator.isCondenser());
+
+        // Regulating TargetV / TargetQ
+        generator.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+        assertEquals(generator.getVoltageRegulation().getTargetValue(), generator.getRegulatingTargetV());
+        assertEquals(generator.getTargetQ(), generator.getRegulatingTargetQ());
+        generator.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+        assertEquals(generator.getVoltageRegulation().getTargetValue(), generator.getRegulatingTargetQ());
+        assertEquals(generator.getTargetV(), generator.getRegulatingTargetV());
+
+        // Terminal
+        generator.getVoltageRegulation().setTerminal(null);
+        assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
+        Terminal remoteTerminal = network.getGenerator("CC").getTerminal();
+        generator.getVoltageRegulation().setTerminal(remoteTerminal);
+        assertEquals(remoteTerminal, generator.getRegulatingTerminal());
 
         assertEquals(12, generator.getTerminal().getNodeBreakerView().getNode());
     }
@@ -88,7 +105,7 @@ public abstract class AbstractGeneratorTest {
                 .newVoltageRegulation()
                     .withTargetValue(20);
         ValidationException e = assertThrows(ValidationException.class, adder::add);
-        assertEquals("Generator 'GEN': [VoltageRegulation] Undefined value for regulationMode", e.getMessage());
+        assertEquals("Generator 'GEN': Undefined value for voltageRegulation.regulationMode", e.getMessage());
     }
 
     @Test
@@ -157,14 +174,14 @@ public abstract class AbstractGeneratorTest {
     public void invalidReactiveQ() {
         ValidationException e = assertThrows(ValidationException.class, () -> createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
                 30.0, Double.NaN, false, 10.0));
-        assertEquals("Generator 'invalid': [VoltageRegulation] Undefined value for target value", e.getMessage());
+        assertEquals("Generator 'invalid': Undefined value for voltageRegulation.targetValue", e.getMessage());
     }
 
     @Test
     public void invalidVoltageSetpoint() {
         ValidationException e = assertThrows(ValidationException.class, () -> createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
                 30.0, 40.0, true, Double.NaN));
-        assertEquals("Generator 'invalid': [VoltageRegulation] Undefined value for target value", e.getMessage());
+        assertEquals("Generator 'invalid': Undefined value for voltageRegulation.targetValue", e.getMessage());
     }
 
     @Test
@@ -372,15 +389,11 @@ public abstract class AbstractGeneratorTest {
             .setTargetP(15)
             .setMinP(10)
             .setMaxP(25)
-            .newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(targetV)
-                .add()
             .setTargetV(targetV);
         // WHEN
         ValidationException e = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
-        assertEquals("Generator 'GEN1': invalid value (-10.0) for equivalentLocalTargetV (must be positive)", e.getMessage());
+        assertEquals("Generator 'GEN1': invalid value (-10.0) for targetV (must be positive)", e.getMessage());
     }
 
     @Test
@@ -393,15 +406,19 @@ public abstract class AbstractGeneratorTest {
             .setTargetP(15)
             .setMinP(10)
             .setMaxP(25)
-            .newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(targetV)
-                .add()
             .add();
         // WHEN
         ValidationException e = assertThrows(ValidationException.class, () -> generator.setTargetV(targetV));
         // THEN
-        assertEquals("Generator 'GEN1': invalid value (-17.6) for equivalentLocalTargetV (must be positive)", e.getMessage());
+        assertEquals("Generator 'GEN1': invalid value (-17.6) for targetV (must be positive)", e.getMessage());
+
+        VoltageRegulationBuilder builder = generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(targetV);
+        // WHEN
+        e = assertThrows(ValidationException.class, builder::build);
+        // THEN
+        assertEquals("Generator 'GEN1': invalid value (-17.6) for voltageRegulation.targetValue (must be positive)", e.getMessage());
     }
 
     private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,

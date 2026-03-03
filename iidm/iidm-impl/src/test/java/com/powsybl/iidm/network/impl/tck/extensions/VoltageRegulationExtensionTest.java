@@ -80,7 +80,7 @@ class VoltageRegulationExtensionTest {
             .withTargetValue(50.0);
 
         PowsyblException e = assertThrows(PowsyblException.class, builder::build);
-        assertEquals("Battery 'BAT': [VoltageRegulation] Undefined value for regulationMode", e.getMessage());
+        assertEquals("Battery 'BAT': Undefined value for voltageRegulation.regulationMode", e.getMessage());
 
         Network network1 = BatteryNetworkFactory.create();
 

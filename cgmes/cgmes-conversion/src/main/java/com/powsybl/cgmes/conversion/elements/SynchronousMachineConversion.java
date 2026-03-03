@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
@@ -47,7 +46,6 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
 
         GeneratorAdder adder = voltageLevel().newGenerator();
-        RegulatingControlMappingForGenerators.initialize(adder);
         setMinPMaxP(adder, minP, maxP);
         adder.setEnergySource(energySourceFromGeneratingUnitType())
                 .setRatedS(ratedS);
@@ -131,7 +129,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
 
         double targetP = getDefaultValue(getInitialP(generator), generator.getTargetP(), 0.0, 0.0, context);
-        double targetQ = getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
+        double targetQ = getDefaultValue(null, generator.getRegulatingTargetQ(), 0.0, 0.0, context);
         PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
         if (updatedPowerFlow.defined()) {
             targetP = -updatedPowerFlow.p();

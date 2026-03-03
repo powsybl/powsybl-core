@@ -41,6 +41,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         this.minP = minP;
         this.maxP = maxP;
         this.voltageRegulation = voltageRegulation;
+        if (this.voltageRegulation != null) {
+            this.voltageRegulation.updateValidable(this);
+        }
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
@@ -267,17 +270,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         this.voltageRegulation = null;
     }
 
-    @Override
-    public Terminal getFirstTerminal() {
-        return this.terminals.getFirst();
-    }
-
-    @Override
-    public double getTargetV() {
-        return 0; // TODO MSA
-    }
-
-    public void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
         this.removeVoltageRegulation();
         this.voltageRegulation = voltageRegulation;
     }

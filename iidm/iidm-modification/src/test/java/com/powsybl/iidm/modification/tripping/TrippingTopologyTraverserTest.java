@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -124,8 +125,7 @@ class TrippingTopologyTraverserTest {
                 .setDcNode2("dn2")
                 .setDcConnected1(true)
                 .setDcConnected2(true)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.0)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
                 .add();
 
         Set<DcTerminal> dcTerminalsToDisconnect = new HashSet<>();

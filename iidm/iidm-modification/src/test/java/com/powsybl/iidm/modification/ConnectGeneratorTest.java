@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -90,9 +91,11 @@ class ConnectGeneratorTest {
         // heterogeneous controls not taken into account yet.
         double shuntTargetV = 123;
         network.getShuntCompensatorStream().forEach(sc -> {
-            sc.setTargetV(shuntTargetV);
-            sc.setTargetDeadband(1);
-            sc.setVoltageRegulatorOn(true);
+            sc.newVoltageRegulation()
+                .withTargetValue(shuntTargetV)
+                .withTargetDeadband(1)
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true);
         });
         g2.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         g2.getVoltageRegulation().setTerminal(g3.getTerminal());
@@ -109,13 +112,16 @@ class ConnectGeneratorTest {
         g3.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
         g2.getVoltageRegulation().setTerminal(g3.getTerminal());
         g2.setTargetV(Double.NaN);
-        g2.getVoltageRegulation().setTargetValue(Double.NaN);
+        g2.getVoltageRegulation().setTargetValue(123.45);
         GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
         modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE); // no targetV provided!
         modifs.setConnected(true);
         new GeneratorModification(g2.getId(), modifs).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getTargetV(), 0.01);
+        assertEquals(g2.getTargetV(), g2.getRegulatingTargetV());
+        assertEquals(g2.getTargetV(), g2.getVoltageRegulation().getTargetValue());
+        assertNotEquals(123.45, g2.getRegulatingTargetV());
     }
 
     @Test

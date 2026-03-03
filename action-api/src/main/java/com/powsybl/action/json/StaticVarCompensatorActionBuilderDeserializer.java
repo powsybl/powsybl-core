@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.action.StaticVarCompensatorAction;
 import com.powsybl.action.StaticVarCompensatorActionBuilder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.io.IOException;
 
@@ -44,7 +44,7 @@ public class StaticVarCompensatorActionBuilderDeserializer extends StdDeserializ
                     builder.withStaticVarCompensatorId(jsonParser.nextTextValue());
                     return true;
                 case "regulationMode":
-                    builder.withRegulationMode(StaticVarCompensator.RegulationMode.valueOf(jsonParser.nextTextValue()));
+                    builder.withRegulationMode(RegulationMode.valueOf(jsonParser.nextTextValue()));
                     return true;
                 case "voltageSetpoint":
                     jsonParser.nextToken();

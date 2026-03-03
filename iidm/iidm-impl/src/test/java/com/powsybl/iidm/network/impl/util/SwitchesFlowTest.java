@@ -252,7 +252,6 @@ class SwitchesFlowTest {
             .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(q).add()
             .setTargetP(p)
             .setTargetV(225.0)
-            .setTargetQ(q)
             .setNode(node)
             .add();
         generator.newMinMaxReactiveLimits()

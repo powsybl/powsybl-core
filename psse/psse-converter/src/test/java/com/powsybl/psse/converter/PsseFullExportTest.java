@@ -171,7 +171,6 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setGPerSection(0.001)
                 .setBPerSection(0.1)
                 .add()
-                .setVoltageRegulatorOn(false)
                 .add();
 
         VoltageLevel vl2S4 = createVoltageLevel(sub4, "Vl2-Sub4", 110.0, TopologyKind.NODE_BREAKER);
@@ -188,9 +187,11 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setGPerSection(0.001)
                 .setBPerSection(0.1)
                 .add()
-                .setTargetV(vl2S4.getNominalV() * 1.01)
-                .setTargetDeadband(0.5)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(vl2S4.getNominalV() * 1.01)
+                    .withTargetDeadband(0.5)
+                    .add()
                 .add();
         createLoad(vl2S4, "Load-Vl2-Sub4", 4, 12.0, 4.0);
 
@@ -205,11 +206,12 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setNode(4)
                 .setBmin(0.0)
                 .setBmax(10.0)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setRegulatingTerminal(shunt.getTerminal())
-                .setVoltageSetpoint(vl1S4.getNominalV() * 1.02)
-                .setReactivePowerSetpoint(0.0)
-                .setRegulating(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(shunt.getTerminal())
+                    .withTargetValue(vl1S4.getNominalV() * 1.02)
+                    .add()
+                .setTargetQ(0.0)
                 .add();
 
         ThreeWindingsTransformer t3w = sub4.newThreeWindingsTransformer()
@@ -319,9 +321,11 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setName("Vsc-Vl1-Sub2")
                 .setNode(4)
                 .setLossFactor(0.001f)
-                .setReactivePowerSetpoint(0.0)
-                .setVoltageSetpoint(vl1S2.getNominalV())
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withTargetValue(vl1S2.getNominalV())
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
+                .setTargetQ(0.0)
                 .add();
         vsc1.newMinMaxReactiveLimits().setMinQ(-250.0).setMaxQ(300.0).add();
         VscConverterStation vsc2 = vl1S4.newVscConverterStation()
@@ -329,9 +333,11 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setName("Vsc-Vl1-Sub4")
                 .setNode(2)
                 .setLossFactor(0.002f)
-                .setReactivePowerSetpoint(0.1)
-                .setVoltageSetpoint(vl1S4.getNominalV())
-                .setVoltageRegulatorOn(false)
+                .newVoltageRegulation()
+                    .withTargetValue(0.1)
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .add()
+                .setTargetV(vl1S4.getNominalV())
                 .add();
         vsc2.newMinMaxReactiveLimits().setMinQ(-260.0).setMaxQ(310.0).add();
         network.newHvdcLine()

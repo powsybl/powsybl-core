@@ -343,7 +343,6 @@
         "maxP" : 70.0,
         "targetP" : 0.0,
         "targetV" : 0.0,
-        "targetQ" : 0.0,
         "node" : 12,
         "reactiveCapabilityCurve" : {
           "points" : [ {
@@ -368,7 +367,6 @@
         "maxP" : 80.0,
         "targetP" : 0.0,
         "targetV" : 0.0,
-        "targetQ" : 0.0,
         "node" : 14,
         "reactiveCapabilityCurve" : {
           "points" : [ {

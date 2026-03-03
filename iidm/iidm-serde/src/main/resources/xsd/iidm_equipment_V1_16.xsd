@@ -109,7 +109,7 @@
                         <xs:element name="generator" type="iidm:Generator"/>
                         <xs:element name="battery" type="iidm:Battery"/>
                         <xs:element name="load" type="iidm:Load"/>
-                        <xs:element name="shunt" type="iidm:ShuntCompensator"/>
+                        <xs:element name="shuntCompensator" type="iidm:ShuntCompensator"/>
                         <xs:element name="danglingLine" type="iidm:DanglingLine"/>
                         <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensator"/>
                         <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
@@ -322,13 +322,10 @@
                         <xs:element name="shuntLinearModel" type="iidm:ShuntLinearModel"/>
                         <xs:element name="shuntNonLinearModel" type="iidm:ShuntNonLinearModel"/>
                     </xs:choice>
-                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                 </xs:sequence>
                 <xs:attribute name="sectionCount" use="optional" type="xs:int"/>
                 <xs:attribute name="solvedSectionCount" type="xs:int"/>
-                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
-                <xs:attribute name="targetV" use="optional" type="xs:double"/>
-                <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -405,14 +402,12 @@
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
-                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                 </xs:sequence>
                 <xs:attribute name="bMin" use="required" type="xs:double"/>
                 <xs:attribute name="bMax" use="required" type="xs:double"/>
-                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
-                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
-                <xs:attribute name="regulationMode" use="optional" type="iidm:StaticVarCompensatorRegulationMode"/>
-                <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
+                <xs:attribute name="targetQ" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -599,10 +594,10 @@
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                 </xs:sequence>
-                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
-                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
-                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
+                <xs:attribute name="targetQ" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -774,11 +769,10 @@
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
-                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                    <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                 </xs:sequence>
-                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
-                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
-                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
+                <xs:attribute name="targetQ" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

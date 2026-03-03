@@ -5,12 +5,13 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1" name="Bus 1       " v="146.28" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="232.392" targetV="146.28" targetQ="-16.549" bus="B1" connectableBus="B1">
+            <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="232.392" targetV="146.28" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
                 <iidm:voltageRegulation targetValue="-16.549" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
-            <iidm:vscConverterStation id="VscConverter-1-VSC         " voltageRegulatorOn="true" lossFactor="9.9999E-4" voltageSetpoint="138.0" reactivePowerSetpoint="0.0" bus="B1" connectableBus="B1">
+            <iidm:vscConverterStation id="VscConverter-1-VSC         " lossFactor="9.9999E-4" targetQ="0.0" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="-250.0" maxQ="300.0"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="138.0"/>
             </iidm:vscConverterStation>
             <iidm:lccConverterStation id="LccConverter-1-TWO-TERM-DC  " name="TWO-TERM-DC  " lossFactor="0.0" powerFactor="0.75" bus="B1" connectableBus="B1"/>
         </iidm:voltageLevel>
@@ -21,8 +22,9 @@
                 <iidm:bus id="B2" name="Bus 2       " v="144.20999999999998" angle="-4.9826"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" bus="B2" connectableBus="B2"/>
-            <iidm:vscConverterStation id="VscConverter-2-VSC         " voltageRegulatorOn="false" lossFactor="0.002" voltageSetpoint="138.0" reactivePowerSetpoint="0.11180423740823946" bus="B2" connectableBus="B2">
+            <iidm:vscConverterStation id="VscConverter-2-VSC         " lossFactor="0.002" targetV="138.0" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetValue="0.11180423740823946"/>
             </iidm:vscConverterStation>
             <iidm:lccConverterStation id="LccConverter-2-TWO-TERM-DC  " name="TWO-TERM-DC  " lossFactor="0.0" powerFactor="0.75" bus="B2" connectableBus="B2"/>
         </iidm:voltageLevel>
