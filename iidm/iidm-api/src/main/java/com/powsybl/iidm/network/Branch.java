@@ -175,8 +175,8 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     /**
      * <p>Set all the existing {@link OperationalLimitsGroup} whose id match the <code>predicate</code> as selected.</p>
      * @param side the side on which to select the groups based on the predicate
-     * @param operationalLimitsGroupIdPredicate a predicate dictating which groups must be activated.
-     *                                          All groups whose ID would return true given the predicate will be activated.
+     * @param operationalLimitsGroupIdPredicate a predicate dictating which groups must be activated.<br>
+     *                                          All groups whose ID would return true given the predicate will be activated.<br>
      *                                          All groups whose ID would return false will stay in the same state as before.
      */
     void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate);

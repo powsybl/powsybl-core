@@ -98,10 +98,9 @@ public interface FlowsLimitsHolder {
      * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(String...)}.
      * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup()}
      * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup(String)}
-     * @param operationalLimitsGroupIdPredicate a predicate dictating which groups must be activated.
-     *                                          All groups whose ID would return true given the predicate will be activated
-     *                                          All groups whose ID would return false will stay in the same state as before,
-     *                                          groups that do not match will not be unselected.
+     * @param operationalLimitsGroupIdPredicate a predicate dictating which groups must be activated.<br>
+     *                                          All groups whose ID would return true given the predicate will be activated<br>
+     *                                          All groups whose ID would return false will stay in the same state as before.
      */
     default void addSelectedOperationalLimitsGroupByPredicate(Predicate<String> operationalLimitsGroupIdPredicate) {
         addSelectedOperationalLimitsGroups(
