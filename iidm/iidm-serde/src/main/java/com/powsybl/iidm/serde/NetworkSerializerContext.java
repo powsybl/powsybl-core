@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
@@ -14,6 +15,7 @@ import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -26,6 +28,7 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
     private final boolean valid;
     private final Set<Identifiable> exportedEquipments;
     private final Map<String, TopologyLevel> voltageLevelExportTopologyLevel;
+    private final Map<String, List<Extension<? extends Identifiable<?>>>> extinctExtensionsToSerializeByIdentifiable;
 
     NetworkSerializerContext(Anonymizer anonymizer, TreeDataWriter writer, ExportOptions options, BusFilter filter, IidmVersion version, boolean valid) {
         super(anonymizer, version);
@@ -35,6 +38,7 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
         this.valid = valid;
         this.exportedEquipments = new HashSet<>();
         this.voltageLevelExportTopologyLevel = new HashMap<>();
+        this.extinctExtensionsToSerializeByIdentifiable = new HashMap<>();
     }
 
     @Override
@@ -83,5 +87,15 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
 
     public TopologyLevel getVoltageLevelExportTopologyLevel(String voltageLevelId) {
         return voltageLevelExportTopologyLevel.get(voltageLevelId);
+    }
+
+    public void addExtinctExtensionsToSerialize(String identifiableId, Extension<? extends Identifiable<?>> extension) {
+        extinctExtensionsToSerializeByIdentifiable.computeIfAbsent(identifiableId, k -> new ArrayList<>()).add(extension);
+    }
+
+    public Stream<Extension<Identifiable<?>>> getExtinctExtensionsToSerialize(String identifiableId) {
+        return extinctExtensionsToSerializeByIdentifiable.containsKey(identifiableId) ?
+            extinctExtensionsToSerializeByIdentifiable.get(identifiableId).stream()
+                    .map(e -> (Extension<Identifiable<?>>) e) : Stream.empty();
     }
 }
