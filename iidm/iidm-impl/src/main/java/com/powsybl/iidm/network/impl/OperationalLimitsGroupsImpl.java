@@ -152,8 +152,9 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public void deselectOperationalLimitsGroups(String... ids) {
         for (String id : ids) {
-            selectedLimitsIds.remove(id);
-            notifyDeselect(id);
+            if (selectedLimitsIds.remove(id)) {
+                notifyDeselect(id);
+            }
         }
     }
 
