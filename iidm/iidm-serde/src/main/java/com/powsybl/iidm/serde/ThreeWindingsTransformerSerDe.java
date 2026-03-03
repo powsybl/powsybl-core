@@ -73,9 +73,9 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
             writeSelectedGroupId(3, twt.getLeg3().getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter());
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
-            writeAllSelectedGroupIds(ThreeSides.ONE, twt, context.getWriter());
-            writeAllSelectedGroupIds(ThreeSides.TWO, twt, context.getWriter());
-            writeAllSelectedGroupIds(ThreeSides.THREE, twt, context.getWriter());
+            writeAllSelectedGroupIds(twt, ThreeSides.ONE, context.getWriter());
+            writeAllSelectedGroupIds(twt, ThreeSides.TWO, context.getWriter());
+            writeAllSelectedGroupIds(twt, ThreeSides.THREE, context.getWriter());
         });
     }
 
@@ -173,9 +173,9 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
             readSelectedGroupId(3, twt.getLeg3()::setSelectedOperationalLimitsGroup, context);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
-            readAllSelectedGroupIds(ThreeSides.ONE, twt, context);
-            readAllSelectedGroupIds(ThreeSides.TWO, twt, context);
-            readAllSelectedGroupIds(ThreeSides.THREE, twt, context);
+            readAllSelectedGroupIds(twt, ThreeSides.ONE, context);
+            readAllSelectedGroupIds(twt, ThreeSides.TWO, context);
+            readAllSelectedGroupIds(twt, ThreeSides.THREE, context);
         });
         return twt;
     }

@@ -48,8 +48,8 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
             writeSelectedGroupId(2, l.getSelectedOperationalLimitsGroupId2().orElse(null), context.getWriter());
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
-            writeAllSelectedGroupIds(TwoSides.ONE, l, context.getWriter());
-            writeAllSelectedGroupIds(TwoSides.TWO, l, context.getWriter());
+            writeAllSelectedGroupIds(l, TwoSides.ONE, context.getWriter());
+            writeAllSelectedGroupIds(l, TwoSides.TWO, context.getWriter());
         });
     }
 
@@ -87,8 +87,8 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
             readSelectedGroupId(2, l::setSelectedOperationalLimitsGroup2, context);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
-            readAllSelectedGroupIds(TwoSides.ONE, l, context);
-            readAllSelectedGroupIds(TwoSides.TWO, l, context);
+            readAllSelectedGroupIds(l, TwoSides.ONE, context);
+            readAllSelectedGroupIds(l, TwoSides.TWO, context);
         });
         return l;
     }

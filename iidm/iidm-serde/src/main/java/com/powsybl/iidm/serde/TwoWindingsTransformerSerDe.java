@@ -46,8 +46,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
             writeSelectedGroupId(2, twt.getSelectedOperationalLimitsGroupId2().orElse(null), context.getWriter());
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
-            writeAllSelectedGroupIds(TwoSides.ONE, twt, context.getWriter());
-            writeAllSelectedGroupIds(TwoSides.TWO, twt, context.getWriter());
+            writeAllSelectedGroupIds(twt, TwoSides.ONE, context.getWriter());
+            writeAllSelectedGroupIds(twt, TwoSides.TWO, context.getWriter());
         });
     }
 
@@ -94,8 +94,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
             readSelectedGroupId(2, twt::setSelectedOperationalLimitsGroup2, context);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
-            readAllSelectedGroupIds(TwoSides.ONE, twt, context);
-            readAllSelectedGroupIds(TwoSides.TWO, twt, context);
+            readAllSelectedGroupIds(twt, TwoSides.ONE, context);
+            readAllSelectedGroupIds(twt, TwoSides.TWO, context);
         });
         return twt;
     }

@@ -346,11 +346,12 @@ public final class ConnectableSerDeUtil {
 
     /**
      * Write all the ids of the selected {@link OperationalLimitsGroup} of the <code>branch</code> on the <code>side</code> using the <code>writer</code> for serialization
-     * @param side the side of the branch for which we want to write all the ids of the selected {@link OperationalLimitsGroup}. Cannot be null
+     *
      * @param branch the branch on which to get the limits group
+     * @param side   the side of the branch for which we want to write all the ids of the selected {@link OperationalLimitsGroup}. Cannot be null
      * @param writer to serialize the data
      */
-    static void writeAllSelectedGroupIds(TwoSides side, Branch<?> branch, TreeDataWriter writer) {
+    static void writeAllSelectedGroupIds(Branch<?> branch, TwoSides side, TreeDataWriter writer) {
         Objects.requireNonNull(side);
         String suffix = String.valueOf(side.getNum());
         writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, branch.getAllSelectedOperationalLimitsGroupIds(side));
@@ -358,11 +359,12 @@ public final class ConnectableSerDeUtil {
 
     /**
      * Write all the ids of the selected {@link OperationalLimitsGroup} of the <code>transformer</code> on the <code>side</code> using the <code>writer</code> for serialization
-     * @param side the side of the transformer for which we want to write all the ids of the selected {@link OperationalLimitsGroup}. Cannot be null
+     *
      * @param transformer the {@link ThreeWindingsTransformer} on which to get the limits group
-     * @param writer to serialize the data
+     * @param side        the side of the transformer for which we want to write all the ids of the selected {@link OperationalLimitsGroup}. Cannot be null
+     * @param writer      to serialize the data
      */
-    static void writeAllSelectedGroupIds(ThreeSides side, ThreeWindingsTransformer transformer, TreeDataWriter writer) {
+    static void writeAllSelectedGroupIds(ThreeWindingsTransformer transformer, ThreeSides side, TreeDataWriter writer) {
         Objects.requireNonNull(side);
         String suffix = String.valueOf(side.getNum());
         writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, transformer.getLeg(side).getAllSelectedOperationalLimitsGroupIds());
@@ -387,11 +389,12 @@ public final class ConnectableSerDeUtil {
 
     /**
      * Read all the ids of the selected {@link OperationalLimitsGroup} to be added using to the <code>side</code> of the <code>branch</code>
-     * @param side the side on which to add the values. Cannot be null
-     * @param branch the branch on which to add the selected groups
+     *
+     * @param branch  the branch on which to add the selected groups
+     * @param side    the side on which to add the values. Cannot be null
      * @param context to deserialize the data
      */
-    static void readAllSelectedGroupIds(TwoSides side, Branch<?> branch, NetworkDeserializerContext context) {
+    static void readAllSelectedGroupIds(Branch<?> branch, TwoSides side, NetworkDeserializerContext context) {
         Objects.requireNonNull(side);
         String suffix = String.valueOf(side.getNum());
         Collection<String> allSelectedGroupIds = Objects.requireNonNullElse(context.getReader().readStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix), List.of());
@@ -400,11 +403,12 @@ public final class ConnectableSerDeUtil {
 
     /**
      * Read all the ids of the selected {@link OperationalLimitsGroup} to be added using to the <code>side</code> of the <code>transformer</code>
-     * @param side the side on which to add the values. Cannot be null
+     *
      * @param transformer the {@link ThreeWindingsTransformer} on which to add the selected groups
-     * @param context to deserialize the data
+     * @param side        the side on which to add the values. Cannot be null
+     * @param context     to deserialize the data
      */
-    static void readAllSelectedGroupIds(ThreeSides side, ThreeWindingsTransformer transformer, NetworkDeserializerContext context) {
+    static void readAllSelectedGroupIds(ThreeWindingsTransformer transformer, ThreeSides side, NetworkDeserializerContext context) {
         Objects.requireNonNull(side);
         String suffix = String.valueOf(side.getNum());
         Collection<String> allSelectedGroupIds = Objects.requireNonNullElse(context.getReader().readStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix), List.of());
