@@ -795,5 +795,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @param side the side of the branch to look at
      * @param type the type of the limit
      */
-    Collection<Overload> checkAllTemporaryLimits(TwoSides side, LimitType type);
+    default Collection<Overload> checkAllTemporaryLimits(TwoSides side, LimitType type) {
+        return checkAllTemporaryLimits(side, 1, type);
+    }
 }

@@ -497,11 +497,6 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
     }
 
-    @Override
-    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, LimitType type) {
-        return checkAllTemporaryLimits(side, 1, type);
-    }
-
     public double getValueForLimit(Terminal t, LimitType type) {
         return BranchUtil.getValueForLimit(t, type);
     }
