@@ -138,8 +138,8 @@ public interface FlowsLimitsHolder {
     void deselectOperationalLimitsGroups(String... ids);
 
     /**
-     * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup}.
-     * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup}.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
      */
     default Optional<CurrentLimits> getCurrentLimits() {
         return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getCurrentLimits);
@@ -164,8 +164,8 @@ public interface FlowsLimitsHolder {
     }
 
     /**
-     * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup}.
-     * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup}.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
      */
     default CurrentLimits getNullableCurrentLimits() {
         return getCurrentLimits().orElse(null);
@@ -217,16 +217,16 @@ public interface FlowsLimitsHolder {
     }
 
     /**
-     * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup}.
-     * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
+     * Get the {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup}.
+     * @return {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
      */
     default ActivePowerLimits getNullableActivePowerLimits() {
         return getActivePowerLimits().orElse(null);
     }
 
     /**
-     * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup}.
-     * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} if any, an empty {@link Optional} otherwise.
+     * Get the {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup}.
+     * @return {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} if any, an empty {@link Optional} otherwise.
      */
     default Optional<ApparentPowerLimits> getApparentPowerLimits() {
         return getSelectedOperationalLimitsGroup().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
@@ -251,8 +251,8 @@ public interface FlowsLimitsHolder {
     }
 
     /**
-     * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup}.
-     * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
+     * Get the {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup}.
+     * @return {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} if any, <code>null</code> otherwise.
      */
     default ApparentPowerLimits getNullableApparentPowerLimits() {
         return getApparentPowerLimits().orElse(null);

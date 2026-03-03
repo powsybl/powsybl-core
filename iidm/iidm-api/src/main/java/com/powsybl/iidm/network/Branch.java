@@ -222,48 +222,48 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     void cancelSelectedOperationalLimitsGroup1();
 
     /**
-     * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
      */
     default Optional<CurrentLimits> getCurrentLimits1() {
         return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getCurrentLimits);
     }
 
     /**
-     * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
      */
     default CurrentLimits getNullableCurrentLimits1() {
         return getCurrentLimits1().orElse(null);
     }
 
     /**
-     * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, an empty {@link Optional} otherwise.
+     * Get the {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, an empty {@link Optional} otherwise.
      */
     default Optional<ActivePowerLimits> getActivePowerLimits1() {
         return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getActivePowerLimits);
     }
 
     /**
-     * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
+     * Get the {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
      */
     default ActivePowerLimits getNullableActivePowerLimits1() {
         return getActivePowerLimits1().orElse(null);
     }
 
     /**
-     * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, an empty {@link Optional} otherwise.
+     * Get the {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, an empty {@link Optional} otherwise.
      */
     default Optional<ApparentPowerLimits> getApparentPowerLimits1() {
         return getSelectedOperationalLimitsGroup1().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
     /**
-     * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 1.
-     * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
+     * Get the {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1.
+     * @return {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 1 if any, <code>null</code> otherwise.
      */
     default ApparentPowerLimits getNullableApparentPowerLimits1() {
         return getApparentPowerLimits1().orElse(null);
@@ -453,48 +453,48 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     void cancelSelectedOperationalLimitsGroup2();
 
     /**
-     * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
      */
     default Optional<CurrentLimits> getCurrentLimits2() {
         return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getCurrentLimits);
     }
 
     /**
-     * Get the {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link CurrentLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
+     * Get the {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link CurrentLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
      */
     default CurrentLimits getNullableCurrentLimits2() {
         return getCurrentLimits2().orElse(null);
     }
 
     /**
-     * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, an empty {@link Optional} otherwise.
+     * Get the {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, an empty {@link Optional} otherwise.
      */
     default Optional<ActivePowerLimits> getActivePowerLimits2() {
         return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getActivePowerLimits);
     }
 
     /**
-     * Get the {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link ActivePowerLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
+     * Get the {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link ActivePowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
      */
     default ActivePowerLimits getNullableActivePowerLimits2() {
         return getActivePowerLimits2().orElse(null);
     }
 
     /**
-     * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, an empty {@link Optional} otherwise.
+     * Get the {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, an empty {@link Optional} otherwise.
      */
     default Optional<ApparentPowerLimits> getApparentPowerLimits2() {
         return getSelectedOperationalLimitsGroup2().flatMap(OperationalLimitsGroup::getApparentPowerLimits);
     }
 
     /**
-     * Get the {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 2.
-     * @return {@link ApparentPowerLimits} of the selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
+     * Get the {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2.
+     * @return {@link ApparentPowerLimits} of the last selected {@link OperationalLimitsGroup} on side 2 if any, <code>null</code> otherwise.
      */
     default ApparentPowerLimits getNullableApparentPowerLimits2() {
         return getApparentPowerLimits2().orElse(null);
