@@ -461,13 +461,10 @@ public interface LimitViolationDetector {
      * @return <code>true</code> if no overload was detected, <code>false</code> otherwise.
      */
     default boolean checkTemporary(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        List<LimitViolation> limitViolationCollector = new ArrayList<>();
         LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitReductionValue);
-        LimitViolationDetection.checkLimitViolation(branch, side, value, type, Set.of(LoadingLimitType.TATL), limitsComputer, limitViolationCollector::add);
-        for (LimitViolation limitViolation : limitViolationCollector) {
-            consumer.accept(limitViolation);
-        }
-        return limitViolationCollector.isEmpty();
+        LimitViolationConsumerWrapper wrapper = new LimitViolationConsumerWrapper(consumer);
+        LimitViolationDetection.checkLimitViolation(branch, side, value, type, Set.of(LoadingLimitType.TATL), limitsComputer, wrapper);
+        return wrapper.wasUsed;
     }
 
     /**
@@ -475,12 +472,25 @@ public interface LimitViolationDetector {
      * @return <code>true</code> if no overload was detected, <code>false</code> otherwise.
      */
     default boolean checkTemporary(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        List<LimitViolation> limitViolationCollector = new ArrayList<>();
         LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitReductionValue);
-        LimitViolationDetection.checkLimitViolation(transformer, side, value, type, Set.of(LoadingLimitType.TATL), limitsComputer, limitViolationCollector::add);
-        for (LimitViolation limitViolation : limitViolationCollector) {
-            consumer.accept(limitViolation);
+        LimitViolationConsumerWrapper wrapper = new LimitViolationConsumerWrapper(consumer);
+        LimitViolationDetection.checkLimitViolation(transformer, side, value, type, Set.of(LoadingLimitType.TATL), limitsComputer, wrapper);
+        return wrapper.wasUsed;
+    }
+
+    class LimitViolationConsumerWrapper implements Consumer<LimitViolation> {
+        private boolean wasUsed;
+        private final Consumer<LimitViolation> consumer;
+
+        LimitViolationConsumerWrapper(Consumer<LimitViolation> consumer) {
+            this.wasUsed = false;
+            this.consumer = consumer;
         }
-        return limitViolationCollector.isEmpty();
+
+        @Override
+        public void accept(LimitViolation limitViolation) {
+            this.consumer.accept(limitViolation);
+            wasUsed = true;
+        }
     }
 }
