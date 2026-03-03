@@ -71,8 +71,9 @@ generator.newReactiveCapabilityCurve()
 Some equipment has operational limits regarding the current, active power or apparent power value, corresponding to the equipment's physical limitations (related to heating).
 
 Loading limits can be declined into active power limits (in MW), apparent power limits (in kVA) and current limits (in A).
-They may be set for [lines](./network_subnetwork.md#line), [tie lines](./network_subnetwork.md#tie-line),
-[dangling lines](./network_subnetwork.md#dangling-line), [two-winding transformers](./network_subnetwork.md#two-winding-transformer) and [three-winding transformers](./network_subnetwork.md#three-winding-transformer). The active power limits are in absolute value.
+They may be set for [lines](./network_subnetwork.md#line), [dangling lines](./network_subnetwork.md#dangling-line),
+[tie lines](./network_subnetwork.md#tie-line) (via their dangling lines), [two-winding transformers](./network_subnetwork.md#two-winding-transformer)
+and [three-winding transformers](./network_subnetwork.md#three-winding-transformer). The active power limits are in absolute value.
 
 Loading limits are defined by one permanent limit and any number of temporary limits (zero or more).
 The permanent limit sets the current, active power or apparent power absolute value under which the equipment can safely
